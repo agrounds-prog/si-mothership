@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: si-mothership
+    runtime: docker
+    plan: starter
+    healthCheckPath: /api/health
+    envVars:
+      - key: MOTHERSHIP_TEACHER_KEY
+        sync: false
+      - key: MOTHERSHIP_DATA_DIR
+        value: /var/data
+      - key: MOTHERSHIP_NO_BROWSER
+        value: "1"
+    disk:
+      name: mothership-data
+      mountPath: /var/data
+      sizeGB: 1
