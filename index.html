@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SI Mothership v45.2 — Stability Pass</title>
+<title>SI Mothership v46 — Classroom Polish</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -414,6 +414,78 @@ button:not(:disabled):active{transform:translateY(1px)}
 .preview-qr-only{width:210px;min-height:210px;margin:18px auto 14px;border:2px dashed #42dcff66;border-radius:18px;background:linear-gradient(180deg,#0a223a,#07182b);display:grid;place-items:center;padding:22px;text-align:center;box-shadow:inset 0 0 30px #00d9ff10}
 .preview-qr-only strong{display:block;font-size:25px;letter-spacing:.12em;color:#58e6ff;margin-bottom:8px}.preview-qr-only span{display:block;color:#9cb3ce;font-size:13px;line-height:1.5}.preview-test-code{font-size:12px!important;color:#8fa8c6!important;margin-top:8px}.join-lobby .preview-live-note{max-width:620px;margin:10px auto 0;color:#9fb6d2;font-size:13px;line-height:1.5}
 </style>
+
+<style id="v46-classroom-polish">
+/* v46 — CLASSROOM POLISH. Visual-only enhancements layered over v45.2 stability. */
+:root{--v46-ease:cubic-bezier(.2,.75,.2,1)}
+@keyframes v46-rise{0%{opacity:0;transform:translateY(12px) scale(.985)}100%{opacity:1;transform:none}}
+@keyframes v46-pulse{0%,100%{box-shadow:0 0 0 0 currentColor}50%{box-shadow:0 0 0 7px transparent}}
+@keyframes v46-scan{0%{transform:translateX(-125%)}100%{transform:translateX(225%)}}
+@keyframes v46-beacon{0%,100%{filter:brightness(1);transform:scale(1)}50%{filter:brightness(1.22);transform:scale(1.035)}}
+.activity-lobby-public,.activity-wait,.presentation-public,.response-slide,.minefield-public,.vector-public,.board-public-wrap,.orbit-public,.pixel-public{animation:v46-rise .28s var(--v46-ease)}
+.activity-lobby-public{position:relative;isolation:isolate;overflow:hidden;padding:34px 28px;border:1px solid #304d70;border-radius:22px;background:radial-gradient(circle at 50% 22%,#17395f,#081426 64%)}
+.activity-lobby-public:before{content:"";position:absolute;top:0;bottom:0;width:34%;background:linear-gradient(90deg,transparent,#7aeaff12,transparent);animation:v46-scan 3.6s linear infinite;pointer-events:none;z-index:-1}
+.activity-lobby-public .activity-app-icon,.activity-wait .activity-app-icon{filter:drop-shadow(0 0 20px #5be8ff55);animation:v46-beacon 2.2s ease-in-out infinite}
+.lobby-status-pill{display:inline-flex!important;align-items:center;gap:8px;padding:9px 14px!important;border-color:#31708c!important;background:#0b2334!important;color:#baf5ff!important;font-weight:900;letter-spacing:.03em}
+.lobby-status-pill:before{content:"";width:8px;height:8px;border-radius:50%;background:#5ae7a1;box-shadow:0 0 12px #5ae7a1}
+
+/* Student control deck: stronger app identity and tactile controls. */
+.student-control-zone{--student-app:#5be8ff;position:relative;border-top-color:color-mix(in srgb,var(--student-app) 40%,#233957)!important;background:linear-gradient(180deg,#091629,#07111f)}
+.student-control-zone[data-app="presentation"]{--student-app:#5be8ff}
+.student-control-zone[data-app="minefield"]{--student-app:#a77bff}
+.student-control-zone[data-app="vector"]{--student-app:#45e1c5}
+.student-control-zone[data-app="board"]{--student-app:#ffb15e}
+.student-control-zone[data-app="orbit"]{--student-app:#ba7cff}
+.student-control-zone[data-app="pixel"]{--student-app:#ff7894}
+.student-control-zone .student-control-label b{color:var(--student-app)!important;text-shadow:0 0 15px color-mix(in srgb,var(--student-app) 45%,transparent)}
+.student-control-zone:before{content:"";position:absolute;left:0;right:0;top:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--student-app),transparent);opacity:.72;pointer-events:none}
+.student-actions button{transition:transform .11s ease,border-color .14s ease,box-shadow .14s ease,filter .14s ease}
+.student-actions button:not(:disabled):active{transform:scale(.965);filter:brightness(1.15)}
+.student-actions button:not(:disabled):focus-visible{outline:3px solid color-mix(in srgb,var(--student-app) 65%,white);outline-offset:2px}
+.student-actions .big-choice.on{animation:v46-beacon 1.5s ease-in-out infinite}
+
+/* Dedicated shared screen = clean projector canvas. */
+body.role-shared{overflow:hidden;background:#030812}
+body.role-shared .shared-shell{padding:0!important}
+body.role-shared .shared-screen{height:100dvh;min-height:100dvh;border:0!important;border-radius:0!important;box-shadow:none!important;background:radial-gradient(circle at 50% 36%,#14365d,#06101f 68%)!important}
+body.role-shared .shared-screen .mirror-top,body.role-shared .shared-screen .mirror-footer{background:#06101fdd;backdrop-filter:blur(8px)}
+body.role-shared .shared-screen .mirror-content{position:relative;padding:28px 42px}
+body.role-shared .shared-screen .mirror-content:before{content:"";position:absolute;inset:15px;border:1px solid #5be8ff16;border-radius:18px;pointer-events:none}
+body.role-shared .shared-screen .mirror-content>*{animation:v46-rise .3s var(--v46-ease)}
+body.role-shared .shared-screen .mirror-footer{color:#7189a8}
+
+/* MINEFIELD: make turn state and beacon clues easier to read without leaking hidden cells. */
+.minefield-cell{transition:transform .14s var(--v46-ease),border-color .15s ease,box-shadow .15s ease,filter .15s ease}
+.minefield-cell.selectable:not(:disabled){cursor:crosshair}
+.minefield-cell.ship{animation:v46-beacon 1.7s ease-in-out infinite}
+.minefield-cell.selected{transform:scale(1.045)!important}
+.minefield-cell.mine{box-shadow:inset 0 0 22px #ff45694a,0 0 20px #ff45692b!important}
+.minefield-cell.extraction.revealed{animation:v46-beacon 1.15s ease-in-out infinite;box-shadow:inset 0 0 22px #78e5a933,0 0 24px #78e5a955!important}
+.mf-clue{display:flex!important;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;line-height:1}
+.mf-clue b{font-size:16px}.mf-clue small{font-size:9px;color:#78e5a9;letter-spacing:.02em}
+.minefield-narrator-latest{font-size:clamp(13px,1.3vw,18px);line-height:1.45}
+.minefield-turn-banner{box-shadow:0 0 26px #5be8ff14,inset 0 1px 0 #ffffff0d!important}
+
+/* VECTOR: every pin is numbered, locked pins signal clearly, image gets a subtle targeting grid. */
+.vector-public-canvas,.vector-student-canvas{position:relative}
+.vector-public-canvas:before,.vector-student-canvas:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background-image:linear-gradient(#45e1c50b 1px,transparent 1px),linear-gradient(90deg,#45e1c50b 1px,transparent 1px);background-size:10% 10%}
+.vector-pin{transition:transform .15s var(--v46-ease),filter .15s ease!important}
+.vector-pin.locked{animation:v46-beacon 1.7s ease-in-out infinite}
+.vector-pin.locked:after{background:#eafffb!important;box-shadow:0 0 8px #eafffb}
+.vector-lock-count{box-shadow:inset 0 0 0 1px #45e1c51f}
+
+/* PIXEL REVEAL: Focus mode now communicates exact clarity progression. */
+.pixel-focus-meter{display:flex;align-items:center;gap:12px;margin:14px auto 0;max-width:560px}
+.pixel-focus-meter>div{height:9px;flex:1;border:1px solid #6b4153;border-radius:999px;background:#130f1b;overflow:hidden}
+.pixel-focus-meter i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#ff7894,#ffc55d,#75efb1);box-shadow:0 0 16px #ff789466;transition:width .28s var(--v46-ease)}
+.pixel-focus-meter span{min-width:88px;text-align:right;color:#ffc9d5;font-size:11px;font-weight:950;letter-spacing:.06em}
+.pixel-mode-badge{box-shadow:0 0 16px #ff789426}
+.pixel-tile.revealed{opacity:0!important;pointer-events:none}
+
+/* Keep motion comfortable when the OS asks for reduced animation. */
+@media(prefers-reduced-motion:reduce){.activity-lobby-public,.activity-wait,.presentation-public,.response-slide,.minefield-public,.vector-public,.board-public-wrap,.orbit-public,.pixel-public,.activity-app-icon,.minefield-cell.ship,.minefield-cell.extraction.revealed,.vector-pin.locked,.student-actions .big-choice.on{animation:none!important}.student-actions button,.minefield-cell,.vector-pin,.pixel-focus-meter i{transition:none!important}}
+@media(max-width:699px){.student-actions button{min-height:58px}.student-actions .big-choice{min-height:86px}.pixel-focus-meter{padding:0 8px}.minefield-cell{border-radius:7px!important}}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -687,7 +759,7 @@ function vectorPins(run=state.activityRun,lockedOnly=false){const out=[];for(con
 function vectorHit(pin,target,tol){const dx=pin.x-target.x,dy=pin.y-target.y;return Math.sqrt(dx*dx+dy*dy)<=tol}
 function vectorOnTargetCount(run=state.activityRun){const cfg=run?.vectorConfig;if(!cfg?.targets?.length)return null;let n=0;for(const s of connectedStudents()){const r=vectorResponse(s.n,run);if(!r.locked)continue;const ok=cfg.targets.every(t=>r.pins.some(p=>vectorHit(p,t,cfg.tolerance||9)));if(ok)n++}return n}
 function vectorTargetsMarkup(run=state.activityRun){const cfg=run?.vectorConfig;if(!cfg)return'';const px=Math.max(28,Math.round((cfg.tolerance||9)*5));return (cfg.targets||[]).map((t,i)=>`<span class="vector-target-live" style="left:${t.x}%;top:${t.y}%;width:${px}px;height:${px}px" title="Target ${i+1}"></span>`).join('')}
-function vectorPinsMarkup(run=state.activityRun,pins=[],showCrew=false){const multi=(run?.vectorConfig?.mode==='multi');return pins.map((p,i)=>`<span class="vector-pin ${p.locked?'locked':''}" style="left:${p.x}%;top:${p.y}%" aria-label="Vector marker ${i+1}">${multi?`<b>${(p.index??i)+1}</b>`:''}${showCrew?`<i>${esc(p.name)}</i>`:''}</span>`).join('')}
+function vectorPinsMarkup(run=state.activityRun,pins=[],showCrew=false){return pins.map((p,i)=>`<span class="vector-pin ${p.locked?'locked':''}" style="left:${p.x}%;top:${p.y}%" aria-label="Vector marker ${(p.index??i)+1}"><b>${(p.index??i)+1}</b>${showCrew?`<i>${esc(p.name)}</i>`:''}</span>`).join('')}
 function vectorHeatMarkup(pins){if(!pins.length)return'';const palette=['rgba(255,54,91,.72)','rgba(255,191,42,.65)','rgba(74,226,255,.6)'];const bg=pins.map((p,i)=>`radial-gradient(circle at ${p.x}% ${p.y}%, ${palette[i%palette.length]} 0, rgba(105,46,255,.34) 5%, rgba(0,0,0,0) 15%)`).join(',');return `<span class="vector-heat" style="background:${bg}"></span>`}
 function vectorCanvasMarkup(run=state.activityRun,{teacher=false,studentName='',big=false}={}){const cfg=run?.vectorConfig||ensureVectorDraft();let pins=[];if(studentName){const r=vectorResponse(studentName,run);pins=(r.pins||[]).map((p,i)=>({...p,name:studentName,index:i}))}else if(teacher){pins=vectorPins(run,false)}else{const reveal=cfg.revealMode==='live'||run.vectorReveal;pins=reveal?vectorPins(run,true):[]}const showTarget=teacher?!!run.vectorShowTarget:!!run.vectorShowTarget;const heat=!!run.vectorHeat&&!studentName;return `<div class="${studentName?'vector-student-canvas':'vector-public-canvas'}" ${studentName?'data-vector-student-canvas="1"':''}><img src="${cfg.image}" alt="VECTOR activity image">${heat?vectorHeatMarkup(pins):vectorPinsMarkup(run,pins,!!run.vectorShowCrew)}${showTarget?vectorTargetsMarkup(run):''}</div>`}
 function vectorSharedMarkup(run=state.activityRun,big=false){const cfg=run.vectorConfig,locked=vectorLockedCount(run),total=connectedStudents().length,onTarget=run.vectorShowTarget?vectorOnTargetCount(run):null;return `<div class="vector-public"><div class="vector-public-head"><div><span class="eyebrow">VECTOR</span><h3 style="font-size:${big?42:28}px">${esc(cfg.prompt)}</h3></div><span class="vector-lock-count">${locked} / ${total} VECTORS LOCKED</span></div>${vectorCanvasMarkup(run,{big})}${onTarget!==null?`<div class="submitted-banner"><b>${onTarget}</b> ON TARGET</div>`:''}<p style="color:#8fa7c2">${cfg.revealMode==='live'?'Vectors appear as students lock them.':run.vectorReveal?'Class vectors revealed.':'Responses are hidden until the teacher reveals them.'}</p></div>`}
@@ -800,7 +872,7 @@ function submitPixelGuess(){const run=state.activityRun,s=selectedStudent(),inpu
 function pixelTileMarkup(run=state.activityRun){const cfg=run.pixelConfig;if((cfg.revealStyle||'tiles')==='focus'){const stage=run.pixelRevealAll?10:Math.max(0,Math.min(10,Number(run.pixelFocusStage||0))),pct=stage*10;return `<div class="pixel-focus-board"><canvas data-pixel-focus-canvas="1" width="820" height="512" aria-label="Distorted mystery image"></canvas></div><div class="pixel-focus-meter"><span style="width:${pct}%"></span></div><div class="pixel-focus-stage">${stage>=10?'SIGNAL ACQUIRED':`${pct}% CLARITY`}</div>`}const d=pixelDims(cfg),revealed=pixelRevealedSet(run),all=run.pixelRevealAll;let tiles='';for(let i=0;i<d.cols*d.rows;i++)tiles+=`<span class="pixel-cover ${all||revealed.has(i)?'revealed':''}"></span>`;return `<div class="pixel-mystery-board"><img src="${cfg.image}" alt="Mystery image" onerror="this.onerror=null;this.src=pixelDemoImage()"><div class="pixel-cover-grid" style="grid-template-columns:repeat(${d.cols},1fr);grid-template-rows:repeat(${d.rows},1fr)">${tiles}</div></div>`}
 function paintPixelFocusCanvases(){const run=state.activityRun;if(!run||activeActivity()?.type!=='pixel'||(run.pixelConfig?.revealStyle||'tiles')!=='focus')return;const src=run.pixelConfig?.image||pixelDemoImage(),stage=run.pixelRevealAll?10:Math.max(0,Math.min(10,Number(run.pixelFocusStage||0))),progress=stage/10;const docs=[document];if(typeof secondScreenWindow!=='undefined'&&secondScreenWindow&&!secondScreenWindow.closed){try{docs.push(secondScreenWindow.document)}catch(e){}}docs.forEach(doc=>doc.querySelectorAll('[data-pixel-focus-canvas]').forEach(canvas=>{const ctx=canvas.getContext('2d'),img=new Image();img.onload=()=>{const W=canvas.width,H=canvas.height,ratio=Math.max(W/img.width,H/img.height),sw=W/ratio,sh=H/ratio,sx=(img.width-sw)/2,sy=(img.height-sh)/2;const lowW=Math.max(18,Math.round(20+progress*800)),lowH=Math.max(12,Math.round(lowW*H/W)),off=document.createElement('canvas');off.width=lowW;off.height=lowH;const ox=off.getContext('2d');ox.imageSmoothingEnabled=stage>=8;ox.drawImage(img,sx,sy,sw,sh,0,0,lowW,lowH);ctx.clearRect(0,0,W,H);ctx.imageSmoothingEnabled=stage>=9;const distortion=Math.round((1-progress)*24),slice=Math.max(16,Math.round(44-progress*24));for(let y=0;y<H;y+=slice){const h=Math.min(slice,H-y),offset=distortion?Math.sin((y/H)*Math.PI*5+stage*.7)*distortion:0;ctx.drawImage(off,0,Math.round(y/H*lowH),lowW,Math.max(1,Math.round(h/H*lowH)),offset,y,W,h)}canvas.style.filter=`blur(${Math.max(0,(1-progress)*4).toFixed(1)}px) contrast(${(1.55-progress*.55).toFixed(2)}) saturate(${(.35+progress*.65).toFixed(2)})`;canvas.style.transform=`scale(${(1.055-progress*.055).toFixed(3)}) skew(${((1-progress)*2.2).toFixed(2)}deg,${((1-progress)*-1.4).toFixed(2)}deg)`};img.onerror=()=>{if(src!==pixelDemoImage()){img.src=pixelDemoImage()}};img.src=src}))}
 function pixelResultsMarkup(run=state.activityRun,big=false){const guesses=pixelGuessMap(run),answer=run.pixelConfig.answer||'',groups={};for(const [name,g] of Object.entries(guesses)){const key=(g.guess||'').trim()||'Blank';const normalized=pixelNormalize(key);const existing=Object.keys(groups).find(k=>pixelNormalize(k)===normalized)||key;(groups[existing]??=[]).push(name)}const correct=Object.entries(guesses).filter(([,g])=>pixelCorrectGuess(g,run));correct.sort((a,b)=>(b[1].firstCorrectRemaining??-1)-(a[1].firstCorrectRemaining??-1));return `<div class="pixel-results"><span class="eyebrow">PIXEL REVEAL RESULTS</span><h3>${esc(answer||'Mystery Revealed')}</h3><div class="pixel-results-grid"><div>${pixelTileMarkup(run)}</div><div><div class="pixel-result-big">${correct.length}<small>crew members got it</small></div>${correct[0]?`<div class="pixel-first"><b>FIRST CORRECT GUESS</b><span>${esc(correct[0][0])} · ${correct[0][1].firstCorrectRemaining} ${run.pixelConfig?.revealStyle==='focus'?'clarity steps':'tiles'} remaining</span></div>`:''}<div class="pixel-guess-summary">${Object.entries(groups).sort((a,b)=>b[1].length-a[1].length).slice(0,8).map(([g,names])=>`<span><b>${esc(g)}</b> · ${names.length}</span>`).join('')}</div></div></div></div>`}
-function pixelSharedMarkup(run=state.activityRun,big=false){const done=pixelSubmittedCount(run),total=connectedStudents().length,remain=pixelRemaining(run),style=run.pixelConfig?.revealStyle||'tiles';if(run.pixelShowResults&&run.pixelRevealAll)return pixelResultsMarkup(run,big);return `<div class="pixel-public"><div class="pixel-public-head"><div><span class="eyebrow">PIXEL REVEAL <span class="pixel-mode-badge">${style==='focus'?'FOCUS REVEAL':'TILE REVEAL'}</span></span><h3 style="font-size:${big?44:28}px">WHAT’S HIDING UNDERNEATH?</h3></div><span>${done} / ${total} GUESSES LOCKED</span></div>${pixelTileMarkup(run)}${style==='tiles'?`<div class="pixel-remaining">${remain?`${remain} TILES REMAINING`:'SIGNAL ACQUIRED'}</div>`:''}</div>`}
+function pixelSharedMarkup(run=state.activityRun,big=false){const done=pixelSubmittedCount(run),total=connectedStudents().length,remain=pixelRemaining(run),style=run.pixelConfig?.revealStyle||'tiles',clarity=Math.max(0,Math.min(100,(run.pixelRevealAll?10:Number(run.pixelFocusStage||0))*10));if(run.pixelShowResults&&run.pixelRevealAll)return pixelResultsMarkup(run,big);return `<div class="pixel-public"><div class="pixel-public-head"><div><span class="eyebrow">PIXEL REVEAL <span class="pixel-mode-badge">${style==='focus'?'FOCUS REVEAL':'TILE REVEAL'}</span></span><h3 style="font-size:${big?44:28}px">WHAT’S HIDING UNDERNEATH?</h3></div><span>${done} / ${total} GUESSES LOCKED</span></div>${pixelTileMarkup(run)}${style==='tiles'?`<div class="pixel-remaining">${remain?`${remain} TILES REMAINING`:'SIGNAL ACQUIRED'}</div>`:`<div class="pixel-focus-meter"><div><i style="width:${clarity}%"></i></div><span>CLARITY ${clarity}%</span></div>`}</div>`}
 
 const initial=()=>({
  view:'teacher',screen:'lobby',rosterPage:0,readyEnabled:false,handEnabled:false,buzzEnabled:false,helpEnabled:false,pictureEnabled:false,
@@ -1817,10 +1889,11 @@ function wireStudentResponses(){
 
 function renderStudentControls(){
   const zone=$('#studentControls'),label=$('#studentControlLabel');if(!zone||!label)return;
-  if(studentNeedsJoin()){label.innerHTML='<b>STUDENT JOIN</b><span>Join the class first</span>';zone.className='student-actions';zone.innerHTML='';return}
+  const zoneWrap=zone.closest('.student-control-zone');if(zoneWrap)zoneWrap.dataset.app='home';
+  if(studentNeedsJoin()){if(zoneWrap)zoneWrap.dataset.app='join';label.innerHTML='<b>STUDENT JOIN</b><span>Join the class first</span>';zone.className='student-actions';zone.innerHTML='';return}
   const s=selectedStudent();
   if(state.activityRun&&state.activityRun.phase==='running'){
-    const a=activeActivity(),slide=currentSlide();
+    const a=activeActivity(),slide=currentSlide();if(zoneWrap)zoneWrap.dataset.app=a?.type||'activity';
     if(a.type==='board'){
       const run=state.activityRun,bs=boardState(run),hasControl=bs?.controller===s?.n;
       if(hasControl){label.innerHTML='<b>BOARD CONTROLS</b><span>Your device is the marker</span>';zone.className='student-actions board-student-tools';zone.innerHTML=`<button id="boardStudentMove" class="${boardStudentTool==='move'?'active':''}">✋<br>Move / Zoom ${Math.round(boardStudentZoom*100)}%</button><button data-board-student-tool="black" class="${boardStudentTool==='black'?'active':''}">●<br>Black</button><button data-board-student-tool="blue" class="${boardStudentTool==='blue'?'active':''}">●<br>Blue</button><button data-board-student-tool="red" class="${boardStudentTool==='red'?'active':''}">●<br>Red</button><button data-board-student-tool="eraser" class="${boardStudentTool==='eraser'?'active':''}">⌫<br>Eraser</button><div class="board-student-widths"><button data-board-student-width="3" class="${boardStudentWidth===3?'active':''}">Thin</button><button data-board-student-width="8" class="${boardStudentWidth===8?'active':''}">Med</button><button data-board-student-width="13" class="${boardStudentWidth===13?'active':''}">Thick</button><button data-board-student-width="19" class="${boardStudentWidth===19?'active':''}">XL</button></div>`;const mv=$('#boardStudentMove');if(mv)mv.onclick=()=>{boardStudentTool='move';boardStudentZoom=boardStudentZoom>=2.5?1:+(boardStudentZoom+.5).toFixed(1);renderPublic()};$$('[data-board-student-tool]').forEach(b=>b.onclick=()=>{boardStudentTool=b.dataset.boardStudentTool;renderPublic()});$$('[data-board-student-width]').forEach(b=>b.onclick=()=>{boardStudentWidth=Number(b.dataset.boardStudentWidth||8);const bs=boardState();if(bs)bs.studentWidth=boardStudentWidth;renderPublic()});return}
