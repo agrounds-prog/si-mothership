@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SI Mothership v48.7 — Help Message Inbox</title>
+<title>SI Mothership v48.8 — Help Inbox Stability</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -1843,8 +1843,8 @@ function renderRight(){
   const helpItems=(state.helpMessages||[]).filter(m=>!(state.helpDeletedIds||[]).includes(String(m.id))).sort((a,b)=>(b.at||0)-(a.at||0));
   $('#helpCount').textContent=helpItems.length;
   $('#helpRows').innerHTML=helpItems.length?helpItems.map(m=>`<div class="help-message-row ${m.seen?'':'unread'}"><span class="mini-bot" style="--c:${studentByName(m.name)?.c||'#ffc35d'}">🤖</span><span class="preview"><b>${esc(m.name)}</b><small>${esc(m.text||'I need help')}</small></span><button data-help-open="${esc(String(m.id))}">Read</button><button class="delete" data-help-delete="${esc(String(m.id))}">×</button></div>`).join(''):'<p class="empty">No help requests</p>';
-  $('[data-help-open]').forEach(b=>b.onclick=()=>openHelpViewer(b.dataset.helpOpen));
-  $('[data-help-delete]').forEach(b=>b.onclick=()=>deleteHelpMessage(b.dataset.helpDelete));
+  $$('[data-help-open]').forEach(b=>b.onclick=()=>openHelpViewer(b.dataset.helpOpen));
+  $$('[data-help-delete]').forEach(b=>b.onclick=()=>deleteHelpMessage(b.dataset.helpDelete));
   $('#photoCount').textContent=state.photos.length;$('#photoRows').innerHTML=state.photos.length?state.photos.slice(0,3).map(p=>`<div class="help-row photo-row"><img class="photo-thumb" data-photo-open="${p.id}" src="${p.data}" alt="Photo from ${p.name}"><span><b>${p.name}</b><small>${p.seen?'Viewed':'NEW PHOTO'}</small></span><button class="checkbtn" data-photo-view="${p.id}" title="View photo">⌕</button><button class="checkbtn photo-delete" data-photo-delete="${p.id}" title="Delete photo">×</button></div>`).join(''):'<p class="empty">No photos submitted</p>';
   $$('[data-photo-view]').forEach(b=>b.onclick=()=>openPhotoViewer(Number(b.dataset.photoView)));
   $$('[data-photo-open]').forEach(el=>el.onclick=()=>openPhotoViewer(Number(el.dataset.photoOpen)));
