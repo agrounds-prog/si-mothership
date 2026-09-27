@@ -34,7 +34,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "48.7"
+APP_VERSION = "48.9"
 
 PUBLIC_STORAGE_KEYS = {
     "siMothership.customAvatars.v1",
@@ -267,16 +267,23 @@ def merge_student_snapshot(canonical: Optional[dict], incoming: dict, token: str
             known_help_ids.add(mid)
     out["helpMessages"] = cur_help_messages
 
-    # Students may add their own photos only while the teacher's picture prompt is live.
-    # Teacher deletion/closure remains authoritative over delayed uploads.
+    # Students may send a photo whenever the teacher has Picture enabled.
+    # A separate picture prompt is optional; teacher deletion/disable remains authoritative.
     inc_photos = incoming.get("photos", []) if isinstance(incoming.get("photos"), list) else []
     cur_photos = out.get("photos", []) if isinstance(out.get("photos"), list) else []
-    if out.get("pictureEnabled") and out.get("picturePromptSent") and str(out.get("screen") or "") == "picture":
+    if out.get("pictureEnabled"):
         known_ids = {str(p.get("id")) for p in cur_photos if isinstance(p, dict)}
         for photo in inc_photos:
             if isinstance(photo, dict) and photo.get("name") == name and str(photo.get("id")) not in known_ids:
-                cur_photos.insert(0, copy.deepcopy(photo))
-                known_ids.add(str(photo.get("id")))
+                clean_photo = {
+                    "id": photo.get("id"),
+                    "name": name,
+                    "data": str(photo.get("data") or "")[:2500000],
+                    "seen": False,
+                }
+                if clean_photo["data"].startswith("data:image/"):
+                    cur_photos.insert(0, clean_photo)
+                    known_ids.add(str(clean_photo["id"]))
     out["photos"] = cur_photos
 
     can_run = out.get("activityRun")
