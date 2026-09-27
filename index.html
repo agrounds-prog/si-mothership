@@ -1349,6 +1349,7 @@ function activitySharedMarkup(big=false){
     const teamStrip=mode==='teams'?`<div class="minefield-team-strip">${Array.from({length:minefieldTeamCount(run)},(_,i)=>{const t=activeMinefield(run,i);return `<span class="minefield-team-pill ${minefieldTeamClass(i)} ${i===teamIndex?'active':''}">${minefieldTeamName(i)} · ${minefieldHullMarkup(t)}</span>`}).join('')}</div>`:'';
     return `<div class="minefield-public"><div class="minefield-topline"><span class="minefield-hull">${minefieldHullMarkup(mf)}</span><span class="minefield-navigator">${mode==='teams'?esc(minefieldTeamName(teamIndex))+' · ':''}NAVIGATOR · ${esc(nav?.n||'Waiting')}</span></div>${teamStrip}<h3 style="font-size:${big?42:28}px">MINEFIELD</h3>${minefieldNarrationMarkup(run,big,true)}${minefieldBoardMarkup(run,{big,teamIndex})}<div class="minefield-signal-legend"><span><b>NUMBER</b> nearby mines</span><span><b>ARROW + #</b> beacon signal</span></div><div class="minefield-message"><strong>Turn ${mf.turn}</strong> · ${esc(mf.message)}</div></div>`;
   }
+  if(a.type==='sketch'){return sketchSharedMarkup(run,big);}
   if(a.type==='board'){return boardSharedMarkup(run,big);}
   if(a.type==='vector'){return vectorSharedMarkup(run,big);}
   if(a.type==='orbit'){return orbitSharedMarkup(run,big);}
@@ -1450,6 +1451,14 @@ function studentMarkup(){
   if(state.activityRun){
     const a=activeActivity(),run=state.activityRun;
     if(run.phase==='lobby')return `<div class="student-prompt activity-wait"><span class="eyebrow">ACTIVITY LOBBY</span><div class="activity-app-icon">${appIconMarkup(activityIconId(a))}</div><h2>${esc(a.name)}</h2><p>You're in. Waiting for your teacher to begin…</p><div class="student-lobby-avatar">${studentAvatarBadgeMarkup(s)}</div></div>`;
+    if(a.type==='sketch'){
+      const sk=sketchState(run),artist=sketchArtist(run),isArtist=sk&&s&&sk.artist===s.n,guess=sk?.guesses?.[s?.n];
+      if(!sk)return '<div class="student-prompt"><h2>Sketch Signal is preparing…</h2></div>';
+      if(sk.reveal)return `<div class="sketch-solved-card"><span class="eyebrow">SIGNAL DECODED</span><div class="check">✓</div><h2>${esc(sk.word.toUpperCase())}</h2><p>Next artist is coming up.</p></div>`;
+      if(isArtist)return `<div class="student-prompt response-device sketch-student-secret"><span class="eyebrow">SKETCH SIGNAL · YOU ARE THE ARTIST</span><div class="sketch-secret-word">YOUR SIGNAL: ${esc(sk.word.toUpperCase())}</div><p>Don't say the word. Draw it for your crew.</p>${boardSurfaceMarkup(run,{editor:'student',student:true})}</div>`;
+      if(guess?.status==='accepted')return `<div class="sketch-solved-card"><span class="eyebrow">SKETCH SIGNAL</span><div class="check">✓</div><h2>SIGNAL DECODED!</h2><p>You got it. Keep the answer secret and watch the next artist.</p></div>`;
+      return `<div class="student-prompt"><span class="eyebrow">SKETCH SIGNAL</span><h2>What is ${esc(sk.artist)} drawing?</h2><input id="sketchGuessInput" class="sketch-guess-input" value="${guess?.status==='rejected'?'':esc(guess?.text||'')}" placeholder="Enter your guess…" autocomplete="off"><p>${guess?.status==='pending'?'Guess sent — waiting for teacher review.':'Guesses are private.'}</p></div>`;
+    }
     if(a.type==='board'){
       const b=boardState(run),hasControl=b?.controller===s?.n;
       if(hasControl)return `<div class="student-prompt response-device"><div class="board-student-board-head"><div><span class="eyebrow">BOARD · YOUR TURN</span><h2>${esc(b.title||'Shared Board')}</h2></div><span>Page ${(b.pageIndex||0)+1} / ${b.pages.length}</span></div>${boardSurfaceMarkup(run,{editor:'student',student:true})}<div class="prompt-caption">Your marks appear on the shared classroom board. Use Move/Zoom below when you need to pan around.</div></div>`;
@@ -1516,6 +1525,7 @@ function responseLabel(s){
   if(state.activityRun){
     const run=state.activityRun,a=activeActivity();
     if(run.phase==='lobby')return 'Activity lobby';
+    if(a?.type==='sketch'){const sk=sketchState(run),g=sk?.guesses?.[s.n];return sk?.artist===s.n?'ARTIST':g?.status==='accepted'?'DECODED':g?.status==='pending'?'GUESS SENT':'GUESSING'}
     if(a?.type==='board')return boardState(run)?.controller===s.n?'BOARD CONTROL':'';
     if(a?.type==='minefield'){const mode=minefieldMode(run);if(mode==='teacher'&&run.activeSide==='teacher')return 'Teacher turn';const side=mode==='teacher'?'class':null,nav=minefieldNavigator(run,side);return nav?.n===s.n?'NAVIGATOR':mode==='teacher'?'Class':'Crew'}
     if(a?.type==='vector'){const r=vectorResponse(s.n,run);return r.locked?'Vector locked':`${r.pins.length}/${vectorRequiredPins(run)} placed`}
@@ -2051,6 +2061,16 @@ function renderStudentControls(){
   const s=selectedStudent();
   if(state.activityRun&&state.activityRun.phase==='running'){
     const a=activeActivity(),slide=currentSlide();if(zoneWrap)zoneWrap.dataset.app=a?.type||'activity';
+    if(a.type==='sketch'){
+      const run=state.activityRun,sk=sketchState(run),isArtist=sk&&s&&sk.artist===s.n,guess=sk?.guesses?.[s?.n];
+      if(!sk){zone.innerHTML='';return}
+      if(sk.reveal){label.innerHTML='<b>SKETCH SIGNAL</b><span>Round complete</span>';zone.className='student-actions';zone.innerHTML='';return}
+      if(isArtist){label.innerHTML='<b>ARTIST CONTROLS</b><span>Draw the signal</span>';zone.className='student-actions board-student-tools';zone.innerHTML=`<button data-board-student-tool="black" class="${boardStudentTool==='black'?'active':''}">●<br>Black</button><button data-board-student-tool="blue" class="${boardStudentTool==='blue'?'active':''}">●<br>Blue</button><button data-board-student-tool="red" class="${boardStudentTool==='red'?'active':''}">●<br>Red</button><button data-board-student-tool="eraser" class="${boardStudentTool==='eraser'?'active':''}">⌫<br>Eraser</button><button id="sketchUndoBtn">↶<br>Undo</button><button id="sketchClearBtn">×<br>Clear</button>`;$$('[data-board-student-tool]').forEach(b=>b.onclick=()=>{boardStudentTool=b.dataset.boardStudentTool;renderPublic()});const u=$('#sketchUndoBtn');if(u)u.onclick=boardUndo;const c=$('#sketchClearBtn');if(c)c.onclick=boardClear;return}
+      label.innerHTML='<b>GUESS CONTROLS</b><span>Private response</span>';zone.className='student-actions orbit-student-controls';
+      if(guess?.status==='accepted'){zone.innerHTML='<button disabled>✓<br>Signal Decoded</button>';return}
+      if(guess?.status==='pending'){zone.innerHTML='<button disabled>…<br>Awaiting Review</button>';return}
+      zone.innerHTML='<button id="sendSketchGuessBtn">➤<br>Send Guess</button>';const send=$('#sendSketchGuessBtn');if(send)send.onclick=submitSketchGuess;const inp=$('#sketchGuessInput');if(inp)inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();submitSketchGuess()}};return;
+    }
     if(a.type==='board'){
       const run=state.activityRun,bs=boardState(run),hasControl=bs?.controller===s?.n;
       if(hasControl){label.innerHTML='<b>BOARD CONTROLS</b><span>Your device is the marker</span>';zone.className='student-actions board-student-tools';zone.innerHTML=`<button id="boardStudentMove" class="${boardStudentTool==='move'?'active':''}">✋<br>Move / Zoom ${Math.round(boardStudentZoom*100)}%</button><button data-board-student-tool="black" class="${boardStudentTool==='black'?'active':''}">●<br>Black</button><button data-board-student-tool="blue" class="${boardStudentTool==='blue'?'active':''}">●<br>Blue</button><button data-board-student-tool="red" class="${boardStudentTool==='red'?'active':''}">●<br>Red</button><button data-board-student-tool="eraser" class="${boardStudentTool==='eraser'?'active':''}">⌫<br>Eraser</button><div class="board-student-widths"><button data-board-student-width="3" class="${boardStudentWidth===3?'active':''}">Thin</button><button data-board-student-width="8" class="${boardStudentWidth===8?'active':''}">Med</button><button data-board-student-width="13" class="${boardStudentWidth===13?'active':''}">Thick</button><button data-board-student-width="19" class="${boardStudentWidth===19?'active':''}">XL</button></div>`;const mv=$('#boardStudentMove');if(mv)mv.onclick=()=>{boardStudentTool='move';boardStudentZoom=boardStudentZoom>=2.5?1:+(boardStudentZoom+.5).toFixed(1);renderPublic()};$$('[data-board-student-tool]').forEach(b=>b.onclick=()=>{boardStudentTool=b.dataset.boardStudentTool;renderPublic()});$$('[data-board-student-width]').forEach(b=>b.onclick=()=>{boardStudentWidth=Number(b.dataset.boardStudentWidth||8);const bs=boardState();if(bs)bs.studentWidth=boardStudentWidth;renderPublic()});return}
@@ -2222,7 +2242,7 @@ async function requestNewServerSession(){
   }catch(e){toast('Could not create a new server session');return null}
 }
 function renderPublic(){
-  $('#mirrorContent').innerHTML=sharedMarkup('normal');$('#sharedContent').innerHTML=sharedMarkup('big');$('#studentContent').innerHTML=studentMarkup();wireStudentJoin();wireStudentResponses();wireMinefieldStudent();wireVectorStudent();wireBoardStudent();wireOrbitStudent();renderStudentControls();requestAnimationFrame(paintPixelFocusCanvases);
+  $('#mirrorContent').innerHTML=sharedMarkup('normal');$('#sharedContent').innerHTML=sharedMarkup('big');$('#studentContent').innerHTML=studentMarkup();wireStudentJoin();wireStudentResponses();wireMinefieldStudent();wireVectorStudent();wireBoardStudent();wireSketchStudent();wireOrbitStudent();renderStudentControls();requestAnimationFrame(paintPixelFocusCanvases);
   const conn=$('#studentConnectionLabel');if(conn)conn.innerHTML=studentNeedsJoin()?'<span style="width:9px;height:9px;border-radius:50%;display:inline-block;background:#ffc35d;box-shadow:0 0 12px #ffc35d88"></span>&nbsp; Join Class':'<span class="pulse"></span>&nbsp; Connected';
   const label=state.ended?'ENDED':state.activityRun?(activeActivity()?.type==='board'?'BOARD LIVE':state.activityRun.phase==='lobby'?'ACTIVITY LOBBY':'ACTIVITY LIVE'):state.screen==='brb'?'WE’LL BE RIGHT BACK':state.screen.toUpperCase();$('#mirrorLabel').textContent=label;$('#sharedLabel').textContent=label;updateSecondScreen();
 }
