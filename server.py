@@ -34,6 +34,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+APP_VERSION = "45.2"
 
 PUBLIC_STORAGE_KEYS = {
     "siMothership.customAvatars.v1",
@@ -455,19 +456,27 @@ async def index(request: web.Request) -> web.Response:
         + "</script>"
     )
     text = text.replace("<head>", "<head>" + injected, 1)
-    return web.Response(text=text, content_type="text/html")
+    return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
 
 async def health(request: web.Request) -> web.Response:
+    role_counts = {"teacher": 0, "student": 0, "shared": 0, "other": 0}
+    for ws in list(CLIENTS):
+        if ws.closed:
+            continue
+        role = str(CLIENT_META.get(ws, {}).get("role") or "other")
+        role_counts[role if role in role_counts else "other"] += 1
     return web.json_response({
         "ok": True,
+        "version": APP_VERSION,
         "join_code": CURRENT_JOIN_CODE,
         "session_id": CURRENT_SESSION_ID,
         "public_origin": effective_origin(request),
         "clients": len(CLIENTS),
+        "client_roles": role_counts,
         "state_persisted": LATEST_STATE is not None,
         "database": DB_PATH.name,
-    })
+    }, headers={"Cache-Control": "no-store"})
 
 
 async def info(request: web.Request) -> web.Response:
@@ -487,11 +496,11 @@ async def join_check(request: web.Request) -> web.Response:
     code = (request.query.get("code") or "").strip().upper()
     sid = (request.query.get("sid") or "").strip()
     ok = code == CURRENT_JOIN_CODE and (not sid or sid == CURRENT_SESSION_ID)
-    return web.json_response({"ok": ok, "code": CURRENT_JOIN_CODE if ok else None, "session_id": CURRENT_SESSION_ID if ok else None})
+    return web.json_response({"ok": ok, "code": CURRENT_JOIN_CODE if ok else None, "session_id": CURRENT_SESSION_ID if ok else None}, headers={"Cache-Control": "no-store"})
 
 
 async def session_info(request: web.Request) -> web.Response:
-    return web.json_response({"ok": True, **session_urls(effective_origin(request))})
+    return web.json_response({"ok": True, **session_urls(effective_origin(request))}, headers={"Cache-Control": "no-store"})
 
 
 async def qr_png(request: web.Request) -> web.Response:
@@ -595,6 +604,27 @@ async def broadcast(payload: dict, exclude: Optional[web.WebSocketResponse] = No
         CLIENT_META.pop(ws, None)
 
 
+def student_connection_present(token: str = "", name: str = "") -> bool:
+    """Return True when another live student socket represents this student.
+
+    Refreshing a browser can briefly leave the old and new sockets alive at the
+    same time. Presence should not flip offline when only the old socket closes.
+    """
+    token = str(token or "")
+    name = str(name or "")
+    for candidate in list(CLIENTS):
+        if candidate.closed:
+            continue
+        meta = CLIENT_META.get(candidate, {})
+        if meta.get("role") != "student":
+            continue
+        if token and str(meta.get("student_token") or "") == token:
+            return True
+        if name and str(meta.get("student_name") or "") == name:
+            return True
+    return False
+
+
 async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
     role = (request.query.get("role") or "client").lower()
     if role == "teacher" and not teacher_authorized(request):
@@ -670,10 +700,13 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
         CLIENTS.discard(ws)
         CLIENT_META.pop(ws, None)
         if role == "student" and meta.get("student_name"):
-            try:
-                await broadcast({"type": "presence", "student_token": meta.get("student_token", ""), "student_name": meta.get("student_name", ""), "online": False})
-            except Exception:
-                pass
+            token = str(meta.get("student_token") or "")
+            name = str(meta.get("student_name") or "")
+            if not student_connection_present(token, name):
+                try:
+                    await broadcast({"type": "presence", "student_token": token, "student_name": name, "online": False})
+                except Exception:
+                    pass
     return ws
 
 
@@ -716,7 +749,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(" SI MOTHERSHIP v44 — RAILWAY READY")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — STABILITY PASS")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
