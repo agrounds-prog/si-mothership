@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SI Mothership v46.9 — SI+ Delete Fix</title>
+<title>SI Mothership v47.0 — Session Reset Fix</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -1021,8 +1021,8 @@ function connectNetworkSync(){
 }
 
 function readSyncedState(){try{const raw=localStorage.getItem(SESSION_SYNC_KEY);if(!raw)return null;const parsed=JSON.parse(raw);return parsed&&typeof parsed==='object'?parsed:null}catch(e){return null}}
-function sharedStateSnapshot(){const c=deepClone(state);delete c.view;delete c.rosterPage;delete c.selectedStudent;delete c.presentationEditor;delete c.editorSlide;delete c.customRosterOpen;delete c.rosterSetEditorId;delete c.avatarUploadPreview;delete c.avatarUploadName;return c}
-function mergeSyncedState(remote){if(!remote||typeof remote!=='object')return;const local={view:state.view,rosterPage:state.rosterPage,selectedStudent:state.selectedStudent,presentationEditor:state.presentationEditor,editorSlide:state.editorSlide,customRosterOpen:state.customRosterOpen,rosterSetEditorId:state.rosterSetEditorId,avatarUploadPreview:state.avatarUploadPreview,avatarUploadName:state.avatarUploadName};Object.assign(state,deepClone(remote));state.view=local.view;state.rosterPage=local.rosterPage;state.presentationEditor=local.presentationEditor;state.editorSlide=local.editorSlide;state.customRosterOpen=local.customRosterOpen;state.rosterSetEditorId=local.rosterSetEditorId||state.activeRosterSetId||'default';state.avatarUploadPreview=local.avatarUploadPreview;state.avatarUploadName=local.avatarUploadName;state.selectedStudent=SESSION_ROLE==='student'?(local.selectedStudent||SESSION_STUDENT):local.selectedStudent}
+function sharedStateSnapshot(){const c=deepClone(state);c.__sessionId=STUDENT_SESSION_ID||'';delete c.view;delete c.rosterPage;delete c.selectedStudent;delete c.presentationEditor;delete c.editorSlide;delete c.customRosterOpen;delete c.rosterSetEditorId;delete c.avatarUploadPreview;delete c.avatarUploadName;return c}
+function mergeSyncedState(remote){if(!remote||typeof remote!=='object')return;if(remote.__sessionId&&STUDENT_SESSION_ID&&remote.__sessionId!==STUDENT_SESSION_ID)return;const local={view:state.view,rosterPage:state.rosterPage,selectedStudent:state.selectedStudent,presentationEditor:state.presentationEditor,editorSlide:state.editorSlide,customRosterOpen:state.customRosterOpen,rosterSetEditorId:state.rosterSetEditorId,avatarUploadPreview:state.avatarUploadPreview,avatarUploadName:state.avatarUploadName};Object.assign(state,deepClone(remote));delete state.__sessionId;state.view=local.view;state.rosterPage=local.rosterPage;state.presentationEditor=local.presentationEditor;state.editorSlide=local.editorSlide;state.customRosterOpen=local.customRosterOpen;state.rosterSetEditorId=local.rosterSetEditorId||state.activeRosterSetId||'default';state.avatarUploadPreview=local.avatarUploadPreview;state.avatarUploadName=local.avatarUploadName;state.selectedStudent=SESSION_ROLE==='student'?(local.selectedStudent||SESSION_STUDENT):local.selectedStudent}
 function publishSyncedState(){
   if(syncApplying)return;
   const snap=sharedStateSnapshot();
@@ -1033,7 +1033,7 @@ function publishSyncedState(){
     try{networkSocket.send(JSON.stringify({type:'state',state:snap,role:SESSION_ROLE,student_token:ident?.student_token||'',student_name:ident?.student_name||''}))}catch(e){}
   }
 }
-function acceptSyncedState(remote){if(SESSION_ROLE==='student'&&boardDrawing&&state.activityRun&&activeActivity()?.type==='board'){deferredBoardRemoteState=deepClone(remote);return}syncApplying=true;try{mergeSyncedState(remote);if(SESSION_ROLE==='student')restoreStudentIdentity();render()}finally{syncApplying=false}}
+function acceptSyncedState(remote){if(!remote||typeof remote!=='object')return;if(remote.__sessionId&&STUDENT_SESSION_ID&&remote.__sessionId!==STUDENT_SESSION_ID)return;if(SESSION_ROLE==='student'&&boardDrawing&&state.activityRun&&activeActivity()?.type==='board'){deferredBoardRemoteState=deepClone(remote);return}syncApplying=true;try{mergeSyncedState(remote);if(SESSION_ROLE==='student')restoreStudentIdentity();render()}finally{syncApplying=false}}
 const hydrated=readSyncedState();
 let state=initial();
 if(hydrated)mergeSyncedState(hydrated);
@@ -2145,9 +2145,15 @@ function applyJoinCode(code,studentUrl=null,qrData=null,sessionId=null,sharedUrl
 async function requestNewServerSession(){
   if(!NETWORK_SYNC)return null;
   try{
+    try{localStorage.removeItem(SESSION_SYNC_KEY);localStorage.removeItem(SESSION_SYNC_EVENT_KEY)}catch(e){}
     const r=await fetch('/api/session/new',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
     if(!r.ok)throw new Error('session');
-    return await r.json();
+    const created=await r.json();
+    if(created&&created.code)applyJoinCode(created.code,created.student_url,created.qr_data,created.session_id,created.shared_url);
+    networkSessionReset=false;
+    networkReconnectAttempts=0;
+    try{localStorage.removeItem(SESSION_SYNC_KEY);localStorage.removeItem(SESSION_SYNC_EVENT_KEY)}catch(e){}
+    return created;
   }catch(e){toast('Could not create a new server session');return null}
 }
 function renderPublic(){
@@ -2160,7 +2166,6 @@ function render(){const cm=$('#connectedMetric');if(cm)cm.textContent=connectedS
 async function handleGenericAction(){
   if(state.ended){
     const created=await requestNewServerSession();
-    if(created&&created.code)applyJoinCode(created.code,created.student_url,created.qr_data,created.session_id,created.shared_url);
     state=initial();joinNameDraft='';joinAvatarDraft='';joinCodeDraft='';joinStep='code';
     $('#agendaText').value=state.agendaText;$('#agendaYoutube').value='';$('#picturePromptText').value=state.picturePrompt;render();toast('New session started');return}
   if(state.screen==='ready')state.students.forEach(s=>s.readyResponse='');if(state.screen==='emotion')state.students.forEach(s=>s.emotion='');if(state.screen==='understanding')state.students.forEach(s=>s.understanding='');state.promptActive=true;if(state.screen==='picture')state.picturePromptSent=true;render();toast('Prompt sent — watch the roster');
@@ -2229,7 +2234,7 @@ $('#endBtn').onclick=()=>{state.ended=true;state.activityRun=null;state.screen='
 const emergencyRail=$('#emergencyReturnBtn');if(emergencyRail)emergencyRail.onclick=()=>{if(state.activityRun)returnToClassroom('emergency')};
 $('#copyCode').onclick=async()=>{try{await navigator.clipboard.writeText(STUDENT_JOIN_CODE);toast('Join code copied')}catch(e){toast('Join code: '+STUDENT_JOIN_CODE)}};
 $('#launchSecondScreenBtn').onclick=launchSecondScreen;
-$('#resetBtn').onclick=async()=>{const created=await requestNewServerSession();if(created&&created.code)applyJoinCode(created.code,created.student_url,created.qr_data,created.session_id,created.shared_url);state=initial();joinNameDraft='';joinAvatarDraft='';joinCodeDraft='';joinStep='code';$('#agendaText').value=state.agendaText;$('#agendaYoutube').value='';$('#picturePromptText').value=state.picturePrompt;render();toast('Classroom reset — teacher library kept')};
+$('#resetBtn').onclick=async()=>{const created=await requestNewServerSession();if(NETWORK_SYNC&&!created)return;state=initial();joinNameDraft='';joinAvatarDraft='';joinCodeDraft='';joinStep='code';$('#agendaText').value=state.agendaText;$('#agendaYoutube').value='';$('#picturePromptText').value=state.picturePrompt;render();toast('Classroom reset — teacher library kept')};
 
 
 function applySessionRoleUI(){
