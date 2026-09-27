@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SI Mothership v48.6 — Roster Alerts & Rail Balance</title>
+<title>SI Mothership v48.7 — Help Message Inbox</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -700,6 +700,26 @@ body.role-shared .presentation-public .presentation-media-stack iframe{
   #teacher .right-rail .screen-dock{margin-top:0!important}
 }
 </style>
+
+<style id="v48-7-help-messages">
+.help-composer,.help-viewer{position:fixed;inset:0;z-index:100200;display:grid;place-items:center;padding:20px;background:#020813cc;backdrop-filter:blur(8px)}
+.help-composer.hidden,.help-viewer.hidden{display:none}
+.help-composer-card,.help-viewer-card{width:min(520px,94vw);border:1px solid #355674;border-radius:18px;background:linear-gradient(155deg,#0b1b30,#071322);box-shadow:0 28px 90px #0009;padding:16px}
+.help-composer-head,.help-viewer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.help-composer-head b,.help-viewer-head b{font-size:18px}.help-composer-head small,.help-viewer-head small{display:block;color:#8da2bd;margin-top:4px}
+.help-composer-head button,.help-viewer-head button{width:34px;height:34px;border:1px solid #355674;border-radius:9px;background:#10223b;color:#d9e8f7;font-size:20px}
+#helpComposerText{width:100%;min-height:140px;resize:vertical;border:1px solid #355674;border-radius:12px;background:#07111f;color:#f2f7ff;padding:12px;font:500 16px/1.4 system-ui}
+.help-composer-actions,.help-viewer-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+.help-composer-actions button,.help-viewer-actions button{padding:10px 14px;border:1px solid #355674;border-radius:10px;background:#10223b;color:#e8f3ff;font-weight:900}
+#helpComposerSend,#helpViewerHandled{background:#123e38;border-color:#2f7d69;color:#6df0c8}
+#helpViewerDelete{background:#321520;border-color:#71344a;color:#ff95ae}
+.help-viewer-text{min-height:120px;padding:14px;border:1px solid #29445f;border-radius:12px;background:#07101d;color:#eef5ff;white-space:pre-wrap;font-size:16px;line-height:1.5}
+.help-message-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:10px 4px;border-bottom:1px solid #1f334b}
+.help-message-row:last-child{border-bottom:0}.help-message-row .preview{min-width:0}.help-message-row .preview b{display:block}.help-message-row .preview small{display:block;color:#88a0bc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;margin-top:3px}
+.help-message-row button{border:1px solid #35536f;border-radius:8px;background:#10213a;color:#cfe6f8;padding:6px 8px}
+.help-message-row .delete{color:#ff91a9;border-color:#6b3346;background:#2a1420}
+.help-message-row.unread{background:#0d2034;border-radius:10px}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -764,6 +784,23 @@ body.role-shared .presentation-public .presentation-media-stack iframe{
 <div class="toast" id="toast"></div>
 
 
+
+
+<div id="helpComposer" class="help-composer hidden" role="dialog" aria-modal="true" aria-label="Ask for help">
+  <div class="help-composer-card">
+    <div class="help-composer-head"><div><b>Ask for Help</b><small>Send a private message to your teacher.</small></div><button id="helpComposerClose" type="button">×</button></div>
+    <textarea id="helpComposerText" maxlength="240" placeholder="What do you need help with?"></textarea>
+    <div class="help-composer-actions"><button id="helpComposerCancel" type="button">Cancel</button><button id="helpComposerSend" type="button">Send Help Request</button></div>
+  </div>
+</div>
+
+<div id="helpViewer" class="help-viewer hidden" role="dialog" aria-modal="true" aria-label="Help request">
+  <div class="help-viewer-card">
+    <div class="help-viewer-head"><div><b id="helpViewerName">Student</b><small id="helpViewerMeta">Help request</small></div><button id="helpViewerClose" type="button">×</button></div>
+    <div id="helpViewerText" class="help-viewer-text"></div>
+    <div class="help-viewer-actions"><button id="helpViewerHandled" type="button">✓ Mark Handled</button><button id="helpViewerDelete" type="button">Delete</button></div>
+  </div>
+</div>
 
 <div id="photoLightbox" class="photo-lightbox hidden" role="dialog" aria-modal="true" aria-label="Photo viewer">
   <div class="photo-lightbox-card">
@@ -1127,7 +1164,7 @@ function pixelSharedMarkup(run=state.activityRun,big=false){const done=pixelSubm
 
 const initial=()=>({
  view:'teacher',screen:'lobby',rosterPage:0,readyEnabled:false,handEnabled:false,buzzEnabled:false,helpEnabled:false,pictureEnabled:false,
- buzz:[],help:[],alerts:[],photos:[],
+ buzz:[],help:[],helpMessages:[],helpDeletedIds:[],alerts:[],photos:[],
  agendaMode:'text',agendaText:'1. Warm-up\n2. Ready check\n3. Class activity',agendaImage:'',youtube:'',agendaLive:false,
  published:{mode:'text',text:'1. Warm-up\n2. Ready check\n3. Class activity',image:'',youtube:''},
  activities:hydratedActivities(),
@@ -1736,7 +1773,7 @@ function renderRoster(){
   const activity=state.activityRun,a=activeActivity(),slide=currentSlide();
   if(!list.length){$('#avatarLine').innerHTML='<div class="empty-roster-message"><div><b>No students joined yet</b><span>Students will appear here after they enter the class code and choose an avatar.</span></div></div>';$('#rosterRange').textContent='0 students';$('#rosterPageLabel').textContent='1 / 1';$('#pageDots').innerHTML='<button class="active"></button>';renderRosterAlert();return}
   $('#avatarLine').innerHTML=list.map(s=>{
-    const help=state.help.includes(s.n),hand=state.alerts.some(a=>a.type==='hand'&&a.name===s.n),resp=responseLabel(s);
+    const help=(state.helpMessages||[]).some(m=>m.name===s.n&&!(state.helpDeletedIds||[]).includes(String(m.id))),hand=state.alerts.some(a=>a.type==='hand'&&a.name===s.n),resp=responseLabel(s);
     let primaryClass='',primaryIcon='○',pill='';
     if(activity){
       if(activity.phase==='lobby'){primaryClass='waiting';primaryIcon='⌂';pill='<span class="ready-pill waiting">ACTIVITY LOBBY</span>'}
@@ -1803,8 +1840,11 @@ function renderRosterAlert(){
 function renderRight(){
   $('#buzzCount').textContent=state.buzz.length;$('#buzzRows').innerHTML=state.buzz.length?state.buzz.map((n,i)=>`<div class="student-row"><span class="queue-num">${i+1}</span><span><b>${n}</b><small>${i===0?'Ready to answer':'Waiting'}</small></span><button class="xbtn" data-rbuzz="${n}">×</button></div>`).join(''):'<p class="empty">Queue is clear</p>';
   $$('[data-rbuzz]').forEach(b=>b.onclick=()=>{state.buzz=state.buzz.filter(n=>n!==b.dataset.rbuzz);render()});
-  $('#helpCount').textContent=state.help.length;$('#helpRows').innerHTML=state.help.length?state.help.map(n=>`<div class="help-row"><span class="mini-bot" style="--c:${studentByName(n)?.c||'#ffc35d'}">🤖</span><span><b>${n}</b><small>Needs help</small></span><button class="checkbtn" data-rhelp="${n}">✓</button></div>`).join(''):'<p class="empty">No help requests</p>';
-  $$('[data-rhelp]').forEach(b=>b.onclick=()=>{state.help=state.help.filter(n=>n!==b.dataset.rhelp);render()});
+  const helpItems=(state.helpMessages||[]).filter(m=>!(state.helpDeletedIds||[]).includes(String(m.id))).sort((a,b)=>(b.at||0)-(a.at||0));
+  $('#helpCount').textContent=helpItems.length;
+  $('#helpRows').innerHTML=helpItems.length?helpItems.map(m=>`<div class="help-message-row ${m.seen?'':'unread'}"><span class="mini-bot" style="--c:${studentByName(m.name)?.c||'#ffc35d'}">🤖</span><span class="preview"><b>${esc(m.name)}</b><small>${esc(m.text||'I need help')}</small></span><button data-help-open="${esc(String(m.id))}">Read</button><button class="delete" data-help-delete="${esc(String(m.id))}">×</button></div>`).join(''):'<p class="empty">No help requests</p>';
+  $('[data-help-open]').forEach(b=>b.onclick=()=>openHelpViewer(b.dataset.helpOpen));
+  $('[data-help-delete]').forEach(b=>b.onclick=()=>deleteHelpMessage(b.dataset.helpDelete));
   $('#photoCount').textContent=state.photos.length;$('#photoRows').innerHTML=state.photos.length?state.photos.slice(0,3).map(p=>`<div class="help-row photo-row"><img class="photo-thumb" data-photo-open="${p.id}" src="${p.data}" alt="Photo from ${p.name}"><span><b>${p.name}</b><small>${p.seen?'Viewed':'NEW PHOTO'}</small></span><button class="checkbtn" data-photo-view="${p.id}" title="View photo">⌕</button><button class="checkbtn photo-delete" data-photo-delete="${p.id}" title="Delete photo">×</button></div>`).join(''):'<p class="empty">No photos submitted</p>';
   $$('[data-photo-view]').forEach(b=>b.onclick=()=>openPhotoViewer(Number(b.dataset.photoView)));
   $$('[data-photo-open]').forEach(el=>el.onclick=()=>openPhotoViewer(Number(el.dataset.photoOpen)));
@@ -2257,19 +2297,64 @@ function renderStudentControls(){
   }
   label.innerHTML=`<b>CLASSROOM CONTROLS</b><span>${state.activityRun?'Available while waiting / following along':'Your standard controls'}</span>`;
   const homeLocked=state.screen==='lobby'||state.screen==='brb'||state.ended;
-  zone.className='student-actions home-controls';zone.innerHTML=`<button data-class-action="ready" class="${s.readyResponse==='Ready'?'on':''}" ${!state.readyEnabled||homeLocked?'disabled':''}>✓<br>${s.readyResponse==='Ready'?'Ready':'I’m Ready'}</button><button data-class-action="hand" class="${state.alerts.some(a=>a.type==='hand'&&a.name===s.n)?'on':''}" ${!state.handEnabled||homeLocked?'disabled':''}>✋<br>Raise Hand</button><button data-class-action="help" class="${state.help.includes(s.n)?'on':''}" ${!state.helpEnabled||homeLocked?'disabled':''}>?<br>Ask for Help</button><button data-class-action="buzz" class="${state.buzz.includes(s.n)?'on':''}" ${!state.buzzEnabled||homeLocked?'disabled':''}>⚡<br>Buzz In</button><button data-class-action="picture" ${!state.pictureEnabled||homeLocked?'disabled':''}>📷<br>Take Picture</button>`;
+  zone.className='student-actions home-controls';zone.innerHTML=`<button data-class-action="ready" class="${s.readyResponse==='Ready'?'on':''}" ${!state.readyEnabled||homeLocked?'disabled':''}>✓<br>${s.readyResponse==='Ready'?'Ready':'I’m Ready'}</button><button data-class-action="hand" class="${state.alerts.some(a=>a.type==='hand'&&a.name===s.n)?'on':''}" ${!state.handEnabled||homeLocked?'disabled':''}>✋<br>Raise Hand</button><button data-class-action="help" class="${(state.helpMessages||[]).some(m=>m.name===s.n&&!(state.helpDeletedIds||[]).includes(String(m.id)))?'on':''}" ${!state.helpEnabled||homeLocked?'disabled':''}>?<br>Ask for Help</button><button data-class-action="buzz" class="${state.buzz.includes(s.n)?'on':''}" ${!state.buzzEnabled||homeLocked?'disabled':''}>⚡<br>Buzz In</button><button data-class-action="picture" ${!state.pictureEnabled||homeLocked?'disabled':''}>📷<br>Take Picture</button>`;
   wireStudentControlButtons();
+}
+
+
+let activeHelpMessageId='';
+function openHelpComposer(){
+  const s=selectedStudent();if(!s||!state.helpEnabled)return;
+  const box=$('#helpComposer'),txt=$('#helpComposerText');if(!box||!txt)return;
+  txt.value='';box.classList.remove('hidden');setTimeout(()=>txt.focus(),20);
+}
+function closeHelpComposer(){const box=$('#helpComposer');if(box)box.classList.add('hidden')}
+function sendHelpMessage(){
+  const s=selectedStudent(),txt=$('#helpComposerText');if(!s||!state.helpEnabled)return;
+  const text=(txt?.value||'').trim().slice(0,240);
+  const id='help_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+  state.helpMessages=state.helpMessages||[];
+  state.helpMessages.unshift({id,name:s.n,text:text||'I need help',at:Date.now(),seen:false});
+  if(!state.help.includes(s.n))state.help.push(s.n);
+  closeHelpComposer();render();toast('Help request sent privately');
+}
+function openHelpViewer(id){
+  const m=(state.helpMessages||[]).find(x=>String(x.id)===String(id));if(!m)return;
+  activeHelpMessageId=String(id);m.seen=true;
+  $('#helpViewerName').textContent=m.name||'Student';
+  $('#helpViewerMeta').textContent='Ask for Help · '+new Date(m.at||Date.now()).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+  $('#helpViewerText').textContent=m.text||'I need help';
+  $('#helpViewer').classList.remove('hidden');renderRight();
+}
+function closeHelpViewer(){activeHelpMessageId='';const box=$('#helpViewer');if(box)box.classList.add('hidden')}
+function deleteHelpMessage(id){
+  const sid=String(id);state.helpDeletedIds=state.helpDeletedIds||[];if(!state.helpDeletedIds.includes(sid))state.helpDeletedIds.push(sid);
+  state.helpMessages=(state.helpMessages||[]).filter(m=>String(m.id)!==sid);
+  const remainingNames=new Set(state.helpMessages.map(m=>m.name));state.help=state.help.filter(n=>remainingNames.has(n));
+  if(activeHelpMessageId===sid)closeHelpViewer();render();toast('Help request deleted');
+}
+function markHelpHandled(id){
+  const m=(state.helpMessages||[]).find(x=>String(x.id)===String(id));if(m)m.seen=true;
+  deleteHelpMessage(id);
 }
 
 function wireStudentControlButtons(){
   $$('[data-class-action]').forEach(b=>b.onclick=()=>{const act=b.dataset.classAction,s=selectedStudent();if(state.ended)return;
     if(act==='ready'){if(!state.readyEnabled||state.screen==='lobby'||state.screen==='brb')return;const wasReady=s.readyResponse==='Ready';s.readyResponse=wasReady?'':'Ready';render();toast(wasReady?'Ready status cleared':(state.promptActive&&state.screen==='ready'?'Ready response sent to teacher':'Ready status sent to teacher'));return}
     if(act==='hand'&&state.handEnabled){const on=state.alerts.some(a=>a.type==='hand'&&a.name===s.n);state.alerts=state.alerts.filter(a=>!(a.type==='hand'&&a.name===s.n));if(!on)state.alerts.push({type:'hand',name:s.n});render();toast(!on?'Hand raised — teacher alerted':'Hand lowered')}
-    if(act==='help'&&state.helpEnabled){const on=state.help.includes(s.n);state.help=state.help.filter(n=>n!==s.n);if(!on)state.help.push(s.n);render();toast(!on?'Help request sent privately':'Help request canceled')}
+    if(act==='help'&&state.helpEnabled){openHelpComposer();return}
     if(act==='buzz'&&state.buzzEnabled){const on=state.buzz.includes(s.n);state.buzz=state.buzz.filter(n=>n!==s.n);if(!on)state.buzz.push(s.n);render();toast(!on?'Joined the buzz queue':'Left the buzz queue')}
     if(act==='picture'&&state.pictureEnabled)$('#studentPhotoFile').click();
   });
 }
+
+const helpComposerClose=$('#helpComposerClose');if(helpComposerClose)helpComposerClose.onclick=closeHelpComposer;
+const helpComposerCancel=$('#helpComposerCancel');if(helpComposerCancel)helpComposerCancel.onclick=closeHelpComposer;
+const helpComposerSend=$('#helpComposerSend');if(helpComposerSend)helpComposerSend.onclick=sendHelpMessage;
+const helpViewerClose=$('#helpViewerClose');if(helpViewerClose)helpViewerClose.onclick=closeHelpViewer;
+const helpViewerDelete=$('#helpViewerDelete');if(helpViewerDelete)helpViewerDelete.onclick=()=>activeHelpMessageId&&deleteHelpMessage(activeHelpMessageId);
+const helpViewerHandled=$('#helpViewerHandled');if(helpViewerHandled)helpViewerHandled.onclick=()=>activeHelpMessageId&&markHelpHandled(activeHelpMessageId);
+
 function submitActivityAnswer(value,index){
   if(!state.activityRun)return;const s=selectedStudent(),i=index??state.activityRun.slideIndex;responseMapFor(i)[s.n]=value;render();toast(`${s.n} submitted ${value}`);
 }
