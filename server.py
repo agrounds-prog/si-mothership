@@ -34,7 +34,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "46.1"
+APP_VERSION = "46.2"
 
 PUBLIC_STORAGE_KEYS = {
     "siMothership.customAvatars.v1",
@@ -202,6 +202,8 @@ def merge_student_snapshot(canonical: Optional[dict], incoming: dict, token: str
     if not isinstance(canonical, dict):
         canonical = copy.deepcopy(incoming)
     out = copy.deepcopy(canonical)
+    if out.get("ended"):
+        return out
     inc_student = _student_by_identity(incoming, token, name)
     if inc_student is None:
         return out
