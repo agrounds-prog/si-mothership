@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SI Mothership v48.12 — Sketch Live Ink Sync</title>
+<title>SI Mothership v49.0 — Visual Systems Overhaul</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -777,6 +777,539 @@ body.role-student .device:has(.sketch-student-secret) .student-actions button{pa
 <style id="v48-12-sketch-ink-sync">
 /* Keep the live ink layer GPU-stable while frequent Sketch Signal strokes arrive. */
 .sketch-public .board-surface svg{transform:translateZ(0);backface-visibility:hidden;will-change:contents}
+</style>
+
+<style id="v49-visual-systems-overhaul">
+/* =========================================================
+   SI MOTHERSHIP v49.0 — VISUAL SYSTEMS OVERHAUL
+   Presentation-only layer. No interaction/runtime changes.
+   ========================================================= */
+:root{
+  --v49-bg-0:#030914;
+  --v49-bg-1:#06101f;
+  --v49-surface:#0a1729;
+  --v49-surface-2:#0d1c31;
+  --v49-surface-3:#11233b;
+  --v49-line:#29415e;
+  --v49-line-soft:#1d314b;
+  --v49-text:#f4f8ff;
+  --v49-muted:#8ea3be;
+  --v49-cyan:#69e8ff;
+  --v49-mint:#64efbe;
+  --v49-amber:#ffd166;
+  --v49-radius-xl:22px;
+  --v49-radius-lg:16px;
+  --v49-radius-md:12px;
+  --v49-shadow:0 22px 60px rgba(0,0,0,.30);
+  --v49-shadow-soft:0 10px 30px rgba(0,0,0,.20)
+}
+html{background:var(--v49-bg-0)}
+body{
+  color:var(--v49-text);
+  background:
+    radial-gradient(circle at 18% -5%,rgba(66,163,255,.12),transparent 30%),
+    radial-gradient(circle at 85% 5%,rgba(106,232,255,.08),transparent 28%),
+    linear-gradient(180deg,#06101e 0%,#040b16 52%,#030914 100%)!important;
+  letter-spacing:.002em
+}
+body:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-1;
+  opacity:.17;
+  background-image:
+    linear-gradient(rgba(116,176,224,.09) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(116,176,224,.07) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:linear-gradient(to bottom,black,transparent 68%)
+}
+
+/* Header / navigation */
+.topbar{
+  height:68px!important;
+  padding:0 28px!important;
+  border-bottom:1px solid rgba(74,111,153,.34)!important;
+  background:rgba(4,12,24,.93)!important;
+  box-shadow:0 10px 36px rgba(0,0,0,.24)
+}
+.brand{gap:11px!important;font-size:17px!important;letter-spacing:-.02em}
+.brand-mark{
+  width:38px!important;height:38px!important;border-radius:12px!important;
+  background:linear-gradient(145deg,#73edff,#747cff)!important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.18) inset,0 8px 22px rgba(77,199,255,.18)!important
+}
+.session-pill{
+  padding:8px 14px!important;
+  border-color:#29435f!important;
+  background:#091626!important;
+  color:#bfd0e2!important;
+  font-size:12px!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.16)
+}
+.top-actions{font-size:13px!important;gap:13px!important}
+.outline{
+  border-color:#304b69!important;
+  background:#0d1c31!important;
+  border-radius:10px!important;
+  color:#dce9f6!important
+}
+.viewbar{
+  height:60px!important;
+  padding:0 28px!important;
+  background:rgba(5,14,27,.93)!important;
+  border-bottom:1px solid #1d314a!important
+}
+.tabs{
+  padding:4px!important;
+  gap:2px!important;
+  border-color:#263e5a!important;
+  background:#091629!important;
+  border-radius:12px!important
+}
+.tab{
+  padding:8px 13px!important;
+  border-radius:9px!important;
+  font-size:13px!important;
+  font-weight:750!important;
+  transition:background .15s ease,color .15s ease,box-shadow .15s ease
+}
+.tab.active{
+  background:linear-gradient(180deg,#1b3552,#142943)!important;
+  color:#f7fbff!important;
+  box-shadow:inset 0 0 0 1px #3b5e7e,0 4px 12px rgba(0,0,0,.16)!important
+}
+.class-code{
+  padding:7px 11px;
+  border:1px solid #28445e;
+  border-radius:11px;
+  background:#09182a
+}
+.class-code small{font-size:9px!important;color:#7891ac!important}
+.class-code strong{font-size:18px!important;color:#81edff!important;text-shadow:0 0 15px rgba(91,232,255,.25)}
+
+/* Workspace */
+.workspace{padding:22px 22px 38px!important}
+#teacher .mission-grid{gap:16px!important}
+.deck-header{
+  height:72px!important;
+  padding:0 4px 0 7px!important;
+  border-bottom:0
+}
+.eyebrow{
+  color:#68dcf2!important;
+  font-size:10px!important;
+  letter-spacing:.18em!important;
+  font-weight:900!important
+}
+.deck-header h1{
+  margin-top:5px!important;
+  font-family:Inter,ui-sans-serif,system-ui,sans-serif!important;
+  font-size:31px!important;
+  font-weight:750!important;
+  letter-spacing:-.04em!important
+}
+.metrics{gap:7px!important}
+.metric{
+  padding:8px 10px!important;
+  border:1px solid #29425f!important;
+  border-radius:10px!important;
+  background:#091729!important;
+  color:#8fa4bd!important;
+  font-size:10px!important
+}
+.metric b{color:#edf6ff!important}
+
+/* Primary surfaces */
+.panel,.main-card{
+  border-color:#253e59!important;
+  border-radius:var(--v49-radius-lg)!important;
+  background:
+    linear-gradient(180deg,rgba(14,29,50,.98),rgba(7,19,35,.98))!important;
+  box-shadow:var(--v49-shadow-soft)!important
+}
+.panel:hover,.main-card:hover{border-color:#2b4867!important}
+
+/* Teacher command strip */
+.teacher-controlbar{
+  position:relative;
+  gap:5px!important;
+  margin-bottom:12px!important;
+  padding:7px!important;
+  border:1px solid #29445f!important;
+  border-radius:14px!important;
+  background:linear-gradient(180deg,#0b1a2d,#081523)!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.18)!important
+}
+.teacher-controlbar:before{
+  content:"";
+  position:absolute;left:12px;right:12px;top:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(105,232,255,.28),transparent)
+}
+.teacher-controlbar .students-see{
+  padding:6px 12px 6px 5px!important;
+  color:#839ab5!important;
+  border-right-color:#29435f!important;
+  font-size:9px!important
+}
+.teacher-controlbar .students-see b{
+  color:#e9f8ff!important;
+  font-weight:900!important
+}
+.teacher-controlbar .control{
+  min-height:38px!important;
+  gap:6px!important;
+  padding:7px 9px!important;
+  border-color:#29445f!important;
+  border-radius:9px!important;
+  background:#0c1b30!important;
+  color:#b9cbe0!important;
+  transition:transform .12s ease,border-color .12s ease,background .12s ease,color .12s ease!important
+}
+.teacher-controlbar .control:hover{
+  transform:translateY(-1px);
+  border-color:#4f809f!important;
+  background:#10243a!important;
+  color:#e8f7ff!important
+}
+.teacher-controlbar .control.active{
+  border-color:#47bdd3!important;
+  background:linear-gradient(180deg,#103a4a,#0d2d3d)!important;
+  color:#83efff!important;
+  box-shadow:inset 0 0 0 1px rgba(105,232,255,.10),0 0 18px rgba(83,213,239,.08)!important
+}
+.teacher-controlbar .control.enabled{
+  border-color:#2d806e!important;
+  background:linear-gradient(180deg,#10372f,#0d2c29)!important;
+  color:#7af1ca!important
+}
+.teacher-controlbar .control .ico{font-size:14px!important}
+.teacher-controlbar .control b{font-size:9.5px!important;font-weight:850!important}
+.teacher-controlbar .end-btn{
+  border-color:#663247!important;
+  background:#24131e!important;
+  color:#ff8faa!important
+}
+
+/* Live roster */
+.roster-inner{
+  padding:17px 18px 13px!important;
+  border-color:#29435f!important;
+  border-radius:16px!important;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(65,139,205,.08),transparent 34%),
+    linear-gradient(180deg,#0b1a2e,#081426)!important
+}
+.roster-head{margin-bottom:18px!important}
+.roster-head strong{
+  padding:4px 8px;
+  border-radius:999px;
+  background:#0e2238;
+  color:#8fa9c4!important;
+  font-size:10px
+}
+.carousel-controls{gap:8px!important;font-size:10px!important}
+.carousel-controls button{
+  width:32px!important;height:32px!important;
+  border-radius:9px!important;
+  background:#102039!important;
+  border-color:#304c69!important;
+  transition:.12s ease
+}
+.carousel-controls button:hover{border-color:#5d91b0!important;color:#eaf8ff!important}
+.custom-roster-btn{
+  height:32px!important;
+  border-radius:9px!important;
+  background:#0c2033!important;
+  border-color:#31536e!important;
+  color:#83dff1!important;
+  font-size:10px!important
+}
+.avatar-line{gap:11px!important}
+.crew{
+  padding:6px 4px 8px;
+  border-radius:13px;
+  transition:background .12s ease,transform .12s ease
+}
+.crew:hover{background:rgba(41,70,101,.16);transform:translateY(-1px)}
+.bot-card{
+  box-shadow:0 8px 20px rgba(0,0,0,.22)!important;
+  border-color:color-mix(in srgb,var(--c) 46%,#24425e)!important
+}
+.crew>b{
+  display:block;
+  margin-top:6px;
+  color:#e7f0fb!important;
+  font-family:Inter,ui-sans-serif,system-ui,sans-serif!important;
+  font-size:11px!important;
+  font-weight:800!important
+}
+.crew>small{font-size:8px!important;color:#7086a1!important}
+.crew .ready-pill{
+  margin-top:4px!important;
+  min-height:19px!important;
+  padding:2px 7px!important;
+  font-size:7.5px!important
+}
+.roster-alert{
+  margin-bottom:12px!important;
+  padding:10px 12px!important;
+  border-color:#2c4c69!important;
+  border-radius:11px!important;
+  background:linear-gradient(90deg,#0b1d31,#0a1728)!important
+}
+.roster-alert .signal{font-size:10px!important}
+.roster-alert .count-chip{font-size:9px!important;padding:4px 8px!important}
+
+/* Right rail */
+#teacher .right-rail{gap:12px!important}
+#teacher .right-rail .panel{
+  padding:14px!important;
+  border-radius:15px!important
+}
+.section-heading{
+  justify-content:space-between;
+  color:#8ba1ba!important;
+  font-size:9.5px!important;
+  letter-spacing:.15em!important
+}
+.section-heading b{
+  min-width:24px;height:24px;padding:0 6px;
+  display:grid;place-items:center;
+  border:1px solid #35536e;
+  border-radius:999px;
+  background:#0c2035;
+  color:#b9eefe;
+  font-size:9px
+}
+.student-row,.help-row,.help-message-row{
+  border-bottom-color:#1c3047!important
+}
+.inbox-student-row,.help-message-row{
+  padding:9px 4px!important
+}
+.inbox-avatar{
+  width:38px!important;height:38px!important;flex-basis:38px!important;
+  border-radius:11px!important;
+  box-shadow:0 5px 14px rgba(0,0,0,.20)!important
+}
+.inbox-student-row{grid-template-columns:26px 38px minmax(0,1fr) 24px!important}
+.queue-num{
+  width:28px!important;height:28px!important;
+  border-radius:9px!important;
+  background:#11324b!important;
+  color:#75e8ff!important;
+  font-size:10px!important
+}
+.inbox-copy b,.help-message-row .preview b{
+  font-family:Inter,ui-sans-serif,system-ui,sans-serif!important;
+  font-size:11px!important;
+  font-weight:800!important
+}
+.inbox-copy small,.help-message-row .preview small{
+  font-size:9px!important;
+  color:#7890aa!important
+}
+.help-message-row.unread{
+  background:linear-gradient(90deg,rgba(32,93,120,.19),rgba(15,38,59,.10))!important;
+  box-shadow:inset 3px 0 0 #59d9ef
+}
+.help-message-row button,.checkbtn,.xbtn{
+  transition:background .12s ease,border-color .12s ease,color .12s ease
+}
+.help-message-row button:hover{border-color:#5b809c!important;color:#fff!important}
+.clear{
+  margin-top:9px!important;
+  border-radius:9px!important;
+  background:#0d1c31!important;
+  border-color:#2b4662!important;
+  color:#8fa5be!important;
+  font-family:Inter,ui-sans-serif,system-ui,sans-serif!important;
+  font-size:10px!important
+}
+.clear:hover{background:#11253c!important;color:#dceafa!important}
+.photo-row .photo-thumb{
+  width:38px!important;height:38px!important;
+  border-radius:9px!important;
+  box-shadow:0 5px 14px rgba(0,0,0,.20)
+}
+.empty{font-size:10px!important;padding:18px 0!important;color:#657e9a!important}
+
+/* Shared Screen monitor card */
+#teacher .right-rail .screen-dock{
+  padding:12px!important;
+  background:linear-gradient(180deg,#0d1c30,#071422)!important
+}
+.screen-dock .screen-dock-head{margin-bottom:7px!important}
+.screen-dock .screen-dock-title{font-size:9px!important;color:#8da3bb!important}
+.mirror-live{
+  padding:3px 7px!important;
+  border:1px solid #2e725a!important;
+  border-radius:999px!important;
+  background:#0d3328!important;
+  color:#69efb4!important;
+  font-size:8px!important;
+  font-weight:900!important
+}
+.screen-dock .launch-screen-btn{
+  margin-bottom:8px!important;
+  padding:8px!important;
+  border-radius:9px!important;
+  background:#10253b!important;
+  border-color:#355774!important;
+  color:#d8f6ff!important;
+  font-size:9px!important
+}
+.screen-dock .mirror-screen{
+  border-color:#375c79!important;
+  background:#030914!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.30),0 0 0 1px rgba(111,221,255,.05) inset!important
+}
+
+/* Activity shortcuts */
+.app-shortcuts-panel{
+  padding:15px 17px!important;
+  background:
+    radial-gradient(circle at 85% 0%,rgba(106,232,255,.05),transparent 32%),
+    linear-gradient(180deg,#0c1b2f,#081525)!important
+}
+.app-shortcuts-head{margin-bottom:8px!important}
+.home-app-grid{
+  grid-template-columns:repeat(9,minmax(70px,1fr))!important;
+  grid-auto-rows:92px!important;
+  gap:8px!important;
+  justify-content:stretch!important;
+  padding:4px 0 0!important
+}
+.app-shortcut{
+  min-width:0!important;
+  gap:5px!important;
+  border:1px solid transparent!important;
+  border-radius:13px!important;
+  padding:7px 4px!important;
+  transition:background .13s ease,border-color .13s ease,transform .13s ease!important
+}
+.app-shortcut:hover{
+  transform:translateY(-2px)!important;
+  border-color:#294762!important;
+  background:rgba(17,41,64,.48)!important
+}
+.app-shortcut-icon{
+  width:54px!important;height:54px!important;
+  border-radius:15px!important;
+  font-size:16px!important;
+  box-shadow:0 8px 20px rgba(0,0,0,.25),inset 0 0 0 1px rgba(255,255,255,.22)!important
+}
+.app-shortcut-label{
+  max-width:100%!important;
+  font-size:8.5px!important;
+  color:#b9c9dc!important
+}
+.app-shortcut.empty .app-shortcut-icon{
+  background:#091627!important;
+  border-color:#34506d!important
+}
+
+/* Student device */
+.student-shell{max-width:720px!important;margin:22px auto!important}
+.device{
+  border-color:#31506d!important;
+  border-radius:24px!important;
+  background:#071321!important;
+  box-shadow:0 28px 80px rgba(0,0,0,.38),0 0 0 1px rgba(100,207,255,.03) inset!important
+}
+.device-head{
+  height:56px!important;
+  padding:0 17px!important;
+  background:linear-gradient(180deg,#0d1d31,#091626)!important;
+  border-bottom-color:#29405b!important;
+  font-size:13px!important
+}
+.student-demo-bar{
+  padding:8px 12px!important;
+  background:#081526!important;
+  border-bottom-color:#233b55!important
+}
+.student-demo-bar label,.student-state{font-size:9px!important}
+.student-demo-bar select{
+  padding:5px 8px!important;
+  border-radius:8px!important;
+  font-size:10px!important
+}
+.device-main{
+  min-height:470px!important;
+  background:
+    radial-gradient(circle at 50% 32%,rgba(32,82,130,.42),transparent 42%),
+    linear-gradient(180deg,#0b1b30,#06101d 70%)!important
+}
+.student-control-zone{background:#071321!important;border-top-color:#29405b!important}
+.student-control-label{padding:8px 12px 0!important}
+.student-actions{gap:7px!important;padding:10px!important}
+.student-actions button{
+  min-height:52px;
+  padding:10px 5px!important;
+  border-color:#2f4b68!important;
+  border-radius:10px!important;
+  background:linear-gradient(180deg,#10213a,#0c1a2e)!important;
+  color:#dce9f7!important;
+  font-size:11px!important;
+  box-shadow:0 5px 12px rgba(0,0,0,.12)!important;
+  transition:transform .12s ease,border-color .12s ease,background .12s ease!important
+}
+.student-actions button:hover:not(:disabled){
+  transform:translateY(-1px);
+  border-color:#4d7898!important;
+  background:linear-gradient(180deg,#142b45,#0e2036)!important
+}
+.student-actions button.on{
+  border-color:#4bc6d9!important;
+  background:linear-gradient(180deg,#124451,#10333f)!important;
+  box-shadow:0 0 0 1px rgba(91,232,255,.10) inset!important
+}
+
+/* Full shared display */
+.shared-shell{padding:18px!important}
+.shared-screen{
+  border-color:#31516f!important;
+  border-radius:18px!important;
+  background:
+    radial-gradient(circle at 50% 30%,rgba(26,79,126,.40),transparent 45%),
+    linear-gradient(180deg,#0a192d,#050d19 72%)!important;
+  box-shadow:0 25px 70px rgba(0,0,0,.30)!important
+}
+
+/* Forms and focus states */
+input,textarea,select{outline:none}
+input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible{
+  outline:2px solid rgba(105,232,255,.72)!important;
+  outline-offset:2px!important
+}
+button{transition:filter .12s ease}
+button:active:not(:disabled){transform:translateY(1px)}
+.toast{
+  border-color:#365875!important;
+  background:#0b1b2e!important;
+  border-radius:11px!important;
+  box-shadow:0 18px 46px rgba(0,0,0,.42)!important;
+  font-size:11px!important
+}
+
+/* Responsive */
+@media(max-width:1450px){
+  .home-app-grid{grid-template-columns:repeat(6,minmax(70px,1fr))!important}
+}
+@media(max-width:1150px){
+  .home-app-grid{grid-template-columns:repeat(5,minmax(70px,1fr))!important}
+}
+@media(max-width:760px){
+  .topbar,.viewbar{padding-left:14px!important;padding-right:14px!important}
+  .workspace{padding:14px 10px 28px!important}
+  .deck-header h1{font-size:26px!important}
+  .home-app-grid{grid-template-columns:repeat(3,minmax(70px,1fr))!important}
+  .student-shell{margin:10px auto!important;padding:0 8px!important}
+  .device{border-radius:18px!important}
+}
 </style>
 </head>
 <body>
