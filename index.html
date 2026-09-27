@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SI Mothership v48.5 — Shortcut & Shared Dock Layout</title>
+<title>SI Mothership v48.6 — Roster Alerts & Rail Balance</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -674,6 +674,32 @@ body.role-shared .presentation-public .presentation-media-stack iframe{
   margin-bottom:8px!important
 }
 </style>
+
+<style id="v48-6-rail-and-hand-alerts">
+#teacher .mission-grid{align-items:stretch!important}
+#teacher .right-rail{
+  align-self:stretch!important;
+  height:100%!important;
+  min-height:0!important
+}
+#teacher .right-rail .buzz-panel{
+  flex:1 1 220px!important;
+  min-height:190px!important;
+  display:flex!important;
+  flex-direction:column!important
+}
+#teacher .right-rail .buzz-panel #buzzRows{flex:1 1 auto!important}
+#teacher .right-rail .buzz-panel .clear{margin-top:auto!important}
+#teacher .right-rail .screen-dock{margin-top:auto!important}
+.roster-alert .count-chip.hand{color:#ffd36a;border-color:#8c6e2b;background:#261f0d}
+.crew .hand-chip{position:absolute;top:70px;right:4px;padding:3px 6px;border:1px solid #9a762b;border-radius:999px;background:#2b220d;color:#ffd76c;font-style:normal;font-size:7px;font-weight:950;letter-spacing:.04em;box-shadow:0 0 14px #ffc94b55}
+.crew.hand-raised-glow .bot-card{box-shadow:0 0 0 3px #ffd05c22,0 0 22px #ffd05c55}
+@media(max-width:1150px){
+  #teacher .right-rail{height:auto!important}
+  #teacher .right-rail .buzz-panel{min-height:150px!important}
+  #teacher .right-rail .screen-dock{margin-top:0!important}
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -722,10 +748,9 @@ body.role-shared .presentation-public .presentation-media-stack iframe{
 
 </main>
 
-<aside class="right-rail"><section class="panel"><div class="section-heading"><span>ϟ&nbsp; BUZZ QUEUE</span><b id="buzzCount">2</b></div><div id="buzzRows"></div><button class="clear" id="clearBuzz">Clear queue</button></section>
+<aside class="right-rail"><section class="panel buzz-panel"><div class="section-heading"><span>ϟ&nbsp; BUZZ QUEUE</span><b id="buzzCount">2</b></div><div id="buzzRows"></div><button class="clear" id="clearBuzz">Clear queue</button></section>
 <section class="panel"><div class="section-heading"><span>▧&nbsp; PHOTO INBOX</span><b id="photoCount">0</b></div><div id="photoRows"><p class="empty">No photos submitted</p></div><div class="photo-inbox-actions"><button class="clear" id="openGallery">Open gallery</button><button class="clear danger-clear" id="clearPhotos">Clear all</button></div></section>
 <section class="panel"><div class="section-heading"><span>?&nbsp; ASK FOR HELP</span><b id="helpCount">1</b></div><div id="helpRows"></div></section>
-<section class="panel"><div class="section-heading"><span>♢&nbsp; CLASS ALERTS</span><b id="alertCount">1</b></div><div id="alertRows"></div></section>
 <section class="panel screen-dock">
   <div class="screen-dock-head"><span class="screen-dock-title">▣ SHARED SCREEN</span><span class="mirror-live">LIVE</span></div>
   <button class="launch-screen-btn" id="launchSecondScreenBtn">↗ Launch 2nd Screen</button>
@@ -1737,7 +1762,7 @@ function renderRoster(){
     }
     const readyGlow=!activity&&s.readyResponse==='Ready'&&!s.offline&&state.screen!=='lobby'&&state.screen!=='brb';
     const boardGlow=activity&&activeActivity()?.type==='board'&&boardState()?.controller===s.n&&!s.offline;
-    return `<div class="crew ${s.offline?'offline':''} ${readyGlow?'ready-glow':''} ${boardGlow?'board-control-glow':''}" style="--c:${s.c}"><div class="stem"></div><div class="bot-card ${String(s.avatarKey||'').startsWith('custom_')?'custom-avatar-card':''}">${avatarRosterMarkup(s)}</div><b>${s.n}</b><small>${s.offline?'Reconnecting':'Connected'}</small>${pill}<span class="response-note">${esc(resp)}</span>${help?'<em class="help-chip">HELP</em>':''}</div>`;
+    return `<div class="crew ${s.offline?'offline':''} ${readyGlow?'ready-glow':''} ${boardGlow?'board-control-glow':''} ${hand?'hand-raised-glow':''}" style="--c:${s.c}"><div class="stem"></div><div class="bot-card ${String(s.avatarKey||'').startsWith('custom_')?'custom-avatar-card':''}">${avatarRosterMarkup(s)}</div><b>${s.n}</b><small>${s.offline?'Reconnecting':'Connected'}</small>${pill}<span class="response-note">${esc(resp)}</span>${hand?'<em class="hand-chip">✋ HAND</em>':''}${help?'<em class="help-chip">HELP</em>':''}</div>`;
   }).join('');
   $('#rosterRange').textContent=state.students.length?`${state.rosterPage*8+1}–${Math.min(state.rosterPage*8+8,state.students.length)} of ${state.students.length}`:'No students joined';
   $('#rosterPageLabel').textContent=`${state.rosterPage+1} / ${pageCount}`;
@@ -1761,14 +1786,18 @@ function renderRosterAlert(){
   }
   if(state.promptActive&&state.screen==='ready'){
     const ready=active.filter(s=>s.readyResponse==='Ready').length,notReady=active.filter(s=>s.readyResponse==='Not yet').length,waiting=active.length-ready-notReady;
-    alert.classList.remove('hidden');alert.innerHTML=`<div class="signal"><span class="signal-dot"></span>READY CHECK LIVE</div><div class="counts"><span class="count-chip ready">✓ ${ready} Ready</span><span class="count-chip notready">! ${notReady} Not ready</span><span class="count-chip waiting">… ${waiting} Waiting</span></div>`;
+    const hands=state.alerts.filter(a=>a.type==='hand'&&active.some(s=>s.n===a.name));alert.classList.remove('hidden');alert.innerHTML=`<div class="signal"><span class="signal-dot"></span>READY CHECK LIVE</div><div class="counts"><span class="count-chip ready">✓ ${ready} Ready</span><span class="count-chip notready">! ${notReady} Not ready</span><span class="count-chip waiting">… ${waiting} Waiting</span>${hands.length?`<span class="count-chip hand">✋ ${hands.length} Hand${hands.length===1?'':'s'} raised</span>`:''}</div>`;
   } else if(state.promptActive&&state.screen==='emotion'){
     const done=active.filter(s=>s.emotion).length;alert.classList.remove('hidden');alert.innerHTML=`<div class="signal"><span class="signal-dot"></span>EMOTION CHECK LIVE</div><div class="counts"><span class="count-chip ready">${done} Responded</span><span class="count-chip waiting">… ${active.length-done} Waiting</span></div>`;
   } else if(state.promptActive&&state.screen==='understanding'){
     const done=active.filter(s=>s.understanding).length,need=active.filter(s=>s.understanding==='Need help').length;alert.classList.remove('hidden');alert.innerHTML=`<div class="signal"><span class="signal-dot"></span>UNDERSTANDING CHECK LIVE</div><div class="counts"><span class="count-chip ready">${done} Responded</span><span class="count-chip notready">${need} Need help</span><span class="count-chip waiting">… ${active.length-done} Waiting</span></div>`;
   } else if(state.screen==='picture'&&state.picturePromptSent){
     const done=active.filter(s=>state.photos.some(p=>p.name===s.n)).length;alert.classList.remove('hidden');alert.innerHTML=`<div class="signal"><span class="signal-dot"></span>PICTURE PROMPT LIVE</div><div class="counts"><span class="count-chip ready">${done} Sent</span><span class="count-chip waiting">… ${active.length-done} Waiting</span></div>`;
-  } else {alert.classList.add('hidden');alert.innerHTML=''}
+  } else {
+    const hands=state.alerts.filter(a=>a.type==='hand'&&active.some(s=>s.n===a.name));
+    if(hands.length){alert.classList.remove('hidden');alert.innerHTML=`<div class="signal"><span class="signal-dot"></span>HAND RAISED</div><div class="counts"><span class="count-chip hand">✋ ${hands.length} student${hands.length===1?'':'s'}</span><span class="count-chip waiting">${hands.map(h=>esc(h.name)).join(' · ')}</span></div>`}
+    else {alert.classList.add('hidden');alert.innerHTML=''}
+  }
 }
 
 function renderRight(){
@@ -1776,10 +1805,6 @@ function renderRight(){
   $$('[data-rbuzz]').forEach(b=>b.onclick=()=>{state.buzz=state.buzz.filter(n=>n!==b.dataset.rbuzz);render()});
   $('#helpCount').textContent=state.help.length;$('#helpRows').innerHTML=state.help.length?state.help.map(n=>`<div class="help-row"><span class="mini-bot" style="--c:${studentByName(n)?.c||'#ffc35d'}">🤖</span><span><b>${n}</b><small>Needs help</small></span><button class="checkbtn" data-rhelp="${n}">✓</button></div>`).join(''):'<p class="empty">No help requests</p>';
   $$('[data-rhelp]').forEach(b=>b.onclick=()=>{state.help=state.help.filter(n=>n!==b.dataset.rhelp);render()});
-  const photoAlerts=state.photos.filter(p=>!p.seen).map(p=>({type:'photo',name:p.name,id:p.id,data:p.data}));const alerts=[...photoAlerts,...state.alerts];
-  $('#alertCount').textContent=alerts.length;$('#alertRows').innerHTML=alerts.length?alerts.map(a=>a.type==='photo'?`<div class="alert-row"><img class="photo-thumb" src="${a.data}"><span><b>${a.name}</b><small>NEW PHOTO</small></span><button class="xbtn" data-photo-seen="${a.id}">✓</button></div>`:`<div class="alert-row"><span class="mini-bot" style="--c:${studentByName(a.name)?.c||'#9e7cff'}">🤖</span><span><b>${a.name}</b><small>Raised a hand</small></span><button class="xbtn" data-alert="${a.name}">×</button></div>`).join(''):'<p class="empty">No active alerts</p>';
-  $$('[data-alert]').forEach(b=>b.onclick=()=>{state.alerts=state.alerts.filter(a=>a.name!==b.dataset.alert);render()});
-  $$('[data-photo-seen]').forEach(b=>b.onclick=()=>{const id=Number(b.dataset.photoSeen);state.photos=state.photos.map(p=>p.id===id?{...p,seen:true}:p);renderRight()});
   $('#photoCount').textContent=state.photos.length;$('#photoRows').innerHTML=state.photos.length?state.photos.slice(0,3).map(p=>`<div class="help-row photo-row"><img class="photo-thumb" data-photo-open="${p.id}" src="${p.data}" alt="Photo from ${p.name}"><span><b>${p.name}</b><small>${p.seen?'Viewed':'NEW PHOTO'}</small></span><button class="checkbtn" data-photo-view="${p.id}" title="View photo">⌕</button><button class="checkbtn photo-delete" data-photo-delete="${p.id}" title="Delete photo">×</button></div>`).join(''):'<p class="empty">No photos submitted</p>';
   $$('[data-photo-view]').forEach(b=>b.onclick=()=>openPhotoViewer(Number(b.dataset.photoView)));
   $$('[data-photo-open]').forEach(el=>el.onclick=()=>openPhotoViewer(Number(el.dataset.photoOpen)));
