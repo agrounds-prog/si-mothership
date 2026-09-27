@@ -34,7 +34,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "46.3"
+APP_VERSION = "46.4"
 
 PUBLIC_STORAGE_KEYS = {
     "siMothership.customAvatars.v1",
@@ -217,37 +217,49 @@ def merge_student_snapshot(canonical: Optional[dict], incoming: dict, token: str
         out.setdefault("students", []).append(clean)
         can_student = clean
     else:
-        for k in ("readyResponse", "emotion", "understanding"):
-            if k in inc_student:
+        active_prompt = bool(out.get("promptActive"))
+        screen = str(out.get("screen") or "")
+        allowed_prompt_fields = {
+            "readyResponse": active_prompt and screen == "ready",
+            "emotion": active_prompt and screen == "emotion",
+            "understanding": active_prompt and screen == "understanding",
+        }
+        for k, allowed in allowed_prompt_fields.items():
+            if allowed and k in inc_student:
                 can_student[k] = copy.deepcopy(inc_student[k])
 
-    # Student-owned membership in classroom queues. Preserve every other student's entries.
-    for field in ("buzz", "help"):
+    # Student-owned membership in classroom queues. Teacher enable/disable state wins
+    # over delayed student snapshots so closed controls cannot re-open themselves.
+    for field, enabled_field in (("buzz", "buzzEnabled"), ("help", "helpEnabled")):
         inc_list = incoming.get(field, []) if isinstance(incoming.get(field), list) else []
         cur = [x for x in out.get(field, []) if x != name]
-        if name in inc_list:
+        if out.get(enabled_field) and name in inc_list:
             cur.append(name)
         out[field] = cur
 
     inc_alerts = incoming.get("alerts", []) if isinstance(incoming.get("alerts"), list) else []
     cur_alerts = [a for a in out.get("alerts", []) if not (isinstance(a, dict) and a.get("type") == "hand" and a.get("name") == name)]
-    if any(isinstance(a, dict) and a.get("type") == "hand" and a.get("name") == name for a in inc_alerts):
+    if out.get("handEnabled") and any(isinstance(a, dict) and a.get("type") == "hand" and a.get("name") == name for a in inc_alerts):
         cur_alerts.append({"type": "hand", "name": name})
     out["alerts"] = cur_alerts
 
-    # Students may add their own photos; teacher deletion remains authoritative.
+    # Students may add their own photos only while the teacher's picture prompt is live.
+    # Teacher deletion/closure remains authoritative over delayed uploads.
     inc_photos = incoming.get("photos", []) if isinstance(incoming.get("photos"), list) else []
     cur_photos = out.get("photos", []) if isinstance(out.get("photos"), list) else []
-    known_ids = {str(p.get("id")) for p in cur_photos if isinstance(p, dict)}
-    for photo in inc_photos:
-        if isinstance(photo, dict) and photo.get("name") == name and str(photo.get("id")) not in known_ids:
-            cur_photos.insert(0, copy.deepcopy(photo))
-            known_ids.add(str(photo.get("id")))
+    if out.get("pictureEnabled") and out.get("picturePromptSent") and str(out.get("screen") or "") == "picture":
+        known_ids = {str(p.get("id")) for p in cur_photos if isinstance(p, dict)}
+        for photo in inc_photos:
+            if isinstance(photo, dict) and photo.get("name") == name and str(photo.get("id")) not in known_ids:
+                cur_photos.insert(0, copy.deepcopy(photo))
+                known_ids.add(str(photo.get("id")))
     out["photos"] = cur_photos
 
     can_run = out.get("activityRun")
     inc_run = incoming.get("activityRun")
     if not isinstance(can_run, dict) or not isinstance(inc_run, dict) or can_run.get("activityId") != inc_run.get("activityId"):
+        return out
+    if str(can_run.get("phase") or "") != "running":
         return out
 
     aid = str(can_run.get("activityId", ""))
