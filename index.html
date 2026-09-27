@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SI Mothership v46.5 — SI+ Media Focus</title>
+<title>SI Mothership v46.6 — SI+ Media Fill</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -458,9 +458,10 @@ body.role-shared .shared-screen .mirror-footer{color:#7189a8}
 .presentation-public{max-width:min(1500px,96vw)}
 .presentation-public .presentation-media-stack{width:100%;max-width:1320px;margin:14px auto 10px;gap:16px}
 .presentation-public .presentation-media-stack img{
-  width:auto!important;
-  max-width:min(100%,1180px)!important;
-  max-height:min(58vh,680px)!important;
+  width:min(100%,1180px)!important;
+  height:min(58vh,680px)!important;
+  max-width:none!important;
+  max-height:none!important;
   object-fit:contain;
   border-radius:16px;
   box-shadow:0 18px 44px #0007
@@ -483,8 +484,11 @@ body.role-shared .presentation-public .presentation-media-stack{
   margin:10px auto 8px
 }
 body.role-shared .presentation-public .presentation-media-stack img{
-  max-width:min(100%,1450px)!important;
-  max-height:62vh!important
+  width:min(100%,1450px)!important;
+  height:64vh!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:contain
 }
 body.role-shared .presentation-public .presentation-media-stack iframe{
   width:min(100%,1450px)!important;
@@ -498,7 +502,7 @@ body.role-shared .presentation-public .presentation-media-stack iframe{
 @media(max-width:700px){
   .presentation-public{max-width:100%}
   .presentation-public .presentation-media-stack{margin:8px auto}
-  .presentation-public .presentation-media-stack img{max-width:100%!important;max-height:42vh!important}
+  .presentation-public .presentation-media-stack img{width:100%!important;height:42vh!important;max-width:none!important;max-height:none!important;object-fit:contain}
   .presentation-public .presentation-media-stack iframe{width:100%!important;max-height:46vh}
 }
 
