@@ -34,7 +34,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "48.0"
+APP_VERSION = "48.1"
 
 PUBLIC_STORAGE_KEYS = {
     "siMothership.customAvatars.v1",
@@ -286,6 +286,27 @@ def merge_student_snapshot(canonical: Optional[dict], incoming: dict, token: str
         can_board = can_run.get("board") or {}
         inc_board = inc_run.get("board") or {}
         if can_board.get("controller") == name and isinstance(can_board.get("pages"), list) and isinstance(inc_board.get("pages"), list):
+            inc_pages = {str(pg.get("id")): pg for pg in inc_board.get("pages", []) if isinstance(pg, dict)}
+            for page in can_board.get("pages", []):
+                if not isinstance(page, dict):
+                    continue
+                other = inc_pages.get(str(page.get("id")))
+                if not other:
+                    continue
+                kept = [st for st in page.get("strokes", []) if not (isinstance(st, dict) and st.get("owner") == name)]
+                own = [copy.deepcopy(st) for st in other.get("strokes", []) if isinstance(st, dict) and st.get("owner") == name]
+                page["strokes"] = kept + own
+    elif aid == "sketch-game":
+        can_sketch = can_run.get("sketch") or {}
+        inc_sketch = inc_run.get("sketch") or {}
+        if isinstance(inc_sketch, dict):
+            inc_guesses = inc_sketch.get("guesses") or {}
+            if isinstance(inc_guesses, dict) and name in inc_guesses:
+                can_sketch.setdefault("guesses", {})[name] = copy.deepcopy(inc_guesses[name])
+                can_run["sketch"] = can_sketch
+        can_board = can_run.get("board") or {}
+        inc_board = inc_run.get("board") or {}
+        if can_sketch.get("artist") == name and can_board.get("controller") == name and isinstance(can_board.get("pages"), list) and isinstance(inc_board.get("pages"), list):
             inc_pages = {str(pg.get("id")): pg for pg in inc_board.get("pages", []) if isinstance(pg, dict)}
             for page in can_board.get("pages", []):
                 if not isinstance(page, dict):
