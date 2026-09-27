@@ -1693,8 +1693,8 @@ function renderRight(){
 }
 
 function renderControls(){
-  $('[data-control]').forEach(b=>b.classList.toggle('active',!state.activityRun&&b.dataset.control===state.screen));
-  $('[data-send]').forEach(b=>b.classList.toggle('active',!state.activityRun&&b.dataset.send===state.screen));
+  $$('[data-control]').forEach(b=>b.classList.toggle('active',!state.activityRun&&b.dataset.control===state.screen));
+  $$('[data-send]').forEach(b=>b.classList.toggle('active',!state.activityRun&&b.dataset.send===state.screen));
   for(const key of ['hand','buzz','help','picture']){const btn=$(`[data-toggle="${key}"]`),on=state[key+'Enabled'];btn.classList.toggle('enabled',on);btn.querySelector('small').textContent=on?'Enabled':'Paused'}
   $('#picturePromptBox').classList.toggle('hidden',!state.pictureEnabled||!!state.activityRun);
   const er=$('#emergencyReturnBtn');if(er)er.classList.toggle('hidden',!state.activityRun);
@@ -1702,7 +1702,7 @@ function renderControls(){
   if(status){
     status.textContent=state.ended?'ENDED':state.activityRun?`${activeActivity()?.name||'ACTIVITY'} · ${activityPhaseLabel()}`:state.screen==='brb'?'WE’LL BE RIGHT BACK':state.screen.toUpperCase();
   }
-  $('[data-teacher-quick]').forEach(b=>{
+  $$('[data-teacher-quick]').forEach(b=>{
     const q=b.dataset.teacherQuick;
     const active=!state.activityRun&&((q==='si-plus'&&state.screen==='activities'&&state.activeApp==='si-plus')||(q==='activities'&&state.screen==='activities'&&!state.activeApp)||(q===state.screen));
     b.classList.toggle('active',active||q==='shared'&&state.view==='shared');
@@ -1800,10 +1800,10 @@ function wireActivityController(){
   const sketchReveal=$('#sketchRevealBtn');if(sketchReveal)sketchReveal.onclick=revealSketchRound;
   const sketchNext=$('#sketchNextArtistBtn');if(sketchNext)sketchNext.onclick=nextSketchArtist;
   const sketchClear=$('#sketchClearCanvasBtn');if(sketchClear)sketchClear.onclick=boardClear;
-  $('[data-sketch-accept]').forEach(b=>b.onclick=()=>setSketchGuess(b.dataset.sketchAccept,'accepted'));
-  $('[data-sketch-reject]').forEach(b=>b.onclick=()=>setSketchGuess(b.dataset.sketchReject,'rejected'));
+  $$('[data-sketch-accept]').forEach(b=>b.onclick=()=>setSketchGuess(b.dataset.sketchAccept,'accepted'));
+  $$('[data-sketch-reject]').forEach(b=>b.onclick=()=>setSketchGuess(b.dataset.sketchReject,'rejected'));
 
-  $('[data-board-teacher-tool]').forEach(b=>b.onclick=()=>{const bs=boardState();if(!bs)return;bs.teacherTool=b.dataset.boardTeacherTool;render()});$$('[data-board-width]').forEach(btn=>btn.onclick=()=>{const bs=boardState();if(!bs)return;bs.teacherWidth=Number(btn.dataset.boardWidth||7);render()});
+  $$('[data-board-teacher-tool]').forEach(b=>b.onclick=()=>{const bs=boardState();if(!bs)return;bs.teacherTool=b.dataset.boardTeacherTool;render()});$$('[data-board-width]').forEach(btn=>btn.onclick=()=>{const bs=boardState();if(!bs)return;bs.teacherWidth=Number(btn.dataset.boardWidth||7);render()});
   const boardUndoBtn=$('#boardUndoBtn');if(boardUndoBtn)boardUndoBtn.onclick=boardUndo;const boardRedoBtn=$('#boardRedoBtn');if(boardRedoBtn)boardRedoBtn.onclick=boardRedo;const boardClearBtn=$('#boardClearBtn');if(boardClearBtn)boardClearBtn.onclick=boardClear;
   const boardPrev=$('#boardPrevPage');if(boardPrev)boardPrev.onclick=()=>boardMovePage(-1);const boardNext=$('#boardNextPage');if(boardNext)boardNext.onclick=()=>boardMovePage(1);const boardAdd=$('#boardAddPage');if(boardAdd)boardAdd.onclick=boardAddPage;
   const boardTitle=$('#boardTitleInput');if(boardTitle)boardTitle.onchange=e=>{const bs=boardState();if(bs){bs.title=e.target.value.trim()||'Shared Board';render()}};
@@ -1914,8 +1914,8 @@ function renderActivities(){
     title.textContent='SKETCH SIGNAL';subtitle.textContent='Rewards Arcade · One student draws. The crew decodes.';
     header.innerHTML=`<button id="backToAppsBtn">← Activity Library</button>`;$('#backToAppsBtn').onclick=backToAppLibrary;
     grid.innerHTML=`<div class="sketch-setup"><span class="app-status">REWARDS ARCADE</span><div style="display:flex;align-items:center;gap:12px;margin-top:8px"><div class="act-icon">${appIconMarkup('sketch')}</div><div><h3 style="margin:0">SKETCH SIGNAL</h3><p style="margin:3px 0 0">DRAW THE SIGNAL → CREW DECODES IT → NEXT ARTIST</p></div></div><h4>WORD SOURCE</h4><div class="sketch-options"><button class="sketch-option ${state.sketchWordSource==='mothership'?'active':''}" data-sketch-source="mothership"><b>MOTHERSHIP PACK</b><span>Built-in kid-friendly words</span></button><button class="sketch-option ${state.sketchWordSource==='teacher'?'active':''}" data-sketch-source="teacher"><b>TEACHER PACK</b><span>Use your own words below</span></button><button class="sketch-option" disabled><b>RANDOM MIX</b><span>Coming in the next pass</span></button></div>${state.sketchWordSource==='teacher'?`<textarea id="sketchTeacherWords" class="sketch-word-box" placeholder="One word per line…">${esc(state.sketchTeacherWords)}</textarea>`:''}<h4>GAME LENGTH</h4><div class="sketch-options">${[5,10,15].map(n=>`<button class="sketch-option ${Number(state.sketchMinutes)===n?'active':''}" data-sketch-minutes="${n}"><b>${n} MINUTES</b><span>Teacher controls each round</span></button>`).join('')}</div><div class="sketch-teacher-card" style="margin:12px 0"><b>V48.1 CORE MODE</b><p style="margin:5px 0 0">Free-for-All · No Score · automatic artist rotation · private guesses · teacher Accept/Reject · 60-second rounds.</p></div><div class="real-app-actions"><button class="sketch-launch" id="launchSketchBtn">🚀 LAUNCH SKETCH SIGNAL</button></div></div>`;
-    $('[data-sketch-source]').forEach(b=>b.onclick=()=>{state.sketchWordSource=b.dataset.sketchSource;renderActivities()});
-    $('[data-sketch-minutes]').forEach(b=>b.onclick=()=>{state.sketchMinutes=Number(b.dataset.sketchMinutes);renderActivities()});
+    $$('[data-sketch-source]').forEach(b=>b.onclick=()=>{state.sketchWordSource=b.dataset.sketchSource;renderActivities()});
+    $$('[data-sketch-minutes]').forEach(b=>b.onclick=()=>{state.sketchMinutes=Number(b.dataset.sketchMinutes);renderActivities()});
     const words=$('#sketchTeacherWords');if(words)words.oninput=e=>{state.sketchTeacherWords=e.target.value};
     $('#launchSketchBtn').onclick=launchSketchSignal;return;
   }
@@ -2286,12 +2286,12 @@ $$('.tab').forEach(t=>t.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('a
 const openCustomRosterBtn=$('#openCustomRoster');
 if(openCustomRosterBtn)openCustomRosterBtn.onclick=()=>{if(state.ended)return;state.customRosterOpen=!state.customRosterOpen;if(state.customRosterOpen){state.presentationEditor=null;state.presentationLibraryOpen=false;state.rosterSetEditorId=state.activeRosterSetId||'default'}render()};
 
-$('[data-teacher-quick]').forEach(b=>b.onclick=()=>{
+$$('[data-teacher-quick]').forEach(b=>b.onclick=()=>{
   if(state.ended)return toast('Start a new session first');
   const q=b.dataset.teacherQuick;
   if(q==='shared'){
-    $('.tab').forEach(x=>x.classList.remove('active'));const t=$('[data-view="shared"]');if(t)t.classList.add('active');
-    $('.view').forEach(v=>v.classList.remove('active'));$('#shared').classList.add('active');state.view='shared';renderPublic();renderControls();return;
+    $$('.tab').forEach(x=>x.classList.remove('active'));const t=$('[data-view="shared"]');if(t)t.classList.add('active');
+    $$('.view').forEach(v=>v.classList.remove('active'));$('#shared').classList.add('active');state.view='shared';renderPublic();renderControls();return;
   }
   if(state.activityRun){
     if(q==='lobby'){enterLobby();return}
@@ -2306,7 +2306,7 @@ $('[data-teacher-quick]').forEach(b=>b.onclick=()=>{
   if(q==='ready'){state.screen='ready';state.readyEnabled=true;state.students.forEach(s=>s.readyResponse='');state.promptActive=true;render();toast('Ready check sent — Ready button enabled')}
 });
 
-$('[data-control]').forEach(b=>b.onclick=()=>{
+$$('[data-control]').forEach(b=>b.onclick=()=>{
   if(state.ended)return;
   state.customRosterOpen=false;
   if(state.activityRun&&b.dataset.control!=='lobby'){toast('Return to Classroom before opening another class control');return}
