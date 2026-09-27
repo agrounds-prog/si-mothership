@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SI Mothership v48.10 — Student Photo Send Flow</title>
+<title>SI Mothership v48.11 — Sketch Teams & Canvas Ratio</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -738,6 +738,41 @@ body.role-shared .presentation-public .presentation-media-stack iframe{
 .student-photo-composer-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.student-photo-composer-actions button{padding:10px 14px;border:1px solid #355674;border-radius:10px;background:#10223b;color:#e8f3ff;font-weight:900}.student-photo-composer-actions #studentPhotoSendBtn{background:#123e38;border-color:#2f7d69;color:#6df0c8}.student-photo-composer-actions #studentPhotoSendBtn:disabled{opacity:.4}
 @media(max-width:520px){.student-photo-source-actions{grid-template-columns:1fr}.student-photo-preview-wrap{grid-template-columns:82px 1fr}.student-photo-preview-wrap img{width:82px;height:72px}}
 </style>
+
+<style id="v48-11-sketch-layout-teams">
+/* Preserve Sketch Signal's native BOARD coordinate space: 1000×750 = 4:3. */
+.sketch-public .board-viewport{
+  width:min(1100px,92vw,calc(56vh * 1.333333))!important;
+  height:auto!important;
+  aspect-ratio:4/3!important;
+  max-height:none!important;
+  padding:7px!important;
+  box-sizing:border-box!important
+}
+.sketch-public .board-surface{
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:4/3!important;
+  min-height:0!important
+}
+.sketch-public .board-surface svg,.sketch-public .board-surface .board-blank,.sketch-public .board-surface .board-base-image{width:100%!important;height:100%!important}
+.sketch-team-picker{margin:10px 0 14px;padding:12px;border:1px solid #2d4968;border-radius:13px;background:#081528}.sketch-team-picker-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:9px}.sketch-team-picker-head span{color:#8299b8;font-size:10px}.sketch-team-students{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.sketch-team-students button{display:grid;grid-template-columns:40px 1fr;gap:8px;align-items:center;text-align:left;border:1px solid #35506d;border-radius:10px;background:#0b1b30;color:#eef6ff;padding:7px}.sketch-team-students button>img,.sketch-team-students button>.builtin-avatar-glyph{width:40px;height:40px;border-radius:9px;object-fit:cover;display:grid;place-items:center;font-size:24px}.sketch-team-students button span b,.sketch-team-students button span small{display:block}.sketch-team-students button span small{margin-top:2px;font-size:9px}.sketch-team-students button.team-1{border-color:#4db7ff}.sketch-team-students button.team-1 small{color:#65c7ff}.sketch-team-students button.team-2{border-color:#e0b94f}.sketch-team-students button.team-2 small{color:#ffd86a}.sketch-team-students button.team-3{border-color:#a778ff}.sketch-team-students button.team-3 small{color:#c5a6ff}
+
+/* Artist device: use the browser as a drawing canvas, not a card preview. */
+.device-main:has(.sketch-student-secret){padding:10px 10px 8px!important;align-items:stretch!important;justify-content:stretch!important}
+.sketch-student-secret{width:100%!important;max-width:none!important;align-content:start!important;gap:6px!important}
+.sketch-student-secret .eyebrow{font-size:9px!important}.sketch-student-secret .sketch-secret-word{font-size:clamp(20px,5vw,30px)!important}.sketch-student-secret>p{font-size:13px!important;margin:0 0 3px!important}
+.sketch-student-secret .board-viewport.student-board{width:100%!important;height:auto!important;max-height:none!important;aspect-ratio:4/3!important;padding:5px!important;overflow:hidden!important}
+.sketch-student-secret .board-surface{width:100%!important;height:auto!important;aspect-ratio:4/3!important}
+body.role-student .device:has(.sketch-student-secret) .device-head{height:48px!important}
+body.role-student .device:has(.sketch-student-secret) .student-demo-bar{padding:7px 10px!important}
+body.role-student .device:has(.sketch-student-secret) .student-actions{padding:8px!important;gap:6px!important}
+body.role-student .device:has(.sketch-student-secret) .student-actions button{padding:9px 4px!important;font-size:11px!important}
+@media(max-width:800px){
+  .sketch-public .board-viewport{width:min(96vw,calc(50vh * 1.333333))!important;height:auto!important}
+  .sketch-team-students{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -1125,15 +1160,39 @@ function sketchAutoMatch(guess,word){const g=sketchNormalize(guess),w=sketchNorm
 function sketchArtist(run=state.activityRun){const sk=sketchState(run);return sk?studentByName(sk.artist):null}
 function sketchSolvedCount(run=state.activityRun){const sk=sketchState(run);return sk?Object.values(sk.guesses||{}).filter(g=>g&&g.status==='accepted').length:0}
 function sketchRoundSeconds(run=state.activityRun){const sk=sketchState(run);return sk?.roundEndsAt?Math.max(0,Math.ceil((sk.roundEndsAt-Date.now())/1000)):60}
-function sketchStartRound(run=state.activityRun,advance=false){if(!run)return;const crew=connectedStudents();if(!crew.length)return;run.sketch=run.sketch||{};const sk=run.sketch;sk.words=sk.words?.length?sk.words:sketchWordsFromSetup();sk.artistIndex=advance?((Number(sk.artistIndex||0)+1)%crew.length):Math.min(Number(sk.artistIndex||0),crew.length-1);sk.artist=crew[sk.artistIndex].n;sk.word=sk.words[(Number(sk.wordIndex||0))%sk.words.length]||'rocket';if(advance)sk.wordIndex=Number(sk.wordIndex||0)+1;sk.guesses={};sk.reveal=false;sk.round=Number(sk.round||0)+1;sk.roundEndsAt=Date.now()+60000;run.board={title:'Sketch Signal',pages:[boardBlankPage()],pageIndex:0,controller:sk.artist,teacherTool:'black',teacherWidth:7,studentTool:'black',studentWidth:8,savedId:null}}
+function sketchStartRound(run=state.activityRun,advance=false){if(!run)return;const crew=sketchOrderedCrew(run);if(!crew.length)return;run.sketch=run.sketch||{};const sk=run.sketch;sk.words=sk.words?.length?sk.words:sketchWordsFromSetup();sk.artistIndex=advance?((Number(sk.artistIndex||0)+1)%crew.length):Math.min(Number(sk.artistIndex||0),crew.length-1);sk.artist=crew[sk.artistIndex].n;sk.word=sk.words[(Number(sk.wordIndex||0))%sk.words.length]||'rocket';if(advance)sk.wordIndex=Number(sk.wordIndex||0)+1;sk.guesses={};sk.reveal=false;sk.round=Number(sk.round||0)+1;sk.roundEndsAt=Date.now()+60000;run.board={title:'Sketch Signal',pages:[boardBlankPage()],pageIndex:0,controller:sk.artist,teacherTool:'black',teacherWidth:7,studentTool:'black',studentWidth:8,savedId:null}}
+function sketchTeamLabel(n){return ['','BLUE','GOLD','PURPLE'][Number(n)||0]||('TEAM '+n)}
+function sketchAssignmentFor(name){return Number((state.sketchTeamAssignments||{})[name]||0)}
+function cycleSketchTeam(name){
+  state.sketchTeamAssignments=state.sketchTeamAssignments||{};
+  const max=Number(state.sketchTeamCount||2),cur=Number(state.sketchTeamAssignments[name]||0);
+  state.sketchTeamAssignments[name]=cur>=max?1:cur+1;
+  renderActivities();
+}
+function sketchLaunchAssignments(){
+  const crew=connectedStudents(),mode=state.sketchMode||'free',count=Number(state.sketchTeamCount||2),out={};
+  if(mode!=='teams')return out;
+  crew.forEach((st,i)=>{out[st.n]=Number(state.sketchTeamAssignments?.[st.n]||((i%count)+1))});
+  return out;
+}
+function sketchTeamFor(name,run=state.activityRun){return Number(run?.sketchConfig?.teamAssignments?.[name]||0)}
+function sketchOrderedCrew(run=state.activityRun){
+  const crew=connectedStudents();
+  if(run?.sketchConfig?.mode!=='teams')return crew;
+  const count=Number(run.sketchConfig.teamCount||2),groups=Array.from({length:count},()=>[]);
+  crew.forEach(st=>{const t=Math.max(1,Math.min(count,sketchTeamFor(st.n,run)||1));groups[t-1].push(st)});
+  const ordered=[];let i=0;
+  while(groups.some(g=>i<g.length)){for(const g of groups)if(g[i])ordered.push(g[i]);i++}
+  return ordered.length?ordered:crew;
+}
 function initializeSketchRun(run=state.activityRun){if(!run)return;run.sketch={words:sketchWordsFromSetup(),artistIndex:0,wordIndex:0,round:0,guesses:{},reveal:false,gameEndsAt:Date.now()+Number(run.sketchConfig?.minutes||10)*60000};sketchStartRound(run,false)}
-function launchSketchSignal(){const words=sketchWordsFromSetup();if(!words.length)return toast('Add at least one Sketch Signal word');state.activityRun={activityId:'sketch-game',phase:'lobby',responses:{},sketchConfig:{minutes:Number(state.sketchMinutes||10),wordSource:state.sketchWordSource,words:deepClone(words)}};state.screen='activity';state.promptActive=false;state.assigningSlot=null;render();toast('SKETCH SIGNAL loaded — students moved to Activity Lobby')}
+function launchSketchSignal(){const words=sketchWordsFromSetup();if(!words.length)return toast('Add at least one Sketch Signal word');const teamAssignments=sketchLaunchAssignments();state.activityRun={activityId:'sketch-game',phase:'lobby',responses:{},sketchConfig:{minutes:Number(state.sketchMinutes||10),wordSource:state.sketchWordSource,words:deepClone(words),mode:state.sketchMode||'free',teamCount:Number(state.sketchTeamCount||2),teamAssignments}};state.screen='activity';state.promptActive=false;state.assigningSlot=null;render();toast('SKETCH SIGNAL loaded — students moved to Activity Lobby')}
 function submitSketchGuess(){const run=state.activityRun,sk=sketchState(run),s=selectedStudent(),input=$('#sketchGuessInput');if(!run||!sk||!s||s.n===sk.artist||sk.reveal)return;const text=(input?.value||'').trim();if(!text)return toast('Enter a guess first');sk.guesses=sk.guesses||{};sk.guesses[s.n]={text:text.slice(0,80),status:sketchAutoMatch(text,sk.word)?'accepted':'pending',at:Date.now()};render();toast(sk.guesses[s.n].status==='accepted'?'Signal decoded!':'Guess sent privately')}
 function setSketchGuess(name,status){const sk=sketchState();if(!sk?.guesses?.[name])return;sk.guesses[name].status=status;if(status==='rejected')sk.guesses[name].reviewedAt=Date.now();render()}
 function revealSketchRound(){const sk=sketchState();if(!sk)return;sk.reveal=true;render();toast('Signal revealed')}
 function nextSketchArtist(){const run=state.activityRun;if(!run)return;sketchStartRound(run,true);render();toast(`${sketchState(run).artist} is the next artist`)}
 function addSketchTime(sec=30){const sk=sketchState();if(!sk)return;sk.roundEndsAt=Math.max(Date.now(),Number(sk.roundEndsAt||Date.now()))+sec*1000;render()}
-function sketchSharedMarkup(run=state.activityRun,big=false){const sk=sketchState(run);if(!sk)return'';if(sk.reveal)return `<div class="sketch-reveal"><span class="eyebrow">SIGNAL DECODED</span><h3>${esc(sk.word.toUpperCase())}</h3><strong>${sketchSolvedCount(run)} / ${connectedStudents().length} CREW MEMBERS SOLVED IT</strong><p>Next artist standing by.</p></div>`;const artist=sketchArtist(run);return `<div class="sketch-public"><div class="sketch-head"><div class="sketch-artist"><div class="avatar">${artist?avatarRosterMarkup(artist):'✎'}</div><div><span>ARTIST</span><b>${esc(sk.artist||'Waiting')}</b></div></div><div class="sketch-timer"><span>ROUND</span><strong data-sketch-round-timer>${sketchRoundSeconds(run)}s</strong></div><div class="sketch-solved"><span>SOLVED</span><strong data-sketch-solved>${sketchSolvedCount(run)} / ${connectedStudents().length}</strong></div></div>${boardSurfaceMarkup(run,{big})}</div>`}
+function sketchSharedMarkup(run=state.activityRun,big=false){const sk=sketchState(run);if(!sk)return'';if(sk.reveal)return `<div class="sketch-reveal"><span class="eyebrow">SIGNAL DECODED</span><h3>${esc(sk.word.toUpperCase())}</h3><strong>${sketchSolvedCount(run)} / ${connectedStudents().length} CREW MEMBERS SOLVED IT</strong><p>Next artist standing by.</p></div>`;const artist=sketchArtist(run),team=sketchTeamFor(sk.artist,run);return `<div class="sketch-public"><div class="sketch-head"><div class="sketch-artist"><div class="avatar">${artist?avatarRosterMarkup(artist):'✎'}</div><div><span>ARTIST${team?' · '+sketchTeamLabel(team):''}</span><b>${esc(sk.artist||'Waiting')}</b></div></div><div class="sketch-timer"><span>ROUND</span><strong data-sketch-round-timer>${sketchRoundSeconds(run)}s</strong></div><div class="sketch-solved"><span>SOLVED</span><strong data-sketch-solved>${sketchSolvedCount(run)} / ${connectedStudents().length}</strong></div></div>${boardSurfaceMarkup(run,{big})}</div>`}
 function wireSketchStudent(){const run=state.activityRun,sk=sketchState(run),s=selectedStudent();if(!run||activeActivity()?.type!=='sketch'||!sk||!s||sk.reveal||sk.artist!==s.n)return;wireBoardSurface(document.querySelector('[data-board-surface="student"]'),s.n)}
 function updateSketchLiveStatus(){
   if(!state?.activityRun||activeActivity()?.type!=='sketch'||state.activityRun.phase!=='running')return;
@@ -1210,7 +1269,7 @@ const initial=()=>({
  published:{mode:'text',text:'1. Warm-up\n2. Ready check\n3. Class activity',image:'',youtube:''},
  activities:hydratedActivities(),
  favoriteSlots:loadAppShortcuts(),assigningSlot:null,activeApp:null,presentationLibraryOpen:false,
- minefieldLength:'standard',minefieldMode:'crew',minefieldTeamCount:2,sketchMinutes:10,sketchWordSource:'mothership',sketchTeacherWords:'',vectorDraft:defaultVectorDraft(),orbitDraft:defaultOrbitDraft(),pixelDraft:defaultPixelDraft(),
+ minefieldLength:'standard',minefieldMode:'crew',minefieldTeamCount:2,sketchMinutes:10,sketchWordSource:'mothership',sketchTeacherWords:'',sketchMode:'free',sketchTeamCount:2,sketchTeamAssignments:{},vectorDraft:defaultVectorDraft(),orbitDraft:defaultOrbitDraft(),pixelDraft:defaultPixelDraft(),
  picturePromptSent:false,picturePrompt:'Take a picture of your completed work.',promptActive:false,
  selectedStudent:'',students:[],ended:false,
  activityRun:null,
@@ -1652,7 +1711,7 @@ function studentMarkup(){
       const sk=sketchState(run),artist=sketchArtist(run),isArtist=sk&&s&&sk.artist===s.n,guess=sk?.guesses?.[s?.n];
       if(!sk)return '<div class="student-prompt"><h2>Sketch Signal is preparing…</h2></div>';
       if(sk.reveal)return `<div class="sketch-solved-card"><span class="eyebrow">SIGNAL DECODED</span><div class="check">✓</div><h2>${esc(sk.word.toUpperCase())}</h2><p>Next artist is coming up.</p></div>`;
-      if(isArtist)return `<div class="student-prompt response-device sketch-student-secret"><span class="eyebrow">SKETCH SIGNAL · YOU ARE THE ARTIST</span><div class="sketch-secret-word">YOUR SIGNAL: ${esc(sk.word.toUpperCase())}</div><p>Don't say the word. Draw it for your crew.</p>${boardSurfaceMarkup(run,{editor:'student',student:true})}</div>`;
+      if(isArtist){const team=sketchTeamFor(s.n,run);return `<div class="student-prompt response-device sketch-student-secret"><span class="eyebrow">SKETCH SIGNAL · YOU ARE THE ARTIST${team?' · '+sketchTeamLabel(team):''}</span><div class="sketch-secret-word">YOUR SIGNAL: ${esc(sk.word.toUpperCase())}</div><p>Don't say the word. Draw it for your crew.</p>${boardSurfaceMarkup(run,{editor:'student',student:true})}</div>`};
       if(guess?.status==='accepted')return `<div class="sketch-solved-card"><span class="eyebrow">SKETCH SIGNAL</span><div class="check">✓</div><h2>SIGNAL DECODED!</h2><p>You got it. Keep the answer secret and watch the next artist.</p></div>`;
       return `<div class="student-prompt"><span class="eyebrow">SKETCH SIGNAL</span><h2>What is ${esc(sk.artist)} drawing?</h2><input id="sketchGuessInput" class="sketch-guess-input" value="${guess?.status==='rejected'?'':esc(guess?.text||'')}" placeholder="Enter your guess…" autocomplete="off"><p>${guess?.status==='pending'?'Guess sent — waiting for teacher review.':'Guesses are private.'}</p></div>`;
     }
@@ -2108,9 +2167,11 @@ function renderActivities(){
     note.classList.add('hidden');picker.classList.add('hidden');grid.classList.remove('hidden');
     title.textContent='SKETCH SIGNAL';subtitle.textContent='Rewards Arcade · One student draws. The crew decodes.';
     header.innerHTML=`<button id="backToAppsBtn">← Activity Library</button>`;$('#backToAppsBtn').onclick=backToAppLibrary;
-    grid.innerHTML=`<div class="sketch-setup"><span class="app-status">REWARDS ARCADE</span><div style="display:flex;align-items:center;gap:12px;margin-top:8px"><div class="act-icon">${appIconMarkup('sketch')}</div><div><h3 style="margin:0">SKETCH SIGNAL</h3><p style="margin:3px 0 0">DRAW THE SIGNAL → CREW DECODES IT → NEXT ARTIST</p></div></div><h4>WORD SOURCE</h4><div class="sketch-options"><button class="sketch-option ${state.sketchWordSource==='mothership'?'active':''}" data-sketch-source="mothership"><b>MOTHERSHIP PACK</b><span>Built-in kid-friendly words</span></button><button class="sketch-option ${state.sketchWordSource==='teacher'?'active':''}" data-sketch-source="teacher"><b>TEACHER PACK</b><span>Use your own words below</span></button><button class="sketch-option" disabled><b>RANDOM MIX</b><span>Coming in the next pass</span></button></div>${state.sketchWordSource==='teacher'?`<textarea id="sketchTeacherWords" class="sketch-word-box" placeholder="One word per line…">${esc(state.sketchTeacherWords)}</textarea>`:''}<h4>GAME LENGTH</h4><div class="sketch-options">${[5,10,15].map(n=>`<button class="sketch-option ${Number(state.sketchMinutes)===n?'active':''}" data-sketch-minutes="${n}"><b>${n} MINUTES</b><span>Teacher controls each round</span></button>`).join('')}</div><div class="sketch-teacher-card" style="margin:12px 0"><b>V48.1 CORE MODE</b><p style="margin:5px 0 0">Free-for-All · No Score · automatic artist rotation · private guesses · teacher Accept/Reject · 60-second rounds.</p></div><div class="real-app-actions"><button class="sketch-launch" id="launchSketchBtn">🚀 LAUNCH SKETCH SIGNAL</button></div></div>`;
-    $$('[data-sketch-source]').forEach(b=>b.onclick=()=>{state.sketchWordSource=b.dataset.sketchSource;renderActivities()});
-    $$('[data-sketch-minutes]').forEach(b=>b.onclick=()=>{state.sketchMinutes=Number(b.dataset.sketchMinutes);renderActivities()});
+    grid.innerHTML=`<div class="sketch-setup"><span class="app-status">REWARDS ARCADE</span><div style="display:flex;align-items:center;gap:12px;margin-top:8px"><div class="act-icon">${appIconMarkup('sketch')}</div><div><h3 style="margin:0">SKETCH SIGNAL</h3><p style="margin:3px 0 0">DRAW THE SIGNAL → CREW DECODES IT → NEXT ARTIST</p></div></div><h4>WORD SOURCE</h4><div class="sketch-options"><button class="sketch-option ${state.sketchWordSource==='mothership'?'active':''}" data-sketch-source="mothership"><b>MOTHERSHIP PACK</b><span>Built-in kid-friendly words</span></button><button class="sketch-option ${state.sketchWordSource==='teacher'?'active':''}" data-sketch-source="teacher"><b>TEACHER PACK</b><span>Use your own words below</span></button><button class="sketch-option" disabled><b>RANDOM MIX</b><span>Coming in the next pass</span></button></div>${state.sketchWordSource==='teacher'?`<textarea id="sketchTeacherWords" class="sketch-word-box" placeholder="One word per line…">${esc(state.sketchTeacherWords)}</textarea>`:''}<h4>PLAY MODE</h4><div class="sketch-options"><button class="sketch-option ${state.sketchMode==='free'?'active':''}" data-sketch-mode="free"><b>FREE-FOR-ALL</b><span>Everyone guesses · roster rotation</span></button><button class="sketch-option ${state.sketchMode==='teams'&&Number(state.sketchTeamCount)===2?'active':''}" data-sketch-mode="teams" data-sketch-team-count="2"><b>2 TEAMS</b><span>Teacher assigns students</span></button><button class="sketch-option ${state.sketchMode==='teams'&&Number(state.sketchTeamCount)===3?'active':''}" data-sketch-mode="teams" data-sketch-team-count="3"><b>3 TEAMS</b><span>Teacher assigns students</span></button></div>${state.sketchMode==='teams'?`<div class="sketch-team-picker"><div class="sketch-team-picker-head"><b>TEAM ASSIGNMENTS</b><span>Tap a student to cycle teams.</span></div><div class="sketch-team-students">${connectedStudents().length?connectedStudents().map((st,i)=>{const t=Number(state.sketchTeamAssignments?.[st.n]||((i%Number(state.sketchTeamCount||2))+1));return `<button data-sketch-student-team="${esc(st.n)}" class="team-${t}">${avatarRosterMarkup(st)}<span><b>${esc(st.n)}</b><small>${sketchTeamLabel(t)}</small></span></button>`}).join(''):'<p class="empty">Students can be assigned after they join. Unassigned students are balanced automatically at launch.</p>'}</div></div>`:''}<h4>GAME LENGTH</h4><div class="sketch-options">${[5,10,15].map(n=>`<button class="sketch-option ${Number(state.sketchMinutes)===n?'active':''}" data-sketch-minutes="${n}"><b>${n} MINUTES</b><span>Teacher controls each round</span></button>`).join('')}</div><div class="sketch-teacher-card" style="margin:12px 0"><b>V48.1 CORE MODE</b><p style="margin:5px 0 0">${state.sketchMode==='teams'?`${state.sketchTeamCount} Teams · teacher-selected assignments · alternating team artist rotation`:'Free-for-All'} · No Score · private guesses · teacher Accept/Reject · 60-second rounds.</p></div><div class="real-app-actions"><button class="sketch-launch" id="launchSketchBtn">🚀 LAUNCH SKETCH SIGNAL</button></div></div>`;
+    $('[data-sketch-source]').forEach(b=>b.onclick=()=>{state.sketchWordSource=b.dataset.sketchSource;renderActivities()});
+    $('[data-sketch-mode]').forEach(b=>b.onclick=()=>{state.sketchMode=b.dataset.sketchMode;if(b.dataset.sketchTeamCount)state.sketchTeamCount=Number(b.dataset.sketchTeamCount);renderActivities()});
+    $('[data-sketch-student-team]').forEach(b=>b.onclick=()=>cycleSketchTeam(b.dataset.sketchStudentTeam));
+    $('[data-sketch-minutes]').forEach(b=>b.onclick=()=>{state.sketchMinutes=Number(b.dataset.sketchMinutes);renderActivities()});
     const words=$('#sketchTeacherWords');if(words)words.oninput=e=>{state.sketchTeacherWords=e.target.value};
     $('#launchSketchBtn').onclick=launchSketchSignal;return;
   }
