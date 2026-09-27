@@ -34,7 +34,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "48.2"
+APP_VERSION = "48.7"
 
 PUBLIC_STORAGE_KEYS = {
     "siMothership.customAvatars.v1",
@@ -242,6 +242,30 @@ def merge_student_snapshot(canonical: Optional[dict], incoming: dict, token: str
     if out.get("handEnabled") and any(isinstance(a, dict) and a.get("type") == "hand" and a.get("name") == name for a in inc_alerts):
         cur_alerts.append({"type": "hand", "name": name})
     out["alerts"] = cur_alerts
+
+    # Students may add their own private help messages while Ask for Help is enabled.
+    # Teacher-deleted message IDs remain authoritative so stale student snapshots cannot restore them.
+    inc_help_messages = incoming.get("helpMessages", []) if isinstance(incoming.get("helpMessages"), list) else []
+    cur_help_messages = out.get("helpMessages", []) if isinstance(out.get("helpMessages"), list) else []
+    deleted_help_ids = {str(x) for x in (out.get("helpDeletedIds", []) if isinstance(out.get("helpDeletedIds"), list) else [])}
+    if out.get("helpEnabled"):
+        known_help_ids = {str(m.get("id")) for m in cur_help_messages if isinstance(m, dict)}
+        for msg in inc_help_messages:
+            if not isinstance(msg, dict) or msg.get("name") != name:
+                continue
+            mid = str(msg.get("id") or "")
+            if not mid or mid in deleted_help_ids or mid in known_help_ids:
+                continue
+            clean_msg = {
+                "id": mid[:120],
+                "name": name,
+                "text": str(msg.get("text") or "I need help")[:240],
+                "at": msg.get("at"),
+                "seen": False,
+            }
+            cur_help_messages.insert(0, clean_msg)
+            known_help_ids.add(mid)
+    out["helpMessages"] = cur_help_messages
 
     # Students may add their own photos only while the teacher's picture prompt is live.
     # Teacher deletion/closure remains authoritative over delayed uploads.
