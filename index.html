@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SI Mothership v48.9 — Student Photo & Avatar Fix</title>
+<title>SI Mothership v48.10 — Student Photo Send Flow</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -727,6 +727,17 @@ body.role-shared .presentation-public .presentation-media-stack iframe{
 .inbox-student-row{grid-template-columns:28px 42px minmax(0,1fr) 25px!important;gap:8px!important}.inbox-copy{min-width:0}.inbox-copy b,.inbox-copy small{display:block}.inbox-copy small{color:#8999b1;margin-top:3px}
 .help-message-row{grid-template-columns:42px minmax(0,1fr) auto auto!important}
 </style>
+
+<style id="v48-10-student-photo-flow">
+.student-photo-composer{position:fixed;inset:0;z-index:100300;display:grid;place-items:center;padding:20px;background:#020813cc;backdrop-filter:blur(8px)}
+.student-photo-composer.hidden{display:none}
+.student-photo-composer-card{width:min(560px,94vw);border:1px solid #355674;border-radius:18px;background:linear-gradient(155deg,#0b1b30,#071322);box-shadow:0 28px 90px #0009;padding:16px}
+.student-photo-composer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.student-photo-composer-head b{font-size:19px}.student-photo-composer-head small{display:block;color:#8da2bd;margin-top:4px}.student-photo-composer-head>button{width:34px;height:34px;border:1px solid #355674;border-radius:9px;background:#10223b;color:#d9e8f7;font-size:20px}
+.student-photo-source-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}.student-photo-source-actions button{min-height:110px;border:1px solid #345875;border-radius:14px;background:#0e2038;color:#eaf4ff;display:grid;place-items:center;align-content:center;gap:4px}.student-photo-source-actions button span{font-size:30px}.student-photo-source-actions button b{font-size:15px}.student-photo-source-actions button small{color:#8ea4bf}
+.student-photo-preview-wrap{display:grid;grid-template-columns:110px 1fr;gap:12px;align-items:center;padding:10px;border:1px solid #2e506f;border-radius:13px;background:#081728}.student-photo-preview-wrap.hidden{display:none}.student-photo-preview-wrap img{width:110px;height:90px;object-fit:cover;border-radius:10px;border:1px solid #355674}.student-photo-preview-wrap small{display:block;color:#8fa5bf;margin-top:4px}
+.student-photo-composer-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.student-photo-composer-actions button{padding:10px 14px;border:1px solid #355674;border-radius:10px;background:#10223b;color:#e8f3ff;font-weight:900}.student-photo-composer-actions #studentPhotoSendBtn{background:#123e38;border-color:#2f7d69;color:#6df0c8}.student-photo-composer-actions #studentPhotoSendBtn:disabled{opacity:.4}
+@media(max-width:520px){.student-photo-source-actions{grid-template-columns:1fr}.student-photo-preview-wrap{grid-template-columns:82px 1fr}.student-photo-preview-wrap img{width:82px;height:72px}}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -785,13 +796,31 @@ body.role-shared .presentation-public .presentation-media-stack iframe{
 </section></aside>
 </div></div></section>
 
-<section id="student" class="view"><div class="student-shell"><div class="device"><div class="device-head"><span>🚀 <b>SI Mothership</b></span><span id="studentConnectionLabel"><span class="pulse"></span>&nbsp; Join Class</span></div><div class="student-demo-bar"><label>DEMO STUDENT <select id="studentSelect"></select></label><span class="student-state" id="studentState">Classroom Controls</span></div><div class="device-main" id="studentContent"></div><div class="student-control-zone"><div class="student-control-label" id="studentControlLabel"><b>CLASSROOM CONTROLS</b><span>Your standard controls</span></div><div class="student-actions" id="studentControls"></div><input class="student-photo-input" id="studentPhotoFile" type="file" accept="image/*" capture="environment"></div></div></div></section>
+<section id="student" class="view"><div class="student-shell"><div class="device"><div class="device-head"><span>🚀 <b>SI Mothership</b></span><span id="studentConnectionLabel"><span class="pulse"></span>&nbsp; Join Class</span></div><div class="student-demo-bar"><label>DEMO STUDENT <select id="studentSelect"></select></label><span class="student-state" id="studentState">Classroom Controls</span></div><div class="device-main" id="studentContent"></div><div class="student-control-zone"><div class="student-control-label" id="studentControlLabel"><b>CLASSROOM CONTROLS</b><span>Your standard controls</span></div><div class="student-actions" id="studentControls"></div><input class="student-photo-input" id="studentPhotoFile" type="file" accept="image/*" capture="environment"><input class="student-photo-input" id="studentPhotoUpload" type="file" accept="image/*"></div></div></div></section>
 
 <section id="shared" class="view"><div class="shared-shell"><div class="shared-screen"><div class="mirror-top"><span>🚀 <b>SI Mothership · Explorers</b></span><strong>JOIN 7K3M</strong></div><div class="mirror-content" id="sharedContent"></div><div class="mirror-footer"><span><span class="pulse"></span>&nbsp; <span id="sharedLabel">LOBBY</span></span><span>Student login + classroom display</span></div></div></div></section>
 <div class="toast" id="toast"></div>
 
 
 
+
+<div id="studentPhotoComposer" class="student-photo-composer hidden" role="dialog" aria-modal="true" aria-label="Send photo to teacher">
+  <div class="student-photo-composer-card">
+    <div class="student-photo-composer-head"><div><b>Send Photo to Teacher</b><small>Choose how you want to add your photo.</small></div><button id="studentPhotoComposerClose" type="button">×</button></div>
+    <div class="student-photo-source-actions">
+      <button id="studentTakePhotoBtn" type="button"><span>📷</span><b>Take Photo</b><small>Use camera</small></button>
+      <button id="studentUploadPhotoBtn" type="button"><span>▧</span><b>Upload File</b><small>Choose from device</small></button>
+    </div>
+    <div id="studentPhotoPreviewWrap" class="student-photo-preview-wrap hidden">
+      <img id="studentPhotoPreview" alt="Selected photo preview">
+      <div><b id="studentPhotoPreviewName">Selected photo</b><small>Ready to send privately to your teacher.</small></div>
+    </div>
+    <div class="student-photo-composer-actions">
+      <button id="studentPhotoCancelBtn" type="button">Cancel</button>
+      <button id="studentPhotoSendBtn" type="button" disabled>Send to Teacher</button>
+    </div>
+  </div>
+</div>
 
 <div id="helpComposer" class="help-composer hidden" role="dialog" aria-modal="true" aria-label="Ask for help">
   <div class="help-composer-card">
@@ -2356,7 +2385,7 @@ function wireStudentControlButtons(){
     if(act==='hand'&&state.handEnabled){const on=state.alerts.some(a=>a.type==='hand'&&a.name===s.n);state.alerts=state.alerts.filter(a=>!(a.type==='hand'&&a.name===s.n));if(!on)state.alerts.push({type:'hand',name:s.n});render();toast(!on?'Hand raised — teacher alerted':'Hand lowered')}
     if(act==='help'&&state.helpEnabled){openHelpComposer();return}
     if(act==='buzz'&&state.buzzEnabled){const on=state.buzz.includes(s.n);state.buzz=state.buzz.filter(n=>n!==s.n);if(!on)state.buzz.push(s.n);render();toast(!on?'Joined the buzz queue':'Left the buzz queue')}
-    if(act==='picture'&&state.pictureEnabled)$('#studentPhotoFile').click();
+    if(act==='picture'&&state.pictureEnabled){openStudentPhotoComposer();return}
   });
 }
 
@@ -2549,6 +2578,21 @@ $('#photoNext').onclick=()=>stepPhoto(1);
 $('#photoLightboxDelete').onclick=()=>{if(photoViewerId==null)return;state.photos=state.photos.filter(p=>p.id!==photoViewerId);if(!state.photos.length){closePhotoViewer();render();toast('Photo deleted');return}photoViewerId=state.photos[0].id;render();refreshPhotoViewer();toast('Photo deleted')};
 document.addEventListener('keydown',e=>{if($('#photoLightbox')?.classList.contains('hidden'))return;if(e.key==='Escape')closePhotoViewer();if(e.key==='ArrowLeft')stepPhoto(-1);if(e.key==='ArrowRight')stepPhoto(1)});
 
+let pendingStudentPhotoData='';
+let pendingStudentPhotoName='';
+function openStudentPhotoComposer(){
+  if(!state.pictureEnabled)return toast('Photo sending is not enabled right now');
+  pendingStudentPhotoData='';pendingStudentPhotoName='';
+  const previewWrap=$('#studentPhotoPreviewWrap'),send=$('#studentPhotoSendBtn');
+  if(previewWrap)previewWrap.classList.add('hidden');if(send)send.disabled=true;
+  const cam=$('#studentPhotoFile'),upload=$('#studentPhotoUpload');if(cam)cam.value='';if(upload)upload.value='';
+  $('#studentPhotoComposer')?.classList.remove('hidden');
+}
+function closeStudentPhotoComposer(){
+  pendingStudentPhotoData='';pendingStudentPhotoName='';
+  $('#studentPhotoComposer')?.classList.add('hidden');
+  const cam=$('#studentPhotoFile'),upload=$('#studentPhotoUpload');if(cam)cam.value='';if(upload)upload.value='';
+}
 function prepareStudentPhoto(file){
   return new Promise((resolve,reject)=>{
     if(!file)return reject(new Error('No photo selected'));
@@ -2571,22 +2615,39 @@ function prepareStudentPhoto(file){
     reader.readAsDataURL(file);
   });
 }
-$('#studentPhotoFile').onchange=async e=>{
-  const input=e.target,f=input.files&&input.files[0];if(!f)return;
-  const student=selectedStudent();
-  if(!student||!state.pictureEnabled){input.value='';return toast('Photo sending is not enabled right now')}
+async function stageStudentPhoto(file){
+  if(!file)return;
+  if(!state.pictureEnabled)return toast('Photo sending is not enabled right now');
   toast('Preparing photo…');
   try{
-    const data=await prepareStudentPhoto(f);
-    state.photos.unshift({id:Date.now(),name:student.n,data,seen:false});
-    input.value='';
-    render();
-    toast('Photo sent privately to teacher');
+    pendingStudentPhotoData=await prepareStudentPhoto(file);
+    pendingStudentPhotoName=file.name||'Photo';
+    $('#studentPhotoPreview').src=pendingStudentPhotoData;
+    $('#studentPhotoPreviewName').textContent=pendingStudentPhotoName;
+    $('#studentPhotoPreviewWrap').classList.remove('hidden');
+    $('#studentPhotoSendBtn').disabled=false;
   }catch(err){
-    input.value='';
-    toast('Could not send that photo — try again');
+    pendingStudentPhotoData='';pendingStudentPhotoName='';
+    toast('Could not open that photo — try again');
   }
-};
+}
+function sendPendingStudentPhoto(){
+  const student=selectedStudent();
+  if(!student||!state.pictureEnabled||!pendingStudentPhotoData)return;
+  state.photos.unshift({id:Date.now(),name:student.n,data:pendingStudentPhotoData,seen:false});
+  closeStudentPhotoComposer();
+  render();
+  toast('Photo sent privately to teacher');
+}
+const studentPhotoFile=$('#studentPhotoFile');if(studentPhotoFile)studentPhotoFile.onchange=e=>stageStudentPhoto(e.target.files&&e.target.files[0]);
+const studentPhotoUpload=$('#studentPhotoUpload');if(studentPhotoUpload)studentPhotoUpload.onchange=e=>stageStudentPhoto(e.target.files&&e.target.files[0]);
+const studentPhotoComposerClose=$('#studentPhotoComposerClose');if(studentPhotoComposerClose)studentPhotoComposerClose.onclick=closeStudentPhotoComposer;
+const studentPhotoCancelBtn=$('#studentPhotoCancelBtn');if(studentPhotoCancelBtn)studentPhotoCancelBtn.onclick=closeStudentPhotoComposer;
+const studentTakePhotoBtn=$('#studentTakePhotoBtn');if(studentTakePhotoBtn)studentTakePhotoBtn.onclick=()=>{$('#studentPhotoFile')?.click()};
+const studentUploadPhotoBtn=$('#studentUploadPhotoBtn');if(studentUploadPhotoBtn)studentUploadPhotoBtn.onclick=()=>{$('#studentPhotoUpload')?.click()};
+const studentPhotoSendBtn=$('#studentPhotoSendBtn');if(studentPhotoSendBtn)studentPhotoSendBtn.onclick=sendPendingStudentPhoto;
+const studentPhotoComposer=$('#studentPhotoComposer');if(studentPhotoComposer)studentPhotoComposer.onclick=e=>{if(e.target.id==='studentPhotoComposer')closeStudentPhotoComposer()};
+
 $('#openGallery').onclick=()=>{if(!state.photos.length)return toast('No photos submitted yet');openPhotoViewer(state.photos[0].id)};
 const clearPhotosBtn=$('#clearPhotos');if(clearPhotosBtn)clearPhotosBtn.onclick=()=>{if(!state.photos.length)return toast('Photo Inbox is already clear');state.photos=[];closePhotoViewer();render();toast('Photo Inbox cleared')};
 $('#endBtn').onclick=()=>{state.ended=true;state.activityRun=null;state.screen='ended';state.students=[];state.selectedStudent='';state.buzz=[];state.help=[];state.alerts=[];state.photos=[];state.promptActive=false;state.picturePromptSent=false;resetHomeControls();state.rosterPage=0;render();toast('Session ended — roster cleared')};
