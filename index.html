@@ -1089,7 +1089,7 @@ function publishSyncedState(){
     try{networkSocket.send(JSON.stringify({type:'state',state:snap,role:SESSION_ROLE,student_token:ident?.student_token||'',student_name:ident?.student_name||''}))}catch(e){}
   }
 }
-function acceptSyncedState(remote){if(!remote||typeof remote!=='object')return;if(remote.__sessionId&&STUDENT_SESSION_ID&&remote.__sessionId!==STUDENT_SESSION_ID)return;if(SESSION_ROLE==='student'&&boardDrawing&&state.activityRun&&activeActivity()?.type==='board'){deferredBoardRemoteState=deepClone(remote);return}syncApplying=true;try{mergeSyncedState(remote);if(SESSION_ROLE==='student')restoreStudentIdentity();render()}finally{syncApplying=false}}
+function acceptSyncedState(remote){if(!remote||typeof remote!=='object')return;if(remote.__sessionId&&STUDENT_SESSION_ID&&remote.__sessionId!==STUDENT_SESSION_ID)return;if(SESSION_ROLE==='student'&&boardDrawing&&state.activityRun&&['board','sketch'].includes(activeActivity()?.type)){deferredBoardRemoteState=deepClone(remote);return}syncApplying=true;try{mergeSyncedState(remote);if(SESSION_ROLE==='student')restoreStudentIdentity();render()}finally{syncApplying=false}}
 const hydrated=readSyncedState();
 let state=initial();
 if(hydrated)mergeSyncedState(hydrated);
