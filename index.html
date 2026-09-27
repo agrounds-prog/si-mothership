@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SI Mothership v48.11 — Sketch Teams & Canvas Ratio</title>
+<title>SI Mothership v48.12 — Sketch Live Ink Sync</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -773,6 +773,11 @@ body.role-student .device:has(.sketch-student-secret) .student-actions button{pa
   .sketch-team-students{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 </style>
+
+<style id="v48-12-sketch-ink-sync">
+/* Keep the live ink layer GPU-stable while frequent Sketch Signal strokes arrive. */
+.sketch-public .board-surface svg{transform:translateZ(0);backface-visibility:hidden;will-change:contents}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -1345,7 +1350,40 @@ function publishSyncedState(){
     try{networkSocket.send(JSON.stringify({type:'state',state:snap,role:SESSION_ROLE,student_token:ident?.student_token||'',student_name:ident?.student_name||''}))}catch(e){}
   }
 }
-function acceptSyncedState(remote){if(!remote||typeof remote!=='object')return;if(remote.__sessionId&&STUDENT_SESSION_ID&&remote.__sessionId!==STUDENT_SESSION_ID)return;if(SESSION_ROLE==='student'&&boardDrawing&&state.activityRun&&['board','sketch'].includes(activeActivity()?.type)){deferredBoardRemoteState=deepClone(remote);return}syncApplying=true;try{mergeSyncedState(remote);if(SESSION_ROLE==='student')restoreStudentIdentity();render()}finally{syncApplying=false}}
+function canPatchSketchSharedSync(remote){
+  if(SESSION_ROLE!=='shared')return false;
+  const cur=state?.activityRun,next=remote?.activityRun;
+  if(!cur||!next||cur.activityId!=='sketch-game'||next.activityId!=='sketch-game')return false;
+  if(cur.phase!=='running'||next.phase!=='running')return false;
+  const cs=cur.sketch||{},ns=next.sketch||{},cb=cur.board||{},nb=next.board||{};
+  const cp=cb.pages?.[Number(cb.pageIndex||0)]||null,np=nb.pages?.[Number(nb.pageIndex||0)]||null;
+  if(!cp||!np)return false;
+  return cs.artist===ns.artist&&cs.word===ns.word&&Number(cs.round||0)===Number(ns.round||0)&&!!cs.reveal===!!ns.reveal&&
+    String(cp.id||'')===String(np.id||'')&&Number(cb.pageIndex||0)===Number(nb.pageIndex||0)&&
+    cb.controller===nb.controller;
+}
+function patchSketchSharedInk(){
+  const page=currentBoardPage();
+  if(!page)return false;
+  const markup=boardStrokesMarkup(page);
+  let patched=false;
+  document.querySelectorAll('.sketch-public .board-surface svg').forEach(svg=>{svg.innerHTML=markup;patched=true});
+  updateSketchLiveStatus();
+  return patched;
+}
+function acceptSyncedState(remote){
+  if(!remote||typeof remote!=='object')return;
+  if(remote.__sessionId&&STUDENT_SESSION_ID&&remote.__sessionId!==STUDENT_SESSION_ID)return;
+  if(SESSION_ROLE==='student'&&boardDrawing&&state.activityRun&&['board','sketch'].includes(activeActivity()?.type)){deferredBoardRemoteState=deepClone(remote);return}
+  const patchSketch=canPatchSketchSharedSync(remote);
+  syncApplying=true;
+  try{
+    mergeSyncedState(remote);
+    if(SESSION_ROLE==='student')restoreStudentIdentity();
+    if(patchSketch&&patchSketchSharedInk())return;
+    render();
+  }finally{syncApplying=false}
+}
 const hydrated=readSyncedState();
 let state=initial();
 if(hydrated)mergeSyncedState(hydrated);
