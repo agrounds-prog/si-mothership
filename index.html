@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SI Mothership v45.1 — Student Phone View</title>
+<title>SI Mothership v45.2 — Stability Pass</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -826,16 +826,27 @@ let syncChannel=null;
 let networkSocket=null;
 let networkHydrated=!NETWORK_SYNC;
 let networkReconnectTimer=null;
+let networkReconnectAttempts=0;
+let networkSessionReset=false;
 let deferredBoardRemoteState=null;
 function networkWsUrl(){return `${location.protocol==='https:'?'wss':'ws'}://${location.host}/ws?role=${encodeURIComponent(SESSION_ROLE)}&code=${encodeURIComponent(STUDENT_JOIN_CODE)}${STUDENT_SESSION_ID?`&sid=${encodeURIComponent(STUDENT_SESSION_ID)}`:''}`}
 function currentStudentIdentity(){if(SESSION_ROLE!=='student')return null;const s=selectedStudent();return s?{student_token:s.studentToken||'',student_name:s.n||''}:readStudentIdentity()}
-function updateNetworkStatus(mode){const ns=document.getElementById('networkStatus');if(!ns||!NETWORK_SYNC)return;ns.classList.remove('online','offline');if(mode==='online'){ns.textContent='● LAN Connected';ns.classList.add('online')}else if(mode==='reconnecting'){ns.textContent='◌ Reconnecting';ns.classList.add('offline')}else{ns.textContent='○ LAN Offline';ns.classList.add('offline')}}
+function updateNetworkStatus(mode){const ns=document.getElementById('networkStatus');if(!ns||!NETWORK_SYNC)return;ns.classList.remove('online','offline');if(mode==='online'){ns.textContent='● Connected';ns.classList.add('online')}else if(mode==='reconnecting'){ns.textContent='◌ Reconnecting';ns.classList.add('offline')}else{ns.textContent='○ Offline';ns.classList.add('offline')}}
+function scheduleNetworkReconnect(){
+  if(!NETWORK_SYNC||networkSessionReset)return;
+  clearTimeout(networkReconnectTimer);
+  const delay=Math.min(10000,Math.round(1200*Math.pow(1.55,Math.min(networkReconnectAttempts,6))));
+  networkReconnectAttempts+=1;
+  networkReconnectTimer=setTimeout(connectNetworkSync,delay);
+}
 function connectNetworkSync(){
-  if(!NETWORK_SYNC)return;
+  if(!NETWORK_SYNC||networkSessionReset)return;
+  if(networkSocket&&(networkSocket.readyState===WebSocket.OPEN||networkSocket.readyState===WebSocket.CONNECTING))return;
   clearTimeout(networkReconnectTimer);
   try{
     networkSocket=new WebSocket(networkWsUrl());
     networkSocket.onopen=()=>{
+      networkReconnectAttempts=0;
       updateNetworkStatus('online');
       const ident=currentStudentIdentity();
       try{networkSocket.send(JSON.stringify({type:'hello',role:SESSION_ROLE,code:STUDENT_JOIN_CODE,session_id:STUDENT_SESSION_ID,student_token:ident?.student_token||'',student_name:ident?.student_name||''}))}catch(e){}
@@ -847,12 +858,18 @@ function connectNetworkSync(){
         if(msg&&msg.type==='state_absent'){networkHydrated=true;if(SESSION_ROLE==='teacher'){try{networkSocket.send(JSON.stringify({type:'state',state:sharedStateSnapshot(),role:SESSION_ROLE}))}catch(e){}}}
         if(msg&&msg.type==='join_code'&&msg.code){applyJoinCode(msg.code,msg.student_url||null,msg.qr_data||null,msg.session_id||null,msg.shared_url||null);try{renderPublic()}catch(_){}}
         if(msg&&msg.type==='presence'&&SESSION_ROLE==='teacher'){const st=state.students.find(x=>(msg.student_token&&x.studentToken===msg.student_token)||x.n===msg.student_name);if(st){syncApplying=true;try{st.offline=!msg.online;render()}finally{syncApplying=false}}}
-        if(msg&&msg.type==='session_reset'){networkHydrated=false;if(SESSION_ROLE==='student'){clearStudentIdentity();location.href='/?role=student'}else if(SESSION_ROLE==='shared'){location.href='/?role=shared'};}
+        if(msg&&msg.type==='session_reset'){networkHydrated=false;networkSessionReset=true;clearTimeout(networkReconnectTimer);if(SESSION_ROLE==='student'){clearStudentIdentity();location.replace('/?role=student')}else if(SESSION_ROLE==='shared'){location.replace('/?role=shared')}}
       }catch(err){}
     };
-    networkSocket.onclose=()=>{updateNetworkStatus('reconnecting');networkReconnectTimer=setTimeout(connectNetworkSync,1200)};
+    networkSocket.onclose=e=>{
+      networkSocket=null;
+      if(e&&e.code===4001){networkSessionReset=true;clearTimeout(networkReconnectTimer);if(SESSION_ROLE==='student'){clearStudentIdentity();location.replace('/?role=student');return}if(SESSION_ROLE==='shared'){location.replace('/?role=shared');return}}
+      if(networkSessionReset)return;
+      updateNetworkStatus(navigator.onLine?'reconnecting':'offline');
+      scheduleNetworkReconnect();
+    };
     networkSocket.onerror=()=>{updateNetworkStatus('offline')};
-  }catch(e){updateNetworkStatus('offline');networkReconnectTimer=setTimeout(connectNetworkSync,1500)}
+  }catch(e){networkSocket=null;updateNetworkStatus('offline');scheduleNetworkReconnect()}
 }
 
 function readSyncedState(){try{const raw=localStorage.getItem(SESSION_SYNC_KEY);if(!raw)return null;const parsed=JSON.parse(raw);return parsed&&typeof parsed==='object'?parsed:null}catch(e){return null}}
@@ -2071,6 +2088,8 @@ function applySessionRoleUI(){
 function setupSessionSync(){
   try{syncChannel=new BroadcastChannel('si-mothership-v42-session');syncChannel.onmessage=e=>{if(e.data&&e.data.type==='state')acceptSyncedState(e.data.state)}}catch(e){}
   if(NETWORK_SYNC){refreshSessionInfo().finally(()=>connectNetworkSync())}else connectNetworkSync();
+  window.addEventListener('online',()=>{if(!NETWORK_SYNC||networkSessionReset)return;networkReconnectAttempts=0;updateNetworkStatus('reconnecting');connectNetworkSync()});
+  window.addEventListener('offline',()=>{if(NETWORK_SYNC)updateNetworkStatus('offline')});
   window.addEventListener('storage',e=>{if(e.key===SESSION_SYNC_KEY&&e.newValue){try{acceptSyncedState(JSON.parse(e.newValue))}catch(err){}}if(e.key===CUSTOM_AVATAR_STORE){customAvatarAssets=loadCustomAvatars();render()}if(e.key===ROSTER_SET_STORE){rosterSets=loadRosterSets();render()}if(e.key===ACTIVE_ROSTER_SET_STORE&&e.newValue){state.activeRosterSetId=e.newValue;render()}});
   if(SESSION_ROLE!=='teacher'){const latest=readSyncedState();if(latest)mergeSyncedState(latest)}
 }
