@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SI Mothership v48.8 — Help Inbox Stability</title>
+<title>SI Mothership v48.9 — Student Photo & Avatar Fix</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -720,6 +720,13 @@ body.role-shared .presentation-public .presentation-media-stack iframe{
 .help-message-row .delete{color:#ff91a9;border-color:#6b3346;background:#2a1420}
 .help-message-row.unread{background:#0d2034;border-radius:10px}
 </style>
+
+<style id="v48-9-photo-avatar-fix">
+.inbox-avatar{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;overflow:hidden;border:1px solid var(--avatar-color,#5be8ff);border-radius:12px;background:#102238;box-shadow:inset 0 0 0 1px #ffffff10}
+.inbox-avatar img{width:100%;height:100%;object-fit:cover;display:block}.inbox-avatar .builtin-avatar-glyph{font-size:23px;line-height:1}
+.inbox-student-row{grid-template-columns:28px 42px minmax(0,1fr) 25px!important;gap:8px!important}.inbox-copy{min-width:0}.inbox-copy b,.inbox-copy small{display:block}.inbox-copy small{color:#8999b1;margin-top:3px}
+.help-message-row{grid-template-columns:42px minmax(0,1fr) auto auto!important}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -887,6 +894,11 @@ function newRosterSetId(){return 'roster_'+Date.now().toString(36)}
 function avatarAsset(key){if(!key)return BUILTIN_AVATARS[0];if(String(key).startsWith('custom_'))return customAvatarAssets.find(a=>a.key===key)||BUILTIN_AVATARS[0];return BUILTIN_AVATARS.find(a=>a.key===key)||BUILTIN_AVATARS[0]}
 function avatarRosterMarkup(student){const a=avatarAsset(student.avatarKey);if(a.source==='custom'||String(a.key).startsWith('custom_'))return `<img src="${a.image}" alt="${esc(a.name||'Custom avatar')}">`;return `<span class="builtin-avatar-glyph">${a.glyph||'🤖'}</span>`}
 function studentAvatarBadgeMarkup(student){const a=avatarAsset(student?.avatarKey);const art=(a.source==='custom'||String(a.key).startsWith('custom_'))?`<img src="${a.image}" alt="${esc(a.name||'Custom avatar')}">`:(a.glyph||'🤖');return `<span class="student-avatar-mini" style="--avatar-color:${a.color||'#5be8ff'}">${art}</span><span>${esc(student?.n||'Student')}</span>`}
+function inboxAvatarMarkup(student){
+  const a=avatarAsset(student?.avatarKey);
+  const art=(a.source==='custom'||String(a.key).startsWith('custom_'))?`<img src="${a.image}" alt="${esc(a.name||'Custom avatar')}">`:`<span class="builtin-avatar-glyph">${a.glyph||'🤖'}</span>`;
+  return `<span class="inbox-avatar" style="--avatar-color:${a.color||student?.c||'#5be8ff'}">${art}</span>`;
+}
 function avatarTileArt(a){if(a.source==='custom'||String(a.key).startsWith('custom_'))return `<div class="avatar-art" style="--avatar-color:#5be8ff"><img src="${a.image}" alt="${esc(a.name||'Custom avatar')}"></div>`;return `<div class="avatar-art" style="--avatar-color:${a.color||'#5be8ff'}">${a.glyph||'🤖'}</div>`}
 function avatarKeySlug(value){return String(value||'avatar').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,24)||'avatar'}
 function newCustomAvatarKey(name){return `custom_${avatarKeySlug(name)}_${Date.now().toString(36)}`}
@@ -1838,11 +1850,11 @@ function renderRosterAlert(){
 }
 
 function renderRight(){
-  $('#buzzCount').textContent=state.buzz.length;$('#buzzRows').innerHTML=state.buzz.length?state.buzz.map((n,i)=>`<div class="student-row"><span class="queue-num">${i+1}</span><span><b>${n}</b><small>${i===0?'Ready to answer':'Waiting'}</small></span><button class="xbtn" data-rbuzz="${n}">×</button></div>`).join(''):'<p class="empty">Queue is clear</p>';
+  $('#buzzCount').textContent=state.buzz.length;$('#buzzRows').innerHTML=state.buzz.length?state.buzz.map((n,i)=>{const st=studentByName(n);return `<div class="student-row inbox-student-row"><span class="queue-num">${i+1}</span>${inboxAvatarMarkup(st)}<span class="inbox-copy"><b>${esc(n)}</b><small>${i===0?'Ready to answer':'Waiting'}</small></span><button class="xbtn" data-rbuzz="${esc(n)}">×</button></div>`}).join(''):'<p class="empty">Queue is clear</p>';
   $$('[data-rbuzz]').forEach(b=>b.onclick=()=>{state.buzz=state.buzz.filter(n=>n!==b.dataset.rbuzz);render()});
   const helpItems=(state.helpMessages||[]).filter(m=>!(state.helpDeletedIds||[]).includes(String(m.id))).sort((a,b)=>(b.at||0)-(a.at||0));
   $('#helpCount').textContent=helpItems.length;
-  $('#helpRows').innerHTML=helpItems.length?helpItems.map(m=>`<div class="help-message-row ${m.seen?'':'unread'}"><span class="mini-bot" style="--c:${studentByName(m.name)?.c||'#ffc35d'}">🤖</span><span class="preview"><b>${esc(m.name)}</b><small>${esc(m.text||'I need help')}</small></span><button data-help-open="${esc(String(m.id))}">Read</button><button class="delete" data-help-delete="${esc(String(m.id))}">×</button></div>`).join(''):'<p class="empty">No help requests</p>';
+  $('#helpRows').innerHTML=helpItems.length?helpItems.map(m=>{const st=studentByName(m.name);return `<div class="help-message-row ${m.seen?'':'unread'}">${inboxAvatarMarkup(st)}<span class="preview"><b>${esc(m.name)}</b><small>${esc(m.text||'I need help')}</small></span><button data-help-open="${esc(String(m.id))}">Read</button><button class="delete" data-help-delete="${esc(String(m.id))}">×</button></div>`}).join(''):'<p class="empty">No help requests</p>';
   $$('[data-help-open]').forEach(b=>b.onclick=()=>openHelpViewer(b.dataset.helpOpen));
   $$('[data-help-delete]').forEach(b=>b.onclick=()=>deleteHelpMessage(b.dataset.helpDelete));
   $('#photoCount').textContent=state.photos.length;$('#photoRows').innerHTML=state.photos.length?state.photos.slice(0,3).map(p=>`<div class="help-row photo-row"><img class="photo-thumb" data-photo-open="${p.id}" src="${p.data}" alt="Photo from ${p.name}"><span><b>${p.name}</b><small>${p.seen?'Viewed':'NEW PHOTO'}</small></span><button class="checkbtn" data-photo-view="${p.id}" title="View photo">⌕</button><button class="checkbtn photo-delete" data-photo-delete="${p.id}" title="Delete photo">×</button></div>`).join(''):'<p class="empty">No photos submitted</p>';
@@ -2292,12 +2304,12 @@ function renderStudentControls(){
       label.innerHTML=`<b>ACTIVITY CONTROLS</b><span>${esc(a.name)}</span>`;const answer=studentActivityResponse(s.n,0);zone.className='student-actions activity-choice-controls';zone.innerHTML=(a.choices||[]).map(c=>`<button class="big-choice choice-${c.key} ${answer===c.key?'on':''}" data-generic-answer="${c.key}"><strong>${c.key}</strong><small>${esc(c.text)}</small></button>`).join('');$$('[data-generic-answer]').forEach(b=>b.onclick=()=>submitActivityAnswer(b.dataset.genericAnswer,0));return;
     }
     if(a.type==='generic'){
-      label.innerHTML=`<b>ACTIVITY CONTROLS</b><span>${esc(a.name)}</span>`;zone.className='student-actions';zone.innerHTML=`<button data-class-action="hand" ${!state.handEnabled||state.ended?'disabled':''}>✋<br>Raise Hand</button><button data-class-action="help" ${!state.helpEnabled||state.ended?'disabled':''}>?<br>Ask for Help</button><button data-generic-done>✓<br>I'm Done</button><button data-class-action="picture" ${!state.pictureEnabled||state.ended?'disabled':''}>📷<br>Take Picture</button>`;wireStudentControlButtons();const done=zone.querySelector('[data-generic-done]');if(done)done.onclick=()=>{submitActivityAnswer('DONE',0);toast('Finished status sent to teacher')};return;
+      label.innerHTML=`<b>ACTIVITY CONTROLS</b><span>${esc(a.name)}</span>`;zone.className='student-actions';zone.innerHTML=`<button data-class-action="hand" ${!state.handEnabled||state.ended?'disabled':''}>✋<br>Raise Hand</button><button data-class-action="help" ${!state.helpEnabled||state.ended?'disabled':''}>?<br>Ask for Help</button><button data-generic-done>✓<br>I'm Done</button><button data-class-action="picture" ${!state.pictureEnabled||state.ended?'disabled':''}>📷<br>Send Photo</button>`;wireStudentControlButtons();const done=zone.querySelector('[data-generic-done]');if(done)done.onclick=()=>{submitActivityAnswer('DONE',0);toast('Finished status sent to teacher')};return;
     }
   }
   label.innerHTML=`<b>CLASSROOM CONTROLS</b><span>${state.activityRun?'Available while waiting / following along':'Your standard controls'}</span>`;
   const homeLocked=state.screen==='lobby'||state.screen==='brb'||state.ended;
-  zone.className='student-actions home-controls';zone.innerHTML=`<button data-class-action="ready" class="${s.readyResponse==='Ready'?'on':''}" ${!state.readyEnabled||homeLocked?'disabled':''}>✓<br>${s.readyResponse==='Ready'?'Ready':'I’m Ready'}</button><button data-class-action="hand" class="${state.alerts.some(a=>a.type==='hand'&&a.name===s.n)?'on':''}" ${!state.handEnabled||homeLocked?'disabled':''}>✋<br>Raise Hand</button><button data-class-action="help" class="${(state.helpMessages||[]).some(m=>m.name===s.n&&!(state.helpDeletedIds||[]).includes(String(m.id)))?'on':''}" ${!state.helpEnabled||homeLocked?'disabled':''}>?<br>Ask for Help</button><button data-class-action="buzz" class="${state.buzz.includes(s.n)?'on':''}" ${!state.buzzEnabled||homeLocked?'disabled':''}>⚡<br>Buzz In</button><button data-class-action="picture" ${!state.pictureEnabled||homeLocked?'disabled':''}>📷<br>Take Picture</button>`;
+  zone.className='student-actions home-controls';zone.innerHTML=`<button data-class-action="ready" class="${s.readyResponse==='Ready'?'on':''}" ${!state.readyEnabled||homeLocked?'disabled':''}>✓<br>${s.readyResponse==='Ready'?'Ready':'I’m Ready'}</button><button data-class-action="hand" class="${state.alerts.some(a=>a.type==='hand'&&a.name===s.n)?'on':''}" ${!state.handEnabled||homeLocked?'disabled':''}>✋<br>Raise Hand</button><button data-class-action="help" class="${(state.helpMessages||[]).some(m=>m.name===s.n&&!(state.helpDeletedIds||[]).includes(String(m.id)))?'on':''}" ${!state.helpEnabled||homeLocked?'disabled':''}>?<br>Ask for Help</button><button data-class-action="buzz" class="${state.buzz.includes(s.n)?'on':''}" ${!state.buzzEnabled||homeLocked?'disabled':''}>⚡<br>Buzz In</button><button data-class-action="picture" ${!state.pictureEnabled||homeLocked?'disabled':''}>📷<br>Send Photo</button>`;
   wireStudentControlButtons();
 }
 
@@ -2537,7 +2549,44 @@ $('#photoNext').onclick=()=>stepPhoto(1);
 $('#photoLightboxDelete').onclick=()=>{if(photoViewerId==null)return;state.photos=state.photos.filter(p=>p.id!==photoViewerId);if(!state.photos.length){closePhotoViewer();render();toast('Photo deleted');return}photoViewerId=state.photos[0].id;render();refreshPhotoViewer();toast('Photo deleted')};
 document.addEventListener('keydown',e=>{if($('#photoLightbox')?.classList.contains('hidden'))return;if(e.key==='Escape')closePhotoViewer();if(e.key==='ArrowLeft')stepPhoto(-1);if(e.key==='ArrowRight')stepPhoto(1)});
 
-$('#studentPhotoFile').onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const s=selectedStudent();state.photos.unshift({id:Date.now(),name:s.n,data:String(r.result),seen:false});render();toast('Photo submitted privately to teacher')};r.readAsDataURL(f)};
+function prepareStudentPhoto(file){
+  return new Promise((resolve,reject)=>{
+    if(!file)return reject(new Error('No photo selected'));
+    const reader=new FileReader();
+    reader.onerror=()=>reject(new Error('Could not read photo'));
+    reader.onload=()=>{
+      const img=new Image();
+      img.onerror=()=>reject(new Error('Could not open photo'));
+      img.onload=()=>{
+        const maxDim=1280,scale=Math.min(1,maxDim/Math.max(img.width,img.height));
+        const w=Math.max(1,Math.round(img.width*scale)),h=Math.max(1,Math.round(img.height*scale));
+        const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+        const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,w,h);
+        let data='';
+        try{data=canvas.toDataURL('image/jpeg',.76)}catch(err){data=String(reader.result)}
+        resolve(data);
+      };
+      img.src=String(reader.result);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+$('#studentPhotoFile').onchange=async e=>{
+  const input=e.target,f=input.files&&input.files[0];if(!f)return;
+  const student=selectedStudent();
+  if(!student||!state.pictureEnabled){input.value='';return toast('Photo sending is not enabled right now')}
+  toast('Preparing photo…');
+  try{
+    const data=await prepareStudentPhoto(f);
+    state.photos.unshift({id:Date.now(),name:student.n,data,seen:false});
+    input.value='';
+    render();
+    toast('Photo sent privately to teacher');
+  }catch(err){
+    input.value='';
+    toast('Could not send that photo — try again');
+  }
+};
 $('#openGallery').onclick=()=>{if(!state.photos.length)return toast('No photos submitted yet');openPhotoViewer(state.photos[0].id)};
 const clearPhotosBtn=$('#clearPhotos');if(clearPhotosBtn)clearPhotosBtn.onclick=()=>{if(!state.photos.length)return toast('Photo Inbox is already clear');state.photos=[];closePhotoViewer();render();toast('Photo Inbox cleared')};
 $('#endBtn').onclick=()=>{state.ended=true;state.activityRun=null;state.screen='ended';state.students=[];state.selectedStudent='';state.buzz=[];state.help=[];state.alerts=[];state.photos=[];state.promptActive=false;state.picturePromptSent=false;resetHomeControls();state.rosterPage=0;render();toast('Session ended — roster cleared')};
