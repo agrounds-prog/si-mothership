@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SI Mothership v46.6 — SI+ Media Fill</title>
+<title>SI Mothership v46.7 — SI+ Shared Screen</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -493,6 +493,30 @@ body.role-shared .presentation-public .presentation-media-stack img{
 body.role-shared .presentation-public .presentation-media-stack iframe{
   width:min(100%,1450px)!important;
   max-height:68vh
+}
+/* The in-app Shared Screen tab is also a projector surface. */
+#shared .shared-screen .presentation-public{
+  width:100%;
+  max-width:min(1680px,96vw)!important
+}
+#shared .shared-screen .presentation-public .presentation-media-stack{
+  width:100%;
+  max-width:min(1560px,92vw)!important;
+  margin:8px auto!important
+}
+#shared .shared-screen .presentation-public .presentation-media-stack img{
+  width:min(100%,1500px)!important;
+  height:66vh!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:contain
+}
+#shared .shared-screen .presentation-public .presentation-media-stack iframe{
+  width:min(100%,1500px)!important;
+  max-width:none!important;
+  height:auto!important;
+  aspect-ratio:16/9;
+  max-height:70vh
 }
 /* Keep the teacher's small mirrored preview intentionally compact. */
 .mirror-screen .presentation-public{max-width:100%!important}
@@ -1275,7 +1299,7 @@ function activitySharedMarkup(big=false){
   if(a.type==='pixel'){return pixelSharedMarkup(run,big);}
   if(a.type==='presentation'){
     const slide=currentSlide();if(!slide)return '';
-    if(slide.type==='instruction'){const media=`<div class="presentation-media-stack">${slide.image?`<img src="${slide.image}" alt="Slide image">`:''}${ytId(slide.youtube)?`<iframe src="${ytEmbed(ytId(slide.youtube),false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`:''}</div>`;return `<div class="presentation-public"><span class="slide-badge instruction">INSTRUCTION</span><div class="slide-count">Slide ${run.slideIndex+1} of ${a.slides.length}</div><h3 style="font-size:${big?54:34}px">${esc(slide.title)}</h3>${media}<p style="font-size:${big?27:18}px">${esc(slide.text)}</p></div>`;}
+    if(slide.type==='instruction'){const media=`<div class="presentation-media-stack">${slide.image?`<img src="${slide.image}" alt="Slide image">`:''}${ytId(slide.youtube)?`<iframe src="${ytEmbed(ytId(slide.youtube),false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`:''}</div>`;return `<div class="presentation-public"><div class="slide-count">Slide ${run.slideIndex+1} of ${a.slides.length}</div><h3 style="font-size:${big?54:34}px">${esc(slide.title)}</h3>${media}<p style="font-size:${big?27:18}px">${esc(slide.text)}</p></div>`;}
     return responseSlideMarkup(slide,big);
   }
   if(a.type==='binary'||a.type==='exit'){
