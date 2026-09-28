@@ -3482,7 +3482,7 @@ const TEACHER_SESSION_HISTORY_STORE='siMothership.sessionHistory.v1';
 const TEACHER_SESSION_HISTORY_LIMIT=60;
 let teacherSummaryDisplaySnapshot=null;
 function loadTeacherSessionHistory(){
-  try{const x=JSON.parse(localStorage.getItem(TEACHER_SESSION_HISTORY_STORE)||'[]');return Array.isArray(x)?x.slice(0,TEACHER_SESSION_HISTORY_LIMIT):[]}catch(e){return[]}
+  try{const x=JSON.parse(localStorage.getItem(TEACHER_SESSION_HISTORY_STORE)||'[]');return Array.isArray(x)?x.filter(v=>v&&typeof v==='object').map(normalizeTeacherHistorySnapshot).slice(0,TEACHER_SESSION_HISTORY_LIMIT):[]}catch(e){return[]}
 }
 function persistTeacherSessionHistory(list){
   if(!teacherSummaryEnabled())return false;
@@ -3673,7 +3673,7 @@ function teacherSummaryActivityView(t,active=false){
   out.participantNames=Object.keys(t.participants||{});out.responseCount=Object.keys(t.responseEvents||{}).length;return out;
 }
 function teacherSummarySnapshot(){
-  teacherSummaryObserve();
+  if(!teacherSessionSummary.endedAt)teacherSummaryObserve();
   const activities=teacherSessionSummary.activities.map(x=>teacherSummaryActivityView(x,false));
   if(teacherSessionSummary.activeRun)activities.push(teacherSummaryActivityView(teacherSessionSummary.activeRun,true));
   const ready=teacherSessionSummary.readyChecks.slice();
