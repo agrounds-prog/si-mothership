@@ -3313,7 +3313,7 @@ function saveActivityPreset(appId,forcedConfig,defaultName){
   const config=forcedConfig||currentActivityPresetConfig(appId);
   if(!config){const noun=appId==='vector'?'VECTOR':appId==='pixel'?'PIXEL REVEAL':appId==='board'?'BOARD':'activity';toast('Save the current '+noun+' first, then create a preset');return}
   const list=loadActivityPresets(),editing=list.find(p=>p.id===activityPresetEditingId&&p.appId===appId)||null;
-  const suggested=defaultName||editing?.name||activityDisplayName(appId)+' Preset '+(list.filter(x=>x.appId===appId).length+1);
+  const suggested=editing?.name||defaultName||activityDisplayName(appId)+' Preset '+(list.filter(x=>x.appId===appId).length+1);
   const name=(prompt(editing?'Update this activity preset':'Name this activity preset',suggested)||'').trim().slice(0,70);if(!name)return;
   const existing=editing?list.findIndex(p=>p.id===editing.id):list.findIndex(p=>p.appId===appId&&String(p.name||'').toLocaleLowerCase()===name.toLocaleLowerCase());
   const preset={id:existing>=0?list[existing].id:'preset_'+Date.now().toString(36),name,appId,config:deepClone(config),updatedAt:Date.now()};
@@ -3344,9 +3344,10 @@ function applyActivityPreset(preset,options){
   activityPresetEditingId=launch?'':preset.id;
   applyActivityConfig(preset.appId,deepClone(preset.config||{}),{launch,preset});
 }
-function launchActivityPreset(id){const preset=loadActivityPresets().find(p=>p.id===id);if(!preset){toast('Activity preset not found');return}applyActivityPreset(preset,{launch:true})}
+function launchActivityPreset(id){if(state.activityRun){toast('Return to Classroom before launching another activity');return}const preset=loadActivityPresets().find(p=>p.id===id);if(!preset){toast('Activity preset not found');return}applyActivityPreset(preset,{launch:true})}
 function reopenRecentActivity(item,launch=false){
   if(!item)return;
+  if(state.activityRun){toast('Return to Classroom before opening a recent activity');return}
   if(item.presetId){const preset=loadActivityPresets().find(p=>p.id===item.presetId);if(preset){applyActivityPreset(preset,{launch});return}}
   activityPresetEditingId='';
   if(item.config){applyActivityConfig(item.appId,deepClone(item.config),{launch});return}
