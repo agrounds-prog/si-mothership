@@ -5,6 +5,7 @@ import base64
 import copy
 import io
 import json
+import re
 import secrets
 import os
 import hmac
@@ -34,7 +35,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "50.0"
+APP_VERSION = "50.1"
 
 PUBLIC_STORAGE_KEYS = {
     "siMothership.customAvatars.v1",
@@ -279,6 +280,47 @@ async def _send_current_state(ws: web.WebSocketResponse) -> None:
             str(meta.get("student_name") or ""),
         ),
     })
+
+
+def _sketch_normalize(value: object) -> str:
+    text = str(value or "").lower().strip()
+    text = re.sub(r"^(a|an|the)\s+", "", text)
+    text = re.sub(r"[^a-z0-9 ]", "", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def _sketch_auto_match(guess: object, word: object) -> bool:
+    g = _sketch_normalize(guess)
+    w = _sketch_normalize(word)
+    return bool(g) and (g == w or g == w + "s" or g + "s" == w)
+
+
+def _sketch_award_score(run: dict, name: str) -> None:
+    cfg = run.get("sketchConfig") if isinstance(run.get("sketchConfig"), dict) else {}
+    if not cfg.get("scoring"):
+        return
+    scores = run.setdefault("sketchScores", {"students": {}, "teams": {}})
+    if not isinstance(scores, dict):
+        scores = {"students": {}, "teams": {}}
+        run["sketchScores"] = scores
+    students = scores.setdefault("students", {})
+    teams = scores.setdefault("teams", {})
+    if not isinstance(students, dict):
+        students = {}
+        scores["students"] = students
+    if not isinstance(teams, dict):
+        teams = {}
+        scores["teams"] = teams
+    students[name] = max(0, int(students.get(name, 0) or 0)) + 1
+    if str(cfg.get("mode") or "free") == "teams":
+        assignments = cfg.get("teamAssignments") if isinstance(cfg.get("teamAssignments"), dict) else {}
+        try:
+            team = int(assignments.get(name, 0) or 0)
+        except (TypeError, ValueError):
+            team = 0
+        if team > 0:
+            key = str(team)
+            teams[key] = max(0, int(teams.get(key, 0) or 0)) + 1
 
 
 def _minefield_current_navigator(state: dict, run: dict) -> Optional[str]:
@@ -545,12 +587,18 @@ def merge_student_snapshot(canonical: Optional[dict], incoming: dict, token: str
             inc_guesses = inc_sketch.get("guesses") or {}
             if isinstance(inc_guesses, dict) and isinstance(inc_guesses.get(name), dict):
                 can_guesses = can_sketch.setdefault("guesses", {})
-                incoming_guess = copy.deepcopy(inc_guesses[name])
+                raw_guess = inc_guesses[name]
+                guess_text = str(raw_guess.get("text") or "")[:80]
+                auto_accepted = _sketch_auto_match(guess_text, can_sketch.get("word"))
+                incoming_guess = {
+                    "text": guess_text,
+                    "status": "accepted" if auto_accepted else "pending",
+                    "at": raw_guess.get("at"),
+                }
                 current = can_guesses.get(name) if isinstance(can_guesses.get(name), dict) else None
                 accept_guess = current is None
+                current_status = str(current.get("status") or "") if current else ""
                 if current:
-                    current_status = str(current.get("status") or "")
-                    incoming_status = str(incoming_guess.get("status") or "")
                     try:
                         incoming_at = float(incoming_guess.get("at") or 0)
                         current_at = float(current.get("at") or 0)
@@ -563,9 +611,11 @@ def merge_student_snapshot(canonical: Optional[dict], incoming: dict, token: str
                         # A rejected guess may be replaced only by a genuinely new guess.
                         accept_guess = incoming_at > max(current_at, reviewed_at)
                     else:
-                        accept_guess = incoming_at >= current_at and incoming_status in {"pending", "accepted", "rejected"}
+                        accept_guess = incoming_at >= current_at
                 if accept_guess:
-                    incoming_guess["text"] = str(incoming_guess.get("text") or "")[:80]
+                    if incoming_guess["status"] == "accepted":
+                        _sketch_award_score(can_run, name)
+                        incoming_guess["scored"] = bool((can_run.get("sketchConfig") or {}).get("scoring"))
                     can_guesses[name] = incoming_guess
                     can_run["sketch"] = can_sketch
 
@@ -1100,7 +1150,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — SKETCH WORD PACKS")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — SKETCH SCORING")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
