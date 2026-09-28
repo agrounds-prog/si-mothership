@@ -2874,7 +2874,7 @@ function deleteSketchWordPack(id){
   renderActivities();toast('Sketch word pack deleted');
 }
 function sketchState(run=state.activityRun){return run?.sketch||null}
-function sketchWordsFromSetup(){const custom=normalizeSketchWords(state.sketchTeacherWords);return state.sketchWordSource==='teacher'&&custom.length?custom:SKETCH_WORDS}
+function sketchWordsFromSetup(){const custom=normalizeSketchWords(state.sketchTeacherWords);return state.sketchWordSource==='teacher'?custom:SKETCH_WORDS}
 function sketchNormalize(v){return String(v||'').toLowerCase().trim().replace(/^(a|an|the)\s+/,'').replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ')}
 function sketchAutoMatch(guess,word){const g=sketchNormalize(guess),w=sketchNormalize(word);return !!g&&(g===w||g===w+'s'||g+'s'===w)}
 function sketchArtist(run=state.activityRun){const sk=sketchState(run);return sk?studentByName(sk.artist):null}
