@@ -3520,19 +3520,16 @@ function teacherSummaryStartActivity(appId,label){
   if(!teacherSummaryEnabled())return;
   if(teacherSessionSummary.activeRun)teacherSummaryFinalizeActivity();
   const a=activeActivity(),run=state.activityRun;
-  teacherSessionSummary.activeRun={id:'activity_'+Date.now().toString(36),appId:String(appId||teacherSummaryAppIdForActivity(a)),label:String(label||a?.name||'Activity').slice(0,100),type:String(a?.type||appId||'activity'),runToken:String(run?.runToken||''),startedAt:Date.now(),endedAt:null,participants:{},responseEvents:{},responseByStudent:{},scores:null};
+  teacherSessionSummary.activeRun={id:'activity_'+Date.now().toString(36),appId:String(appId||teacherSummaryAppIdForActivity(a)),label:String(label||a?.name||'Activity').slice(0,100),type:String(a?.type||appId||'activity'),startedAt:Date.now(),endedAt:null,participants:{},responseEvents:{},responseByStudent:{},scores:null};
 }
 function teacherSummaryObserveActivity(){
   if(!teacherSummaryEnabled())return;
   const run=state.activityRun,a=activeActivity();
   if(!run){if(teacherSessionSummary.activeRun)teacherSummaryFinalizeActivity();return}
   let t=teacherSessionSummary.activeRun;
-  if(!t||String(t.runToken||'')!==String(run.runToken||'')){
-    if(t)teacherSummaryFinalizeActivity();
-    teacherSummaryStartActivity(teacherSummaryAppIdForActivity(a),a?.name||'Activity');t=teacherSessionSummary.activeRun;
-  }
+  if(!t){teacherSummaryStartActivity(teacherSummaryAppIdForActivity(a),a?.name||'Activity');t=teacherSessionSummary.activeRun}
   if(!t)return;
-  t.lastObservedAt=Date.now();t.runToken=String(run.runToken||t.runToken||'');
+  t.lastObservedAt=Date.now();
   if(a?.type==='presentation'||a?.type==='binary'||a?.type==='exit'){
     Object.entries(run.responses||{}).forEach(([slide,map])=>{if(!map||typeof map!=='object')return;Object.entries(map).forEach(([name,val])=>{if(val){teacherSummaryActivityParticipant(t,name);teacherSummaryActivityResponse(t,'presentation:'+slide+':'+name,name)}})});
   }
