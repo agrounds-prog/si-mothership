@@ -3020,6 +3020,135 @@ function updateSketchLiveStatus(){
 }
 setInterval(()=>{try{updateSketchLiveStatus()}catch(e){}},1000);
 
+/* STARWHEEL runtime */
+const STARWHEEL_VALUES=[100,200,300,400,500,750,1000,500];
+const STARWHEEL_VOWELS=['A','E','I','O','U'];
+const STARWHEEL_CONSONANTS='BCDFGHJKLMNPQRSTVWXYZ'.split('');
+const STARWHEEL_TEAMS=[
+  {name:'BLUE CREW',short:'BLUE',cls:'team-1'},
+  {name:'RED CREW',short:'RED',cls:'team-2'},
+  {name:'GREEN CREW',short:'GREEN',cls:'team-3'},
+  {name:'GOLD CREW',short:'GOLD',cls:'team-4'}
+];
+function starwheelAnswer(value){return String(value||'').toUpperCase().replace(/\s+/g,' ').trim().slice(0,80)}
+function starwheelCategory(value){return String(value||'').toUpperCase().replace(/\s+/g,' ').trim().slice(0,60)}
+function starwheelState(run=state.activityRun){return run?.starwheel||null}
+function starwheelTeamMeta(i){return STARWHEEL_TEAMS[Math.max(0,Math.min(3,Number(i)||0))]||STARWHEEL_TEAMS[0]}
+function starwheelLaunchAssignments(){
+  const crew=connectedStudents(),count=Math.max(2,Math.min(4,Number(state.starwheelTeamCount||2))),out={};
+  if(state.starwheelMode!=='teams')return out;
+  crew.forEach((st,i)=>{const chosen=Number(state.starwheelTeamAssignments?.[st.n]||0);out[st.n]=(chosen>=1&&chosen<=count)?chosen:((i%count)+1)});
+  return out;
+}
+function starwheelCycleTeam(name){
+  state.starwheelTeamAssignments=state.starwheelTeamAssignments||{};
+  const count=Math.max(2,Math.min(4,Number(state.starwheelTeamCount||2))),cur=Number(state.starwheelTeamAssignments[name]||0);
+  state.starwheelTeamAssignments[name]=cur>=count?1:cur+1;renderActivities();
+}
+function starwheelAutoBalance(){
+  const count=Math.max(2,Math.min(4,Number(state.starwheelTeamCount||2)));state.starwheelTeamAssignments={};
+  connectedStudents().forEach((st,i)=>state.starwheelTeamAssignments[st.n]=(i%count)+1);renderActivities();toast('STARWHEEL crews auto-balanced');
+}
+function starwheelTeamStudents(run=state.activityRun,teamIndex=0){
+  const cfg=run?.starwheelConfig||{},assign=cfg.teamAssignments||{};
+  if(cfg.mode!=='teams')return connectedStudents();
+  return connectedStudents().filter(st=>Number(assign[st.n]||0)===Number(teamIndex)+1);
+}
+function starwheelStudentTeam(name,run=state.activityRun){
+  if(run?.starwheelConfig?.mode!=='teams')return -1;
+  return Math.max(-1,Number(run.starwheelConfig?.teamAssignments?.[name]||0)-1);
+}
+function starwheelActivePilot(run=state.activityRun){
+  const sw=starwheelState(run),cfg=run?.starwheelConfig||{},crew=connectedStudents();if(!sw||!crew.length)return null;
+  if(cfg.mode!=='teams')return crew[Number(sw.freePilotIndex||0)%crew.length]||crew[0];
+  const team=Number(sw.activeTeam||0),members=starwheelTeamStudents(run,team);if(!members.length)return null;
+  const idx=Number(sw.pilotIndexes?.[String(team)]||0)%members.length;return members[idx]||members[0];
+}
+function starwheelActiveCrewLabel(run=state.activityRun){
+  const cfg=run?.starwheelConfig||{},sw=starwheelState(run),pilot=starwheelActivePilot(run);
+  return cfg.mode==='teams'?starwheelTeamMeta(sw?.activeTeam||0).name:(pilot?.n||'FREE-FOR-ALL');
+}
+function starwheelAdvanceClient(run=state.activityRun,keepTeam=false){
+  const sw=starwheelState(run),cfg=run?.starwheelConfig||{};if(!sw)return;
+  if(cfg.mode!=='teams'){const crew=connectedStudents();if(crew.length)sw.freePilotIndex=(Number(sw.freePilotIndex||0)+1)%crew.length;return}
+  const count=Math.max(2,Math.min(4,Number(cfg.teamCount||2))),team=Number(sw.activeTeam||0);
+  sw.pilotIndexes=sw.pilotIndexes||{};const members=starwheelTeamStudents(run,team);
+  if(members.length)sw.pilotIndexes[String(team)]=(Number(sw.pilotIndexes[String(team)]||0)+1)%members.length;
+  if(!keepTeam){
+    for(let step=1;step<=count;step++){const next=(team+step)%count;if(starwheelTeamStudents(run,next).length){sw.activeTeam=next;break}}
+  }
+}
+function starwheelMaskMarkup(run=state.activityRun){
+  const cfg=run?.starwheelConfig||{},sw=starwheelState(run),answer=starwheelAnswer(cfg.answer),revealed=new Set((sw?.revealed||[]).map(x=>String(x).toUpperCase())),solved=!!sw?.solved;
+  return '<div class="starwheel-puzzle">'+answer.split(' ').map(word=>'<div class="starwheel-word">'+[...word].map(ch=>{
+    if(/[A-Z]/.test(ch))return `<span class="starwheel-letter">${solved||revealed.has(ch)?esc(ch):'&nbsp;'}</span>`;
+    return `<span class="starwheel-letter punct">${esc(ch)}</span>`;
+  }).join('')+'</div>').join('')+'</div>';
+}
+function starwheelScore(run=state.activityRun,key,team=false){
+  const scores=starwheelState(run)?.scores||{};return Number((team?scores.teams:scores.students)?.[String(key)]||0);
+}
+function starwheelScoreboardVisible(run=state.activityRun){
+  const cfg=run?.starwheelConfig||{},sw=starwheelState(run);if(!cfg.scoring)return false;
+  const mode=cfg.scoreboard||'live';return mode==='live'||(mode==='end'&&sw?.solved);
+}
+function starwheelScoreboardMarkup(run=state.activityRun){
+  const cfg=run?.starwheelConfig||{},sw=starwheelState(run);if(!sw)return'';
+  if(!cfg.scoring){
+    const letters=new Set(starwheelAnswer(cfg.answer).replace(/[^A-Z]/g,'').split('')),revealed=new Set((sw.revealed||[]).filter(x=>letters.has(x)));
+    return `<div class="starwheel-scoreboard"><div class="starwheel-score"><b>SIGNAL POWER</b><strong>${revealed.size} / ${letters.size}</strong></div></div>`;
+  }
+  if(!starwheelScoreboardVisible(run))return'';
+  if(cfg.mode==='teams'){
+    const count=Math.max(2,Math.min(4,Number(cfg.teamCount||2)));
+    return `<div class="starwheel-scoreboard">${Array.from({length:count},(_,i)=>`<div class="starwheel-score team-${i+1}"><b>${starwheelTeamMeta(i).name}</b><strong>${starwheelScore(run,i,true).toLocaleString()}</strong></div>`).join('')}</div>`;
+  }
+  return `<div class="starwheel-scoreboard">${connectedStudents().map(st=>`<div class="starwheel-score"><b>${esc(st.n)}</b><strong>${starwheelScore(run,st.n,false).toLocaleString()}</strong></div>`).join('')}</div>`;
+}
+function starwheelRotationMarkup(run=state.activityRun){
+  const cfg=run?.starwheelConfig||{},sw=starwheelState(run),pilot=starwheelActivePilot(run);
+  const members=cfg.mode==='teams'?starwheelTeamStudents(run,Number(sw?.activeTeam||0)):connectedStudents();
+  return `<div class="starwheel-rotation">${members.map(st=>`<span class="member ${pilot?.n===st.n?'active':''}">${avatarRosterMarkup(st)}<b>${esc(st.n)}</b></span>`).join('')}</div>`;
+}
+function starwheelWheelMarkup(run=state.activityRun){
+  const sw=starwheelState(run)||{},deg=Number(sw.spinDeg||0);
+  return `<div class="starwheel-wheel-shell"><div class="starwheel-pointer">▼</div><div class="starwheel-wheel" style="--sw-spin:${deg}deg">${STARWHEEL_VALUES.map((v,i)=>{const angle=i*45+22.5;return `<span class="starwheel-sector" style="transform:rotate(${angle}deg) translate(0,-132px) rotate(-${angle}deg)">${v}</span>`}).join('')}</div></div><div class="starwheel-spin-value">${sw.spinValue?`CORE VALUE · ${Number(sw.spinValue).toLocaleString()}`:'SPIN THE CORE'}</div>`;
+}
+function starwheelSharedMarkup(run=state.activityRun,big=false){
+  const cfg=run?.starwheelConfig||{},sw=starwheelState(run),pilot=starwheelActivePilot(run);if(!sw)return'';
+  if(sw.solved)return `<div class="starwheel-solved"><div><span class="eyebrow">SIGNAL DECODED</span><h3>${esc(starwheelAnswer(cfg.answer))}</h3><strong>${cfg.mode==='teams'?`${esc(starwheelTeamMeta(sw.solvedTeam||0).name)} · `:''}Solved by ${esc(sw.solvedBy||'the crew')}</strong>${starwheelScoreboardMarkup(run)}<p>The transmission has been restored.</p></div></div>`;
+  return `<div class="starwheel-public"><div class="starwheel-main"><div class="starwheel-title"><b>STARWHEEL</b><span>SPIN THE CORE · FIND THE LETTERS · RESTORE THE TRANSMISSION</span></div><div style="text-align:center"><span class="starwheel-category">CATEGORY · ${esc(cfg.category||'TRANSMISSION')}</span></div>${starwheelMaskMarkup(run)}<div class="starwheel-stage"><div>${starwheelWheelMarkup(run)}</div><div class="starwheel-turn-card"><span class="eyebrow">${esc(starwheelActiveCrewLabel(run))}'S TURN</span><div class="pilot"><div class="pilot-art">${pilot?avatarRosterMarkup(pilot):'✦'}</div><div><small>ACTIVE PILOT</small><h3>${esc(pilot?.n||'Waiting')}</h3></div></div>${starwheelRotationMarkup(run)}<div class="starwheel-message">${esc(sw.message||'Awaiting the active pilot.')}</div>${starwheelScoreboardMarkup(run)}</div></div></div></div>`;
+}
+function starwheelSubmitRequest(type,value=''){
+  const run=state.activityRun,s=selectedStudent();if(!run||activeActivity()?.type!=='starwheel'||!s)return;
+  if(run.starwheelRequest)return toast('STARWHEEL action is sending…');
+  run.starwheelRequest={id:'sw_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),type:String(type||''),value:String(value||'').slice(0,120),name:s.n,at:Date.now()};
+  render();toast(type==='solve'?'Solve sent privately to Mission Control':'STARWHEEL action sent');
+}
+function launchStarwheel(){
+  const answer=starwheelAnswer(state.starwheelAnswer),category=starwheelCategory(state.starwheelCategory)||'TRANSMISSION';if(!answer||!/[A-Z]/.test(answer))return toast('Enter a STARWHEEL answer first');
+  const mode=state.starwheelMode||'teams',count=Math.max(2,Math.min(4,Number(state.starwheelTeamCount||2))),teamAssignments=starwheelLaunchAssignments(),pilotIndexes={};
+  for(let i=0;i<count;i++)pilotIndexes[String(i)]=0;
+  state.activityRun={activityId:'starwheel-game',runToken:newActivityRunToken(),phase:'lobby',responses:{},starwheelConfig:{category,answer,mode,teamCount:count,teamAssignments,scoring:!!state.starwheelScoring,scoreboard:state.starwheelScoreboard||'live'},starwheel:{revealed:[],usedLetters:[],activeTeam:0,pilotIndexes,freePilotIndex:0,stage:'ready',spinValue:null,spinIndex:null,spinNonce:0,spinDeg:0,scores:{students:{},teams:{}},message:'Transmission damaged. Active pilot: spin the Starwheel.',solved:false,solvedBy:'',solvedTeam:null,pendingSolve:null,solvePendingBy:'',lastRequestId:''}};
+  state.screen='activity';state.promptActive=false;state.assigningSlot=null;render();toast('STARWHEEL loaded — students moved to Activity Lobby');
+}
+function acceptStarwheelSolve(){
+  const run=state.activityRun,sw=starwheelState(run),p=sw?.pendingSolve;if(!run||!sw||!p)return;
+  sw.solved=true;sw.solvedBy=p.name||'';sw.solvedTeam=p.team;sw.pendingSolve=null;sw.solvePendingBy='';sw.stage='solved';sw.spinValue=null;sw.message=`SIGNAL DECODED — ${p.name||'crew'} restored the transmission.`;run.runToken=newActivityRunToken();render();toast('STARWHEEL solve accepted');
+}
+function rejectStarwheelSolve(){
+  const run=state.activityRun,sw=starwheelState(run),p=sw?.pendingSolve;if(!run||!sw||!p)return;
+  sw.pendingSolve=null;sw.solvePendingBy='';starwheelAdvanceClient(run,false);sw.stage='ready';sw.spinValue=null;sw.message=`${p.name||'Pilot'} solve rejected. Control passes on.`;run.runToken=newActivityRunToken();render();toast('Solve rejected — turn rotated');
+}
+function skipStarwheelPilot(passTeam=false){
+  const run=state.activityRun,sw=starwheelState(run);if(!run||!sw||sw.solved)return;
+  starwheelAdvanceClient(run,!passTeam);sw.stage='ready';sw.spinValue=null;sw.pendingSolve=null;sw.solvePendingBy='';sw.message=passTeam?'Mission Control passed control to the next crew.':'Mission Control advanced to the next pilot.';run.runToken=newActivityRunToken();render();
+}
+function newStarwheelPuzzle(){
+  state.activityRun=null;state.screen='activities';state.activeApp='starwheel';state.promptActive=false;render();toast('STARWHEEL ready for the next Quick Puzzle');
+}
+
+
 /* ORBIT runtime */
 const ORBIT_STORE='siMothership.orbitActivities.v1';
 function defaultOrbitDraft(){return {name:'New Orbit',prompt:'Why do civilizations often develop near rivers?',anonymous:true}}
