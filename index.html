@@ -3147,6 +3147,13 @@ function skipStarwheelPilot(passTeam=false){
 function newStarwheelPuzzle(){
   state.activityRun=null;state.screen='activities';state.activeApp='starwheel';state.promptActive=false;render();toast('STARWHEEL ready for the next Quick Puzzle');
 }
+function wireStarwheelStudent(){
+  if(!state.activityRun||activeActivity()?.type!=='starwheel'||state.activityRun.phase!=='running')return;
+  $$('[data-starwheel-letter]').forEach(b=>b.onclick=()=>starwheelSubmitRequest('letter',b.dataset.starwheelLetter));
+  $$('[data-starwheel-vowel]').forEach(b=>b.onclick=()=>starwheelSubmitRequest('vowel',b.dataset.starwheelVowel));
+  const send=$('#starwheelSendSolve');if(send)send.onclick=()=>{const input=$('#starwheelSolveInput'),value=(input?.value||'').trim();if(!value)return toast('Enter the complete signal first');starwheelSubmitRequest('solve',value)};
+  const input=$('#starwheelSolveInput');if(input)input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send?.click()}};
+}
 
 
 /* ORBIT runtime */
@@ -3594,6 +3601,7 @@ function activitySharedMarkup(big=false){
     const teamStrip=mode==='teams'?`<div class="minefield-team-strip">${Array.from({length:minefieldTeamCount(run)},(_,i)=>{const t=activeMinefield(run,i);return `<span class="minefield-team-pill ${minefieldTeamClass(i)} ${i===teamIndex?'active':''}">${minefieldTeamName(i)} · ${minefieldHullMarkup(t)}</span>`}).join('')}</div>`:'';
     return `<div class="minefield-public"><div class="minefield-topline"><span class="minefield-hull">${minefieldHullMarkup(mf)}</span><span class="minefield-navigator">${mode==='teams'?esc(minefieldTeamName(teamIndex))+' · ':''}NAVIGATOR · ${esc(nav?.n||'Waiting')}</span></div>${teamStrip}<h3 style="font-size:${big?42:28}px">MINEFIELD</h3>${minefieldNarrationMarkup(run,big,true)}${minefieldBoardMarkup(run,{big,teamIndex})}<div class="minefield-signal-legend"><span><b>NUMBER</b> nearby mines</span><span><b>ARROW + #</b> beacon signal</span></div><div class="minefield-message"><strong>Turn ${mf.turn}</strong> · ${esc(mf.message)}</div></div>`;
   }
+  if(a.type==='starwheel'){return starwheelSharedMarkup(run,big);}
   if(a.type==='sketch'){return sketchSharedMarkup(run,big);}
   if(a.type==='board'){return boardSharedMarkup(run,big);}
   if(a.type==='vector'){return vectorSharedMarkup(run,big);}
