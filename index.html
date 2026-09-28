@@ -3127,9 +3127,10 @@ function starwheelSubmitRequest(type,value=''){
 }
 function launchStarwheel(){
   const answer=starwheelAnswer(state.starwheelAnswer),category=starwheelCategory(state.starwheelCategory)||'TRANSMISSION';if(!answer||!/[A-Z]/.test(answer))return toast('Enter a STARWHEEL answer first');
-  const mode=state.starwheelMode||'teams',count=Math.max(2,Math.min(4,Number(state.starwheelTeamCount||2))),teamAssignments=starwheelLaunchAssignments(),pilotIndexes={};
-  for(let i=0;i<count;i++)pilotIndexes[String(i)]=0;
-  state.activityRun={activityId:'starwheel-game',runToken:newActivityRunToken(),phase:'lobby',responses:{},starwheelConfig:{category,answer,mode,teamCount:count,teamAssignments,scoring:!!state.starwheelScoring,scoreboard:state.starwheelScoreboard||'live'},starwheel:{revealed:[],usedLetters:[],activeTeam:0,pilotIndexes,freePilotIndex:0,stage:'ready',spinValue:null,spinIndex:null,spinNonce:0,spinDeg:0,scores:{students:{},teams:{}},message:'Transmission damaged. Active pilot: spin the Starwheel.',solved:false,solvedBy:'',solvedTeam:null,pendingSolve:null,solvePendingBy:'',lastRequestId:''}};
+  const mode=state.starwheelMode||'teams',count=Math.max(2,Math.min(4,Number(state.starwheelTeamCount||2))),teamAssignments=starwheelLaunchAssignments(),pilotIndexes={},carry=state.starwheelPilotCarry||{};
+  for(let i=0;i<count;i++)pilotIndexes[String(i)]=Number(carry.pilotIndexes?.[String(i)]||0);
+  const carriedTeam=((Number(carry.activeTeam||0)%count)+count)%count,carriedFree=Math.max(0,Number(carry.freePilotIndex||0));
+  state.activityRun={activityId:'starwheel-game',runToken:newActivityRunToken(),phase:'lobby',responses:{},starwheelConfig:{category,answer,mode,teamCount:count,teamAssignments,scoring:!!state.starwheelScoring,scoreboard:state.starwheelScoreboard||'live'},starwheel:{revealed:[],usedLetters:[],activeTeam:carriedTeam,pilotIndexes,freePilotIndex:carriedFree,stage:'ready',spinValue:null,spinIndex:null,spinNonce:0,spinDeg:0,scores:{students:{},teams:{}},message:'Transmission damaged. Active pilot: spin the Starwheel.',solved:false,solvedBy:'',solvedTeam:null,pendingSolve:null,solvePendingBy:'',lastRequestId:''}};
   state.screen='activity';state.promptActive=false;state.assigningSlot=null;render();toast('STARWHEEL loaded — students moved to Activity Lobby');
 }
 function acceptStarwheelSolve(){
@@ -3145,7 +3146,8 @@ function skipStarwheelPilot(passTeam=false){
   starwheelAdvanceClient(run,!passTeam);sw.stage='ready';sw.spinValue=null;sw.pendingSolve=null;sw.solvePendingBy='';sw.message=passTeam?'Mission Control passed control to the next crew.':'Mission Control advanced to the next pilot.';run.runToken=newActivityRunToken();render();
 }
 function newStarwheelPuzzle(){
-  state.activityRun=null;state.screen='activities';state.activeApp='starwheel';state.promptActive=false;render();toast('STARWHEEL ready for the next Quick Puzzle');
+  const sw=starwheelState();if(sw)state.starwheelPilotCarry={pilotIndexes:deepClone(sw.pilotIndexes||{}),freePilotIndex:Number(sw.freePilotIndex||0),activeTeam:Number(sw.activeTeam||0)};
+  state.activityRun=null;state.screen='activities';state.activeApp='starwheel';state.promptActive=false;render();toast('STARWHEEL ready for the next Quick Puzzle — pilot rotation preserved');
 }
 function wireStarwheelStudent(){
   if(!state.activityRun||activeActivity()?.type!=='starwheel'||state.activityRun.phase!=='running')return;
@@ -3221,7 +3223,7 @@ const initial=()=>({
  published:{mode:'text',text:'1. Warm-up\n2. Ready check\n3. Class activity',image:'',youtube:''},
  activities:hydratedActivities(),
  favoriteSlots:loadAppShortcuts(),assigningSlot:null,activeApp:null,presentationLibraryOpen:false,
- minefieldLength:'standard',minefieldMode:'crew',minefieldTeamCount:2,sketchMinutes:10,sketchWordSource:'mothership',sketchTeacherWords:'',sketchWordPackName:'',sketchMode:'free',sketchTeamCount:2,sketchTeamAssignments:{},sketchScoring:false,starwheelCategory:'THINGS AT SCHOOL',starwheelAnswer:'SCIENCE PROJECT',starwheelMode:'teams',starwheelTeamCount:2,starwheelTeamAssignments:{},starwheelScoring:true,starwheelScoreboard:'live',vectorDraft:defaultVectorDraft(),orbitDraft:defaultOrbitDraft(),pixelDraft:defaultPixelDraft(),
+ minefieldLength:'standard',minefieldMode:'crew',minefieldTeamCount:2,sketchMinutes:10,sketchWordSource:'mothership',sketchTeacherWords:'',sketchWordPackName:'',sketchMode:'free',sketchTeamCount:2,sketchTeamAssignments:{},sketchScoring:false,starwheelCategory:'THINGS AT SCHOOL',starwheelAnswer:'SCIENCE PROJECT',starwheelMode:'teams',starwheelTeamCount:2,starwheelTeamAssignments:{},starwheelScoring:true,starwheelScoreboard:'live',starwheelPilotCarry:{pilotIndexes:{},freePilotIndex:0,activeTeam:0},vectorDraft:defaultVectorDraft(),orbitDraft:defaultOrbitDraft(),pixelDraft:defaultPixelDraft(),
  picturePromptSent:false,picturePrompt:'Take a picture of your completed work.',promptActive:false,
  selectedStudent:'',students:[],ended:false,
  activityRun:null,
@@ -3794,6 +3796,7 @@ function responseLabel(s){
   if(state.activityRun){
     const run=state.activityRun,a=activeActivity();
     if(run.phase==='lobby')return 'Activity lobby';
+    if(a?.type==='starwheel'){const sw=starwheelState(run),pilot=starwheelActivePilot(run);if(sw?.solved)return 'SIGNAL DECODED';if(pilot?.n===s.n)return sw?.stage==='letter'?'PILOT · LETTER':'ACTIVE PILOT';const team=starwheelStudentTeam(s.n,run);return run.starwheelConfig?.mode==='teams'&&team===Number(sw?.activeTeam||0)?'ACTIVE CREW':'WATCHING'}
     if(a?.type==='sketch'){const sk=sketchState(run),g=sk?.guesses?.[s.n];return sk?.artist===s.n?'ARTIST':g?.status==='accepted'?'DECODED':g?.status==='pending'?'GUESS SENT':'GUESSING'}
     if(a?.type==='board')return boardState(run)?.controller===s.n?'BOARD CONTROL':'';
     if(a?.type==='minefield'){const mode=minefieldMode(run);if(mode==='teacher'&&run.activeSide==='teacher')return 'Teacher turn';const side=mode==='teacher'?'class':null,nav=minefieldNavigator(run,side);return nav?.n===s.n?'NAVIGATOR':mode==='teacher'?'Class':'Crew'}
@@ -3932,6 +3935,7 @@ function renderRosterAlert(){
     else if(a.type==='vector'){const done=vectorLockedCount(run);alert.innerHTML=`<div class="signal"><span class="signal-dot"></span>VECTOR LIVE</div><div class="counts"><span class="count-chip ready">⊕ ${done} Locked</span><span class="count-chip waiting">… ${active.length-done} Working</span></div>`;}
     else if(a.type==='orbit'){const done=orbitSubmittedCount(run);alert.innerHTML=`<div class="signal"><span class="signal-dot"></span>ORBIT LIVE</div><div class="counts"><span class="count-chip ready orbit-chip">◎ ${done} Transmitted</span><span class="count-chip waiting">… ${active.length-done} Thinking</span></div>`;}
     else if(a.type==='pixel'){const done=pixelSubmittedCount(run);alert.innerHTML=`<div class="signal"><span class="signal-dot"></span>PIXEL REVEAL LIVE</div><div class="counts"><span class="count-chip ready">▦ ${done} Guesses</span><span class="count-chip waiting">… ${active.length-done} Watching</span></div>`;}
+    else if(a.type==='starwheel'){const sw=starwheelState(run),pilot=starwheelActivePilot(run);alert.innerHTML=`<div class="signal"><span class="signal-dot"></span>STARWHEEL LIVE</div><div class="counts"><span class="count-chip ready">✦ ${esc(starwheelActiveCrewLabel(run))}</span><span class="count-chip waiting">${esc(pilot?.n||'Waiting')} · ${esc((sw?.stage||'ready').replace('_',' '))}</span></div>`;}
     else if(a.type==='presentation'&&['question','poll'].includes(slide?.type)){
       const r=responseMapFor(),done=active.filter(s=>r[s.n]).length;alert.innerHTML=`<div class="signal"><span class="signal-dot"></span>${slide.type.toUpperCase()} LIVE · SLIDE ${run.slideIndex+1}/${a.slides.length}</div><div class="counts"><span class="count-chip ready">✓ ${done} Responded</span><span class="count-chip waiting">… ${active.length-done} Waiting</span></div>`;
     } else alert.innerHTML=`<div class="signal"><span class="signal-dot"></span>${esc(a.name).toUpperCase()} LIVE</div><div class="counts"><span class="count-chip ready">${active.length} Connected</span>${a.type==='presentation'?`<span class="count-chip waiting">Slide ${run.slideIndex+1}/${a.slides.length}</span>`:''}</div>`;
