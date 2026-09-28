@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v49.6 — Activity Hardening</title>
+<title>SI Mothership v50.0 — Sketch Word Packs</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -2827,8 +2827,54 @@ function boardSharedMarkup(run=state.activityRun,big=false){const b=boardState(r
 
 /* SKETCH SIGNAL runtime */
 const SKETCH_WORDS=['giraffe','volcano','bicycle','rocket','pizza','rainbow','turtle','castle','airplane','snowman','backpack','basketball','dinosaur','lighthouse','octopus','popcorn','robot','sandwich','telescope','waterfall','penguin','campfire','toothbrush','dragon'];
+const SKETCH_WORD_PACK_STORE='siMothership.sketchWordPacks.v1';
+function normalizeSketchWords(value){
+  const out=[],seen=new Set();
+  String(value||'').split(/[\n,]+/).map(x=>x.trim().slice(0,60)).filter(Boolean).forEach(word=>{
+    const key=word.toLocaleLowerCase();if(seen.has(key)||out.length>=120)return;seen.add(key);out.push(word);
+  });
+  return out;
+}
+function loadSketchWordPacks(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(SKETCH_WORD_PACK_STORE)||'[]');
+    if(!Array.isArray(raw))return[];
+    return raw.filter(x=>x&&x.id&&x.name&&Array.isArray(x.words)).map(x=>({
+      id:String(x.id),name:String(x.name).trim().slice(0,60)||'Untitled Pack',
+      words:normalizeSketchWords(x.words.join('\n')),updatedAt:Number(x.updatedAt||0)
+    })).filter(x=>x.words.length).slice(0,30);
+  }catch(e){return[]}
+}
+function persistSketchWordPacks(list){
+  try{localStorage.setItem(SKETCH_WORD_PACK_STORE,JSON.stringify(list.slice(0,30)));return true}
+  catch(e){toast('Could not save Sketch word packs');return false}
+}
+function saveSketchWordPack(){
+  const words=normalizeSketchWords(state.sketchTeacherWords);
+  if(!words.length)return toast('Add at least one teacher word first');
+  const packs=loadSketchWordPacks(),suggested=(state.sketchWordPackName||'').trim()||`Sketch Pack ${packs.length+1}`;
+  const name=(prompt('Name this Sketch Signal word pack',suggested)||'').trim().slice(0,60);
+  if(!name)return;
+  const existing=packs.findIndex(p=>p.name.toLocaleLowerCase()===name.toLocaleLowerCase());
+  const pack={id:existing>=0?packs[existing].id:'sketchpack_'+Date.now().toString(36),name,words,updatedAt:Date.now()};
+  if(existing>=0)packs[existing]=pack;else packs.unshift(pack);
+  if(!persistSketchWordPacks(packs))return;
+  state.sketchWordPackName=name;renderActivities();toast(`${name} saved · ${words.length} words`);
+}
+function loadSketchWordPack(id){
+  const pack=loadSketchWordPacks().find(p=>p.id===id);if(!pack)return toast('Saved word pack not found');
+  state.sketchWordSource='teacher';state.sketchTeacherWords=pack.words.join('\n');state.sketchWordPackName=pack.name;
+  renderActivities();toast(`${pack.name} loaded · ${pack.words.length} words`);
+}
+function deleteSketchWordPack(id){
+  const packs=loadSketchWordPacks(),pack=packs.find(p=>p.id===id);if(!pack)return;
+  if(!confirm(`Delete "${pack.name}"? This cannot be undone.`))return;
+  if(!persistSketchWordPacks(packs.filter(p=>p.id!==id)))return;
+  if(state.sketchWordPackName===pack.name)state.sketchWordPackName='';
+  renderActivities();toast('Sketch word pack deleted');
+}
 function sketchState(run=state.activityRun){return run?.sketch||null}
-function sketchWordsFromSetup(){const custom=(state.sketchTeacherWords||'').split(/[\n,]+/).map(x=>x.trim()).filter(Boolean);return state.sketchWordSource==='teacher'&&custom.length?custom:SKETCH_WORDS}
+function sketchWordsFromSetup(){const custom=normalizeSketchWords(state.sketchTeacherWords);return state.sketchWordSource==='teacher'&&custom.length?custom:SKETCH_WORDS}
 function sketchNormalize(v){return String(v||'').toLowerCase().trim().replace(/^(a|an|the)\s+/,'').replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ')}
 function sketchAutoMatch(guess,word){const g=sketchNormalize(guess),w=sketchNormalize(word);return !!g&&(g===w||g===w+'s'||g+'s'===w)}
 function sketchArtist(run=state.activityRun){const sk=sketchState(run);return sk?studentByName(sk.artist):null}
@@ -2943,7 +2989,7 @@ const initial=()=>({
  published:{mode:'text',text:'1. Warm-up\n2. Ready check\n3. Class activity',image:'',youtube:''},
  activities:hydratedActivities(),
  favoriteSlots:loadAppShortcuts(),assigningSlot:null,activeApp:null,presentationLibraryOpen:false,
- minefieldLength:'standard',minefieldMode:'crew',minefieldTeamCount:2,sketchMinutes:10,sketchWordSource:'mothership',sketchTeacherWords:'',sketchMode:'free',sketchTeamCount:2,sketchTeamAssignments:{},vectorDraft:defaultVectorDraft(),orbitDraft:defaultOrbitDraft(),pixelDraft:defaultPixelDraft(),
+ minefieldLength:'standard',minefieldMode:'crew',minefieldTeamCount:2,sketchMinutes:10,sketchWordSource:'mothership',sketchTeacherWords:'',sketchWordPackName:'',sketchMode:'free',sketchTeamCount:2,sketchTeamAssignments:{},vectorDraft:defaultVectorDraft(),orbitDraft:defaultOrbitDraft(),pixelDraft:defaultPixelDraft(),
  picturePromptSent:false,picturePrompt:'Take a picture of your completed work.',promptActive:false,
  selectedStudent:'',students:[],ended:false,
  activityRun:null,
@@ -3886,15 +3932,20 @@ function renderActivities(){
     note.classList.add('hidden');picker.classList.add('hidden');grid.classList.remove('hidden');
     title.textContent='SKETCH SIGNAL';subtitle.textContent='Rewards Arcade · One student draws. The crew decodes.';
     header.innerHTML=`<button id="backToAppsBtn">← Activity Library</button>`;$('#backToAppsBtn').onclick=backToAppLibrary;
-    grid.innerHTML=`<div class="sketch-setup"><span class="app-status">REWARDS ARCADE</span><div style="display:flex;align-items:center;gap:12px;margin-top:8px"><div class="act-icon">${appIconMarkup('sketch')}</div><div><h3 style="margin:0">SKETCH SIGNAL</h3><p style="margin:3px 0 0">DRAW THE SIGNAL → CREW DECODES IT → NEXT ARTIST</p></div></div><h4>WORD SOURCE</h4><div class="sketch-options"><button class="sketch-option ${state.sketchWordSource==='mothership'?'active':''}" data-sketch-source="mothership"><b>MOTHERSHIP PACK</b><span>Built-in kid-friendly words</span></button><button class="sketch-option ${state.sketchWordSource==='teacher'?'active':''}" data-sketch-source="teacher"><b>TEACHER PACK</b><span>Use your own words below</span></button><button class="sketch-option" disabled><b>RANDOM MIX</b><span>Coming in the next pass</span></button></div>${state.sketchWordSource==='teacher'?`<textarea id="sketchTeacherWords" class="sketch-word-box" placeholder="One word per line…">${esc(state.sketchTeacherWords)}</textarea>`:''}<h4>PLAY MODE</h4><div class="sketch-options"><button class="sketch-option ${state.sketchMode==='free'?'active':''}" data-sketch-mode="free"><b>FREE-FOR-ALL</b><span>Everyone guesses · roster rotation</span></button><button class="sketch-option ${state.sketchMode==='teams'&&Number(state.sketchTeamCount)===2?'active':''}" data-sketch-mode="teams" data-sketch-team-count="2"><b>2 TEAMS</b><span>Teacher assigns students</span></button><button class="sketch-option ${state.sketchMode==='teams'&&Number(state.sketchTeamCount)===3?'active':''}" data-sketch-mode="teams" data-sketch-team-count="3"><b>3 TEAMS</b><span>Teacher assigns students</span></button></div>${state.sketchMode==='teams'?`<div class="sketch-team-picker"><div class="sketch-team-picker-head"><b>TEAM ASSIGNMENTS</b><span>Tap a student to cycle teams.</span></div><div class="sketch-team-students">${connectedStudents().length?connectedStudents().map((st,i)=>{const t=Number(state.sketchTeamAssignments?.[st.n]||((i%Number(state.sketchTeamCount||2))+1));return `<button data-sketch-student-team="${esc(st.n)}" class="team-${t}">${avatarRosterMarkup(st)}<span><b>${esc(st.n)}</b><small>${sketchTeamLabel(t)}</small></span></button>`}).join(''):'<p class="empty">Students can be assigned after they join. Unassigned students are balanced automatically at launch.</p>'}</div></div>`:''}<h4>GAME LENGTH</h4><div class="sketch-options">${[5,10,15].map(n=>`<button class="sketch-option ${Number(state.sketchMinutes)===n?'active':''}" data-sketch-minutes="${n}"><b>${n} MINUTES</b><span>Teacher controls each round</span></button>`).join('')}</div><div class="sketch-teacher-card" style="margin:12px 0"><b>V48.1 CORE MODE</b><p style="margin:5px 0 0">${state.sketchMode==='teams'?`${state.sketchTeamCount} Teams · teacher-selected assignments · alternating team artist rotation`:'Free-for-All'} · No Score · private guesses · teacher Accept/Reject · 60-second rounds.</p></div><div class="real-app-actions"><button class="sketch-launch" id="launchSketchBtn">🚀 LAUNCH SKETCH SIGNAL</button></div></div>`;
-    $$('[data-sketch-source]').forEach(b=>b.onclick=()=>{state.sketchWordSource=b.dataset.sketchSource;renderActivities()});
+    const savedPacks=loadSketchWordPacks(),teacherWords=normalizeSketchWords(state.sketchTeacherWords);
+    const savedPackMarkup=savedPacks.length?`<div class="orbit-saved-list">${savedPacks.map(p=>`<div class="orbit-saved-row"><div><b>${esc(p.name)}</b><small>${p.words.length} word${p.words.length===1?'':'s'} · ${esc(p.words.slice(0,4).join(' · '))}${p.words.length>4?' · …':''}</small></div><div><button data-sketch-pack-load="${esc(p.id)}">Load</button><button data-sketch-pack-delete="${esc(p.id)}" aria-label="Delete ${esc(p.name)}">×</button></div></div>`).join('')}</div>`:`<div class="empty" style="margin-top:8px">No saved word packs yet.</div>`;
+    const teacherPackEditor=state.sketchWordSource==='teacher'?`<div class="sketch-teacher-card" style="margin:10px 0"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap"><div><b>${state.sketchWordPackName?esc(state.sketchWordPackName):'CUSTOM TEACHER WORDS'}</b><p style="margin:3px 0 0">${teacherWords.length} word${teacherWords.length===1?'':'s'} ready · one per line or separated by commas.</p></div><button id="saveSketchWordPackBtn" ${teacherWords.length?'':'disabled'}>▣ Save Word Pack</button></div><textarea id="sketchTeacherWords" class="sketch-word-box" placeholder="One word per line…">${esc(state.sketchTeacherWords)}</textarea></div>`:'';
+    grid.innerHTML=`<div class="sketch-setup"><span class="app-status">REWARDS ARCADE</span><div style="display:flex;align-items:center;gap:12px;margin-top:8px"><div class="act-icon">${appIconMarkup('sketch')}</div><div><h3 style="margin:0">SKETCH SIGNAL</h3><p style="margin:3px 0 0">DRAW THE SIGNAL → CREW DECODES IT → NEXT ARTIST</p></div></div><h4>WORD SOURCE</h4><div class="sketch-options"><button class="sketch-option ${state.sketchWordSource==='mothership'?'active':''}" data-sketch-source="mothership"><b>MOTHERSHIP PACK</b><span>Built-in kid-friendly words</span></button><button class="sketch-option ${state.sketchWordSource==='teacher'?'active':''}" data-sketch-source="teacher"><b>TEACHER PACK</b><span>Create or load your own words</span></button><button class="sketch-option" disabled><b>${savedPacks.length} SAVED PACK${savedPacks.length===1?'':'S'}</b><span>Saved across teacher sessions</span></button></div>${teacherPackEditor}<div class="sketch-teacher-card" style="margin:10px 0"><div class="sketch-team-picker-head"><b>SAVED WORD PACKS</b><span>Load a pack to make it the active Teacher Pack.</span></div>${savedPackMarkup}</div><h4>PLAY MODE</h4><div class="sketch-options"><button class="sketch-option ${state.sketchMode==='free'?'active':''}" data-sketch-mode="free"><b>FREE-FOR-ALL</b><span>Everyone guesses · roster rotation</span></button><button class="sketch-option ${state.sketchMode==='teams'&&Number(state.sketchTeamCount)===2?'active':''}" data-sketch-mode="teams" data-sketch-team-count="2"><b>2 TEAMS</b><span>Teacher assigns students</span></button><button class="sketch-option ${state.sketchMode==='teams'&&Number(state.sketchTeamCount)===3?'active':''}" data-sketch-mode="teams" data-sketch-team-count="3"><b>3 TEAMS</b><span>Teacher assigns students</span></button></div>${state.sketchMode==='teams'?`<div class="sketch-team-picker"><div class="sketch-team-picker-head"><b>TEAM ASSIGNMENTS</b><span>Tap a student to cycle teams.</span></div><div class="sketch-team-students">${connectedStudents().length?connectedStudents().map((st,i)=>{const t=Number(state.sketchTeamAssignments?.[st.n]||((i%Number(state.sketchTeamCount||2))+1));return `<button data-sketch-student-team="${esc(st.n)}" class="team-${t}">${avatarRosterMarkup(st)}<span><b>${esc(st.n)}</b><small>${sketchTeamLabel(t)}</small></span></button>`}).join(''):'<p class="empty">Students can be assigned after they join. Unassigned students are balanced automatically at launch.</p>'}</div></div>`:''}<h4>GAME LENGTH</h4><div class="sketch-options">${[5,10,15].map(n=>`<button class="sketch-option ${Number(state.sketchMinutes)===n?'active':''}" data-sketch-minutes="${n}"><b>${n} MINUTES</b><span>Teacher controls each round</span></button>`).join('')}</div><div class="sketch-teacher-card" style="margin:12px 0"><b>CORE MODE</b><p style="margin:5px 0 0">${state.sketchMode==='teams'?`${state.sketchTeamCount} Teams · teacher-selected assignments · alternating team artist rotation`:'Free-for-All'} · No Score · private guesses · teacher Accept/Reject · 60-second rounds.</p></div><div class="real-app-actions"><button class="sketch-launch" id="launchSketchBtn">🚀 LAUNCH SKETCH SIGNAL</button></div></div>`;
+    $$('[data-sketch-source]').forEach(b=>b.onclick=()=>{state.sketchWordSource=b.dataset.sketchSource;if(state.sketchWordSource==='mothership')state.sketchWordPackName='';renderActivities()});
+    $$('[data-sketch-pack-load]').forEach(b=>b.onclick=()=>loadSketchWordPack(b.dataset.sketchPackLoad));
+    $$('[data-sketch-pack-delete]').forEach(b=>b.onclick=()=>deleteSketchWordPack(b.dataset.sketchPackDelete));
     $$('[data-sketch-mode]').forEach(b=>b.onclick=()=>{state.sketchMode=b.dataset.sketchMode;if(b.dataset.sketchTeamCount)state.sketchTeamCount=Number(b.dataset.sketchTeamCount);renderActivities()});
     $$('[data-sketch-student-team]').forEach(b=>b.onclick=()=>cycleSketchTeam(b.dataset.sketchStudentTeam));
     $$('[data-sketch-minutes]').forEach(b=>b.onclick=()=>{state.sketchMinutes=Number(b.dataset.sketchMinutes);renderActivities()});
-    const words=$('#sketchTeacherWords');if(words)words.oninput=e=>{state.sketchTeacherWords=e.target.value};
+    const words=$('#sketchTeacherWords');if(words)words.oninput=e=>{state.sketchTeacherWords=e.target.value;state.sketchWordPackName=''};
+    const savePack=$('#saveSketchWordPackBtn');if(savePack)savePack.onclick=saveSketchWordPack;
     $('#launchSketchBtn').onclick=launchSketchSignal;return;
   }
-
 
   if(state.activeApp==='vector'){
     note.classList.add('hidden');picker.classList.add('hidden');grid.classList.remove('hidden');
