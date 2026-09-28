@@ -3704,6 +3704,22 @@ function studentMarkup(){
   if(state.activityRun){
     const a=activeActivity(),run=state.activityRun;
     if(run.phase==='lobby')return `<div class="student-prompt activity-wait"><span class="eyebrow">ACTIVITY LOBBY</span><div class="activity-app-icon">${appIconMarkup(activityIconId(a))}</div><h2>${esc(a.name)}</h2><p>You're in. Waiting for your teacher to begin…</p><div class="student-lobby-avatar">${studentAvatarBadgeMarkup(s)}</div></div>`;
+    if(a.type==='starwheel'){
+      const sw=starwheelState(run),cfg=run.starwheelConfig||{},pilot=starwheelActivePilot(run);if(!sw)return '<div class="student-prompt"><h2>STARWHEEL is preparing…</h2></div>';
+      if(sw.solved)return `<div class="sketch-solved-card"><span class="eyebrow">STARWHEEL · SIGNAL DECODED</span><div class="check">✦</div><h2>Transmission Restored!</h2><p>${esc(sw.solvedBy||'The crew')} solved the signal. Watch Mission Control for the next puzzle.</p></div>`;
+      const isPilot=!!pilot&&pilot.n===s?.n,myTeam=starwheelStudentTeam(s?.n,run),activeTeam=Number(sw.activeTeam||0),sameCrew=cfg.mode==='teams'&&myTeam===activeTeam,used=new Set((sw.usedLetters||[]).map(x=>String(x).toUpperCase())),pending=sw.stage==='solve_pending';
+      if(!isPilot){
+        const activeName=cfg.mode==='teams'?starwheelTeamMeta(activeTeam).name:(pilot?.n||'A classmate');
+        if(sameCrew)return `<div class="student-prompt activity-wait"><span class="eyebrow">STARWHEEL · ${esc(starwheelTeamMeta(myTeam).name)}</span><h2>Your crew is playing</h2><div class="starwheel-pilot-banner"><span>ACTIVE PILOT</span><strong>${esc(pilot?.n||'Waiting')}</strong></div><p>Discuss the puzzle and help your pilot. Your controls will activate automatically when rotation reaches you.</p></div>`;
+        return `<div class="student-prompt activity-wait"><span class="eyebrow">STARWHEEL</span><h2>${esc(activeName)} is playing</h2><p>Watch the classroom display. Your ${cfg.mode==='teams'?'crew':'turn'} will come up automatically.</p><div class="student-lobby-avatar">${studentAvatarBadgeMarkup(s)}</div></div>`;
+      }
+      const crewLabel=cfg.mode==='teams'?starwheelTeamMeta(activeTeam).name:'FREE-FOR-ALL',score=cfg.scoring?(cfg.mode==='teams'?starwheelScore(run,activeTeam,true):starwheelScore(run,s.n,false)):null;
+      if(pending)return `<div class="student-prompt activity-wait"><span class="eyebrow">STARWHEEL · ${esc(crewLabel)}</span><h2>Mission Control is reviewing a solve</h2><p>Stand by. The teacher will accept or reject the submitted transmission.</p></div>`;
+      const vowelCost=cfg.scoring?'250 ENERGY':'NO COST';
+      const vowelButtons=STARWHEEL_VOWELS.map(v=>`<button data-starwheel-vowel="${v}" ${used.has(v)?'disabled':''}>${v}</button>`).join('');
+      const consonants=STARWHEEL_CONSONANTS.map(c=>`<button data-starwheel-letter="${c}" ${used.has(c)?'disabled':''}>${c}</button>`).join('');
+      return `<div class="student-prompt response-device"><span class="eyebrow">STARWHEEL · ${esc(crewLabel)} · ACTIVE PILOT</span><h2>${esc(s.n)}, you have the controls</h2><p>${esc(sw.message||'Spin the Starwheel.')}</p>${cfg.scoring?`<div class="submitted-banner">Current score <b>${Number(score||0).toLocaleString()}</b></div>`:''}${sw.stage==='letter'?`<div class="starwheel-pilot-banner"><span>CORE VALUE</span><strong>${Number(sw.spinValue||0).toLocaleString()}</strong></div><h3 style="margin:12px 0 5px">Choose a consonant</h3><div class="starwheel-student-grid">${consonants}</div>`:`<h3 style="margin:12px 0 5px">Buy a vowel · ${vowelCost}</h3><div class="starwheel-student-grid starwheel-vowels">${vowelButtons}</div>`}<div class="starwheel-solve-box"><input id="starwheelSolveInput" maxlength="80" placeholder="Solve the full signal…"><button id="starwheelSendSolve">SOLVE SIGNAL</button></div><div class="prompt-caption">Solve submissions are private and go to Mission Control first.</div></div>`;
+    }
     if(a.type==='sketch'){
       const sk=sketchState(run),artist=sketchArtist(run),isArtist=sk&&s&&sk.artist===s.n,guess=sk?.guesses?.[s?.n];
       if(!sk)return '<div class="student-prompt"><h2>Sketch Signal is preparing…</h2></div>';
