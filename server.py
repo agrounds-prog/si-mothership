@@ -457,7 +457,15 @@ def merge_student_snapshot(canonical: Optional[dict], incoming: dict, token: str
                     clean_pins.append({"x": round(x, 2), "y": round(y, 2)})
                     if len(clean_pins) >= 8:
                         break
-                can_map[name] = {"pins": clean_pins, "locked": bool(raw.get("locked"))}
+                cfg = can_run.get("vectorConfig") if isinstance(can_run.get("vectorConfig"), dict) else {}
+                if str(cfg.get("mode") or "single") == "multi":
+                    try:
+                        need = max(2, min(8, int(cfg.get("pinCount", 3) or 3)))
+                    except (TypeError, ValueError):
+                        need = 3
+                else:
+                    need = 1
+                can_map[name] = {"pins": clean_pins, "locked": bool(raw.get("locked")) and len(clean_pins) >= need}
 
     elif aid == "orbit-game":
         rr = inc_run.get("orbitResponses") or {}
@@ -521,9 +529,14 @@ def merge_student_snapshot(canonical: Optional[dict], incoming: dict, token: str
     elif aid == "sketch-game":
         can_sketch = can_run.get("sketch") or {}
         inc_sketch = inc_run.get("sketch") or {}
+        try:
+            can_round = int(can_sketch.get("round", 0) or 0)
+            inc_round = int(inc_sketch.get("round", 0) or 0) if isinstance(inc_sketch, dict) else -1
+        except (TypeError, ValueError):
+            can_round, inc_round = -1, -2
         same_round = (
             isinstance(inc_sketch, dict)
-            and int(can_sketch.get("round", 0) or 0) == int(inc_sketch.get("round", 0) or 0)
+            and can_round == inc_round
             and str(can_sketch.get("artist") or "") == str(inc_sketch.get("artist") or "")
             and str(can_sketch.get("word") or "") == str(inc_sketch.get("word") or "")
         )
@@ -575,6 +588,16 @@ def merge_student_snapshot(canonical: Optional[dict], incoming: dict, token: str
         # inactive team fields, and unrelated activity state remain authoritative.
         if _minefield_current_navigator(out, can_run) == name:
             mode = str(can_run.get("minefieldMode") or out.get("minefieldMode") or "crew")
+            def valid_field_transition(current_field: object, incoming_field: object) -> bool:
+                if not isinstance(current_field, dict) or not isinstance(incoming_field, dict):
+                    return False
+                try:
+                    current_turn = int(current_field.get("turn", 1) or 1)
+                    incoming_turn = int(incoming_field.get("turn", 1) or 1)
+                except (TypeError, ValueError):
+                    return False
+                return incoming_turn in (current_turn, current_turn + 1)
+
             if mode == "teams":
                 try:
                     active_idx = int(can_run.get("activeTeam", 0) or 0)
@@ -582,10 +605,11 @@ def merge_student_snapshot(canonical: Optional[dict], incoming: dict, token: str
                     active_idx = 0
                 can_fields = can_run.get("mfTeams")
                 inc_fields = inc_run.get("mfTeams")
-                if isinstance(can_fields, list) and isinstance(inc_fields, list) and 0 <= active_idx < len(can_fields) and active_idx < len(inc_fields) and isinstance(inc_fields[active_idx], dict):
+                if isinstance(can_fields, list) and isinstance(inc_fields, list) and 0 <= active_idx < len(can_fields) and active_idx < len(inc_fields) and valid_field_transition(can_fields[active_idx], inc_fields[active_idx]):
                     can_fields[active_idx] = copy.deepcopy(inc_fields[active_idx])
-                    if inc_run.get("teamWinner") in {None, active_idx}:
-                        can_run["teamWinner"] = inc_run.get("teamWinner")
+                    winner = inc_run.get("teamWinner")
+                    if winner is None or winner == active_idx:
+                        can_run["teamWinner"] = winner
                     try:
                         next_idx = int(inc_run.get("activeTeam", active_idx))
                     except (TypeError, ValueError):
@@ -593,16 +617,16 @@ def merge_student_snapshot(canonical: Optional[dict], incoming: dict, token: str
                     if 0 <= next_idx < len(can_fields):
                         can_run["activeTeam"] = next_idx
             elif mode == "teacher":
-                if str(can_run.get("activeSide") or "class") == "class" and isinstance(inc_run.get("mfClass"), dict):
+                if str(can_run.get("activeSide") or "class") == "class" and valid_field_transition(can_run.get("mfClass"), inc_run.get("mfClass")):
                     can_run["mfClass"] = copy.deepcopy(inc_run["mfClass"])
                     next_side = str(inc_run.get("activeSide") or "class")
-                    if next_side in {"class", "teacher"}:
+                    if next_side in ("class", "teacher"):
                         can_run["activeSide"] = next_side
                     winner = inc_run.get("teacherVsWinner")
-                    if winner in {None, "class", "teacher"}:
+                    if winner is None or winner in ("class", "teacher"):
                         can_run["teacherVsWinner"] = winner
             else:
-                if isinstance(inc_run.get("mf"), dict):
+                if valid_field_transition(can_run.get("mf"), inc_run.get("mf")):
                     can_run["mf"] = copy.deepcopy(inc_run["mf"])
             if isinstance(inc_run.get("narrationLog"), list):
                 can_run["narrationLog"] = copy.deepcopy(inc_run["narrationLog"][-6:])
