@@ -34,7 +34,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "49.3"
+APP_VERSION = "49.4"
 
 PUBLIC_STORAGE_KEYS = {
     "siMothership.customAvatars.v1",
@@ -167,6 +167,112 @@ def _student_by_identity(state: dict, token: str = "", name: str = "") -> Option
     return None
 
 
+def _state_for_role(state: dict, role: str, token: str = "", name: str = "") -> dict:
+    """Return the classroom state appropriate for one connected client.
+
+    Teacher sockets receive the canonical state. Shared screens never receive
+    teacher-private inbox payloads. Student sockets receive only their own
+    private messages/photos/responses while retaining the common classroom and
+    activity state needed to render the experience.
+    """
+    if not isinstance(state, dict):
+        return state
+    if role == "teacher":
+        return state
+
+    out = copy.deepcopy(state)
+    role = str(role or "")
+    token = str(token or "")
+    name = str(name or "")
+    own = _student_by_identity(out, token, name) if role == "student" else None
+    own_name = str(own.get("n", "")) if isinstance(own, dict) else name
+    own_token = str(own.get("studentToken", "")) if isinstance(own, dict) else token
+
+    students = out.get("students", [])
+    if isinstance(students, list):
+        for st in students:
+            if not isinstance(st, dict):
+                continue
+            is_self = role == "student" and (
+                (own_token and str(st.get("studentToken", "")) == own_token)
+                or (own_name and str(st.get("n", "")) == own_name)
+            )
+            if not is_self:
+                st.pop("studentToken", None)
+            if role == "student" and not is_self:
+                st.pop("readyResponse", None)
+                st.pop("emotion", None)
+                st.pop("understanding", None)
+
+    if role == "shared":
+        out["buzz"] = []
+        out["help"] = []
+        out["helpMessages"] = []
+        out["helpDeletedIds"] = []
+        out["alerts"] = []
+        out["photos"] = []
+        return out
+
+    if role != "student":
+        return out
+
+    out["buzz"] = [x for x in out.get("buzz", []) if x == own_name] if isinstance(out.get("buzz"), list) else []
+    out["help"] = [x for x in out.get("help", []) if x == own_name] if isinstance(out.get("help"), list) else []
+    out["alerts"] = [
+        a for a in out.get("alerts", [])
+        if isinstance(a, dict) and str(a.get("name", "")) == own_name
+    ] if isinstance(out.get("alerts"), list) else []
+    out["helpMessages"] = [
+        m for m in out.get("helpMessages", [])
+        if isinstance(m, dict) and str(m.get("name", "")) == own_name
+    ] if isinstance(out.get("helpMessages"), list) else []
+    out["helpDeletedIds"] = []
+    out["photos"] = [
+        p for p in out.get("photos", [])
+        if isinstance(p, dict) and str(p.get("name", "")) == own_name
+    ] if isinstance(out.get("photos"), list) else []
+
+    run = out.get("activityRun")
+    if isinstance(run, dict):
+        responses = run.get("responses")
+        if isinstance(responses, dict):
+            filtered = {}
+            for slide_key, response_map in responses.items():
+                if isinstance(response_map, dict) and own_name in response_map:
+                    filtered[str(slide_key)] = {own_name: copy.deepcopy(response_map[own_name])}
+                elif isinstance(response_map, dict):
+                    filtered[str(slide_key)] = {}
+            run["responses"] = filtered
+
+        for field in ("vectorResponses", "orbitResponses", "pixelGuesses"):
+            mapping = run.get(field)
+            if isinstance(mapping, dict):
+                run[field] = {own_name: copy.deepcopy(mapping[own_name])} if own_name in mapping else {}
+
+        sketch = run.get("sketch")
+        if isinstance(sketch, dict) and isinstance(sketch.get("guesses"), dict):
+            guesses = sketch["guesses"]
+            sketch["guesses"] = {own_name: copy.deepcopy(guesses[own_name])} if own_name in guesses else {}
+
+    return out
+
+
+async def _send_current_state(ws: web.WebSocketResponse) -> None:
+    if LATEST_STATE is None:
+        await ws.send_json({"type": "state_absent"})
+        return
+    meta = CLIENT_META.get(ws, {})
+    await ws.send_json({
+        "type": "state",
+        "state": _state_for_role(
+            LATEST_STATE,
+            str(meta.get("role") or ""),
+            str(meta.get("student_token") or ""),
+            str(meta.get("student_name") or ""),
+        ),
+    })
+
+
 def _minefield_current_navigator(state: dict, run: dict) -> Optional[str]:
     students = [st for st in state.get("students", []) if isinstance(st, dict) and not st.get("offline")]
     if not students:
@@ -211,6 +317,19 @@ def merge_student_snapshot(canonical: Optional[dict], incoming: dict, token: str
     name = str(inc_student.get("n", name or ""))
     if not name:
         return out
+
+    # Once a student name/token exists in canonical state, another socket cannot
+    # claim that identity with a different token or rename an existing token.
+    existing_by_name = _student_by_identity(out, "", name)
+    if existing_by_name is not None:
+        existing_token = str(existing_by_name.get("studentToken") or "")
+        if existing_token and existing_token != token:
+            return out
+    if token:
+        existing_by_token = _student_by_identity(out, token, "")
+        if existing_by_token is not None and str(existing_by_token.get("n") or "") != name:
+            return out
+
     can_student = _student_by_identity(out, token, name)
     if can_student is None:
         clean = {k: copy.deepcopy(v) for k, v in inc_student.items() if k in {"n", "c", "avatarKey", "studentToken", "readyResponse", "emotion", "understanding"}}
@@ -657,12 +776,21 @@ async def new_session_handler(request: web.Request) -> web.Response:
 
 async def broadcast(payload: dict, exclude: Optional[web.WebSocketResponse] = None) -> None:
     dead = []
-    data = json.dumps(payload, separators=(",", ":"))
     for ws in list(CLIENTS):
         if ws is exclude or ws.closed:
             continue
         try:
-            await ws.send_str(data)
+            outgoing = payload
+            if payload.get("type") == "state" and isinstance(payload.get("state"), dict):
+                meta = CLIENT_META.get(ws, {})
+                outgoing = dict(payload)
+                outgoing["state"] = _state_for_role(
+                    payload["state"],
+                    str(meta.get("role") or ""),
+                    str(meta.get("student_token") or ""),
+                    str(meta.get("student_name") or ""),
+                )
+            await ws.send_str(json.dumps(outgoing, separators=(",", ":")))
         except Exception:
             dead.append(ws)
     for ws in dead:
@@ -707,10 +835,7 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
     CLIENTS.add(ws)
     CLIENT_META[ws] = {"role": role, "code": code, "session_id": sid or CURRENT_SESSION_ID, "connected_at": time.time()}
 
-    if LATEST_STATE is not None:
-        await ws.send_json({"type": "state", "state": LATEST_STATE})
-    else:
-        await ws.send_json({"type": "state_absent"})
+    await _send_current_state(ws)
     await ws.send_json({"type": "join_code", **session_urls(effective_origin(request))})
 
     try:
@@ -730,20 +855,19 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                     CLIENT_META[ws] = meta
                     if role == "student" and meta.get("student_name"):
                         await broadcast({"type": "presence", "student_token": meta.get("student_token", ""), "student_name": meta.get("student_name", ""), "online": True}, exclude=ws)
-                    if LATEST_STATE is not None:
-                        await ws.send_json({"type": "state", "state": LATEST_STATE})
-                    else:
-                        await ws.send_json({"type": "state_absent"})
+                    await _send_current_state(ws)
                 elif mtype == "state" and isinstance(data.get("state"), dict):
                     if role == "teacher":
                         save_runtime_state(data["state"])
                     elif role == "student":
                         meta = CLIENT_META.get(ws, {})
-                        token = str(data.get("student_token") or meta.get("student_token") or "")
-                        name = str(data.get("student_name") or meta.get("student_name") or "")
-                        if token:
+                        # Lock the socket to its first established student identity.
+                        # Later whole-state messages cannot switch to another student.
+                        token = str(meta.get("student_token") or data.get("student_token") or "")
+                        name = str(meta.get("student_name") or data.get("student_name") or "")
+                        if token and not meta.get("student_token"):
                             meta["student_token"] = token
-                        if name:
+                        if name and not meta.get("student_name"):
                             meta["student_name"] = name
                         CLIENT_META[ws] = meta
                         merged = merge_student_snapshot(LATEST_STATE, data["state"], token, name)
@@ -755,7 +879,7 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                         continue
                     await broadcast({"type": "state", "state": LATEST_STATE}, exclude=ws)
                     if role == "student":
-                        await ws.send_json({"type": "state", "state": LATEST_STATE})
+                        await _send_current_state(ws)
                 elif mtype == "session_reset" and role == "teacher":
                     save_runtime_state(None)
                     await broadcast({"type": "session_reset"}, exclude=ws)
@@ -815,7 +939,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — PILOT HARDENING")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — CLASSROOM PILOT VALIDATION")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
