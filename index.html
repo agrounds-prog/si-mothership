@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v50.1 — Sketch Scoring</title>
+<title>SI Mothership v50.2 — Batch Avatar Sets</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -2640,7 +2640,42 @@ function inboxAvatarMarkup(student){
 }
 function avatarTileArt(a){if(a.source==='custom'||String(a.key).startsWith('custom_'))return `<div class="avatar-art" style="--avatar-color:#5be8ff"><img src="${a.image}" alt="${esc(a.name||'Custom avatar')}"></div>`;return `<div class="avatar-art" style="--avatar-color:${a.color||'#5be8ff'}">${a.glyph||'🤖'}</div>`}
 function avatarKeySlug(value){return String(value||'avatar').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,24)||'avatar'}
-function newCustomAvatarKey(name){return `custom_${avatarKeySlug(name)}_${Date.now().toString(36)}`}
+function newCustomAvatarKey(name){return `custom_${avatarKeySlug(name)}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,6)}`}
+function avatarNameFromFile(file){return String(file?.name||'Custom Avatar').replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim().slice(0,60)||'Custom Avatar'}
+async function importAvatarSet(fileList){
+  const files=Array.from(fileList||[]).filter(f=>f&&String(f.type||'').startsWith('image/'));
+  if(!files.length)return toast('Choose image files for the avatar set');
+  const selected=files.slice(0,24),existingNames=new Set(customAvatarAssets.map(a=>String(a.name||'').toLocaleLowerCase())),imported=[],failed=[];
+  for(const file of selected){
+    try{
+      let base=avatarNameFromFile(file),name=base,n=2;
+      while(existingNames.has(name.toLocaleLowerCase()))name=`${base} ${n++}`;
+      existingNames.add(name.toLocaleLowerCase());
+      const image=await normalizeAvatarImage(file);
+      imported.push({key:newCustomAvatarKey(name),name,image,source:'custom',createdAt:Date.now(),active:true});
+    }catch(err){failed.push(file.name||'image')}
+  }
+  if(!imported.length)return toast('Could not prepare the selected avatar images');
+
+  const previousAvatars=customAvatarAssets.slice(),previousSets=rosterSets.slice();
+  customAvatarAssets=[...customAvatarAssets,...imported];
+  if(!persistCustomAvatars()){customAvatarAssets=previousAvatars;return}
+
+  let base='Batch Crew',setName=base,n=2;
+  while(rosterSets.some(r=>String(r.name||'').toLocaleLowerCase()===setName.toLocaleLowerCase()))setName=`${base} ${n++}`;
+  const id=newRosterSetId(),keys=imported.map(a=>a.key),names=imported.map(a=>a.name);
+  const created={id,name:setName,avatarKeys:Array.from({length:24},(_,i)=>keys[i]||''),slotNames:Array.from({length:24},(_,i)=>names[i]||`Crew ${i+1}`),protected:false,createdAt:Date.now()};
+  rosterSets.push(created);
+  if(!persistRosterSets()){
+    rosterSets=previousSets;customAvatarAssets=previousAvatars;persistCustomAvatars();return toast('Avatar images saved, but the roster set could not be created');
+  }
+  state.activeRosterSetId=id;state.rosterSetEditorId=id;state.rosterTargetSlot=imported.length<24?imported.length:0;
+  persistActiveRosterSet(id);
+  render();
+  const extra=files.length>24?` · first 24 of ${files.length} used`:'';
+  const skipped=failed.length?` · ${failed.length} skipped`:'';
+  toast(`${imported.length} avatars imported — ${setName} is live${extra}${skipped}`);
+}
 function normalizeAvatarImage(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(new Error('Could not read image'));reader.onload=()=>{const img=new Image();img.onerror=()=>reject(new Error('Could not open image'));img.onload=()=>{const size=512,c=document.createElement('canvas'),ctx=c.getContext('2d');c.width=size;c.height=size;const scale=Math.max(size/img.width,size/img.height),w=img.width*scale,h=img.height*scale,x=(size-w)/2,y=(size-h)/2;ctx.fillStyle='#0b1729';ctx.fillRect(0,0,size,size);ctx.drawImage(img,x,y,w,h);let data='';try{data=c.toDataURL('image/webp',.86)}catch(e){data=c.toDataURL('image/jpeg',.88)}resolve(data)};img.src=String(reader.result)};reader.readAsDataURL(file)})}
 
 const studentSeed=[
@@ -3646,6 +3681,8 @@ function renderCustomRoster(){
           <div class="avatar-field"><label>Avatar image</label><input id="customAvatarFile" type="file" accept="image/*"></div>
           <div class="avatar-field"><label>Avatar name</label><input id="customAvatarName" value="${esc(state.avatarUploadName)}" placeholder="e.g. Blue Explorer"></div>
           <button class="avatar-save-btn" id="saveCustomAvatar" ${state.avatarUploadPreview?'':'disabled'}>＋ Save to Avatar Library</button>
+          <div class="avatar-field" style="margin-top:16px;padding-top:14px;border-top:1px solid #263d5f"><label>Quick Avatar Set</label><input id="batchAvatarFiles" type="file" accept="image/*" multiple></div>
+          <p style="margin:7px 0 0;color:#7890ad;font-size:9px;line-height:1.4">Select up to 24 images at once. Filenames become avatar names, a new roster set is created, and it becomes the student avatar-select screen immediately.</p>
         </div>
       </aside>
       <div class="roster-set-editor-card">
@@ -3669,7 +3706,8 @@ function renderCustomRoster(){
   $$('[data-slot-name]').forEach(input=>input.onchange=e=>{if(set.protected)return;const i=Number(input.dataset.slotName),value=(e.target.value||'').trim()||`Crew ${i+1}`;set.slotNames[i]=value;const idx=rosterSets.findIndex(r=>r.id===set.id);if(idx>=0)rosterSets[idx]=normalizeRosterSet(set);persistRosterSets();renderCustomRoster();toast(`Default name saved as ${value}`)});
   $$('[data-library-avatar]').forEach(tile=>{tile.onclick=e=>{if(e.target.closest('[data-delete-avatar]'))return;if(set.protected){toast('Default Crew is protected — copy it to customize');return}const key=tile.dataset.libraryAvatar;if(set.avatarKeys.includes(key)){toast('That avatar is already in this set');return}if(set.avatarKeys.filter(Boolean).length>=24){toast('This roster set already has 24 avatars');return}let target=Number(state.rosterTargetSlot);if(!Number.isInteger(target)||target<0||target>23||set.avatarKeys[target])target=set.avatarKeys.findIndex(k=>!k);if(target<0){toast('This roster set already has 24 avatars');return}const a=avatarAsset(key),existingName=String(set.slotNames[target]||'').trim();set.avatarKeys[target]=key;if(!existingName||existingName===`Crew ${target+1}`)set.slotNames[target]=a.name||`Crew ${target+1}`;const idx=rosterSets.findIndex(r=>r.id===set.id);if(idx>=0)rosterSets[idx]=normalizeRosterSet(set);persistRosterSets();const next=set.avatarKeys.findIndex((k,i)=>!k&&i>target);state.rosterTargetSlot=next>=0?next:(set.avatarKeys.findIndex(k=>!k)>=0?set.avatarKeys.findIndex(k=>!k):0);renderCustomRoster()};tile.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();tile.click()}}});
   $('#customAvatarName').oninput=e=>{state.avatarUploadName=e.target.value};
-  $('#customAvatarFile').onchange=async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;if(!file.type.startsWith('image/')){toast('Choose an image file');return}try{state.avatarUploadPreview=await normalizeAvatarImage(file);if(!state.avatarUploadName)state.avatarUploadName=file.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ').trim();renderCustomRoster();toast('Avatar image ready')}catch(err){toast(err.message||'Could not prepare avatar')}};
+  $('#customAvatarFile').onchange=async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;if(!file.type.startsWith('image/')){toast('Choose an image file');return}try{state.avatarUploadPreview=await normalizeAvatarImage(file);if(!state.avatarUploadName)state.avatarUploadName=avatarNameFromFile(file);renderCustomRoster();toast('Avatar image ready')}catch(err){toast(err.message||'Could not prepare avatar')}};
+  const batchAvatarFiles=$('#batchAvatarFiles');if(batchAvatarFiles)batchAvatarFiles.onchange=async e=>{const files=e.target.files;if(!files?.length)return;toast(`Preparing ${Math.min(files.length,24)} avatar${Math.min(files.length,24)===1?'':'s'}…`);await importAvatarSet(files)};
   $('#saveCustomAvatar').onclick=()=>{if(!state.avatarUploadPreview)return;const name=(state.avatarUploadName||'Custom Avatar').trim();const key=newCustomAvatarKey(name);customAvatarAssets.push({key,name,image:state.avatarUploadPreview,source:'custom',createdAt:Date.now(),active:true});if(persistCustomAvatars()){state.avatarUploadPreview='';state.avatarUploadName='';render();toast(`${name} added to Avatar Library`)}};
   $$('[data-delete-avatar]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();const key=btn.dataset.deleteAvatar,asset=customAvatarAssets.find(a=>a.key===key),sets=avatarUsedInRosterSets(key),users=state.students.filter(st=>st.avatarKey===key);if(sets.length){toast(`Remove this avatar from ${sets.join(', ')} before deleting`);return}if(users.length){toast(`Avatar is currently used by ${users.map(u=>u.n).join(', ')}`);return}if(!confirm(`Delete ${asset?.name||'this avatar'} from the Avatar Library?`))return;customAvatarAssets=customAvatarAssets.filter(a=>a.key!==key);persistCustomAvatars();render();toast('Custom avatar deleted')});
 }
