@@ -419,26 +419,90 @@ def merge_student_snapshot(canonical: Optional[dict], incoming: dict, token: str
     if str(can_run.get("phase") or "") != "running":
         return out
 
+    # Activity generation tokens invalidate delayed packets after resets, lobby
+    # pauses, board authority changes, new Sketch rounds, and ORBIT follow-ups.
+    can_token = str(can_run.get("runToken") or "")
+    inc_token = str(inc_run.get("runToken") or "")
+    if can_token and inc_token != can_token:
+        return out
+
     aid = str(can_run.get("activityId", ""))
-    # SI+ and generic answer maps.
+
+    # SI+ / generic response maps: accept only the teacher's current slide.
+    # This prevents a delayed answer from landing after the class has moved on.
     inc_responses = inc_run.get("responses") if isinstance(inc_run.get("responses"), dict) else {}
     can_responses = can_run.setdefault("responses", {})
-    for slide_key, response_map in inc_responses.items():
-        if isinstance(response_map, dict) and name in response_map:
-            can_responses.setdefault(str(slide_key), {})[name] = copy.deepcopy(response_map[name])
+    current_slide = str(can_run.get("slideIndex", 0) or 0)
+    response_map = inc_responses.get(current_slide)
+    if isinstance(response_map, dict) and name in response_map:
+        can_responses.setdefault(current_slide, {})[name] = copy.deepcopy(response_map[name])
 
     if aid == "vector-game":
         vr = inc_run.get("vectorResponses") or {}
-        if isinstance(vr, dict) and name in vr:
-            can_run.setdefault("vectorResponses", {})[name] = copy.deepcopy(vr[name])
+        if isinstance(vr, dict) and isinstance(vr.get(name), dict):
+            can_map = can_run.setdefault("vectorResponses", {})
+            current = can_map.get(name) if isinstance(can_map.get(name), dict) else {}
+            # Once a Vector is locked, stale packets cannot unlock or alter it.
+            if not current.get("locked"):
+                raw = vr[name]
+                clean_pins = []
+                for pin in raw.get("pins", []) if isinstance(raw.get("pins"), list) else []:
+                    if not isinstance(pin, dict):
+                        continue
+                    try:
+                        x = max(0.0, min(100.0, float(pin.get("x", 0))))
+                        y = max(0.0, min(100.0, float(pin.get("y", 0))))
+                    except (TypeError, ValueError):
+                        continue
+                    clean_pins.append({"x": round(x, 2), "y": round(y, 2)})
+                    if len(clean_pins) >= 8:
+                        break
+                can_map[name] = {"pins": clean_pins, "locked": bool(raw.get("locked"))}
+
     elif aid == "orbit-game":
         rr = inc_run.get("orbitResponses") or {}
-        if isinstance(rr, dict) and name in rr:
-            can_run.setdefault("orbitResponses", {})[name] = copy.deepcopy(rr[name])
+        can_round = int(can_run.get("orbitRound", 1) or 1)
+        try:
+            inc_round = int(inc_run.get("orbitRound", 1) or 1)
+        except (TypeError, ValueError):
+            inc_round = -1
+        can_map = can_run.setdefault("orbitResponses", {})
+        if inc_round == can_round and name not in can_map and isinstance(rr, dict) and isinstance(rr.get(name), dict):
+            text_value = str(rr[name].get("text") or "").strip()[:500]
+            if text_value:
+                can_map[name] = {"text": text_value, "at": rr[name].get("at")}
+
     elif aid == "pixel-game":
         pg = inc_run.get("pixelGuesses") or {}
-        if isinstance(pg, dict) and name in pg:
-            can_run.setdefault("pixelGuesses", {})[name] = copy.deepcopy(pg[name])
+        if isinstance(pg, dict) and isinstance(pg.get(name), dict):
+            can_map = can_run.setdefault("pixelGuesses", {})
+            current = can_map.get(name) if isinstance(can_map.get(name), dict) else None
+            allow_updates = bool((can_run.get("pixelConfig") or {}).get("allowUpdates"))
+            incoming_guess = pg[name]
+            try:
+                incoming_at = float(incoming_guess.get("at") or 0)
+            except (TypeError, ValueError):
+                incoming_at = 0
+            try:
+                current_at = float(current.get("at") or 0) if current else -1
+            except (TypeError, ValueError):
+                current_at = -1
+            if current is None or (allow_updates and incoming_at >= current_at):
+                clean = {
+                    "guess": str(incoming_guess.get("guess") or "")[:120],
+                    "at": incoming_guess.get("at"),
+                    "remainingAtSubmit": incoming_guess.get("remainingAtSubmit"),
+                    "firstCorrectRemaining": incoming_guess.get("firstCorrectRemaining"),
+                }
+                # Teacher scoring is authoritative across student updates.
+                if current and "teacherCorrect" in current:
+                    clean["teacherCorrect"] = current.get("teacherCorrect")
+                elif "teacherCorrect" in incoming_guess:
+                    clean["teacherCorrect"] = incoming_guess.get("teacherCorrect")
+                if current and current.get("firstCorrectRemaining") is not None and clean.get("firstCorrectRemaining") is None:
+                    clean["firstCorrectRemaining"] = current.get("firstCorrectRemaining")
+                can_map[name] = clean
+
     elif aid == "board-game":
         can_board = can_run.get("board") or {}
         inc_board = inc_run.get("board") or {}
@@ -453,31 +517,96 @@ def merge_student_snapshot(canonical: Optional[dict], incoming: dict, token: str
                 kept = [st for st in page.get("strokes", []) if not (isinstance(st, dict) and st.get("owner") == name)]
                 own = [copy.deepcopy(st) for st in other.get("strokes", []) if isinstance(st, dict) and st.get("owner") == name]
                 page["strokes"] = kept + own
+
     elif aid == "sketch-game":
         can_sketch = can_run.get("sketch") or {}
         inc_sketch = inc_run.get("sketch") or {}
-        if isinstance(inc_sketch, dict):
+        same_round = (
+            isinstance(inc_sketch, dict)
+            and int(can_sketch.get("round", 0) or 0) == int(inc_sketch.get("round", 0) or 0)
+            and str(can_sketch.get("artist") or "") == str(inc_sketch.get("artist") or "")
+            and str(can_sketch.get("word") or "") == str(inc_sketch.get("word") or "")
+        )
+        if same_round:
             inc_guesses = inc_sketch.get("guesses") or {}
-            if isinstance(inc_guesses, dict) and name in inc_guesses:
-                can_sketch.setdefault("guesses", {})[name] = copy.deepcopy(inc_guesses[name])
-                can_run["sketch"] = can_sketch
-        can_board = can_run.get("board") or {}
-        inc_board = inc_run.get("board") or {}
-        if can_sketch.get("artist") == name and can_board.get("controller") == name and isinstance(can_board.get("pages"), list) and isinstance(inc_board.get("pages"), list):
-            inc_pages = {str(pg.get("id")): pg for pg in inc_board.get("pages", []) if isinstance(pg, dict)}
-            for page in can_board.get("pages", []):
-                if not isinstance(page, dict):
-                    continue
-                other = inc_pages.get(str(page.get("id")))
-                if not other:
-                    continue
-                kept = [st for st in page.get("strokes", []) if not (isinstance(st, dict) and st.get("owner") == name)]
-                own = [copy.deepcopy(st) for st in other.get("strokes", []) if isinstance(st, dict) and st.get("owner") == name]
-                page["strokes"] = kept + own
+            if isinstance(inc_guesses, dict) and isinstance(inc_guesses.get(name), dict):
+                can_guesses = can_sketch.setdefault("guesses", {})
+                incoming_guess = copy.deepcopy(inc_guesses[name])
+                current = can_guesses.get(name) if isinstance(can_guesses.get(name), dict) else None
+                accept_guess = current is None
+                if current:
+                    current_status = str(current.get("status") or "")
+                    incoming_status = str(incoming_guess.get("status") or "")
+                    try:
+                        incoming_at = float(incoming_guess.get("at") or 0)
+                        current_at = float(current.get("at") or 0)
+                        reviewed_at = float(current.get("reviewedAt") or 0)
+                    except (TypeError, ValueError):
+                        incoming_at, current_at, reviewed_at = 0, 0, 0
+                    if current_status == "accepted":
+                        accept_guess = False
+                    elif current_status == "rejected":
+                        # A rejected guess may be replaced only by a genuinely new guess.
+                        accept_guess = incoming_at > max(current_at, reviewed_at)
+                    else:
+                        accept_guess = incoming_at >= current_at and incoming_status in {"pending", "accepted", "rejected"}
+                if accept_guess:
+                    incoming_guess["text"] = str(incoming_guess.get("text") or "")[:80]
+                    can_guesses[name] = incoming_guess
+                    can_run["sketch"] = can_sketch
+
+            can_board = can_run.get("board") or {}
+            inc_board = inc_run.get("board") or {}
+            if can_sketch.get("artist") == name and can_board.get("controller") == name and isinstance(can_board.get("pages"), list) and isinstance(inc_board.get("pages"), list):
+                inc_pages = {str(pg.get("id")): pg for pg in inc_board.get("pages", []) if isinstance(pg, dict)}
+                for page in can_board.get("pages", []):
+                    if not isinstance(page, dict):
+                        continue
+                    other = inc_pages.get(str(page.get("id")))
+                    if not other:
+                        continue
+                    kept = [st for st in page.get("strokes", []) if not (isinstance(st, dict) and st.get("owner") == name)]
+                    own = [copy.deepcopy(st) for st in other.get("strokes", []) if isinstance(st, dict) and st.get("owner") == name]
+                    page["strokes"] = kept + own
+
     elif aid == "minefield-game":
+        # Navigator packets may alter only the active Minefield field and the
+        # turn-transition fields it legitimately controls. Teacher configuration,
+        # inactive team fields, and unrelated activity state remain authoritative.
         if _minefield_current_navigator(out, can_run) == name:
-            # Minefield has one active Navigator, so its move can safely advance the game state.
-            out["activityRun"] = copy.deepcopy(inc_run)
+            mode = str(can_run.get("minefieldMode") or out.get("minefieldMode") or "crew")
+            if mode == "teams":
+                try:
+                    active_idx = int(can_run.get("activeTeam", 0) or 0)
+                except (TypeError, ValueError):
+                    active_idx = 0
+                can_fields = can_run.get("mfTeams")
+                inc_fields = inc_run.get("mfTeams")
+                if isinstance(can_fields, list) and isinstance(inc_fields, list) and 0 <= active_idx < len(can_fields) and active_idx < len(inc_fields) and isinstance(inc_fields[active_idx], dict):
+                    can_fields[active_idx] = copy.deepcopy(inc_fields[active_idx])
+                    if inc_run.get("teamWinner") in {None, active_idx}:
+                        can_run["teamWinner"] = inc_run.get("teamWinner")
+                    try:
+                        next_idx = int(inc_run.get("activeTeam", active_idx))
+                    except (TypeError, ValueError):
+                        next_idx = active_idx
+                    if 0 <= next_idx < len(can_fields):
+                        can_run["activeTeam"] = next_idx
+            elif mode == "teacher":
+                if str(can_run.get("activeSide") or "class") == "class" and isinstance(inc_run.get("mfClass"), dict):
+                    can_run["mfClass"] = copy.deepcopy(inc_run["mfClass"])
+                    next_side = str(inc_run.get("activeSide") or "class")
+                    if next_side in {"class", "teacher"}:
+                        can_run["activeSide"] = next_side
+                    winner = inc_run.get("teacherVsWinner")
+                    if winner in {None, "class", "teacher"}:
+                        can_run["teacherVsWinner"] = winner
+            else:
+                if isinstance(inc_run.get("mf"), dict):
+                    can_run["mf"] = copy.deepcopy(inc_run["mf"])
+            if isinstance(inc_run.get("narrationLog"), list):
+                can_run["narrationLog"] = copy.deepcopy(inc_run["narrationLog"][-6:])
+            can_run["latestNarration"] = str(inc_run.get("latestNarration") or can_run.get("latestNarration") or "")[:1200]
 
     return out
 
