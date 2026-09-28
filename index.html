@@ -4384,6 +4384,15 @@ function renderStudentControls(){
   const s=selectedStudent();
   if(state.activityRun&&state.activityRun.phase==='running'){
     const a=activeActivity(),slide=currentSlide();if(zoneWrap)zoneWrap.dataset.app=a?.type||'activity';
+    if(a.type==='starwheel'){
+      const run=state.activityRun,sw=starwheelState(run),pilot=starwheelActivePilot(run),isPilot=!!pilot&&pilot.n===s?.n;
+      label.innerHTML='<b>STARWHEEL CONTROLS</b><span>'+esc(starwheelActiveCrewLabel(run))+'</span>';zone.className='student-actions orbit-student-controls';
+      if(!sw||sw.solved){zone.innerHTML='';return}
+      if(!isPilot){zone.innerHTML='<button disabled>◉<br>Watch Display</button>';return}
+      if(sw.stage==='solve_pending'){zone.innerHTML='<button disabled>…<br>Mission Control Review</button>';return}
+      if(sw.stage==='letter'){zone.innerHTML=`<button disabled>✦<br>Core ${Number(sw.spinValue||0).toLocaleString()}</button>`;return}
+      zone.innerHTML='<button id="starwheelSpinBtn">✦<br>Spin Starwheel</button>';const spin=$('#starwheelSpinBtn');if(spin)spin.onclick=()=>starwheelSubmitRequest('spin');return;
+    }
     if(a.type==='sketch'){
       const run=state.activityRun,sk=sketchState(run),isArtist=sk&&s&&sk.artist===s.n,guess=sk?.guesses?.[s?.n];
       if(!sk){zone.innerHTML='';return}
@@ -4618,7 +4627,7 @@ async function requestNewServerSession(){
   }catch(e){toast('Could not create a new server session');return null}
 }
 function renderPublic(){
-  $('#mirrorContent').innerHTML=sharedMarkup('normal');$('#sharedContent').innerHTML=sharedMarkup('big');$('#studentContent').innerHTML=studentMarkup();wireStudentJoin();wireStudentResponses();wireMinefieldStudent();wireVectorStudent();wireBoardStudent();wireSketchStudent();wireOrbitStudent();renderStudentControls();requestAnimationFrame(paintPixelFocusCanvases);
+  $('#mirrorContent').innerHTML=sharedMarkup('normal');$('#sharedContent').innerHTML=sharedMarkup('big');$('#studentContent').innerHTML=studentMarkup();wireStudentJoin();wireStudentResponses();wireMinefieldStudent();wireVectorStudent();wireBoardStudent();wireSketchStudent();wireOrbitStudent();wireStarwheelStudent();renderStudentControls();requestAnimationFrame(paintPixelFocusCanvases);
   const conn=$('#studentConnectionLabel');if(conn)conn.innerHTML=studentNeedsJoin()?'<span style="width:9px;height:9px;border-radius:50%;display:inline-block;background:#ffc35d;box-shadow:0 0 12px #ffc35d88"></span>&nbsp; Join Class':'<span class="pulse"></span>&nbsp; Connected';
   const label=state.ended?'ENDED':state.activityRun?(activeActivity()?.type==='board'?'BOARD LIVE':state.activityRun.phase==='lobby'?'ACTIVITY LOBBY':'ACTIVITY LIVE'):state.screen==='brb'?'WE’LL BE RIGHT BACK':state.screen.toUpperCase();$('#mirrorLabel').textContent=label;$('#sharedLabel').textContent=label;updateSecondScreen();
 }
