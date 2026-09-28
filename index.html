@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v50.5 — Activity Presets</title>
+<title>SI Mothership v50.6 — Teacher Session Summary</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -2467,6 +2467,29 @@ body.role-student .prompt-caption{overflow-wrap:anywhere}
 .preset-library{grid-column:1/-1;display:grid;gap:11px;margin-bottom:6px}.preset-section{border:1px solid #294b6d;border-radius:14px;background:linear-gradient(145deg,#08192d,#071321);padding:13px}.preset-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}.preset-section-head h3{margin:0;font-size:14px}.preset-section-head span{color:#7e96b3;font-size:9px}.preset-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.preset-card{border:1px solid #315373;border-radius:11px;background:#0b1d31;padding:10px;min-width:0}.preset-card .preset-app{font-size:8px;color:#68ddff;font-weight:950;letter-spacing:.09em;text-transform:uppercase}.preset-card h4{margin:4px 0 3px;font-size:13px}.preset-card p{margin:0;color:#8198b4;font-size:9px;line-height:1.35;min-height:24px}.preset-actions{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;margin-top:8px}.preset-actions button{min-height:32px}.preset-actions .delete{width:34px;padding:0;color:#ff9aaa;border-color:#653448}.preset-recent{display:flex;gap:7px;overflow-x:auto;padding-bottom:2px}.preset-recent-card{flex:0 0 auto;border:1px solid #315473;border-radius:9px;background:#0b2038;color:#d9eaff;padding:8px 10px;min-width:175px}.preset-recent-card b{display:block;font-size:10px}.preset-recent-card small{display:block;color:#7f96b0;font-size:8px;margin-top:2px}.preset-recent-actions{display:flex;gap:5px;margin-top:7px}.preset-recent-actions button{min-height:27px;padding:4px 8px;font-size:8px}.preset-save-btn{border-color:#55dfaa!important;color:#aef2ce!important}.preset-app-card{margin:10px 0;border:1px dashed #3b607f;border-radius:10px;padding:9px;background:#09192b}.preset-app-card p{margin:4px 0 8px;color:#7f97b1;font-size:9px}
 @media(max-width:980px){.preset-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:620px){.preset-grid{grid-template-columns:1fr}}
 </style>
+<style id="v50-6-session-summary">
+/* =========================================================
+   SI MOTHERSHIP v50.6 — TEACHER SESSION SUMMARY
+   Teacher-only ephemeral recap. No student/shared UI changes.
+   ========================================================= */
+.session-summary-btn{border-color:#2d7183!important;background:#0a2633!important;color:#bdf7ff!important}
+.session-summary-modal{position:fixed;inset:0;z-index:12000;background:rgba(2,7,15,.78);backdrop-filter:blur(10px);display:grid;place-items:center;padding:24px}
+.session-summary-modal.hidden{display:none}
+.session-summary-card{width:min(1120px,96vw);max-height:92vh;overflow:auto;border:1px solid #294968;border-radius:20px;background:linear-gradient(180deg,#0b1a2d,#071321);box-shadow:0 30px 100px #000b;padding:18px}
+.session-summary-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;border-bottom:1px solid #223b55;padding:2px 2px 14px}
+.session-summary-head h2{margin:3px 0 5px;font-size:26px}.session-summary-head p{margin:0;color:#8fa6c0;font-size:11px}
+.session-summary-close{width:36px;height:36px;border-radius:10px;font-size:20px}
+.session-summary-note{margin:12px 0;padding:9px 11px;border:1px solid #29445d;border-radius:10px;background:#091727;color:#91a9c3;font-size:10px}
+.session-summary-stats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:12px 0}
+.session-summary-stat{border:1px solid #25425e;border-radius:12px;background:#0a1a2c;padding:10px}.session-summary-stat span{display:block;color:#7892ae;font-size:8px;font-weight:800;letter-spacing:.1em}.session-summary-stat b{display:block;margin-top:5px;font-size:20px;color:#eef7ff}.session-summary-stat small{display:block;color:#7d95b1;font-size:8px;margin-top:2px}
+.session-summary-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:10px}.session-summary-panel{border:1px solid #223d58;border-radius:13px;background:#081725;padding:12px;min-width:0}.session-summary-panel h3{font-size:12px;margin:0 0 9px;letter-spacing:.06em}.session-summary-empty{color:#7188a3;font-size:10px;padding:8px 0}
+.session-attendance{display:flex;flex-wrap:wrap;gap:5px}.session-attendance span{padding:5px 7px;border:1px solid #2a4762;border-radius:999px;background:#0d2135;font-size:9px;color:#d6e9f8}
+.session-student-table{width:100%;border-collapse:collapse;font-size:9px}.session-student-table th{color:#7891ad;text-align:left;font-size:8px;padding:5px;border-bottom:1px solid #263e55}.session-student-table td{padding:6px 5px;border-bottom:1px solid #14283a;color:#cfe1ef}.session-student-table td:not(:first-child),.session-student-table th:not(:first-child){text-align:center}
+.session-activity-list{display:grid;gap:8px}.session-activity{border:1px solid #284761;border-radius:11px;background:#0b1d30;padding:10px}.session-activity-head{display:flex;justify-content:space-between;gap:10px}.session-activity-head b{font-size:11px}.session-activity-head span{font-size:8px;color:#7f97b2}.session-activity-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}.session-activity-meta span{font-size:8px;padding:4px 6px;border-radius:7px;background:#102942;color:#a8bed3}.session-score-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}.session-score-row span{font-size:8px;border:1px solid #31516d;border-radius:7px;padding:4px 6px;color:#d7ebfa}
+.session-ready-list{display:grid;gap:6px}.session-ready{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #173047;padding:5px 0;font-size:9px}.session-ready span{color:#8ba2ba}
+.session-summary-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}.session-summary-actions button{min-height:34px}
+@media(max-width:900px){.session-summary-stats{grid-template-columns:repeat(3,1fr)}.session-summary-grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -2491,6 +2514,7 @@ body.role-student .prompt-caption{overflow-wrap:anywhere}
   <button class="control" data-send="emotion"><span class="ico">♡</span><span class="copy"><b>Emotion</b><small>Send check</small></span></button>
   <button class="control" data-send="understanding"><span class="ico">◫</span><span class="copy"><b>Understanding</b><small>Send check</small></span></button>
   <button class="emergency-btn hidden" id="emergencyReturnBtn">⚠ Emergency Return</button>
+  <button class="session-summary-btn" id="sessionSummaryBtn">▤ Summary</button>
   <button class="end-btn" id="endBtn">↪ End Session</button>
 </div>
 <div class="top-picture-prompt hidden" id="picturePromptBox"><input id="picturePromptText" value="Take a picture of your completed work." /><button id="sendPicturePrompt">Send picture prompt</button></div>
@@ -2564,6 +2588,15 @@ body.role-student .prompt-caption{overflow-wrap:anywhere}
     <div class="help-viewer-head"><div><b id="helpViewerName">Student</b><small id="helpViewerMeta">Help request</small></div><button id="helpViewerClose" type="button" aria-label="Close help request">×</button></div>
     <div id="helpViewerText" class="help-viewer-text"></div>
     <div class="help-viewer-actions"><button id="helpViewerHandled" type="button">✓ Mark Handled</button><button id="helpViewerDelete" type="button">Delete</button></div>
+  </div>
+</div>
+
+<div id="sessionSummaryModal" class="session-summary-modal hidden" role="dialog" aria-modal="true" aria-label="Teacher session summary">
+  <div class="session-summary-card">
+    <div class="session-summary-head"><div><span class="eyebrow">TEACHER ONLY · CURRENT SESSION</span><h2>Session Summary</h2><p id="sessionSummaryMeta">Current session recap</p></div><button class="session-summary-close" id="sessionSummaryClose" type="button" aria-label="Close session summary">×</button></div>
+    <div class="session-summary-note">v50.6 summary is intentionally ephemeral. It is not shown to students or the shared screen and is cleared when a new session starts, the classroom is reset, or this page reloads.</div>
+    <div id="sessionSummaryContent"></div>
+    <div class="session-summary-actions"><button id="sessionSummaryCopy" type="button">Copy Recap</button><button id="sessionSummaryDone" type="button">Close</button></div>
   </div>
 </div>
 
@@ -3300,6 +3333,7 @@ function recordRecentActivity(appId,label,presetId,config){
   list.unshift(item);persistRecentActivities(list);
 }
 function recordActivityLaunch(appId,label,forcedConfig){
+  teacherSummaryStartActivity(appId,label||activityDisplayName(appId));
   const config=forcedConfig===undefined?currentActivityPresetConfig(appId):forcedConfig;
   const pending=pendingRecentPreset;
   if(pending&&pending.appId===appId){recordRecentActivity(appId,pending.name,pending.id,pending.config||config);pendingRecentPreset=null;return}
@@ -3414,6 +3448,176 @@ let networkReconnectTimer=null;
 let networkReconnectAttempts=0;
 let networkSessionReset=false;
 let deferredBoardRemoteState=null;
+function freshTeacherSessionSummary(){
+  return {startedAt:Date.now(),endedAt:null,attendance:{},peakConnected:0,activities:[],activeRun:null,readyChecks:[],currentReady:null,helpEvents:{},photoEvents:{}};
+}
+let teacherSessionSummary=freshTeacherSessionSummary();
+function teacherSummaryEnabled(){return SESSION_ROLE==='teacher'}
+function teacherSummaryDuration(ms){
+  const sec=Math.max(0,Math.round(Number(ms||0)/1000)),m=Math.floor(sec/60),s=sec%60;
+  return m?m+'m '+String(s).padStart(2,'0')+'s':s+'s';
+}
+function teacherSummaryReset(){
+  teacherSessionSummary=freshTeacherSessionSummary();
+  const box=document.getElementById('sessionSummaryModal');if(box)box.classList.add('hidden');
+}
+function teacherSummaryObserveRoster(){
+  if(!teacherSummaryEnabled())return;
+  const now=Date.now(),students=Array.isArray(state?.students)?state.students:[];
+  students.forEach(st=>{const name=String(st?.n||'').trim();if(!name)return;const row=teacherSessionSummary.attendance[name]||(teacherSessionSummary.attendance[name]={firstSeen:now,lastSeen:now});row.lastSeen=now});
+  teacherSessionSummary.peakConnected=Math.max(Number(teacherSessionSummary.peakConnected||0),connectedStudents().length);
+}
+function teacherSummaryUpdateReady(){
+  const r=teacherSessionSummary.currentReady;if(!r)return;
+  (state.students||[]).forEach(st=>{if(st?.readyResponse)r.responses[st.n]=String(st.readyResponse)});
+  r.rosterCount=Math.max(Number(r.rosterCount||0),Object.keys(teacherSessionSummary.attendance).length,(state.students||[]).length);
+}
+function teacherSummaryFinalizeReady(){
+  const r=teacherSessionSummary.currentReady;if(!r)return;
+  teacherSummaryUpdateReady();r.endedAt=Date.now();
+  r.responded=Object.keys(r.responses||{}).length;r.ready=Object.values(r.responses||{}).filter(v=>v==='Ready').length;r.notYet=Object.values(r.responses||{}).filter(v=>v==='Not yet').length;
+  teacherSessionSummary.readyChecks.push(r);teacherSessionSummary.currentReady=null;
+}
+function teacherSummaryBeginReadyCheck(){
+  if(!teacherSummaryEnabled())return;
+  teacherSummaryFinalizeReady();
+  teacherSessionSummary.currentReady={id:'ready_'+Date.now().toString(36),startedAt:Date.now(),endedAt:null,rosterCount:(state.students||[]).length,responses:{}};
+}
+function teacherSummaryObserveReady(){
+  if(!teacherSummaryEnabled())return;
+  if(state.screen==='ready'&&state.promptActive){
+    if(!teacherSessionSummary.currentReady)teacherSummaryBeginReadyCheck();
+    teacherSummaryUpdateReady();
+  }else if(teacherSessionSummary.currentReady)teacherSummaryFinalizeReady();
+}
+function teacherSummaryObservePrivateSignals(){
+  if(!teacherSummaryEnabled())return;
+  (state.helpMessages||[]).forEach(m=>{const id=String(m?.id||'');if(id&&!teacherSessionSummary.helpEvents[id])teacherSessionSummary.helpEvents[id]={name:String(m.name||'Student'),at:Number(m.at||Date.now())}});
+  (state.photos||[]).forEach(p=>{const id=String(p?.id||'');if(id&&!teacherSessionSummary.photoEvents[id])teacherSessionSummary.photoEvents[id]={name:String(p.name||'Student'),at:Date.now()}});
+}
+function teacherSummaryActivityResponse(t,key,name){
+  if(!key||!name)return;
+  t.responseEvents=t.responseEvents||{};t.responseByStudent=t.responseByStudent||{};
+  if(t.responseEvents[key])return;
+  t.responseEvents[key]=name;t.responseByStudent[name]=Number(t.responseByStudent[name]||0)+1;
+}
+function teacherSummaryActivityParticipant(t,name){
+  name=String(name||'').trim();if(!name)return;t.participants=t.participants||{};t.participants[name]=true;
+}
+function teacherSummaryAppIdForActivity(a){
+  if(!a)return'activity';
+  if(a.type==='presentation')return'si-plus';
+  if(a.type==='minefield')return'minefield';if(a.type==='vector')return'vector';if(a.type==='board')return'board';if(a.type==='orbit')return'orbit';if(a.type==='pixel')return'pixel';if(a.type==='sketch')return'sketch';if(a.type==='starwheel')return'starwheel';
+  return String(a.id||a.type||'activity');
+}
+function teacherSummaryFinalizeActivity(){
+  const t=teacherSessionSummary.activeRun;if(!t)return;
+  t.endedAt=Date.now();t.durationMs=Math.max(0,t.endedAt-t.startedAt);
+  t.participantNames=Object.keys(t.participants||{});t.responseCount=Object.keys(t.responseEvents||{}).length;
+  teacherSessionSummary.activities.push(t);teacherSessionSummary.activeRun=null;
+}
+function teacherSummaryStartActivity(appId,label){
+  if(!teacherSummaryEnabled())return;
+  if(teacherSessionSummary.activeRun)teacherSummaryFinalizeActivity();
+  const a=activeActivity(),run=state.activityRun;
+  teacherSessionSummary.activeRun={id:'activity_'+Date.now().toString(36),appId:String(appId||teacherSummaryAppIdForActivity(a)),label:String(label||a?.name||'Activity').slice(0,100),type:String(a?.type||appId||'activity'),runToken:String(run?.runToken||''),startedAt:Date.now(),endedAt:null,participants:{},responseEvents:{},responseByStudent:{},scores:null};
+}
+function teacherSummaryObserveActivity(){
+  if(!teacherSummaryEnabled())return;
+  const run=state.activityRun,a=activeActivity();
+  if(!run){if(teacherSessionSummary.activeRun)teacherSummaryFinalizeActivity();return}
+  let t=teacherSessionSummary.activeRun;
+  if(!t||String(t.runToken||'')!==String(run.runToken||'')){
+    if(t)teacherSummaryFinalizeActivity();
+    teacherSummaryStartActivity(teacherSummaryAppIdForActivity(a),a?.name||'Activity');t=teacherSessionSummary.activeRun;
+  }
+  if(!t)return;
+  t.lastObservedAt=Date.now();t.runToken=String(run.runToken||t.runToken||'');
+  if(a?.type==='presentation'||a?.type==='binary'||a?.type==='exit'){
+    Object.entries(run.responses||{}).forEach(([slide,map])=>{if(!map||typeof map!=='object')return;Object.entries(map).forEach(([name,val])=>{if(val){teacherSummaryActivityParticipant(t,name);teacherSummaryActivityResponse(t,'presentation:'+slide+':'+name,name)}})});
+  }
+  if(a?.type==='vector')Object.entries(run.vectorResponses||{}).forEach(([name,r])=>{if((r?.pins||[]).length||r?.locked){teacherSummaryActivityParticipant(t,name);teacherSummaryActivityResponse(t,'vector:'+name,name)}});
+  if(a?.type==='orbit')Object.keys(run.orbitResponses||{}).forEach(name=>{teacherSummaryActivityParticipant(t,name);teacherSummaryActivityResponse(t,'orbit:'+(run.orbitRound||1)+':'+name,name)});
+  if(a?.type==='pixel')Object.keys(run.pixelGuesses||{}).forEach(name=>{teacherSummaryActivityParticipant(t,name);teacherSummaryActivityResponse(t,'pixel:'+name,name)});
+  if(a?.type==='sketch'){
+    const sk=run.sketch||{};teacherSummaryActivityParticipant(t,sk.artist);
+    Object.keys(sk.guesses||{}).forEach(name=>{teacherSummaryActivityParticipant(t,name);teacherSummaryActivityResponse(t,'sketch:'+(sk.round||1)+':'+name,name)});
+    t.scores={label:'Sketch Signal',students:deepClone(run.sketchScores?.students||{}),teams:deepClone(run.sketchScores?.teams||{})};
+  }
+  if(a?.type==='starwheel'){
+    const sw=run.starwheel||{},pilot=starwheelActivePilot(run);teacherSummaryActivityParticipant(t,pilot?.n);teacherSummaryActivityParticipant(t,sw.solvedBy);
+    t.scores={label:'STARWHEEL',students:deepClone(sw.scores?.students||{}),teams:deepClone(sw.scores?.teams||{})};
+  }
+  if(a?.type==='minefield'){
+    const mode=minefieldMode(run),nav=minefieldNavigator(run,mode==='teacher'?'class':null);if(nav?.n&&nav.n!=='Teacher')teacherSummaryActivityParticipant(t,nav.n);
+  }
+  if(a?.type==='board')teacherSummaryActivityParticipant(t,run.board?.controller);
+}
+function teacherSummaryObserve(){
+  if(!teacherSummaryEnabled())return;
+  teacherSummaryObserveRoster();teacherSummaryObservePrivateSignals();teacherSummaryObserveReady();teacherSummaryObserveActivity();
+}
+function teacherSummaryFinalizeSession(){
+  if(!teacherSummaryEnabled())return;
+  teacherSummaryObserve();teacherSummaryFinalizeReady();teacherSummaryFinalizeActivity();teacherSessionSummary.endedAt=Date.now();
+}
+function teacherSummaryActivityView(t,active=false){
+  const out={...t};
+  out.durationMs=active?Math.max(0,Date.now()-Number(t.startedAt||Date.now())):Number(t.durationMs||0);
+  out.participantNames=Object.keys(t.participants||{});out.responseCount=Object.keys(t.responseEvents||{}).length;return out;
+}
+function teacherSummarySnapshot(){
+  teacherSummaryObserve();
+  const activities=teacherSessionSummary.activities.map(x=>teacherSummaryActivityView(x,false));
+  if(teacherSessionSummary.activeRun)activities.push(teacherSummaryActivityView(teacherSessionSummary.activeRun,true));
+  const ready=teacherSessionSummary.readyChecks.slice();
+  if(teacherSessionSummary.currentReady){teacherSummaryUpdateReady();const r=deepClone(teacherSessionSummary.currentReady);r.responded=Object.keys(r.responses||{}).length;r.ready=Object.values(r.responses||{}).filter(v=>v==='Ready').length;r.notYet=Object.values(r.responses||{}).filter(v=>v==='Not yet').length;ready.push(r)}
+  return {startedAt:teacherSessionSummary.startedAt,endedAt:teacherSessionSummary.endedAt,attendance:deepClone(teacherSessionSummary.attendance),peakConnected:teacherSessionSummary.peakConnected,activities,readyChecks:ready,helpEvents:Object.values(teacherSessionSummary.helpEvents||{}),photoEvents:Object.values(teacherSessionSummary.photoEvents||{})};
+}
+function teacherSummaryScoresMarkup(scores){
+  if(!scores)return'';
+  const rows=[];
+  Object.entries(scores.teams||{}).forEach(([k,v])=>rows.push('<span>Team '+(Number(k)+1)+' · <b>'+Number(v||0).toLocaleString()+'</b></span>'));
+  Object.entries(scores.students||{}).forEach(([k,v])=>rows.push('<span>'+esc(k)+' · <b>'+Number(v||0).toLocaleString()+'</b></span>'));
+  return rows.length?'<div class="session-score-row">'+rows.join('')+'</div>':'';
+}
+function renderTeacherSessionSummary(){
+  if(!teacherSummaryEnabled())return;
+  const s=teacherSummarySnapshot(),names=Object.keys(s.attendance).sort((a,b)=>a.localeCompare(b)),ended=s.endedAt||Date.now(),sessionMs=Math.max(0,ended-s.startedAt),activityMs=s.activities.reduce((n,a)=>n+Number(a.durationMs||0),0),readyResponses=s.readyChecks.reduce((n,r)=>n+Number(r.responded||0),0),helpCount=s.helpEvents.length,photoCount=s.photoEvents.length;
+  const activityByStudent={};names.forEach(n=>activityByStudent[n]={activities:0,responses:0,ready:0,help:0,photos:0});
+  s.activities.forEach(a=>{(a.participantNames||[]).forEach(n=>{activityByStudent[n]=activityByStudent[n]||{activities:0,responses:0,ready:0,help:0,photos:0};activityByStudent[n].activities++});Object.entries(a.responseByStudent||{}).forEach(([n,v])=>{activityByStudent[n]=activityByStudent[n]||{activities:0,responses:0,ready:0,help:0,photos:0};activityByStudent[n].responses+=Number(v||0)})});
+  s.readyChecks.forEach(r=>Object.keys(r.responses||{}).forEach(n=>{activityByStudent[n]=activityByStudent[n]||{activities:0,responses:0,ready:0,help:0,photos:0};activityByStudent[n].ready++}));
+  s.helpEvents.forEach(e=>{const n=e.name;activityByStudent[n]=activityByStudent[n]||{activities:0,responses:0,ready:0,help:0,photos:0};activityByStudent[n].help++});
+  s.photoEvents.forEach(e=>{const n=e.name;activityByStudent[n]=activityByStudent[n]||{activities:0,responses:0,ready:0,help:0,photos:0};activityByStudent[n].photos++});
+  const studentNames=Object.keys(activityByStudent).sort((a,b)=>a.localeCompare(b));
+  const stats='<div class="session-summary-stats">'+[
+    ['SESSION',teacherSummaryDuration(sessionMs),'elapsed'],
+    ['ATTENDANCE',names.length+'','students seen'],
+    ['PEAK',s.peakConnected+'','connected'],
+    ['ACTIVITIES',s.activities.length+'',teacherSummaryDuration(activityMs)+' total'],
+    ['READY CHECKS',s.readyChecks.length+'',readyResponses+' responses'],
+    ['PRIVATE SIGNALS',(helpCount+photoCount)+'',helpCount+' help · '+photoCount+' photos']
+  ].map(x=>'<div class="session-summary-stat"><span>'+x[0]+'</span><b>'+x[1]+'</b><small>'+x[2]+'</small></div>').join('')+'</div>';
+  const activityHtml=s.activities.length?s.activities.map((a,i)=>'<div class="session-activity"><div class="session-activity-head"><b>'+(i+1)+'. '+esc(a.label||activityDisplayName(a.appId))+'</b><span>'+teacherSummaryDuration(a.durationMs)+'</span></div><div class="session-activity-meta"><span>'+esc(activityDisplayName(a.appId))+'</span><span>'+(a.participantNames||[]).length+' participants</span><span>'+Number(a.responseCount||0)+' responses</span></div>'+teacherSummaryScoresMarkup(a.scores)+'</div>').join(''):'<div class="session-summary-empty">No activities launched in this session.</div>';
+  const readyHtml=s.readyChecks.length?s.readyChecks.map((r,i)=>'<div class="session-ready"><b>Check '+(i+1)+'</b><span>'+Number(r.responded||0)+' / '+Number(r.rosterCount||0)+' responded · '+Number(r.ready||0)+' ready · '+Number(r.notYet||0)+' not yet</span></div>').join(''):'<div class="session-summary-empty">No Ready Checks sent.</div>';
+  const studentHtml=studentNames.length?'<table class="session-student-table"><thead><tr><th>Student</th><th>Activities</th><th>Responses</th><th>Ready checks</th><th>Help</th><th>Photos</th></tr></thead><tbody>'+studentNames.map(n=>{const x=activityByStudent[n];return '<tr><td>'+esc(n)+'</td><td>'+x.activities+'</td><td>'+x.responses+'</td><td>'+x.ready+'</td><td>'+x.help+'</td><td>'+x.photos+'</td></tr>'}).join('')+'</tbody></table>':'<div class="session-summary-empty">No student participation recorded yet.</div>';
+  const attendanceHtml=names.length?'<div class="session-attendance">'+names.map(n=>'<span>'+esc(n)+'</span>').join('')+'</div>':'<div class="session-summary-empty">No students have joined yet.</div>';
+  const box=document.getElementById('sessionSummaryContent');if(box)box.innerHTML=stats+'<div class="session-summary-grid"><div class="session-summary-panel"><h3>ACTIVITY TIMELINE</h3><div class="session-activity-list">'+activityHtml+'</div></div><div class="session-summary-panel"><h3>ATTENDANCE</h3>'+attendanceHtml+'<h3 style="margin-top:14px">READY CHECKS</h3><div class="session-ready-list">'+readyHtml+'</div></div><div class="session-summary-panel" style="grid-column:1/-1"><h3>STUDENT PARTICIPATION</h3>'+studentHtml+'</div></div>';
+  const meta=document.getElementById('sessionSummaryMeta');if(meta){const start=new Date(s.startedAt);meta.textContent=(s.endedAt?'Ended':'Live')+' · started '+start.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})+' · '+names.length+' students seen'}
+}
+function teacherSessionSummaryText(){
+  const s=teacherSummarySnapshot(),names=Object.keys(s.attendance).sort((a,b)=>a.localeCompare(b)),ended=s.endedAt||Date.now(),lines=[];
+  lines.push('SI Mothership Session Summary');lines.push('Session: '+teacherSummaryDuration(ended-s.startedAt));lines.push('Attendance: '+names.length+(names.length?' · '+names.join(', '):''));lines.push('Peak connected: '+s.peakConnected);lines.push('Activities: '+s.activities.length);
+  s.activities.forEach((a,i)=>lines.push((i+1)+'. '+(a.label||activityDisplayName(a.appId))+' · '+teacherSummaryDuration(a.durationMs)+' · '+(a.participantNames||[]).length+' participants · '+Number(a.responseCount||0)+' responses'));
+  lines.push('Ready checks: '+s.readyChecks.length+' · '+s.readyChecks.reduce((n,r)=>n+Number(r.responded||0),0)+' responses');
+  lines.push('Help requests: '+s.helpEvents.length);lines.push('Photo submissions: '+s.photoEvents.length);return lines.join('\n');
+}
+function openTeacherSessionSummary(){
+  if(!teacherSummaryEnabled())return;
+  renderTeacherSessionSummary();const box=document.getElementById('sessionSummaryModal');if(box)box.classList.remove('hidden');
+}
+function closeTeacherSessionSummary(){const box=document.getElementById('sessionSummaryModal');if(box)box.classList.add('hidden')}
+
 function networkWsUrl(){return `${location.protocol==='https:'?'wss':'ws'}://${location.host}/ws?role=${encodeURIComponent(SESSION_ROLE)}&code=${encodeURIComponent(STUDENT_JOIN_CODE)}${STUDENT_SESSION_ID?`&sid=${encodeURIComponent(STUDENT_SESSION_ID)}`:''}`}
 function currentStudentIdentity(){if(SESSION_ROLE!=='student')return null;const s=selectedStudent();return s?{student_token:s.studentToken||'',student_name:s.n||''}:readStudentIdentity()}
 function updateNetworkStatus(mode){const ns=document.getElementById('networkStatus');if(!ns||!NETWORK_SYNC)return;ns.classList.remove('online','offline');if(mode==='online'){ns.textContent='● Connected';ns.classList.add('online')}else if(mode==='reconnecting'){ns.textContent='◌ Reconnecting';ns.classList.add('offline')}else{ns.textContent='○ Offline';ns.classList.add('offline')}}
@@ -4835,14 +5039,14 @@ function renderPublic(){
   const conn=$('#studentConnectionLabel');if(conn)conn.innerHTML=studentNeedsJoin()?'<span style="width:9px;height:9px;border-radius:50%;display:inline-block;background:#ffc35d;box-shadow:0 0 12px #ffc35d88"></span>&nbsp; Join Class':'<span class="pulse"></span>&nbsp; Connected';
   const label=state.ended?'ENDED':state.activityRun?(activeActivity()?.type==='board'?'BOARD LIVE':state.activityRun.phase==='lobby'?'ACTIVITY LOBBY':'ACTIVITY LIVE'):state.screen==='brb'?'WE’LL BE RIGHT BACK':state.screen.toUpperCase();$('#mirrorLabel').textContent=label;$('#sharedLabel').textContent=label;updateSecondScreen();
 }
-function render(){const cm=$('#connectedMetric');if(cm)cm.textContent=connectedStudents().length;renderStudentSelect();renderRoster();renderRight();renderControls();renderHomeAppShortcuts();setMissionPanel();renderCustomRoster();renderAgendaPreview();renderActivities();renderPresentationBuilder();updateAgendaDraftPreview();renderPublic();publishSyncedState()}
+function render(){teacherSummaryObserve();const cm=$('#connectedMetric');if(cm)cm.textContent=connectedStudents().length;renderStudentSelect();renderRoster();renderRight();renderControls();renderHomeAppShortcuts();setMissionPanel();renderCustomRoster();renderAgendaPreview();renderActivities();renderPresentationBuilder();updateAgendaDraftPreview();renderPublic();publishSyncedState()}
 
 async function handleGenericAction(){
   if(state.ended){
     const created=await requestNewServerSession();
-    state=initial();joinNameDraft='';joinAvatarDraft='';joinCodeDraft='';joinStep='code';
+    teacherSummaryReset();state=initial();joinNameDraft='';joinAvatarDraft='';joinCodeDraft='';joinStep='code';
     $('#agendaText').value=state.agendaText;$('#agendaYoutube').value='';$('#picturePromptText').value=state.picturePrompt;render();toast('New session started');return}
-  if(state.screen==='ready')state.students.forEach(s=>s.readyResponse='');if(state.screen==='emotion')state.students.forEach(s=>s.emotion='');if(state.screen==='understanding')state.students.forEach(s=>s.understanding='');state.promptActive=true;if(state.screen==='picture')state.picturePromptSent=true;render();toast('Prompt sent — watch the roster');
+  if(state.screen==='ready'){teacherSummaryBeginReadyCheck();state.students.forEach(s=>s.readyResponse='')}if(state.screen==='emotion')state.students.forEach(s=>s.emotion='');if(state.screen==='understanding')state.students.forEach(s=>s.understanding='');state.promptActive=true;if(state.screen==='picture')state.picturePromptSent=true;render();toast('Prompt sent — watch the roster');
 }
 
 $$('.tab').forEach(t=>t.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');$$('.view').forEach(v=>v.classList.remove('active'));$('#'+t.dataset.view).classList.add('active');state.view=t.dataset.view;renderPublic()});
@@ -4858,7 +5062,7 @@ $$('[data-control]').forEach(b=>b.onclick=()=>{
   if(b.dataset.control==='classroom'){state.screen='classroom';state.promptActive=false;state.presentationEditor=null;state.presentationLibraryOpen=false;state.activeApp=null;render();return}
   state.screen=b.dataset.control;
   if(state.screen==='agenda')state.agendaLive=false;
-  if(state.screen==='ready'){state.readyEnabled=true;state.students.forEach(s=>s.readyResponse='');state.promptActive=true;render();toast('Ready check sent — Ready button enabled');return}
+  if(state.screen==='ready'){teacherSummaryBeginReadyCheck();state.readyEnabled=true;state.students.forEach(s=>s.readyResponse='');state.promptActive=true;render();toast('Ready check sent — Ready button enabled');return}
   state.promptActive=false;render();
 });
 $$('[data-toggle]').forEach(b=>b.onclick=()=>{if(state.ended)return;if(state.activityRun){toast('Classroom settings stay available, but activity remains active')}const k=b.dataset.toggle;state[k+'Enabled']=!state[k+'Enabled'];if(k==='hand'&&!state.handEnabled){state.alerts=state.alerts.filter(a=>a.type!=='hand')}if(k==='picture'&&!state.pictureEnabled){state.picturePromptSent=false;if(state.screen==='picture'){state.screen='lobby';state.promptActive=false}}render();const label=k==='hand'?'Raise Hand':k==='picture'?'Picture Prompt':k==='help'?'Ask for Help':'Buzz';toast(`${label} ${state[k+'Enabled']?'enabled':'paused'}`)});
@@ -4974,11 +5178,16 @@ const studentPhotoComposer=$('#studentPhotoComposer');if(studentPhotoComposer)st
 
 $('#openGallery').onclick=()=>{if(!state.photos.length)return toast('No photos submitted yet');openPhotoViewer(state.photos[0].id)};
 const clearPhotosBtn=$('#clearPhotos');if(clearPhotosBtn)clearPhotosBtn.onclick=()=>{if(!state.photos.length)return toast('Photo Inbox is already clear');state.photos=[];closePhotoViewer();render();toast('Photo Inbox cleared')};
-$('#endBtn').onclick=()=>{state.ended=true;state.activityRun=null;state.screen='ended';state.students=[];state.selectedStudent='';state.buzz=[];state.help=[];state.helpMessages=[];state.helpDeletedIds=[];state.alerts=[];state.photos=[];state.promptActive=false;state.picturePromptSent=false;resetHomeControls();state.rosterPage=0;render();toast('Session ended — roster and private inboxes cleared')};
+$('#endBtn').onclick=()=>{teacherSummaryFinalizeSession();state.ended=true;state.activityRun=null;state.screen='ended';state.students=[];state.selectedStudent='';state.buzz=[];state.help=[];state.helpMessages=[];state.helpDeletedIds=[];state.alerts=[];state.photos=[];state.promptActive=false;state.picturePromptSent=false;resetHomeControls();state.rosterPage=0;render();openTeacherSessionSummary();toast('Session ended — roster and private inboxes cleared; recap ready')};
+const summaryBtn=$('#sessionSummaryBtn');if(summaryBtn)summaryBtn.onclick=openTeacherSessionSummary;
+const summaryClose=$('#sessionSummaryClose');if(summaryClose)summaryClose.onclick=closeTeacherSessionSummary;
+const summaryDone=$('#sessionSummaryDone');if(summaryDone)summaryDone.onclick=closeTeacherSessionSummary;
+const summaryModal=$('#sessionSummaryModal');if(summaryModal)summaryModal.onclick=e=>{if(e.target===summaryModal)closeTeacherSessionSummary()};
+const summaryCopy=$('#sessionSummaryCopy');if(summaryCopy)summaryCopy.onclick=async()=>{const txt=teacherSessionSummaryText();try{await navigator.clipboard.writeText(txt);toast('Session recap copied')}catch(e){toast('Could not copy recap')}};
 const emergencyRail=$('#emergencyReturnBtn');if(emergencyRail)emergencyRail.onclick=()=>{if(state.activityRun)returnToClassroom('emergency')};
 $('#copyCode').onclick=async()=>{try{await navigator.clipboard.writeText(STUDENT_JOIN_CODE);toast('Join code copied')}catch(e){toast('Join code: '+STUDENT_JOIN_CODE)}};
 $('#launchSecondScreenBtn').onclick=launchSecondScreen;
-$('#resetBtn').onclick=async()=>{const created=await requestNewServerSession();if(NETWORK_SYNC&&!created)return;state=initial();joinNameDraft='';joinAvatarDraft='';joinCodeDraft='';joinStep='code';$('#agendaText').value=state.agendaText;$('#agendaYoutube').value='';$('#picturePromptText').value=state.picturePrompt;render();toast('Classroom reset — teacher library kept')};
+$('#resetBtn').onclick=async()=>{const created=await requestNewServerSession();if(NETWORK_SYNC&&!created)return;teacherSummaryReset();state=initial();joinNameDraft='';joinAvatarDraft='';joinCodeDraft='';joinStep='code';$('#agendaText').value=state.agendaText;$('#agendaYoutube').value='';$('#picturePromptText').value=state.picturePrompt;render();toast('Classroom reset — teacher library kept')};
 
 
 function applySessionRoleUI(){
