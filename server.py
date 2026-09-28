@@ -215,6 +215,14 @@ def _state_for_role(state: dict, role: str, token: str = "", name: str = "") -> 
                 st.pop("emotion", None)
                 st.pop("understanding", None)
 
+    run = out.get("activityRun")
+    if isinstance(run, dict) and str(run.get("activityId") or "") == "starwheel-game":
+        sw = run.get("starwheel")
+        if isinstance(sw, dict):
+            sw.pop("pendingSolve", None)
+            sw.pop("lastRequestId", None)
+        run.pop("starwheelRequest", None)
+
     if role != "student":
         # Shared/unknown non-teacher clients receive display-safe state only.
         out["buzz"] = []
@@ -243,6 +251,11 @@ def _state_for_role(state: dict, role: str, token: str = "", name: str = "") -> 
 
     run = out.get("activityRun")
     if isinstance(run, dict):
+        if str(run.get("activityId") or "") == "starwheel-game":
+            cfg = run.get("starwheelConfig")
+            if isinstance(cfg, dict):
+                cfg.pop("answer", None)
+            run.pop("starwheelRequest", None)
         responses = run.get("responses")
         if isinstance(responses, dict):
             filtered = {}
@@ -321,6 +334,219 @@ def _sketch_award_score(run: dict, name: str) -> None:
         if team > 0:
             key = str(team)
             teams[key] = max(0, int(teams.get(key, 0) or 0)) + 1
+
+
+STARWHEEL_VALUES = (100, 200, 300, 400, 500, 750, 1000, 500)
+STARWHEEL_VOWELS = {"A", "E", "I", "O", "U"}
+STARWHEEL_CONSONANTS = set("BCDFGHJKLMNPQRSTVWXYZ")
+
+
+def _starwheel_connected_students(state: dict) -> list[dict]:
+    return [
+        st for st in state.get("students", [])
+        if isinstance(st, dict) and not st.get("offline") and str(st.get("n") or "")
+    ]
+
+
+def _starwheel_team_members(state: dict, run: dict, team_index: int) -> list[dict]:
+    cfg = run.get("starwheelConfig") if isinstance(run.get("starwheelConfig"), dict) else {}
+    assignments = cfg.get("teamAssignments") if isinstance(cfg.get("teamAssignments"), dict) else {}
+    team_number = int(team_index) + 1
+    return [st for st in _starwheel_connected_students(state) if int(assignments.get(str(st.get("n")), 0) or 0) == team_number]
+
+
+def _starwheel_active_pilot_name(state: dict, run: dict) -> str:
+    cfg = run.get("starwheelConfig") if isinstance(run.get("starwheelConfig"), dict) else {}
+    sw = run.get("starwheel") if isinstance(run.get("starwheel"), dict) else {}
+    students = _starwheel_connected_students(state)
+    if not students:
+        return ""
+    if str(cfg.get("mode") or "teams") != "teams":
+        try:
+            idx = int(sw.get("freePilotIndex", 0) or 0) % len(students)
+        except (TypeError, ValueError):
+            idx = 0
+        return str(students[idx].get("n") or "")
+
+    try:
+        count = max(2, min(4, int(cfg.get("teamCount", 2) or 2)))
+        active = int(sw.get("activeTeam", 0) or 0) % count
+    except (TypeError, ValueError):
+        count, active = 2, 0
+    members = _starwheel_team_members(state, run, active)
+    if not members:
+        for step in range(1, count + 1):
+            candidate = (active + step) % count
+            candidate_members = _starwheel_team_members(state, run, candidate)
+            if candidate_members:
+                active, members = candidate, candidate_members
+                sw["activeTeam"] = active
+                break
+    if not members:
+        return ""
+    indexes = sw.setdefault("pilotIndexes", {})
+    try:
+        idx = int(indexes.get(str(active), 0) or 0) % len(members)
+    except (TypeError, ValueError):
+        idx = 0
+    return str(members[idx].get("n") or "")
+
+
+def _starwheel_score_bucket(run: dict, name: str) -> tuple[dict, str]:
+    cfg = run.get("starwheelConfig") if isinstance(run.get("starwheelConfig"), dict) else {}
+    sw = run.setdefault("starwheel", {})
+    scores = sw.setdefault("scores", {"students": {}, "teams": {}})
+    students = scores.setdefault("students", {})
+    teams = scores.setdefault("teams", {})
+    if str(cfg.get("mode") or "teams") == "teams":
+        try:
+            team = int(sw.get("activeTeam", 0) or 0)
+        except (TypeError, ValueError):
+            team = 0
+        return teams, str(team)
+    return students, name
+
+
+def _starwheel_adjust_score(run: dict, name: str, delta: int) -> int:
+    cfg = run.get("starwheelConfig") if isinstance(run.get("starwheelConfig"), dict) else {}
+    if not cfg.get("scoring"):
+        return 0
+    bucket, key = _starwheel_score_bucket(run, name)
+    try:
+        current = int(bucket.get(key, 0) or 0)
+    except (TypeError, ValueError):
+        current = 0
+    bucket[key] = max(0, current + int(delta))
+    return int(bucket[key])
+
+
+def _starwheel_advance(state: dict, run: dict, keep_team: bool) -> None:
+    cfg = run.get("starwheelConfig") if isinstance(run.get("starwheelConfig"), dict) else {}
+    sw = run.get("starwheel") if isinstance(run.get("starwheel"), dict) else {}
+    students = _starwheel_connected_students(state)
+    if not students:
+        return
+    if str(cfg.get("mode") or "teams") != "teams":
+        try:
+            sw["freePilotIndex"] = (int(sw.get("freePilotIndex", 0) or 0) + 1) % len(students)
+        except (TypeError, ValueError):
+            sw["freePilotIndex"] = 0
+        return
+    try:
+        count = max(2, min(4, int(cfg.get("teamCount", 2) or 2)))
+        team = int(sw.get("activeTeam", 0) or 0) % count
+    except (TypeError, ValueError):
+        count, team = 2, 0
+    members = _starwheel_team_members(state, run, team)
+    indexes = sw.setdefault("pilotIndexes", {})
+    if members:
+        try:
+            indexes[str(team)] = (int(indexes.get(str(team), 0) or 0) + 1) % len(members)
+        except (TypeError, ValueError):
+            indexes[str(team)] = 0
+    if not keep_team:
+        for step in range(1, count + 1):
+            candidate = (team + step) % count
+            if _starwheel_team_members(state, run, candidate):
+                sw["activeTeam"] = candidate
+                break
+
+
+def _starwheel_apply_request(state: dict, run: dict, name: str, request: dict) -> None:
+    sw = run.get("starwheel") if isinstance(run.get("starwheel"), dict) else None
+    cfg = run.get("starwheelConfig") if isinstance(run.get("starwheelConfig"), dict) else {}
+    if not isinstance(sw, dict) or sw.get("solved"):
+        return
+    request_id = str(request.get("id") or "")[:120]
+    if not request_id or request_id == str(sw.get("lastRequestId") or ""):
+        return
+    if str(request.get("name") or name) != name:
+        return
+    if _starwheel_active_pilot_name(state, run) != name:
+        return
+    sw["lastRequestId"] = request_id
+    action = str(request.get("type") or "")
+    value = str(request.get("value") or "").strip().upper()
+    answer = str(cfg.get("answer") or "").upper()
+    used = [str(x).upper() for x in sw.get("usedLetters", []) if str(x)]
+    revealed = [str(x).upper() for x in sw.get("revealed", []) if str(x)]
+    sw["usedLetters"] = used
+    sw["revealed"] = revealed
+
+    if action == "spin":
+        if str(sw.get("stage") or "ready") != "ready" or sw.get("pendingSolve"):
+            return
+        index = secrets.randbelow(len(STARWHEEL_VALUES))
+        spin_value = int(STARWHEEL_VALUES[index])
+        sw["spinIndex"] = index
+        sw["spinValue"] = spin_value
+        sw["spinNonce"] = int(sw.get("spinNonce", 0) or 0) + 1
+        target = 360 - (index * 45 + 22.5)
+        sw["spinDeg"] = float(sw.get("spinDeg", 0) or 0) + 720 + target
+        sw["stage"] = "letter"
+        sw["message"] = f"{name} spun {spin_value}. Choose a consonant."
+        return
+
+    if action == "letter":
+        if str(sw.get("stage") or "") != "letter" or value not in STARWHEEL_CONSONANTS or value in used:
+            return
+        used.append(value)
+        occurrences = answer.count(value)
+        if occurrences > 0 and value not in revealed:
+            revealed.append(value)
+        points = int(sw.get("spinValue", 0) or 0) * occurrences
+        if occurrences > 0 and cfg.get("scoring"):
+            _starwheel_adjust_score(run, name, points)
+        _starwheel_advance(state, run, occurrences > 0)
+        sw["stage"] = "ready"
+        sw["spinValue"] = None
+        sw["message"] = (
+            f"{value} appears {occurrences} time{'s' if occurrences != 1 else ''}. "
+            + (f"{points} points. Crew keeps control." if occurrences > 0 and cfg.get("scoring")
+               else "Crew keeps control." if occurrences > 0
+               else "No signal match. Control passes.")
+        )
+        return
+
+    if action == "vowel":
+        if str(sw.get("stage") or "ready") != "ready" or value not in STARWHEEL_VOWELS or value in used:
+            return
+        if cfg.get("scoring"):
+            bucket, key = _starwheel_score_bucket(run, name)
+            try:
+                current_score = int(bucket.get(key, 0) or 0)
+            except (TypeError, ValueError):
+                current_score = 0
+            if current_score < 250:
+                sw["message"] = "Not enough Energy to buy a vowel."
+                return
+            bucket[key] = current_score - 250
+        used.append(value)
+        occurrences = answer.count(value)
+        if occurrences > 0 and value not in revealed:
+            revealed.append(value)
+        _starwheel_advance(state, run, occurrences > 0)
+        sw["stage"] = "ready"
+        sw["message"] = (
+            f"Vowel {value} restored in {occurrences} position{'s' if occurrences != 1 else ''}. "
+            + ("Crew keeps control." if occurrences > 0 else "No signal match. Control passes.")
+        )
+        return
+
+    if action == "solve":
+        if str(sw.get("stage") or "ready") not in {"ready", "letter"} or sw.get("pendingSolve"):
+            return
+        text = str(request.get("value") or "").strip()[:80]
+        if not text:
+            return
+        try:
+            team = int(sw.get("activeTeam", 0) or 0) if str(cfg.get("mode") or "teams") == "teams" else -1
+        except (TypeError, ValueError):
+            team = -1
+        sw["pendingSolve"] = {"name": name, "text": text, "team": team, "at": request.get("at")}
+        sw["solvePendingBy"] = name
+        sw["stage"] = "solve_pending"
+        sw["message"] = f"{name} submitted a Solve Signal. Mission Control is reviewing it."
 
 
 def _minefield_current_navigator(state: dict, run: dict) -> Optional[str]:
@@ -480,7 +706,12 @@ def merge_student_snapshot(canonical: Optional[dict], incoming: dict, token: str
     if isinstance(response_map, dict) and name in response_map:
         can_responses.setdefault(current_slide, {})[name] = copy.deepcopy(response_map[name])
 
-    if aid == "vector-game":
+    if aid == "starwheel-game":
+        request = inc_run.get("starwheelRequest")
+        if isinstance(request, dict):
+            _starwheel_apply_request(out, can_run, name, request)
+
+    elif aid == "vector-game":
         vr = inc_run.get("vectorResponses") or {}
         if isinstance(vr, dict) and isinstance(vr.get(name), dict):
             can_map = can_run.setdefault("vectorResponses", {})
