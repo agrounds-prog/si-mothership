@@ -87,7 +87,8 @@ def main() -> int:
     # Historical selector invariant: $() is single-element; $$() is multi-element.
     bad_selector_lines = []
     for number, line in enumerate(html.splitlines(), 1):
-        if re.search(r"(?<!\$)\$\([^;\n]*\)\.forEach\s*\(", line):
+        stripped = line.replace("$$(", "__MULTI__(")
+        if re.search(r"\$\([^;\n]*\)\.forEach\s*\(", stripped):
             bad_selector_lines.append(number)
     check("selectors: no $().forEach misuse", not bad_selector_lines, f"lines {bad_selector_lines[:10]}")
 
