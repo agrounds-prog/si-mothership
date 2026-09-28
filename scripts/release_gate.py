@@ -136,8 +136,9 @@ def main() -> int:
     check("workflow: explicit Finish & Return UI remains", "Finish & Return" in html)
 
     # v50.7 completed-session persistence boundary.
-    end_handler = re.search(r"\$\('#endBtn'\)\.onclick=.*?;", html, re.S)
-    check("history: completed session persisted from End Session", bool(end_handler and "persistCompletedTeacherSession()" in end_handler.group(0)))
+    end_start = html.find("$('#endBtn').onclick")
+    end_segment = html[end_start:end_start + 1400] if end_start >= 0 else ""
+    check("history: completed session persisted from End Session", "teacherSummaryFinalizeSession()" in end_segment and "persistCompletedTeacherSession()" in end_segment)
     normalize = segment(html, "function normalizeTeacherHistorySnapshot(")
     check("history: normalized records omit raw photo/help payload fields", ".data" not in normalize and "text:" not in normalize and ".text" not in normalize)
 
