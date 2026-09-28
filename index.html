@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v50.3 — STARWHEEL Core</title>
+<title>SI Mothership v50.4 — STARWHEEL Expansion</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -3022,6 +3022,14 @@ setInterval(()=>{try{updateSketchLiveStatus()}catch(e){}},1000);
 
 /* STARWHEEL runtime */
 const STARWHEEL_VALUES=[100,200,300,400,500,750,1000,500];
+const STARWHEEL_SPECIALS=[
+  {id:'power',label:'POWER SURGE',short:'×2',kind:'power'},
+  {id:'shield',label:'SHIELD',short:'◆',kind:'shield'},
+  {id:'cargo',label:'CARGO',short:'+500',kind:'cargo'},
+  {id:'wormhole',label:'WORMHOLE',short:'↝',kind:'wormhole'},
+  {id:'tax',label:'ALIEN TAX',short:'−250',kind:'tax'}
+];
+const STARWHEEL_PACK_STORE='siMothership.starwheelPuzzlePacks.v1';
 const STARWHEEL_VOWELS=['A','E','I','O','U'];
 const STARWHEEL_CONSONANTS='BCDFGHJKLMNPQRSTVWXYZ'.split('');
 const STARWHEEL_TEAMS=[
@@ -3032,6 +3040,68 @@ const STARWHEEL_TEAMS=[
 ];
 function starwheelAnswer(value){return String(value||'').toUpperCase().replace(/\s+/g,' ').trim().slice(0,80)}
 function starwheelCategory(value){return String(value||'').toUpperCase().replace(/\s+/g,' ').trim().slice(0,60)}
+function normalizeStarwheelPuzzle(p){
+  const category=starwheelCategory(p?.category),answer=starwheelAnswer(p?.answer);
+  return category&&answer&&/[A-Z]/.test(answer)?{category,answer}:null;
+}
+function loadStarwheelPacks(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(STARWHEEL_PACK_STORE)||'[]');if(!Array.isArray(raw))return[];
+    return raw.map(pack=>{
+      const puzzles=(Array.isArray(pack?.puzzles)?pack.puzzles:[]).map(normalizeStarwheelPuzzle).filter(Boolean).slice(0,40);
+      return {id:String(pack?.id||''),name:String(pack?.name||'').trim().slice(0,60),puzzles,updatedAt:Number(pack?.updatedAt||0)};
+    }).filter(pack=>pack.id&&pack.name&&pack.puzzles.length).slice(0,30);
+  }catch(e){return[]}
+}
+function persistStarwheelPacks(packs){
+  try{localStorage.setItem(STARWHEEL_PACK_STORE,JSON.stringify((packs||[]).slice(0,30)));return true}
+  catch(e){toast('Could not save STARWHEEL puzzle packs');return false}
+}
+function saveCurrentStarwheelPuzzleToPack(){
+  const puzzle=normalizeStarwheelPuzzle({category:state.starwheelCategory,answer:state.starwheelAnswer});
+  if(!puzzle)return toast('Enter a category and answer first');
+  const packs=loadStarwheelPacks(),current=packs.find(p=>p.id===state.starwheelActivePackId);
+  const suggested=current?.name||`STARWHEEL Pack ${packs.length+1}`;
+  const name=(prompt('Save this puzzle to which STARWHEEL pack?',suggested)||'').trim().slice(0,60);if(!name)return;
+  let pack=packs.find(p=>p.name.toLocaleLowerCase()===name.toLocaleLowerCase());
+  if(!pack){pack={id:'swpack_'+Date.now().toString(36),name,puzzles:[],updatedAt:Date.now()};packs.unshift(pack)}
+  const duplicate=pack.puzzles.some(p=>p.category===puzzle.category&&p.answer===puzzle.answer);
+  if(!duplicate)pack.puzzles.push(puzzle);pack.updatedAt=Date.now();
+  if(!persistStarwheelPacks(packs))return;
+  state.starwheelActivePackId=pack.id;state.starwheelPackIndex=Math.max(0,pack.puzzles.findIndex(p=>p.category===puzzle.category&&p.answer===puzzle.answer));
+  renderActivities();toast(duplicate?`${name} already contains this puzzle`:`Puzzle saved to ${name}`);
+}
+function loadStarwheelPack(id){
+  const pack=loadStarwheelPacks().find(p=>p.id===id);if(!pack)return toast('STARWHEEL pack not found');
+  state.starwheelActivePackId=pack.id;state.starwheelPackIndex=0;
+  state.starwheelCategory=pack.puzzles[0].category;state.starwheelAnswer=pack.puzzles[0].answer;
+  renderActivities();toast(`${pack.name} loaded · ${pack.puzzles.length} puzzle${pack.puzzles.length===1?'':'s'}`);
+}
+function deleteStarwheelPack(id){
+  const packs=loadStarwheelPacks(),pack=packs.find(p=>p.id===id);if(!pack)return;
+  if(!confirm(`Delete "${pack.name}"? This cannot be undone.`))return;
+  if(!persistStarwheelPacks(packs.filter(p=>p.id!==id)))return;
+  if(state.starwheelActivePackId===id){state.starwheelActivePackId='';state.starwheelPackIndex=0}
+  renderActivities();toast('STARWHEEL puzzle pack deleted');
+}
+function starwheelCurrentPack(){return loadStarwheelPacks().find(p=>p.id===state.starwheelActivePackId)||null}
+function starwheelWheelSectors(run=state.activityRun){
+  const numeric=STARWHEEL_VALUES.map((value,i)=>({id:'n'+i,label:String(value),short:String(value),kind:'number',value}));
+  return run?.starwheelConfig?.specialSectors?[...numeric.slice(0,7),...STARWHEEL_SPECIALS]:numeric;
+}
+function starwheelGradient(sectors){
+  const colors=['#ff704e','#356ff0','#7e4eea','#1bbd8a','#e6a62b','#b742d5','#2b9bcf','#ff4c72','#ffcb3d','#43c9e8','#67df9a','#9862f0','#ef5a77'],step=360/sectors.length;
+  return 'conic-gradient('+sectors.map((_,i)=>`${colors[i%colors.length]} ${(i*step).toFixed(2)}deg ${((i+1)*step).toFixed(2)}deg`).join(',')+')';
+}
+function starwheelEntityKey(run=state.activityRun,name=''){
+  const cfg=run?.starwheelConfig||{},sw=starwheelState(run);
+  return cfg.mode==='teams'?String(Number(sw?.activeTeam||0)):String(name||starwheelActivePilot(run)?.n||'');
+}
+function adjustStarwheelScore(kind,key,delta,run=state.activityRun){
+  const sw=starwheelState(run);if(!run||!sw||!run.starwheelConfig?.scoring)return;
+  const bucket=kind==='team'?(sw.scores?.teams||(sw.scores.teams={})):(sw.scores?.students||(sw.scores.students={}));
+  bucket[String(key)]=Math.max(0,Number(bucket[String(key)]||0)+Number(delta||0));render();toast('STARWHEEL score adjusted');
+}
 function starwheelState(run=state.activityRun){return run?.starwheel||null}
 function starwheelTeamMeta(i){return STARWHEEL_TEAMS[Math.max(0,Math.min(3,Number(i)||0))]||STARWHEEL_TEAMS[0]}
 function starwheelLaunchAssignments(){
@@ -3113,8 +3183,8 @@ function starwheelRotationMarkup(run=state.activityRun){
   return `<div class="starwheel-rotation">${members.map(st=>`<span class="member ${pilot?.n===st.n?'active':''}">${avatarRosterMarkup(st)}<b>${esc(st.n)}</b></span>`).join('')}</div>`;
 }
 function starwheelWheelMarkup(run=state.activityRun){
-  const sw=starwheelState(run)||{},deg=Number(sw.spinDeg||0);
-  return `<div class="starwheel-wheel-shell"><div class="starwheel-pointer">▼</div><div class="starwheel-wheel" style="--sw-spin:${deg}deg">${STARWHEEL_VALUES.map((v,i)=>{const angle=i*45+22.5;return `<span class="starwheel-sector" style="transform:rotate(${angle}deg) translate(0,-132px) rotate(-${angle}deg)">${v}</span>`}).join('')}</div></div><div class="starwheel-spin-value">${sw.spinValue?`CORE VALUE · ${Number(sw.spinValue).toLocaleString()}`:'SPIN THE CORE'}</div>`;
+  const sw=starwheelState(run)||{},deg=Number(sw.spinDeg||0),sectors=starwheelWheelSectors(run),step=360/sectors.length,spinLabel=sw.spinLabel||(sw.spinValue?Number(sw.spinValue).toLocaleString():'');
+  return `<div class="starwheel-wheel-shell"><div class="starwheel-pointer">▼</div><div class="starwheel-wheel" style="--sw-spin:${deg}deg;background:${starwheelGradient(sectors)}">${sectors.map((sector,i)=>{const angle=i*step+step/2;return `<span class="starwheel-sector ${sector.kind!=='number'?'special':''}" title="${esc(sector.label)}" style="transform:rotate(${angle}deg) translate(0,-132px) rotate(-${angle}deg)">${esc(sector.short)}</span>`}).join('')}</div></div><div class="starwheel-spin-value">${spinLabel?`CORE · ${esc(spinLabel)}`:'SPIN THE CORE'}</div>`;
 }
 function starwheelSharedMarkup(run=state.activityRun,big=false){
   const cfg=run?.starwheelConfig||{},sw=starwheelState(run),pilot=starwheelActivePilot(run);if(!sw)return'';
@@ -3127,14 +3197,15 @@ function starwheelSubmitRequest(type,value=''){
   run.starwheelRequest={id:'sw_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),type:String(type||''),value:String(value||'').slice(0,120),name:s.n,at:Date.now()};
   render();toast(type==='solve'?'Solve sent privately to Mission Control':'STARWHEEL action sent');
 }
-function launchStarwheel(){
+function launchStarwheel(opts={}){
   const crew=connectedStudents();if(!crew.length)return toast('Have at least one student join before loading STARWHEEL');
   const answer=starwheelAnswer(state.starwheelAnswer),category=starwheelCategory(state.starwheelCategory)||'TRANSMISSION';if(!answer||!/[A-Z]/.test(answer))return toast('Enter a STARWHEEL answer first');
-  const mode=state.starwheelMode||'teams',count=Math.max(2,Math.min(4,Number(state.starwheelTeamCount||2))),teamAssignments=starwheelLaunchAssignments(),pilotIndexes={},carry=state.starwheelPilotCarry||{};
+  const mode=state.starwheelMode||'teams',count=Math.max(2,Math.min(4,Number(state.starwheelTeamCount||2))),teamAssignments=starwheelLaunchAssignments(),pilotIndexes={},carry=state.starwheelPilotCarry||{},pack=starwheelCurrentPack();
   for(let i=0;i<count;i++)pilotIndexes[String(i)]=Number(carry.pilotIndexes?.[String(i)]||0);
   const carriedTeam=((Number(carry.activeTeam||0)%count)+count)%count,carriedFree=Math.max(0,Number(carry.freePilotIndex||0));
-  state.activityRun={activityId:'starwheel-game',runToken:newActivityRunToken(),phase:'lobby',responses:{},starwheelConfig:{category,answer,mode,teamCount:count,teamAssignments,scoring:!!state.starwheelScoring,scoreboard:state.starwheelScoreboard||'live'},starwheel:{revealed:[],usedLetters:[],activeTeam:carriedTeam,pilotIndexes,freePilotIndex:carriedFree,stage:'ready',spinValue:null,spinIndex:null,spinNonce:0,spinDeg:0,scores:{students:{},teams:{}},message:'Transmission damaged. Active pilot: spin the Starwheel.',solved:false,solvedBy:'',solvedTeam:null,pendingSolve:null,solvePendingBy:'',lastRequestId:''}};
-  state.screen='activity';state.promptActive=false;state.assigningSlot=null;render();toast('STARWHEEL loaded — students moved to Activity Lobby');
+  const scores=opts.keepScores&&state.starwheelScoreCarry?deepClone(state.starwheelScoreCarry):{students:{},teams:{}},isFinal=!!state.starwheelFinalSignal&&!!pack&&Number(state.starwheelPackIndex||0)===pack.puzzles.length-1;
+  state.activityRun={activityId:'starwheel-game',runToken:newActivityRunToken(),phase:'lobby',responses:{},starwheelConfig:{category,answer,mode,teamCount:count,teamAssignments,scoring:!!state.starwheelScoring,scoreboard:state.starwheelScoreboard||'live',specialSectors:!!state.starwheelSpecialSectors,finalSignal:isFinal,packId:pack?.id||'',packIndex:Number(state.starwheelPackIndex||0)},starwheel:{revealed:[],usedLetters:[],activeTeam:carriedTeam,pilotIndexes,freePilotIndex:carriedFree,stage:'ready',spinValue:null,spinLabel:'',spinIndex:null,spinNonce:0,spinDeg:0,scores,message:isFinal?'FINAL SIGNAL detected. Active pilot: spin the Starwheel.':'Transmission damaged. Active pilot: spin the Starwheel.',solved:false,solvedBy:'',solvedTeam:null,pendingSolve:null,solvePendingBy:'',lastRequestId:'',powerSurge:{},shields:{},lastSpecial:''}};
+  state.screen='activity';state.promptActive=false;state.assigningSlot=null;render();toast(isFinal?'FINAL SIGNAL loaded — scores and rotation preserved':'STARWHEEL loaded — students moved to Activity Lobby');
 }
 function acceptStarwheelSolve(){
   const run=state.activityRun,sw=starwheelState(run),p=sw?.pendingSolve;if(!run||!sw||!p)return;
@@ -3148,8 +3219,19 @@ function skipStarwheelPilot(passTeam=false){
   const run=state.activityRun,sw=starwheelState(run);if(!run||!sw||sw.solved)return;
   starwheelAdvanceClient(run,!passTeam);sw.stage='ready';sw.spinValue=null;sw.pendingSolve=null;sw.solvePendingBy='';sw.message=passTeam?'Mission Control passed control to the next crew.':'Mission Control advanced to the next pilot.';run.runToken=newActivityRunToken();render();
 }
+function captureStarwheelCarry(withScores=false){
+  const sw=starwheelState();if(!sw)return;
+  state.starwheelPilotCarry={pilotIndexes:deepClone(sw.pilotIndexes||{}),freePilotIndex:Number(sw.freePilotIndex||0),activeTeam:Number(sw.activeTeam||0)};
+  state.starwheelScoreCarry=withScores?deepClone(sw.scores||{students:{},teams:{}}):null;
+}
+function nextStarwheelPackPuzzle(){
+  const run=state.activityRun,pack=loadStarwheelPacks().find(p=>p.id===run?.starwheelConfig?.packId);if(!run||!pack)return newStarwheelPuzzle();
+  const next=Number(run.starwheelConfig?.packIndex||0)+1;if(next>=pack.puzzles.length){toast(`${pack.name} complete`);return newStarwheelPuzzle()}
+  captureStarwheelCarry(true);state.starwheelActivePackId=pack.id;state.starwheelPackIndex=next;state.starwheelCategory=pack.puzzles[next].category;state.starwheelAnswer=pack.puzzles[next].answer;
+  launchStarwheel({keepScores:true});
+}
 function newStarwheelPuzzle(){
-  const sw=starwheelState();if(sw)state.starwheelPilotCarry={pilotIndexes:deepClone(sw.pilotIndexes||{}),freePilotIndex:Number(sw.freePilotIndex||0),activeTeam:Number(sw.activeTeam||0)};
+  captureStarwheelCarry(false);state.starwheelScoreCarry=null;
   state.activityRun=null;state.screen='activities';state.activeApp='starwheel';state.promptActive=false;render();toast('STARWHEEL ready for the next Quick Puzzle — pilot rotation preserved');
 }
 function wireStarwheelStudent(){
@@ -3226,7 +3308,7 @@ const initial=()=>({
  published:{mode:'text',text:'1. Warm-up\n2. Ready check\n3. Class activity',image:'',youtube:''},
  activities:hydratedActivities(),
  favoriteSlots:loadAppShortcuts(),assigningSlot:null,activeApp:null,presentationLibraryOpen:false,
- minefieldLength:'standard',minefieldMode:'crew',minefieldTeamCount:2,sketchMinutes:10,sketchWordSource:'mothership',sketchTeacherWords:'',sketchWordPackName:'',sketchMode:'free',sketchTeamCount:2,sketchTeamAssignments:{},sketchScoring:false,starwheelCategory:'THINGS AT SCHOOL',starwheelAnswer:'SCIENCE PROJECT',starwheelMode:'teams',starwheelTeamCount:2,starwheelTeamAssignments:{},starwheelScoring:true,starwheelScoreboard:'live',starwheelPilotCarry:{pilotIndexes:{},freePilotIndex:0,activeTeam:0},vectorDraft:defaultVectorDraft(),orbitDraft:defaultOrbitDraft(),pixelDraft:defaultPixelDraft(),
+ minefieldLength:'standard',minefieldMode:'crew',minefieldTeamCount:2,sketchMinutes:10,sketchWordSource:'mothership',sketchTeacherWords:'',sketchWordPackName:'',sketchMode:'free',sketchTeamCount:2,sketchTeamAssignments:{},sketchScoring:false,starwheelCategory:'THINGS AT SCHOOL',starwheelAnswer:'SCIENCE PROJECT',starwheelMode:'teams',starwheelTeamCount:2,starwheelTeamAssignments:{},starwheelScoring:true,starwheelScoreboard:'live',starwheelSpecialSectors:true,starwheelFinalSignal:false,starwheelActivePackId:'',starwheelPackIndex:0,starwheelPilotCarry:{pilotIndexes:{},freePilotIndex:0,activeTeam:0},starwheelScoreCarry:null,vectorDraft:defaultVectorDraft(),orbitDraft:defaultOrbitDraft(),pixelDraft:defaultPixelDraft(),
  picturePromptSent:false,picturePrompt:'Take a picture of your completed work.',promptActive:false,
  selectedStudent:'',students:[],ended:false,
  activityRun:null,
