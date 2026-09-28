@@ -35,7 +35,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "51.1"
+APP_VERSION = "51.1.1"
 
 PUBLIC_STORAGE_KEYS = {
     "siMothership.customAvatars.v1",
@@ -1398,6 +1398,28 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                     if role == "student" and meta.get("student_name"):
                         await broadcast({"type": "presence", "student_token": meta.get("student_token", ""), "student_name": meta.get("student_name", ""), "online": True}, exclude=ws)
                     await _send_current_state(ws)
+                elif mtype == "starwheel_action" and isinstance(data.get("request"), dict):
+                    request_data = copy.deepcopy(data["request"])
+                    if role == "student":
+                        meta = CLIENT_META.get(ws, {})
+                        token = str(meta.get("student_token") or data.get("student_token") or "")
+                        name = str(meta.get("student_name") or data.get("student_name") or "")
+                        if token and not meta.get("student_token"):
+                            meta["student_token"] = token
+                        if name and not meta.get("student_name"):
+                            meta["student_name"] = name
+                        CLIENT_META[ws] = meta
+                    elif role == "teacher":
+                        name = str(data.get("student_name") or request_data.get("name") or "")
+                    else:
+                        continue
+                    current = copy.deepcopy(LATEST_STATE) if isinstance(LATEST_STATE, dict) else None
+                    run = current.get("activityRun") if isinstance(current, dict) else None
+                    if isinstance(run, dict) and str(run.get("activityId") or "") == "starwheel-game" and str(run.get("phase") or "") == "running" and name:
+                        request_data["name"] = name
+                        _starwheel_apply_request(current, run, name, request_data)
+                        save_runtime_state(current)
+                        await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
                 elif mtype == "state" and isinstance(data.get("state"), dict):
                     if role == "teacher":
                         save_runtime_state(data["state"])
@@ -1481,7 +1503,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — TEACHER ATTENTION RAIL")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — STARWHEEL HOTFIX")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")

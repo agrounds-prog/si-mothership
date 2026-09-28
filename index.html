@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v51.1 — Teacher Attention Rail</title>
+<title>SI Mothership v51.1.1 — STARWHEEL Hotfix</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -2590,7 +2590,10 @@ body.role-student .prompt-caption{overflow-wrap:anywhere}
 @media(max-width:1150px){#teacher .attention-summary{grid-column:1/-1}}
 @media(max-width:520px){#teacher .attention-summary{align-items:flex-start;flex-direction:column}.attention-summary-chips{width:100%}.attention-chip{flex:1}}
 </style>
-</head>
+<style id="v51-1-1-starwheel-hotfix">
+.starwheel-main-spin{width:100%;min-height:54px;margin:8px 0 4px;border:1px solid #ffe07a;border-radius:12px;background:linear-gradient(135deg,#f39a28,#ffd85a);color:#171003;font-weight:950;font-size:15px;letter-spacing:.04em;box-shadow:0 10px 24px #0004}
+.starwheel-main-spin:active{transform:translateY(1px)}
+</style></head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
 <header class="topbar"><div class="brand"><span class="brand-mark">🚀</span><span>SI Mothership</span></div><div class="session-pill"><span class="pulse"></span>Classroom Live</div><div class="top-actions"><span>Explorers · Period 2</span><button class="outline" id="resetBtn">Reset Session</button></div></header>
@@ -3374,9 +3377,12 @@ function starwheelSharedMarkup(run=state.activityRun,big=false){
 }
 function starwheelSubmitRequest(type,value=''){
   const run=state.activityRun,s=selectedStudent();if(!run||activeActivity()?.type!=='starwheel'||!s)return;
+  const request={id:'sw_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),type:String(type||''),value:String(value||'').slice(0,120),name:s.n,at:Date.now()};
+  if(NETWORK_SYNC&&networkHydrated&&networkSocket&&networkSocket.readyState===WebSocket.OPEN){
+    try{networkSocket.send(JSON.stringify({type:'starwheel_action',request,student_name:s.n,student_token:currentStudentIdentity()?.student_token||''}));toast(type==='solve'?'Solve sent privately to Mission Control':'STARWHEEL action sent');return}catch(e){}
+  }
   if(run.starwheelRequest)return toast('STARWHEEL action is sending…');
-  run.starwheelRequest={id:'sw_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),type:String(type||''),value:String(value||'').slice(0,120),name:s.n,at:Date.now()};
-  render();toast(type==='solve'?'Solve sent privately to Mission Control':'STARWHEEL action sent');
+  run.starwheelRequest=request;render();toast(type==='solve'?'Solve sent privately to Mission Control':'STARWHEEL action sent');
 }
 function launchStarwheel(opts={}){
   const crew=connectedStudents();if(!crew.length)return toast('Have at least one student join before loading STARWHEEL');
@@ -3417,7 +3423,8 @@ function newStarwheelPuzzle(){
 }
 function wireStarwheelStudent(){
   if(!state.activityRun||activeActivity()?.type!=='starwheel'||state.activityRun.phase!=='running')return;
-  $$('[data-starwheel-letter]').forEach(b=>b.onclick=()=>starwheelSubmitRequest('letter',b.dataset.starwheelLetter));
+  $('[data-starwheel-spin]').forEach(b=>b.onclick=()=>starwheelSubmitRequest('spin'));
+  $('[data-starwheel-letter]').forEach(b=>b.onclick=()=>starwheelSubmitRequest('letter',b.dataset.starwheelLetter));
   $$('[data-starwheel-vowel]').forEach(b=>b.onclick=()=>starwheelSubmitRequest('vowel',b.dataset.starwheelVowel));
   const send=$('#starwheelSendSolve');if(send)send.onclick=()=>{const input=$('#starwheelSolveInput'),value=(input?.value||'').trim();if(!value)return toast('Enter the complete signal first');starwheelSubmitRequest('solve',value)};
   const input=$('#starwheelSolveInput');if(input)input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send?.click()}};
@@ -4352,7 +4359,7 @@ function studentMarkup(){
       const vowelCost=cfg.scoring?'250 ENERGY':'NO COST',canBuyVowel=!cfg.scoring||Number(score||0)>=250;
       const vowelButtons=STARWHEEL_VOWELS.map(v=>`<button data-starwheel-vowel="${v}" ${used.has(v)||!canBuyVowel?'disabled':''}>${v}</button>`).join('');
       const consonants=STARWHEEL_CONSONANTS.map(c=>`<button data-starwheel-letter="${c}" ${used.has(c)?'disabled':''}>${c}</button>`).join('');
-      return `<div class="student-prompt response-device"><span class="eyebrow">STARWHEEL · ${esc(crewLabel)} · ACTIVE PILOT</span><h2>${esc(s.n)}, you have the controls</h2><p>${esc(sw.message||'Spin the Starwheel.')}</p>${cfg.scoring?`<div class="submitted-banner">Current score <b>${Number(score||0).toLocaleString()}</b></div>`:''}${sw.stage==='letter'?`<div class="starwheel-pilot-banner"><span>CORE VALUE</span><strong>${Number(sw.spinValue||0).toLocaleString()}</strong></div><h3 style="margin:12px 0 5px">Choose a consonant</h3><div class="starwheel-student-grid">${consonants}</div>`:`<h3 style="margin:12px 0 5px">Buy a vowel · ${vowelCost}</h3><div class="starwheel-student-grid starwheel-vowels">${vowelButtons}</div>`}<div class="starwheel-solve-box"><input id="starwheelSolveInput" maxlength="80" placeholder="Solve the full signal…"><button id="starwheelSendSolve">SOLVE SIGNAL</button></div><div class="prompt-caption">Solve submissions are private and go to Mission Control first.</div></div>`;
+      return `<div class="student-prompt response-device"><span class="eyebrow">STARWHEEL · ${esc(crewLabel)} · ACTIVE PILOT</span><h2>${esc(s.n)}, you have the controls</h2><p>${esc(sw.message||'Spin the Starwheel.')}</p>${cfg.scoring?`<div class="submitted-banner">Current score <b>${Number(score||0).toLocaleString()}</b></div>`:''}${sw.stage==='letter'?`<div class="starwheel-pilot-banner"><span>CORE VALUE</span><strong>${Number(sw.spinValue||0).toLocaleString()}</strong></div><h3 style="margin:12px 0 5px">Choose a consonant</h3><div class="starwheel-student-grid">${consonants}</div>`:`<button class="starwheel-main-spin" data-starwheel-spin type="button">✦ SPIN STARWHEEL</button><h3 style="margin:12px 0 5px">Or buy a vowel · ${vowelCost}</h3><div class="starwheel-student-grid starwheel-vowels">${vowelButtons}</div>`}<div class="starwheel-solve-box"><input id="starwheelSolveInput" maxlength="80" placeholder="Solve the full signal…"><button id="starwheelSendSolve">SOLVE SIGNAL</button></div><div class="prompt-caption">Solve submissions are private and go to Mission Control first.</div></div>`;
     }
     if(a.type==='sketch'){
       const sk=sketchState(run),artist=sketchArtist(run),isArtist=sk&&s&&sk.artist===s.n,guess=sk?.guesses?.[s?.n];
