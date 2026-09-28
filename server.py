@@ -184,9 +184,18 @@ def _state_for_role(state: dict, role: str, token: str = "", name: str = "") -> 
     role = str(role or "")
     token = str(token or "")
     name = str(name or "")
-    own = _student_by_identity(out, token, name) if role == "student" else None
-    own_name = str(own.get("n", "")) if isinstance(own, dict) else name
-    own_token = str(own.get("studentToken", "")) if isinstance(own, dict) else token
+    own = None
+    if role == "student":
+        # Student-private state requires the established token. Name-only fallback
+        # is allowed only for legacy records that genuinely have no token.
+        if token:
+            own = _student_by_identity(out, token, "")
+        if own is None and name:
+            legacy = _student_by_identity(out, "", name)
+            if isinstance(legacy, dict) and not str(legacy.get("studentToken") or ""):
+                own = legacy
+    own_name = str(own.get("n", "")) if isinstance(own, dict) else ""
+    own_token = str(own.get("studentToken", "")) if isinstance(own, dict) else ""
 
     students = out.get("students", [])
     if isinstance(students, list):
@@ -204,16 +213,14 @@ def _state_for_role(state: dict, role: str, token: str = "", name: str = "") -> 
                 st.pop("emotion", None)
                 st.pop("understanding", None)
 
-    if role == "shared":
+    if role != "student":
+        # Shared/unknown non-teacher clients receive display-safe state only.
         out["buzz"] = []
         out["help"] = []
         out["helpMessages"] = []
         out["helpDeletedIds"] = []
         out["alerts"] = []
         out["photos"] = []
-        return out
-
-    if role != "student":
         return out
 
     out["buzz"] = [x for x in out.get("buzz", []) if x == own_name] if isinstance(out.get("buzz"), list) else []
@@ -848,9 +855,9 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                 mtype = data.get("type")
                 if mtype == "hello":
                     meta = CLIENT_META.get(ws, {})
-                    if data.get("student_token"):
+                    if data.get("student_token") and not meta.get("student_token"):
                         meta["student_token"] = str(data.get("student_token"))
-                    if data.get("student_name"):
+                    if data.get("student_name") and not meta.get("student_name"):
                         meta["student_name"] = str(data.get("student_name"))
                     CLIENT_META[ws] = meta
                     if role == "student" and meta.get("student_name"):
