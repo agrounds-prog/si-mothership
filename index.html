@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v50.6 — Teacher Session Summary</title>
+<title>SI Mothership v50.7 — Persistent Session History</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -2490,6 +2490,25 @@ body.role-student .prompt-caption{overflow-wrap:anywhere}
 .session-summary-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}.session-summary-actions button{min-height:34px}
 @media(max-width:900px){.session-summary-stats{grid-template-columns:repeat(3,1fr)}.session-summary-grid{grid-template-columns:1fr}}
 </style>
+<style id="v50-7-session-history">
+/* =========================================================
+   SI MOTHERSHIP v50.7 — PERSISTENT SESSION HISTORY
+   Teacher-only completed-session records backed by /data.
+   ========================================================= */
+.session-history-btn{border-color:#5b527d!important;background:#17162b!important;color:#ded7ff!important}
+.session-history-modal{position:fixed;inset:0;z-index:11950;background:rgba(2,7,15,.78);backdrop-filter:blur(10px);display:grid;place-items:center;padding:24px}
+.session-history-modal.hidden{display:none}
+.session-history-card{width:min(1050px,96vw);max-height:92vh;overflow:auto;border:1px solid #3b4165;border-radius:20px;background:linear-gradient(180deg,#11182c,#081221);box-shadow:0 30px 100px #000b;padding:18px}
+.session-history-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;border-bottom:1px solid #293a57;padding-bottom:13px}
+.session-history-head h2{margin:3px 0 5px;font-size:26px}.session-history-head p{margin:0;color:#8e9eb8;font-size:11px}
+.session-history-head-actions{display:flex;gap:7px;align-items:center}.session-history-head-actions button{min-height:34px}
+.session-history-list{display:grid;gap:9px;margin-top:12px}.session-history-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid #293e59;border-radius:13px;background:#0a1929;padding:11px}
+.session-history-row h4{margin:0 0 4px;font-size:12px}.session-history-row p{margin:0;color:#8398b2;font-size:9px;line-height:1.55}.session-history-row .session-history-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}.session-history-chips span{padding:4px 6px;border-radius:7px;background:#10273d;color:#aac0d5;font-size:8px}
+.session-history-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.session-history-actions button{min-height:31px;padding:5px 8px;font-size:8px}.session-history-actions .delete{border-color:#71404b;color:#ffb4bd;background:#29131b}
+.session-history-empty{text-align:center;padding:32px 15px;color:#7187a2;border:1px dashed #2a4059;border-radius:13px;margin-top:12px;font-size:11px}
+.session-summary-archive-badge{display:inline-block;margin-left:6px;padding:3px 6px;border:1px solid #4a4b7b;border-radius:999px;color:#c9c5ff;font-size:8px;vertical-align:middle}
+@media(max-width:760px){.session-history-row{grid-template-columns:1fr}.session-history-actions{justify-content:flex-start}}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -2515,6 +2534,7 @@ body.role-student .prompt-caption{overflow-wrap:anywhere}
   <button class="control" data-send="understanding"><span class="ico">◫</span><span class="copy"><b>Understanding</b><small>Send check</small></span></button>
   <button class="emergency-btn hidden" id="emergencyReturnBtn">⚠ Emergency Return</button>
   <button class="session-summary-btn" id="sessionSummaryBtn">▤ Summary</button>
+  <button class="session-history-btn" id="sessionHistoryBtn">◷ History</button>
   <button class="end-btn" id="endBtn">↪ End Session</button>
 </div>
 <div class="top-picture-prompt hidden" id="picturePromptBox"><input id="picturePromptText" value="Take a picture of your completed work." /><button id="sendPicturePrompt">Send picture prompt</button></div>
@@ -2594,9 +2614,19 @@ body.role-student .prompt-caption{overflow-wrap:anywhere}
 <div id="sessionSummaryModal" class="session-summary-modal hidden" role="dialog" aria-modal="true" aria-label="Teacher session summary">
   <div class="session-summary-card">
     <div class="session-summary-head"><div><span class="eyebrow">TEACHER ONLY · CURRENT SESSION</span><h2>Session Summary</h2><p id="sessionSummaryMeta">Current session recap</p></div><button class="session-summary-close" id="sessionSummaryClose" type="button" aria-label="Close session summary">×</button></div>
-    <div class="session-summary-note">v50.6 summary is intentionally ephemeral. It is not shown to students or the shared screen and is cleared when a new session starts, the classroom is reset, or this page reloads.</div>
+    <div class="session-summary-note" id="sessionSummaryNote">Live summaries remain teacher-only. When a session ends, v50.7 saves a compact completed-session record to teacher history on /data.</div>
     <div id="sessionSummaryContent"></div>
-    <div class="session-summary-actions"><button id="sessionSummaryCopy" type="button">Copy Recap</button><button id="sessionSummaryDone" type="button">Close</button></div>
+    <div class="session-summary-actions"><button id="sessionSummaryCopy" type="button">Copy Recap</button><button id="sessionSummaryExport" type="button">Export .txt</button><button id="sessionSummaryDone" type="button">Close</button></div>
+  </div>
+</div>
+
+<div id="sessionHistoryModal" class="session-history-modal hidden" role="dialog" aria-modal="true" aria-label="Teacher session history">
+  <div class="session-history-card">
+    <div class="session-history-head">
+      <div><span class="eyebrow">TEACHER ONLY · SAVED TO /DATA</span><h2>Session History</h2><p id="sessionHistoryMeta">Completed classroom sessions</p></div>
+      <div class="session-history-head-actions"><button id="sessionHistoryClear" type="button">Clear History</button><button id="sessionHistoryClose" type="button">×</button></div>
+    </div>
+    <div id="sessionHistoryList"></div>
   </div>
 </div>
 
@@ -3448,6 +3478,85 @@ let networkReconnectTimer=null;
 let networkReconnectAttempts=0;
 let networkSessionReset=false;
 let deferredBoardRemoteState=null;
+const TEACHER_SESSION_HISTORY_STORE='siMothership.sessionHistory.v1';
+const TEACHER_SESSION_HISTORY_LIMIT=60;
+let teacherSummaryDisplaySnapshot=null;
+function loadTeacherSessionHistory(){
+  try{const x=JSON.parse(localStorage.getItem(TEACHER_SESSION_HISTORY_STORE)||'[]');return Array.isArray(x)?x.slice(0,TEACHER_SESSION_HISTORY_LIMIT):[]}catch(e){return[]}
+}
+function persistTeacherSessionHistory(list){
+  if(!teacherSummaryEnabled())return false;
+  try{localStorage.setItem(TEACHER_SESSION_HISTORY_STORE,JSON.stringify((list||[]).slice(0,TEACHER_SESSION_HISTORY_LIMIT)));return true}catch(e){toast('Session history could not be saved');return false}
+}
+function normalizeTeacherHistorySnapshot(snapshot){
+  const s=deepClone(snapshot||{});
+  const attendance=s.attendance&&typeof s.attendance==='object'?s.attendance:{};
+  const activities=(Array.isArray(s.activities)?s.activities:[]).map(a=>({
+    id:String(a.id||''),appId:String(a.appId||''),label:String(a.label||'Activity').slice(0,100),type:String(a.type||'activity'),
+    startedAt:Number(a.startedAt||0),endedAt:Number(a.endedAt||0),durationMs:Number(a.durationMs||0),
+    participantNames:Array.isArray(a.participantNames)?a.participantNames.map(String).slice(0,80):[],
+    responseCount:Number(a.responseCount||0),responseByStudent:a.responseByStudent&&typeof a.responseByStudent==='object'?a.responseByStudent:{},
+    scores:a.scores?deepClone(a.scores):null
+  }));
+  const readyChecks=(Array.isArray(s.readyChecks)?s.readyChecks:[]).map(r=>({
+    id:String(r.id||''),startedAt:Number(r.startedAt||0),endedAt:Number(r.endedAt||0),rosterCount:Number(r.rosterCount||0),
+    responses:r.responses&&typeof r.responses==='object'?r.responses:{},responded:Number(r.responded||0),ready:Number(r.ready||0),notYet:Number(r.notYet||0)
+  }));
+  return {
+    id:String(s.id||('session_'+String(s.sessionId||s.startedAt||Date.now()))),
+    sessionId:String(s.sessionId||''),startedAt:Number(s.startedAt||Date.now()),endedAt:Number(s.endedAt||Date.now()),
+    attendance,peakConnected:Number(s.peakConnected||0),activities,readyChecks,
+    helpEvents:(Array.isArray(s.helpEvents)?s.helpEvents:[]).map(e=>({name:String(e.name||'Student'),at:Number(e.at||0)})).slice(0,500),
+    photoEvents:(Array.isArray(s.photoEvents)?s.photoEvents:[]).map(e=>({name:String(e.name||'Student'),at:Number(e.at||0)})).slice(0,500)
+  };
+}
+function persistCompletedTeacherSession(){
+  if(!teacherSummaryEnabled()||!teacherSessionSummary.endedAt)return null;
+  const raw=teacherSummarySnapshot();
+  raw.sessionId=String(STUDENT_SESSION_ID||'');raw.id='session_'+(raw.sessionId||String(raw.startedAt));
+  const item=normalizeTeacherHistorySnapshot(raw),list=loadTeacherSessionHistory().filter(x=>String(x.id||'')!==item.id);
+  list.unshift(item);
+  return persistTeacherSessionHistory(list)?item:null;
+}
+function deleteTeacherSessionHistory(id){
+  const item=loadTeacherSessionHistory().find(x=>String(x.id||'')===String(id));if(!item)return;
+  const when=new Date(item.endedAt||item.startedAt||Date.now()).toLocaleString();
+  if(!confirm('Delete saved session from '+when+'?'))return;
+  if(persistTeacherSessionHistory(loadTeacherSessionHistory().filter(x=>String(x.id||'')!==String(id)))){renderTeacherSessionHistory();toast('Saved session deleted')}
+}
+function clearTeacherSessionHistory(){
+  const list=loadTeacherSessionHistory();if(!list.length)return toast('Session history is already clear');
+  if(!confirm('Clear all '+list.length+' saved session'+(list.length===1?'':'s')+'? This cannot be undone.'))return;
+  if(persistTeacherSessionHistory([])){renderTeacherSessionHistory();toast('Session history cleared')}
+}
+function teacherSummaryFileName(s){
+  const d=new Date(s?.endedAt||s?.startedAt||Date.now()),day=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+  return 'si-mothership-session-'+day+'.txt';
+}
+function exportTeacherSummaryText(snapshot){
+  const txt=teacherSessionSummaryText(snapshot),blob=new Blob([txt],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=teacherSummaryFileName(snapshot);document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function renderTeacherSessionHistory(){
+  if(!teacherSummaryEnabled())return;
+  const list=loadTeacherSessionHistory(),box=document.getElementById('sessionHistoryList'),meta=document.getElementById('sessionHistoryMeta');if(!box)return;
+  if(meta)meta.textContent=list.length+' completed session'+(list.length===1?'':'s')+' · newest first · up to '+TEACHER_SESSION_HISTORY_LIMIT+' retained';
+  if(!list.length){box.innerHTML='<div class="session-history-empty">No completed sessions saved yet. End a session to create the first history record.</div>';return}
+  box.innerHTML='<div class="session-history-list">'+list.map(item=>{
+    const names=Object.keys(item.attendance||{}),ended=new Date(item.endedAt||item.startedAt||Date.now()),duration=teacherSummaryDuration(Math.max(0,Number(item.endedAt||0)-Number(item.startedAt||0))),responses=(item.activities||[]).reduce((n,a)=>n+Number(a.responseCount||0),0);
+    return '<div class="session-history-row"><div><h4>'+esc(ended.toLocaleDateString([], {month:'short',day:'numeric',year:'numeric'}))+' · '+esc(ended.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}))+'</h4><p>'+esc(names.length+' students · '+duration+' · '+(item.activities||[]).length+' activities')+'</p><div class="session-history-chips"><span>'+Number(item.peakConnected||0)+' peak</span><span>'+responses+' activity responses</span><span>'+(item.readyChecks||[]).length+' ready checks</span><span>'+(item.helpEvents||[]).length+' help</span><span>'+(item.photoEvents||[]).length+' photos</span></div></div><div class="session-history-actions"><button data-history-open="'+esc(item.id)+'">Open</button><button data-history-copy="'+esc(item.id)+'">Copy</button><button data-history-export="'+esc(item.id)+'">Export</button><button class="delete" data-history-delete="'+esc(item.id)+'">Delete</button></div></div>';
+  }).join('')+'</div>';
+  $$('[data-history-open]').forEach(b=>b.onclick=()=>openArchivedTeacherSummary(b.dataset.historyOpen));
+  $$('[data-history-copy]').forEach(b=>b.onclick=async()=>{const item=loadTeacherSessionHistory().find(x=>String(x.id)===String(b.dataset.historyCopy));if(!item)return;try{await navigator.clipboard.writeText(teacherSessionSummaryText(item));toast('Saved session recap copied')}catch(e){toast('Could not copy recap')}});
+  $$('[data-history-export]').forEach(b=>b.onclick=()=>{const item=loadTeacherSessionHistory().find(x=>String(x.id)===String(b.dataset.historyExport));if(item)exportTeacherSummaryText(item)});
+  $$('[data-history-delete]').forEach(b=>b.onclick=()=>deleteTeacherSessionHistory(b.dataset.historyDelete));
+}
+function openTeacherSessionHistory(){if(!teacherSummaryEnabled())return;renderTeacherSessionHistory();const box=document.getElementById('sessionHistoryModal');if(box)box.classList.remove('hidden')}
+function closeTeacherSessionHistory(){const box=document.getElementById('sessionHistoryModal');if(box)box.classList.add('hidden')}
+function openArchivedTeacherSummary(id){
+  const item=loadTeacherSessionHistory().find(x=>String(x.id||'')===String(id));if(!item)return toast('Saved session not found');
+  closeTeacherSessionHistory();teacherSummaryDisplaySnapshot=deepClone(item);renderTeacherSessionSummary(teacherSummaryDisplaySnapshot,true);const box=document.getElementById('sessionSummaryModal');if(box)box.classList.remove('hidden');
+}
 function freshTeacherSessionSummary(){
   return {startedAt:Date.now(),endedAt:null,attendance:{},peakConnected:0,activities:[],activeRun:null,readyChecks:[],currentReady:null,helpEvents:{},photoEvents:{}};
 }
@@ -3458,7 +3567,7 @@ function teacherSummaryDuration(ms){
   return m?m+'m '+String(s).padStart(2,'0')+'s':s+'s';
 }
 function teacherSummaryReset(){
-  teacherSessionSummary=freshTeacherSessionSummary();
+  teacherSummaryDisplaySnapshot=null;teacherSessionSummary=freshTeacherSessionSummary();
   const box=document.getElementById('sessionSummaryModal');if(box)box.classList.add('hidden');
 }
 function teacherSummaryObserveRoster(){
@@ -3578,9 +3687,9 @@ function teacherSummaryScoresMarkup(scores){
   Object.entries(scores.students||{}).forEach(([k,v])=>rows.push('<span>'+esc(k)+' · <b>'+Number(v||0).toLocaleString()+'</b></span>'));
   return rows.length?'<div class="session-score-row">'+rows.join('')+'</div>':'';
 }
-function renderTeacherSessionSummary(){
+function renderTeacherSessionSummary(snapshot=null,archived=false){
   if(!teacherSummaryEnabled())return;
-  const s=teacherSummarySnapshot(),names=Object.keys(s.attendance).sort((a,b)=>a.localeCompare(b)),ended=s.endedAt||Date.now(),sessionMs=Math.max(0,ended-s.startedAt),activityMs=s.activities.reduce((n,a)=>n+Number(a.durationMs||0),0),readyResponses=s.readyChecks.reduce((n,r)=>n+Number(r.responded||0),0),helpCount=s.helpEvents.length,photoCount=s.photoEvents.length;
+  const s=snapshot?deepClone(snapshot):teacherSummarySnapshot(),names=Object.keys(s.attendance||{}).sort((a,b)=>a.localeCompare(b)),ended=s.endedAt||Date.now(),sessionMs=Math.max(0,ended-s.startedAt),activityMs=s.activities.reduce((n,a)=>n+Number(a.durationMs||0),0),readyResponses=s.readyChecks.reduce((n,r)=>n+Number(r.responded||0),0),helpCount=s.helpEvents.length,photoCount=s.photoEvents.length;
   const activityByStudent={};names.forEach(n=>activityByStudent[n]={activities:0,responses:0,ready:0,help:0,photos:0});
   s.activities.forEach(a=>{(a.participantNames||[]).forEach(n=>{activityByStudent[n]=activityByStudent[n]||{activities:0,responses:0,ready:0,help:0,photos:0};activityByStudent[n].activities++});Object.entries(a.responseByStudent||{}).forEach(([n,v])=>{activityByStudent[n]=activityByStudent[n]||{activities:0,responses:0,ready:0,help:0,photos:0};activityByStudent[n].responses+=Number(v||0)})});
   s.readyChecks.forEach(r=>Object.keys(r.responses||{}).forEach(n=>{activityByStudent[n]=activityByStudent[n]||{activities:0,responses:0,ready:0,help:0,photos:0};activityByStudent[n].ready++}));
@@ -3600,10 +3709,11 @@ function renderTeacherSessionSummary(){
   const studentHtml=studentNames.length?'<table class="session-student-table"><thead><tr><th>Student</th><th>Activities</th><th>Responses</th><th>Ready checks</th><th>Help</th><th>Photos</th></tr></thead><tbody>'+studentNames.map(n=>{const x=activityByStudent[n];return '<tr><td>'+esc(n)+'</td><td>'+x.activities+'</td><td>'+x.responses+'</td><td>'+x.ready+'</td><td>'+x.help+'</td><td>'+x.photos+'</td></tr>'}).join('')+'</tbody></table>':'<div class="session-summary-empty">No student participation recorded yet.</div>';
   const attendanceHtml=names.length?'<div class="session-attendance">'+names.map(n=>'<span>'+esc(n)+'</span>').join('')+'</div>':'<div class="session-summary-empty">No students have joined yet.</div>';
   const box=document.getElementById('sessionSummaryContent');if(box)box.innerHTML=stats+'<div class="session-summary-grid"><div class="session-summary-panel"><h3>ACTIVITY TIMELINE</h3><div class="session-activity-list">'+activityHtml+'</div></div><div class="session-summary-panel"><h3>ATTENDANCE</h3>'+attendanceHtml+'<h3 style="margin-top:14px">READY CHECKS</h3><div class="session-ready-list">'+readyHtml+'</div></div><div class="session-summary-panel" style="grid-column:1/-1"><h3>STUDENT PARTICIPATION</h3>'+studentHtml+'</div></div>';
-  const meta=document.getElementById('sessionSummaryMeta');if(meta){const start=new Date(s.startedAt);meta.textContent=(s.endedAt?'Ended':'Live')+' · started '+start.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})+' · '+names.length+' students seen'}
+  const meta=document.getElementById('sessionSummaryMeta');if(meta){const start=new Date(s.startedAt),date=start.toLocaleDateString([], {month:'short',day:'numeric',year:'numeric'});meta.innerHTML=(archived?'<span class="session-summary-archive-badge">HISTORY</span> ':'')+(s.endedAt?'Ended':'Live')+' · '+esc(date)+' · started '+esc(start.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}))+' · '+names.length+' students seen'}
+  const note=document.getElementById('sessionSummaryNote');if(note)note.textContent=archived?'Archived teacher-only recap restored from persistent /data history.':'Live summary is teacher-only. Ending this session saves a compact completed-session record to /data history.';
 }
-function teacherSessionSummaryText(){
-  const s=teacherSummarySnapshot(),names=Object.keys(s.attendance).sort((a,b)=>a.localeCompare(b)),ended=s.endedAt||Date.now(),lines=[];
+function teacherSessionSummaryText(snapshot=null){
+  const s=snapshot?deepClone(snapshot):teacherSummarySnapshot(),names=Object.keys(s.attendance||{}).sort((a,b)=>a.localeCompare(b)),ended=s.endedAt||Date.now(),lines=[];
   lines.push('SI Mothership Session Summary');lines.push('Session: '+teacherSummaryDuration(ended-s.startedAt));lines.push('Attendance: '+names.length+(names.length?' · '+names.join(', '):''));lines.push('Peak connected: '+s.peakConnected);lines.push('Activities: '+s.activities.length);
   s.activities.forEach((a,i)=>lines.push((i+1)+'. '+(a.label||activityDisplayName(a.appId))+' · '+teacherSummaryDuration(a.durationMs)+' · '+(a.participantNames||[]).length+' participants · '+Number(a.responseCount||0)+' responses'));
   lines.push('Ready checks: '+s.readyChecks.length+' · '+s.readyChecks.reduce((n,r)=>n+Number(r.responded||0),0)+' responses');
@@ -3611,7 +3721,7 @@ function teacherSessionSummaryText(){
 }
 function openTeacherSessionSummary(){
   if(!teacherSummaryEnabled())return;
-  renderTeacherSessionSummary();const box=document.getElementById('sessionSummaryModal');if(box)box.classList.remove('hidden');
+  teacherSummaryDisplaySnapshot=null;renderTeacherSessionSummary();const box=document.getElementById('sessionSummaryModal');if(box)box.classList.remove('hidden');
 }
 function closeTeacherSessionSummary(){const box=document.getElementById('sessionSummaryModal');if(box)box.classList.add('hidden')}
 
@@ -5175,12 +5285,17 @@ const studentPhotoComposer=$('#studentPhotoComposer');if(studentPhotoComposer)st
 
 $('#openGallery').onclick=()=>{if(!state.photos.length)return toast('No photos submitted yet');openPhotoViewer(state.photos[0].id)};
 const clearPhotosBtn=$('#clearPhotos');if(clearPhotosBtn)clearPhotosBtn.onclick=()=>{if(!state.photos.length)return toast('Photo Inbox is already clear');state.photos=[];closePhotoViewer();render();toast('Photo Inbox cleared')};
-$('#endBtn').onclick=()=>{teacherSummaryFinalizeSession();state.ended=true;state.activityRun=null;state.screen='ended';state.students=[];state.selectedStudent='';state.buzz=[];state.help=[];state.helpMessages=[];state.helpDeletedIds=[];state.alerts=[];state.photos=[];state.promptActive=false;state.picturePromptSent=false;resetHomeControls();state.rosterPage=0;render();openTeacherSessionSummary();toast('Session ended — roster and private inboxes cleared; recap ready')};
+$('#endBtn').onclick=()=>{teacherSummaryFinalizeSession();persistCompletedTeacherSession();state.ended=true;state.activityRun=null;state.screen='ended';state.students=[];state.selectedStudent='';state.buzz=[];state.help=[];state.helpMessages=[];state.helpDeletedIds=[];state.alerts=[];state.photos=[];state.promptActive=false;state.picturePromptSent=false;resetHomeControls();state.rosterPage=0;render();openTeacherSessionSummary();toast('Session ended — roster and private inboxes cleared; recap ready')};
 const summaryBtn=$('#sessionSummaryBtn');if(summaryBtn)summaryBtn.onclick=openTeacherSessionSummary;
+const historyBtn=$('#sessionHistoryBtn');if(historyBtn)historyBtn.onclick=openTeacherSessionHistory;
+const historyClose=$('#sessionHistoryClose');if(historyClose)historyClose.onclick=closeTeacherSessionHistory;
+const historyClear=$('#sessionHistoryClear');if(historyClear)historyClear.onclick=clearTeacherSessionHistory;
+const historyModal=$('#sessionHistoryModal');if(historyModal)historyModal.onclick=e=>{if(e.target===historyModal)closeTeacherSessionHistory()};
 const summaryClose=$('#sessionSummaryClose');if(summaryClose)summaryClose.onclick=closeTeacherSessionSummary;
 const summaryDone=$('#sessionSummaryDone');if(summaryDone)summaryDone.onclick=closeTeacherSessionSummary;
 const summaryModal=$('#sessionSummaryModal');if(summaryModal)summaryModal.onclick=e=>{if(e.target===summaryModal)closeTeacherSessionSummary()};
-const summaryCopy=$('#sessionSummaryCopy');if(summaryCopy)summaryCopy.onclick=async()=>{const txt=teacherSessionSummaryText();try{await navigator.clipboard.writeText(txt);toast('Session recap copied')}catch(e){toast('Could not copy recap')}};
+const summaryCopy=$('#sessionSummaryCopy');if(summaryCopy)summaryCopy.onclick=async()=>{const txt=teacherSessionSummaryText(teacherSummaryDisplaySnapshot);try{await navigator.clipboard.writeText(txt);toast('Session recap copied')}catch(e){toast('Could not copy recap')}};
+const summaryExport=$('#sessionSummaryExport');if(summaryExport)summaryExport.onclick=()=>exportTeacherSummaryText(teacherSummaryDisplaySnapshot||teacherSummarySnapshot());
 const emergencyRail=$('#emergencyReturnBtn');if(emergencyRail)emergencyRail.onclick=()=>{if(state.activityRun)returnToClassroom('emergency')};
 $('#copyCode').onclick=async()=>{try{await navigator.clipboard.writeText(STUDENT_JOIN_CODE);toast('Join code copied')}catch(e){toast('Join code: '+STUDENT_JOIN_CODE)}};
 $('#launchSecondScreenBtn').onclick=launchSecondScreen;
