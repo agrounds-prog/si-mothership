@@ -3423,8 +3423,8 @@ function newStarwheelPuzzle(){
 }
 function wireStarwheelStudent(){
   if(!state.activityRun||activeActivity()?.type!=='starwheel'||state.activityRun.phase!=='running')return;
-  $('[data-starwheel-spin]').forEach(b=>b.onclick=()=>starwheelSubmitRequest('spin'));
-  $('[data-starwheel-letter]').forEach(b=>b.onclick=()=>starwheelSubmitRequest('letter',b.dataset.starwheelLetter));
+  $$('[data-starwheel-spin]').forEach(b=>b.onclick=()=>starwheelSubmitRequest('spin'));
+  $$('[data-starwheel-letter]').forEach(b=>b.onclick=()=>starwheelSubmitRequest('letter',b.dataset.starwheelLetter));
   $$('[data-starwheel-vowel]').forEach(b=>b.onclick=()=>starwheelSubmitRequest('vowel',b.dataset.starwheelVowel));
   const send=$('#starwheelSendSolve');if(send)send.onclick=()=>{const input=$('#starwheelSolveInput'),value=(input?.value||'').trim();if(!value)return toast('Enter the complete signal first');starwheelSubmitRequest('solve',value)};
   const input=$('#starwheelSolveInput');if(input)input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send?.click()}};
