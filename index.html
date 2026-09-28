@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v49.3 — Pilot Hardening</title>
+<title>SI Mothership v49.4 — Classroom Pilot Validation</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -4222,7 +4222,7 @@ async function stageStudentPhoto(file){
 function sendPendingStudentPhoto(){
   const student=selectedStudent();
   if(!student||!state.pictureEnabled||!pendingStudentPhotoData)return;
-  state.photos.unshift({id:Date.now(),name:student.n,data:pendingStudentPhotoData,seen:false});
+  const photoId=Date.now()*4096+Math.floor(Math.random()*4096);state.photos.unshift({id:photoId,name:student.n,data:pendingStudentPhotoData,seen:false});
   closeStudentPhotoComposer();
   render();
   toast('Photo sent privately to teacher');
@@ -4238,7 +4238,7 @@ const studentPhotoComposer=$('#studentPhotoComposer');if(studentPhotoComposer)st
 
 $('#openGallery').onclick=()=>{if(!state.photos.length)return toast('No photos submitted yet');openPhotoViewer(state.photos[0].id)};
 const clearPhotosBtn=$('#clearPhotos');if(clearPhotosBtn)clearPhotosBtn.onclick=()=>{if(!state.photos.length)return toast('Photo Inbox is already clear');state.photos=[];closePhotoViewer();render();toast('Photo Inbox cleared')};
-$('#endBtn').onclick=()=>{state.ended=true;state.activityRun=null;state.screen='ended';state.students=[];state.selectedStudent='';state.buzz=[];state.help=[];state.alerts=[];state.photos=[];state.promptActive=false;state.picturePromptSent=false;resetHomeControls();state.rosterPage=0;render();toast('Session ended — roster cleared')};
+$('#endBtn').onclick=()=>{state.ended=true;state.activityRun=null;state.screen='ended';state.students=[];state.selectedStudent='';state.buzz=[];state.help=[];state.helpMessages=[];state.helpDeletedIds=[];state.alerts=[];state.photos=[];state.promptActive=false;state.picturePromptSent=false;resetHomeControls();state.rosterPage=0;render();toast('Session ended — roster and private inboxes cleared')};
 const emergencyRail=$('#emergencyReturnBtn');if(emergencyRail)emergencyRail.onclick=()=>{if(state.activityRun)returnToClassroom('emergency')};
 $('#copyCode').onclick=async()=>{try{await navigator.clipboard.writeText(STUDENT_JOIN_CODE);toast('Join code copied')}catch(e){toast('Join code: '+STUDENT_JOIN_CODE)}};
 $('#launchSecondScreenBtn').onclick=launchSecondScreen;
