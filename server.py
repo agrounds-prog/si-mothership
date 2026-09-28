@@ -53,6 +53,7 @@ PERSISTED_STORAGE_KEYS = {
     "siMothership.orbitActivities.v1",
     "siMothership.pixelRevealActivities.v1",
     "siMothership.sketchWordPacks.v1",
+    "siMothership.starwheelPuzzlePacks.v1",
     "siMothership.appShortcuts.v1",
 }
 
@@ -337,6 +338,13 @@ def _sketch_award_score(run: dict, name: str) -> None:
 
 
 STARWHEEL_VALUES = (100, 200, 300, 400, 500, 750, 1000, 500)
+STARWHEEL_SPECIALS = (
+    ("power", "POWER SURGE"),
+    ("shield", "SHIELD"),
+    ("cargo", "CARGO"),
+    ("wormhole", "WORMHOLE"),
+    ("tax", "ALIEN TAX"),
+)
 STARWHEEL_VOWELS = {"A", "E", "I", "O", "U"}
 STARWHEEL_CONSONANTS = set("BCDFGHJKLMNPQRSTVWXYZ")
 
@@ -420,6 +428,72 @@ def _starwheel_adjust_score(run: dict, name: str, delta: int) -> int:
     return int(bucket[key])
 
 
+def _starwheel_status_key(run: dict, name: str) -> str:
+    cfg = run.get("starwheelConfig") if isinstance(run.get("starwheelConfig"), dict) else {}
+    sw = run.get("starwheel") if isinstance(run.get("starwheel"), dict) else {}
+    if str(cfg.get("mode") or "teams") == "teams":
+        try:
+            return str(int(sw.get("activeTeam", 0) or 0))
+        except (TypeError, ValueError):
+            return "0"
+    return str(name or "")
+
+
+def _starwheel_special_state(run: dict, field: str) -> dict:
+    sw = run.setdefault("starwheel", {})
+    mapping = sw.setdefault(field, {})
+    if not isinstance(mapping, dict):
+        mapping = {}
+        sw[field] = mapping
+    return mapping
+
+
+def _starwheel_apply_special(state: dict, run: dict, name: str, kind: str, label: str) -> None:
+    sw = run.get("starwheel") if isinstance(run.get("starwheel"), dict) else {}
+    cfg = run.get("starwheelConfig") if isinstance(run.get("starwheelConfig"), dict) else {}
+    key = _starwheel_status_key(run, name)
+    power = _starwheel_special_state(run, "powerSurge")
+    shields = _starwheel_special_state(run, "shields")
+    sw["spinValue"] = None
+    sw["spinLabel"] = label
+    sw["lastSpecial"] = kind
+    sw["stage"] = "ready"
+
+    if kind == "power":
+        power[key] = True
+        sw["message"] = "POWER SURGE armed — the next correct consonant is worth ×2."
+        return
+    if kind == "shield":
+        shields[key] = 1
+        sw["message"] = "SHIELD online — the next Wormhole or Alien Tax is blocked."
+        return
+    if kind == "cargo":
+        if cfg.get("scoring"):
+            total = _starwheel_adjust_score(run, name, 500)
+            sw["message"] = f"CARGO recovered — +500 Energy. Total: {total}."
+        else:
+            sw["message"] = "CARGO recovered — crew keeps control."
+        return
+    if kind in {"wormhole", "tax"}:
+        try:
+            shield_count = int(shields.get(key, 0) or 0)
+        except (TypeError, ValueError):
+            shield_count = 0
+        if shield_count > 0:
+            shields[key] = max(0, shield_count - 1)
+            sw["message"] = f"SHIELD absorbed the {label}. Control stays here."
+            return
+        if kind == "wormhole":
+            _starwheel_advance(state, run, False)
+            sw["message"] = "WORMHOLE opened — control jumps to the next crew."
+            return
+        if cfg.get("scoring"):
+            total = _starwheel_adjust_score(run, name, -250)
+            sw["message"] = f"ALIEN TAX — 250 Energy removed. Total: {total}."
+        else:
+            sw["message"] = "ALIEN TAX detected — no score is active, so no Energy was lost."
+
+
 def _starwheel_advance(state: dict, run: dict, keep_team: bool) -> None:
     cfg = run.get("starwheelConfig") if isinstance(run.get("starwheelConfig"), dict) else {}
     sw = run.get("starwheel") if isinstance(run.get("starwheel"), dict) else {}
@@ -476,15 +550,26 @@ def _starwheel_apply_request(state: dict, run: dict, name: str, request: dict) -
     if action == "spin":
         if str(sw.get("stage") or "ready") != "ready" or sw.get("pendingSolve"):
             return
-        index = secrets.randbelow(len(STARWHEEL_VALUES))
-        spin_value = int(STARWHEEL_VALUES[index])
+        if cfg.get("specialSectors"):
+            sectors = [("number", value) for value in STARWHEEL_VALUES[:7]] + list(STARWHEEL_SPECIALS)
+        else:
+            sectors = [("number", value) for value in STARWHEEL_VALUES]
+        index = secrets.randbelow(len(sectors))
+        kind, payload = sectors[index]
         sw["spinIndex"] = index
-        sw["spinValue"] = spin_value
         sw["spinNonce"] = int(sw.get("spinNonce", 0) or 0) + 1
-        target = 360 - (index * 45 + 22.5)
-        sw["spinDeg"] = float(sw.get("spinDeg", 0) or 0) + 720 + target
-        sw["stage"] = "letter"
-        sw["message"] = f"{name} spun {spin_value}. Choose a consonant."
+        step = 360.0 / len(sectors)
+        target = 360.0 - (index * step + step / 2.0)
+        sw["spinDeg"] = float(sw.get("spinDeg", 0) or 0) + 720.0 + target
+        if kind == "number":
+            spin_value = int(payload)
+            sw["spinValue"] = spin_value
+            sw["spinLabel"] = str(spin_value)
+            sw["lastSpecial"] = ""
+            sw["stage"] = "letter"
+            sw["message"] = f"{name} spun {spin_value}. Choose a consonant."
+        else:
+            _starwheel_apply_special(state, run, name, str(kind), str(payload))
         return
 
     if action == "letter":
@@ -494,16 +579,27 @@ def _starwheel_apply_request(state: dict, run: dict, name: str, request: dict) -
         occurrences = answer.count(value)
         if occurrences > 0 and value not in revealed:
             revealed.append(value)
-        points = int(sw.get("spinValue", 0) or 0) * occurrences
+        base_points = int(sw.get("spinValue", 0) or 0) * occurrences
+        key = _starwheel_status_key(run, name)
+        power = _starwheel_special_state(run, "powerSurge")
+        multiplier = 1
+        if occurrences > 0 and power.get(key):
+            multiplier *= 2
+            power[key] = False
+        if occurrences > 0 and cfg.get("finalSignal"):
+            multiplier *= 2
+        points = base_points * multiplier
         if occurrences > 0 and cfg.get("scoring"):
             _starwheel_adjust_score(run, name, points)
         _starwheel_advance(state, run, occurrences > 0)
         sw["stage"] = "ready"
         sw["spinValue"] = None
+        sw["spinLabel"] = ""
+        boost = f" ×{multiplier}" if occurrences > 0 and multiplier > 1 else ""
         sw["message"] = (
             f"{value} appears {occurrences} time{'s' if occurrences != 1 else ''}. "
-            + (f"{points} points. Crew keeps control." if occurrences > 0 and cfg.get("scoring")
-               else "Crew keeps control." if occurrences > 0
+            + (f"{points} points{boost}. Crew keeps control." if occurrences > 0 and cfg.get("scoring")
+               else f"Signal boost{boost}. Crew keeps control." if occurrences > 0
                else "No signal match. Control passes.")
         )
         return
@@ -527,6 +623,7 @@ def _starwheel_apply_request(state: dict, run: dict, name: str, request: dict) -
             revealed.append(value)
         _starwheel_advance(state, run, occurrences > 0)
         sw["stage"] = "ready"
+        sw["spinLabel"] = ""
         sw["message"] = (
             f"Vowel {value} restored in {occurrences} position{'s' if occurrences != 1 else ''}. "
             + ("Crew keeps control." if occurrences > 0 else "No signal match. Control passes.")
