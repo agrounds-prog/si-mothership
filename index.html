@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v51.0 — Mission Control Polish</title>
+<title>SI Mothership v51.1 — Teacher Attention Rail</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -2565,6 +2565,31 @@ body.role-student .prompt-caption{overflow-wrap:anywhere}
   #teacher .teacher-live-hint{display:none}
 }
 </style>
+<style id="v51-1-teacher-attention-rail">
+/* =========================================================
+   SI MOTHERSHIP v51.1 — TEACHER ATTENTION RAIL
+   Teacher-only scanability; student/shared behavior unchanged.
+   ========================================================= */
+#teacher .attention-summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;border:1px solid #27445f;border-radius:14px;background:linear-gradient(145deg,#0b192c,#091522);box-shadow:0 12px 30px #0002}
+#teacher .attention-summary-copy{min-width:0}
+#teacher .attention-summary-copy span{display:block;color:#6f88a4;font-size:7px;font-weight:950;letter-spacing:.16em}
+#teacher .attention-summary-copy b{display:block;margin-top:3px;color:#dce9f7;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#teacher .attention-summary-chips{display:flex;gap:5px;flex:0 0 auto}
+#teacher .attention-chip{min-width:36px;padding:5px 7px;border:1px solid #314760;border-radius:999px;background:#0c1a2b;color:#7d91aa;text-align:center;font-size:8px;font-weight:950}
+#teacher .attention-chip b{color:inherit}
+#teacher .attention-chip.active.help{border-color:#8c5263;background:#311924;color:#ffb3c5;box-shadow:0 0 14px #ff789233}
+#teacher .attention-chip.active.buzz{border-color:#8e712e;background:#2b230e;color:#ffd977;box-shadow:0 0 14px #ffc94b2d}
+#teacher .attention-chip.active.photo{border-color:#316b80;background:#0d2934;color:#7feaff;box-shadow:0 0 14px #5be8ff2d}
+#teacher .attention-panel{transition:border-color .15s ease,box-shadow .15s ease,transform .15s ease}
+#teacher .attention-panel.has-attention{border-color:#3d5d7c;box-shadow:0 0 0 1px #ffffff08,0 14px 32px #0003}
+#teacher #helpInboxPanel.has-attention{border-color:#78495b;box-shadow:0 0 0 1px #ff8fa11a,0 14px 34px #0003}
+#teacher #buzzPanel.has-attention{border-color:#75602d}
+#teacher #photoInboxPanel.has-attention{border-color:#32677b}
+#teacher .attention-panel .section-heading>b{min-width:22px;height:22px;display:grid;place-items:center;padding:0 5px;border:1px solid #30475f;border-radius:999px;background:#0a1729;color:#8fa3bc;font-size:9px}
+#teacher .attention-panel.has-attention .section-heading>b{color:#fff}
+@media(max-width:1150px){#teacher .attention-summary{grid-column:1/-1}}
+@media(max-width:520px){#teacher .attention-summary{align-items:flex-start;flex-direction:column}.attention-summary-chips{width:100%}.attention-chip{flex:1}}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -2639,9 +2664,18 @@ body.role-student .prompt-caption{overflow-wrap:anywhere}
 
 </main>
 
-<aside class="right-rail"><section class="panel buzz-panel"><div class="section-heading"><span>ϟ&nbsp; BUZZ QUEUE</span><b id="buzzCount">2</b></div><div id="buzzRows"></div><button class="clear" id="clearBuzz">Clear queue</button></section>
-<section class="panel"><div class="section-heading"><span>▧&nbsp; PHOTO INBOX</span><b id="photoCount">0</b></div><div id="photoRows"><p class="empty">No photos submitted</p></div><div class="photo-inbox-actions"><button class="clear" id="openGallery">Open gallery</button><button class="clear danger-clear" id="clearPhotos">Clear all</button></div></section>
-<section class="panel"><div class="section-heading"><span>?&nbsp; ASK FOR HELP</span><b id="helpCount">1</b></div><div id="helpRows"></div></section>
+<aside class="right-rail">
+<div class="attention-summary" id="attentionSummary">
+  <div class="attention-summary-copy"><span>CLASS ALERTS</span><b id="attentionSummaryText">No active alerts</b></div>
+  <div class="attention-summary-chips">
+    <span class="attention-chip help" id="attentionHelpChip">? <b id="attentionHelpCount">0</b></span>
+    <span class="attention-chip buzz" id="attentionBuzzChip">ϟ <b id="attentionBuzzCount">0</b></span>
+    <span class="attention-chip photo" id="attentionPhotoChip">▧ <b id="attentionPhotoCount">0</b></span>
+  </div>
+</div>
+<section class="panel buzz-panel attention-panel" id="buzzPanel"><div class="section-heading"><span>ϟ&nbsp; BUZZ QUEUE</span><b id="buzzCount">2</b></div><div id="buzzRows"></div><button class="clear" id="clearBuzz">Clear queue</button></section>
+<section class="panel attention-panel" id="photoInboxPanel"><div class="section-heading"><span>▧&nbsp; PHOTO INBOX</span><b id="photoCount">0</b></div><div id="photoRows"><p class="empty">No photos submitted</p></div><div class="photo-inbox-actions"><button class="clear" id="openGallery">Open gallery</button><button class="clear danger-clear" id="clearPhotos">Clear all</button></div></section>
+<section class="panel attention-panel" id="helpInboxPanel"><div class="section-heading"><span>?&nbsp; ASK FOR HELP</span><b id="helpCount">1</b></div><div id="helpRows"></div></section>
 <section class="panel screen-dock">
   <div class="screen-dock-head"><span class="screen-dock-title">▣ SHARED SCREEN</span><span class="mirror-live">LIVE</span></div>
   <button class="launch-screen-btn" id="launchSecondScreenBtn">↗ Launch 2nd Screen</button>
@@ -4556,14 +4590,24 @@ function renderRosterAlert(){
 }
 
 function renderRight(){
-  $('#buzzCount').textContent=state.buzz.length;$('#buzzRows').innerHTML=state.buzz.length?state.buzz.map((n,i)=>{const st=studentByName(n);return `<div class="student-row inbox-student-row"><span class="queue-num">${i+1}</span>${inboxAvatarMarkup(st)}<span class="inbox-copy"><b>${esc(n)}</b><small>${i===0?'Ready to answer':'Waiting'}</small></span><button class="xbtn" data-rbuzz="${esc(n)}">×</button></div>`}).join(''):'<p class="empty">Queue is clear</p>';
+  const buzzTotal=state.buzz.length;
+  $('#buzzCount').textContent=buzzTotal;$('#buzzRows').innerHTML=state.buzz.length?state.buzz.map((n,i)=>{const st=studentByName(n);return `<div class="student-row inbox-student-row"><span class="queue-num">${i+1}</span>${inboxAvatarMarkup(st)}<span class="inbox-copy"><b>${esc(n)}</b><small>${i===0?'Ready to answer':'Waiting'}</small></span><button class="xbtn" data-rbuzz="${esc(n)}">×</button></div>`}).join(''):'<p class="empty">Queue is clear</p>';
   $$('[data-rbuzz]').forEach(b=>b.onclick=()=>{state.buzz=state.buzz.filter(n=>n!==b.dataset.rbuzz);render()});
   const helpItems=(state.helpMessages||[]).filter(m=>!(state.helpDeletedIds||[]).includes(String(m.id))).sort((a,b)=>(b.at||0)-(a.at||0));
-  $('#helpCount').textContent=helpItems.length;
+  const helpTotal=helpItems.length,unreadHelp=helpItems.filter(m=>!m.seen).length;
+  $('#helpCount').textContent=helpTotal;
   $('#helpRows').innerHTML=helpItems.length?helpItems.map(m=>{const st=studentByName(m.name);return `<div class="help-message-row ${m.seen?'':'unread'}">${inboxAvatarMarkup(st)}<span class="preview"><b>${esc(m.name)}</b><small>${esc(m.text||'I need help')}</small></span><button data-help-open="${esc(String(m.id))}">Read</button><button class="delete" data-help-delete="${esc(String(m.id))}">×</button></div>`}).join(''):'<p class="empty">No help requests</p>';
   $$('[data-help-open]').forEach(b=>b.onclick=()=>openHelpViewer(b.dataset.helpOpen));
   $$('[data-help-delete]').forEach(b=>b.onclick=()=>deleteHelpMessage(b.dataset.helpDelete));
-  $('#photoCount').textContent=state.photos.length;$('#photoRows').innerHTML=state.photos.length?state.photos.slice(0,3).map(p=>`<div class="help-row photo-row"><img class="photo-thumb" data-photo-open="${p.id}" src="${p.data}" alt="Photo from ${p.name}"><span><b>${p.name}</b><small>${p.seen?'Viewed':'NEW PHOTO'}</small></span><button class="checkbtn" data-photo-view="${p.id}" title="View photo">⌕</button><button class="checkbtn photo-delete" data-photo-delete="${p.id}" title="Delete photo">×</button></div>`).join(''):'<p class="empty">No photos submitted</p>';
+  const photoTotal=state.photos.length,unreadPhotos=state.photos.filter(p=>!p.seen).length;
+  $('#photoCount').textContent=photoTotal;
+  const attentionTotal=buzzTotal+helpTotal+photoTotal,attentionText=$('#attentionSummaryText');
+  if(attentionText)attentionText.textContent=attentionTotal?attentionTotal+' active item'+(attentionTotal===1?'':'s')+(unreadHelp+unreadPhotos?' · '+(unreadHelp+unreadPhotos)+' new':''):'No active alerts';
+  const attentionCounts=[['#attentionHelpCount',helpTotal],['#attentionBuzzCount',buzzTotal],['#attentionPhotoCount',photoTotal]];
+  attentionCounts.forEach(([sel,n])=>{const el=$(sel);if(el)el.textContent=n});
+  const attentionStates=[['#attentionHelpChip',helpTotal],['#attentionBuzzChip',buzzTotal],['#attentionPhotoChip',photoTotal],['#helpInboxPanel',helpTotal],['#buzzPanel',buzzTotal],['#photoInboxPanel',photoTotal]];
+  attentionStates.forEach(([sel,n])=>{const el=$(sel);if(el)el.classList.toggle(sel.includes('Chip')?'active':'has-attention',n>0)});
+  $('#photoRows').innerHTML=photoTotal?state.photos.slice(0,3).map(p=>`<div class="help-row photo-row"><img class="photo-thumb" data-photo-open="${p.id}" src="${p.data}" alt="Photo from ${p.name}"><span><b>${p.name}</b><small>${p.seen?'Viewed':'NEW PHOTO'}</small></span><button class="checkbtn" data-photo-view="${p.id}" title="View photo">⌕</button><button class="checkbtn photo-delete" data-photo-delete="${p.id}" title="Delete photo">×</button></div>`).join(''):'<p class="empty">No photos submitted</p>';
   $$('[data-photo-view]').forEach(b=>b.onclick=()=>openPhotoViewer(Number(b.dataset.photoView)));
   $$('[data-photo-open]').forEach(el=>el.onclick=()=>openPhotoViewer(Number(el.dataset.photoOpen)));
   $$('[data-photo-delete]').forEach(b=>b.onclick=()=>{const id=Number(b.dataset.photoDelete);state.photos=state.photos.filter(p=>p.id!==id);render();toast('Photo deleted')});
