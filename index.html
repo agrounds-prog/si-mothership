@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SI Mothership v49.2 — Shared Screen & Projector Overhaul</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>SI Mothership v49.3 — Pilot Hardening</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -2234,6 +2234,31 @@ body.role-shared .sketch-reveal{
   body.role-shared .public-answer-list{width:96vw!important}
 }
 </style>
+<style id="v49-3-pilot-hardening">
+/* =========================================================
+   SI MOTHERSHIP v49.3 — PILOT HARDENING
+   Device/accessibility shell only. Activity geometry + sync unchanged.
+   ========================================================= */
+button,[role="button"],a{touch-action:manipulation}
+body.role-student .student-shell{
+  padding-left:max(8px,env(safe-area-inset-left))!important;
+  padding-right:max(8px,env(safe-area-inset-right))!important;
+  padding-bottom:max(8px,env(safe-area-inset-bottom))!important
+}
+body.role-student .device-head{
+  padding-left:max(18px,env(safe-area-inset-left))!important;
+  padding-right:max(18px,env(safe-area-inset-right))!important
+}
+body.role-student .student-actions{padding-bottom:max(11px,env(safe-area-inset-bottom))!important}
+body.role-student .student-actions button{min-height:48px}
+.toast{
+  right:max(16px,env(safe-area-inset-right))!important;
+  bottom:max(16px,env(safe-area-inset-bottom))!important
+}
+@media(max-width:760px){
+  body.role-student input,body.role-student textarea,body.role-student select{font-size:16px}
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -2295,14 +2320,14 @@ body.role-shared .sketch-reveal{
 <section id="student" class="view"><div class="student-shell"><div class="device"><div class="device-head"><span>🚀 <b>SI Mothership</b></span><span id="studentConnectionLabel"><span class="pulse"></span>&nbsp; Join Class</span></div><div class="student-demo-bar"><label>DEMO STUDENT <select id="studentSelect"></select></label><span class="student-state" id="studentState">Classroom Controls</span></div><div class="device-main" id="studentContent"></div><div class="student-control-zone"><div class="student-control-label" id="studentControlLabel"><b>CLASSROOM CONTROLS</b><span>Your standard controls</span></div><div class="student-actions" id="studentControls"></div><input class="student-photo-input" id="studentPhotoFile" type="file" accept="image/*" capture="environment"><input class="student-photo-input" id="studentPhotoUpload" type="file" accept="image/*"></div></div></div></section>
 
 <section id="shared" class="view"><div class="shared-shell"><div class="shared-screen"><div class="mirror-top"><span>🚀 <b>SI Mothership · Explorers</b></span><strong>JOIN 7K3M</strong></div><div class="mirror-content" id="sharedContent"></div><div class="mirror-footer"><span><span class="pulse"></span>&nbsp; <span id="sharedLabel">LOBBY</span></span><span>Student login + classroom display</span></div></div></div></section>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 
 
 
 <div id="studentPhotoComposer" class="student-photo-composer hidden" role="dialog" aria-modal="true" aria-label="Send photo to teacher">
   <div class="student-photo-composer-card">
-    <div class="student-photo-composer-head"><div><b>Send Photo to Teacher</b><small>Choose how you want to add your photo.</small></div><button id="studentPhotoComposerClose" type="button">×</button></div>
+    <div class="student-photo-composer-head"><div><b>Send Photo to Teacher</b><small>Choose how you want to add your photo.</small></div><button id="studentPhotoComposerClose" type="button" aria-label="Close photo dialog">×</button></div>
     <div class="student-photo-source-actions">
       <button id="studentTakePhotoBtn" type="button"><span>📷</span><b>Take Photo</b><small>Use camera</small></button>
       <button id="studentUploadPhotoBtn" type="button"><span>▧</span><b>Upload File</b><small>Choose from device</small></button>
@@ -2320,7 +2345,7 @@ body.role-shared .sketch-reveal{
 
 <div id="helpComposer" class="help-composer hidden" role="dialog" aria-modal="true" aria-label="Ask for help">
   <div class="help-composer-card">
-    <div class="help-composer-head"><div><b>Ask for Help</b><small>Send a private message to your teacher.</small></div><button id="helpComposerClose" type="button">×</button></div>
+    <div class="help-composer-head"><div><b>Ask for Help</b><small>Send a private message to your teacher.</small></div><button id="helpComposerClose" type="button" aria-label="Close help dialog">×</button></div>
     <textarea id="helpComposerText" maxlength="240" placeholder="What do you need help with?"></textarea>
     <div class="help-composer-actions"><button id="helpComposerCancel" type="button">Cancel</button><button id="helpComposerSend" type="button">Send Help Request</button></div>
   </div>
@@ -2328,7 +2353,7 @@ body.role-shared .sketch-reveal{
 
 <div id="helpViewer" class="help-viewer hidden" role="dialog" aria-modal="true" aria-label="Help request">
   <div class="help-viewer-card">
-    <div class="help-viewer-head"><div><b id="helpViewerName">Student</b><small id="helpViewerMeta">Help request</small></div><button id="helpViewerClose" type="button">×</button></div>
+    <div class="help-viewer-head"><div><b id="helpViewerName">Student</b><small id="helpViewerMeta">Help request</small></div><button id="helpViewerClose" type="button" aria-label="Close help request">×</button></div>
     <div id="helpViewerText" class="help-viewer-text"></div>
     <div class="help-viewer-actions"><button id="helpViewerHandled" type="button">✓ Mark Handled</button><button id="helpViewerDelete" type="button">Delete</button></div>
   </div>
@@ -2336,12 +2361,12 @@ body.role-shared .sketch-reveal{
 
 <div id="photoLightbox" class="photo-lightbox hidden" role="dialog" aria-modal="true" aria-label="Photo viewer">
   <div class="photo-lightbox-card">
-    <div class="photo-lightbox-head"><div><b id="photoLightboxName">Student photo</b><small id="photoLightboxMeta">Photo Inbox</small></div><button id="photoLightboxClose" class="photo-lightbox-close" title="Close">×</button></div>
+    <div class="photo-lightbox-head"><div><b id="photoLightboxName">Student photo</b><small id="photoLightboxMeta">Photo Inbox</small></div><button id="photoLightboxClose" class="photo-lightbox-close" type="button" title="Close" aria-label="Close photo viewer">×</button></div>
     <div class="photo-lightbox-stage"><img id="photoLightboxImage" alt="Submitted student photo"></div>
-    <div class="photo-lightbox-actions"><div class="photo-lightbox-nav"><button id="photoPrev" title="Previous photo">‹</button><button id="photoNext" title="Next photo">›</button></div><span></span><a id="photoSave" class="photo-save" href="#" download="mothership-photo.jpg">Save Photo</a><button id="photoLightboxDelete" class="photo-danger">Delete</button></div>
+    <div class="photo-lightbox-actions"><div class="photo-lightbox-nav"><button id="photoPrev" type="button" title="Previous photo" aria-label="Previous photo">‹</button><button id="photoNext" type="button" title="Next photo" aria-label="Next photo">›</button></div><span></span><a id="photoSave" class="photo-save" href="#" download="mothership-photo.jpg">Save Photo</a><button id="photoLightboxDelete" class="photo-danger" type="button">Delete</button></div>
   </div>
 </div>
-<div id="teacherLoginOverlay" class="teacher-login-overlay hidden" aria-label="Teacher Access">
+<div id="teacherLoginOverlay" class="teacher-login-overlay hidden" role="dialog" aria-modal="true" aria-label="Teacher Access">
   <div class="teacher-login-brand" aria-hidden="true"><span>SI</span> MOTHERSHIP</div>
   <form id="teacherLoginForm" class="teacher-login-card" autocomplete="off">
     <h1>Teacher Access</h1>
@@ -3920,7 +3945,7 @@ function openHelpViewer(id){
   $('#helpViewerName').textContent=m.name||'Student';
   $('#helpViewerMeta').textContent='Ask for Help · '+new Date(m.at||Date.now()).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
   $('#helpViewerText').textContent=m.text||'I need help';
-  $('#helpViewer').classList.remove('hidden');renderRight();
+  $('#helpViewer').classList.remove('hidden');renderRight();setTimeout(()=>$('#helpViewerClose')?.focus(),20);
 }
 function closeHelpViewer(){activeHelpMessageId='';const box=$('#helpViewer');if(box)box.classList.add('hidden')}
 function deleteHelpMessage(id){
@@ -3950,6 +3975,14 @@ const helpComposerSend=$('#helpComposerSend');if(helpComposerSend)helpComposerSe
 const helpViewerClose=$('#helpViewerClose');if(helpViewerClose)helpViewerClose.onclick=closeHelpViewer;
 const helpViewerDelete=$('#helpViewerDelete');if(helpViewerDelete)helpViewerDelete.onclick=()=>activeHelpMessageId&&deleteHelpMessage(activeHelpMessageId);
 const helpViewerHandled=$('#helpViewerHandled');if(helpViewerHandled)helpViewerHandled.onclick=()=>activeHelpMessageId&&markHelpHandled(activeHelpMessageId);
+const helpComposerOverlay=$('#helpComposer');if(helpComposerOverlay)helpComposerOverlay.onclick=e=>{if(e.target.id==='helpComposer')closeHelpComposer()};
+const helpViewerOverlay=$('#helpViewer');if(helpViewerOverlay)helpViewerOverlay.onclick=e=>{if(e.target.id==='helpViewer')closeHelpViewer()};
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  if(!$('#studentPhotoComposer')?.classList.contains('hidden')){e.preventDefault();e.stopImmediatePropagation();closeStudentPhotoComposer();return}
+  if(!$('#helpComposer')?.classList.contains('hidden')){e.preventDefault();e.stopImmediatePropagation();closeHelpComposer();return}
+  if(!$('#helpViewer')?.classList.contains('hidden')){e.preventDefault();e.stopImmediatePropagation();closeHelpViewer()}
+});
 
 function submitActivityAnswer(value,index){
   if(!state.activityRun)return;const s=selectedStudent(),i=index??state.activityRun.slideIndex;responseMapFor(i)[s.n]=value;render();toast(`${s.n} submitted ${value}`);
@@ -4118,7 +4151,7 @@ function refreshPhotoViewer(){
 function openPhotoViewer(id){
   const p=state.photos.find(x=>x.id===id);if(!p)return;
   photoViewerId=id;state.photos=state.photos.map(x=>x.id===id?{...x,seen:true}:x);
-  $('#photoLightbox')?.classList.remove('hidden');refreshPhotoViewer();renderRight();
+  $('#photoLightbox')?.classList.remove('hidden');refreshPhotoViewer();renderRight();setTimeout(()=>$('#photoLightboxClose')?.focus(),20);
 }
 function closePhotoViewer(){photoViewerId=null;$('#photoLightbox')?.classList.add('hidden')}
 function stepPhoto(dir){
@@ -4141,7 +4174,7 @@ function openStudentPhotoComposer(){
   const previewWrap=$('#studentPhotoPreviewWrap'),send=$('#studentPhotoSendBtn');
   if(previewWrap)previewWrap.classList.add('hidden');if(send)send.disabled=true;
   const cam=$('#studentPhotoFile'),upload=$('#studentPhotoUpload');if(cam)cam.value='';if(upload)upload.value='';
-  $('#studentPhotoComposer')?.classList.remove('hidden');
+  $('#studentPhotoComposer')?.classList.remove('hidden');setTimeout(()=>$('#studentTakePhotoBtn')?.focus(),20);
 }
 function closeStudentPhotoComposer(){
   pendingStudentPhotoData='';pendingStudentPhotoName='';
