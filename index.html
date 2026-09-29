@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v51.4 — STARWHEEL Animation Fix</title>
+<title>SI Mothership v52.0 — Visual System Refresh</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -2601,6 +2601,291 @@ body.role-student .prompt-caption{overflow-wrap:anywhere}
 <style id="v51-4-starwheel-animation-fix">
 .starwheel-wheel{animation:none!important;transform:rotate(var(--sw-spin,0deg));will-change:transform}
 .starwheel-sector.landed{color:#fff7a6;text-shadow:0 0 8px #fff36f,0 2px 4px #000}
+</style>
+<style id="v52-0-visual-system">
+/* =========================================================
+   SI MOTHERSHIP v52.0 — VISUAL SYSTEM REFRESH
+   Foundation only: color, type, spacing, surfaces and controls.
+   Runtime behavior and activity authority are unchanged.
+   ========================================================= */
+:root{
+  --bg:#07111c;
+  --panel:#0d1824;
+  --panel2:#101d2a;
+  --line:#23384a;
+  --text:#eef4f8;
+  --muted:#8b9baa;
+  --cyan:#67cfe1;
+  --green:#65cfa6;
+  --purple:#9b8be8;
+  --amber:#e8bf67;
+  --pink:#e382a8;
+  --blue:#78a9e8;
+  --orange:#df9570;
+  --lime:#b7cf73;
+  --danger:#e47d92;
+  --surface-0:#07111c;
+  --surface-1:#0b1621;
+  --surface-2:#0f1c28;
+  --surface-3:#132230;
+  --border-soft:#1d3040;
+  --border-strong:#2b4559;
+  --text-strong:#f4f8fb;
+  --text-soft:#a6b4c0;
+  --text-faint:#728493;
+  --accent:#6bc8d8;
+  --accent-soft:#102f38;
+  --success:#67c9a2;
+  --warning:#dfbd6d;
+  --critical:#df7f94;
+  --radius-sm:8px;
+  --radius-md:12px;
+  --radius-lg:16px;
+  --shadow-panel:0 14px 36px rgba(0,0,0,.22);
+  --shadow-float:0 20px 50px rgba(0,0,0,.28);
+  --space-1:4px;
+  --space-2:8px;
+  --space-3:12px;
+  --space-4:16px;
+  --space-5:20px;
+  --space-6:24px;
+}
+html,body{
+  background:var(--surface-0)!important;
+  color:var(--text-strong)!important;
+}
+body{
+  background:
+    radial-gradient(circle at 50% -10%,rgba(79,128,164,.14),transparent 38%),
+    linear-gradient(180deg,#08131e 0%,#07111c 52%,#06101a 100%)!important;
+}
+button,input,textarea,select{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button{transition:background .14s ease,border-color .14s ease,color .14s ease,transform .14s ease,box-shadow .14s ease}
+button:hover:not(:disabled){transform:translateY(-1px)}
+button:active:not(:disabled){transform:translateY(0)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid rgba(103,207,225,.7);outline-offset:2px}
+
+.topbar{
+  background:rgba(8,19,30,.94)!important;
+  border-bottom-color:var(--border-soft)!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.12);
+  backdrop-filter:blur(14px)
+}
+.brand{letter-spacing:-.02em}
+.brand-mark{
+  border-radius:11px!important;
+  background:linear-gradient(145deg,#73cfdb,#8f8de7)!important;
+  box-shadow:0 8px 22px rgba(86,168,190,.16)!important
+}
+.session-pill{
+  border-color:var(--border-strong)!important;
+  background:#0b1722!important;
+  color:var(--text-soft)!important;
+  box-shadow:none!important
+}
+.viewbar{
+  background:#08131e!important;
+  border-bottom-color:var(--border-soft)!important
+}
+.tabs{
+  background:#0c1824!important;
+  border-color:var(--border-soft)!important;
+  border-radius:11px!important
+}
+.tab{
+  color:#8799aa!important;
+  font-weight:700!important;
+  font-size:14px!important
+}
+.tab.active{
+  background:#182a39!important;
+  color:#f2f7fa!important;
+  box-shadow:inset 0 0 0 1px #2f495c!important
+}
+.class-code strong{color:#86d8e5!important}
+
+.workspace{padding-top:22px!important}
+.panel,.main-card,
+#teacher .teacher-control-group,
+#teacher .attention-summary,
+.activity-controller{
+  background:linear-gradient(180deg,rgba(15,29,41,.98),rgba(10,22,32,.98))!important;
+  border-color:var(--border-soft)!important;
+  box-shadow:var(--shadow-panel)!important
+}
+.panel,.main-card{border-radius:var(--radius-lg)!important}
+.main-card{padding:24px!important}
+.right-rail{gap:14px!important}
+.right-rail .panel{padding:15px!important}
+
+.section-label,.section-heading,.control-group-label,.eyebrow{
+  font-family:Inter,ui-sans-serif,system-ui,sans-serif!important;
+  font-weight:800!important;
+  letter-spacing:.11em!important;
+  color:#7f94a5!important
+}
+.section-label,.section-heading{font-size:10px!important}
+.eyebrow{color:#86ceda!important}
+
+.deck-header h1,
+.activity-controller-head h2,
+.device-main h2,
+.generic-box h2{
+  font-family:Inter,ui-sans-serif,system-ui,sans-serif!important;
+  font-weight:750!important;
+  letter-spacing:-.035em!important;
+  color:var(--text-strong)!important
+}
+.deck-header h1{font-size:32px!important}
+
+.metric,.controller-chip,.controller-stats{
+  background:#0b1823!important;
+  border-color:var(--border-soft)!important;
+  color:#889aa9!important;
+  box-shadow:none!important
+}
+.metric b,.controller-chip b,.controller-stats b{color:#edf4f7!important}
+
+#teacher .teacher-controlbar{
+  background:#0a1621!important;
+  border-color:var(--border-soft)!important;
+  box-shadow:none!important
+}
+#teacher .teacher-live-strip{border-bottom-color:var(--border-soft)!important}
+#teacher .teacher-control-group{
+  padding:8px!important;
+  border-radius:12px!important;
+  box-shadow:none!important
+}
+#teacher .response-group{background:#0c1a24!important}
+#teacher .session-group{background:#121820!important}
+#teacher .teacher-controlbar .control,
+.controller-grid button,.controller-safety button,
+.choice-row button,
+.student-actions button,
+.clear,
+.outline{
+  background:#112130!important;
+  border-color:#2a4356!important;
+  color:#dbe5eb!important;
+  border-radius:9px!important;
+  box-shadow:none!important
+}
+#teacher .teacher-controlbar .control:hover,
+.controller-grid button:hover,
+.controller-safety button:hover,
+.student-actions button:hover:not(:disabled){
+  background:#162a3b!important;
+  border-color:#406079!important;
+  color:#f2f7fa!important
+}
+#teacher .teacher-controlbar .control.active{
+  background:#16313b!important;
+  border-color:#4e8997!important;
+  color:#aee6ee!important;
+  box-shadow:inset 0 0 0 1px rgba(107,200,216,.08)!important
+}
+#teacher .teacher-controlbar .control.enabled{
+  background:#163027!important;
+  border-color:#39705b!important;
+  color:#9cddc1!important
+}
+#teacher .session-group .session-summary-btn,
+#teacher .session-group .session-history-btn{
+  background:#121f2c!important;
+  border-color:#30475a!important;
+  color:#dce6ec!important
+}
+#teacher .session-group .end-btn{
+  background:#241820!important;
+  border-color:#623747!important;
+  color:#eaa0af!important
+}
+#teacher .session-group .emergency-btn{
+  background:#2b1d17!important;
+  border-color:#7a5139!important;
+  color:#f0bd94!important
+}
+
+#teacher .attention-summary{
+  padding:12px!important;
+  border-radius:13px!important
+}
+#teacher .attention-summary-copy span{color:#71889b!important}
+#teacher .attention-summary-copy b{color:#e6edf1!important}
+#teacher .attention-chip{
+  background:#0d1a25!important;
+  border-color:#2c4254!important;
+  box-shadow:none!important
+}
+#teacher .attention-panel.has-attention{box-shadow:0 10px 26px rgba(0,0,0,.16)!important}
+
+.roster-card,.activity-controller,.generic-box{border-radius:14px!important}
+.student-row,.help-row{border-color:#1b2d3b!important}
+.queue-num{background:#15303d!important;color:#9cdae4!important}
+.mini-bot{background:#12212d!important}
+.clear{
+  font-family:Inter,ui-sans-serif,system-ui,sans-serif!important;
+  font-weight:700!important
+}
+
+input,textarea,select,
+.vector-input,.vector-card input[type=text],.vector-card textarea,.vector-card select,
+.orbit-card textarea,.orbit-card input,.sketch-word-box,
+.prompt-box input,.top-picture-prompt input{
+  background:#08141e!important;
+  border-color:#2b4355!important;
+  color:#eef4f8!important;
+  border-radius:8px!important
+}
+input::placeholder,textarea::placeholder{color:#627789!important}
+
+.device{
+  background:#0a1621!important;
+  border-color:#294153!important;
+  box-shadow:var(--shadow-float)!important
+}
+.device-head{border-bottom-color:#233746!important}
+.device-main{
+  background:
+    radial-gradient(circle at 50% 32%,rgba(65,114,145,.20),transparent 42%),
+    linear-gradient(180deg,#0e1c29,#09151f)!important
+}
+.device-main p{color:#dce7ed!important}
+.student-actions{
+  background:#0a1621!important;
+  border-top-color:#223644!important
+}
+.student-actions button.on{
+  background:#17363b!important;
+  border-color:#4d8a93!important;
+  color:#aee6ea!important
+}
+
+.shared-screen{
+  background:linear-gradient(180deg,#0e1c29,#09151f)!important;
+  border-color:#294153!important;
+  box-shadow:var(--shadow-panel)!important
+}
+
+.modal-card,.modal-content,[class*="modal-card"]{
+  border-color:var(--border-soft)!important;
+  box-shadow:var(--shadow-float)!important
+}
+
+.activity-workflow-bar{
+  background:linear-gradient(90deg,#0c1b26,#0e202c)!important;
+  border-color:#294456!important;
+  box-shadow:none!important
+}
+.activity-workflow-copy span{color:#748b9d!important}
+.activity-workflow-copy b{color:#edf4f8!important}
+.activity-workflow-copy small{color:#8395a4!important}
+
+@media(max-width:900px){
+  .workspace{padding-left:12px!important;padding-right:12px!important}
+  .main-card{padding:18px!important}
+}
 </style>
 </head>
 <body>
