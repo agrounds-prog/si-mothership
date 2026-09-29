@@ -10,15 +10,21 @@ The stricter form is used in CI and validates the inline JavaScript with Node.
 from __future__ import annotations
 
 import argparse
+import gzip
 import re
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "index.html"
 SERVER = ROOT / "server.py"
+CALCULATOR_DIR = ROOT / "scientific-calculator"
+CALCULATOR_INDEX_GZ = CALCULATOR_DIR / "index.html.gz"
+CALCULATOR_ENGINE_GZ = CALCULATOR_DIR / "engine.js.gz"
+CALCULATOR_TEST_GZ = CALCULATOR_DIR / "engine.test.js.gz"
 
 failures: list[str] = []
 passes: list[str] = []
@@ -84,7 +90,52 @@ def main() -> int:
     else:
         check("javascript: Node available for strict parse", not args.require_node, "install Node or omit --require-node")
 
-    # Historical selector invariant: $() is single-element; $$() is multi-element.
+    # v53.0 standalone SI Scientific Calculator.
+    calc_files = (CALCULATOR_INDEX_GZ, CALCULATOR_ENGINE_GZ, CALCULATOR_TEST_GZ)
+    calc_files_present = all(p.exists() for p in calc_files)
+    check("calculator: packaged source assets exist", calc_files_present)
+    calc_html = calc_engine = calc_test = ""
+    if calc_files_present:
+        try:
+            calc_html = gzip.decompress(CALCULATOR_INDEX_GZ.read_bytes()).decode("utf-8")
+            calc_engine = gzip.decompress(CALCULATOR_ENGINE_GZ.read_bytes()).decode("utf-8")
+            calc_test = gzip.decompress(CALCULATOR_TEST_GZ.read_bytes()).decode("utf-8")
+            check("calculator: packaged source assets decompress", True)
+        except Exception as exc:
+            check("calculator: packaged source assets decompress", False, str(exc))
+    check("calculator: standalone route remains configured", "/tools/scientific-calculator" in server and "scientific_calculator_engine" in server)
+    check("calculator: four-line familiar UI remains", all(x in calc_html for x in ('class="lcd"', 'data-action="second"', 'data-action="fraction"', 'data-action="enter"', 'class="key operator"')))
+    check("calculator: SI branding/IP boundary remains", "SI Scientific Calculator" in calc_html and "TI-30XS" not in calc_html)
+    check("calculator: expression engine does not use eval", not re.search(r"\beval\s*\(", calc_engine) and "new Function(" not in calc_engine)
+
+    if node and calc_files_present:
+        calc_parse_ok = True
+        calc_parse_detail = ""
+        calc_scripts = re.findall(r"<script[^>]*>(.*?)</script>", calc_html, flags=re.S | re.I)
+        for i, script in enumerate(calc_scripts, 1):
+            if not script.strip():
+                continue
+            p = subprocess.run(
+                [node, "-e", "new Function(require('fs').readFileSync(0,'utf8'))"],
+                input=script,
+                text=True,
+                capture_output=True,
+            )
+            if p.returncode:
+                calc_parse_ok = False
+                calc_parse_detail = f"calculator script {i}: {p.stderr.strip()[:500]}"
+                break
+        check("calculator: inline app script parses", calc_parse_ok, calc_parse_detail)
+        with tempfile.TemporaryDirectory() as td:
+            tdir = Path(td)
+            (tdir / "engine.js").write_text(calc_engine, encoding="utf-8")
+            (tdir / "engine.test.js").write_text(calc_test, encoding="utf-8")
+            p = subprocess.run([node, "engine.test.js"], cwd=td, text=True, capture_output=True)
+            check("calculator: engine acceptance tests pass", p.returncode == 0, (p.stderr or p.stdout)[-600:])
+    else:
+        check("calculator: engine acceptance tests pass", not args.require_node, "Node is required for calculator tests")
+
+    # Historical selector invariant: $() is single-element; $() is multi-element.
     bad_selector_lines = []
     for number, line in enumerate(html.splitlines(), 1):
         stripped = line.replace("$$(", "__MULTI__(")

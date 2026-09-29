@@ -24,6 +24,9 @@ import qrcode
 
 ROOT = Path(__file__).resolve().parent
 INDEX_PATH = ROOT / "index.html"
+CALCULATOR_DIR = ROOT / "scientific-calculator"
+CALCULATOR_INDEX_GZ = CALCULATOR_DIR / "index.html.gz"
+CALCULATOR_ENGINE_GZ = CALCULATOR_DIR / "engine.js.gz"
 DATA_DIR = Path(os.getenv("MOTHERSHIP_DATA_DIR", str(ROOT))).expanduser().resolve()
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 DB_PATH = DATA_DIR / "mothership_data.sqlite3"
@@ -35,7 +38,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "52.2"
+APP_VERSION = "53.0"
 
 PUBLIC_STORAGE_KEYS = {
     "siMothership.customAvatars.v1",
@@ -1190,6 +1193,27 @@ async def index(request: web.Request) -> web.Response:
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
 
+async def scientific_calculator(request: web.Request) -> web.Response:
+    """Serve the standalone SI Scientific Calculator without classroom hydration."""
+    if not CALCULATOR_INDEX_GZ.exists():
+        raise web.HTTPNotFound(text="Scientific Calculator is unavailable.")
+    return web.Response(
+        body=CALCULATOR_INDEX_GZ.read_bytes(),
+        content_type="text/html",
+        headers={"Content-Encoding": "gzip", "Cache-Control": "no-store, no-cache, must-revalidate"},
+    )
+
+
+async def scientific_calculator_engine(request: web.Request) -> web.Response:
+    if not CALCULATOR_ENGINE_GZ.exists():
+        raise web.HTTPNotFound(text="Calculator engine is unavailable.")
+    return web.Response(
+        body=CALCULATOR_ENGINE_GZ.read_bytes(),
+        content_type="application/javascript",
+        headers={"Content-Encoding": "gzip", "Cache-Control": "public, max-age=3600"},
+    )
+
+
 async def health(request: web.Request) -> web.Response:
     role_counts = {"teacher": 0, "student": 0, "shared": 0, "other": 0}
     for ws in list(CLIENTS):
@@ -1472,6 +1496,9 @@ def create_app() -> web.Application:
     app = web.Application(client_max_size=32 * 1024 * 1024)
     app.router.add_get("/", index)
     app.router.add_get("/index.html", index)
+    app.router.add_get("/tools/scientific-calculator", scientific_calculator)
+    app.router.add_get("/tools/scientific-calculator/", scientific_calculator)
+    app.router.add_get("/tools/scientific-calculator/engine.js", scientific_calculator_engine)
     app.router.add_get("/api/health", health)
     app.router.add_get("/api/info", info)
     app.router.add_get("/api/join-check", join_check)
@@ -1507,7 +1534,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — STUDENT UI")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — SCIENTIFIC CALCULATOR")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
