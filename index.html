@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v52.0 — Visual System Refresh</title>
+<title>SI Mothership v52.1 — Teacher Mission Control</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -2886,7 +2886,133 @@ input::placeholder,textarea::placeholder{color:#627789!important}
   .workspace{padding-left:12px!important;padding-right:12px!important}
   .main-card{padding:18px!important}
 }
-</style>
+</styl
+<style id="v52-1-teacher-mission-control">
+/* =========================================================
+   SI MOTHERSHIP v52.1 — TEACHER MISSION CONTROL
+   Teacher-workspace visual refinement only.
+   DOM IDs, handlers, sync, storage and activity logic unchanged.
+   ========================================================= */
+#teacher .workspace{padding:18px 18px 34px!important}
+#teacher .mission-grid{max-width:1780px;grid-template-columns:minmax(0,1fr) 340px;gap:16px}
+#teacher .command-deck{min-width:0;display:flex;flex-direction:column;gap:12px}
+#teacher .deck-header{min-height:62px;height:auto;padding:0 4px 2px;gap:16px}
+#teacher .deck-header>div:first-child{min-width:0}
+#teacher .deck-header .eyebrow{font-size:9px!important;letter-spacing:.16em!important}
+#teacher .deck-header h1{margin:5px 0 0!important;font-size:28px!important;line-height:1.05!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#teacher .metrics{gap:7px;flex-wrap:wrap;justify-content:flex-end}
+#teacher .metric{min-height:34px;padding:7px 10px!important;border-radius:999px!important;font-size:11px;white-space:nowrap}
+#teacher .metric b{font-size:12px}
+#teacher .teacher-controlbar{margin:0!important;padding:10px!important;border:1px solid var(--border-soft)!important;border-radius:14px!important;background:#0a1620!important;box-shadow:0 10px 28px rgba(0,0,0,.14)!important}
+#teacher .teacher-live-strip{min-height:30px;margin-bottom:9px!important;padding:0 3px 9px!important;border-bottom:1px solid #1d3242!important}
+#teacher .teacher-controlbar .students-see{color:#8296a6!important;font-size:9px!important;letter-spacing:.075em!important}
+#teacher .teacher-controlbar .students-see b{color:#a7e2ea!important;font-size:10px;letter-spacing:.08em}
+#teacher .teacher-live-hint{color:#5f7382!important;font-size:8px!important;letter-spacing:.12em!important}
+#teacher .teacher-control-groups{grid-template-columns:minmax(300px,1fr) minmax(560px,1.8fr) minmax(230px,.72fr)!important;gap:9px!important}
+#teacher .teacher-control-group{padding:9px!important;border:1px solid #203442!important;border-radius:12px!important;background:#0c1923!important;box-shadow:none!important}
+#teacher .teacher-control-group.response-group{border-color:#23414a!important;background:#0c1b24!important}
+#teacher .teacher-control-group.session-group{border-color:#3a3038!important;background:#14171d!important}
+#teacher .control-group-label{margin:0 1px 7px!important;font-size:8px!important;line-height:1!important;letter-spacing:.15em!important;color:#758795!important}
+#teacher .response-group .control-group-label{color:#71959a!important}
+#teacher .session-group .control-group-label{color:#957f8a!important}
+#teacher .nav-group .control-group-buttons{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px!important}
+#teacher .response-group .control-group-buttons{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px!important}
+#teacher .session-group .control-group-buttons{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px!important;height:auto!important}
+#teacher .teacher-controlbar .control{width:100%!important;min-width:0!important;min-height:42px;margin:0!important;padding:7px 6px!important;justify-content:center;gap:6px!important;border:1px solid #28404f!important;border-radius:9px!important;background:#101f2a!important;color:#a9b8c3!important}
+#teacher .teacher-controlbar .control .ico{width:19px!important;height:19px;display:grid;place-items:center;flex:0 0 19px;border-radius:6px;background:#0b1821;color:#7f94a3;font-size:11px!important}
+#teacher .teacher-controlbar .control .copy{min-width:0}
+#teacher .teacher-controlbar .control b{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;font-size:9px!important;font-weight:800!important;letter-spacing:-.01em}
+#teacher .teacher-controlbar .control:hover{border-color:#3b586b!important;background:#142734!important;color:#edf4f7!important}
+#teacher .teacher-controlbar .control.active{border-color:#477888!important;background:#17313a!important;color:#b9e7ed!important;box-shadow:inset 0 0 0 1px rgba(107,200,216,.06)!important}
+#teacher .teacher-controlbar .control.active .ico{background:#173841;color:#9ee0e9}
+#teacher .teacher-controlbar .control.enabled{border-color:#356451!important;background:#142b24!important;color:#a7d9c3!important}
+#teacher .teacher-controlbar .control.enabled .ico{background:#183229;color:#91d5b6}
+#teacher .session-group .session-summary-btn,#teacher .session-group .session-history-btn,#teacher .session-group .emergency-btn,#teacher .session-group .end-btn{width:100%!important;min-width:0!important;min-height:42px!important;margin:0!important;padding:7px 8px!important;border-radius:9px!important;font-size:9px!important;font-weight:800}
+#teacher .session-group .end-btn{grid-column:1/-1;background:#251820!important;border-color:#653848!important;color:#e9a2b0!important}
+#teacher .session-group .emergency-btn{grid-column:1/-1;background:#2b1d17!important;border-color:#765039!important;color:#efbe99!important}
+#teacher .session-group .end-btn:hover,#teacher .session-group .emergency-btn:hover{filter:brightness(1.08)}
+#teacher .activity-workflow-bar{margin:0!important;padding:10px 12px!important;border-radius:12px!important}
+#teacher .top-picture-prompt{margin:0!important;padding:9px!important;border-color:#254351!important;background:#0b1922!important}
+#teacher .main-card{border-radius:15px!important}
+#teacher .roster-card{min-height:0!important;padding:0!important;overflow:hidden}
+#teacher .roster-inner{padding:18px 20px 16px!important;border:0!important;border-radius:inherit!important;background:transparent!important}
+#teacher .roster-head{margin-bottom:17px!important;padding-bottom:12px;border-bottom:1px solid #1d3040}
+#teacher .roster-head .left{gap:10px!important}
+#teacher .roster-head strong{color:#708493!important;font-size:12px;font-weight:700}
+#teacher .roster-head-actions{gap:8px}
+#teacher .carousel-controls{gap:8px!important;font-size:11px}
+#teacher .carousel-controls button{width:32px!important;height:32px!important;border-radius:9px!important;border-color:#294354!important;background:#10202c!important;color:#9fb0bc!important;font-size:20px!important}
+#teacher .avatar-line{gap:12px!important}
+#teacher .status-icons{height:28px!important;gap:2px!important}
+#teacher .status-icons span{width:24px!important;height:24px!important;font-size:11px!important;border-color:#263b49!important;background:#0b1821!important}
+#teacher .bot-card{width:78px!important;height:76px!important;margin-bottom:8px!important;border-radius:19px!important;box-shadow:0 8px 22px rgba(0,0,0,.18)!important;font-size:39px!important}
+#teacher .crew b{font-family:Inter,ui-sans-serif,system-ui,sans-serif!important;font-size:13px!important;font-weight:750}
+#teacher .crew small{margin-top:4px!important;color:#738695!important;font-size:10px!important}
+#teacher .help-chip{top:101px!important;right:4px!important;box-shadow:none!important}
+#teacher .page-dots{margin-top:18px!important}
+#teacher .roster-alert{margin-bottom:14px!important;padding:10px 12px!important;border-radius:10px!important;background:#0c1923!important}
+#teacher .dashboard-tools-row{margin-top:0!important}
+#teacher .app-shortcuts-panel{border-radius:14px!important;border-color:var(--border-soft)!important;background:#0b1721!important;box-shadow:none!important}
+#teacher .app-shortcuts-head{padding-bottom:10px;border-bottom:1px solid #1d3040}
+#teacher .right-rail{gap:10px!important;position:sticky;top:12px;align-self:start}
+#teacher .attention-summary{padding:11px 12px!important;border:1px solid #2b4657!important;border-radius:12px!important;background:#0d1b25!important;box-shadow:0 8px 20px rgba(0,0,0,.12)!important}
+#teacher .attention-summary-copy span{color:#78909f!important;font-size:8px!important;letter-spacing:.15em!important}
+#teacher .attention-summary-copy b{margin-top:4px!important;color:#dce7ec!important;font-size:11px!important}
+#teacher .attention-summary-chips{gap:4px!important}
+#teacher .attention-chip{min-width:34px!important;padding:5px 6px!important;border-radius:8px!important;background:#0a1720!important;border-color:#294151!important;font-size:8px!important}
+#teacher .right-rail>.panel{padding:13px!important;border-radius:12px!important;background:#0c1822!important;box-shadow:none!important}
+#teacher .right-rail .section-heading{min-height:26px;margin-bottom:7px!important;padding-bottom:8px;border-bottom:1px solid #1d3040;color:#8193a1!important}
+#teacher .right-rail .section-heading span{font-size:9px!important;letter-spacing:.11em}
+#teacher .attention-panel .section-heading>b{min-width:24px!important;height:20px!important;border-radius:7px!important;border-color:#294253!important;background:#0a1720!important;font-size:8px!important}
+#teacher #buzzRows,#teacher #photoRows,#teacher #helpRows{max-height:188px;overflow:auto;scrollbar-width:thin;scrollbar-color:#314858 transparent}
+#teacher .student-row,#teacher .help-row{padding:9px 3px!important}
+#teacher .student-row b,#teacher .help-row b{font-family:Inter,ui-sans-serif,system-ui,sans-serif!important;font-size:12px!important;font-weight:750}
+#teacher .student-row small,#teacher .help-row small,#teacher .alert-row small{color:#718696!important;font-size:10px!important}
+#teacher .queue-num{width:31px!important;height:31px!important;border-radius:9px!important;background:#14303a!important;color:#9cdbe4!important;font-size:11px}
+#teacher .mini-bot{width:37px!important;height:37px!important;border-radius:10px!important;font-size:20px!important;background:#10202a!important}
+#teacher .clear{min-height:32px;margin-top:9px!important;padding:7px 8px!important;border-radius:8px!important;font-size:10px}
+#teacher .photo-inbox-actions{gap:6px!important}
+#teacher .screen-dock{padding:13px!important}
+#teacher .screen-dock-head{margin-bottom:8px}
+#teacher .screen-dock-title{color:#8295a4!important;font-size:9px!important;font-weight:800;letter-spacing:.11em}
+#teacher .mirror-live{border-radius:7px!important;background:#122c25!important;color:#91d8bb!important;border-color:#315c4d!important;box-shadow:none!important}
+#teacher .launch-screen-btn{min-height:34px;margin-bottom:9px!important;border-radius:8px!important;background:#122330!important;border-color:#2b4556!important;color:#cddae1!important;box-shadow:none!important}
+#teacher .mirror-screen{width:100%!important;aspect-ratio:16/10!important;border:1px solid #294253!important;border-radius:10px!important;background:linear-gradient(180deg,#0d1d2a,#09151f)!important;box-shadow:none!important}
+#teacher .mirror-panel .mirror-content,#teacher .screen-dock .mirror-content{background:radial-gradient(circle at 50% 35%,rgba(72,121,151,.13),transparent 55%)!important}
+#teacher .screen-dock .mirror-top{height:34px!important;border-bottom-color:#203745!important}
+#teacher .screen-dock .mirror-footer{height:26px!important;border-top-color:#203745!important}
+#teacher .attention-panel.has-attention{transform:none!important;border-color:#496579!important;box-shadow:inset 3px 0 0 #6bc8d8,0 8px 20px rgba(0,0,0,.14)!important}
+#teacher #helpInboxPanel.has-attention{border-color:#704554!important;box-shadow:inset 3px 0 0 #df7f94,0 8px 20px rgba(0,0,0,.14)!important}
+#teacher #buzzPanel.has-attention{border-color:#6f5d33!important;box-shadow:inset 3px 0 0 #dfbd6d,0 8px 20px rgba(0,0,0,.14)!important}
+#teacher #photoInboxPanel.has-attention{border-color:#356273!important;box-shadow:inset 3px 0 0 #67cfe1,0 8px 20px rgba(0,0,0,.14)!important}
+@media(max-width:1600px){
+  #teacher .teacher-control-groups{grid-template-columns:minmax(280px,.9fr) minmax(520px,1.55fr)!important}
+  #teacher .session-group{grid-column:1/-1!important}
+  #teacher .session-group .control-group-buttons{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  #teacher .session-group .end-btn,#teacher .session-group .emergency-btn{grid-column:auto!important}
+}
+@media(max-width:1250px){
+  #teacher .mission-grid{grid-template-columns:minmax(0,1fr) 310px!important}
+  #teacher .response-group .control-group-buttons{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+}
+@media(max-width:1080px){
+  #teacher .mission-grid{grid-template-columns:1fr!important}
+  #teacher .right-rail{position:static;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  #teacher .attention-summary,#teacher .screen-dock{grid-column:1/-1}
+}
+@media(max-width:860px){
+  #teacher .deck-header{align-items:flex-start;flex-direction:column}
+  #teacher .metrics{justify-content:flex-start}
+  #teacher .teacher-control-groups{grid-template-columns:1fr!important}
+  #teacher .session-group{grid-column:auto!important}
+  #teacher .nav-group .control-group-buttons{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #teacher .response-group .control-group-buttons{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #teacher .session-group .control-group-buttons{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #teacher .right-rail{grid-template-columns:1fr}
+  #teacher .attention-summary,#teacher .screen-dock{grid-column:auto}
+  #teacher .avatar-line{grid-template-columns:repeat(4,minmax(68px,1fr))!important}
+}
+</style>e>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
