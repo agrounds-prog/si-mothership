@@ -1,0 +1,48 @@
+name: Build SI Mothership Handoff
+
+on:
+  push:
+    branches:
+      - handoff-export-2026-09-29
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout handoff branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Build handoff package
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="/tmp/SI_Mothership_NEW_CHAT_HANDOFF_FULL_v52_0_2026-09-29"
+          mkdir -p "$ROOT/repository"
+          tar --exclude=.git -cf - . | tar -xf - -C "$ROOT/repository"
+          cat > "$ROOT/MANIFEST.txt" <<'EOF'
+          SI Mothership New Chat Handoff
+          Generated: 2026-09-29
+          Canonical product SHA: 55745fb25b2055212e95d3beb531774b419a1390
+          Release: v52.0 — Visual System Refresh
+          Production deployment: 5a30acc3-4356-470a-be5b-6302ff1f5059
+          Production domain: https://mothership-web-production.up.railway.app/
+          
+          The repository/ directory contains the full repository snapshot plus HANDOFF/ notes.
+          The HANDOFF branch exists only to generate this package; product main remains unchanged.
+          PREVIOUS_CHAT_RECONSTRUCTION.md is a detailed handoff reconstruction, not a verbatim platform export.
+          EOF
+          cd /tmp
+          zip -qr SI_Mothership_NEW_CHAT_HANDOFF_FULL_v52_0_2026-09-29.zip SI_Mothership_NEW_CHAT_HANDOFF_FULL_v52_0_2026-09-29
+
+      - name: Upload handoff
+        uses: actions/upload-artifact@v4
+        with:
+          name: SI_Mothership_NEW_CHAT_HANDOFF_FULL_v52_0_2026-09-29
+          path: /tmp/SI_Mothership_NEW_CHAT_HANDOFF_FULL_v52_0_2026-09-29.zip
+          if-no-files-found: error
+          retention-days: 7
