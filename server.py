@@ -35,7 +35,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "51.3"
+APP_VERSION = "51.4"
 
 PUBLIC_STORAGE_KEYS = {
     "siMothership.customAvatars.v1",
@@ -564,6 +564,7 @@ def _starwheel_apply_request(state: dict, run: dict, name: str, request: dict) -
         step = 360.0 / len(sectors)
         target = (360.0 - (index * step + step / 2.0)) % 360.0
         current_deg = float(sw.get("spinDeg", 0) or 0)
+        sw["spinFromDeg"] = current_deg
         current_mod = current_deg % 360.0
         delta = (target - current_mod) % 360.0
         sw["spinDeg"] = current_deg + 720.0 + delta
@@ -1506,7 +1507,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — STARWHEEL HARDENING")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — STARWHEEL ANIMATION FIX")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
