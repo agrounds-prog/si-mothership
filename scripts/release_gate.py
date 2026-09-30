@@ -77,6 +77,7 @@ def main() -> int:
         '<style id="v53-3-whiteboard-calculator">',
         '<style id="v53-4-board-calculator-mirror">',
         '<style id="v53-5-shared-projector-layout">',
+        '<style id="v53-6-calculator-classroom-modeling-mirror">',
     )
     check("html shell: head closes before body opens", head_close >= 0 and body_open > head_close and bool(re.search(r"</head>\s*<body(?:\s|>)", html, re.I)))
     check("html shell: release styles are inside head", head_close >= 0 and all(0 <= html.find(tag) < head_close for tag in release_styles))
@@ -106,6 +107,16 @@ def main() -> int:
     check("shared projector: BOARD uses full public height", "body.role-shared .board-public-wrap" in projector_css and "height:100%" in projector_css and "body.role-shared .board-shared-stage" in projector_css)
     check("shared projector: BOARD metadata floats over canvas", "body.role-shared .board-public-head" in projector_css and "position:absolute" in projector_css)
     check("shared projector: narrow-screen fallback remains", "@media(max-width:900px),(max-aspect-ratio:4/3)" in projector_css)
+
+    # v53.6 classroom-modeling calculator visual refresh.
+    check("calculator modeling: server decompresses packaged calculator for visual skin", "import gzip" in server and "gzip.decompress(CALCULATOR_INDEX_GZ.read_bytes())" in server)
+    check("calculator modeling: dedicated SI visual skin remains", 'id="v53-6-calculator-classroom-modeling"' in server and 'si-model-calculator' in server and 'si-model-lcd' in server)
+    check("calculator modeling: key grouping script remains", 'id="v53-6-calculator-classroom-modeling-script"' in server and "key.dataset.modelGroup=group" in server and "document.querySelectorAll('[data-action]')" in server)
+    check("calculator modeling: physical key hierarchy remains", 'data-model-group="number"' in server and 'data-model-group="operator"' in server and 'data-action="second"' in server)
+    check("calculator modeling: SI branding boundary remains", "Classroom Modeling Calculator" in server and "Texas Instruments" not in server and "TI-30XS" not in server)
+    check("calculator modeling: shared BOARD mirror matches visual family", '<style id="v53-6-calculator-classroom-modeling-mirror">' in html and "SI SCIENTIFIC · 4-LINE" in html)
+    check("calculator modeling: calculator engine asset remains separate", "CALCULATOR_ENGINE_GZ.read_bytes()" in server and 'Content-Encoding": "gzip"' in segment(server, "async def scientific_calculator_engine("))
+    check("calculator modeling: BOARD mirror privacy boundary remains", "run.boardCalculatorMirror=next;" in html and "history:" not in segment(html, "function publishBoardCalculatorMirror(") and "memory:" not in segment(html, "function publishBoardCalculatorMirror("))
 
     # Inline JavaScript parse validation.
     scripts = re.findall(r"<script[^>]*>(.*?)</script>", html, flags=re.S | re.I)

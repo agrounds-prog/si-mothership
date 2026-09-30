@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v53.5 — Shared Screen Projector Layout</title>
+<title>SI Mothership v53.6 — Calculator Classroom Modeling Visual Refresh</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -3598,6 +3598,85 @@ body.role-shared .board-shared-stage .board-surface{
   }
 }
 </style>
+
+<style id="v53-6-calculator-classroom-modeling-mirror">
+/* v53.6 — visual-only classroom modeling treatment for the shared BOARD mirror. */
+.board-calculator-mirror{
+  border-color:#6d7c84!important;
+  border-radius:10px 10px 18px 18px!important;
+  background:linear-gradient(160deg,#2d4654 0,#203744 32%,#172833 100%)!important;
+  box-shadow:0 13px 32px rgba(0,0,0,.44),inset 0 1px 0 rgba(255,255,255,.1)!important
+}
+.board-calculator-mirror:after{
+  content:"SI";
+  position:absolute;
+  right:11px;
+  top:27px;
+  z-index:1;
+  color:#b7c7ce;
+  font-size:6px;
+  font-weight:950;
+  letter-spacing:.12em;
+  opacity:.7
+}
+.board-calculator-mirror-head{
+  margin:0 3px 6px!important;
+  color:#edf4f5!important;
+  font-size:7px!important;
+  letter-spacing:.075em!important
+}
+.board-calculator-mirror-head span:first-child{font-weight:950}
+.board-calculator-mirror-head span:last-child{color:#b8d5e3!important}
+.board-calculator-mirror-lcd{
+  position:relative;
+  min-height:70px!important;
+  padding:7px 8px!important;
+  border:3px solid #25343a!important;
+  border-radius:4px!important;
+  background:linear-gradient(180deg,#dce5c3,#cbd7b3)!important;
+  color:#17231f!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.5),0 2px 0 rgba(255,255,255,.08)!important;
+  font-family:"Courier New",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important
+}
+.board-calculator-mirror-keys{
+  grid-template-columns:repeat(5,1fr)!important;
+  gap:4px!important;
+  margin-top:9px!important
+}
+.board-calculator-mirror-keys:before{
+  content:"";
+  grid-column:2/5;
+  height:12px;
+  margin:0 5px 2px;
+  border:1px solid #91a0a6;
+  border-radius:999px;
+  background:
+    radial-gradient(circle at 50% 50%,#293a43 0 24%,transparent 26%),
+    linear-gradient(90deg,#51636b,#334851,#51636b);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.18),0 1px 2px rgba(0,0,0,.5)
+}
+.board-calculator-mirror-keys i{
+  height:10px!important;
+  border-radius:3px!important;
+  border-color:#7e8c92!important;
+  background:linear-gradient(#53646c,#3b4b52)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 1px 1px rgba(0,0,0,.5)
+}
+.board-calculator-mirror-keys i:nth-last-child(-n+10){
+  border-color:#eef2ef!important;
+  background:linear-gradient(#f5f6f3,#cfd5d3)!important
+}
+.board-calculator-mirror-keys i:nth-child(5n){
+  border-color:#718c9a!important;
+  background:linear-gradient(#607e8d,#415e6d)!important
+}
+.shared-screen .board-calculator-mirror{width:228px!important}
+.shared-screen .board-calculator-mirror-lcd{min-height:80px!important;font-size:13px!important}
+.shared-screen .board-calculator-mirror-keys:before{height:14px}
+.mirror-screen .board-calculator-mirror:after{display:none}
+.mirror-screen .board-calculator-mirror-keys:before{height:4px;margin:0 1px;grid-column:2/5;border-width:0}
+@media(max-width:700px){.shared-screen .board-calculator-mirror{width:180px!important}}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -4185,7 +4264,7 @@ function boardCalculatorMirrorMarkup(run=state.activityRun){
   const m=run?.boardCalculatorMirror;if(!m?.open)return'';
   const lines=boardCalculatorMirrorLines((m.lines||[]).join('\n'));while(lines.length<4)lines.unshift('');
   const keys=Array.from({length:25},()=>'<i></i>').join('');
-  return `<div class="board-calculator-mirror" aria-label="Teacher calculator mirror"><div class="board-calculator-mirror-head"><span>SI SCIENTIFIC</span><span>${esc(m.angle||'DEG')} · ${esc(m.format||'NORM')}</span></div><div class="board-calculator-mirror-lcd">${lines.slice(-4).map(line=>`<div class="board-calculator-mirror-line">${esc(line)||'&nbsp;'}</div>`).join('')}</div><div class="board-calculator-mirror-keys" aria-hidden="true">${keys}</div></div>`;
+  return `<div class="board-calculator-mirror" aria-label="Teacher calculator mirror"><div class="board-calculator-mirror-head"><span>SI SCIENTIFIC · 4-LINE</span><span>${esc(m.angle||'DEG')} · ${esc(m.format||'NORM')}</span></div><div class="board-calculator-mirror-lcd">${lines.slice(-4).map(line=>`<div class="board-calculator-mirror-line">${esc(line)||'&nbsp;'}</div>`).join('')}</div><div class="board-calculator-mirror-keys" aria-hidden="true">${keys}</div></div>`;
 }
 function boardSharedMarkup(run=state.activityRun,big=false){const b=boardState(run);if(!b)return'';return `<div class="board-public-wrap"><div class="board-public-head"><div><span class="eyebrow">BOARD</span><h3 style="font-size:${big?34:22}px;margin:3px 0">${esc(b.title||'Shared Board')}</h3></div><span>${(b.pageIndex||0)+1} / ${b.pages.length}</span></div><div class="board-shared-stage">${boardSurfaceMarkup(run,{big})}${boardCalculatorMirrorMarkup(run)}</div></div>`}
 

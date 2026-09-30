@@ -4,6 +4,7 @@ import asyncio
 import base64
 import copy
 import io
+import gzip
 import json
 import re
 import secrets
@@ -38,7 +39,239 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "53.5"
+APP_VERSION = "53.6"
+
+CALCULATOR_MODELING_STYLE = r"""
+<style id="v53-6-calculator-classroom-modeling">
+/* SI-branded classroom modeling skin.
+   Visual only: keypad actions and scientific engine behavior are unchanged. */
+html{background:#11181d!important}
+body.si-classroom-model{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 50% 12%,rgba(83,125,148,.18),transparent 34%),
+    linear-gradient(180deg,#19232a 0,#0d1419 100%)!important
+}
+body.si-classroom-model .si-model-calculator{
+  position:relative;
+  max-width:400px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  padding:15px 17px 25px!important;
+  border:1px solid #60747e!important;
+  border-radius:21px 21px 34px 34px!important;
+  background:
+    linear-gradient(92deg,rgba(255,255,255,.035),transparent 9% 91%,rgba(255,255,255,.025)),
+    linear-gradient(165deg,#334d5b 0,#233b48 37%,#172b36 72%,#13232c 100%)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    inset 8px 0 18px rgba(255,255,255,.02),
+    inset -8px 0 18px rgba(0,0,0,.2),
+    0 26px 58px rgba(0,0,0,.48)!important
+}
+body.si-classroom-model .si-model-calculator:before,
+body.si-classroom-model .si-model-calculator:after{
+  content:"";
+  position:absolute;
+  left:13px;
+  right:13px;
+  height:1px;
+  pointer-events:none
+}
+body.si-classroom-model .si-model-calculator:before{
+  top:8px;
+  background:linear-gradient(90deg,transparent,#8ba0aa66,transparent)
+}
+body.si-classroom-model .si-model-calculator:after{
+  bottom:12px;
+  background:linear-gradient(90deg,transparent,#061016bb,transparent)
+}
+body.si-classroom-model .si-model-plate{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  min-height:42px;
+  margin:2px 3px 8px;
+  padding:2px 2px 5px;
+  border-bottom:1px solid rgba(203,222,231,.18);
+  color:#eef4f5;
+  text-transform:uppercase
+}
+body.si-classroom-model .si-model-plate>div{min-width:0}
+body.si-classroom-model .si-model-plate b{
+  display:block;
+  font:900 14px/1.05 Arial,Helvetica,sans-serif;
+  letter-spacing:.045em
+}
+body.si-classroom-model .si-model-plate span{
+  display:block;
+  margin-top:3px;
+  color:#b3c2c9;
+  font:800 7px/1.1 Arial,Helvetica,sans-serif;
+  letter-spacing:.12em
+}
+body.si-classroom-model .si-model-plate strong{
+  flex:0 0 auto;
+  color:#a8d9ee;
+  font:900 8px/1 Arial,Helvetica,sans-serif;
+  letter-spacing:.1em
+}
+body.si-classroom-model .si-model-lcd{
+  min-height:126px!important;
+  margin:0 1px 14px!important;
+  padding:10px 12px!important;
+  border:5px solid #1d2b31!important;
+  border-radius:5px!important;
+  background:linear-gradient(180deg,#dde6c6 0,#ced9b8 100%)!important;
+  color:#16231f!important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.5),
+    inset 0 8px 14px rgba(104,124,91,.1),
+    0 2px 0 rgba(255,255,255,.08),
+    0 5px 11px rgba(0,0,0,.22)!important;
+  font-family:"Courier New",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;
+  letter-spacing:.01em
+}
+body.si-classroom-model .si-model-keypad{
+  gap:7px!important;
+  padding:2px 1px 0!important
+}
+body.si-classroom-model .si-model-key{
+  min-height:45px!important;
+  padding:5px 4px!important;
+  border:1px solid #71818a!important;
+  border-radius:6px!important;
+  background:linear-gradient(180deg,#52616a 0,#38474e 100%)!important;
+  color:#f5f7f7!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.22),
+    0 3px 0 #101a1f,
+    0 4px 7px rgba(0,0,0,.3)!important;
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-weight:850!important;
+  text-shadow:0 1px 0 rgba(0,0,0,.32);
+  transform:translateY(0);
+  transition:transform .06s ease,filter .08s ease,box-shadow .08s ease!important
+}
+body.si-classroom-model .si-model-key:active{
+  transform:translateY(2px)!important;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.22),0 1px 0 #101a1f!important;
+  filter:brightness(.98)
+}
+body.si-classroom-model .si-model-key[data-model-group="number"]{
+  border-color:#e7ece9!important;
+  background:linear-gradient(180deg,#f4f5f2 0,#d1d7d4 100%)!important;
+  color:#172027!important;
+  text-shadow:none
+}
+body.si-classroom-model .si-model-key[data-model-group="operator"]{
+  border-color:#7893a0!important;
+  background:linear-gradient(180deg,#607f8e 0,#405e6d 100%)!important;
+  color:#fff!important
+}
+body.si-classroom-model .si-model-key[data-model-group="utility"]{
+  border-color:#506975!important;
+  background:linear-gradient(180deg,#364f5b 0,#263d48 100%)!important;
+  color:#f2f7f9!important
+}
+body.si-classroom-model .si-model-key[data-action="second"]{
+  border-color:#55b5d7!important;
+  background:linear-gradient(180deg,#278fb8,#176a92)!important;
+  color:#fff!important
+}
+body.si-classroom-model .si-model-key[data-action="enter"],
+body.si-classroom-model .si-model-key[data-action="equals"]{
+  border-color:#d9e0de!important;
+  background:linear-gradient(180deg,#f1f3ef,#cbd2cf)!important;
+  color:#172027!important;
+  text-shadow:none
+}
+body.si-classroom-model .si-model-key small,
+body.si-classroom-model .si-model-key .secondary,
+body.si-classroom-model .si-model-key .alt,
+body.si-classroom-model .si-model-key [class*="second"]{
+  color:#9bdcf2!important;
+  font-size:8px!important;
+  font-weight:850!important;
+  letter-spacing:.02em;
+  text-shadow:none
+}
+body.si-classroom-model .si-model-key[data-model-group="number"] small,
+body.si-classroom-model .si-model-key[data-model-group="number"] .secondary,
+body.si-classroom-model .si-model-key[data-model-group="number"] .alt{
+  color:#43616f!important
+}
+body.si-classroom-model .si-model-keypad:before{
+  content:"";
+  display:block;
+  grid-column:2 / -2;
+  height:17px;
+  margin:1px 16px 4px;
+  border:1px solid #87979e;
+  border-radius:999px;
+  background:
+    radial-gradient(circle at 50% 50%,#21333c 0 23%,transparent 25%),
+    linear-gradient(90deg,#687982,#3d515b 28%,#31464f 50%,#3d515b 72%,#687982);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.2),0 2px 2px rgba(0,0,0,.35);
+  pointer-events:none
+}
+@media(max-width:520px){
+  body.si-classroom-model .si-model-calculator{
+    max-width:calc(100vw - 18px)!important;
+    padding:12px 12px 20px!important;
+    border-radius:18px 18px 28px 28px!important
+  }
+  body.si-classroom-model .si-model-lcd{min-height:112px!important}
+  body.si-classroom-model .si-model-key{min-height:42px!important}
+}
+</style>
+<script id="v53-6-calculator-classroom-modeling-script">
+(function(){
+  function applyClassroomModel(){
+    if(!document.body)return;
+    document.body.classList.add('si-classroom-model');
+    const keys=Array.from(document.querySelectorAll('[data-action]'));
+    keys.forEach(function(key){
+      key.classList.add('si-model-key');
+      const action=String(key.dataset.action||'').toLowerCase();
+      const label=String(key.textContent||'').replace(/\s+/g,' ').trim();
+      let group='function';
+      if(/^[0-9]$/.test(label)||['decimal','negate','sign'].includes(action))group='number';
+      if(key.classList.contains('operator')||['add','subtract','multiply','divide','enter','equals'].includes(action))group='operator';
+      if(['second','clear','delete','del','mode'].includes(action))group='utility';
+      if(/^(left|right|up|down|nav|cursor)/.test(action))group='nav';
+      key.dataset.modelGroup=group;
+    });
+    const lcd=document.querySelector('.lcd');
+    if(lcd){
+      lcd.classList.add('si-model-lcd');
+      let root=lcd.closest('.calculator,.calculator-shell,.calculator-body,.calc,.device');
+      if(!root){
+        let node=lcd.parentElement;
+        while(node&&node!==document.body){
+          if(node.querySelectorAll('[data-action]').length>=20){root=node;break}
+          node=node.parentElement;
+        }
+      }
+      if(root)root.classList.add('si-model-calculator');
+      const host=lcd.parentElement;
+      if(host&& !host.querySelector(':scope > .si-model-plate')){
+        const plate=document.createElement('div');
+        plate.className='si-model-plate';
+        plate.innerHTML='<div><b>SI Scientific</b><span>Classroom Modeling Calculator</span></div><strong>4-LINE</strong>';
+        host.insertBefore(plate,lcd);
+      }
+    }
+    const keypad=document.querySelector('.keypad')||(keys.length?keys[0].parentElement:null);
+    if(keypad)keypad.classList.add('si-model-keypad');
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyClassroomModel,{once:true});
+  else applyClassroomModel();
+})();
+</script>
+"""
+
 
 PUBLIC_STORAGE_KEYS = {
     "siMothership.customAvatars.v1",
@@ -1194,13 +1427,18 @@ async def index(request: web.Request) -> web.Response:
 
 
 async def scientific_calculator(request: web.Request) -> web.Response:
-    """Serve the standalone SI Scientific Calculator without classroom hydration."""
+    """Serve the SI Scientific Calculator with the classroom-modeling visual skin."""
     if not CALCULATOR_INDEX_GZ.exists():
         raise web.HTTPNotFound(text="Scientific Calculator is unavailable.")
+    try:
+        text = gzip.decompress(CALCULATOR_INDEX_GZ.read_bytes()).decode("utf-8")
+    except (OSError, UnicodeDecodeError):
+        raise web.HTTPInternalServerError(text="Scientific Calculator could not be loaded.")
+    text = text.replace("</head>", CALCULATOR_MODELING_STYLE + "</head>", 1)
     return web.Response(
-        body=CALCULATOR_INDEX_GZ.read_bytes(),
+        text=text,
         content_type="text/html",
-        headers={"Content-Encoding": "gzip", "Cache-Control": "no-store, no-cache, must-revalidate"},
+        headers={"Cache-Control": "no-store, no-cache, must-revalidate"},
     )
 
 
@@ -1534,7 +1772,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — SHARED SCREEN PROJECTOR LAYOUT")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — CALCULATOR CLASSROOM MODELING VISUAL REFRESH")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
