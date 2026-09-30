@@ -87,6 +87,14 @@ def main() -> int:
     check("board calculator: render preserves overlay lifecycle", "syncBoardCalculatorOverlay();publishSyncedState()" in html)
     check("board calculator: whiteboard drawing flow remains", "wireBoardSurface(document.querySelector('[data-board-surface=\"teacher\"]'),'teacher')" in html)
 
+    # v53.4 shared BOARD calculator mirror.
+    check("board calculator mirror: shared markup remains", "function boardCalculatorMirrorMarkup(" in html and "boardCalculatorMirrorMarkup(run)" in html)
+    check("board calculator mirror: compact read-only shell remains", "board-calculator-mirror-lcd" in html and "board-calculator-mirror-keys" in html and "Teacher calculator mirror" in html)
+    check("board calculator mirror: teacher iframe snapshot bridge remains", "function boardCalculatorDisplaySnapshot()" in html and "MutationObserver" in segment(html, "function wireBoardCalculatorMirrorFrame("))
+    check("board calculator mirror: only public display snapshot is synced", "run.boardCalculatorMirror=next;" in html and all(x in segment(html, "function publishBoardCalculatorMirror(") for x in ("lines:","angle:","format:","updatedAt:")) and "history:" not in segment(html, "function publishBoardCalculatorMirror(") and "memory:" not in segment(html, "function publishBoardCalculatorMirror("))
+    check("board calculator mirror: student BOARD stays controls-only", "boardCalculatorMirrorMarkup" not in segment(html, "function studentMarkup("))
+    check("board calculator mirror: close removes shared mirror", "state.activityRun.boardCalculatorMirror=null" in segment(html, "function setBoardCalculatorOpen("))
+
     # Inline JavaScript parse validation.
     scripts = re.findall(r"<script[^>]*>(.*?)</script>", html, flags=re.S | re.I)
     node = shutil.which("node")

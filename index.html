@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v53.3 — Whiteboard Calculator</title>
+<title>SI Mothership v53.4 — Shared Whiteboard Calculator Mirror</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -3399,6 +3399,22 @@ input::placeholder,textarea::placeholder{color:#627789!important}
 .board-tool.calculator{border-color:#426172;color:#bfeaf1}.board-tool.calculator.active{border-color:#66cddd;background:#143941;color:#c8f7ff;box-shadow:inset 0 0 0 1px rgba(102,205,221,.12)}
 @media(max-width:760px){.board-calculator-overlay{right:8px;top:82px;width:calc(100vw - 16px);height:calc(100vh - 96px);border-radius:12px}}
 </style>
+<style id="v53-4-board-calculator-mirror">
+/* v53.4 — read-only public calculator mirror over the shared BOARD. */
+.board-shared-stage{position:relative;min-width:0}
+.board-calculator-mirror{position:absolute;right:14px;bottom:14px;z-index:7;width:184px;padding:8px;border:2px solid #52636a;border-radius:12px 12px 16px 16px;background:linear-gradient(155deg,#2a373d,#172228);box-shadow:0 10px 28px rgba(0,0,0,.38);pointer-events:none}
+.board-calculator-mirror-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:0 2px 5px;color:#cfd8d9;font-size:7px;font-weight:900;letter-spacing:.08em}
+.board-calculator-mirror-head span:last-child{color:#d8e3c7}
+.board-calculator-mirror-lcd{min-height:64px;padding:5px 7px;border:2px solid #34423a;border-radius:5px;background:#d6e0c1;color:#1b2923;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35);font:700 10px/1.27 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;overflow:hidden}
+.board-calculator-mirror-line{height:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+.board-calculator-mirror-keys{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-top:7px}
+.board-calculator-mirror-keys i{display:block;height:9px;border-radius:2px;background:#68767c;border:1px solid #839097}
+.board-calculator-mirror-keys i:nth-child(n+16){background:#d7dde0;border-color:#eef1f2}
+.board-calculator-mirror-keys i:nth-child(5n){background:#5b7482;border-color:#7892a0}
+.shared-screen .board-calculator-mirror{width:220px;padding:10px;right:18px;bottom:18px}.shared-screen .board-calculator-mirror-lcd{min-height:76px;font-size:13px}.shared-screen .board-calculator-mirror-line{height:16px}.shared-screen .board-calculator-mirror-keys i{height:11px}
+.mirror-screen .board-calculator-mirror{width:88px;right:3px;bottom:3px;padding:3px;border-width:1px;border-radius:5px}.mirror-screen .board-calculator-mirror-head{font-size:3px;margin-bottom:2px}.mirror-screen .board-calculator-mirror-lcd{min-height:28px;padding:2px 3px;border-width:1px;border-radius:2px;font-size:4px;line-height:1.1}.mirror-screen .board-calculator-mirror-line{height:6px}.mirror-screen .board-calculator-mirror-keys{gap:1px;margin-top:2px}.mirror-screen .board-calculator-mirror-keys i{height:3px;border:0}
+@media(max-width:700px){.shared-screen .board-calculator-mirror{width:174px;right:8px;bottom:8px}}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -3858,23 +3874,111 @@ function resetVectorResponses(){const run=state.activityRun;if(!run)return;run.r
 /* BOARD runtime */
 const BOARD_STORE='siMothership.boardSessions.v1';
 let boardStudentZoom=1,boardStudentTool='blue',boardStudentWidth=8,boardDrawing=null,boardSyncTick=0;
-let boardCalculatorOpen=false;
+let boardCalculatorOpen=false,boardCalculatorMirrorObserver=null,boardCalculatorMirrorTimer=null;
 function boardDemoWorksheet(){const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900"><rect width="1200" height="900" fill="#fff"/><text x="70" y="90" font-family="Arial" font-weight="700" font-size="44" fill="#14213d">Solve for x</text><g font-family="Arial" font-size="38" fill="#111"><text x="90" y="190">1)  3x + 5 = 20</text><text x="650" y="190">2)  2(x − 4) = 10</text><text x="90" y="420">3)  x/3 + 2 = 6</text><text x="650" y="420">4)  4x − 1 = 15</text></g><line x1="60" y1="120" x2="1140" y2="120" stroke="#d9e0e8" stroke-width="3"/><text x="70" y="820" font-family="Arial" font-size="24" fill="#74839a">Mothership BOARD demo worksheet</text></svg>`;return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)}
 function boardBlankPage(){return {id:'page_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),baseType:'blank',image:'',strokes:[],redo:[]}}
 function boardImagePage(image){return {id:'page_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),baseType:'image',image:image||'',strokes:[],redo:[]}}
 function boardState(run=state.activityRun){return run?.board||null}
 function boardCalculatorAllowed(){return SESSION_ROLE==='teacher'&&!!state.activityRun&&activeActivity()?.type==='board'&&state.activityRun.phase==='running'}
 function boardCalculatorSrc(){const base=scientificCalculatorUrl();return base+(base.includes('?')?'&':'?')+'embed=1&board=1'}
+function boardCalculatorMirrorLines(value){
+  const out=[];
+  String(value||'').split(/\n+/).map(x=>x.replace(/\s+/g,' ').trim()).filter(Boolean).forEach(line=>{if(out[out.length-1]!==line)out.push(line.slice(0,42))});
+  return out.slice(-4);
+}
+function boardCalculatorDisplaySnapshot(){
+  if(!boardCalculatorAllowed()||!boardCalculatorOpen)return null;
+  const frame=$('#boardCalculatorFrame');if(!frame)return null;
+  try{
+    const doc=frame.contentDocument,win=frame.contentWindow;if(!doc?.body||!win)return null;
+    const isVisible=el=>{try{const r=el.getBoundingClientRect(),s=win.getComputedStyle(el);return r.width>4&&r.height>4&&s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity||1)>0}catch(e){return false}};
+    const mathish=t=>/[0-9+\-×÷*/^√πe().=]|Ans/i.test(t);
+    let best=null;
+    [...doc.querySelectorAll('[id],[class],output,[aria-live]')].forEach(el=>{
+      if(!isVisible(el))return;
+      const hint=((el.id||'')+' '+String(el.className?.baseVal||el.className||'')+' '+(el.getAttribute?.('aria-label')||'')).toLowerCase();
+      if(!/(lcd|display|screen|history|expression|result|entry|answer)/.test(hint)&&el.tagName!=='OUTPUT'&&!el.hasAttribute?.('aria-live'))return;
+      const text=String(el.innerText||el.textContent||'').trim();if(!text||text.length>360)return;
+      const r=el.getBoundingClientRect(),lines=text.split(/\n+/).filter(Boolean).length;
+      let score=0;
+      if(/lcd|display|screen/.test(hint))score+=18;
+      if(/history|expression|result|entry|answer/.test(hint))score+=9;
+      if(el.tagName==='OUTPUT'||el.hasAttribute?.('aria-live'))score+=7;
+      if(r.top<Math.max(260,win.innerHeight*.48))score+=6;
+      if(lines>=2&&lines<=6)score+=7;
+      if(mathish(text))score+=5;
+      if(r.width>120)score+=3;
+      if(!best||score>best.score)best={score,text};
+    });
+    let lines=boardCalculatorMirrorLines(best?.text||'');
+    const values=[...doc.querySelectorAll('input,textarea,output')].filter(isVisible).map(el=>String(el.value||el.textContent||'').trim()).filter(v=>v&&v.length<80&&mathish(v));
+    if(values.length){const merged=boardCalculatorMirrorLines([...lines,...values].join('\n'));if(merged.length)lines=merged}
+    if(!lines.length)lines=['Ready'];
+    const bodyText=String(doc.body.innerText||'');
+    const angle=/\bRAD\b/i.test(bodyText)?'RAD':/\bDEG\b/i.test(bodyText)?'DEG':'DEG';
+    const format=/\bSCI(?:ENTIFIC)?\b/i.test(bodyText)?'SCI':'NORM';
+    return {open:true,lines,angle,format};
+  }catch(e){return null}
+}
+function publishBoardCalculatorMirror(snapshot){
+  const run=state.activityRun;if(!run||activeActivity()?.type!=='board')return;
+  const next=snapshot?{open:true,lines:boardCalculatorMirrorLines((snapshot.lines||[]).join('\n')),angle:snapshot.angle==='RAD'?'RAD':'DEG',format:snapshot.format==='SCI'?'SCI':'NORM',updatedAt:Date.now()}:null;
+  const prev=run.boardCalculatorMirror||null;
+  const same=!!prev&&!!next&&prev.open===next.open&&prev.angle===next.angle&&prev.format===next.format&&JSON.stringify(prev.lines||[])===JSON.stringify(next.lines||[]);
+  if((!prev&&!next)||same)return;
+  run.boardCalculatorMirror=next;
+  renderPublic();
+  publishSyncedState();
+}
+function captureBoardCalculatorMirror(){const snap=boardCalculatorDisplaySnapshot();if(snap)publishBoardCalculatorMirror(snap)}
+function scheduleBoardCalculatorMirror(delay=90){clearTimeout(boardCalculatorMirrorTimer);boardCalculatorMirrorTimer=setTimeout(captureBoardCalculatorMirror,delay)}
+function clearBoardCalculatorMirrorObserver(){if(boardCalculatorMirrorObserver){try{boardCalculatorMirrorObserver.disconnect()}catch(e){}boardCalculatorMirrorObserver=null}}
+function wireBoardCalculatorMirrorFrame(frame){
+  if(!frame||frame.dataset.mirrorWired)return;
+  frame.dataset.mirrorWired='1';
+  frame.addEventListener('load',()=>{
+    clearBoardCalculatorMirrorObserver();
+    if(!boardCalculatorOpen||frame.src==='about:blank')return;
+    try{
+      const doc=frame.contentDocument;if(!doc?.body)return;
+      ['click','input','change','keyup'].forEach(type=>doc.addEventListener(type,()=>scheduleBoardCalculatorMirror(type==='click'?110:55),true));
+      boardCalculatorMirrorObserver=new MutationObserver(()=>scheduleBoardCalculatorMirror(70));
+      boardCalculatorMirrorObserver.observe(doc.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['value','class','aria-pressed']});
+      scheduleBoardCalculatorMirror(30);
+    }catch(e){}
+  });
+}
 function syncBoardCalculatorOverlay(){
   const overlay=$('#boardCalculatorOverlay'),frame=$('#boardCalculatorFrame');if(!overlay)return;
   const allowed=boardCalculatorAllowed();
-  if(!allowed){boardCalculatorOpen=false;overlay.classList.add('hidden');overlay.setAttribute('aria-hidden','true');if(frame?.dataset.loaded){frame.src='about:blank';delete frame.dataset.loaded}return}
+  if(!allowed){
+    boardCalculatorOpen=false;
+    if(state.activityRun?.boardCalculatorMirror)state.activityRun.boardCalculatorMirror=null;
+    clearBoardCalculatorMirrorObserver();clearTimeout(boardCalculatorMirrorTimer);
+    overlay.classList.add('hidden');overlay.setAttribute('aria-hidden','true');
+    if(frame?.dataset.loaded){frame.src='about:blank';delete frame.dataset.loaded}
+    return;
+  }
   overlay.classList.toggle('hidden',!boardCalculatorOpen);overlay.setAttribute('aria-hidden',boardCalculatorOpen?'false':'true');
   const toolbarBtn=$('#boardCalculatorBtn');if(toolbarBtn)toolbarBtn.classList.toggle('active',boardCalculatorOpen);
+  if(frame)wireBoardCalculatorMirrorFrame(frame);
   if(boardCalculatorOpen&&frame&&!frame.dataset.loaded){frame.src=boardCalculatorSrc();frame.dataset.loaded='1'}
+  if(boardCalculatorOpen&&frame?.dataset.loaded)scheduleBoardCalculatorMirror(40);
 }
-function toggleBoardCalculator(){if(!boardCalculatorAllowed())return toast('Open BOARD before using the board calculator');boardCalculatorOpen=!boardCalculatorOpen;syncBoardCalculatorOverlay();toast(boardCalculatorOpen?'Calculator opened over BOARD':'Calculator closed')}
-function closeBoardCalculator(){boardCalculatorOpen=false;syncBoardCalculatorOverlay()}
+function setBoardCalculatorOpen(open){
+  if(open&&!boardCalculatorAllowed())return toast('Open BOARD before using the board calculator');
+  boardCalculatorOpen=!!open;
+  if(state.activityRun&&activeActivity()?.type==='board'){
+    if(boardCalculatorOpen){
+      const previous=state.activityRun.boardCalculatorMirror;
+      state.activityRun.boardCalculatorMirror=previous?.open?previous:{open:true,lines:['Ready'],angle:'DEG',format:'NORM',updatedAt:Date.now()};
+    }else state.activityRun.boardCalculatorMirror=null;
+  }
+  syncBoardCalculatorOverlay();renderPublic();publishSyncedState();
+  if(boardCalculatorOpen)scheduleBoardCalculatorMirror(80);
+}
+function toggleBoardCalculator(){setBoardCalculatorOpen(!boardCalculatorOpen);toast(boardCalculatorOpen?'Calculator opened over BOARD and mirrored to Shared Screen':'Calculator closed and removed from Shared Screen')}
+function closeBoardCalculator(){setBoardCalculatorOpen(false)}
 function currentBoardPage(run=state.activityRun){const b=boardState(run);return b?.pages?.[Math.max(0,Math.min(b.pageIndex||0,(b.pages?.length||1)-1))]||null}
 function boardToolColor(tool){return tool==='red'?'#ef334d':tool==='blue'?'#1976ed':tool==='green'?'#1ab75b':'#111827'}
 function boardStrokesMarkup(page){return (page?.strokes||[]).map(st=>`<polyline data-board-stroke="${esc(st.id)}" points="${(st.points||[]).map(p=>`${p.x},${p.y}`).join(' ')}" stroke="${esc(st.color)}" stroke-width="${Number(st.width||7)}"></polyline>`).join('')}
@@ -3894,7 +3998,13 @@ function boardEraseAt(x,y){const p=currentBoardPage();if(!p)return;let best=-1,d
 function boardCanEdit(actor){const b=boardState();if(!b)return false;if(actor==='teacher')return true;return b.controller===actor}
 function wireBoardSurface(el,actor){if(!el||!boardCanEdit(actor))return;const b=boardState(),student=actor!=='teacher',tool=student?boardStudentTool:b.teacherTool;if(tool==='move')return;const xy=e=>{const r=el.getBoundingClientRect();return {x:+Math.max(0,Math.min(1000,(e.clientX-r.left)/r.width*1000)).toFixed(1),y:+Math.max(0,Math.min(750,(e.clientY-r.top)/r.height*750)).toFixed(1)}};el.onpointerdown=e=>{e.preventDefault();const pnt=xy(e);if(tool==='eraser'){boardEraseAt(pnt.x,pnt.y);return}const page=currentBoardPage(),stroke={id:'stroke_'+Date.now()+'_'+Math.random().toString(36).slice(2,5),color:boardToolColor(tool),width:student?Number(boardStudentWidth||b.studentWidth||8):Number(b.teacherWidth||7),owner:actor,points:[pnt]};page.strokes.push(stroke);page.redo=[];const svg=el.querySelector('svg'),pl=document.createElementNS('http://www.w3.org/2000/svg','polyline');pl.setAttribute('data-board-stroke',stroke.id);pl.setAttribute('points',`${pnt.x},${pnt.y}`);pl.setAttribute('stroke',stroke.color);pl.setAttribute('stroke-width',stroke.width);pl.setAttribute('fill','none');pl.setAttribute('stroke-linecap','round');pl.setAttribute('stroke-linejoin','round');svg&&svg.appendChild(pl);boardDrawing={el,stroke,pl,actor};try{el.setPointerCapture(e.pointerId)}catch(err){};publishSyncedState()};el.onpointermove=e=>{if(!boardDrawing||boardDrawing.el!==el)return;const pnt=xy(e);const pts=boardDrawing.stroke.points,last=pts[pts.length-1];if(last&&Math.abs(last.x-pnt.x)+Math.abs(last.y-pnt.y)<2)return;pts.push(pnt);boardDrawing.pl?.setAttribute('points',pts.map(p=>`${p.x},${p.y}`).join(' '));const now=Date.now();if(now-boardSyncTick>70){boardSyncTick=now;publishSyncedState()}};const finish=e=>{if(!boardDrawing||boardDrawing.el!==el)return;boardDrawing=null;const deferred=deferredBoardRemoteState;deferredBoardRemoteState=null;if(deferred&&SESSION_ROLE==='student'){acceptSyncedState(deferred);return}publishSyncedState();render()};el.onpointerup=finish;el.onpointercancel=finish;el.onlostpointercapture=finish}
 function wireBoardStudent(){if(!state.activityRun||activeActivity()?.type!=='board')return;const s=selectedStudent();if(!s||boardState()?.controller!==s.n)return;wireBoardSurface(document.querySelector('[data-board-surface="student"]'),s.n)}
-function boardSharedMarkup(run=state.activityRun,big=false){const b=boardState(run);if(!b)return'';return `<div class="board-public-wrap"><div class="board-public-head"><div><span class="eyebrow">BOARD</span><h3 style="font-size:${big?34:22}px;margin:3px 0">${esc(b.title||'Shared Board')}</h3></div><span>${(b.pageIndex||0)+1} / ${b.pages.length}</span></div>${boardSurfaceMarkup(run,{big})}</div>`}
+function boardCalculatorMirrorMarkup(run=state.activityRun){
+  const m=run?.boardCalculatorMirror;if(!m?.open)return'';
+  const lines=boardCalculatorMirrorLines((m.lines||[]).join('\n'));while(lines.length<4)lines.unshift('');
+  const keys=Array.from({length:25},()=>'<i></i>').join('');
+  return `<div class="board-calculator-mirror" aria-label="Teacher calculator mirror"><div class="board-calculator-mirror-head"><span>SI SCIENTIFIC</span><span>${esc(m.angle||'DEG')} · ${esc(m.format||'NORM')}</span></div><div class="board-calculator-mirror-lcd">${lines.slice(-4).map(line=>`<div class="board-calculator-mirror-line">${esc(line)||'&nbsp;'}</div>`).join('')}</div><div class="board-calculator-mirror-keys" aria-hidden="true">${keys}</div></div>`;
+}
+function boardSharedMarkup(run=state.activityRun,big=false){const b=boardState(run);if(!b)return'';return `<div class="board-public-wrap"><div class="board-public-head"><div><span class="eyebrow">BOARD</span><h3 style="font-size:${big?34:22}px;margin:3px 0">${esc(b.title||'Shared Board')}</h3></div><span>${(b.pageIndex||0)+1} / ${b.pages.length}</span></div><div class="board-shared-stage">${boardSurfaceMarkup(run,{big})}${boardCalculatorMirrorMarkup(run)}</div></div>`}
 
 
 /* SKETCH SIGNAL runtime */
