@@ -115,7 +115,7 @@ def main() -> int:
     check("calculator modeling: key grouping script remains", 'id="v53-6-calculator-classroom-modeling-script"' in server and "key.dataset.modelGroup=group" in server and "document.querySelectorAll('[data-action]')" in server)
     check("calculator modeling: physical key hierarchy remains", 'data-model-group="number"' in server and 'data-model-group="operator"' in server and 'data-action="second"' in server)
     check("calculator modeling: SI branding boundary remains", "Classroom Modeling Calculator" in server and "Texas Instruments" not in server and "TI-30XS" not in server)
-    check("calculator modeling: shared BOARD mirror matches visual family", '<style id="v53-6-calculator-classroom-modeling-mirror">' in html and "SI SCIENTIFIC · 4-LINE" in html)
+    check("calculator modeling: shared BOARD mirror matches visual family", '<style id="v53-6-calculator-classroom-modeling-mirror">' in html and "SI SCIENTIFIC" in html and "MULTI-VIEW · 4-LINE" in html)
     check("calculator modeling: calculator engine asset remains separate", "CALCULATOR_ENGINE_GZ.read_bytes()" in server and 'Content-Encoding": "gzip"' in segment(server, "async def scientific_calculator_engine("))
     check("calculator modeling: BOARD mirror privacy boundary remains", "run.boardCalculatorMirror=next;" in html and "history:" not in segment(html, "function publishBoardCalculatorMirror(") and "memory:" not in segment(html, "function publishBoardCalculatorMirror("))
 
