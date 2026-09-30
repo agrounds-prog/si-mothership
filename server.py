@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "53.6"
+APP_VERSION = "53.7"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -268,6 +268,273 @@ body.si-classroom-model .si-model-keypad:before{
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyClassroomModel,{once:true});
   else applyClassroomModel();
+})();
+</script>
+<style id="v53-7-high-fidelity-calculator-modeling">
+/* v53.7 — reference-inspired classroom modeling fidelity.
+   SI-branded and intentionally distinct from third-party marks. */
+body.si-classroom-model.si-hifi-model{
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  padding:18px 10px 32px!important;
+  background:
+    radial-gradient(circle at 50% 9%,rgba(87,127,145,.18),transparent 30%),
+    linear-gradient(180deg,#1b252b 0,#0e1519 100%)!important
+}
+body.si-classroom-model.si-hifi-model .si-model-calculator{
+  width:min(332px,calc(100vw - 24px))!important;
+  max-width:332px!important;
+  margin:0 auto!important;
+  padding:13px 31px 31px!important;
+  border:1px solid #aeb8bc!important;
+  border-radius:29px 29px 54px 54px!important;
+  background:
+    linear-gradient(90deg,
+      #cfd5d7 0 7.5%,
+      #315a69 7.5% 92.5%,
+      #cfd5d7 92.5% 100%)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.75),
+    inset 0 -12px 22px rgba(56,74,82,.18),
+    0 28px 62px rgba(0,0,0,.52)!important;
+  overflow:hidden!important
+}
+body.si-classroom-model.si-hifi-model .si-model-calculator>*{
+  position:relative;
+  z-index:1
+}
+body.si-classroom-model.si-hifi-model .si-model-calculator:before{
+  content:"";
+  position:absolute;
+  z-index:0;
+  left:23px;
+  right:23px;
+  top:8px;
+  bottom:20px;
+  height:auto;
+  border-radius:21px 21px 39px 39px;
+  background:
+    linear-gradient(180deg,#3b6979 0,#345f6f 46%,#2d5665 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.1),
+    inset 0 -10px 18px rgba(0,0,0,.13);
+  pointer-events:none
+}
+body.si-classroom-model.si-hifi-model .si-model-calculator:after{display:none!important}
+
+body.si-classroom-model.si-hifi-model .si-model-plate{
+  min-height:53px!important;
+  margin:1px 0 4px!important;
+  padding:1px 5px 6px!important;
+  border-bottom:0!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  text-align:center!important
+}
+body.si-classroom-model.si-hifi-model .si-model-plate>div{width:100%}
+body.si-classroom-model.si-hifi-model .si-model-plate b{
+  font-size:16px!important;
+  line-height:1!important;
+  letter-spacing:.035em!important
+}
+body.si-classroom-model.si-hifi-model .si-model-plate span{
+  margin-top:2px!important;
+  color:#d8e2e6!important;
+  font-size:7px!important;
+  letter-spacing:.11em!important
+}
+body.si-classroom-model.si-hifi-model .si-model-plate strong{
+  display:none!important
+}
+body.si-classroom-model.si-hifi-model .si-model-brandbar{
+  height:18px;
+  margin:-10px 10px 7px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:3px;
+  background:linear-gradient(180deg,#3a4c55,#263841);
+  color:#e7eff1;
+  font:800 7px/1 Arial,Helvetica,sans-serif;
+  letter-spacing:.08em;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08)
+}
+body.si-classroom-model.si-hifi-model .si-model-lcd{
+  min-height:104px!important;
+  margin:0 6px 9px!important;
+  padding:8px 9px!important;
+  border:5px solid #263840!important;
+  border-radius:4px!important;
+  background:linear-gradient(180deg,#dce4c6 0,#cbd6b3 100%)!important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.46),
+    inset 0 7px 12px rgba(92,111,78,.08),
+    0 2px 0 rgba(255,255,255,.08),
+    0 4px 8px rgba(0,0,0,.24)!important;
+  font-size:clamp(11px,3.3vw,14px)!important;
+  line-height:1.16!important
+}
+body.si-classroom-model.si-hifi-model .si-model-navpad{
+  position:relative;
+  width:78px;
+  height:43px;
+  margin:1px 8px 8px auto;
+  border:1px solid #7f8d93;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 50%,#26373f 0 20%,transparent 22%),
+    conic-gradient(from 45deg,#69747a,#3a484f,#778187,#3d4a51,#69747a);
+  box-shadow:
+    inset 0 1px 2px rgba(255,255,255,.25),
+    inset 0 -2px 4px rgba(0,0,0,.26),
+    0 2px 3px rgba(0,0,0,.42);
+  pointer-events:none
+}
+body.si-classroom-model.si-hifi-model .si-model-navpad:before{
+  content:"";
+  position:absolute;
+  inset:7px 19px;
+  border:1px solid rgba(222,228,230,.26);
+  border-radius:50%
+}
+body.si-classroom-model.si-hifi-model .si-model-navpad:after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:13px;
+  height:13px;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  background:#25343b;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.18)
+}
+body.si-classroom-model.si-hifi-model .si-model-navpad span{
+  position:absolute;
+  z-index:2;
+  color:#d8e0e3;
+  font:900 6px/1 Arial,Helvetica,sans-serif;
+  opacity:.82
+}
+body.si-classroom-model.si-hifi-model .si-model-navpad .up{left:50%;top:3px;transform:translateX(-50%)}
+body.si-classroom-model.si-hifi-model .si-model-navpad .down{left:50%;bottom:3px;transform:translateX(-50%)}
+body.si-classroom-model.si-hifi-model .si-model-navpad .left{left:6px;top:50%;transform:translateY(-50%)}
+body.si-classroom-model.si-hifi-model .si-model-navpad .right{right:6px;top:50%;transform:translateY(-50%)}
+
+body.si-classroom-model.si-hifi-model .si-model-keypad{
+  gap:5px!important;
+  padding:0 3px 2px!important
+}
+body.si-classroom-model.si-hifi-model .si-model-keypad:before{display:none!important}
+body.si-classroom-model.si-hifi-model .si-model-key{
+  min-height:34px!important;
+  padding:3px 3px!important;
+  border-radius:9px!important;
+  border-width:1px!important;
+  font-size:11px!important;
+  line-height:1!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.2),
+    0 2px 0 #15242a,
+    0 3px 4px rgba(0,0,0,.28)!important
+}
+body.si-classroom-model.si-hifi-model .si-model-key[data-model-group="function"]{
+  border-color:#6c8089!important;
+  background:linear-gradient(180deg,#526b76,#344c57)!important
+}
+body.si-classroom-model.si-hifi-model .si-model-key[data-model-group="number"]{
+  border-color:#e6e9e7!important;
+  background:linear-gradient(180deg,#f4f4f0 0,#d4d9d6 100%)!important;
+  color:#172127!important;
+  font-weight:900!important
+}
+body.si-classroom-model.si-hifi-model .si-model-key[data-model-group="operator"]{
+  border-color:#74828d!important;
+  background:linear-gradient(180deg,#6c7480,#4b555f)!important;
+  color:#fff!important
+}
+body.si-classroom-model.si-hifi-model .si-model-key[data-model-group="utility"]{
+  border-color:#63747c!important;
+  background:linear-gradient(180deg,#455b65,#2d4651)!important
+}
+body.si-classroom-model.si-hifi-model .si-model-key[data-model-group="nav"]{
+  border-radius:999px!important;
+  background:linear-gradient(180deg,#59676e,#35454c)!important
+}
+body.si-classroom-model.si-hifi-model .si-model-key[data-action="second"]{
+  border-color:#c0df78!important;
+  background:linear-gradient(180deg,#cce987,#8fb950)!important;
+  color:#18311e!important;
+  text-shadow:none!important
+}
+body.si-classroom-model.si-hifi-model .si-model-key[data-action="clear"],
+body.si-classroom-model.si-hifi-model .si-model-key[data-action="delete"],
+body.si-classroom-model.si-hifi-model .si-model-key[data-action="del"]{
+  border-color:#7e8f98!important;
+  background:linear-gradient(180deg,#65727b,#46525b)!important
+}
+body.si-classroom-model.si-hifi-model .si-model-key[data-action="enter"],
+body.si-classroom-model.si-hifi-model .si-model-key[data-action="equals"]{
+  border-color:#e5e8e6!important;
+  background:linear-gradient(180deg,#f4f4f0,#d2d7d4)!important;
+  color:#172127!important;
+  text-shadow:none!important
+}
+body.si-classroom-model.si-hifi-model .si-model-key small,
+body.si-classroom-model.si-hifi-model .si-model-key .secondary,
+body.si-classroom-model.si-hifi-model .si-model-key .alt,
+body.si-classroom-model.si-hifi-model .si-model-key [class*="second"]{
+  font-size:7px!important;
+  line-height:1!important
+}
+@media(max-width:430px){
+  body.si-classroom-model.si-hifi-model{padding:8px 4px 18px!important}
+  body.si-classroom-model.si-hifi-model .si-model-calculator{
+    width:min(318px,calc(100vw - 8px))!important;
+    padding:10px 27px 25px!important
+  }
+  body.si-classroom-model.si-hifi-model .si-model-lcd{min-height:96px!important}
+  body.si-classroom-model.si-hifi-model .si-model-key{min-height:32px!important}
+}
+</style>
+<script id="v53-7-high-fidelity-calculator-modeling-script">
+(function(){
+  function applyHighFidelityModel(){
+    if(!document.body)return;
+    document.body.classList.add('si-hifi-model');
+    const plate=document.querySelector('.si-model-plate');
+    if(plate){
+      plate.innerHTML='<div><b>SI Scientific</b><span>Multi-View · 4-Line</span></div><strong>Classroom</strong>';
+      if(!plate.parentElement.querySelector(':scope > .si-model-brandbar')){
+        const brand=document.createElement('div');
+        brand.className='si-model-brandbar';
+        brand.textContent='SI CLASSROOM SCIENTIFIC';
+        plate.insertAdjacentElement('afterend',brand);
+      }
+    }
+    const keys=Array.from(document.querySelectorAll('[data-action]'));
+    keys.forEach(function(key){
+      const action=String(key.dataset.action||'').toLowerCase();
+      const label=String(key.textContent||'').replace(/\s+/g,' ').trim();
+      let group=key.dataset.modelGroup||'function';
+      if((/^[0-9](?:\s|$)/.test(label)||['decimal','negate','sign'].includes(action))&&!/[A-Za-z]/.test(label))group='number';
+      if(key.classList.contains('operator')||['add','subtract','multiply','divide','enter','equals'].includes(action))group='operator';
+      if(['second','clear','delete','del','mode'].includes(action))group='utility';
+      if(/^(left|right|up|down|nav|cursor)/.test(action))group='nav';
+      key.dataset.modelGroup=group;
+    });
+    const keypad=document.querySelector('.si-model-keypad')||document.querySelector('.keypad');
+    if(keypad&&keypad.parentElement&&!keypad.parentElement.querySelector(':scope > .si-model-navpad')){
+      const nav=document.createElement('div');
+      nav.className='si-model-navpad';
+      nav.setAttribute('aria-hidden','true');
+      nav.innerHTML='<span class="up">▲</span><span class="right">▶</span><span class="down">▼</span><span class="left">◀</span>';
+      keypad.insertAdjacentElement('beforebegin',nav);
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyHighFidelityModel,{once:true});
+  else applyHighFidelityModel();
 })();
 </script>
 """
@@ -1772,7 +2039,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — CALCULATOR CLASSROOM MODELING VISUAL REFRESH")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — HIGH-FIDELITY CALCULATOR MODELING REFRESH")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")

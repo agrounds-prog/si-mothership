@@ -78,6 +78,7 @@ def main() -> int:
         '<style id="v53-4-board-calculator-mirror">',
         '<style id="v53-5-shared-projector-layout">',
         '<style id="v53-6-calculator-classroom-modeling-mirror">',
+        '<style id="v53-7-high-fidelity-calculator-mirror">',
     )
     check("html shell: head closes before body opens", head_close >= 0 and body_open > head_close and bool(re.search(r"</head>\s*<body(?:\s|>)", html, re.I)))
     check("html shell: release styles are inside head", head_close >= 0 and all(0 <= html.find(tag) < head_close for tag in release_styles))
@@ -117,6 +118,17 @@ def main() -> int:
     check("calculator modeling: shared BOARD mirror matches visual family", '<style id="v53-6-calculator-classroom-modeling-mirror">' in html and "SI SCIENTIFIC · 4-LINE" in html)
     check("calculator modeling: calculator engine asset remains separate", "CALCULATOR_ENGINE_GZ.read_bytes()" in server and 'Content-Encoding": "gzip"' in segment(server, "async def scientific_calculator_engine("))
     check("calculator modeling: BOARD mirror privacy boundary remains", "run.boardCalculatorMirror=next;" in html and "history:" not in segment(html, "function publishBoardCalculatorMirror(") and "memory:" not in segment(html, "function publishBoardCalculatorMirror("))
+
+    # v53.7 high-fidelity classroom calculator modeling refresh.
+    check("calculator hifi: dedicated reference-inspired skin remains", 'id="v53-7-high-fidelity-calculator-modeling"' in server and 'si-hifi-model' in server)
+    check("calculator hifi: light outer rails and teal faceplate remain", '#cfd5d7 0 7.5%' in server and '#315a69 7.5% 92.5%' in server)
+    check("calculator hifi: compact LCD treatment remains", 'body.si-classroom-model.si-hifi-model .si-model-lcd' in server and 'min-height:104px' in server)
+    check("calculator hifi: oval navigation cluster remains", 'si-model-navpad' in server and 'nav.innerHTML' in server and '▲' in server and '▶' in server)
+    check("calculator hifi: physical key hierarchy remains", 'data-model-group="number"' in server and 'data-model-group="operator"' in server and 'data-action="second"' in server)
+    check("calculator hifi: SI-only branding remains", 'SI CLASSROOM SCIENTIFIC' in server and 'Texas Instruments' not in server and 'TI-30XS' not in server)
+    check("calculator hifi: shared mirror visual family remains", '<style id="v53-7-high-fidelity-calculator-mirror">' in html and 'MULTI-VIEW · 4-LINE' in html and 'board-calculator-mirror-nav' in html)
+    check("calculator hifi: shared mirror stays read-only", 'pointer-events:none' in segment(html, '<style id="v53-4-board-calculator-mirror">', next_markers=('</style>',)) or 'pointer-events:none' in segment(html, '<style id="v53-7-high-fidelity-calculator-mirror">', next_markers=('</style>',)))
+    check("calculator hifi: engine and privacy boundaries remain", 'CALCULATOR_ENGINE_GZ.read_bytes()' in server and 'run.boardCalculatorMirror=next;' in html and 'history:' not in segment(html, "function publishBoardCalculatorMirror(") and 'memory:' not in segment(html, "function publishBoardCalculatorMirror("))
 
     # Inline JavaScript parse validation.
     scripts = re.findall(r"<script[^>]*>(.*?)</script>", html, flags=re.S | re.I)

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v53.6 — Calculator Classroom Modeling Visual Refresh</title>
+<title>SI Mothership v53.7 — High-Fidelity Calculator Modeling Refresh</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -3677,6 +3677,156 @@ body.role-shared .board-shared-stage .board-surface{
 .mirror-screen .board-calculator-mirror-keys:before{height:4px;margin:0 1px;grid-column:2/5;border-width:0}
 @media(max-width:700px){.shared-screen .board-calculator-mirror{width:180px!important}}
 </style>
+
+<style id="v53-7-high-fidelity-calculator-mirror">
+/* v53.7 — high-fidelity SI-branded classroom calculator silhouette.
+   Reference-inspired proportions only; no third-party branding. */
+.board-calculator-mirror{
+  box-sizing:border-box!important;
+  border:6px solid #c9d0d2!important;
+  border-radius:15px 15px 30px 30px!important;
+  background:linear-gradient(180deg,#356273 0,#315b6b 46%,#2c5362 100%)!important;
+  box-shadow:
+    0 15px 34px rgba(0,0,0,.48),
+    inset 0 1px 0 rgba(255,255,255,.16),
+    inset 0 -8px 14px rgba(0,0,0,.12)!important
+}
+.board-calculator-mirror:before{
+  content:"";
+  position:absolute;
+  left:9px;
+  right:9px;
+  top:8px;
+  height:19px;
+  border-radius:4px;
+  background:linear-gradient(180deg,#3a4e58,#263a44);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1);
+  pointer-events:none
+}
+.board-calculator-mirror:after{
+  content:"SI";
+  right:14px!important;
+  top:13px!important;
+  color:#edf3f4!important;
+  font-size:6px!important;
+  letter-spacing:.14em!important;
+  opacity:.86!important
+}
+.board-calculator-mirror-head{
+  position:relative;
+  z-index:2;
+  display:block!important;
+  min-height:29px;
+  margin:0 3px 7px!important;
+  padding:1px 2px 0!important;
+  color:#f0f5f5!important;
+  line-height:1.05!important
+}
+.board-calculator-mirror-head>span:first-child{
+  display:block;
+  max-width:72%;
+  font-size:7px;
+  font-weight:950;
+  letter-spacing:.055em
+}
+.board-calculator-mirror-head>span:first-child small{
+  display:block;
+  margin-top:2px;
+  color:#c8d9df;
+  font-size:5px;
+  font-weight:800;
+  letter-spacing:.08em
+}
+.board-calculator-mirror-head>span:last-child{
+  display:block;
+  margin-top:9px;
+  color:#b9d8e4!important;
+  font-size:6px;
+  text-align:right
+}
+.board-calculator-mirror-lcd{
+  min-height:62px!important;
+  margin:0 1px 7px!important;
+  padding:5px 7px!important;
+  border:4px solid #27373d!important;
+  border-radius:3px!important;
+  background:linear-gradient(180deg,#dfe7c6,#ccd7b2)!important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.52),
+    inset 0 5px 9px rgba(86,110,74,.08),
+    0 2px 0 rgba(255,255,255,.07)!important
+}
+.board-calculator-mirror-nav{
+  position:relative;
+  width:49px;
+  height:28px;
+  margin:1px 3px 7px auto;
+  border:1px solid #8e9a9e;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 50%,#26363e 0 19%,transparent 21%),
+    conic-gradient(from 45deg,#5d6870,#39474e,#68737a,#3b4950,#5d6870);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.22),0 1px 2px rgba(0,0,0,.48)
+}
+.board-calculator-mirror-nav:before{
+  content:"";
+  position:absolute;
+  inset:5px 13px;
+  border-radius:50%;
+  border:1px solid rgba(218,225,227,.28)
+}
+.board-calculator-mirror-keys{
+  grid-template-columns:repeat(5,1fr)!important;
+  gap:3px 4px!important;
+  margin-top:0!important
+}
+.board-calculator-mirror-keys:before{display:none!important}
+.board-calculator-mirror-keys i{
+  height:9px!important;
+  border-radius:999px!important;
+  border:1px solid #75848a!important;
+  background:linear-gradient(#53666e,#34474f)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 1px 1px rgba(0,0,0,.48)!important
+}
+.board-calculator-mirror-keys i:nth-last-child(-n+15){
+  border-color:#e6e9e7!important;
+  background:linear-gradient(#f5f5f2,#cfd4d2)!important
+}
+.board-calculator-mirror-keys i:nth-child(5n){
+  border-color:#778792!important;
+  background:linear-gradient(#626e78,#444f59)!important
+}
+.board-calculator-mirror-keys i:first-child{
+  border-color:#b8dd70!important;
+  background:linear-gradient(#c9eb80,#89b84f)!important
+}
+.shared-screen .board-calculator-mirror{
+  width:188px!important;
+  padding:9px 10px 12px!important
+}
+.shared-screen .board-calculator-mirror-lcd{
+  min-height:68px!important;
+  font-size:11px!important
+}
+.shared-screen .board-calculator-mirror-line{height:14px!important}
+.shared-screen .board-calculator-mirror-keys i{height:10px!important}
+.mirror-screen .board-calculator-mirror{
+  width:76px!important;
+  padding:2px 3px 4px!important;
+  border-width:2px!important;
+  border-radius:5px 5px 9px 9px!important
+}
+.mirror-screen .board-calculator-mirror:before,
+.mirror-screen .board-calculator-mirror-nav{display:none!important}
+.mirror-screen .board-calculator-mirror-head{min-height:8px!important;margin:0 1px 1px!important}
+.mirror-screen .board-calculator-mirror-head>span:first-child{font-size:3px!important}
+.mirror-screen .board-calculator-mirror-head>span:first-child small,
+.mirror-screen .board-calculator-mirror-head>span:last-child{display:none!important}
+.mirror-screen .board-calculator-mirror-lcd{min-height:23px!important}
+.mirror-screen .board-calculator-mirror-keys{gap:1px!important}
+.mirror-screen .board-calculator-mirror-keys i{height:2px!important}
+@media(max-width:700px){.shared-screen .board-calculator-mirror{width:158px!important}}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -4263,8 +4413,8 @@ function wireBoardStudent(){if(!state.activityRun||activeActivity()?.type!=='boa
 function boardCalculatorMirrorMarkup(run=state.activityRun){
   const m=run?.boardCalculatorMirror;if(!m?.open)return'';
   const lines=boardCalculatorMirrorLines((m.lines||[]).join('\n'));while(lines.length<4)lines.unshift('');
-  const keys=Array.from({length:25},()=>'<i></i>').join('');
-  return `<div class="board-calculator-mirror" aria-label="Teacher calculator mirror"><div class="board-calculator-mirror-head"><span>SI SCIENTIFIC · 4-LINE</span><span>${esc(m.angle||'DEG')} · ${esc(m.format||'NORM')}</span></div><div class="board-calculator-mirror-lcd">${lines.slice(-4).map(line=>`<div class="board-calculator-mirror-line">${esc(line)||'&nbsp;'}</div>`).join('')}</div><div class="board-calculator-mirror-keys" aria-hidden="true">${keys}</div></div>`;
+  const keys=Array.from({length:35},()=>'<i></i>').join('');
+  return `<div class="board-calculator-mirror" aria-label="Teacher calculator mirror"><div class="board-calculator-mirror-head"><span>SI SCIENTIFIC<small>MULTI-VIEW · 4-LINE</small></span><span>${esc(m.angle||'DEG')} · ${esc(m.format||'NORM')}</span></div><div class="board-calculator-mirror-lcd">${lines.slice(-4).map(line=>`<div class="board-calculator-mirror-line">${esc(line)||'&nbsp;'}</div>`).join('')}</div><div class="board-calculator-mirror-nav" aria-hidden="true"></div><div class="board-calculator-mirror-keys" aria-hidden="true">${keys}</div></div>`;
 }
 function boardSharedMarkup(run=state.activityRun,big=false){const b=boardState(run);if(!b)return'';return `<div class="board-public-wrap"><div class="board-public-head"><div><span class="eyebrow">BOARD</span><h3 style="font-size:${big?34:22}px;margin:3px 0">${esc(b.title||'Shared Board')}</h3></div><span>${(b.pageIndex||0)+1} / ${b.pages.length}</span></div><div class="board-shared-stage">${boardSurfaceMarkup(run,{big})}${boardCalculatorMirrorMarkup(run)}</div></div>`}
 
