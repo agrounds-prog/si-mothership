@@ -6038,8 +6038,7 @@ async function launchSecondScreen(){
   // while we refresh the current session/QR URL from the server.
   try{secondScreenWindow=window.open('about:blank','siMothershipSecondScreen','popup=yes,width=1280,height=800');}catch(e){secondScreenWindow=null}
   if(secondScreenWindow){
-    try{secondScreenWindow.document.open();secondScreenWindow.document.write('<!doctype html><title>SI Mothership</title>
-<body style="margin:0;background:#061425;color:#dff8ff;font-family:system-ui;display:grid;place-items:center;min-height:100vh"><div style="text-align:center"><div style="font-size:32px">🚀</div><b>Loading current class lobby…</b></div></body>');secondScreenWindow.document.close()}catch(e){}
+    try{secondScreenWindow.document.open();secondScreenWindow.document.write('<!doctype html><title>SI Mothership</title><body style="margin:0;background:#061425;color:#dff8ff;font-family:system-ui;display:grid;place-items:center;min-height:100vh"><div style="text-align:center"><div style="font-size:32px">🚀</div><b>Loading current class lobby…</b></div></body>');secondScreenWindow.document.close()}catch(e){}
   }
   const info=NETWORK_SYNC?await refreshSessionInfo():null;
   const target=info?.shared_url||SHARED_SCREEN_URL||(NETWORK_SYNC?`${PUBLIC_ORIGIN}/?role=shared${STUDENT_SESSION_ID?`&sid=${encodeURIComponent(STUDENT_SESSION_ID)}`:''}`:`${PREVIEW_BASE_URL}?role=shared`);
