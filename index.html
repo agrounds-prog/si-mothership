@@ -6027,7 +6027,7 @@ function renderRosterAttentionDock(){
   $('#rosterBuzzSummary').textContent=buzz.length?buzz[0]+' is first':'Queue is clear';
   $('#rosterPhotoSummary').textContent=photos.length?(photos[0]?.name||photos.length+' submitted')+(unreadPhotos?' · '+unreadPhotos+' new':''):'No submissions';
   [['help',help.length,'#rosterHelpDockCount'],['hand',hands.length,'#rosterHandDockCount'],['buzz',buzz.length,'#rosterBuzzDockCount'],['photo',photos.length,'#rosterPhotoDockCount']].forEach(([kind,count,sel])=>{const card=dock.querySelector('[data-roster-attention="'+kind+'"]');if(card)card.classList.toggle('active',count>0);$(sel).textContent=count});
-  $('[data-roster-attention]').forEach(btn=>btn.onclick=()=>{const kind=btn.dataset.rosterAttention;if(kind==='hand'){const crew=document.querySelector('#avatarLine .crew.hand-raised-glow');if(crew){crew.scrollIntoView({behavior:'smooth',block:'center'});crew.classList.add('attention-focus');setTimeout(()=>crew.classList.remove('attention-focus'),950)}else toast('No hands raised');return}const id=kind==='help'?'helpInboxPanel':kind==='buzz'?'buzzPanel':'photoInboxPanel',panel=document.getElementById(id);if(panel){panel.scrollIntoView({behavior:'smooth',block:'center'});panel.classList.add('attention-focus');setTimeout(()=>panel.classList.remove('attention-focus'),950)}});
+  document.querySelectorAll('[data-roster-attention]').forEach(btn=>btn.onclick=()=>{const kind=btn.dataset.rosterAttention;if(kind==='hand'){const crew=document.querySelector('#avatarLine .crew.hand-raised-glow');if(crew){crew.scrollIntoView({behavior:'smooth',block:'center'});crew.classList.add('attention-focus');setTimeout(()=>crew.classList.remove('attention-focus'),950)}else toast('No hands raised');return}const id=kind==='help'?'helpInboxPanel':kind==='buzz'?'buzzPanel':'photoInboxPanel',panel=document.getElementById(id);if(panel){panel.scrollIntoView({behavior:'smooth',block:'center'});panel.classList.add('attention-focus');setTimeout(()=>panel.classList.remove('attention-focus'),950)}});
 }
 
 function renderRight(){
@@ -6051,7 +6051,7 @@ function renderRight(){
   $('#photoRows').innerHTML=photoTotal?state.photos.slice(0,3).map(p=>`<div class="help-row photo-row"><img class="photo-thumb" data-photo-open="${p.id}" src="${p.data}" alt="Photo from ${p.name}"><span><b>${p.name}</b><small>${p.seen?'Viewed':'NEW PHOTO'}</small></span><button class="checkbtn" data-photo-view="${p.id}" title="View photo">⌕</button><button class="checkbtn photo-delete" data-photo-delete="${p.id}" title="Delete photo">×</button></div>`).join(''):'<p class="empty">No photos submitted</p>';
   $$('[data-photo-view]').forEach(b=>b.onclick=()=>openPhotoViewer(Number(b.dataset.photoView)));
   $$('[data-photo-open]').forEach(el=>el.onclick=()=>openPhotoViewer(Number(el.dataset.photoOpen)));
-  $('[data-photo-delete]').forEach(b=>b.onclick=()=>{const id=Number(b.dataset.photoDelete);state.photos=state.photos.filter(p=>p.id!==id);render();toast('Photo deleted')});
+  document.querySelectorAll('[data-photo-delete]').forEach(b=>b.onclick=()=>{const id=Number(b.dataset.photoDelete);state.photos=state.photos.filter(p=>p.id!==id);render();toast('Photo deleted')});
   renderRosterAttentionDock();
 }
 
