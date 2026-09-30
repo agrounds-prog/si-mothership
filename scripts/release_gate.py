@@ -79,6 +79,14 @@ def main() -> int:
     check("html shell: release styles are inside head", head_close >= 0 and all(0 <= html.find(tag) < head_close for tag in release_styles))
     check("html shell: no split structural tag corruption", all(token not in html for token in ("</styl\n<style", "</style>e>", "<b\n<style", "</style>ody>")))
 
+    # v53.3 BOARD calculator overlay: teacher-local and outside synchronized state.
+    check("board calculator: toolbar launch remains", 'id="boardCalculatorBtn"' in html and "ƒx Calculator" in html)
+    check("board calculator: floating overlay remains", 'id="boardCalculatorOverlay"' in html and 'id="boardCalculatorFrame"' in html and "BOARD TOOL · TEACHER ONLY" in html)
+    check("board calculator: reuses SI calculator route", "function boardCalculatorSrc()" in html and "scientificCalculatorUrl()" in segment(html, "function boardCalculatorSrc()"))
+    check("board calculator: teacher-local open state", "let boardCalculatorOpen=false;" in html and "state.boardCalculatorOpen" not in html)
+    check("board calculator: render preserves overlay lifecycle", "syncBoardCalculatorOverlay();publishSyncedState()" in html)
+    check("board calculator: whiteboard drawing flow remains", "wireBoardSurface(document.querySelector('[data-board-surface=\"teacher\"]'),'teacher')" in html)
+
     # Inline JavaScript parse validation.
     scripts = re.findall(r"<script[^>]*>(.*?)</script>", html, flags=re.S | re.I)
     node = shutil.which("node")
