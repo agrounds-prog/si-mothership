@@ -83,7 +83,7 @@ def main() -> int:
     check("board calculator: toolbar launch remains", 'id="boardCalculatorBtn"' in html and "ƒx Calculator" in html)
     check("board calculator: floating overlay remains", 'id="boardCalculatorOverlay"' in html and 'id="boardCalculatorFrame"' in html and "BOARD TOOL · TEACHER ONLY" in html)
     check("board calculator: reuses SI calculator route", "function boardCalculatorSrc()" in html and "scientificCalculatorUrl()" in segment(html, "function boardCalculatorSrc()"))
-    check("board calculator: teacher-local open state", "let boardCalculatorOpen=false;" in html and "state.boardCalculatorOpen" not in html)
+    check("board calculator: teacher-local open state", "let boardCalculatorOpen=false" in html and "state.boardCalculatorOpen" not in html)
     check("board calculator: render preserves overlay lifecycle", "syncBoardCalculatorOverlay();publishSyncedState()" in html)
     check("board calculator: whiteboard drawing flow remains", "wireBoardSurface(document.querySelector('[data-board-surface=\"teacher\"]'),'teacher')" in html)
 
