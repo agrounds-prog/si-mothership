@@ -135,6 +135,15 @@ def main() -> int:
     else:
         check("calculator: engine acceptance tests pass", not args.require_node, "Node is required for calculator tests")
 
+
+    # v53.1 classroom calculator integration.
+    check("calculator classroom: tool registered in Activity Library", "id:'scientific-calculator'" in html and "CLASSROOM TOOL" in html)
+    check("calculator classroom: teacher actions remain present", all(x in html for x in ("Open Calculator", "Launch for Class", "Copy Share Link", "Show QR Code", "End for Class")))
+    check("calculator classroom: launch payload is settings-only", "calculatorLaunch={id:'calc_'" in html and "settings:deepClone(settings)" in html and "calculatorLaunch.history" not in html and "calculatorLaunch.expression" not in html)
+    check("calculator classroom: student panel and return control remain", "student-calculator-frame" in html and "Back to Classroom" in html and "studentCalculatorDismissedLaunchId" in html)
+    check("calculator classroom: calculator runs in existing standalone route", "/tools/scientific-calculator" in html and "scientificCalculatorUrl" in html)
+    check("calculator classroom: normal activity launch closes calculator", "if(state.calculatorLaunch)state.calculatorLaunch=null;" in segment(html, "function recordActivityLaunch("))
+
     # Historical selector invariant: $() is single-element; $() is multi-element.
     bad_selector_lines = []
     for number, line in enumerate(html.splitlines(), 1):

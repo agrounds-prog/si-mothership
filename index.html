@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v53.0 — Scientific Calculator</title>
+<title>SI Mothership v53.1 — Classroom Calculator Integration</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -3432,6 +3432,10 @@ input::placeholder,textarea::placeholder{color:#627789!important}
   <div class="activity-workflow-main"><span class="activity-workflow-pulse"></span><div class="activity-workflow-copy"><span id="activityWorkflowEyebrow">ACTIVE ACTIVITY</span><b id="activityWorkflowName">Activity</b><small id="activityWorkflowDetail">Live</small></div></div>
   <div class="activity-workflow-actions"><button class="workflow-primary" id="activityWorkflowStart">▶ Start</button><button class="workflow-pause" id="activityWorkflowPause">Ⅱ Pause & Keep Progress</button><button class="workflow-finish" id="activityWorkflowFinish">✓ Finish & Return</button></div>
 </div>
+<div class="calculator-workflow-bar hidden" id="calculatorWorkflowBar">
+  <div class="calculator-workflow-main"><span class="calculator-workflow-icon">ƒx</span><div class="calculator-workflow-copy"><span>CLASSROOM TOOL LIVE</span><b>SI Scientific Calculator</b><small id="calculatorWorkflowDetail">Independent calculator session on each student device</small></div></div>
+  <div class="calculator-workflow-actions"><button id="calculatorWorkflowOpen">↗ Open Calculator</button><button class="end" id="calculatorWorkflowEnd">× End for Class</button></div>
+</div>
 <div class="top-picture-prompt hidden" id="picturePromptBox"><input id="picturePromptText" value="Take a picture of your completed work." /><button id="sendPicturePrompt">Send picture prompt</button></div>
 
 <section class="main-card roster-card" id="lobbyPanel"><div class="roster-inner"><div class="roster-head"><div class="left"><span class="eyebrow">LIVE ROSTER</span><strong id="rosterRange">1–8 of 24</strong></div><div class="roster-head-actions"><button class="custom-roster-btn" id="openCustomRoster">◉ Custom Roster</button><div class="carousel-controls"><button id="prevRoster">‹</button><span id="rosterPageLabel">1 / 3</span><button id="nextRoster">›</button></div></div></div><div class="roster-alert hidden" id="rosterAlert"></div><div class="avatar-line" id="avatarLine"></div><div class="page-dots" id="pageDots"></div></div></section>
@@ -3708,7 +3712,8 @@ const APP_REGISTRY=[
  {id:'sketch',name:'SKETCH SIGNAL',icon:'✎',subtitle:'Draw the Signal · Crew Decodes · Next Artist',status:'REWARDS ARCADE',description:'Pictionary-style Mothership reward game. One student draws a secret signal while the crew guesses privately.'},
  {id:'orbit',name:'ORBIT',icon:'◎',subtitle:'One Question · Every Voice · Shared Thinking',status:'APP IN PROGRESS',description:'Ask one open-ended question and turn every student response into a shared classroom universe of ideas.'},
  {id:'pixel',name:'PIXEL REVEAL',icon:'▦',subtitle:'Hide · Reveal · Guess · Discover',status:'APP IN PROGRESS',description:'Hide an image behind tiles or a distorted Focus Reveal, collect private guesses, and reveal the mystery at the teacher’s pace.'},
- {id:'starwheel',name:'STARWHEEL',icon:'✧',subtitle:'Spin the Core · Find the Letters · Restore the Transmission',status:'REWARDS ARCADE',description:'Team-based spin-and-solve word puzzle with rotating pilots, private student controls, and Mission Control solve approval.'}
+ {id:'starwheel',name:'STARWHEEL',icon:'✧',subtitle:'Spin the Core · Find the Letters · Restore the Transmission',status:'REWARDS ARCADE',description:'Team-based spin-and-solve word puzzle with rotating pilots, private student controls, and Mission Control solve approval.'},
+ {id:'scientific-calculator',name:'SCIENTIFIC CALCULATOR',icon:'ƒx',subtitle:'Four-Line Scientific Calculator · Share · Launch for Class',status:'CLASSROOM TOOL',description:'Familiar multi-line scientific calculator with exact fractions, DEG/RAD, trig, logs, powers, history, and independent student sessions.'}
 ];
 function appById(id){return APP_REGISTRY.find(a=>a.id===id)||null}
 function appIconMarkup(idOrType){
@@ -3722,6 +3727,7 @@ function appIconMarkup(idOrType){
   if(id==='orbit'||id==='orbit-game')return `<svg ${common}><circle cx="32" cy="32" r="7" fill="currentColor"/><ellipse cx="32" cy="32" rx="24" ry="10" fill="none" stroke="currentColor" stroke-width="2.5" transform="rotate(25 32 32)"/><ellipse cx="32" cy="32" rx="24" ry="10" fill="none" stroke="currentColor" stroke-width="2.5" transform="rotate(-35 32 32)" opacity=".7"/><circle cx="52" cy="25" r="3.5" fill="currentColor"/><circle cx="15" cy="44" r="3" fill="currentColor" opacity=".7"/></svg>`;
   if(id==='pixel'||id==='pixel-game')return `<svg ${common}><rect x="9" y="9" width="46" height="46" rx="11" fill="none" stroke="currentColor" stroke-width="3"/><path d="M24 9v46M40 9v46M9 24h46M9 40h46" stroke="currentColor" stroke-width="2" opacity=".4"/><rect x="11" y="11" width="11" height="11" rx="2" fill="currentColor"/><rect x="26" y="26" width="12" height="12" rx="2" fill="currentColor" opacity=".8"/><path d="M42 53l11-11v11z" fill="currentColor"/></svg>`;
   if(id==='starwheel'||id==='starwheel-game')return `<svg ${common}><circle cx="32" cy="32" r="24" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="32" cy="32" r="8" fill="currentColor" opacity=".9"/><path d="M32 8v16M32 40v16M8 32h16M40 32h16M15 15l11 11M38 38l11 11M49 15L38 26M26 38L15 49" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M32 2l5 8H27z" fill="currentColor"/></svg>`;
+  if(id==='scientific-calculator')return `<svg ${common}><rect x="13" y="6" width="38" height="52" rx="8" fill="none" stroke="currentColor" stroke-width="3"/><rect x="19" y="12" width="26" height="11" rx="2" fill="currentColor" opacity=".28"/><path d="M21 30h4M30 30h4M39 30h4M21 38h4M30 38h4M39 38h4M21 46h4M30 46h4M39 46h4" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/><path d="M21 53h13M39 53h4" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg>`;
   return `<span class="fallback-app-glyph">✦</span>`;
 }
 function activityIconId(a){
@@ -4271,6 +4277,7 @@ function recordRecentActivity(appId,label,presetId,config){
   list.unshift(item);persistRecentActivities(list);
 }
 function recordActivityLaunch(appId,label,forcedConfig){
+  if(state.calculatorLaunch)state.calculatorLaunch=null;
   teacherSummaryStartActivity(appId,label||activityDisplayName(appId));
   const config=forcedConfig===undefined?currentActivityPresetConfig(appId):forcedConfig;
   const pending=pendingRecentPreset;
@@ -4366,6 +4373,7 @@ const initial=()=>({
  published:{mode:'text',text:'1. Warm-up\n2. Ready check\n3. Class activity',image:'',youtube:''},
  activities:hydratedActivities(),
  favoriteSlots:loadAppShortcuts(),assigningSlot:null,activeApp:null,presentationLibraryOpen:false,
+ calculatorLaunch:null,calculatorSettings:{angle:'deg',format:'normal'},
  minefieldLength:'standard',minefieldMode:'crew',minefieldTeamCount:2,sketchMinutes:10,sketchWordSource:'mothership',sketchTeacherWords:'',sketchWordPackName:'',sketchMode:'free',sketchTeamCount:2,sketchTeamAssignments:{},sketchScoring:false,starwheelCategory:'THINGS AT SCHOOL',starwheelAnswer:'SCIENCE PROJECT',starwheelMode:'teams',starwheelTeamCount:2,starwheelTeamAssignments:{},starwheelScoring:true,starwheelScoreboard:'live',starwheelSpecialSectors:true,starwheelFinalSignal:false,starwheelActivePackId:'',starwheelPackIndex:0,starwheelPilotCarry:{pilotIndexes:{},freePilotIndex:0,activeTeam:0},starwheelScoreCarry:null,vectorDraft:defaultVectorDraft(),orbitDraft:defaultOrbitDraft(),pixelDraft:defaultPixelDraft(),
  picturePromptSent:false,picturePrompt:'Take a picture of your completed work.',promptActive:false,
  selectedStudent:'',students:[],ended:false,
@@ -4728,6 +4736,7 @@ let state=initial();
 if(hydrated)mergeSyncedState(hydrated);
 state.students.forEach((st,i)=>{if(!st.avatarKey)st.avatarKey=BUILTIN_AVATARS[i%BUILTIN_AVATARS.length].key});
 if(SESSION_ROLE==='student'){state.selectedStudent=SESSION_STUDENT||'';restoreStudentIdentity()}
+let studentCalculatorDismissedLaunchId='';
 
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 function esc(v){return String(v??'').replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]))}
@@ -4739,6 +4748,14 @@ function studentByName(name){return state.students.find(s=>s.n===name)}
 function selectedStudent(){return studentByName(state.selectedStudent)}
 function connectedStudents(){return state.students.filter(s=>!s.offline)}
 function activeActivity(){return state.activityRun?state.activities.find(a=>a.id===state.activityRun.activityId):null}
+function scientificCalculatorSettings(settings=state.calculatorSettings){const s=settings&&typeof settings==='object'?settings:{};return {angle:s.angle==='rad'?'rad':'deg',format:s.format==='scientific'?'scientific':'normal'}}
+function scientificCalculatorUrl(settings=state.calculatorSettings){const s=scientificCalculatorSettings(settings),u=new URL('/tools/scientific-calculator',PUBLIC_ORIGIN);u.searchParams.set('angle',s.angle);u.searchParams.set('format',s.format);return u.toString()}
+function openScientificCalculator(){window.open(scientificCalculatorUrl(),'_blank','noopener')}
+function copyScientificCalculatorLink(){const url=scientificCalculatorUrl(),fallback=()=>{const ta=document.createElement('textarea');ta.value=url;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand('copy')}catch(e){}ta.remove();if(ok)toast('Calculator link copied');else prompt('Copy this calculator link:',url)};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(()=>toast('Calculator link copied')).catch(fallback);else fallback()}
+function launchScientificCalculatorForClass(){if(state.activityRun)return toast('Finish the active activity before launching the calculator');const settings=scientificCalculatorSettings();state.calculatorSettings=settings;state.calculatorLaunch={id:'calc_'+Date.now().toString(36),settings:deepClone(settings),launchedAt:Date.now()};state.screen='classroom';state.promptActive=false;state.agendaLive=false;render();toast('Scientific Calculator launched for class')}
+function endScientificCalculatorForClass(){if(!state.calculatorLaunch)return;state.calculatorLaunch=null;render();toast('Class calculator ended — students returned to Classroom Live')}
+function dismissStudentScientificCalculator(){if(!state.calculatorLaunch)return;studentCalculatorDismissedLaunchId=String(state.calculatorLaunch.id||'');renderPublic();toast('Returned to Classroom Live')}
+function wireStudentCalculator(){const b=$('#studentCalculatorBackBtn');if(b)b.onclick=dismissStudentScientificCalculator}
 function currentSlide(){const a=activeActivity();return a&&a.type==='presentation'&&state.activityRun?a.slides[state.activityRun.slideIndex]:null}
 function responseMapFor(index){if(!state.activityRun)return {};const i=index??state.activityRun.slideIndex;state.activityRun.responses[i]??={};return state.activityRun.responses[i]}
 function studentActivityResponse(name,index){return responseMapFor(index)[name]||''}
@@ -4763,6 +4780,7 @@ function startOrResumeActivityRun(){
   render();
   toast(a?.type==='minefield'?'MINEFIELD started — Navigator controls synchronized':a?.type==='vector'?'VECTOR started — student pin controls synchronized':a?.type==='orbit'?'ORBIT started — student response fields synchronized':a?.type==='pixel'?'PIXEL REVEAL started — private guess controls synchronized':a?.type==='sketch'?'SKETCH SIGNAL started — artist and private guesses synchronized':a?.type==='starwheel'?'STARWHEEL started — active pilot controls synchronized':'Activity started — student controls synchronized');
 }
+function renderCalculatorWorkflowBar(){const bar=$('#calculatorWorkflowBar');if(!bar)return;const live=!!state.calculatorLaunch;bar.classList.toggle('hidden',!live||SESSION_ROLE!=='teacher');if(!live)return;const s=scientificCalculatorSettings(state.calculatorLaunch.settings),detail=$('#calculatorWorkflowDetail');if(detail)detail.textContent=(s.angle==='rad'?'RAD':'DEG')+' · '+(s.format==='scientific'?'Scientific':'Normal')+' · independent student sessions';const open=$('#calculatorWorkflowOpen'),end=$('#calculatorWorkflowEnd');if(open)open.onclick=openScientificCalculator;if(end)end.onclick=endScientificCalculatorForClass}
 function renderActivityWorkflowBar(){
   const bar=$('#activityWorkflowBar');if(!bar)return;
   const run=state.activityRun,a=activeActivity();
@@ -4796,6 +4814,7 @@ function resetHomeControls(){
 }
 function enterLobby(){
   state.activityRun=null;
+  state.calculatorLaunch=null;
   state.screen='lobby';
   state.agendaLive=false;
   state.promptActive=false;
@@ -4818,6 +4837,7 @@ function sendActivityToLobby(){
 }
 function returnToClassroom(reason='normal'){
   state.activityRun=null;
+  state.calculatorLaunch=null;
   state.agendaLive=false;
   state.promptActive=false;
   state.picturePromptSent=false;
@@ -5065,6 +5085,7 @@ function sharedMarkup(size='normal'){
   const big=size==='big';
   if(state.ended)return `<div><span class="eyebrow">SESSION ENDED</span><h3 style="font-size:${big?60:34}px">Mission complete</h3><p>Thanks, Explorers.</p></div>`;
   if(state.activityRun)return activitySharedMarkup(big);
+  if(state.calculatorLaunch){const s=scientificCalculatorSettings(state.calculatorLaunch.settings);return `<div class="shared-calculator-live"><div class="calc-glyph">ƒx</div><span class="eyebrow">CLASSROOM TOOL</span><h3 style="font-size:${big?48:30}px">Scientific Calculator</h3><p>Calculator is live on student devices. Each student has an independent session.</p><div class="lobby-status-pill">${s.angle.toUpperCase()} · ${s.format==='scientific'?'SCIENTIFIC':'NORMAL'}</div></div>`}
   if(state.screen==='brb')return `<div class="student-prompt"><span class="eyebrow">CLASS PAUSED</span><h3 style="font-size:${big?64:38}px">We’ll Be Right Back</h3><p style="font-size:${big?28:18}px">Stay connected. Your teacher will bring the class back shortly.</p></div>`;
   if(state.screen==='lobby')return joinLobbyMarkup(big,'CLASS LOBBY');
   if(state.screen==='classroom')return `<div><span class="eyebrow">CLASSROOM LIVE</span><h3 style="font-size:${big?52:30}px">Welcome aboard</h3><p>Stay in the classroom. Your teacher will send the next prompt or activity.</p></div>`;
@@ -5129,6 +5150,8 @@ function studentMarkup(){
   if(state.ended)return sharedMarkup('big');
   if(studentNeedsJoin())return studentJoinMarkup();
   const s=selectedStudent();
+  const calculatorLaunch=state.calculatorLaunch;
+  if(calculatorLaunch&&String(calculatorLaunch.id||'')!==String(studentCalculatorDismissedLaunchId||'')){const cfg=scientificCalculatorSettings(calculatorLaunch.settings),base=scientificCalculatorUrl(cfg),src=base+(base.includes('?')?'&':'?')+'embed=1';return `<div class="student-calculator-shell"><div class="student-calculator-head"><div><b>SI Scientific Calculator</b><small>${cfg.angle.toUpperCase()} · ${cfg.format==='scientific'?'Scientific':'Normal'} · your work stays on this device</small></div><button id="studentCalculatorBackBtn" type="button">← Back to Classroom</button></div><iframe class="student-calculator-frame" src="${esc(src)}" title="SI Scientific Calculator"></iframe></div>`}
   if(state.activityRun){
     const a=activeActivity(),run=state.activityRun;
     if(run.phase==='lobby')return `<div class="student-prompt activity-wait"><span class="eyebrow">ACTIVITY LOBBY</span><div class="activity-app-icon">${appIconMarkup(activityIconId(a))}</div><h2>${esc(a.name)}</h2><p>You're in. Waiting for your teacher to begin…</p><div class="student-lobby-avatar">${studentAvatarBadgeMarkup(s)}</div></div>`;
@@ -5411,11 +5434,11 @@ function renderControls(){
   $$('[data-control]').forEach(b=>b.classList.toggle('active',!state.activityRun&&b.dataset.control===state.screen));
   $$('[data-send]').forEach(b=>b.classList.toggle('active',!state.activityRun&&b.dataset.send===state.screen));
   for(const key of ['hand','buzz','help','picture']){const btn=$(`[data-toggle="${key}"]`),on=state[key+'Enabled'];btn.classList.toggle('enabled',on);btn.querySelector('small').textContent=on?'Enabled':'Paused'}
-  $('#picturePromptBox').classList.toggle('hidden',!state.pictureEnabled||!!state.activityRun);
+  $('#picturePromptBox').classList.toggle('hidden',!state.pictureEnabled||!!state.activityRun||!!state.calculatorLaunch);
   const er=$('#emergencyReturnBtn');if(er)er.classList.toggle('hidden',!state.activityRun);
   const status=$('#teacherQuickStatus');
   if(status){
-    status.textContent=state.ended?'ENDED':state.activityRun?`${activeActivity()?.name||'ACTIVITY'} · ${activityPhaseLabel()}`:state.screen==='brb'?'WE’LL BE RIGHT BACK':state.screen.toUpperCase();
+    status.textContent=state.ended?'ENDED':state.activityRun?`${activeActivity()?.name||'ACTIVITY'} · ${activityPhaseLabel()}`:state.calculatorLaunch?'SCIENTIFIC CALCULATOR · LIVE FOR CLASS':state.screen==='brb'?'WE’LL BE RIGHT BACK':state.screen.toUpperCase();
   }
 }
 
@@ -5618,6 +5641,13 @@ function renderActivities(){
     note.classList.remove('hidden');
     note.innerHTML=`Choose an app below for <b>Shortcut ${state.assigningSlot+1}</b>. The 3×3 shortcut grid stays fixed on Mission Control.`;
   }else note.classList.add('hidden');
+
+  if(state.activeApp==='scientific-calculator'){
+    note.classList.add('hidden');picker.classList.add('hidden');grid.classList.remove('hidden');title.textContent='SCIENTIFIC CALCULATOR';subtitle.textContent='Open it yourself, launch it for the class, or share the standalone link.';header.innerHTML=`<button id="backToAppsBtn">← Activity Library</button>`;$('#backToAppsBtn').onclick=backToAppLibrary;
+    const s=scientificCalculatorSettings(),url=scientificCalculatorUrl(s),qr=`${PUBLIC_ORIGIN}/api/qr?url=${encodeURIComponent(url)}`,live=!!state.calculatorLaunch;
+    grid.innerHTML=`<div class="calculator-setup-panel"><div class="calculator-setup-main"><div class="calculator-device-icon" aria-hidden="true"><div class="screen"></div><div class="keys">${Array.from({length:20},()=>'<i></i>').join('')}</div></div><div class="calculator-setup-copy"><span class="app-status">CLASSROOM TOOL</span><h3>SI Scientific Calculator</h3><p>Familiar four-line scientific calculator workflow with exact fractions, trig, logs, powers, history, and independent student calculator state.</p>${live?'<span class="calculator-live-chip">● LIVE FOR CLASS</span>':''}</div></div><div class="calculator-settings-card"><label>ANGLE MODE<select id="calculatorAngleMode"><option value="deg" ${s.angle==='deg'?'selected':''}>DEG · Degrees</option><option value="rad" ${s.angle==='rad'?'selected':''}>RAD · Radians</option></select></label><label>NUMBER FORMAT<select id="calculatorNumberFormat"><option value="normal" ${s.format==='normal'?'selected':''}>Normal</option><option value="scientific" ${s.format==='scientific'?'selected':''}>Scientific</option></select></label><div class="calculator-action-grid"><button id="openCalculatorSelfBtn">↗ Open Calculator</button><button class="primary" id="launchCalculatorClassBtn">▶ Launch for Class</button><button id="copyCalculatorLinkBtn">⧉ Copy Share Link</button><button id="showCalculatorQrBtn">▣ Show QR Code</button>${live?'<button class="danger" id="endCalculatorClassBtn">× End for Class</button>':''}</div></div><div class="calculator-qr-wrap hidden" id="calculatorQrWrap"><img src="${qr}" alt="QR code for SI Scientific Calculator"><div class="calculator-share-url">${esc(url)}</div></div></div>`;
+    $('#calculatorAngleMode').onchange=e=>{state.calculatorSettings=scientificCalculatorSettings({...state.calculatorSettings,angle:e.target.value})};$('#calculatorNumberFormat').onchange=e=>{state.calculatorSettings=scientificCalculatorSettings({...state.calculatorSettings,format:e.target.value})};$('#openCalculatorSelfBtn').onclick=openScientificCalculator;$('#launchCalculatorClassBtn').onclick=launchScientificCalculatorForClass;$('#copyCalculatorLinkBtn').onclick=copyScientificCalculatorLink;$('#showCalculatorQrBtn').onclick=()=>{const q=$('#calculatorQrWrap'),b=$('#showCalculatorQrBtn');q.classList.toggle('hidden');b.textContent=q.classList.contains('hidden')?'▣ Show QR Code':'▣ Hide QR Code'};const end=$('#endCalculatorClassBtn');if(end)end.onclick=endScientificCalculatorForClass;return;
+  }
 
   if(state.activeApp==='minefield'){
     note.classList.add('hidden');picker.classList.add('hidden');grid.classList.remove('hidden');
@@ -5851,6 +5881,7 @@ function renderStudentControls(){
   const zoneWrap=zone.closest('.student-control-zone');if(zoneWrap)zoneWrap.dataset.app='home';
   if(studentNeedsJoin()){if(zoneWrap)zoneWrap.dataset.app='join';label.innerHTML='<b>STUDENT JOIN</b><span>Join the class first</span>';zone.className='student-actions';zone.innerHTML='';return}
   const s=selectedStudent();
+  if(state.calculatorLaunch&&String(state.calculatorLaunch.id||'')!==String(studentCalculatorDismissedLaunchId||'')){if(zoneWrap)zoneWrap.dataset.app='scientific-calculator';label.innerHTML='<b>SCIENTIFIC CALCULATOR</b><span>Independent session · Back to Classroom is above</span>';zone.className='student-actions';zone.innerHTML='';return}
   if(state.activityRun&&state.activityRun.phase==='running'){
     const a=activeActivity(),slide=currentSlide();if(zoneWrap)zoneWrap.dataset.app=a?.type||'activity';
     if(a.type==='starwheel'){
@@ -6000,7 +6031,14 @@ async function launchSecondScreen(){
   // while we refresh the current session/QR URL from the server.
   try{secondScreenWindow=window.open('about:blank','siMothershipSecondScreen','popup=yes,width=1280,height=800');}catch(e){secondScreenWindow=null}
   if(secondScreenWindow){
-    try{secondScreenWindow.document.open();secondScreenWindow.document.write('<!doctype html><title>SI Mothership</title><body style="margin:0;background:#061425;color:#dff8ff;font-family:system-ui;display:grid;place-items:center;min-height:100vh"><div style="text-align:center"><div style="font-size:32px">🚀</div><b>Loading current class lobby…</b></div></body>');secondScreenWindow.document.close()}catch(e){}
+    try{secondScreenWindow.document.open();secondScreenWindow.document.write('<!doctype html><title>SI Mothership</title><style id="v53-1-classroom-calculator">
+.calculator-workflow-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 10px;padding:10px 12px;border:1px solid #466178;border-radius:13px;background:linear-gradient(135deg,#102332,#0b1924)}
+.calculator-workflow-bar.hidden{display:none}.calculator-workflow-main{display:flex;align-items:center;gap:10px;min-width:0}.calculator-workflow-icon{width:34px;height:34px;border:1px solid #5c788b;border-radius:10px;display:grid;place-items:center;background:#d8e2c4;color:#1c2a25;font-weight:950;font-size:16px}.calculator-workflow-copy{display:grid;gap:2px;min-width:0}.calculator-workflow-copy span{color:#90a6b4;font-size:9px;font-weight:900;letter-spacing:.12em}.calculator-workflow-copy b{font-size:12px;color:#eef5f7}.calculator-workflow-copy small{color:#7f929e;font-size:9px}.calculator-workflow-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.calculator-workflow-actions button{min-height:35px;padding:7px 10px;border:1px solid #365567;border-radius:8px;background:#102431;color:#dbe7ec;font-size:10px;font-weight:850}.calculator-workflow-actions .end{border-color:#71374a;background:#2d1620;color:#ff9bb2}
+.calculator-setup-panel{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(240px,.8fr);gap:16px;border:1px solid #334e5d;border-radius:16px;background:linear-gradient(145deg,#0b1924,#0a1520);padding:18px}.calculator-setup-main{display:flex;gap:16px;align-items:flex-start}.calculator-device-icon{width:84px;height:112px;flex:0 0 84px;border:2px solid #445f6d;border-radius:13px 13px 18px 18px;background:#202f38;padding:10px 9px}.calculator-device-icon .screen{height:29px;border:2px solid #28352d;border-radius:5px;background:#d7e1c2;margin-bottom:9px}.calculator-device-icon .keys{display:grid;grid-template-columns:repeat(5,1fr);gap:3px}.calculator-device-icon .keys i{height:8px;border-radius:2px;background:#74818a}.calculator-device-icon .keys i:nth-last-child(-n+4){background:#d7dde0}.calculator-device-icon .keys i:nth-child(5n){background:#607a8a}.calculator-setup-copy h3{margin:3px 0 7px;font-size:25px}.calculator-setup-copy p{margin:0;color:#93a6b2;line-height:1.5}.calculator-live-chip{display:inline-flex;margin-top:12px;padding:6px 9px;border:1px solid #37725c;border-radius:999px;background:#102e26;color:#78e1b2;font-size:9px;font-weight:900;letter-spacing:.08em}.calculator-settings-card{border:1px solid #294554;border-radius:13px;background:#08131c;padding:13px}.calculator-settings-card label{display:grid;gap:5px;margin-bottom:10px;color:#8fa3b0;font-size:9px;font-weight:900;letter-spacing:.08em}.calculator-settings-card select{width:100%;min-height:38px;border:1px solid #345261;border-radius:8px;background:#0e202b;color:#edf4f6;padding:6px 8px}.calculator-action-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.calculator-action-grid button{min-height:42px;border:1px solid #355868;border-radius:9px;background:#102733;color:#e4edf0;font-weight:850}.calculator-action-grid .primary{background:#d6e0c3;border-color:#d6e0c3;color:#17241f}.calculator-action-grid .danger{background:#2d1620;border-color:#71374a;color:#ff9bb2}.calculator-qr-wrap{grid-column:1/-1;margin-top:4px;padding:12px;border:1px solid #294554;border-radius:12px;background:#07131c;text-align:center}.calculator-qr-wrap.hidden{display:none}.calculator-qr-wrap img{width:170px;height:170px;background:#fff;padding:7px;border-radius:10px}.calculator-share-url{margin-top:8px;color:#8298a6;font-size:9px;word-break:break-all}
+.student-calculator-shell{width:100%;max-width:720px;margin:0 auto;text-align:left}.student-calculator-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px;padding:9px 10px;border:1px solid #2d4858;border-radius:11px;background:#0a1822}.student-calculator-head div{min-width:0}.student-calculator-head b{display:block;color:#edf4f6;font-size:13px}.student-calculator-head small{display:block;color:#7f929e;margin-top:2px;font-size:9px}.student-calculator-head button{min-height:38px;padding:8px 11px;border:1px solid #466273;border-radius:9px;background:#122531;color:#e7eff2;font-weight:850;white-space:nowrap}.student-calculator-frame{display:block;width:100%;height:760px;border:1px solid #324d5b;border-radius:14px;background:#101820}.device-main:has(.student-calculator-shell){padding:12px;align-items:flex-start}.shared-calculator-live{max-width:640px;padding:28px;border:1px solid #345262;border-radius:18px;background:#0b1b27;text-align:center}.shared-calculator-live .calc-glyph{width:70px;height:82px;margin:0 auto 14px;border:2px solid #6a7b72;border-radius:10px 10px 15px 15px;background:#24333a;display:grid;place-items:center;color:#d8e1c4;font-size:32px}.shared-calculator-live h3{margin:8px 0}.shared-calculator-live p{max-width:520px}
+@media(max-width:760px){.calculator-setup-panel{grid-template-columns:1fr}.calculator-setup-main{flex-direction:column}.calculator-action-grid{grid-template-columns:1fr}.calculator-workflow-bar{align-items:flex-start;flex-direction:column}.calculator-workflow-actions{width:100%;justify-content:stretch}.calculator-workflow-actions button{flex:1}.student-calculator-frame{height:690px}.student-calculator-head{align-items:flex-start;flex-direction:column}.student-calculator-head button{width:100%}}
+</style>
+<body style="margin:0;background:#061425;color:#dff8ff;font-family:system-ui;display:grid;place-items:center;min-height:100vh"><div style="text-align:center"><div style="font-size:32px">🚀</div><b>Loading current class lobby…</b></div></body>');secondScreenWindow.document.close()}catch(e){}
   }
   const info=NETWORK_SYNC?await refreshSessionInfo():null;
   const target=info?.shared_url||SHARED_SCREEN_URL||(NETWORK_SYNC?`${PUBLIC_ORIGIN}/?role=shared${STUDENT_SESSION_ID?`&sid=${encodeURIComponent(STUDENT_SESSION_ID)}`:''}`:`${PREVIEW_BASE_URL}?role=shared`);
@@ -6117,11 +6155,11 @@ function animateStarwheelWheels(){
   starwheelLastAnimatedNonce=nonce;
 }
 function renderPublic(){
-  $('#mirrorContent').innerHTML=sharedMarkup('normal');$('#sharedContent').innerHTML=sharedMarkup('big');$('#studentContent').innerHTML=studentMarkup();wireStudentJoin();wireStudentResponses();wireMinefieldStudent();wireVectorStudent();wireBoardStudent();wireSketchStudent();wireOrbitStudent();wireStarwheelStudent();renderStudentControls();animateStarwheelWheels();requestAnimationFrame(paintPixelFocusCanvases);
+  $('#mirrorContent').innerHTML=sharedMarkup('normal');$('#sharedContent').innerHTML=sharedMarkup('big');$('#studentContent').innerHTML=studentMarkup();wireStudentJoin();wireStudentCalculator();wireStudentResponses();wireMinefieldStudent();wireVectorStudent();wireBoardStudent();wireSketchStudent();wireOrbitStudent();wireStarwheelStudent();renderStudentControls();animateStarwheelWheels();requestAnimationFrame(paintPixelFocusCanvases);
   const conn=$('#studentConnectionLabel');if(conn)conn.innerHTML=studentNeedsJoin()?'<span style="width:9px;height:9px;border-radius:50%;display:inline-block;background:#ffc35d;box-shadow:0 0 12px #ffc35d88"></span>&nbsp; Join Class':'<span class="pulse"></span>&nbsp; Connected';
   const label=state.ended?'ENDED':state.activityRun?(activeActivity()?.type==='board'?'BOARD LIVE':state.activityRun.phase==='lobby'?'ACTIVITY LOBBY':'ACTIVITY LIVE'):state.screen==='brb'?'WE’LL BE RIGHT BACK':state.screen.toUpperCase();$('#mirrorLabel').textContent=label;$('#sharedLabel').textContent=label;updateSecondScreen();
 }
-function render(){teacherSummaryObserve();renderActivityWorkflowBar();const cm=$('#connectedMetric');if(cm)cm.textContent=connectedStudents().length;renderStudentSelect();renderRoster();renderRight();renderControls();renderHomeAppShortcuts();setMissionPanel();renderCustomRoster();renderAgendaPreview();renderActivities();renderPresentationBuilder();updateAgendaDraftPreview();renderPublic();publishSyncedState()}
+function render(){teacherSummaryObserve();renderActivityWorkflowBar();renderCalculatorWorkflowBar();const cm=$('#connectedMetric');if(cm)cm.textContent=connectedStudents().length;renderStudentSelect();renderRoster();renderRight();renderControls();renderHomeAppShortcuts();setMissionPanel();renderCustomRoster();renderAgendaPreview();renderActivities();renderPresentationBuilder();updateAgendaDraftPreview();renderPublic();publishSyncedState()}
 
 async function handleGenericAction(){
   if(state.ended){
@@ -6141,21 +6179,21 @@ $$('[data-control]').forEach(b=>b.onclick=()=>{
   state.customRosterOpen=false;
   if(state.activityRun&&b.dataset.control!=='lobby'){toast('Return to Classroom before opening another class control');return}
   if(b.dataset.control==='lobby'){enterLobby();return}
-  if(b.dataset.control==='classroom'){state.screen='classroom';state.promptActive=false;state.presentationEditor=null;state.presentationLibraryOpen=false;state.activeApp=null;render();return}
+  if(b.dataset.control==='classroom'){state.calculatorLaunch=null;state.screen='classroom';state.promptActive=false;state.presentationEditor=null;state.presentationLibraryOpen=false;state.activeApp=null;render();return}
   state.screen=b.dataset.control;
   if(state.screen==='agenda')state.agendaLive=false;
-  if(state.screen==='ready'){teacherSummaryBeginReadyCheck();state.readyEnabled=true;state.students.forEach(s=>s.readyResponse='');state.promptActive=true;render();toast('Ready check sent — Ready button enabled');return}
+  if(state.screen==='ready'){state.calculatorLaunch=null;teacherSummaryBeginReadyCheck();state.readyEnabled=true;state.students.forEach(s=>s.readyResponse='');state.promptActive=true;render();toast('Ready check sent — Ready button enabled');return}
   state.promptActive=false;render();
 });
 $$('[data-toggle]').forEach(b=>b.onclick=()=>{if(state.ended)return;if(state.activityRun){toast('Classroom settings stay available, but activity remains active')}const k=b.dataset.toggle;state[k+'Enabled']=!state[k+'Enabled'];if(k==='hand'&&!state.handEnabled){state.alerts=state.alerts.filter(a=>a.type!=='hand')}if(k==='picture'&&!state.pictureEnabled){state.picturePromptSent=false;if(state.screen==='picture'){state.screen='lobby';state.promptActive=false}}render();const label=k==='hand'?'Raise Hand':k==='picture'?'Picture Prompt':k==='help'?'Ask for Help':'Buzz';toast(`${label} ${state[k+'Enabled']?'enabled':'paused'}`)});
-$$('[data-send]').forEach(b=>b.onclick=()=>{if(state.ended)return;if(state.activityRun){toast('Return to Classroom before sending a class-wide check');return}state.screen=b.dataset.send;if(state.screen==='emotion')state.students.forEach(s=>s.emotion='');if(state.screen==='understanding')state.students.forEach(s=>s.understanding='');state.promptActive=true;render();toast(`${b.dataset.send==='emotion'?'Emotion':'Understanding'} check sent — watch the roster`)});
+$$('[data-send]').forEach(b=>b.onclick=()=>{if(state.ended)return;if(state.activityRun){toast('Return to Classroom before sending a class-wide check');return}state.calculatorLaunch=null;state.screen=b.dataset.send;if(state.screen==='emotion')state.students.forEach(s=>s.emotion='');if(state.screen==='understanding')state.students.forEach(s=>s.understanding='');state.promptActive=true;render();toast(`${b.dataset.send==='emotion'?'Emotion':'Understanding'} check sent — watch the roster`)});
 $('#prevRoster').onclick=()=>{const pages=Math.max(1,Math.ceil(state.students.length/8));state.rosterPage=(state.rosterPage-1+pages)%pages;renderRoster()};$('#nextRoster').onclick=()=>{const pages=Math.max(1,Math.ceil(state.students.length/8));state.rosterPage=(state.rosterPage+1)%pages;renderRoster()};
 $('#clearBuzz').onclick=()=>{state.buzz=[];render();toast('Buzz queue cleared')};
-$('#sendPicturePrompt').onclick=()=>{if(!state.pictureEnabled)return;state.picturePrompt=$('#picturePromptText').value.trim()||'Take a picture of your completed work.';state.picturePromptSent=true;state.promptActive=true;state.screen='picture';render();toast('Picture prompt sent to students')};
+$('#sendPicturePrompt').onclick=()=>{if(!state.pictureEnabled)return;state.calculatorLaunch=null;state.picturePrompt=$('#picturePromptText').value.trim()||'Take a picture of your completed work.';state.picturePromptSent=true;state.promptActive=true;state.screen='picture';render();toast('Picture prompt sent to students')};
 $$('[data-agenda-mode]').forEach(b=>b.onclick=()=>{state.agendaMode=b.dataset.agendaMode;$$('[data-agenda-mode]').forEach(x=>x.classList.toggle('active',x===b));$('#agendaTextPane').classList.toggle('hidden',state.agendaMode!=='text');$('#agendaImagePane').classList.toggle('hidden',state.agendaMode!=='image');$('#agendaYoutubePane').classList.toggle('hidden',state.agendaMode!=='youtube');updateAgendaDraftPreview()});
 $('#agendaImageFile').onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{state.agendaImage=String(r.result);updateAgendaDraftPreview();toast('Image ready to send')};r.readAsDataURL(f)};
 $('#agendaYoutube').oninput=updateAgendaDraftPreview;
-$('#sendAgenda').onclick=()=>{if(state.activityRun){toast('Return to Classroom before sending Agenda content');return}state.screen='agenda';state.promptActive=false;state.agendaText=$('#agendaText').value.trim()||' ';state.youtube=$('#agendaYoutube').value.trim();if(state.agendaMode==='youtube'&&!ytId(state.youtube)){toast('Enter a valid YouTube link');return}if(state.agendaMode==='image'&&!state.agendaImage){toast('Choose an image first');return}state.published={mode:state.agendaMode,text:state.agendaText,image:state.agendaImage,youtube:state.youtube};state.agendaLive=true;render();toast('Agenda launched to student + shared screens')};
+$('#sendAgenda').onclick=()=>{if(state.activityRun){toast('Return to Classroom before sending Agenda content');return}state.calculatorLaunch=null;state.screen='agenda';state.promptActive=false;state.agendaText=$('#agendaText').value.trim()||' ';state.youtube=$('#agendaYoutube').value.trim();if(state.agendaMode==='youtube'&&!ytId(state.youtube)){toast('Enter a valid YouTube link');return}if(state.agendaMode==='image'&&!state.agendaImage){toast('Choose an image first');return}state.published={mode:state.agendaMode,text:state.agendaText,image:state.agendaImage,youtube:state.youtube};state.agendaLive=true;render();toast('Agenda launched to student + shared screens')};
 $('#studentSelect').onchange=e=>{if(!e.target.value)return;state.selectedStudent=e.target.value;render();toast(`Now simulating ${state.selectedStudent}`)};
 let photoViewerId=null;
 function photoDownloadName(p){const safe=(p?.name||'student').replace(/[^a-z0-9_-]+/gi,'_').replace(/^_+|_+$/g,'')||'student';const ext=String(p?.data||'').startsWith('data:image/png')?'png':String(p?.data||'').startsWith('data:image/webp')?'webp':'jpg';return `mothership_${safe}_${p?.id||Date.now()}.${ext}`}
