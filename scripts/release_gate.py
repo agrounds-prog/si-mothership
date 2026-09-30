@@ -74,6 +74,9 @@ def main() -> int:
         '<style id="v52-1-teacher-mission-control">',
         '<style id="v52-2-student-ui">',
         '<style id="v53-1-classroom-calculator">',
+        '<style id="v53-3-whiteboard-calculator">',
+        '<style id="v53-4-board-calculator-mirror">',
+        '<style id="v53-5-shared-projector-layout">',
     )
     check("html shell: head closes before body opens", head_close >= 0 and body_open > head_close and bool(re.search(r"</head>\s*<body(?:\s|>)", html, re.I)))
     check("html shell: release styles are inside head", head_close >= 0 and all(0 <= html.find(tag) < head_close for tag in release_styles))
@@ -94,6 +97,15 @@ def main() -> int:
     check("board calculator mirror: only public display snapshot is synced", "run.boardCalculatorMirror=next;" in html and all(x in segment(html, "function publishBoardCalculatorMirror(") for x in ("lines:","angle:","format:","updatedAt:")) and "history:" not in segment(html, "function publishBoardCalculatorMirror(") and "memory:" not in segment(html, "function publishBoardCalculatorMirror("))
     check("board calculator mirror: student BOARD stays controls-only", "boardCalculatorMirrorMarkup" not in segment(html, "function studentMarkup("))
     check("board calculator mirror: close removes shared mirror", "state.activityRun.boardCalculatorMirror=null" in segment(html, "function setBoardCalculatorOpen("))
+
+    # v53.5 dedicated Shared Screen projector layout.
+    projector_style = re.search(r'<style id="v53-5-shared-projector-layout">(.*?)</style>', html, re.S)
+    projector_css = projector_style.group(1) if projector_style else ""
+    check("shared projector: release style remains", bool(projector_style))
+    check("shared projector: widescreen side HUD remains", "grid-template-columns:clamp(132px,10.5vw,176px) minmax(0,1fr)" in projector_css and "grid-row:1 / 3" in projector_css)
+    check("shared projector: BOARD uses full public height", "body.role-shared .board-public-wrap" in projector_css and "height:100%" in projector_css and "body.role-shared .board-shared-stage" in projector_css)
+    check("shared projector: BOARD metadata floats over canvas", "body.role-shared .board-public-head" in projector_css and "position:absolute" in projector_css)
+    check("shared projector: narrow-screen fallback remains", "@media(max-width:900px),(max-aspect-ratio:4/3)" in projector_css)
 
     # Inline JavaScript parse validation.
     scripts = re.findall(r"<script[^>]*>(.*?)</script>", html, flags=re.S | re.I)
