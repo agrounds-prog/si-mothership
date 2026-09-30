@@ -67,6 +67,18 @@ def main() -> int:
     server_version = re.search(r'APP_VERSION\s*=\s*"([^"]+)"', server)
     check("version: title and server match", bool(title_version and server_version and title_version.group(1) == server_version.group(1)))
 
+    # HTML shell integrity: release styles must not split structural tags.
+    head_close = html.find("</head>")
+    body_open = html.find("<body", head_close)
+    release_styles = (
+        '<style id="v52-1-teacher-mission-control">',
+        '<style id="v52-2-student-ui">',
+        '<style id="v53-1-classroom-calculator">',
+    )
+    check("html shell: head closes before body opens", head_close >= 0 and body_open > head_close and bool(re.search(r"</head>\s*<body(?:\s|>)", html, re.I)))
+    check("html shell: release styles are inside head", head_close >= 0 and all(0 <= html.find(tag) < head_close for tag in release_styles))
+    check("html shell: no split structural tag corruption", all(token not in html for token in ("</styl\n<style", "</style>e>", "<b\n<style", "</style>ody>")))
+
     # Inline JavaScript parse validation.
     scripts = re.findall(r"<script[^>]*>(.*?)</script>", html, flags=re.S | re.I)
     node = shutil.which("node")

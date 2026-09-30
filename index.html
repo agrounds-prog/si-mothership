@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v53.1 — Classroom Calculator Integration</title>
+<title>SI Mothership v53.2 — HTML Shell Hotfix</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -2886,7 +2886,7 @@ input::placeholder,textarea::placeholder{color:#627789!important}
   .workspace{padding-left:12px!important;padding-right:12px!important}
   .main-card{padding:18px!important}
 }
-</styl
+</style>
 <style id="v52-1-teacher-mission-control">
 /* =========================================================
    SI MOTHERSHIP v52.1 — TEACHER MISSION CONTROL
@@ -3012,9 +3012,7 @@ input::placeholder,textarea::placeholder{color:#627789!important}
   #teacher .attention-summary,#teacher .screen-dock{grid-column:auto}
   #teacher .avatar-line{grid-template-columns:repeat(4,minmax(68px,1fr))!important}
 }
-</style>e>
-</head>
-<b
+</style>
 <style id="v52-2-student-ui">
 /* =========================================================
    SI MOTHERSHIP v52.2 — STUDENT UI
@@ -3381,8 +3379,7 @@ input::placeholder,textarea::placeholder{color:#627789!important}
   .student-photo-composer,.help-composer{padding:10px!important}
   .student-photo-composer-card,.help-composer-card{width:min(100%,560px)!important;padding:14px!important}
 }
-</style>ody>
-<div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
+</style>
 <style id="v53-1-classroom-calculator">
 .calculator-workflow-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 10px;padding:10px 12px;border:1px solid #466178;border-radius:13px;background:linear-gradient(135deg,#102332,#0b1924)}
 .calculator-workflow-bar.hidden{display:none}.calculator-workflow-main{display:flex;align-items:center;gap:10px;min-width:0}.calculator-workflow-icon{width:34px;height:34px;border:1px solid #5c788b;border-radius:10px;display:grid;place-items:center;background:#d8e2c4;color:#1c2a25;font-weight:950;font-size:16px}.calculator-workflow-copy{display:grid;gap:2px;min-width:0}.calculator-workflow-copy span{color:#90a6b4;font-size:9px;font-weight:900;letter-spacing:.12em}.calculator-workflow-copy b{font-size:12px;color:#eef5f7}.calculator-workflow-copy small{color:#7f929e;font-size:9px}.calculator-workflow-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.calculator-workflow-actions button{min-height:35px;padding:7px 10px;border:1px solid #365567;border-radius:8px;background:#102431;color:#dbe7ec;font-size:10px;font-weight:850}.calculator-workflow-actions .end{border-color:#71374a;background:#2d1620;color:#ff9bb2}
@@ -3390,6 +3387,10 @@ input::placeholder,textarea::placeholder{color:#627789!important}
 .student-calculator-shell{width:100%;max-width:720px;margin:0 auto;text-align:left}.student-calculator-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px;padding:9px 10px;border:1px solid #2d4858;border-radius:11px;background:#0a1822}.student-calculator-head div{min-width:0}.student-calculator-head b{display:block;color:#edf4f6;font-size:13px}.student-calculator-head small{display:block;color:#7f929e;margin-top:2px;font-size:9px}.student-calculator-head button{min-height:38px;padding:8px 11px;border:1px solid #466273;border-radius:9px;background:#122531;color:#e7eff2;font-weight:850;white-space:nowrap}.student-calculator-frame{display:block;width:100%;height:760px;border:1px solid #324d5b;border-radius:14px;background:#101820}.device-main:has(.student-calculator-shell){padding:12px;align-items:flex-start}.shared-calculator-live{max-width:640px;padding:28px;border:1px solid #345262;border-radius:18px;background:#0b1b27;text-align:center}.shared-calculator-live .calc-glyph{width:70px;height:82px;margin:0 auto 14px;border:2px solid #6a7b72;border-radius:10px 10px 15px 15px;background:#24333a;display:grid;place-items:center;color:#d8e1c4;font-size:32px}.shared-calculator-live h3{margin:8px 0}.shared-calculator-live p{max-width:520px}
 @media(max-width:760px){.calculator-setup-panel{grid-template-columns:1fr}.calculator-setup-main{flex-direction:column}.calculator-action-grid{grid-template-columns:1fr}.calculator-workflow-bar{align-items:flex-start;flex-direction:column}.calculator-workflow-actions{width:100%;justify-content:stretch}.calculator-workflow-actions button{flex:1}.student-calculator-frame{height:690px}.student-calculator-head{align-items:flex-start;flex-direction:column}.student-calculator-head button{width:100%}}
 </style>
+</head>
+<body>
+<div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
+
 <header class="topbar"><div class="brand"><span class="brand-mark">🚀</span><span>SI Mothership</span></div><div class="session-pill"><span class="pulse"></span>Classroom Live</div><div class="top-actions"><span>Explorers · Period 2</span><button class="outline" id="resetBtn">Reset Session</button></div></header>
 <div class="viewbar"><div class="tabs"><button class="tab active" data-view="teacher">▦&nbsp; Teacher Dashboard</button><button class="tab" data-view="student">✦&nbsp; Student Device</button><button class="tab" data-view="shared">▣&nbsp; Shared Screen</button></div><div class="class-code"><small>JOIN CODE</small><strong>7K3M</strong><button class="copy-code" id="copyCode" title="Copy join code">⧉</button></div></div>
 
