@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v53.8 — Live Roster & Alert Center</title>
+<title>SI Mothership v53.9 — Roster Signal Refresh</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -3828,47 +3828,194 @@ body.role-shared .board-shared-stage .board-surface{
 @media(max-width:700px){.shared-screen .board-calculator-mirror{width:158px!important}}
 </style>
 
-<style id="v53-8-live-roster-alert-center">
-#teacher .roster-stage{display:flex;flex-direction:column;gap:14px;min-width:0}
+
+<style id="v53-9-roster-signal-refresh">
+/* v53.9 — bigger crew presence, no duplicate Attention Center.
+   Ready, raised-hand, and buzz signals are intentionally high-contrast. */
+#teacher .roster-stage{display:block;min-width:0}
 #teacher .roster-crew-pane{min-width:0}
-#teacher .avatar-line{grid-template-columns:repeat(8,minmax(86px,1fr))!important;gap:12px!important}
-#teacher .bot-card{width:96px!important;height:94px!important;border-radius:23px!important;font-size:50px!important;box-shadow:0 10px 24px #0005!important}
-#teacher .bot-card .builtin-avatar-glyph{font-size:52px!important}
+#teacher .avatar-line{
+  grid-template-columns:repeat(8,minmax(94px,1fr))!important;
+  gap:14px!important;
+  align-items:start!important
+}
+#teacher .crew{
+  position:relative;
+  min-width:0;
+  padding:8px 4px 11px!important
+}
+#teacher .bot-card{
+  width:104px!important;
+  height:102px!important;
+  margin-bottom:9px!important;
+  border-radius:25px!important;
+  font-size:54px!important;
+  transition:box-shadow .15s ease,transform .15s ease,border-color .15s ease!important
+}
+#teacher .bot-card img{border-radius:24px!important}
+#teacher .bot-card .builtin-avatar-glyph{font-size:56px!important}
 #teacher .crew>b{font-size:13px!important}
-#teacher .crew .hand-chip{top:87px!important}
-#teacher .crew .help-chip{top:111px!important}
+#teacher .crew>small{font-size:9px!important}
 #teacher .page-dots{margin-top:14px!important}
-#teacher .roster-card.sparse-roster .roster-stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(330px,370px);gap:18px;align-items:stretch}
-#teacher .roster-card.sparse-roster .roster-crew-pane{display:flex;flex-direction:column;justify-content:center;min-height:225px}
-#teacher .roster-card.sparse-roster .avatar-line{grid-template-columns:repeat(auto-fit,minmax(145px,165px))!important;justify-content:start!important;gap:18px!important}
-#teacher .roster-card.sparse-roster .bot-card{width:124px!important;height:122px!important;border-radius:29px!important;font-size:64px!important}
-#teacher .roster-card.sparse-roster .bot-card .builtin-avatar-glyph{font-size:66px!important}
-#teacher .roster-card.sparse-roster .crew>b{font-size:15px!important}
-#teacher .roster-card.sparse-roster .crew .hand-chip{top:112px!important}
-#teacher .roster-card.sparse-roster .crew .help-chip{top:139px!important}
-#teacher .roster-attention-dock{padding:13px;border:1px solid #264456;border-radius:14px;background:linear-gradient(180deg,#0c1b25,#091720)}
-#teacher .roster-attention-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:10px;margin-bottom:9px;border-bottom:1px solid #1e3442}
-#teacher .roster-attention-head .eyebrow{font-size:8px!important;color:#7895a5!important}
-#teacher .roster-attention-head b{display:block;margin-top:4px;color:#dbe8ed;font-size:12px}
-#teacher .roster-attention-total{min-width:34px;height:34px;display:grid;place-items:center;border:1px solid #315365;border-radius:10px;background:#10232d;color:#9edee7;font-weight:900}
-#teacher .roster-attention-dock.has-attention{border-color:#3f6375;box-shadow:inset 3px 0 0 #69c7d7}
-#teacher .roster-attention-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-#teacher .roster-attention-card{min-width:0;min-height:72px;display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;gap:8px;padding:9px;border:1px solid #263f4e;border-radius:11px;background:#0b1821;color:#a7b7c1;text-align:left}
-#teacher .attention-card-icon{width:30px;height:30px;display:grid;place-items:center;border:1px solid #314a59;border-radius:9px;background:#101f28;color:#8197a4;font-weight:900}
-#teacher .attention-card-copy{min-width:0}
-#teacher .attention-card-copy small{display:block;color:#667e8d;font-size:7px;font-weight:950;letter-spacing:.12em}
-#teacher .attention-card-copy b{display:block;margin-top:4px;overflow:hidden;color:#cbd8de;font-size:10px;white-space:nowrap;text-overflow:ellipsis}
-#teacher .roster-attention-card>strong{min-width:24px;height:24px;display:grid;place-items:center;border:1px solid #314957;border-radius:8px;background:#0a151d;color:#788e9b;font-size:10px}
-#teacher .roster-attention-card.active.help{border-color:#6d4552;background:#24171c}
-#teacher .roster-attention-card.active.hand,#teacher .roster-attention-card.active.buzz{border-color:#6f5d32;background:#241f12}
-#teacher .roster-attention-card.active.photo{border-color:#326174;background:#0d242d}
-#teacher .roster-card.sparse-roster .roster-attention-grid{grid-template-columns:1fr 1fr}
-#teacher .roster-card.sparse-roster .roster-attention-card{min-height:82px}
-#teacher .attention-focus{outline:3px solid #67cfe155!important;outline-offset:3px}
-@media(min-width:1081px){#teacher .right-rail>.attention-summary{display:none!important}}
-@media(max-width:1450px){#teacher .roster-card.sparse-roster .roster-stage{grid-template-columns:minmax(0,1fr) 330px}#teacher .roster-card.sparse-roster .avatar-line{grid-template-columns:repeat(auto-fit,minmax(132px,150px))!important}#teacher .roster-card.sparse-roster .bot-card{width:112px!important;height:110px!important}}
-@media(max-width:1180px){#teacher .roster-card.sparse-roster .roster-stage{display:flex}#teacher .roster-card.sparse-roster .roster-crew-pane{min-height:0}#teacher .roster-card.sparse-roster .roster-attention-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
-@media(max-width:900px){#teacher .avatar-line{grid-template-columns:repeat(4,minmax(90px,1fr))!important}#teacher .roster-card.sparse-roster .avatar-line{grid-template-columns:repeat(2,minmax(130px,1fr))!important}#teacher .roster-attention-grid,#teacher .roster-card.sparse-roster .roster-attention-grid{grid-template-columns:1fr 1fr}}
+
+/* Sparse rooms: use the roster width for the students themselves. */
+#teacher .roster-card.sparse-roster .roster-crew-pane{
+  min-height:220px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center
+}
+#teacher .roster-card.sparse-roster .avatar-line{
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr))!important;
+  gap:22px!important;
+  width:100%
+}
+#teacher .roster-card.sparse-roster .crew{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding:10px!important
+}
+#teacher .roster-card.sparse-roster .bot-card{
+  width:140px!important;
+  height:138px!important;
+  border-radius:32px!important;
+  font-size:72px!important
+}
+#teacher .roster-card.sparse-roster .bot-card img{border-radius:31px!important}
+#teacher .roster-card.sparse-roster .bot-card .builtin-avatar-glyph{font-size:74px!important}
+#teacher .roster-card.sparse-roster .crew>b{font-size:16px!important}
+#teacher .roster-card.sparse-roster .crew>small{font-size:10px!important}
+#teacher .roster-card.sparse-roster .page-dots{margin-top:12px!important}
+
+/* READY — vivid green, readable from across the room. */
+#teacher .crew.ready-glow .bot-card{
+  border-color:#64e7a6!important;
+  outline:3px solid rgba(100,231,166,.34)!important;
+  box-shadow:
+    0 0 0 7px rgba(100,231,166,.10),
+    0 0 30px rgba(100,231,166,.72),
+    0 10px 25px rgba(0,0,0,.28)!important;
+  transform:translateY(-2px)
+}
+#teacher .crew.ready-glow .ready-pill.ready{
+  border-color:#57d99b!important;
+  background:#0d3d2d!important;
+  color:#a9ffd5!important;
+  box-shadow:0 0 16px rgba(87,217,155,.38);
+  font-size:9px!important;
+  font-weight:950!important
+}
+
+/* RAISED HAND — warm gold halo + prominent badge. */
+#teacher .crew.hand-raised-glow .bot-card{
+  border-color:#ffd45f!important;
+  outline:3px solid rgba(255,212,95,.32)!important;
+  box-shadow:
+    0 0 0 7px rgba(255,212,95,.10),
+    0 0 34px rgba(255,199,62,.70),
+    0 10px 25px rgba(0,0,0,.30)!important
+}
+#teacher .crew .hand-chip{
+  top:92px!important;
+  right:-4px!important;
+  z-index:5;
+  padding:5px 8px!important;
+  border:1px solid #e9b83d!important;
+  border-radius:999px!important;
+  background:#3a2a08!important;
+  color:#ffe28b!important;
+  font-size:8px!important;
+  font-weight:1000!important;
+  box-shadow:0 0 20px rgba(255,194,55,.48)!important
+}
+
+/* BUZZ — electric cyan/blue, including queue position on the avatar. */
+#teacher .crew.buzz-glow .bot-card{
+  border-color:#55ddff!important;
+  outline:3px solid rgba(85,221,255,.34)!important;
+  box-shadow:
+    0 0 0 7px rgba(85,221,255,.10),
+    0 0 34px rgba(55,196,255,.72),
+    0 10px 25px rgba(0,0,0,.30)!important
+}
+#teacher .crew .buzz-chip{
+  position:absolute;
+  top:92px;
+  left:-4px;
+  z-index:5;
+  padding:5px 8px;
+  border:1px solid #44c9ee;
+  border-radius:999px;
+  background:#092d3a;
+  color:#a8f2ff;
+  font-style:normal;
+  font-size:8px;
+  font-weight:1000;
+  letter-spacing:.04em;
+  box-shadow:0 0 20px rgba(72,210,255,.50)
+}
+#teacher .crew.buzz-first .buzz-chip{
+  border-color:#7ceaff;
+  background:#0b3d4c;
+  color:#d8fbff;
+  box-shadow:0 0 25px rgba(72,220,255,.72)
+}
+#teacher .crew.buzz-first .bot-card{
+  outline-width:4px!important;
+  box-shadow:
+    0 0 0 8px rgba(85,221,255,.13),
+    0 0 40px rgba(55,196,255,.88),
+    0 10px 25px rgba(0,0,0,.30)!important
+}
+
+/* If a student is both hand-up and buzzed, keep both color cues visible. */
+#teacher .crew.hand-raised-glow.buzz-glow .bot-card{
+  border-color:#8aeaff!important;
+  box-shadow:
+    -12px 0 30px rgba(255,199,62,.52),
+    12px 0 30px rgba(55,196,255,.58),
+    0 10px 25px rgba(0,0,0,.30)!important
+}
+
+/* Right-rail buzz alert uses the same cyan language. */
+#teacher #buzzPanel.has-attention{
+  border-color:#397a91!important;
+  box-shadow:inset 3px 0 0 #55ddff,0 8px 24px rgba(0,0,0,.16),0 0 20px rgba(55,196,255,.10)!important
+}
+#teacher #buzzPanel.has-attention .section-heading>b{
+  border-color:#39788c!important;
+  background:#0b2d38!important;
+  color:#9cefff!important
+}
+#teacher .queue-num{
+  border:1px solid #32768e!important;
+  background:#0d3341!important;
+  color:#99efff!important;
+  font-weight:950!important
+}
+
+/* Restore the original compact right-side alert summary; no center panel duplicate. */
+#teacher .right-rail>.attention-summary{display:flex!important}
+
+#teacher .roster-card.sparse-roster .crew .hand-chip,
+#teacher .roster-card.sparse-roster .crew .buzz-chip{
+  top:128px!important;
+  font-size:9px!important;
+  padding:6px 9px!important
+}
+#teacher .roster-card.sparse-roster .crew .help-chip{top:158px!important}
+
+@media(max-width:1200px){
+  #teacher .avatar-line{grid-template-columns:repeat(4,minmax(100px,1fr))!important}
+  #teacher .roster-card.sparse-roster .avatar-line{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))!important}
+}
+@media(max-width:720px){
+  #teacher .avatar-line,#teacher .roster-card.sparse-roster .avatar-line{grid-template-columns:repeat(2,minmax(120px,1fr))!important}
+  #teacher .roster-card.sparse-roster .bot-card{width:120px!important;height:118px!important}
+  #teacher .roster-card.sparse-roster .crew .hand-chip,#teacher .roster-card.sparse-roster .crew .buzz-chip{top:108px!important}
+}
 </style>
 </head>
 <body>
@@ -3929,7 +4076,7 @@ body.role-shared .board-shared-stage .board-surface{
 </div>
 <div class="top-picture-prompt hidden" id="picturePromptBox"><input id="picturePromptText" value="Take a picture of your completed work." /><button id="sendPicturePrompt">Send picture prompt</button></div>
 
-<section class="main-card roster-card" id="lobbyPanel"><div class="roster-inner"><div class="roster-head"><div class="left"><span class="eyebrow">LIVE ROSTER</span><strong id="rosterRange">1–8 of 24</strong></div><div class="roster-head-actions"><button class="custom-roster-btn" id="openCustomRoster">◉ Custom Roster</button><div class="carousel-controls"><button id="prevRoster">‹</button><span id="rosterPageLabel">1 / 3</span><button id="nextRoster">›</button></div></div></div><div class="roster-alert hidden" id="rosterAlert"></div><div class="roster-stage"><div class="roster-crew-pane"><div class="avatar-line" id="avatarLine"></div><div class="page-dots" id="pageDots"></div></div><aside class="roster-attention-dock" id="rosterAttentionDock" aria-label="Class attention center"><div class="roster-attention-head"><div><span class="eyebrow">ATTENTION CENTER</span><b id="rosterAttentionTitle">All clear</b></div><span class="roster-attention-total" id="rosterAttentionTotal">0</span></div><div class="roster-attention-grid"><button class="roster-attention-card help" type="button" data-roster-attention="help"><span class="attention-card-icon">?</span><span class="attention-card-copy"><small>ASK FOR HELP</small><b id="rosterHelpSummary">No requests</b></span><strong id="rosterHelpDockCount">0</strong></button><button class="roster-attention-card hand" type="button" data-roster-attention="hand"><span class="attention-card-icon">✋</span><span class="attention-card-copy"><small>RAISED HANDS</small><b id="rosterHandSummary">No hands raised</b></span><strong id="rosterHandDockCount">0</strong></button><button class="roster-attention-card buzz" type="button" data-roster-attention="buzz"><span class="attention-card-icon">ϟ</span><span class="attention-card-copy"><small>BUZZ QUEUE</small><b id="rosterBuzzSummary">Queue is clear</b></span><strong id="rosterBuzzDockCount">0</strong></button><button class="roster-attention-card photo" type="button" data-roster-attention="photo"><span class="attention-card-icon">▧</span><span class="attention-card-copy"><small>PHOTO INBOX</small><b id="rosterPhotoSummary">No submissions</b></span><strong id="rosterPhotoDockCount">0</strong></button></div></aside></div></div></section>
+<section class="main-card roster-card" id="lobbyPanel"><div class="roster-inner"><div class="roster-head"><div class="left"><span class="eyebrow">LIVE ROSTER</span><strong id="rosterRange">1–8 of 24</strong></div><div class="roster-head-actions"><button class="custom-roster-btn" id="openCustomRoster">◉ Custom Roster</button><div class="carousel-controls"><button id="prevRoster">‹</button><span id="rosterPageLabel">1 / 3</span><button id="nextRoster">›</button></div></div></div><div class="roster-alert hidden" id="rosterAlert"></div><div class="roster-stage"><div class="roster-crew-pane"><div class="avatar-line" id="avatarLine"></div><div class="page-dots" id="pageDots"></div></div></div></div></section>
 <section class="main-card custom-roster-panel hidden" id="customRosterPanel"></section>
 <section class="main-card activity-controller hidden" id="activityControllerPanel"></section>
 <div class="board-calculator-overlay hidden" id="boardCalculatorOverlay" aria-hidden="true">
@@ -5945,9 +6092,9 @@ function renderRoster(){
   const rosterCard=$('#lobbyPanel');if(rosterCard)rosterCard.classList.toggle('sparse-roster',state.students.length<=4);
   const list=state.students.slice(state.rosterPage*8,state.rosterPage*8+8);
   const activity=state.activityRun,a=activeActivity(),slide=currentSlide();
-  if(!list.length){$('#avatarLine').innerHTML='<div class="empty-roster-message"><div><b>No students joined yet</b><span>Students will appear here after they enter the class code and choose an avatar.</span></div></div>';$('#rosterRange').textContent='0 students';$('#rosterPageLabel').textContent='1 / 1';$('#pageDots').innerHTML='<button class="active"></button>';renderRosterAlert();renderRosterAttentionDock();return}
+  if(!list.length){$('#avatarLine').innerHTML='<div class="empty-roster-message"><div><b>No students joined yet</b><span>Students will appear here after they enter the class code and choose an avatar.</span></div></div>';$('#rosterRange').textContent='0 students';$('#rosterPageLabel').textContent='1 / 1';$('#pageDots').innerHTML='<button class="active"></button>';renderRosterAlert();return}
   $('#avatarLine').innerHTML=list.map(s=>{
-    const help=(state.helpMessages||[]).some(m=>m.name===s.n&&!(state.helpDeletedIds||[]).includes(String(m.id))),hand=state.alerts.some(a=>a.type==='hand'&&a.name===s.n),resp=responseLabel(s);
+    const help=(state.helpMessages||[]).some(m=>m.name===s.n&&!(state.helpDeletedIds||[]).includes(String(m.id))),hand=state.alerts.some(a=>a.type==='hand'&&a.name===s.n),buzzIndex=state.buzz.indexOf(s.n),buzzed=buzzIndex>=0,resp=responseLabel(s);
     let primaryClass='',primaryIcon='○',pill='';
     if(activity){
       if(activity.phase==='lobby'){primaryClass='waiting';primaryIcon='⌂';pill='<span class="ready-pill waiting">ACTIVITY LOBBY</span>'}
@@ -5973,14 +6120,14 @@ function renderRoster(){
     }
     const readyGlow=!activity&&s.readyResponse==='Ready'&&!s.offline&&state.screen!=='lobby'&&state.screen!=='brb';
     const boardGlow=activity&&activeActivity()?.type==='board'&&boardState()?.controller===s.n&&!s.offline;
-    return `<div class="crew ${s.offline?'offline':''} ${readyGlow?'ready-glow':''} ${boardGlow?'board-control-glow':''} ${hand?'hand-raised-glow':''}" style="--c:${s.c}"><div class="stem"></div><div class="bot-card ${String(s.avatarKey||'').startsWith('custom_')?'custom-avatar-card':''}">${avatarRosterMarkup(s)}</div><b>${s.n}</b><small>${s.offline?'Reconnecting':'Connected'}</small>${pill}<span class="response-note">${esc(resp)}</span>${hand?'<em class="hand-chip">✋ HAND</em>':''}${help?'<em class="help-chip">HELP</em>':''}</div>`;
+    return `<div class="crew ${s.offline?'offline':''} ${readyGlow?'ready-glow':''} ${boardGlow?'board-control-glow':''} ${hand?'hand-raised-glow':''} ${buzzed?'buzz-glow':''} ${buzzIndex===0?'buzz-first':''}" style="--c:${s.c}"><div class="stem"></div><div class="bot-card ${String(s.avatarKey||'').startsWith('custom_')?'custom-avatar-card':''}">${avatarRosterMarkup(s)}</div><b>${s.n}</b><small>${s.offline?'Reconnecting':'Connected'}</small>${pill}<span class="response-note">${esc(resp)}</span>${buzzed?`<em class="buzz-chip">ϟ BUZZ ${buzzIndex+1}</em>`:''}${hand?'<em class="hand-chip">✋ HAND</em>':''}${help?'<em class="help-chip">HELP</em>':''}</div>`;
   }).join('');
   $('#rosterRange').textContent=state.students.length?`${state.rosterPage*8+1}–${Math.min(state.rosterPage*8+8,state.students.length)} of ${state.students.length}`:'No students joined';
   $('#rosterPageLabel').textContent=`${state.rosterPage+1} / ${pageCount}`;
   $('#pageDots').innerHTML=Array.from({length:pageCount},(_,i)=>`<button data-page="${i}" class="${i===state.rosterPage?'active':''}"></button>`).join('');
   $$('#pageDots button').forEach(b=>b.onclick=()=>{state.rosterPage=Number(b.dataset.page);renderRoster()});
   renderRosterAlert();
-  renderRosterAttentionDock();
+  
 }
 
 function renderRosterAlert(){
@@ -6013,23 +6160,6 @@ function renderRosterAlert(){
   }
 }
 
-function renderRosterAttentionDock(){
-  const dock=$('#rosterAttentionDock');if(!dock)return;
-  const activeNames=new Set(connectedStudents().map(s=>s.n));
-  const help=(state.helpMessages||[]).filter(m=>!(state.helpDeletedIds||[]).includes(String(m.id))).sort((a,b)=>(b.at||0)-(a.at||0));
-  const hands=Array.from(new Set((state.alerts||[]).filter(a=>a.type==='hand'&&activeNames.has(a.name)).map(a=>a.name)));
-  const buzz=(state.buzz||[]).slice(),photos=(state.photos||[]).slice().sort((a,b)=>(b.at||b.id||0)-(a.at||a.id||0));
-  const unreadHelp=help.filter(m=>!m.seen).length,unreadPhotos=photos.filter(p=>!p.seen).length,total=help.length+hands.length+buzz.length+photos.length;
-  $('#rosterAttentionTitle').textContent=total?total+' item'+(total===1?'':'s')+' need attention':'All clear';
-  $('#rosterAttentionTotal').textContent=total;dock.classList.toggle('has-attention',total>0);
-  $('#rosterHelpSummary').textContent=help.length?help[0].name+(unreadHelp?' · '+unreadHelp+' new':''):'No requests';
-  $('#rosterHandSummary').textContent=hands.length?hands.slice(0,2).join(', ')+(hands.length>2?' +'+(hands.length-2):''):'No hands raised';
-  $('#rosterBuzzSummary').textContent=buzz.length?buzz[0]+' is first':'Queue is clear';
-  $('#rosterPhotoSummary').textContent=photos.length?(photos[0]?.name||photos.length+' submitted')+(unreadPhotos?' · '+unreadPhotos+' new':''):'No submissions';
-  [['help',help.length,'#rosterHelpDockCount'],['hand',hands.length,'#rosterHandDockCount'],['buzz',buzz.length,'#rosterBuzzDockCount'],['photo',photos.length,'#rosterPhotoDockCount']].forEach(([kind,count,sel])=>{const card=dock.querySelector('[data-roster-attention="'+kind+'"]');if(card)card.classList.toggle('active',count>0);$(sel).textContent=count});
-  document.querySelectorAll('[data-roster-attention]').forEach(btn=>btn.onclick=()=>{const kind=btn.dataset.rosterAttention;if(kind==='hand'){const crew=document.querySelector('#avatarLine .crew.hand-raised-glow');if(crew){crew.scrollIntoView({behavior:'smooth',block:'center'});crew.classList.add('attention-focus');setTimeout(()=>crew.classList.remove('attention-focus'),950)}else toast('No hands raised');return}const id=kind==='help'?'helpInboxPanel':kind==='buzz'?'buzzPanel':'photoInboxPanel',panel=document.getElementById(id);if(panel){panel.scrollIntoView({behavior:'smooth',block:'center'});panel.classList.add('attention-focus');setTimeout(()=>panel.classList.remove('attention-focus'),950)}});
-}
-
 function renderRight(){
   const buzzTotal=state.buzz.length;
   $('#buzzCount').textContent=buzzTotal;$('#buzzRows').innerHTML=state.buzz.length?state.buzz.map((n,i)=>{const st=studentByName(n);return `<div class="student-row inbox-student-row"><span class="queue-num">${i+1}</span>${inboxAvatarMarkup(st)}<span class="inbox-copy"><b>${esc(n)}</b><small>${i===0?'Ready to answer':'Waiting'}</small></span><button class="xbtn" data-rbuzz="${esc(n)}">×</button></div>`}).join(''):'<p class="empty">Queue is clear</p>';
@@ -6052,7 +6182,7 @@ function renderRight(){
   $$('[data-photo-view]').forEach(b=>b.onclick=()=>openPhotoViewer(Number(b.dataset.photoView)));
   $$('[data-photo-open]').forEach(el=>el.onclick=()=>openPhotoViewer(Number(el.dataset.photoOpen)));
   document.querySelectorAll('[data-photo-delete]').forEach(b=>b.onclick=()=>{const id=Number(b.dataset.photoDelete);state.photos=state.photos.filter(p=>p.id!==id);render();toast('Photo deleted')});
-  renderRosterAttentionDock();
+  
 }
 
 function renderControls(){
