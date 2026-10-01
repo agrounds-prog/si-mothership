@@ -7145,7 +7145,11 @@ function millionQuestion(run=state.activityRun){
 function millionPilot(run=state.activityRun){return studentByName(millionState(run)?.pilot)}
 function millionChoice(q,key){return q?.choices?.find(c=>c.key===key)||null}
 function millionPollCounts(run=state.activityRun){
-  const m=millionState(run),out={A:0,B:0,C:0,D:0};Object.values(m?.crewPredictions||{}).forEach(v=>{if(out[v]!==undefined)out[v]++});return out
+  const m=millionState(run),out={A:0,B:0,C:0,D:0};
+  if(m?.publicPollCounts&&typeof m.publicPollCounts==='object'){
+    Object.keys(out).forEach(k=>out[k]=Math.max(0,Number(m.publicPollCounts[k]||0)));return out
+  }
+  Object.values(m?.crewPredictions||{}).forEach(v=>{if(out[v]!==undefined)out[v]++});return out
 }
 function millionUseLifeline(type,renderNow=true){
   const run=state.activityRun,m=millionState(run),cfg=millionConfig(run),q=millionQuestion(run);if(!m||!q)return;
