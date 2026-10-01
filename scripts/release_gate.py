@@ -84,6 +84,7 @@ def main() -> int:
         '<style id="v54-1-visual-refinement-system">',
         '<style id="v54-2-roster-visual-detail">',
         '<style id="v55-0-game-show-pack">',
+        '<style id="v55-1-roster-refinement">',
     )
     check("html shell: head closes before body opens", head_close >= 0 and body_open > head_close and bool(re.search(r"</head>\s*<body(?:\s|>)", html, re.I)))
     check("html shell: release styles are inside head", head_close >= 0 and all(0 <= html.find(tag) < head_close for tag in release_styles))
@@ -177,6 +178,12 @@ def main() -> int:
     except SyntaxError as exc:
         server_syntax_ok, server_syntax_detail = False, f"{exc.msg} at line {exc.lineno}"
     check("server: Python source parses", server_syntax_ok, server_syntax_detail)
+
+    # v55.1 sparse roster refinement.
+    check("roster refinement: release style remains", '<style id="v55-1-roster-refinement">' in html)
+    check("roster refinement: one/two student hero layout remains", 'avatar-line:not(:has(.crew:nth-child(3)))' in html and 'grid-template-columns:188px minmax(165px,1fr)' in html)
+    check("roster refinement: active alert rails remain", 'crew.buzz-glow::before' in html and 'crew.hand-raised-glow::after' in html)
+    check("roster refinement: connected-state dot remains", 'crew>small::before' in html and 'background:#65d2a5' in html)
 
     # Inline JavaScript parse validation.
     scripts = re.findall(r"<script[^>]*>(.*?)</script>", html, flags=re.S | re.I)
