@@ -10030,8 +10030,8 @@ function renderActivities(){
       </div>
     </div>`;
   }).join('');
-  $('[data-shortcut-replace]').forEach(b=>b.onclick=()=>beginShortcutAssignment(Number(b.dataset.shortcutReplace)));
-  $('[data-shortcut-remove]').forEach(b=>b.onclick=()=>removeAppShortcut(Number(b.dataset.shortcutRemove)));
+  $$('[data-shortcut-replace]').forEach(b=>b.onclick=()=>beginShortcutAssignment(Number(b.dataset.shortcutReplace)));
+  $$('[data-shortcut-remove]').forEach(b=>b.onclick=()=>removeAppShortcut(Number(b.dataset.shortcutRemove)));
 
   const presets=loadActivityPresets(),recent=loadRecentActivities();
   const visibleApps=APP_REGISTRY.filter(app=>activityLibraryMatches(app));
@@ -10078,23 +10078,23 @@ function renderActivities(){
     const next=$('#activityLibrarySearch');if(next){next.focus();try{next.setSelectionRange(cursor,cursor)}catch(err){}}
   };
   const searchClear=$('#activityLibrarySearchClear');if(searchClear)searchClear.onclick=()=>{activityLibraryQuery='';renderActivities();const next=$('#activityLibrarySearch');if(next)next.focus()};
-  $('[data-activity-category]').forEach(b=>b.onclick=()=>{activityLibraryCategory=b.dataset.activityCategory||'all';renderActivities()});
+  $$('[data-activity-category]').forEach(b=>b.onclick=()=>{activityLibraryCategory=b.dataset.activityCategory||'all';renderActivities()});
   const resetFilters=$('#resetActivityLibraryFilters');if(resetFilters)resetFilters.onclick=()=>{activityLibraryQuery='';activityLibraryCategory='all';renderActivities()};
 
-  $('[data-preset-launch]').forEach(b=>b.onclick=()=>launchActivityPreset(b.dataset.presetLaunch));
-  $('[data-preset-open]').forEach(b=>b.onclick=()=>{const p=loadActivityPresets().find(x=>x.id===b.dataset.presetOpen);if(p)applyActivityPreset(p,{launch:false})});
-  $('[data-preset-delete]').forEach(b=>b.onclick=()=>deleteActivityPreset(b.dataset.presetDelete));
-  $('[data-recent-open]').forEach(b=>b.onclick=()=>reopenRecentActivity(loadRecentActivities()[Number(b.dataset.recentOpen)],false));
-  $('[data-recent-launch]').forEach(b=>b.onclick=()=>reopenRecentActivity(loadRecentActivities()[Number(b.dataset.recentLaunch)],true));
-  $('[data-open-app]').forEach(b=>b.onclick=()=>openApp(b.dataset.openApp));
-  $('[data-manage-shortcut]').forEach(b=>b.onclick=()=>beginShortcutAssignment(Number(b.dataset.manageShortcut)));
-  $('[data-assign-app]').forEach(b=>b.onclick=()=>{
+  $$('[data-preset-launch]').forEach(b=>b.onclick=()=>launchActivityPreset(b.dataset.presetLaunch));
+  $$('[data-preset-open]').forEach(b=>b.onclick=()=>{const p=loadActivityPresets().find(x=>x.id===b.dataset.presetOpen);if(p)applyActivityPreset(p,{launch:false})});
+  $$('[data-preset-delete]').forEach(b=>b.onclick=()=>deleteActivityPreset(b.dataset.presetDelete));
+  $$('[data-recent-open]').forEach(b=>b.onclick=()=>reopenRecentActivity(loadRecentActivities()[Number(b.dataset.recentOpen)],false));
+  $$('[data-recent-launch]').forEach(b=>b.onclick=()=>reopenRecentActivity(loadRecentActivities()[Number(b.dataset.recentLaunch)],true));
+  $$('[data-open-app]').forEach(b=>b.onclick=()=>openApp(b.dataset.openApp));
+  $$('[data-manage-shortcut]').forEach(b=>b.onclick=()=>beginShortcutAssignment(Number(b.dataset.manageShortcut)));
+  $$('[data-assign-app]').forEach(b=>b.onclick=()=>{
     const id=b.dataset.assignApp,slot=state.assigningSlot;
     const previous=state.favoriteSlots.indexOf(id);
     if(previous>=0&&previous!==slot)state.favoriteSlots[previous]=null;
     state.favoriteSlots[slot]=id;state.assigningSlot=null;persistAppShortcuts();render();toast(`${appById(id)?.name||'App'} added to Shortcut ${slot+1}`);
   });
-  $('[data-add-app]').forEach(b=>b.onclick=()=>{
+  $$('[data-add-app]').forEach(b=>b.onclick=()=>{
     const id=b.dataset.addApp;let slot=state.favoriteSlots.findIndex(x=>!x);
     if(slot<0){toast('All 9 shortcuts are full — use Replace or Remove in the Shortcut Manager above');return}
     state.favoriteSlots[slot]=id;persistAppShortcuts();render();toast(`${appById(id)?.name||'App'} added to Shortcut ${slot+1}`);
