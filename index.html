@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v55.3 — Activity Shortcut Manager</title>
+<title>SI Mothership v55.4 — Classroom Workflow Polish</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -6421,6 +6421,246 @@ body.role-student .million-student-lifelines button{
 }
 </style>
 
+
+<style id="v55-4-classroom-workflow-polish">
+/* v55.4 — classroom workflow + sparse roster polish. */
+#teacher .roster-card.sparse-roster{
+  min-height:0!important
+}
+#teacher .roster-card.sparse-roster .roster-inner{
+  border-color:#294852!important;
+  border-radius:20px!important;
+  background:
+    radial-gradient(circle at 42% -25%,rgba(70,198,225,.07),transparent 48%),
+    linear-gradient(180deg,#0a1720,#08141b)!important;
+  box-shadow:0 18px 40px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.025)!important
+}
+#teacher .roster-card.sparse-roster .roster-head{
+  min-height:42px;
+  gap:14px;
+  margin-bottom:12px!important;
+  border-bottom:1px solid #1f3842
+}
+#teacher .roster-card.sparse-roster .roster-head .left{
+  gap:10px!important
+}
+#teacher .roster-card.sparse-roster .roster-head .eyebrow{
+  font-size:10px!important;
+  letter-spacing:.15em!important
+}
+#teacher .roster-card.sparse-roster #rosterRange{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:4px 9px;
+  border:1px solid #2d4b57;
+  border-radius:999px;
+  background:#0d2029;
+  color:#9eb8c1!important;
+  font-size:9px;
+  font-weight:850;
+  letter-spacing:.025em
+}
+#teacher .roster-card.sparse-roster .roster-head-actions{
+  gap:8px!important
+}
+#teacher .roster-card.sparse-roster .custom-roster-btn{
+  min-height:30px!important;
+  padding:6px 10px!important;
+  border-color:#31505d!important;
+  border-radius:9px!important;
+  background:#10232d!important;
+  color:#abc2ca!important;
+  font-size:9px!important
+}
+#teacher .roster-card.sparse-roster .carousel-controls{
+  gap:7px!important;
+  font-size:9px!important
+}
+#teacher .roster-card.sparse-roster .carousel-controls button{
+  width:30px!important;
+  height:30px!important;
+  border-color:#2c4956!important;
+  border-radius:9px!important;
+  background:#0e2029!important;
+  color:#9fb9c1!important;
+  font-size:18px!important
+}
+
+/* Student-level alert language: integrated into each pod, not floating around the avatar. */
+#teacher .roster-card.sparse-roster .crew-avatar-stage .buzz-chip,
+#teacher .roster-card.sparse-roster .crew-avatar-stage .hand-chip,
+#teacher .roster-card.sparse-roster .crew-avatar-stage .help-chip{
+  display:none!important
+}
+#teacher .roster-card.sparse-roster .crew-signal-dock{
+  min-height:32px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:6px;
+  flex-wrap:wrap
+}
+#teacher .roster-card.sparse-roster .crew-signal-dock .buzz-chip,
+#teacher .roster-card.sparse-roster .crew-signal-dock .hand-chip,
+#teacher .roster-card.sparse-roster .crew-signal-dock .help-chip{
+  position:static!important;
+  inset:auto!important;
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+  min-height:25px;
+  margin:0!important;
+  padding:5px 8px!important;
+  border-radius:8px!important;
+  font-family:Inter,ui-sans-serif,system-ui,sans-serif!important;
+  font-size:8px!important;
+  font-style:normal!important;
+  font-weight:950!important;
+  letter-spacing:.055em!important;
+  line-height:1!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important
+}
+#teacher .roster-card.sparse-roster .crew-signal-dock .buzz-chip{
+  order:1;
+  border:1px solid #2a8fae!important;
+  background:#0c3442!important;
+  color:#8deaff!important
+}
+#teacher .roster-card.sparse-roster .crew-signal-dock .hand-chip{
+  order:2;
+  border:1px solid #80682f!important;
+  background:#30260f!important;
+  color:#f4d778!important
+}
+#teacher .roster-card.sparse-roster .crew-signal-dock .help-chip{
+  order:3;
+  border:1px solid #744052!important;
+  background:#2a1720!important;
+  color:#f3a5b8!important
+}
+#teacher .roster-card.sparse-roster .crew-signal-clear{
+  display:inline-flex;
+  align-items:center;
+  min-height:23px;
+  color:#526b74;
+  font-size:7px;
+  font-weight:850;
+  letter-spacing:.11em
+}
+#teacher .roster-card.sparse-roster .crew-signal-clear::before{
+  content:"";
+  width:5px;
+  height:5px;
+  margin-right:6px;
+  border-radius:50%;
+  background:#4f7469
+}
+
+/* Keep active rails as a quick peripheral cue, but make them quieter. */
+#teacher .roster-card.sparse-roster .crew.buzz-glow::before,
+#teacher .roster-card.sparse-roster .crew.hand-raised-glow::after{
+  top:24px!important;
+  bottom:24px!important;
+  width:2px!important;
+  opacity:.78
+}
+#teacher .roster-card.sparse-roster .crew.buzz-first{
+  border-color:#397080!important;
+  box-shadow:0 14px 32px rgba(0,0,0,.18),0 0 19px rgba(85,221,255,.08),inset 0 1px 0 rgba(255,255,255,.03)!important
+}
+
+/* One/two student hero pods. */
+#teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))) .crew{
+  grid-template-rows:auto auto auto minmax(0,1fr) auto!important;
+  grid-template-areas:
+    "avatar name"
+    "avatar connection"
+    "avatar status"
+    "avatar note"
+    "avatar signals"!important;
+  min-height:210px!important;
+  padding:16px 22px 15px 16px!important
+}
+#teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))) .crew-signal-dock{
+  grid-area:signals;
+  align-self:end;
+  justify-self:start;
+  padding-top:7px
+}
+#teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))) .bot-card{
+  width:178px!important;
+  height:176px!important
+}
+#teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))) .crew>b{
+  font-size:22px!important;
+  letter-spacing:-.02em
+}
+#teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))) .crew>small{
+  color:#779099!important
+}
+#teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))) .ready-pill{
+  margin-top:2px!important
+}
+
+/* Three/four student sparse rooms keep compact pods with a bottom status rail. */
+#teacher .roster-card.sparse-roster .avatar-line:has(.crew:nth-child(3)) .crew{
+  display:flex!important;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  min-height:274px!important
+}
+#teacher .roster-card.sparse-roster .avatar-line:has(.crew:nth-child(3)) .crew-signal-dock{
+  width:100%;
+  justify-content:center;
+  margin-top:auto;
+  padding-top:9px;
+  border-top:1px solid #1c333d
+}
+#teacher .roster-card.sparse-roster .avatar-line:has(.crew:nth-child(3)) .crew-signal-clear{
+  justify-content:center
+}
+#teacher .roster-card.sparse-roster .page-dots{
+  margin-top:8px!important
+}
+#teacher .roster-card.sparse-roster .page-dots button{
+  width:6px!important;
+  height:6px!important;
+  background:#2a4752!important
+}
+#teacher .roster-card.sparse-roster .page-dots button.active{
+  width:20px!important;
+  background:#67cddd!important
+}
+#teacher .roster-card.sparse-roster .empty-roster-message{
+  min-height:205px!important;
+  border-color:#294652!important;
+  background:
+    radial-gradient(circle at 50% 45%,rgba(71,190,214,.06),transparent 45%),
+    #08151d!important
+}
+#teacher .roster-card.sparse-roster .empty-roster-message b{
+  color:#c3d4d9!important;
+  font-size:18px!important
+}
+#teacher .roster-card.sparse-roster .empty-roster-message span{
+  display:block;
+  max-width:430px;
+  margin-top:6px;
+  color:#6f8790!important;
+  font-size:11px!important;
+  line-height:1.45
+}
+
+@media(max-width:900px){
+  #teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))) .crew-signal-dock{
+    justify-content:center
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -8795,6 +9035,7 @@ function renderRoster(){
   const rosterCard=$('#lobbyPanel');if(rosterCard)rosterCard.classList.toggle('sparse-roster',state.students.length<=4);
   const list=state.students.slice(state.rosterPage*8,state.rosterPage*8+8);
   const activity=state.activityRun,a=activeActivity(),slide=currentSlide();
+  const sparseSignals=state.students.length<=4;
   if(!list.length){$('#avatarLine').innerHTML='<div class="empty-roster-message"><div><b>No students joined yet</b><span>Students will appear here after they enter the class code and choose an avatar.</span></div></div>';$('#rosterRange').textContent='0 students';$('#rosterPageLabel').textContent='1 / 1';$('#pageDots').innerHTML='<button class="active"></button>';renderRosterAlert();return}
   $('#avatarLine').innerHTML=list.map(s=>{
     const help=(state.helpMessages||[]).some(m=>m.name===s.n&&!(state.helpDeletedIds||[]).includes(String(m.id))),hand=state.alerts.some(a=>a.type==='hand'&&a.name===s.n),buzzIndex=state.buzz.indexOf(s.n),buzzed=buzzIndex>=0,resp=responseLabel(s);
@@ -8824,7 +9065,8 @@ function renderRoster(){
     const readyGlow=!activity&&s.readyResponse==='Ready'&&!s.offline&&state.screen!=='lobby'&&state.screen!=='brb';
     const boardGlow=activity&&activeActivity()?.type==='board'&&boardState()?.controller===s.n&&!s.offline;
     const showResponseNote=!!resp&&!(state.promptActive&&['ready','emotion','understanding'].includes(state.screen));
-    return `<div class="crew ${s.offline?'offline':''} ${readyGlow?'ready-glow':''} ${boardGlow?'board-control-glow':''} ${hand?'hand-raised-glow':''} ${buzzed?'buzz-glow':''} ${buzzIndex===0?'buzz-first':''}" style="--c:${s.c}"><div class="crew-avatar-stage"><div class="stem"></div><div class="bot-card ${String(s.avatarKey||'').startsWith('custom_')?'custom-avatar-card':''}">${avatarRosterMarkup(s)}</div>${buzzed?`<em class="buzz-chip">ϟ BUZZ ${buzzIndex+1}</em>`:''}${hand?'<em class="hand-chip">✋ HAND</em>':''}${help?'<em class="help-chip">HELP</em>':''}</div><b>${s.n}</b><small>${s.offline?'Reconnecting':'Connected'}</small>${pill}${showResponseNote?`<span class="response-note">${esc(resp)}</span>`:''}</div>`;
+    const signalMarkup=`${buzzed?`<em class="buzz-chip">ϟ BUZZ ${buzzIndex+1}</em>`:''}${hand?'<em class="hand-chip">✋ HAND</em>':''}${help?'<em class="help-chip">? HELP</em>':''}`;
+    return `<div class="crew ${s.offline?'offline':''} ${readyGlow?'ready-glow':''} ${boardGlow?'board-control-glow':''} ${hand?'hand-raised-glow':''} ${buzzed?'buzz-glow':''} ${buzzIndex===0?'buzz-first':''}" style="--c:${s.c}"><div class="crew-avatar-stage"><div class="stem"></div><div class="bot-card ${String(s.avatarKey||'').startsWith('custom_')?'custom-avatar-card':''}">${avatarRosterMarkup(s)}</div>${sparseSignals?'':signalMarkup}</div><b>${s.n}</b><small>${s.offline?'Reconnecting':'Connected'}</small>${pill}${showResponseNote?`<span class="response-note">${esc(resp)}</span>`:''}${sparseSignals?`<div class="crew-signal-dock ${signalMarkup?'active':'quiet'}">${signalMarkup||'<span class="crew-signal-clear">NO ACTIVE ALERTS</span>'}</div>`:''}</div>`;
   }).join('');
   $('#rosterRange').textContent=state.students.length?`${state.rosterPage*8+1}–${Math.min(state.rosterPage*8+8,state.students.length)} of ${state.students.length}`:'No students joined';
   $('#rosterPageLabel').textContent=`${state.rosterPage+1} / ${pageCount}`;
