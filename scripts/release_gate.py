@@ -302,10 +302,12 @@ def main() -> int:
     check("calculator classroom: normal activity launch closes calculator", "if(state.calculatorLaunch)state.calculatorLaunch=null;" in segment(html, "function recordActivityLaunch("))
 
     # v55.6 compact calculator overlay window for screen-sharing/modeling.
-    check("calculator popup: teacher launcher requests compact popup", "scientificCalculatorPopupUrl" in html and "popup=yes,width=430,height=760" in html and "siScientificCalculator" in html)
+    check("calculator popup: teacher launcher requests compact popup", "scientificCalculatorPopupUrl" in html and "popup=yes,width=410,height=720" in html and "siScientificCalculator" in html)
     check("calculator popup: class launch also opens teacher modeling window", "openScientificCalculator(settings)" in segment(html, "function launchScientificCalculatorForClass("))
     check("calculator popup: route injects popup skin only when requested", 'request.query.get("popup")' in server and "CALCULATOR_POPUP_STYLE if popup_mode else" in server)
-    check("calculator popup: rendered calculator self-sizes its browser window", 'id="v55-6-calculator-popup-window"' in server and "getBoundingClientRect()" in server and "window.resizeTo(targetW,targetH)" in server)
+    check("calculator popup: rendered calculator self-sizes its browser window", 'id="v55-6-calculator-popup-window"' in server and "getBoundingClientRect()" in server and "window.resizeBy(deltaW,deltaH)" in server)
+    check("calculator popup: calculator is pinned to browser content origin", "display:block!important" in server and "width:max-content!important" in server and "padding:0!important" in server and "margin:0!important" in server)
+    check("calculator popup: viewport-delta fitting replaces page-box fitting", "wantedW=Math.ceil(rect.right)" in server and "wantedH=Math.ceil(rect.bottom)" in server and "deltaW=wantedW-window.innerWidth" in server and "deltaH=wantedH-window.innerHeight" in server)
     check("calculator popup: normal physical calculator proportions remain", "width:332px!important" in server and "min-height:104px!important" in server and "min-height:34px!important" in server)
 
     # Historical selector invariant: $() is single-element; $() is multi-element.
