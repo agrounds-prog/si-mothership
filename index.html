@@ -5086,6 +5086,79 @@ body.role-shared .board-public-head{
   #teacher .roster-card.sparse-roster .crew .help-chip{right:-12px!important}
 }
 </style>
+
+<style id="v55-0-game-show-pack">
+/* v55.0 — CREW SURVEY + MILLION. */
+.game-show-setup{grid-column:1/-1;display:grid;gap:14px}
+.game-show-hero{padding:22px;border:1px solid #31516a;border-radius:18px;background:radial-gradient(circle at 70% 10%,#15385b,#081526 60%);box-shadow:0 18px 42px #0004}
+.game-show-hero h3{margin:8px 0 5px;font-size:34px;letter-spacing:-.03em}
+.game-show-hero p{margin:0;color:#9db0c9}
+.crew-survey-hero{border-color:#4a5b68;background:linear-gradient(120deg,#092948,#171625 55%,#3a101b)}
+.million-hero{border-color:#725b34;background:radial-gradient(circle at 70% 15%,#3f2b16,#10162b 58%,#07111f)}
+.game-show-setup-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}
+.game-show-card{padding:16px;border:1px solid #2c4861;border-radius:15px;background:#091726;box-shadow:0 12px 28px #0003}
+.game-show-card h4{margin:0 0 10px;color:#dce8f7}
+.game-show-field{display:grid;gap:6px;color:#849ab5;font-size:9px;font-weight:900;letter-spacing:.1em}
+.game-show-field textarea,.game-show-field input,.game-show-field select,.million-question-source{width:100%;border:1px solid #34516f;border-radius:10px;background:#061321;color:#eef5ff;padding:10px;outline:none}
+.game-show-field textarea{min-height:82px;resize:vertical}
+.game-show-field select{min-height:42px}
+.setup-copy{color:#8297b2;font-size:11px;line-height:1.45}
+.game-show-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 0 8px}
+.game-show-card-head button{border:1px solid #34516f;border-radius:8px;background:#102039;color:#bcd0e7;padding:7px 9px}
+.game-show-crew-preview{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}
+.game-show-crew-preview>div{padding:10px 12px;border:1px solid #35506d;border-radius:11px;background:#071625}
+.game-show-crew-preview>div:first-child{border-color:#287bc0}.game-show-crew-preview>div:last-child{border-color:#a4394f}
+.game-show-crew-preview b{display:block;font-size:11px}.game-show-crew-preview span{display:block;margin-top:4px;color:#8fa3ba;font-size:9px}
+.survey-answer-edit{display:grid;grid-template-columns:28px minmax(0,1fr) 78px 32px;gap:6px;align-items:center;margin:6px 0}
+.survey-answer-edit>span{display:grid;place-items:center;height:34px;border-radius:8px;background:#0d2840;color:#75dffa;font-weight:950}
+.survey-answer-edit input{height:34px;border:1px solid #304d68;border-radius:8px;background:#071321;color:#fff;padding:0 9px}
+.survey-answer-edit button{height:34px;border:1px solid #71354a;border-radius:8px;background:#2a1020;color:#ff9eb9}
+.game-show-toggle{display:flex;align-items:center;gap:8px;margin-top:10px;color:#a6b6c8;font-size:11px}
+.game-show-student-checks{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}
+.game-show-student-checks label{display:flex;align-items:center;gap:7px;padding:7px;border:1px solid #2a435b;border-radius:9px;background:#081526;color:#c8d6e6;font-size:10px}
+.game-show-student-checks .student-avatar-badge{transform:scale(.72);transform-origin:left center;margin-right:-8px}
+.game-show-launch-row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:12px}
+.game-show-launch-row button{min-height:42px;padding:9px 12px;border:1px solid #34516f;border-radius:10px;background:#102039;color:#d9e6f6;font-weight:900}
+.game-show-launch{min-width:220px!important;color:#06101d!important}
+.crew-survey-launch{background:linear-gradient(135deg,#27c9e4,#2c76e8)!important;border-color:#65eaff!important}
+.million-launch{background:linear-gradient(135deg,#ffc83d,#f28a37)!important;border-color:#ffd977!important}
+.million-question-source{min-height:310px;resize:vertical;font:11px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace}
+.million-lifeline-setup{display:grid;gap:7px}.million-lifeline-setup label{display:grid;grid-template-columns:1fr 64px;gap:8px;align-items:center;color:#b8c6d6;font-size:10px}.million-lifeline-setup input{height:34px;border:1px solid #3a5069;border-radius:8px;background:#071321;color:#fff;text-align:center}
+
+/* CREW SURVEY shared */
+.crew-survey-public{position:relative;width:min(1120px,96%);margin:auto;padding:16px;border:1px solid #31577b;border-radius:22px;background:radial-gradient(circle at 50% 20%,#12315c,#071524 68%);box-shadow:0 22px 54px #0006;overflow:hidden}
+.crew-survey-stage-head{display:grid;grid-template-columns:150px 1fr 150px;gap:12px;align-items:center}
+.crew-survey-prompt{padding:12px;border:2px solid #2d7fd2;border-radius:16px;background:#071a35;text-align:center;box-shadow:0 0 24px #2189e644}
+.crew-survey-prompt h3{margin:4px 0;font-size:28px}
+.crew-survey-score{padding:12px;border:2px solid;border-radius:14px;text-align:center;background:#071522}.crew-survey-score span{display:block;font-size:10px;font-weight:950}.crew-survey-score b{display:block;font-size:30px;margin-top:4px}.crew-survey-score.blue{border-color:#2da8ff;color:#86dcff}.crew-survey-score.red{border-color:#ff4867;color:#ff9bab}
+.crew-survey-board{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px auto;max-width:760px}
+.crew-survey-panel{min-height:58px;display:grid;grid-template-columns:44px 1fr 64px;align-items:center;border:2px solid #2583df;border-radius:8px;background:linear-gradient(180deg,#0a56b7,#083779);box-shadow:inset 0 0 0 2px #76c6ff22;color:#dbeeff}
+.crew-survey-panel>b{display:grid;place-items:center;height:100%;border-right:1px solid #74bdff88;font-size:20px}.crew-survey-panel span{padding:0 12px;font-size:18px;font-weight:900}.crew-survey-panel strong{text-align:center;font-size:20px}.crew-survey-panel:not(.revealed) span:after{content:'TOP ANSWER';opacity:.12;letter-spacing:.13em}
+.crew-survey-footer{display:grid;grid-template-columns:180px 1fr 180px;gap:10px;align-items:center}
+.crew-survey-strikes{display:flex;justify-content:center;gap:7px}.crew-survey-strikes span{width:42px;height:42px;display:grid;place-items:center;border:1px solid #4b3340;border-radius:8px;background:#1a1018;color:#6a3848;font-size:25px;font-weight:950}.crew-survey-strikes span.on{border-color:#ff4263;background:#45101d;color:#ff6a7f;box-shadow:0 0 18px #ff365866}
+.crew-survey-round{text-align:center}.crew-survey-round b{display:block;color:#ffd46e}.crew-survey-round span{display:block;margin-top:4px;color:#9db1c8;font-size:10px}
+.crew-survey-buzzer-banner,.crew-survey-steal,.crew-survey-active{margin:10px auto 0;max-width:760px;padding:9px 12px;border-radius:11px;text-align:center;font-weight:950}.crew-survey-buzzer-banner.armed{border:1px solid #43dda1;background:#10392c;color:#8affc5}.crew-survey-buzzer-banner.winner{border:1px solid #ff4b63;background:#4c101e;color:#fff;box-shadow:0 0 26px #ff365844}.crew-survey-steal{border:1px solid #ff454f;background:#3c1015;color:#ffcf55;font-size:20px}.crew-survey-active{border:1px solid #315878;background:#091c31;color:#a6dbff}
+
+/* CREW SURVEY student */
+.crew-survey-big-buzz{width:min(260px,72vw);aspect-ratio:1;margin:16px auto;display:grid;place-items:center;border:5px solid #ff5369!important;border-radius:50%!important;background:radial-gradient(circle,#ff324e,#b20d25 70%)!important;color:white!important;box-shadow:0 0 0 9px #ff4d6733,0 0 46px #ff1e3f88!important;font-size:60px!important}.crew-survey-big-buzz span{display:block;font-size:28px}
+.crew-survey-aac{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.crew-survey-aac button{min-height:60px;border:1px solid #45749a;border-radius:12px;background:#15314b;color:#fff;font-weight:900}.crew-survey-aac button:nth-child(4n+1){background:#f1c74c;color:#111}.crew-survey-aac button:nth-child(4n+2){background:#57cfe8;color:#07111c}.crew-survey-aac button:nth-child(4n+3){background:#71dda6;color:#07111c}.crew-survey-aac button:nth-child(4n+4){background:#b47af1;color:#07111c}
+.crew-survey-type{display:grid;grid-template-columns:1fr auto;gap:8px}.crew-survey-type input{min-height:50px;border:1px solid #355777;border-radius:10px;background:#071321;color:#fff;padding:0 12px}.crew-survey-type button{border:1px solid #5be8ff;border-radius:10px;background:#14628a;color:#fff;font-weight:900;padding:0 18px}
+
+/* CREW SURVEY teacher */
+.crew-survey-teacher{display:grid;gap:12px}.crew-survey-host-card{display:grid;grid-template-columns:1fr .8fr 1fr;gap:10px}.crew-survey-team-control,.crew-survey-buzzer-control,.crew-survey-answer-control,.crew-survey-turn-control{padding:12px;border:1px solid #2c4767;border-radius:12px;background:#081527}.crew-survey-team-control.blue{border-color:#285f91}.crew-survey-team-control.red{border-color:#7d3145}.crew-survey-team-control span{display:block;min-height:28px;color:#849bb5;font-size:9px;line-height:1.4}.crew-survey-team-control select{width:100%;margin:7px 0;padding:8px;border:1px solid #34516f;border-radius:8px;background:#071321;color:#fff}.crew-survey-team-control button{width:49%;min-height:35px;border:1px solid #35506f;border-radius:8px;background:#102039;color:#dce8f7}.crew-survey-buzzer-control{text-align:center}.crew-survey-buzzer-control>b{display:block;margin:10px 0;color:#ffe178}.crew-survey-buzzer-control>div{display:grid;gap:6px}.crew-survey-host-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:10px}.crew-survey-answer-control>div{display:grid;grid-template-columns:1fr 60px 74px;gap:7px;align-items:center;padding:7px;border-bottom:1px solid #1e334c}.crew-survey-answer-control>div.revealed{background:#0e2c3d}.crew-survey-answer-control button{padding:6px;border:1px solid #3976a9;border-radius:7px;background:#0d3760;color:#9ee8ff}.game-show-current{padding:10px;border:1px solid #31506f;border-radius:9px;background:#0a1b31;color:#dceaff;font-weight:900}.game-show-private-response{margin-top:9px;padding:10px;border:1px solid #4b4b7a;border-radius:10px;background:#17162b}.game-show-private-response span,.game-show-private-response small{display:block;color:#8c8bad;font-size:8px}.game-show-private-response b{display:block;margin-top:4px}.game-show-private-response p{margin:6px 0;color:#fff;font-size:16px}.crew-survey-host-actions{display:grid;gap:7px;margin-top:10px}.crew-survey-teacher-strikes{display:flex;gap:8px;margin-top:10px}.crew-survey-teacher-strikes span{flex:1;padding:7px;border:1px solid #513041;border-radius:8px;background:#1b1018;color:#ff7e94;text-align:center}
+
+/* MILLION shared */
+.million-public{width:min(1180px,97%);margin:auto;display:grid;grid-template-columns:180px minmax(0,1fr) 190px;gap:14px;padding:16px;border:1px solid #39577b;border-radius:22px;background:radial-gradient(circle at 50% 5%,#172d5d,#091326 62%);box-shadow:0 24px 60px #0007}
+.million-ladder,.million-lifelines{padding:10px;border:1px solid #43658a;border-radius:14px;background:#07152a}.million-rung{display:grid;grid-template-columns:28px 1fr;gap:5px;padding:4px 7px;border-bottom:1px solid #19365a;color:#8ca8c8;font-size:10px}.million-rung b{text-align:right;color:#d5e6f7}.million-rung.active{border:1px solid #46a4ff;border-radius:7px;background:#0d3975;color:#fff;box-shadow:0 0 15px #328eff55}.million-rung.checkpoint b{color:#ffd764}.million-stage{text-align:center}.million-pilot{display:inline-flex;align-items:center;gap:8px;margin-bottom:7px;padding:7px 12px;border:1px solid #3974b1;border-radius:999px;background:#0a2347}.million-pilot-art{width:38px;height:38px;border-radius:11px;overflow:hidden}.million-pilot-art img{width:100%;height:100%;object-fit:cover}.million-pilot small{display:block;color:#75bced;font-size:7px}.million-pilot b{display:block;color:#fff}.million-stage h3{margin:8px auto 12px;max-width:720px;padding:14px;border:2px solid #2c75df;border-radius:14px;background:#071a42;font-size:28px}
+.million-choices{display:grid;grid-template-columns:1fr 1fr;gap:8px}.million-choice{display:grid;grid-template-columns:42px 1fr;align-items:center;min-height:58px;border:2px solid #2b68d1;border-radius:13px;background:linear-gradient(90deg,#09265c,#081a42);text-align:left;color:#fff}.million-choice b{display:grid;place-items:center;height:100%;border-right:1px solid #4e87e1;font-size:20px}.million-choice span{padding:0 12px;font-size:17px;font-weight:800}.million-choice.eliminated{opacity:.18;filter:grayscale(1)}.million-choice.locked{border-color:#f5c347;box-shadow:0 0 18px #f4be3c44}.million-choice.correct{border-color:#45df79;background:#0d6a39;box-shadow:0 0 22px #45df7955}.million-choice.wrong{border-color:#ff4d68;background:#551323}.million-lifelines h4{margin:3px 0 10px;color:#cde2f7}.million-lifelines span{display:block;margin:7px 0;padding:8px;border:1px solid #315477;border-radius:8px;color:#b8d0e8;font-size:9px;font-weight:900}.million-lifelines .spent{opacity:.32}.million-clue{display:grid;grid-template-columns:auto 1fr;gap:8px;margin:10px auto;padding:9px 12px;max-width:720px;border:1px solid #795fa1;border-radius:10px;background:#20183a;text-align:left}.million-clue b{color:#cda7ff;font-size:9px}.million-clue span{color:#f2ecff}.million-message{margin-top:10px;color:#9fb5cf;font-size:11px}.million-complete{margin-top:12px;padding:14px;border:2px solid #ffd452;border-radius:12px;background:#4c3309;color:#fff0a0;font-size:24px;font-weight:950;box-shadow:0 0 34px #ffc83f55}.million-poll{display:grid;gap:5px;margin:10px auto;max-width:620px}.million-poll>div{display:grid;grid-template-columns:24px 1fr 45px;gap:6px;align-items:center}.million-poll span{height:10px;border-radius:999px;background:#162743;overflow:hidden}.million-poll i{display:block;height:100%;background:linear-gradient(90deg,#55b9ff,#8bf05d)}
+
+/* MILLION student + teacher */
+.million-student-choices{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}.million-student-choice{min-height:72px;display:grid;grid-template-columns:44px 1fr;align-items:center;border:2px solid #2e62ca!important;border-radius:13px!important;background:#0b2457!important;color:#fff!important;text-align:left!important}.million-student-choice b{display:grid;place-items:center;height:100%;border-right:1px solid #5486e3;font-size:22px}.million-student-choice span{padding:0 10px;font-weight:850}.million-student-choice.selected{border-color:#ffd34d!important;box-shadow:0 0 0 3px #ffd34d22,0 0 20px #ffd34d33!important}.million-student-choice.correct{border-color:#4be184!important;background:#0f663a!important}.million-student-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.million-student-actions button{min-height:52px;border:1px solid #4f80c9;border-radius:11px;background:#0f3972;color:#fff;font-weight:900}.million-student-lifelines{display:none;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.million-student-lifelines.open{display:grid}.million-student-lifelines button{min-height:42px;border:1px solid #4a3f80;border-radius:9px;background:#201a45;color:#d8c7ff;font-weight:850}
+.million-teacher-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:10px}.million-teacher-card{padding:13px;border:1px solid #2d4969;border-radius:13px;background:#081629}.million-teacher-card select{padding:7px;border:1px solid #34516f;border-radius:8px;background:#071321;color:#fff}.million-teacher-choices{display:grid;gap:6px}.million-teacher-choices>div{display:grid;grid-template-columns:30px 1fr auto;gap:7px;align-items:center;padding:8px;border:1px solid #2c4665;border-radius:8px;background:#0b1b31}.million-teacher-choices .correct-key{border-color:#357c57}.million-teacher-choices .locked{box-shadow:inset 3px 0 0 #ffd34d}.million-teacher-choices em{color:#72e69f;font-size:7px;font-style:normal}.million-teacher-status{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0}.million-teacher-status span{padding:5px 7px;border:1px solid #2a4564;border-radius:7px;color:#91a6bf;font-size:9px}.million-teacher-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}.million-teacher-lifelines{display:grid;gap:6px}.million-teacher-lifelines>div{display:grid;grid-template-columns:1fr 42px 34px;gap:5px}.million-teacher-lifelines button{border:1px solid #414d86;border-radius:7px;background:#171d45;color:#cbd7ff}.million-teacher-lifelines span{display:grid;place-items:center;color:#9aaadb}.million-teacher-poll{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:8px 0}.million-teacher-poll span{padding:7px;border:1px solid #2c4767;border-radius:7px;text-align:center;color:#9cb0ca}.million-private-list{display:grid;gap:4px;max-height:180px;overflow:auto}.million-private-list>div{display:flex;justify-content:space-between;padding:5px 7px;border-bottom:1px solid #1f344f;color:#91a6bf;font-size:9px}
+
+@media(max-width:900px){.game-show-setup-grid,.crew-survey-host-grid,.million-teacher-grid{grid-template-columns:1fr}.crew-survey-host-card{grid-template-columns:1fr}.million-public{grid-template-columns:1fr}.million-ladder,.million-lifelines{display:none}.crew-survey-stage-head{grid-template-columns:100px 1fr 100px}.crew-survey-footer{grid-template-columns:1fr}.crew-survey-strikes{display:none}}
+@media(max-width:620px){.million-student-choices,.million-choices{grid-template-columns:1fr}.game-show-student-checks{grid-template-columns:1fr}.crew-survey-board{grid-template-columns:1fr}.game-show-launch-row{flex-direction:column;align-items:stretch}.game-show-launch{width:100%;min-width:0!important}}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -6693,7 +6766,7 @@ function activityPhaseLabel(){if(!state.activityRun)return '';if(state.activityR
 
 function activityWorkflowAppLabel(a=activeActivity()){
   if(!a)return'Activity';
-  return a.type==='presentation'?'SI+ Presentation':a.type==='minefield'?'MINEFIELD':a.type==='vector'?'VECTOR':a.type==='board'?'BOARD':a.type==='orbit'?'ORBIT':a.type==='pixel'?'PIXEL REVEAL':a.type==='sketch'?'SKETCH SIGNAL':a.type==='starwheel'?'STARWHEEL':(a.name||'Activity');
+  return a.type==='presentation'?'SI+ Presentation':a.type==='crew-survey'?'CREW SURVEY':a.type==='million'?'MILLION':a.type==='minefield'?'MINEFIELD':a.type==='vector'?'VECTOR':a.type==='board'?'BOARD':a.type==='orbit'?'ORBIT':a.type==='pixel'?'PIXEL REVEAL':a.type==='sketch'?'SKETCH SIGNAL':a.type==='starwheel'?'STARWHEEL':(a.name||'Activity');
 }
 function startOrResumeActivityRun(){
   const a=activeActivity(),run=state.activityRun;if(!run)return;
@@ -6957,10 +7030,195 @@ function minefieldOutcomeNarration({who,coord,t,mf,beforeHull,beforeShield,mode,
   return t.near?`${actor} selected ${sector}. SCANNING… REVEAL: ${t.near} nearby mine${t.near===1?'':'s'}.`:`${actor} selected ${sector}. SCANNING… REVEAL: SECTOR CLEAR.`;
 }
 
+
+/* v55.0 GAME SHOW PACK runtime */
+function crewSurveyConfig(run=state.activityRun){return run?.crewSurveyConfig||{}}
+function crewSurveyState(run=state.activityRun){return run?.crewSurvey||null}
+function crewSurveyTeamName(i){return Number(i)===1?'RED CREW':'BLUE CREW'}
+function crewSurveyTeamFor(name,run=state.activityRun){const teams=crewSurveyState(run)?.teams||[[],[]];return teams[1]?.includes(name)?1:teams[0]?.includes(name)?0:null}
+function crewSurveyActiveName(team,run=state.activityRun){
+  const cs=crewSurveyState(run),members=cs?.teams?.[Number(team)]||[];if(!members.length)return'';
+  return members[(Number(cs.activeIndexes?.[Number(team)]||0)%members.length+members.length)%members.length]||'';
+}
+function crewSurveyPrivateResponse(name,run=state.activityRun){return crewSurveyState(run)?.privateResponses?.[name]||null}
+function sendGameShowAction(game,type,value=''){
+  const s=selectedStudent(),run=state.activityRun;if(!run||!s)return;
+  const request={id:'gs_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),game,type,value,at:Date.now(),name:s.n};
+  if(NETWORK_SYNC&&networkHydrated&&networkSocket&&networkSocket.readyState===WebSocket.OPEN){
+    try{networkSocket.send(JSON.stringify({type:'game_show_action',request,student_name:s.n,student_token:currentStudentIdentity()?.student_token||''}));return}catch(e){}
+  }
+  if(game==='crew-survey'){
+    const cs=crewSurveyState(run);if(!cs)return;
+    if(type==='buzz'&&cs.buzzer?.armed&&!cs.buzzer?.winner&&(cs.buzzer.eligible||[]).includes(s.n)){cs.buzzer.winner=s.n;cs.buzzer.armed=false;cs.buzzer.lockedAt=Date.now();cs.message=s.n+' buzzed first.'}
+    if(type==='answer'){cs.privateResponses=cs.privateResponses||{};cs.privateResponses[s.n]={text:String(value||'').slice(0,160),source:'type',at:Date.now()};cs.lastResponse={name:s.n,text:String(value||'').slice(0,160),source:'type',at:Date.now()}}
+  } else if(game==='million'){
+    const m=millionState(run),q=millionQuestion(run);if(!m||!q)return;
+    if(type==='predict'){m.crewPredictions=m.crewPredictions||{};m.crewPredictions[s.n]=String(value||'').toUpperCase()}
+    if(m.pilot===s.n&&type==='select'){m.selectedAnswer=String(value||'').toUpperCase()}
+    if(m.pilot===s.n&&type==='lock'&&m.selectedAnswer)m.lockedAnswer=m.selectedAnswer;
+    if(m.pilot===s.n&&type==='lifeline')millionUseLifeline(String(value||''),false);
+  }
+  render();
+}
+function crewSurveyStudentSubmitAnswer(text,source='type'){
+  const value=String(text||'').trim();if(!value)return toast('Choose or type an answer');
+  const s=selectedStudent();if(!s)return;
+  const request={id:'gs_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),game:'crew-survey',type:'answer',value,source,at:Date.now(),name:s.n};
+  if(NETWORK_SYNC&&networkHydrated&&networkSocket&&networkSocket.readyState===WebSocket.OPEN){
+    try{networkSocket.send(JSON.stringify({type:'game_show_action',request,student_name:s.n,student_token:currentStudentIdentity()?.student_token||''}));toast('Answer sent privately to Mission Control');return}catch(e){}
+  }
+  const cs=crewSurveyState();cs.privateResponses=cs.privateResponses||{};cs.privateResponses[s.n]={text:value,source,at:Date.now()};cs.lastResponse={name:s.n,text:value,source,at:Date.now()};render();toast('Answer sent privately to Mission Control');
+}
+function crewSurveyArmBuzzers(){
+  const cs=crewSurveyState();if(!cs)return;
+  const eligible=(cs.buzzer?.eligible||[]).filter(Boolean);if(!eligible.length)return toast('Assign at least one face-off contestant');
+  cs.buzzer={armed:true,eligible,winner:null,lockedAt:null};cs.message='BUZZERS ARMED — waiting for the first valid signal.';render()
+}
+function crewSurveyResetBuzzers(){const cs=crewSurveyState();if(!cs)return;cs.buzzer={...(cs.buzzer||{}),armed:false,winner:null,lockedAt:null};cs.message='Buzzers reset. Re-arm when ready.';render()}
+function crewSurveySetContestant(team,name){
+  const cs=crewSurveyState();if(!cs)return;const eligible=[...(cs.buzzer?.eligible||[])];eligible[Number(team)]=name;cs.buzzer={...(cs.buzzer||{}),eligible:eligible.filter(Boolean),armed:false,winner:null,lockedAt:null};render()
+}
+function crewSurveyReveal(index){
+  const run=state.activityRun,cs=crewSurveyState(run),cfg=crewSurveyConfig(run),i=Number(index);if(!cs||!cfg.answers?.[i]||(cs.revealed||[]).includes(i))return;
+  cs.revealed=cs.revealed||[];cs.revealed.push(i);cs.roundPoints=Number(cs.roundPoints||0)+Number(cfg.answers[i].value||0);
+  const winner=cs.buzzer?.winner,team=crewSurveyTeamFor(winner,run);
+  if(cs.stage==='faceoff'&&team!==null){cs.controlTeam=team;cs.stage='play';cs.strikes=[0,0];cs.message=crewSurveyTeamName(team)+' controls the board.'}
+  else cs.message=(cfg.answers[i].text||'Answer')+' revealed.';
+  cs.lastResponse=null;render()
+}
+function crewSurveyStrike(){
+  const cs=crewSurveyState();if(!cs)return;
+  let team=cs.controlTeam;if(team===null||team===undefined)team=crewSurveyTeamFor(cs.buzzer?.winner);
+  if(team===null||team===undefined)return toast('Assign control to a crew first');
+  cs.strikes=cs.strikes||[0,0];cs.strikes[team]=Math.min(3,Number(cs.strikes[team]||0)+1);
+  if(cs.strikes[team]>=3){cs.stealAvailable=true;cs.stage='steal';cs.controlTeam=team===0?1:0;cs.message='X X X — '+crewSurveyTeamName(cs.controlTeam)+' can steal.'}
+  else cs.message=crewSurveyTeamName(team)+' strike '+cs.strikes[team]+'.';
+  cs.lastResponse=null;render()
+}
+function crewSurveyNextPlayer(){
+  const cs=crewSurveyState();if(!cs||cs.controlTeam===null||cs.controlTeam===undefined)return;
+  const t=Number(cs.controlTeam),members=cs.teams?.[t]||[];if(!members.length)return;
+  cs.activeIndexes=cs.activeIndexes||[0,0];cs.activeIndexes[t]=(Number(cs.activeIndexes[t]||0)+1)%members.length;cs.lastResponse=null;cs.message=crewSurveyActiveName(t)+' is up for '+crewSurveyTeamName(t)+'.';render()
+}
+function crewSurveySetControl(team){const cs=crewSurveyState();if(!cs)return;cs.controlTeam=Number(team);cs.stage='play';cs.message=crewSurveyTeamName(team)+' controls the board.';render()}
+function crewSurveyAwardRound(team){
+  const cs=crewSurveyState(),cfg=crewSurveyConfig();if(!cs)return;
+  if(cfg.scoring){cs.scores=cs.scores||[0,0];cs.scores[Number(team)]=Number(cs.scores[Number(team)]||0)+Number(cs.roundPoints||0)}
+  cs.stage='roundwon';cs.controlTeam=Number(team);cs.message=crewSurveyTeamName(team)+' wins the round!';render()
+}
+function crewSurveyNewRound(){
+  const cs=crewSurveyState();if(!cs)return;
+  const eligible=[cs.teams?.[0]?.[0],cs.teams?.[1]?.[0]].filter(Boolean);
+  cs.stage='faceoff';cs.strikes=[0,0];cs.revealed=[];cs.controlTeam=null;cs.activeIndexes=[0,0];cs.stealAvailable=false;cs.roundPoints=0;cs.privateResponses={};cs.lastResponse=null;cs.buzzer={armed:false,eligible,winner:null,lockedAt:null};cs.message='New face-off ready.';state.activityRun.runToken=newActivityRunToken();render()
+}
+function crewSurveySharedMarkup(run=state.activityRun,big=false){
+  const cs=crewSurveyState(run),cfg=crewSurveyConfig(run);if(!cs)return'';
+  const answers=cfg.answers||[],winner=cs.buzzer?.winner,winnerTeam=crewSurveyTeamFor(winner,run),control=cs.controlTeam,active=control!==null&&control!==undefined?crewSurveyActiveName(control,run):'';
+  const rows=answers.map((a,i)=>{const shown=(cs.revealed||[]).includes(i)&&a.text;return `<div class="crew-survey-panel ${shown?'revealed':''}"><b>${i+1}</b><span>${shown?esc(a.text):' '}</span><strong>${shown?Number(a.value||0):''}</strong></div>`}).join('');
+  const strikes=(cs.strikes||[0,0]).map((n,t)=>`<div class="crew-survey-strikes team-${t}">${Array.from({length:3},(_,i)=>`<span class="${i<n?'on':''}">X</span>`).join('')}</div>`).join('');
+  return `<div class="crew-survey-public ${big?'big':''}"><div class="crew-survey-stage-head"><div class="crew-survey-score blue"><span>BLUE CREW</span><b>${Number(cs.scores?.[0]||0)}</b></div><div class="crew-survey-prompt"><span class="eyebrow">CREW SURVEY</span><h3>${esc(cfg.prompt||'Survey Prompt')}</h3></div><div class="crew-survey-score red"><span>RED CREW</span><b>${Number(cs.scores?.[1]||0)}</b></div></div><div class="crew-survey-board">${rows}</div><div class="crew-survey-footer">${strikes}<div class="crew-survey-round"><b>${Number(cs.roundPoints||0)} ROUND ENERGY</b><span>${esc(cs.message||'')}</span></div></div>${cs.buzzer?.armed&&!winner?'<div class="crew-survey-buzzer-banner armed">BUZZERS ARMED</div>':''}${winner?`<div class="crew-survey-buzzer-banner winner">ϟ BUZZ! <b>${esc(winner)}</b> · ${esc(crewSurveyTeamName(winnerTeam))} · BUZZED FIRST</div>`:''}${cs.stealAvailable?'<div class="crew-survey-steal">X X X <b>STEAL AVAILABLE</b></div>':''}${active?`<div class="crew-survey-active">CURRENT TURN · <b>${esc(active)}</b> · ${esc(crewSurveyTeamName(control))}</div>`:''}</div>`;
+}
+function crewSurveyStudentMarkup(run,s){
+  const cs=crewSurveyState(run),cfg=crewSurveyConfig(run);if(!cs||!s)return'';
+  const team=crewSurveyTeamFor(s.n,run),eligible=(cs.buzzer?.eligible||[]).includes(s.n),winner=cs.buzzer?.winner,isWinner=winner===s.n,active=cs.controlTeam===team&&crewSurveyActiveName(team,run)===s.n&&(cs.stage==='play'||cs.stage==='steal'),canAnswer=isWinner||active;
+  const response=crewSurveyPrivateResponse(s.n,run),aac=(cfg.aacStudents||[]).includes(s.n)?(cfg.aacVocab||[]):[];
+  if(cs.stage==='faceoff'&&eligible&&cs.buzzer?.armed&&!winner)return `<div class="student-prompt crew-survey-student active-buzzer"><span class="eyebrow">CREW SURVEY · FACE-OFF</span><h2>It's your turn to buzz!</h2><button class="crew-survey-big-buzz" id="crewSurveyBuzzBtn">ϟ<span>BUZZ</span></button><p>First valid signal wins the face-off.</p></div>`;
+  if(cs.stage==='faceoff'&&eligible&&winner&&!isWinner)return `<div class="student-prompt activity-wait"><span class="eyebrow">CREW SURVEY · FACE-OFF</span><h2>Buzzer Locked</h2><p>${esc(winner)} buzzed first. Watch Mission Control.</p></div>`;
+  if(canAnswer){
+    return `<div class="student-prompt crew-survey-student"><span class="eyebrow">CREW SURVEY · ${isWinner?'BUZZ WINNER':'YOUR TURN'}</span><h2>${isWinner?'You buzzed first!':'Give your best answer'}</h2><p>${esc(cfg.prompt||'')}</p>${aac.length?`<div class="crew-survey-aac">${aac.map(v=>`<button data-cs-aac="${esc(v)}">${esc(v)}</button>`).join('')}</div>`:''}<div class="crew-survey-type"><input id="crewSurveyAnswerInput" maxlength="160" placeholder="Type an answer…"><button id="crewSurveyAnswerSend">Send</button></div>${response?`<div class="submitted-banner">Sent privately: <b>${esc(response.text||'')}</b></div>`:''}</div>`;
+  }
+  return `<div class="student-prompt activity-wait"><span class="eyebrow">CREW SURVEY · ${esc(crewSurveyTeamName(team))}</span><h2>${esc(active||winner||'Watch the board')}</h2><p>${active?'is answering now.':'Talk strategy with your crew and watch the shared screen.'}</p><div class="student-lobby-avatar">${studentAvatarBadgeMarkup(s)}</div></div>`;
+}
+function wireCrewSurveyStudent(){
+  if(activeActivity()?.type!=='crew-survey')return;
+  const buzz=$('#crewSurveyBuzzBtn');if(buzz)buzz.onclick=()=>{sendGameShowAction('crew-survey','buzz');buzz.disabled=true;toast('Buzz sent')};
+  $('[data-cs-aac]').forEach(b=>b.onclick=()=>crewSurveyStudentSubmitAnswer(b.dataset.csAac,'aac'));
+  const send=$('#crewSurveyAnswerSend'),input=$('#crewSurveyAnswerInput');if(send)send.onclick=()=>crewSurveyStudentSubmitAnswer(input?.value||'','type');if(input)input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send?.click()}};
+}
+
+const MILLION_LADDER_DEFAULT=[100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
+function millionConfig(run=state.activityRun){return run?.millionConfig||{}}
+function millionState(run=state.activityRun){return run?.million||null}
+function millionQuestion(run=state.activityRun){
+  const cfg=millionConfig(run),m=millionState(run),i=Math.max(0,Number(m?.questionIndex||0));return cfg.questions?.[i]||null
+}
+function millionPilot(run=state.activityRun){return studentByName(millionState(run)?.pilot)}
+function millionChoice(q,key){return q?.choices?.find(c=>c.key===key)||null}
+function millionPollCounts(run=state.activityRun){
+  const m=millionState(run),out={A:0,B:0,C:0,D:0};Object.values(m?.crewPredictions||{}).forEach(v=>{if(out[v]!==undefined)out[v]++});return out
+}
+function millionUseLifeline(type,renderNow=true){
+  const run=state.activityRun,m=millionState(run),cfg=millionConfig(run),q=millionQuestion(run);if(!m||!q)return;
+  const k=String(type||''),left=Number(m.inventory?.[k]||0);if(left<=0)return toast('That lifeline is not available');
+  m.inventory[k]=left-1;
+  if(k==='poll'){m.pollOpen=true;m.pollVisible=false;m.message='POLL THE CREW is open. Everyone choose A, B, C, or D.'}
+  if(k==='reduce'){
+    const wrong=(q.choices||[]).map(c=>c.key).filter(key=>key!==q.correct&&!(m.eliminated||[]).includes(key));m.eliminated=wrong.slice(0,2);m.message='REDUCE SIGNAL removed two incorrect choices.'
+  }
+  if(k==='clue'){m.publicClue=q.mothershipClue||'Think carefully about what the question is asking.';m.message='MOTHERSHIP CLUE transmitted.'}
+  if(k==='tryAgain'){m.selectedAnswer='';m.lockedAnswer='';m.revealed=false;m.result='';m.publicCorrect='';m.over=false;m.message='TRY AGAIN activated. Choose another answer.'}
+  if(renderNow){render();toast('Lifeline activated')}
+}
+function millionResolve(correct){
+  const run=state.activityRun,m=millionState(run),cfg=millionConfig(run),q=millionQuestion(run);if(!m||!q)return;
+  m.revealed=true;m.publicCorrect=q.correct;m.result=correct?'correct':'incorrect';
+  if(correct){
+    m.ladderLevel=Math.min((cfg.ladder||MILLION_LADDER_DEFAULT).length,Number(m.ladderLevel||0)+1);
+    m.message='SIGNAL CONFIRMED — '+m.pilot+' climbs the ladder.';
+    if(m.ladderLevel>=(cfg.ladder||MILLION_LADDER_DEFAULT).length||m.questionIndex>=(cfg.questions||[]).length-1)m.complete=true;
+  }else{
+    m.message='SIGNAL LOST — correct answer revealed.';
+    if(cfg.risk==='friendly')m.over=true;
+    if(cfg.risk==='classic'){
+      const current=Number(m.ladderLevel||0),check=(cfg.checkpoints||[]).filter(x=>Number(x)<=current).pop()||0;m.ladderLevel=check;m.over=true
+    }
+  }
+  render()
+}
+function millionRotatePilot(run=state.activityRun){
+  const m=millionState(run),cfg=millionConfig(run),crew=connectedStudents();if(!m||!crew.length)return;
+  if(cfg.pilotMode==='individual')return;
+  m.pilotIndex=(Number(m.pilotIndex||0)+1)%crew.length;m.pilot=crew[m.pilotIndex].n
+}
+function millionNextQuestion(){
+  const run=state.activityRun,m=millionState(run),cfg=millionConfig(run);if(!m)return;
+  if(m.complete)return toast('Mission complete');
+  const next=Number(m.questionIndex||0)+1;if(next>=(cfg.questions||[]).length){m.complete=true;render();return}
+  m.questionIndex=next;millionRotatePilot(run);m.selectedAnswer='';m.lockedAnswer='';m.crewPredictions={};m.eliminated=[];m.publicClue='';m.pollOpen=false;m.pollVisible=false;m.revealed=false;m.result='';m.publicCorrect='';m.over=false;m.message='New question. Everyone think before the Command Seat locks an answer.';run.runToken=newActivityRunToken();render()
+}
+function millionSetPilot(name){const m=millionState();if(!m||!studentByName(name))return;m.pilot=name;m.pilotIndex=Math.max(0,connectedStudents().findIndex(s=>s.n===name));m.selectedAnswer='';m.lockedAnswer='';render()}
+function millionGrantLifeline(type){const m=millionState();if(!m)return;m.inventory=m.inventory||{};m.inventory[type]=Math.min(9,Number(m.inventory[type]||0)+1);render()}
+function millionSharedMarkup(run=state.activityRun,big=false){
+  const m=millionState(run),cfg=millionConfig(run),q=millionQuestion(run);if(!m||!q)return'';
+  const ladder=cfg.ladder||MILLION_LADDER_DEFAULT,pilot=millionPilot(run),counts=millionPollCounts(run),pollTotal=Object.values(counts).reduce((a,b)=>a+b,0);
+  const ladderHtml=ladder.map((v,i)=>`<div class="million-rung ${i===Number(m.ladderLevel||0)?'active':''} ${(cfg.checkpoints||[]).includes(i+1)?'checkpoint':''}"><span>${i+1}</span><b>${Number(v).toLocaleString()}</b></div>`).reverse().join('');
+  const choices=(q.choices||[]).map(c=>{const eliminated=(m.eliminated||[]).includes(c.key),locked=m.lockedAnswer===c.key,reveal=m.revealed,correct=reveal&&m.publicCorrect===c.key,wrong=reveal&&locked&&!correct;return `<div class="million-choice ${eliminated?'eliminated':''} ${locked?'locked':''} ${correct?'correct':''} ${wrong?'wrong':''}"><b>${c.key}</b><span>${esc(c.text||'')}</span></div>`}).join('');
+  const life=[['poll','POLL THE CREW'],['reduce','REDUCE SIGNAL'],['clue','MOTHERSHIP CLUE'],['tryAgain','TRY AGAIN']].map(([k,l])=>`<span class="${Number(m.inventory?.[k]||0)>0?'available':'spent'}">${esc(l)} ×${Number(m.inventory?.[k]||0)}</span>`).join('');
+  const poll=m.pollVisible?`<div class="million-poll">${['A','B','C','D'].map(k=>{const pct=pollTotal?Math.round(counts[k]/pollTotal*100):0;return `<div><b>${k}</b><span><i style="width:${pct}%"></i></span><strong>${pct}%</strong></div>`}).join('')}</div>`:'';
+  return `<div class="million-public ${big?'big':''}"><aside class="million-ladder">${ladderHtml}</aside><main class="million-stage"><div class="million-pilot"><div class="million-pilot-art">${pilot?avatarRosterMarkup(pilot):'◆'}</div><div><small>COMMAND SEAT</small><b>${esc(m.pilot||'Waiting')}</b></div></div><span class="eyebrow">MILLION · QUESTION ${Number(m.questionIndex||0)+1}</span><h3>${esc(q.prompt||'')}</h3><div class="million-choices">${choices}</div>${m.publicClue?`<div class="million-clue"><b>MOTHERSHIP CLUE</b><span>${esc(m.publicClue)}</span></div>`:''}${poll}<div class="million-message">${esc(m.message||'')}</div>${m.complete?'<div class="million-complete">MISSION COMPLETE · 1,000,000</div>':''}</main><aside class="million-lifelines"><h4>LIFELINES</h4>${life}</aside></div>`;
+}
+function millionStudentMarkup(run,s){
+  const m=millionState(run),q=millionQuestion(run);if(!m||!q||!s)return'';
+  const pilot=m.pilot===s.n,pred=m.crewPredictions?.[s.n]||'',selected=pilot?m.selectedAnswer:pred;
+  const choices=(q.choices||[]).map(c=>{const eliminated=(m.eliminated||[]).includes(c.key),sel=selected===c.key,reveal=m.revealed,correct=reveal&&m.publicCorrect===c.key;return `<button class="million-student-choice ${sel?'selected':''} ${correct?'correct':''}" data-million-choice="${c.key}" ${eliminated||m.revealed||m.over||m.complete?'disabled':''}><b>${c.key}</b><span>${esc(c.text||'')}</span></button>`}).join('');
+  if(m.complete)return `<div class="student-prompt million-student"><span class="eyebrow">MILLION · MISSION COMPLETE</span><h2>1,000,000 Energy!</h2><div class="student-lobby-avatar">${studentAvatarBadgeMarkup(s)}</div><p>The crew completed the mission ladder.</p></div>`;
+  if(m.over)return `<div class="student-prompt million-student"><span class="eyebrow">MILLION · RUN COMPLETE</span><h2>Signal Lost</h2><p>Watch Mission Control for the next run.</p></div>`;
+  return `<div class="student-prompt million-student ${pilot?'command-seat':''}"><span class="eyebrow">MILLION · ${pilot?'COMMAND SEAT':'PLAY ALONG'}</span><h2>${esc(q.prompt||'')}</h2><div class="million-student-choices">${choices}</div>${m.publicClue?`<div class="million-clue"><b>MOTHERSHIP CLUE</b><span>${esc(m.publicClue)}</span></div>`:''}${pilot?`<div class="million-student-actions"><button id="millionLockBtn" ${!m.selectedAnswer||m.lockedAnswer||m.revealed?'disabled':''}>🔒 LOCK ANSWER</button><button id="millionLifeBtn" type="button">◎ USE A LIFELINE</button></div><div class="million-student-lifelines" id="millionStudentLifelines">${[['poll','Poll Crew'],['reduce','50/50'],['clue','Clue'],['tryAgain','Try Again']].map(([k,l])=>`<button data-million-life-use="${k}" ${Number(m.inventory?.[k]||0)<=0||m.revealed?'disabled':''}>${esc(l)} ×${Number(m.inventory?.[k]||0)}</button>`).join('')}</div>`:m.pollOpen?'<div class="submitted-banner">POLL THE CREW is active · your choice counts privately.</div>':'<div class="prompt-caption">Choose what you think. Your answer is private and does not control the Command Seat.</div>'}${m.lockedAnswer?`<div class="submitted-banner">Answer locked: <b>${esc(m.lockedAnswer)}</b> · waiting for teacher reveal</div>`:''}</div>`;
+}
+function wireMillionStudent(){
+  if(activeActivity()?.type!=='million')return;const m=millionState(),s=selectedStudent();if(!m||!s)return;
+  $('[data-million-choice]').forEach(b=>b.onclick=()=>sendGameShowAction('million',m.pilot===s.n?'select':'predict',b.dataset.millionChoice));
+  const lock=$('#millionLockBtn');if(lock)lock.onclick=()=>{sendGameShowAction('million','lock');toast('Answer locked')};
+  const lifeBtn=$('#millionLifeBtn'),lifeBox=$('#millionStudentLifelines');if(lifeBtn&&lifeBox)lifeBtn.onclick=()=>lifeBox.classList.toggle('open');
+  $('[data-million-life-use]').forEach(b=>b.onclick=()=>sendGameShowAction('million','lifeline',b.dataset.millionLifeUse));
+}
+
 function activitySharedMarkup(big=false){
   const a=activeActivity(),run=state.activityRun;if(!a||!run)return '';
   const h=big?60:34, p=big?28:18;
   if(run.phase==='lobby')return `<div class="activity-lobby-public"><span class="eyebrow">ACTIVITY LOBBY</span><div class="activity-app-icon">${appIconMarkup(activityIconId(a))}</div><h3 style="font-size:${h}px">${esc(a.name)}</h3><p style="font-size:${p}px">Waiting for your teacher to begin…</p><div class="lobby-status-pill">${connectedStudents().length} students connected</div></div>`;
+  if(a.type==='crew-survey'){return crewSurveySharedMarkup(run,big);}
+  if(a.type==='million'){return millionSharedMarkup(run,big);}
   if(a.type==='minefield'){
     ensureMinefield(run);const mode=minefieldMode(run),status=minefieldOverallStatus(run);
     if(mode==='teacher'){
@@ -7084,6 +7342,8 @@ function studentMarkup(){
   if(state.activityRun){
     const a=activeActivity(),run=state.activityRun;
     if(run.phase==='lobby')return `<div class="student-prompt activity-wait"><span class="eyebrow">ACTIVITY LOBBY</span><div class="activity-app-icon">${appIconMarkup(activityIconId(a))}</div><h2>${esc(a.name)}</h2><p>You're in. Waiting for your teacher to begin…</p><div class="student-lobby-avatar">${studentAvatarBadgeMarkup(s)}</div></div>`;
+    if(a.type==='crew-survey')return crewSurveyStudentMarkup(run,s);
+    if(a.type==='million')return millionStudentMarkup(run,s);
     if(a.type==='starwheel'){
       const sw=starwheelState(run),cfg=run.starwheelConfig||{},pilot=starwheelActivePilot(run);if(!sw)return '<div class="student-prompt"><h2>STARWHEEL is preparing…</h2></div>';
       if(sw.solved)return `<div class="sketch-solved-card"><span class="eyebrow">STARWHEEL · SIGNAL DECODED</span><div class="check">✦</div><h2>Transmission Restored!</h2><p>${esc(sw.solvedBy||'The crew')} solved the signal. Watch Mission Control for the next puzzle.</p></div>`;
@@ -7400,8 +7660,15 @@ function renderActivityController(){
   const box=$('#activityControllerPanel');if(!box||!state.activityRun)return;
   const a=activeActivity(),run=state.activityRun,connected=connectedStudents();
   if(run.phase==='lobby'){
-    const resuming=!!run.resumePending,label=a.type==='presentation'?'Presentation':a.type==='minefield'?'MINEFIELD':a.type==='vector'?'VECTOR':a.type==='board'?'BOARD':a.type==='orbit'?'ORBIT':a.type==='pixel'?'PIXEL REVEAL':a.type==='sketch'?'SKETCH SIGNAL':a.type==='starwheel'?'STARWHEEL':'Activity';
+    const resuming=!!run.resumePending,label=a.type==='presentation'?'Presentation':a.type==='crew-survey'?'CREW SURVEY':a.type==='million'?'MILLION':a.type==='minefield'?'MINEFIELD':a.type==='vector'?'VECTOR':a.type==='board'?'BOARD':a.type==='orbit'?'ORBIT':a.type==='pixel'?'PIXEL REVEAL':a.type==='sketch'?'SKETCH SIGNAL':a.type==='starwheel'?'STARWHEEL':'Activity';
     box.innerHTML=`<div class="activity-controller-head"><div><span class="eyebrow">${resuming?'ACTIVITY PAUSED':'ACTIVITY LOADED'}</span><h2>${esc(a.name)}</h2><p>${resuming?'Progress is saved. Resume when the class is ready.':'Students are in the Activity Lobby. Start when you\'re ready.'}</p></div><span class="controller-chip">${connected.length} students</span></div><div class="controller-grid lobby-controller"><button class="primary-action" id="startActivityBtn">▶ ${resuming?'Resume':'Start'} ${label}</button><button id="returnClassBtn">✓ Finish & Return</button><button class="minefield-send-lobby" id="sendActivityLobbyBtn" disabled>Ⅱ Progress Paused</button><button class="danger-action" id="emergencyActivityBtn">⚠ Emergency Return</button></div>`;
+  } else if(a.type==='crew-survey'){
+    const cs=crewSurveyState(run),cfg=crewSurveyConfig(run),answers=cfg.answers||[],winner=cs?.buzzer?.winner,winnerTeam=crewSurveyTeamFor(winner,run),control=cs?.controlTeam,last=cs?.lastResponse;
+    const contestant=(team)=>{const members=cs?.teams?.[team]||[],current=(cs?.buzzer?.eligible||[])[team]||members[0]||'';return `<select data-cs-contestant="${team}">${members.map(n=>`<option value="${esc(n)}" ${n===current?'selected':''}>${esc(n)}</option>`).join('')}</select>`};
+    box.innerHTML=`<div class="activity-controller-head"><div><span class="slide-badge instruction">CREW SURVEY</span><h2>${esc(cfg.prompt||'CREW SURVEY')}</h2><p>${esc(cs?.message||'')}</p></div><div class="controller-stats"><b>${Number(cs?.roundPoints||0)}</b> round energy</div></div><div class="crew-survey-teacher"><div class="crew-survey-host-card"><div class="crew-survey-team-control blue"><h4>BLUE CREW · ${Number(cs?.scores?.[0]||0)}</h4><span>${(cs?.teams?.[0]||[]).map(esc).join(' · ')}</span>${contestant(0)}<button data-cs-control="0">Give Control</button><button data-cs-award="0">Award Round</button></div><div class="crew-survey-buzzer-control"><span class="eyebrow">FACE-OFF BUZZERS</span><b>${winner?`ϟ ${esc(winner)} · ${esc(crewSurveyTeamName(winnerTeam))}`:(cs?.buzzer?.armed?'ARMED':'STANDBY')}</b><div><button class="primary-action" id="crewSurveyArmBtn" ${cs?.buzzer?.armed?'disabled':''}>ϟ ARM BUZZERS</button><button id="crewSurveyResetBuzzBtn">Reset / Re-arm</button></div></div><div class="crew-survey-team-control red"><h4>RED CREW · ${Number(cs?.scores?.[1]||0)}</h4><span>${(cs?.teams?.[1]||[]).map(esc).join(' · ')}</span>${contestant(1)}<button data-cs-control="1">Give Control</button><button data-cs-award="1">Award Round</button></div></div><div class="crew-survey-host-grid"><div class="crew-survey-answer-control"><h4>ANSWER BOARD · TEACHER VIEW</h4>${answers.map((a,i)=>`<div class="${(cs?.revealed||[]).includes(i)?'revealed':''}"><b>${i+1}. ${esc(a.text||'')}</b><span>${Number(a.value||0)}</span><button data-cs-reveal="${i}" ${(cs?.revealed||[]).includes(i)?'disabled':''}>Reveal</button></div>`).join('')}</div><div class="crew-survey-turn-control"><h4>CURRENT TURN</h4><div class="game-show-current">${control===null||control===undefined?'Face-Off':esc(crewSurveyTeamName(control))+' · '+esc(crewSurveyActiveName(control,run)||'—')}</div>${last?`<div class="game-show-private-response"><span>PRIVATE STUDENT RESPONSE</span><b>${esc(last.name||'Student')}</b><p>${esc(last.text||'')}</p><small>${esc(String(last.source||'type').toUpperCase())}</small></div>`:'<div class="empty">No private answer waiting.</div>'}<div class="crew-survey-host-actions"><button class="danger-action" id="crewSurveyStrikeBtn">✕ ASSIGN X</button><button id="crewSurveyNextPlayerBtn" ${control===null||control===undefined?'disabled':''}>Next Player →</button><button id="crewSurveyNewRoundBtn">↻ New Face-Off</button></div><div class="crew-survey-teacher-strikes"><span>BLUE · ${'X'.repeat(Number(cs?.strikes?.[0]||0))||'—'}</span><span>RED · ${'X'.repeat(Number(cs?.strikes?.[1]||0))||'—'}</span></div></div></div><div class="controller-safety"><button id="returnClassBtn">✓ Finish & Return</button><button class="minefield-send-lobby" id="sendActivityLobbyBtn">Ⅱ Pause & Keep Progress</button><button class="danger-action" id="emergencyActivityBtn">⚠ Emergency Return</button></div></div>`;
+  } else if(a.type==='million'){
+    const m=millionState(run),cfg=millionConfig(run),q=millionQuestion(run),counts=millionPollCounts(run),crew=connectedStudents(),pilot=millionPilot(run);
+    box.innerHTML=`<div class="activity-controller-head"><div><span class="slide-badge instruction">MILLION</span><h2>Question ${Number(m?.questionIndex||0)+1} · ${esc(pilot?.n||m?.pilot||'Command Seat')}</h2><p>${esc(q?.prompt||'')}</p></div><div class="controller-stats"><b>${Number(m?.ladderLevel||0)}</b> ladder level</div></div><div class="million-teacher-grid"><div class="million-teacher-card"><div class="game-show-card-head"><h4>COMMAND SEAT</h4><select id="millionTeacherPilot">${crew.map(st=>`<option value="${esc(st.n)}" ${st.n===m?.pilot?'selected':''}>${esc(st.n)}</option>`).join('')}</select></div><div class="million-teacher-choices">${(q?.choices||[]).map(c=>`<div class="${c.key===q.correct?'correct-key':''} ${m?.lockedAnswer===c.key?'locked':''}"><b>${c.key}</b><span>${esc(c.text||'')}</span>${c.key===q.correct?'<em>CORRECT</em>':''}</div>`).join('')}</div><div class="million-teacher-status"><span>Selected · <b>${esc(m?.selectedAnswer||'—')}</b></span><span>Locked · <b>${esc(m?.lockedAnswer||'—')}</b></span><span>Result · <b>${esc((m?.result||'pending').toUpperCase())}</b></span></div><div class="million-teacher-actions"><button class="primary-action" id="millionCorrectBtn" ${!m?.lockedAnswer||m?.revealed?'disabled':''}>✓ SIGNAL CONFIRMED</button><button class="danger-action" id="millionWrongBtn" ${!m?.lockedAnswer||m?.revealed?'disabled':''}>× SIGNAL LOST</button><button id="millionNextBtn" ${!m?.revealed&&!m?.over&&!m?.complete?'disabled':''}>Next Question →</button></div></div><div class="million-teacher-card"><h4>LIFELINES</h4><div class="million-teacher-lifelines">${[['poll','Poll the Crew'],['reduce','Reduce Signal'],['clue','Mothership Clue'],['tryAgain','Try Again']].map(([k,l])=>`<div><button data-million-teacher-life="${k}" ${Number(m?.inventory?.[k]||0)<=0?'disabled':''}>${esc(l)}</button><span>×${Number(m?.inventory?.[k]||0)}</span><button data-million-grant="${k}" title="Grant one">＋</button></div>`).join('')}</div><button id="millionPollVisibleBtn" ${!m?.pollOpen?'disabled':''}>${m?.pollVisible?'Hide':'Show'} Crew Poll</button><div class="million-teacher-poll">${['A','B','C','D'].map(k=>`<span><b>${k}</b> ${Number(counts[k]||0)}</span>`).join('')}</div><h4 style="margin-top:14px">PRIVATE PLAY-ALONG</h4><div class="million-private-list">${crew.map(st=>`<div><b>${esc(st.n)}</b><span>${esc(m?.crewPredictions?.[st.n]||'—')}</span></div>`).join('')}</div></div></div><div class="controller-safety"><button id="returnClassBtn">✓ Finish & Return</button><button class="minefield-send-lobby" id="sendActivityLobbyBtn">Ⅱ Pause & Keep Progress</button><button class="danger-action" id="emergencyActivityBtn">⚠ Emergency Return</button></div>`;
   } else if(a.type==='starwheel'){
     const sw=starwheelState(run),cfg=run.starwheelConfig||{},pilot=starwheelActivePilot(run),pending=sw?.pendingSolve,activeTeam=Number(sw?.activeTeam||0),pack=loadStarwheelPacks().find(p=>p.id===cfg.packId),hasPackNext=!!pack&&Number(cfg.packIndex||0)+1<pack.puzzles.length;
     const teacherScores=cfg.scoring?(cfg.mode==='teams'?Array.from({length:Math.max(2,Math.min(4,Number(cfg.teamCount||2)))},(_,i)=>`<div class="starwheel-score team-${i+1}"><b>${starwheelTeamMeta(i).name}</b><span><button data-starwheel-score-kind="team" data-starwheel-score-key="${i}" data-starwheel-score-delta="-100">−100</button><strong>${starwheelScore(run,i,true).toLocaleString()}</strong><button data-starwheel-score-kind="team" data-starwheel-score-key="${i}" data-starwheel-score-delta="100">+100</button></span></div>`).join(''):connected.map(st=>`<div class="starwheel-score"><b>${esc(st.n)}</b><span><button data-starwheel-score-kind="student" data-starwheel-score-key="${esc(st.n)}" data-starwheel-score-delta="-100">−100</button><strong>${starwheelScore(run,st.n,false).toLocaleString()}</strong><button data-starwheel-score-kind="student" data-starwheel-score-key="${esc(st.n)}" data-starwheel-score-delta="100">+100</button></span></div>`).join('')):'<div class="starwheel-score"><b>SCORE MODE</b><strong>OFF</strong></div>';
@@ -7469,6 +7736,24 @@ function wireActivityController(){
   const next=$('#nextSlideBtn');if(next)next.onclick=()=>changeSlide(1);
   const res=$('#toggleResultsBtn');if(res)res.onclick=()=>{state.activityRun.showResults=!state.activityRun.showResults;render()};
   const rev=$('#revealAnswerBtn');if(rev)rev.onclick=()=>{state.activityRun.revealAnswer=!state.activityRun.revealAnswer;render()};
+
+  const csArm=$('#crewSurveyArmBtn');if(csArm)csArm.onclick=crewSurveyArmBuzzers;
+  const csReset=$('#crewSurveyResetBuzzBtn');if(csReset)csReset.onclick=crewSurveyResetBuzzers;
+  $('[data-cs-contestant]').forEach(sel=>sel.onchange=()=>crewSurveySetContestant(Number(sel.dataset.csContestant),sel.value));
+  $('[data-cs-reveal]').forEach(b=>b.onclick=()=>crewSurveyReveal(Number(b.dataset.csReveal)));
+  $('[data-cs-control]').forEach(b=>b.onclick=()=>crewSurveySetControl(Number(b.dataset.csControl)));
+  $('[data-cs-award]').forEach(b=>b.onclick=()=>crewSurveyAwardRound(Number(b.dataset.csAward)));
+  const csStrike=$('#crewSurveyStrikeBtn');if(csStrike)csStrike.onclick=crewSurveyStrike;
+  const csNext=$('#crewSurveyNextPlayerBtn');if(csNext)csNext.onclick=crewSurveyNextPlayer;
+  const csRound=$('#crewSurveyNewRoundBtn');if(csRound)csRound.onclick=crewSurveyNewRound;
+
+  const millionPilotSel=$('#millionTeacherPilot');if(millionPilotSel)millionPilotSel.onchange=()=>millionSetPilot(millionPilotSel.value);
+  const millionCorrect=$('#millionCorrectBtn');if(millionCorrect)millionCorrect.onclick=()=>millionResolve(true);
+  const millionWrong=$('#millionWrongBtn');if(millionWrong)millionWrong.onclick=()=>millionResolve(false);
+  const millionNext=$('#millionNextBtn');if(millionNext)millionNext.onclick=millionNextQuestion;
+  $('[data-million-teacher-life]').forEach(b=>b.onclick=()=>millionUseLifeline(b.dataset.millionTeacherLife));
+  $('[data-million-grant]').forEach(b=>b.onclick=()=>millionGrantLifeline(b.dataset.millionGrant));
+  const pollVisible=$('#millionPollVisibleBtn');if(pollVisible)pollVisible.onclick=()=>{const m=millionState();if(m){m.pollVisible=!m.pollVisible;render()}};
 
   const swAccept=$('#starwheelAcceptSolveBtn');if(swAccept)swAccept.onclick=acceptStarwheelSolve;
   const swReject=$('#starwheelRejectSolveBtn');if(swReject)swReject.onclick=rejectStarwheelSolve;
@@ -7853,6 +8138,7 @@ function renderStudentControls(){
   if(state.calculatorLaunch&&String(state.calculatorLaunch.id||'')!==String(studentCalculatorDismissedLaunchId||'')){if(zoneWrap)zoneWrap.dataset.app='scientific-calculator';label.innerHTML='<b>SCIENTIFIC CALCULATOR</b><span>Independent session · Back to Classroom is above</span>';zone.className='student-actions';zone.innerHTML='';return}
   if(state.activityRun&&state.activityRun.phase==='running'){
     const a=activeActivity(),slide=currentSlide();if(zoneWrap)zoneWrap.dataset.app=a?.type||'activity';
+    if(a.type==='crew-survey'||a.type==='million'){if(zoneWrap)zoneWrap.dataset.app=a.type;label.innerHTML='<b>'+esc(a.name)+'</b><span>Game controls are above</span>';zone.className='student-actions';zone.innerHTML='';return}
     if(a.type==='starwheel'){
       const run=state.activityRun,sw=starwheelState(run),pilot=starwheelActivePilot(run),isPilot=!!pilot&&pilot.n===s?.n;
       label.innerHTML='<b>STARWHEEL CONTROLS</b><span>'+esc(starwheelActiveCrewLabel(run))+'</span>';zone.className='student-actions orbit-student-controls';
@@ -8117,7 +8403,7 @@ function animateStarwheelWheels(){
   starwheelLastAnimatedNonce=nonce;
 }
 function renderPublic(){
-  $('#mirrorContent').innerHTML=sharedMarkup('normal');$('#sharedContent').innerHTML=sharedMarkup('big');$('#studentContent').innerHTML=studentMarkup();wireStudentJoin();wireStudentCalculator();wireStudentResponses();wireMinefieldStudent();wireVectorStudent();wireBoardStudent();wireSketchStudent();wireOrbitStudent();wireStarwheelStudent();renderStudentControls();animateStarwheelWheels();requestAnimationFrame(paintPixelFocusCanvases);
+  $('#mirrorContent').innerHTML=sharedMarkup('normal');$('#sharedContent').innerHTML=sharedMarkup('big');$('#studentContent').innerHTML=studentMarkup();wireStudentJoin();wireStudentCalculator();wireStudentResponses();wireMinefieldStudent();wireVectorStudent();wireBoardStudent();wireSketchStudent();wireOrbitStudent();wireStarwheelStudent();wireCrewSurveyStudent();wireMillionStudent();renderStudentControls();animateStarwheelWheels();requestAnimationFrame(paintPixelFocusCanvases);
   const conn=$('#studentConnectionLabel');if(conn)conn.innerHTML=studentNeedsJoin()?'<span style="width:9px;height:9px;border-radius:50%;display:inline-block;background:#ffc35d;box-shadow:0 0 12px #ffc35d88"></span>&nbsp; Join Class':'<span class="pulse"></span>&nbsp; Connected';
   const label=state.ended?'ENDED':state.activityRun?(activeActivity()?.type==='board'?'BOARD LIVE':state.activityRun.phase==='lobby'?'ACTIVITY LOBBY':'ACTIVITY LIVE'):state.screen==='brb'?'WE’LL BE RIGHT BACK':state.screen.toUpperCase();$('#mirrorLabel').textContent=label;$('#sharedLabel').textContent=label;updateSecondScreen();
 }
