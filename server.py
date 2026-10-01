@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "55.5"
+APP_VERSION = "55.6"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -535,6 +535,65 @@ body.si-classroom-model.si-hifi-model .si-model-key [class*="second"]{
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyHighFidelityModel,{once:true});
   else applyHighFidelityModel();
+})();
+</script>
+"""
+
+CALCULATOR_POPUP_STYLE = r"""
+<style id="v55-6-calculator-popup-window">
+html.si-calculator-popup{
+  background:#10171c!important;
+  overflow:auto!important
+}
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode{
+  min-width:0!important;
+  width:fit-content!important;
+  min-height:0!important;
+  height:auto!important;
+  margin:0!important;
+  padding:8px!important;
+  overflow:auto!important;
+  background:#10171c!important
+}
+/* Preserve the normal physical calculator proportions inside the narrow popup. */
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-calculator{
+  width:332px!important;
+  max-width:332px!important;
+  margin:0!important;
+  padding:13px 31px 31px!important
+}
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-lcd{min-height:104px!important}
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-key{min-height:34px!important}
+</style>
+<script id="v55-6-calculator-popup-window-script">
+(function(){
+  function num(v){v=parseFloat(v);return Number.isFinite(v)?v:0}
+  function fitCalculatorPopup(){
+    if(!document.body)return;
+    document.documentElement.classList.add('si-calculator-popup');
+    document.body.classList.add('si-calculator-popup-mode');
+    const calc=document.querySelector('.si-model-calculator');
+    if(!calc)return;
+    const rect=calc.getBoundingClientRect(),style=getComputedStyle(document.body);
+    const innerW=Math.ceil(rect.width+num(style.paddingLeft)+num(style.paddingRight)+2);
+    const innerH=Math.ceil(rect.height+num(style.paddingTop)+num(style.paddingBottom)+2);
+    const chromeW=Math.max(0,window.outerWidth-window.innerWidth);
+    const chromeH=Math.max(0,window.outerHeight-window.innerHeight);
+    const maxW=Math.max(320,(window.screen&&window.screen.availWidth)||innerW+chromeW);
+    const maxH=Math.max(480,(window.screen&&window.screen.availHeight)||innerH+chromeH);
+    const targetW=Math.min(maxW,innerW+chromeW);
+    const targetH=Math.min(maxH,innerH+chromeH);
+    try{window.resizeTo(targetW,targetH)}catch(e){}
+  }
+  function boot(){
+    try{window.opener=null}catch(e){}
+    fitCalculatorPopup();
+    requestAnimationFrame(fitCalculatorPopup);
+    setTimeout(fitCalculatorPopup,80);
+    setTimeout(fitCalculatorPopup,260);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
+  else boot();
 })();
 </script>
 """
@@ -1964,7 +2023,9 @@ async def scientific_calculator(request: web.Request) -> web.Response:
         text = gzip.decompress(CALCULATOR_INDEX_GZ.read_bytes()).decode("utf-8")
     except (OSError, UnicodeDecodeError):
         raise web.HTTPInternalServerError(text="Scientific Calculator could not be loaded.")
-    text = text.replace("</head>", CALCULATOR_MODELING_STYLE + "</head>", 1)
+    popup_mode = (request.query.get("popup") or "").strip() == "1"
+    calculator_skin = CALCULATOR_MODELING_STYLE + (CALCULATOR_POPUP_STYLE if popup_mode else "")
+    text = text.replace("</head>", calculator_skin + "</head>", 1)
     return web.Response(
         text=text,
         content_type="text/html",
@@ -2329,7 +2390,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — ACTIVITY LIBRARY ORGANIZATION")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — CALCULATOR OVERLAY WINDOW")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
