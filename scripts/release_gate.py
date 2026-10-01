@@ -82,6 +82,7 @@ def main() -> int:
         '<style id="v53-9-roster-signal-refresh">',
         '<style id="v54-0-student-experience-overhaul">',
         '<style id="v54-1-visual-refinement-system">',
+        '<style id="v54-2-roster-visual-detail">',
     )
     check("html shell: head closes before body opens", head_close >= 0 and body_open > head_close and bool(re.search(r"</head>\s*<body(?:\s|>)", html, re.I)))
     check("html shell: release styles are inside head", head_close >= 0 and all(0 <= html.find(tag) < head_close for tag in release_styles))
@@ -132,6 +133,12 @@ def main() -> int:
     check("calculator hifi: shared mirror visual family remains", '<style id="v53-7-high-fidelity-calculator-mirror">' in html and 'MULTI-VIEW · 4-LINE' in html and 'board-calculator-mirror-nav' in html)
     check("calculator hifi: shared mirror stays read-only", 'pointer-events:none' in segment(html, '<style id="v53-4-board-calculator-mirror">', next_markers=('</style>',)) or 'pointer-events:none' in segment(html, '<style id="v53-7-high-fidelity-calculator-mirror">', next_markers=('</style>',)))
     check("calculator hifi: engine and privacy boundaries remain", 'CALCULATOR_ENGINE_GZ.read_bytes()' in server and 'run.boardCalculatorMirror=next;' in html and 'history:' not in segment(html, "function publishBoardCalculatorMirror(") and 'memory:' not in segment(html, "function publishBoardCalculatorMirror("))
+
+    # v54.2 roster visual detail pass.
+    check("roster detail: avatar-stage wrapper remains", 'class="crew-avatar-stage"' in html)
+    check("roster detail: live chips stay inside avatar stage", 'crew-avatar-stage' in segment(html, 'function renderRoster(){') and 'buzz-chip' in segment(html, 'function renderRoster(){') and 'hand-chip' in segment(html, 'function renderRoster(){') and 'help-chip' in segment(html, 'function renderRoster(){'))
+    check("roster detail: duplicate prompt response suppression remains", "showResponseNote=!!resp" in html and "['ready','emotion','understanding']" in html)
+    check("roster detail: sparse pod layout remains", "repeat(auto-fit,minmax(230px,280px))" in html and "#teacher .roster-card.sparse-roster .crew{" in html)
 
     # Inline JavaScript parse validation.
     scripts = re.findall(r"<script[^>]*>(.*?)</script>", html, flags=re.S | re.I)
