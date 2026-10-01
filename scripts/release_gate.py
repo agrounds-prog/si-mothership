@@ -169,6 +169,7 @@ def main() -> int:
     check("million privacy: future questions are hidden", 'safe_questions.append({"prompt": "", "choices": []})' in role_filter)
     check("million privacy: play-along predictions are role-filtered", 'million["crewPredictions"] = {}' in role_filter and '{own_name: copy.deepcopy(predictions[own_name])}' in role_filter)
     check("million privacy: shared/nonpilot selected answer is hidden", 'million["selectedAnswer"] = ""' in role_filter)
+    check("million privacy: shared poll exposes aggregates without identities", 'million["publicPollCounts"] = poll_counts' in role_filter and 'million["crewPredictions"] = {}' in role_filter and "publicPollCounts" in html)
 
     try:
         compile(server, str(SERVER), "exec")
