@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "54.2"
+APP_VERSION = "55.0"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -730,6 +730,77 @@ def _state_for_role(state: dict, role: str, token: str = "", name: str = "") -> 
             sw.pop("lastRequestId", None)
         run.pop("starwheelRequest", None)
 
+    # GAME SHOW PACK: non-teacher clients receive only display-safe/current-question state.
+    if isinstance(run, dict) and str(run.get("activityId") or "") == "crew-survey-game":
+        cfg = run.get("crewSurveyConfig")
+        cs = run.get("crewSurvey")
+        if isinstance(cfg, dict) and isinstance(cs, dict):
+            revealed = set()
+            for raw_index in cs.get("revealed", []) if isinstance(cs.get("revealed"), list) else []:
+                try:
+                    revealed.add(int(raw_index))
+                except (TypeError, ValueError):
+                    continue
+            answers = cfg.get("answers") if isinstance(cfg.get("answers"), list) else []
+            safe_answers = []
+            for idx, answer in enumerate(answers):
+                clean = copy.deepcopy(answer) if isinstance(answer, dict) else {}
+                if idx not in revealed:
+                    clean["text"] = ""
+                    clean["value"] = 0
+                safe_answers.append(clean)
+            cfg["answers"] = safe_answers
+            cs.pop("lastResponse", None)
+            cs.pop("lastRequestIds", None)
+            private_responses = cs.get("privateResponses") if isinstance(cs.get("privateResponses"), dict) else {}
+            if role == "student" and own_name:
+                cs["privateResponses"] = (
+                    {own_name: copy.deepcopy(private_responses[own_name])}
+                    if own_name in private_responses else {}
+                )
+                aac_students = cfg.get("aacStudents") if isinstance(cfg.get("aacStudents"), list) else []
+                is_aac = own_name in aac_students
+                cfg["aacStudents"] = [own_name] if is_aac else []
+                if not is_aac:
+                    cfg["aacVocab"] = []
+            else:
+                cs["privateResponses"] = {}
+                cfg["aacStudents"] = []
+                cfg["aacVocab"] = []
+
+    if isinstance(run, dict) and str(run.get("activityId") or "") == "million-game":
+        cfg = run.get("millionConfig")
+        million = run.get("million")
+        if isinstance(cfg, dict) and isinstance(million, dict):
+            try:
+                current_index = max(0, int(million.get("questionIndex", 0) or 0))
+            except (TypeError, ValueError):
+                current_index = 0
+            questions = cfg.get("questions") if isinstance(cfg.get("questions"), list) else []
+            safe_questions = []
+            for idx, question in enumerate(questions):
+                if idx == current_index and isinstance(question, dict):
+                    clean = copy.deepcopy(question)
+                    clean.pop("correct", None)
+                    clean.pop("mothershipClue", None)
+                    clean.pop("explanation", None)
+                    safe_questions.append(clean)
+                else:
+                    safe_questions.append({"prompt": "", "choices": []})
+            cfg["questions"] = safe_questions
+            million.pop("lastRequestId", None)
+            predictions = million.get("crewPredictions") if isinstance(million.get("crewPredictions"), dict) else {}
+            if role == "student" and own_name:
+                million["crewPredictions"] = (
+                    {own_name: copy.deepcopy(predictions[own_name])}
+                    if own_name in predictions else {}
+                )
+                if str(million.get("pilot") or "") != own_name:
+                    million["selectedAnswer"] = ""
+            else:
+                million["crewPredictions"] = {}
+                million["selectedAnswer"] = ""
+
     if role != "student":
         # Shared/unknown non-teacher clients receive display-safe state only.
         out["buzz"] = []
@@ -1154,6 +1225,189 @@ def _starwheel_apply_request(state: dict, run: dict, name: str, request: dict) -
         sw["solvePendingBy"] = name
         sw["stage"] = "solve_pending"
         sw["message"] = f"{name} submitted a Solve Signal. Mission Control is reviewing it."
+
+
+def _crew_survey_active_name(run: dict, team: int) -> str:
+    cs = run.get("crewSurvey") if isinstance(run.get("crewSurvey"), dict) else {}
+    teams = cs.get("teams") if isinstance(cs.get("teams"), list) else [[], []]
+    if team < 0 or team >= len(teams) or not isinstance(teams[team], list) or not teams[team]:
+        return ""
+    indexes = cs.get("activeIndexes") if isinstance(cs.get("activeIndexes"), list) else [0, 0]
+    try:
+        index = int(indexes[team] if team < len(indexes) else 0) % len(teams[team])
+    except (TypeError, ValueError):
+        index = 0
+    return str(teams[team][index] or "")
+
+
+def _crew_survey_team_for(run: dict, name: str) -> Optional[int]:
+    cs = run.get("crewSurvey") if isinstance(run.get("crewSurvey"), dict) else {}
+    teams = cs.get("teams") if isinstance(cs.get("teams"), list) else []
+    for team_index, members in enumerate(teams[:2]):
+        if isinstance(members, list) and name in [str(x) for x in members]:
+            return team_index
+    return None
+
+
+def _crew_survey_apply_request(state: dict, run: dict, name: str, request: dict) -> None:
+    cs = run.get("crewSurvey") if isinstance(run.get("crewSurvey"), dict) else None
+    if not isinstance(cs, dict):
+        return
+    request_id = str(request.get("id") or "")[:120]
+    if not request_id or str(request.get("name") or name) != name:
+        return
+    seen = cs.setdefault("lastRequestIds", {})
+    if not isinstance(seen, dict):
+        seen = {}
+        cs["lastRequestIds"] = seen
+    if str(seen.get(name) or "") == request_id:
+        return
+    seen[name] = request_id
+
+    action = str(request.get("type") or "")
+    if action == "buzz":
+        buzzer = cs.get("buzzer") if isinstance(cs.get("buzzer"), dict) else {}
+        eligible = [str(x) for x in buzzer.get("eligible", [])] if isinstance(buzzer.get("eligible"), list) else []
+        if not buzzer.get("armed") or buzzer.get("winner") or name not in eligible:
+            return
+        # This handler executes inside one asyncio event loop. The first accepted
+        # message clears armed before the next queued message can be accepted.
+        buzzer["winner"] = name
+        buzzer["armed"] = False
+        buzzer["lockedAt"] = request.get("at") or int(time.time() * 1000)
+        cs["buzzer"] = buzzer
+        cs["message"] = f"{name} buzzed first."
+        return
+
+    if action == "answer":
+        stage = str(cs.get("stage") or "faceoff")
+        winner = str((cs.get("buzzer") or {}).get("winner") or "")
+        team = _crew_survey_team_for(run, name)
+        control_team = cs.get("controlTeam")
+        allowed = stage == "faceoff" and winner == name
+        if not allowed and team is not None:
+            try:
+                controlled = int(control_team) == int(team)
+            except (TypeError, ValueError):
+                controlled = False
+            allowed = controlled and _crew_survey_active_name(run, team) == name and stage in {"play", "steal"}
+        if not allowed:
+            return
+        answer = str(request.get("value") or "").strip()[:160]
+        if not answer:
+            return
+        source = str(request.get("source") or "type").lower()
+        if source not in {"aac", "type"}:
+            source = "type"
+        item = {"text": answer, "source": source, "at": request.get("at")}
+        private_responses = cs.setdefault("privateResponses", {})
+        if not isinstance(private_responses, dict):
+            private_responses = {}
+            cs["privateResponses"] = private_responses
+        private_responses[name] = item
+        cs["lastResponse"] = {"name": name, **item}
+
+
+def _million_apply_request(state: dict, run: dict, name: str, request: dict) -> None:
+    million = run.get("million") if isinstance(run.get("million"), dict) else None
+    cfg = run.get("millionConfig") if isinstance(run.get("millionConfig"), dict) else {}
+    if not isinstance(million, dict) or million.get("complete") or million.get("over"):
+        return
+    request_id = str(request.get("id") or "")[:120]
+    if not request_id or request_id == str(million.get("lastRequestId") or ""):
+        return
+    if str(request.get("name") or name) != name:
+        return
+    million["lastRequestId"] = request_id
+    try:
+        question_index = max(0, int(million.get("questionIndex", 0) or 0))
+    except (TypeError, ValueError):
+        question_index = 0
+    questions = cfg.get("questions") if isinstance(cfg.get("questions"), list) else []
+    if question_index >= len(questions) or not isinstance(questions[question_index], dict):
+        return
+    question = questions[question_index]
+    valid_keys = {"A", "B", "C", "D"}
+    eliminated = {str(x) for x in million.get("eliminated", [])} if isinstance(million.get("eliminated"), list) else set()
+    action = str(request.get("type") or "")
+    value = str(request.get("value") or "").strip()
+    key = value.upper()
+
+    if action == "predict":
+        if million.get("revealed") or key not in valid_keys or key in eliminated:
+            return
+        predictions = million.setdefault("crewPredictions", {})
+        if isinstance(predictions, dict):
+            predictions[name] = key
+        return
+
+    if str(million.get("pilot") or "") != name:
+        return
+
+    if action == "select":
+        if million.get("revealed") or million.get("lockedAnswer") or key not in valid_keys or key in eliminated:
+            return
+        million["selectedAnswer"] = key
+        million["message"] = f"{name} selected {key}. Lock it when ready."
+        return
+
+    if action == "lock":
+        if million.get("revealed") or million.get("lockedAnswer"):
+            return
+        selected = str(million.get("selectedAnswer") or "").upper()
+        if selected not in valid_keys or selected in eliminated:
+            return
+        million["lockedAnswer"] = selected
+        million["message"] = f"{name} locked answer {selected}. Mission Control will reveal the result."
+        return
+
+    if action != "lifeline":
+        return
+    lifeline = value
+    inventory = million.setdefault("inventory", {})
+    if not isinstance(inventory, dict):
+        return
+    try:
+        remaining = int(inventory.get(lifeline, 0) or 0)
+    except (TypeError, ValueError):
+        remaining = 0
+    if lifeline not in {"poll", "reduce", "clue", "tryAgain"} or remaining <= 0:
+        return
+    inventory[lifeline] = remaining - 1
+
+    if lifeline == "poll":
+        million["pollOpen"] = True
+        million["pollVisible"] = False
+        million["message"] = "POLL THE CREW is open. Everyone choose A, B, C, or D."
+        return
+
+    if lifeline == "reduce":
+        correct = str(question.get("correct") or "").upper()
+        wrong = [
+            str(choice.get("key") or "").upper()
+            for choice in question.get("choices", [])
+            if isinstance(choice, dict)
+            and str(choice.get("key") or "").upper() in valid_keys
+            and str(choice.get("key") or "").upper() != correct
+            and str(choice.get("key") or "").upper() not in eliminated
+        ]
+        million["eliminated"] = wrong[:2]
+        million["message"] = "REDUCE SIGNAL removed two incorrect choices."
+        return
+
+    if lifeline == "clue":
+        million["publicClue"] = str(question.get("mothershipClue") or "Think carefully about what the question is asking.")[:240]
+        million["message"] = "MOTHERSHIP CLUE transmitted."
+        return
+
+    if lifeline == "tryAgain":
+        million["selectedAnswer"] = ""
+        million["lockedAnswer"] = ""
+        million["revealed"] = False
+        million["result"] = ""
+        million["publicCorrect"] = ""
+        million["over"] = False
+        million["message"] = "TRY AGAIN activated. Choose another answer."
 
 
 def _minefield_current_navigator(state: dict, run: dict) -> Optional[str]:
@@ -1953,6 +2207,33 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                         _starwheel_apply_request(current, run, name, request_data)
                         save_runtime_state(current)
                         await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
+                elif mtype == "game_show_action" and isinstance(data.get("request"), dict):
+                    if role != "student":
+                        continue
+                    request_data = copy.deepcopy(data["request"])
+                    meta = CLIENT_META.get(ws, {})
+                    token = str(meta.get("student_token") or data.get("student_token") or "")
+                    name = str(meta.get("student_name") or data.get("student_name") or "")
+                    if token and not meta.get("student_token"):
+                        meta["student_token"] = token
+                    if name and not meta.get("student_name"):
+                        meta["student_name"] = name
+                    CLIENT_META[ws] = meta
+                    current = copy.deepcopy(LATEST_STATE) if isinstance(LATEST_STATE, dict) else None
+                    run = current.get("activityRun") if isinstance(current, dict) else None
+                    if not isinstance(run, dict) or str(run.get("phase") or "") != "running" or not name:
+                        continue
+                    request_data["name"] = name
+                    game = str(request_data.get("game") or "")
+                    activity_id = str(run.get("activityId") or "")
+                    if game == "crew-survey" and activity_id == "crew-survey-game":
+                        _crew_survey_apply_request(current, run, name, request_data)
+                    elif game == "million" and activity_id == "million-game":
+                        _million_apply_request(current, run, name, request_data)
+                    else:
+                        continue
+                    save_runtime_state(current)
+                    await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
                 elif mtype == "state" and isinstance(data.get("state"), dict):
                     if role == "teacher":
                         save_runtime_state(data["state"])
@@ -2039,7 +2320,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — ROSTER VISUAL DETAIL PASS")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — GAME SHOW PACK")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
