@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "55.6"
+APP_VERSION = "55.7"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -542,55 +542,67 @@ body.si-classroom-model.si-hifi-model .si-model-key [class*="second"]{
 CALCULATOR_POPUP_STYLE = r"""
 <style id="v55-6-calculator-popup-window">
 html.si-calculator-popup{
+  margin:0!important;
+  padding:0!important;
   background:#10171c!important;
-  overflow:auto!important
+  overflow:hidden!important
 }
 body.si-classroom-model.si-hifi-model.si-calculator-popup-mode{
+  display:block!important;
+  align-items:initial!important;
+  justify-content:initial!important;
   min-width:0!important;
-  width:fit-content!important;
+  width:max-content!important;
+  max-width:none!important;
   min-height:0!important;
-  height:auto!important;
+  height:max-content!important;
   margin:0!important;
-  padding:8px!important;
-  overflow:auto!important;
+  padding:0!important;
+  overflow:hidden!important;
   background:#10171c!important
 }
-/* Preserve the normal physical calculator proportions inside the narrow popup. */
+/* Popup mode is a device viewport: calculator begins at content pixel 0,0. */
 body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-calculator{
+  display:block!important;
   width:332px!important;
   max-width:332px!important;
   margin:0!important;
-  padding:13px 31px 31px!important
+  padding:13px 31px 31px!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.75),
+    inset 0 -12px 22px rgba(56,74,82,.18)!important
 }
 body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-lcd{min-height:104px!important}
 body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-key{min-height:34px!important}
 </style>
 <script id="v55-6-calculator-popup-window-script">
 (function(){
-  function num(v){v=parseFloat(v);return Number.isFinite(v)?v:0}
+  let fitPass=0;
   function fitCalculatorPopup(){
     if(!document.body)return;
     document.documentElement.classList.add('si-calculator-popup');
     document.body.classList.add('si-calculator-popup-mode');
     const calc=document.querySelector('.si-model-calculator');
     if(!calc)return;
-    const rect=calc.getBoundingClientRect(),style=getComputedStyle(document.body);
-    const innerW=Math.ceil(rect.width+num(style.paddingLeft)+num(style.paddingRight)+2);
-    const innerH=Math.ceil(rect.height+num(style.paddingTop)+num(style.paddingBottom)+2);
-    const chromeW=Math.max(0,window.outerWidth-window.innerWidth);
-    const chromeH=Math.max(0,window.outerHeight-window.innerHeight);
-    const maxW=Math.max(320,(window.screen&&window.screen.availWidth)||innerW+chromeW);
-    const maxH=Math.max(480,(window.screen&&window.screen.availHeight)||innerH+chromeH);
-    const targetW=Math.min(maxW,innerW+chromeW);
-    const targetH=Math.min(maxH,innerH+chromeH);
-    try{window.resizeTo(targetW,targetH)}catch(e){}
+    const rect=calc.getBoundingClientRect();
+    const wantedW=Math.ceil(rect.right);
+    const wantedH=Math.ceil(rect.bottom);
+    const deltaW=wantedW-window.innerWidth;
+    const deltaH=wantedH-window.innerHeight;
+    if(Math.abs(deltaW)<=1&&Math.abs(deltaH)<=1)return;
+    fitPass+=1;
+    try{
+      if(typeof window.resizeBy==='function')window.resizeBy(deltaW,deltaH);
+      else window.resizeTo(window.outerWidth+deltaW,window.outerHeight+deltaH);
+    }catch(e){}
+    if(fitPass<5)setTimeout(fitCalculatorPopup,70);
   }
   function boot(){
     try{window.opener=null}catch(e){}
     fitCalculatorPopup();
     requestAnimationFrame(fitCalculatorPopup);
-    setTimeout(fitCalculatorPopup,80);
-    setTimeout(fitCalculatorPopup,260);
+    setTimeout(fitCalculatorPopup,120);
+    setTimeout(fitCalculatorPopup,320);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
   else boot();
@@ -2390,7 +2402,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — CALCULATOR OVERLAY WINDOW")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — CALCULATOR POPUP ALIGNMENT")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
