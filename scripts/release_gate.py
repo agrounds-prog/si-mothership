@@ -83,6 +83,7 @@ def main() -> int:
         '<style id="v54-0-student-experience-overhaul">',
         '<style id="v54-1-visual-refinement-system">',
         '<style id="v54-2-roster-visual-detail">',
+        '<style id="v55-0-game-show-pack">',
     )
     check("html shell: head closes before body opens", head_close >= 0 and body_open > head_close and bool(re.search(r"</head>\s*<body(?:\s|>)", html, re.I)))
     check("html shell: release styles are inside head", head_close >= 0 and all(0 <= html.find(tag) < head_close for tag in release_styles))
@@ -139,6 +140,42 @@ def main() -> int:
     check("roster detail: live chips stay inside avatar stage", 'crew-avatar-stage' in segment(html, 'function renderRoster(){') and 'buzz-chip' in segment(html, 'function renderRoster(){') and 'hand-chip' in segment(html, 'function renderRoster(){') and 'help-chip' in segment(html, 'function renderRoster(){'))
     check("roster detail: duplicate prompt response suppression remains", "showResponseNote=!!resp" in html and "['ready','emotion','understanding']" in html)
     check("roster detail: sparse pod layout remains", "repeat(auto-fit,minmax(230px,280px))" in html and "#teacher .roster-card.sparse-roster .crew{" in html)
+
+    # v55.0 GAME SHOW PACK — CREW SURVEY + MILLION.
+    check("game shows: app registry contains both games", "id:'crew-survey',name:'CREW SURVEY'" in html and "id:'million',name:'MILLION'" in html)
+    check("game shows: activity seeds contain both runtimes", "id:'crew-survey-game'" in html and "id:'million-game'" in html)
+    check("game shows: teacher setup flows remain", "state.activeApp==='crew-survey'" in html and "state.activeApp==='million'" in html and "launchCrewSurvey" in html and "launchMillion" in html)
+    check("game shows: shared stages remain", "function crewSurveySharedMarkup(" in html and "function millionSharedMarkup(" in html)
+    check("game shows: student controllers remain", "function crewSurveyStudentMarkup(" in html and "function millionStudentMarkup(" in html and "wireCrewSurveyStudent" in html and "wireMillionStudent" in html)
+    check("game shows: dedicated action transport is server-authoritative", "game_show_action" in html and 'mtype == "game_show_action"' in server)
+
+    crew_server = segment(server, "def _crew_survey_apply_request(")
+    check("crew survey: buzzer validates armed and eligible", 'action == "buzz"' in crew_server and 'not buzzer.get("armed")' in crew_server and "name not in eligible" in crew_server)
+    check("crew survey: first buzz atomically closes buzzer", 'buzzer["winner"] = name' in crew_server and 'buzzer["armed"] = False' in crew_server)
+    check("crew survey: private answers require winner/current player", 'action == "answer"' in crew_server and "_crew_survey_active_name(run, team) == name" in crew_server)
+    check("crew survey: private response is sanitized", '[:160]' in crew_server and 'source not in {"aac", "type"}' in crew_server)
+
+    million_server = segment(server, "def _million_apply_request(")
+    check("million: server validates pilot-only command actions", 'str(million.get("pilot") or "") != name' in million_server and 'action == "select"' in million_server and 'action == "lock"' in million_server)
+    check("million: play-along predictions are server merged", 'action == "predict"' in million_server and 'predictions[name] = key' in million_server)
+    check("million: server owns student lifeline mutations", 'lifeline not in {"poll", "reduce", "clue", "tryAgain"}' in million_server and 'inventory[lifeline] = remaining - 1' in million_server)
+    check("million: reduce signal never exposes answer key through client request", 'correct = str(question.get("correct")' in million_server and 'million["eliminated"] = wrong[:2]' in million_server)
+
+    role_filter = segment(server, "def _state_for_role(")
+    check("crew survey privacy: hidden answer text and values are masked", 'clean["text"] = ""' in role_filter and 'clean["value"] = 0' in role_filter)
+    check("crew survey privacy: private answers do not reach shared screen", 'cs["privateResponses"] = {}' in role_filter and 'cs.pop("lastResponse", None)' in role_filter)
+    check("crew survey privacy: student sees only own private response", '{own_name: copy.deepcopy(private_responses[own_name])}' in role_filter)
+    check("million privacy: current question strips answer key and clue source", 'clean.pop("correct", None)' in role_filter and 'clean.pop("mothershipClue", None)' in role_filter and 'clean.pop("explanation", None)' in role_filter)
+    check("million privacy: future questions are hidden", 'safe_questions.append({"prompt": "", "choices": []})' in role_filter)
+    check("million privacy: play-along predictions are role-filtered", 'million["crewPredictions"] = {}' in role_filter and '{own_name: copy.deepcopy(predictions[own_name])}' in role_filter)
+    check("million privacy: shared/nonpilot selected answer is hidden", 'million["selectedAnswer"] = ""' in role_filter)
+
+    try:
+        compile(server, str(SERVER), "exec")
+        server_syntax_ok, server_syntax_detail = True, ""
+    except SyntaxError as exc:
+        server_syntax_ok, server_syntax_detail = False, f"{exc.msg} at line {exc.lineno}"
+    check("server: Python source parses", server_syntax_ok, server_syntax_detail)
 
     # Inline JavaScript parse validation.
     scripts = re.findall(r"<script[^>]*>(.*?)</script>", html, flags=re.S | re.I)
