@@ -790,6 +790,15 @@ def _state_for_role(state: dict, role: str, token: str = "", name: str = "") -> 
             cfg["questions"] = safe_questions
             million.pop("lastRequestId", None)
             predictions = million.get("crewPredictions") if isinstance(million.get("crewPredictions"), dict) else {}
+            poll_counts = {"A": 0, "B": 0, "C": 0, "D": 0}
+            for answer in predictions.values():
+                key = str(answer or "").upper()
+                if key in poll_counts:
+                    poll_counts[key] += 1
+            if role == "shared" and million.get("pollVisible"):
+                million["publicPollCounts"] = poll_counts
+            else:
+                million.pop("publicPollCounts", None)
             if role == "student" and own_name:
                 million["crewPredictions"] = (
                     {own_name: copy.deepcopy(predictions[own_name])}
