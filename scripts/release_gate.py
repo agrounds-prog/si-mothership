@@ -86,6 +86,7 @@ def main() -> int:
         '<style id="v55-0-game-show-pack">',
         '<style id="v55-1-roster-refinement">',
         '<style id="v55-2-game-show-visual-refinement">',
+        '<style id="v55-3-shortcut-manager">',
     )
     check("html shell: head closes before body opens", head_close >= 0 and body_open > head_close and bool(re.search(r"</head>\s*<body(?:\s|>)", html, re.I)))
     check("html shell: release styles are inside head", head_close >= 0 and all(0 <= html.find(tag) < head_close for tag in release_styles))
@@ -192,6 +193,13 @@ def main() -> int:
     check("crew survey refinement: tactile student buzzer remains", 'body.role-student .crew-survey-big-buzz::after' in html and 'radial-gradient(circle at 42% 30%' in html)
     check("million refinement: stage framing remains", '.million-public::before' in html and '.million-public::after' in html and '.million-choice.locked' in html)
     check("million refinement: command seat emphasis remains", 'body.role-student .million-student.command-seat' in html and 'body.role-student #millionLockBtn:not(:disabled)' in html)
+
+    # v55.3 editable Activity Shortcuts.
+    check("shortcut manager: release style remains", '<style id="v55-3-shortcut-manager">' in html)
+    check("shortcut manager: remove and replace helpers remain", 'function removeAppShortcut(' in html and 'function beginShortcutAssignment(' in html)
+    check("shortcut manager: activities surface exposes all slot controls", 'data-shortcut-replace=' in html and 'data-shortcut-remove=' in html and 'shortcut-manage-card' in html)
+    check("shortcut manager: assignment replaces occupied slot", 'state.favoriteSlots[slot]=id' in html and 'previous!==slot' in html)
+    check("shortcut manager: changes persist locally", 'persistAppShortcuts()' in segment(html, 'function removeAppShortcut(') and 'persistAppShortcuts()' in segment(html, "$('[data-assign-app]"))
 
     # Inline JavaScript parse validation.
     scripts = re.findall(r"<script[^>]*>(.*?)</script>", html, flags=re.S | re.I)
