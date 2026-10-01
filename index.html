@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v55.2 — Game Show Visual Refinement</title>
+<title>SI Mothership v55.3 — Activity Shortcut Manager</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -6256,6 +6256,171 @@ body.role-student .million-student-lifelines button{
 }
 </style>
 
+
+<style id="v55-3-shortcut-manager">
+/* v55.3 — editable Activity Shortcuts. */
+#activitiesPanel #favoriteAppsWrap.shortcut-manager{
+  display:block!important;
+  margin:0 0 16px!important;
+  padding:14px!important;
+  border:1px solid #294552!important;
+  border-radius:15px!important;
+  background:linear-gradient(180deg,#0b1821,#08141c)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important
+}
+#activitiesPanel #favoriteAppsWrap.shortcut-manager.hidden{display:none!important}
+#activitiesPanel .shortcut-manager .favorite-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px
+}
+#activitiesPanel .shortcut-manager .favorite-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:9px!important
+}
+#activitiesPanel .shortcut-manage-card{
+  min-width:0;
+  display:grid;
+  grid-template-columns:46px minmax(0,1fr);
+  grid-template-areas:
+    "icon copy"
+    "actions actions";
+  column-gap:10px;
+  row-gap:9px;
+  padding:10px;
+  border:1px solid #294653;
+  border-radius:12px;
+  background:linear-gradient(180deg,#0d1d27,#0a1720);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+  transition:border-color .14s ease,box-shadow .14s ease,transform .14s ease
+}
+#activitiesPanel .shortcut-manage-card.active{
+  border-color:#62cfdf;
+  box-shadow:0 0 0 2px rgba(98,207,223,.08),0 0 20px rgba(98,207,223,.08),inset 0 1px 0 rgba(255,255,255,.03)
+}
+#activitiesPanel .shortcut-manage-card.empty{
+  border-style:dashed;
+  background:#09151d
+}
+#activitiesPanel .shortcut-manage-icon{
+  grid-area:icon;
+  width:46px;
+  height:46px;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  border:1px solid #355362;
+  border-radius:12px;
+  background:linear-gradient(145deg,#35cada,#6578ef);
+  color:#061117;
+  font-size:18px;
+  font-weight:950
+}
+#activitiesPanel .shortcut-manage-card.empty .shortcut-manage-icon{
+  border-style:dashed;
+  background:#0a1720;
+  color:#6f8995;
+  font-size:23px
+}
+#activitiesPanel .shortcut-manage-icon svg,
+#activitiesPanel .shortcut-manage-icon img{
+  max-width:100%;
+  max-height:100%
+}
+#activitiesPanel .shortcut-manage-copy{
+  grid-area:copy;
+  min-width:0;
+  align-self:center
+}
+#activitiesPanel .shortcut-manage-copy small{
+  display:block;
+  color:#6f8590;
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.15em
+}
+#activitiesPanel .shortcut-manage-copy b{
+  display:block;
+  margin-top:3px;
+  overflow:hidden;
+  color:#eaf2f4;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.15;
+  text-overflow:ellipsis;
+  white-space:nowrap
+}
+#activitiesPanel .shortcut-manage-copy span{
+  display:block;
+  margin-top:4px;
+  overflow:hidden;
+  color:#80939d;
+  font-size:8px;
+  line-height:1.25;
+  text-overflow:ellipsis;
+  white-space:nowrap
+}
+#activitiesPanel .shortcut-manage-card.active .shortcut-manage-copy span{
+  color:#8ddce7
+}
+#activitiesPanel .shortcut-manage-actions{
+  grid-area:actions;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px
+}
+#activitiesPanel .shortcut-manage-card.empty .shortcut-manage-actions{
+  grid-template-columns:1fr
+}
+#activitiesPanel .shortcut-manage-actions button{
+  min-height:31px;
+  padding:6px 8px;
+  border:1px solid #31505f;
+  border-radius:8px;
+  background:#10232d;
+  color:#c5d6dc;
+  font-size:9px;
+  font-weight:850
+}
+#activitiesPanel .shortcut-manage-actions button:hover{
+  border-color:#4d7b8b;
+  background:#15303c
+}
+#activitiesPanel .shortcut-manage-actions button.remove{
+  border-color:#603846;
+  background:#25151c;
+  color:#eaa0b1
+}
+#activitiesPanel .shortcut-manage-actions button.remove:hover{
+  border-color:#8d4e61;
+  background:#341922;
+  color:#ffc0cf
+}
+#activitiesPanel #assignNote{
+  margin-bottom:14px!important;
+  border-color:#356172!important;
+  background:#0c222c!important;
+  color:#b8d9df!important
+}
+@media(max-width:1050px){
+  #activitiesPanel .shortcut-manager .favorite-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important
+  }
+}
+@media(max-width:680px){
+  #activitiesPanel .shortcut-manager .favorite-title{
+    align-items:flex-start;
+    flex-direction:column
+  }
+  #activitiesPanel .shortcut-manager .favorite-grid{
+    grid-template-columns:1fr!important
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -6328,14 +6493,14 @@ body.role-student .million-student-lifelines button{
 
 <section class="main-card mode-card hidden" id="agendaPanel"><div class="mode-title"><div><span class="eyebrow">AGENDA</span><h2>Send something to the class</h2><p>No agenda title — choose text, an image, or YouTube.</p></div></div><div class="agenda-grid"><div class="agenda-stage" id="agendaPreview"></div><div class="agenda-editor"><span class="eyebrow">SEND TO CLASS</span><div class="agenda-tabs"><button class="active" data-agenda-mode="text">▤ Text</button><button data-agenda-mode="image">▧ Image</button><button data-agenda-mode="youtube">▶ YouTube</button></div><div id="agendaTextPane"><textarea id="agendaText">1. Warm-up\n2. Ready check\n3. Class activity</textarea></div><div id="agendaImagePane" class="hidden"><input id="agendaImageFile" type="file" accept="image/*"><small style="color:#8192ab">Choose an image from this device.</small><div class="image-picker-preview" id="agendaImageThumb">No image selected</div></div><div id="agendaYoutubePane" class="hidden"><input id="agendaYoutube" placeholder="Paste a YouTube link"><div class="youtube-preview hidden" id="youtubePreview"></div></div><button class="send-btn" id="sendAgenda">▶ Launch Agenda</button></div></div></section>
 
-<section class="main-card activities-panel hidden" id="activitiesPanel"><div class="mode-title"><div><span class="eyebrow">ACTIVITIES</span><h2 id="activitiesTitle">Apps in Progress</h2><p id="activitiesSubtitle">Browse every available Mothership app and add apps to your 3×3 shortcut grid.</p></div><div class="library-header-actions" id="activitiesHeaderActions"></div></div><div class="favorite-wrap" id="favoriteAppsWrap"><div class="favorite-title"><span class="eyebrow">FAVORITE APPS</span><small style="color:#7f93af">9 app shortcuts</small></div><div class="favorite-grid" id="favoriteGrid"></div></div><div id="assignNote" class="assign-note hidden"></div><div class="activity-grid" id="activityGrid"></div><div class="saved-presentation-picker hidden" id="savedPresentationPicker"></div></section>
+<section class="main-card activities-panel hidden" id="activitiesPanel"><div class="mode-title"><div><span class="eyebrow">ACTIVITIES</span><h2 id="activitiesTitle">Apps in Progress</h2><p id="activitiesSubtitle">Browse every available Mothership app and add apps to your 3×3 shortcut grid.</p></div><div class="library-header-actions" id="activitiesHeaderActions"></div></div><div class="favorite-wrap" id="favoriteAppsWrap"><div class="favorite-title"><span class="eyebrow">ACTIVITY SHORTCUTS</span><small style="color:#7f93af">Add, replace, or remove any of the 9 slots</small></div><div class="favorite-grid" id="favoriteGrid"></div></div><div id="assignNote" class="assign-note hidden"></div><div class="activity-grid" id="activityGrid"></div><div class="saved-presentation-picker hidden" id="savedPresentationPicker"></div></section>
 <section class="main-card presentation-builder hidden" id="presentationBuilderPanel"></section>
 
 <section class="main-card mode-card hidden" id="genericPanel"><div class="generic-box"><span class="eyebrow" id="genericEyebrow">READY CHECK</span><h2 id="genericTitle">Are you ready?</h2><p id="genericCopy">Send a ready check to every student device.</p><div class="choice-row" id="genericActions"><button id="genericAction">Send to class</button></div></div></section>
 
 <div class="dashboard-tools-row" id="dashboardToolsRow">
   <section class="panel app-shortcuts-panel" id="appShortcutsPanel">
-    <div class="app-shortcuts-head"><div><span class="eyebrow">ACTIVITY SHORTCUTS</span><div class="hint">9 app slots</div></div><span class="hint">Tap + to add from Activities</span></div>
+    <div class="app-shortcuts-head"><div><span class="eyebrow">ACTIVITY SHORTCUTS</span><div class="hint">9 app slots</div></div><span class="hint">Manage in Activities</span></div>
     <div class="home-app-grid" id="homeAppGrid"></div>
   </section>
 </div>
@@ -8934,6 +9099,25 @@ function openApp(appId){
 function backToAppLibrary(){activityPresetEditingId='';state.activeApp=null;state.assigningSlot=null;state.presentationLibraryOpen=false;state.presentationEditor=null;render()}
 
 
+function removeAppShortcut(slot,{renderNow=true}={}){
+  const i=Number(slot);if(!Number.isInteger(i)||i<0||i>8)return;
+  while(state.favoriteSlots.length<9)state.favoriteSlots.push(null);
+  const id=state.favoriteSlots[i],app=appById(id);
+  state.favoriteSlots[i]=null;
+  if(state.assigningSlot===i)state.assigningSlot=null;
+  persistAppShortcuts();
+  if(renderNow)render();
+  toast(id?`${app?.name||'Activity'} removed from Shortcut ${i+1} — it is still available in the Activity Library.`:`Shortcut ${i+1} is already empty.`);
+}
+function beginShortcutAssignment(slot){
+  const i=Number(slot);if(!Number.isInteger(i)||i<0||i>8)return;
+  while(state.favoriteSlots.length<9)state.favoriteSlots.push(null);
+  state.assigningSlot=i;state.activeApp=null;state.presentationLibraryOpen=false;state.presentationEditor=null;state.screen='activities';
+  render();
+  const current=appById(state.favoriteSlots[i]);
+  toast(current?`Choose an activity to replace ${current.name} in Shortcut ${i+1}`:`Choose an activity for Shortcut ${i+1}`);
+}
+
 function renderHomeAppShortcuts(){
   const grid=$('#homeAppGrid');if(!grid)return;
   while(state.favoriteSlots.length<9)state.favoriteSlots.push(null);
@@ -8945,10 +9129,10 @@ function renderHomeAppShortcuts(){
       <span class="app-shortcut-label">${app?esc(app.name):`Shortcut ${i+1}`}</span>
     </button>`;
   }).join('');
-  $$('[data-home-app-slot]').forEach(b=>b.onclick=()=>{
+  $('[data-home-app-slot]').forEach(b=>b.onclick=()=>{
     const i=Number(b.dataset.homeAppSlot),id=state.favoriteSlots[i];
     if(id){openApp(id);return}
-    state.assigningSlot=i;state.activeApp=null;state.presentationLibraryOpen=false;state.presentationEditor=null;state.screen='activities';render();toast(`Choose an app for Shortcut ${i+1}`);
+    beginShortcutAssignment(i);
   });
 }
 
@@ -8960,8 +9144,11 @@ function renderActivities(){
   fav.innerHTML='';
 
   if(state.assigningSlot!==null){
+    const current=appById(state.favoriteSlots[state.assigningSlot]);
     note.classList.remove('hidden');
-    note.innerHTML=`Choose an app below for <b>Shortcut ${state.assigningSlot+1}</b>. The 3×3 shortcut grid stays fixed on Mission Control.`;
+    note.innerHTML=current
+      ? `Replacing <b>Shortcut ${state.assigningSlot+1}</b> · ${esc(current.name)}. Choose another activity below, or use Remove in the Shortcut Manager.`
+      : `Choose an activity below for <b>Shortcut ${state.assigningSlot+1}</b>. The 3×3 shortcut grid stays fixed on Mission Control.`;
   }else note.classList.add('hidden');
 
   if(state.activeApp==='scientific-calculator'){
@@ -9127,18 +9314,37 @@ function renderActivities(){
 
   picker.classList.add('hidden');grid.classList.remove('hidden');
   title.textContent='Activity Library';
-  subtitle.textContent='Every working Mothership app lives here. Open an app or add it to one of the nine fixed shortcuts.';
+  subtitle.textContent='Every working Mothership app lives here. Open activities normally, or customize the nine Mission Control shortcuts below.';
   header.innerHTML=state.assigningSlot!==null?`<button id="cancelAssignBtn">Cancel shortcut assignment</button>`:'';
   const cancel=$('#cancelAssignBtn');if(cancel)cancel.onclick=()=>{state.assigningSlot=null;render()};
+
+  while(state.favoriteSlots.length<9)state.favoriteSlots.push(null);
+  if(state.favoriteSlots.length>9)state.favoriteSlots=state.favoriteSlots.slice(0,9);
+  wrap.classList.remove('hidden');
+  wrap.classList.add('shortcut-manager');
+  fav.innerHTML=state.favoriteSlots.map((id,i)=>{
+    const app=appById(id),active=state.assigningSlot===i;
+    return `<div class="shortcut-manage-card ${app?'':'empty'} ${active?'active':''}">
+      <div class="shortcut-manage-icon">${app?appIconMarkup(app.id):'＋'}</div>
+      <div class="shortcut-manage-copy"><small>SLOT ${i+1}</small><b>${app?esc(app.name):'Empty shortcut'}</b><span>${active?(app?'Choose a replacement below':'Choose an activity below'):(app?'Available from Mission Control':'Ready for an activity')}</span></div>
+      <div class="shortcut-manage-actions">
+        <button data-shortcut-replace="${i}">${app?'Replace':'＋ Add'}</button>
+        ${app?`<button class="remove" data-shortcut-remove="${i}">Remove</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  $('[data-shortcut-replace]').forEach(b=>b.onclick=()=>beginShortcutAssignment(Number(b.dataset.shortcutReplace)));
+  $('[data-shortcut-remove]').forEach(b=>b.onclick=()=>removeAppShortcut(Number(b.dataset.shortcutRemove)));
   const presets=loadActivityPresets(),recent=loadRecentActivities();
   const presetSection=presets.length?`<div class="preset-section"><div class="preset-section-head"><h3>Saved Presets</h3><span>${presets.length} reusable setup${presets.length===1?'':'s'}</span></div><div class="preset-grid">${presets.map(p=>`<div class="preset-card"><span class="preset-app">${esc(activityDisplayName(p.appId))}</span><h4>${esc(p.name)}</h4><p>${esc(activityPresetSummary(p))}</p><div class="preset-actions"><button data-preset-launch="${esc(p.id)}">▶ Launch</button><button data-preset-open="${esc(p.id)}">Open / Edit</button><button class="delete" data-preset-delete="${esc(p.id)}">×</button></div></div>`).join('')}</div></div>`:`<div class="preset-section"><div class="preset-section-head"><h3>Saved Presets</h3><span>Configure an activity once, then save it here.</span></div><div class="empty">No presets yet. Open MINEFIELD, STARWHEEL, Sketch, VECTOR, ORBIT, or PIXEL REVEAL to save your first setup.</div></div>`;
   const recentSection=recent.length?`<div class="preset-section"><div class="preset-section-head"><h3>Recent Activities</h3><span>Reopen setup or relaunch in one click</span></div><div class="preset-recent">${recent.map((item,i)=>`<div class="preset-recent-card"><b>${esc(item.label||activityDisplayName(item.appId))}</b><small>${esc(activityDisplayName(item.appId))}${item.presetId?' · preset':''}${item.config?' · setup saved':''}</small><div class="preset-recent-actions"><button data-recent-open="${i}">Open</button><button data-recent-launch="${i}">▶ Launch</button></div></div>`).join('')}</div></div>`:'';
   const presetLibraryMarkup=`<div class="preset-library">${presetSection}${recentSection}</div>`;
   grid.innerHTML=presetLibraryMarkup+APP_REGISTRY.map(app=>{
     const slot=state.favoriteSlots.indexOf(app.id);
+    const targetCurrent=state.assigningSlot!==null?appById(state.favoriteSlots[state.assigningSlot]):null;
     const assignButton=state.assigningSlot!==null
-      ? `<button class="secondary" data-assign-app="${app.id}">＋ Add to Shortcut ${state.assigningSlot+1}</button>`
-      : (slot>=0?`<button class="secondary" disabled>✓ Shortcut ${slot+1}</button>`:`<button class="secondary" data-add-app="${app.id}">＋ Add to Shortcuts</button>`);
+      ? `<button class="secondary" data-assign-app="${app.id}">${targetCurrent?'↻ Replace':'＋ Add to'} Shortcut ${state.assigningSlot+1}</button>`
+      : (slot>=0?`<button class="secondary" data-manage-shortcut="${slot}">⚙ Manage Shortcut ${slot+1}</button>`:`<button class="secondary" data-add-app="${app.id}">＋ Add to Shortcuts</button>`);
     return `<div class="activity-card real-app-card"><span class="app-status">${esc(app.status)}</span><div class="act-icon">${appIconMarkup(app.id)}</div><h3>${esc(app.name)}</h3><div class="app-meta">${esc(app.subtitle)}</div><p>${esc(app.description)}</p><div class="real-app-actions"><button data-open-app="${app.id}">Open ${esc(app.name)}</button>${assignButton}</div></div>`;
   }).join('');
   $$('[data-preset-launch]').forEach(b=>b.onclick=()=>launchActivityPreset(b.dataset.presetLaunch));
@@ -9146,8 +9352,9 @@ function renderActivities(){
   $$('[data-preset-delete]').forEach(b=>b.onclick=()=>deleteActivityPreset(b.dataset.presetDelete));
   $$('[data-recent-open]').forEach(b=>b.onclick=()=>reopenRecentActivity(loadRecentActivities()[Number(b.dataset.recentOpen)],false));
   $$('[data-recent-launch]').forEach(b=>b.onclick=()=>reopenRecentActivity(loadRecentActivities()[Number(b.dataset.recentLaunch)],true));
-  $$('[data-open-app]').forEach(b=>b.onclick=()=>openApp(b.dataset.openApp));
-  $$('[data-assign-app]').forEach(b=>b.onclick=()=>{
+  $('[data-open-app]').forEach(b=>b.onclick=()=>openApp(b.dataset.openApp));
+  $('[data-manage-shortcut]').forEach(b=>b.onclick=()=>beginShortcutAssignment(Number(b.dataset.manageShortcut)));
+  $('[data-assign-app]').forEach(b=>b.onclick=()=>{
     const id=b.dataset.assignApp,slot=state.assigningSlot;
     const previous=state.favoriteSlots.indexOf(id);
     if(previous>=0&&previous!==slot)state.favoriteSlots[previous]=null;
@@ -9155,7 +9362,7 @@ function renderActivities(){
   });
   $$('[data-add-app]').forEach(b=>b.onclick=()=>{
     const id=b.dataset.addApp;let slot=state.favoriteSlots.findIndex(x=>!x);
-    if(slot<0){toast('All 9 shortcuts are full — tap a shortcut you want to replace');return}
+    if(slot<0){toast('All 9 shortcuts are full — use Replace or Remove in the Shortcut Manager above');return}
     state.favoriteSlots[slot]=id;persistAppShortcuts();render();toast(`${appById(id)?.name||'App'} added to Shortcut ${slot+1}`);
   });
 }
