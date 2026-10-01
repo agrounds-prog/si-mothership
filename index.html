@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v55.5 — Activity Library Organization</title>
+<title>SI Mothership v55.6 — Calculator Overlay Window</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -7141,7 +7141,7 @@ body.role-student .million-student-lifelines button{
 <div class="board-calculator-overlay hidden" id="boardCalculatorOverlay" aria-hidden="true">
   <div class="board-calculator-head">
     <div class="board-calculator-title"><span>BOARD TOOL · TEACHER ONLY</span><b>SI Scientific Calculator</b></div>
-    <div class="board-calculator-head-actions"><button id="boardCalculatorPopout" type="button" title="Open calculator in a new tab">↗</button><button id="boardCalculatorClose" type="button" title="Close calculator">×</button></div>
+    <div class="board-calculator-head-actions"><button id="boardCalculatorPopout" type="button" title="Open calculator in a compact overlay window">↗</button><button id="boardCalculatorClose" type="button" title="Close calculator">×</button></div>
   </div>
   <iframe class="board-calculator-frame" id="boardCalculatorFrame" title="SI Scientific Calculator for Whiteboard" loading="lazy"></iframe>
 </div>
@@ -8708,9 +8708,16 @@ function connectedStudents(){return state.students.filter(s=>!s.offline)}
 function activeActivity(){return state.activityRun?state.activities.find(a=>a.id===state.activityRun.activityId):null}
 function scientificCalculatorSettings(settings=state.calculatorSettings){const s=settings&&typeof settings==='object'?settings:{};return {angle:s.angle==='rad'?'rad':'deg',format:s.format==='scientific'?'scientific':'normal'}}
 function scientificCalculatorUrl(settings=state.calculatorSettings){const s=scientificCalculatorSettings(settings),u=new URL('/tools/scientific-calculator',PUBLIC_ORIGIN);u.searchParams.set('angle',s.angle);u.searchParams.set('format',s.format);return u.toString()}
-function openScientificCalculator(){window.open(scientificCalculatorUrl(),'_blank','noopener')}
+function scientificCalculatorPopupUrl(settings=state.calculatorSettings){const u=new URL(scientificCalculatorUrl(settings));u.searchParams.set('popup','1');return u.toString()}
+function openScientificCalculator(settings=state.calculatorSettings){
+  const url=scientificCalculatorPopupUrl(settings);
+  const features='popup=yes,width=430,height=760,resizable=yes,scrollbars=yes,toolbar=no,location=no,status=no,menubar=no';
+  const win=window.open(url,'siScientificCalculator',features);
+  if(win){try{win.focus()}catch(e){};return win}
+  return window.open(scientificCalculatorUrl(settings),'_blank','noopener');
+}
 function copyScientificCalculatorLink(){const url=scientificCalculatorUrl(),fallback=()=>{const ta=document.createElement('textarea');ta.value=url;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand('copy')}catch(e){}ta.remove();if(ok)toast('Calculator link copied');else prompt('Copy this calculator link:',url)};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(()=>toast('Calculator link copied')).catch(fallback);else fallback()}
-function launchScientificCalculatorForClass(){if(state.activityRun)return toast('Finish the active activity before launching the calculator');const settings=scientificCalculatorSettings();state.calculatorSettings=settings;state.calculatorLaunch={id:'calc_'+Date.now().toString(36),settings:deepClone(settings),launchedAt:Date.now()};state.screen='classroom';state.promptActive=false;state.agendaLive=false;render();toast('Scientific Calculator launched for class')}
+function launchScientificCalculatorForClass(){if(state.activityRun)return toast('Finish the active activity before launching the calculator');const settings=scientificCalculatorSettings();state.calculatorSettings=settings;state.calculatorLaunch={id:'calc_'+Date.now().toString(36),settings:deepClone(settings),launchedAt:Date.now()};state.screen='classroom';state.promptActive=false;state.agendaLive=false;openScientificCalculator(settings);render();toast('Scientific Calculator launched for class — compact modeling window opened')}
 function endScientificCalculatorForClass(){if(!state.calculatorLaunch)return;state.calculatorLaunch=null;render();toast('Class calculator ended — students returned to Classroom Live')}
 function dismissStudentScientificCalculator(){if(!state.calculatorLaunch)return;studentCalculatorDismissedLaunchId=String(state.calculatorLaunch.id||'');renderPublic();toast('Returned to Classroom Live')}
 function wireStudentCalculator(){const b=$('#studentCalculatorBackBtn');if(b)b.onclick=dismissStudentScientificCalculator}
