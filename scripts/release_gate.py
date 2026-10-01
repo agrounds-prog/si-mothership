@@ -85,6 +85,7 @@ def main() -> int:
         '<style id="v54-2-roster-visual-detail">',
         '<style id="v55-0-game-show-pack">',
         '<style id="v55-1-roster-refinement">',
+        '<style id="v55-2-game-show-visual-refinement">',
     )
     check("html shell: head closes before body opens", head_close >= 0 and body_open > head_close and bool(re.search(r"</head>\s*<body(?:\s|>)", html, re.I)))
     check("html shell: release styles are inside head", head_close >= 0 and all(0 <= html.find(tag) < head_close for tag in release_styles))
@@ -184,6 +185,13 @@ def main() -> int:
     check("roster refinement: one/two student hero layout remains", 'avatar-line:not(:has(.crew:nth-child(3)))' in html and 'grid-template-columns:188px minmax(165px,1fr)' in html)
     check("roster refinement: active alert rails remain", 'crew.buzz-glow::before' in html and 'crew.hand-raised-glow::after' in html)
     check("roster refinement: connected-state dot remains", 'crew>small::before' in html and 'background:#65d2a5' in html)
+
+    # v55.2 game-show visual refinement.
+    check("game show visual refinement: release style remains", '<style id="v55-2-game-show-visual-refinement">' in html)
+    check("crew survey refinement: stage framing remains", '.crew-survey-public::before' in html and '.crew-survey-public::after' in html and 'content:"SURVEY BOARD"' in html)
+    check("crew survey refinement: tactile student buzzer remains", 'body.role-student .crew-survey-big-buzz::after' in html and 'radial-gradient(circle at 42% 30%' in html)
+    check("million refinement: stage framing remains", '.million-public::before' in html and '.million-public::after' in html and '.million-choice.locked' in html)
+    check("million refinement: command seat emphasis remains", 'body.role-student .million-student.command-seat' in html and 'body.role-student #millionLockBtn:not(:disabled)' in html)
 
     # Inline JavaScript parse validation.
     scripts = re.findall(r"<script[^>]*>(.*?)</script>", html, flags=re.S | re.I)
