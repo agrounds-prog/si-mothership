@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v54.0 — Student Experience Overhaul</title>
+<title>SI Mothership v54.1 — Visual Refinement System</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -4500,6 +4500,420 @@ body.role-student .student-actions button[data-action="ready"].on{
   body.role-student .student-join-card{padding:15px!important}
   body.role-student .join-avatar-choice{min-height:132px!important}
   body.role-student .join-avatar-choice .avatar-art{width:70px!important;height:70px!important;font-size:39px!important}
+}
+</style>
+
+<style id="v54-1-visual-refinement-system">
+/* v54.1 — refined visual system.
+   Styling only: no workflow, sync, storage, permissions, or activity logic changes. */
+:root{
+  --refine-bg:#071019;
+  --refine-surface:#0b1720;
+  --refine-surface-raised:#0f1d27;
+  --refine-surface-soft:#101f2a;
+  --refine-stroke:#213744;
+  --refine-stroke-strong:#315060;
+  --refine-text:#f1f6f8;
+  --refine-muted:#8da0aa;
+  --refine-faint:#657a86;
+  --refine-cyan:#6ed7e7;
+  --refine-green:#71d4aa;
+  --refine-gold:#e8c66f;
+  --refine-radius-sm:9px;
+  --refine-radius-md:13px;
+  --refine-radius-lg:18px;
+  --refine-shadow-1:0 8px 24px rgba(0,0,0,.16);
+  --refine-shadow-2:0 18px 46px rgba(0,0,0,.22);
+  --refine-inner:inset 0 1px 0 rgba(255,255,255,.025)
+}
+html{
+  scrollbar-color:#314957 #08131b
+}
+body{
+  background:
+    radial-gradient(circle at 48% -8%,rgba(82,142,171,.13),transparent 34%),
+    radial-gradient(circle at 8% 24%,rgba(66,113,143,.055),transparent 30%),
+    linear-gradient(180deg,#08131d 0%,#071019 52%,#060e16 100%)!important
+}
+button,input,textarea,select{
+  -webkit-tap-highlight-color:transparent
+}
+button{
+  transition:
+    background .14s ease,
+    border-color .14s ease,
+    color .14s ease,
+    box-shadow .14s ease,
+    transform .14s ease,
+    opacity .14s ease!important
+}
+button:hover:not(:disabled){transform:translateY(-1px)}
+button:active:not(:disabled){transform:translateY(0) scale(.992)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{
+  outline:2px solid rgba(110,215,231,.78)!important;
+  outline-offset:2px!important
+}
+.eyebrow{
+  color:#79cbd7!important;
+  font-weight:900!important;
+  letter-spacing:.14em!important
+}
+
+/* Teacher shell */
+body:not(.role-student):not(.role-shared) .topbar{
+  height:68px!important;
+  padding:0 24px!important;
+  background:rgba(7,17,25,.91)!important;
+  border-bottom:1px solid #1d303a!important;
+  box-shadow:0 7px 22px rgba(0,0,0,.12)!important;
+  backdrop-filter:blur(18px) saturate(115%)
+}
+body:not(.role-student):not(.role-shared) .brand{
+  gap:10px!important;
+  color:#edf4f6!important;
+  font-size:16px!important;
+  font-weight:820!important;
+  letter-spacing:-.015em!important
+}
+body:not(.role-student):not(.role-shared) .brand-mark{
+  width:36px!important;
+  height:36px!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  border-radius:11px!important;
+  background:linear-gradient(145deg,#6fd5e5,#8c88e6)!important;
+  box-shadow:0 8px 22px rgba(74,165,193,.16),inset 0 1px 0 rgba(255,255,255,.28)!important;
+  font-size:19px!important
+}
+body:not(.role-student):not(.role-shared) .session-pill{
+  padding:8px 13px!important;
+  border-color:#27414e!important;
+  background:#0a1821!important;
+  color:#aebec6!important;
+  font-size:11px!important;
+  box-shadow:var(--refine-inner)!important
+}
+body:not(.role-student):not(.role-shared) .viewbar{
+  height:56px!important;
+  padding:0 24px!important;
+  background:#08131b!important;
+  border-bottom:1px solid #1b2e38!important
+}
+body:not(.role-student):not(.role-shared) .tabs{
+  gap:3px!important;
+  padding:4px!important;
+  border:1px solid #243945!important;
+  border-radius:11px!important;
+  background:#0d1a23!important;
+  box-shadow:var(--refine-inner)!important
+}
+body:not(.role-student):not(.role-shared) .tab{
+  min-height:34px;
+  padding:7px 12px!important;
+  border-radius:8px!important;
+  color:#81949e!important;
+  font-size:11px!important;
+  font-weight:780!important
+}
+body:not(.role-student):not(.role-shared) .tab.active{
+  background:#172a35!important;
+  color:#edf5f7!important;
+  box-shadow:inset 0 0 0 1px #34505e,0 4px 12px rgba(0,0,0,.12)!important
+}
+body:not(.role-student):not(.role-shared) .class-code{
+  gap:9px!important;
+  color:#71848e!important
+}
+body:not(.role-student):not(.role-shared) .class-code small{
+  font-size:8px!important;
+  letter-spacing:.16em!important
+}
+body:not(.role-student):not(.role-shared) .class-code strong{
+  color:#8fe5ef!important;
+  font-size:16px!important;
+  letter-spacing:.15em!important;
+  text-shadow:0 0 18px rgba(110,215,231,.18)
+}
+
+/* Teacher typography + surfaces */
+#teacher .deck-header h1{
+  color:#f1f6f8!important;
+  font-size:29px!important;
+  font-weight:720!important;
+  letter-spacing:-.035em!important
+}
+#teacher .metric{
+  border:1px solid #28414d!important;
+  background:#0b1820!important;
+  color:#8ea2ac!important;
+  box-shadow:var(--refine-inner)!important
+}
+#teacher .metric b{color:#e6eef1!important}
+#teacher .main-card,
+#teacher .panel,
+#teacher .activity-controller,
+#teacher .generic-box{
+  border-color:#203744!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.012),transparent 32%),
+    linear-gradient(155deg,#0d1a23,#0a151d)!important;
+  box-shadow:var(--refine-shadow-1),var(--refine-inner)!important
+}
+#teacher .main-card:hover,
+#teacher .panel:hover{
+  border-color:#284654!important
+}
+#teacher .roster-card{
+  border-radius:16px!important;
+  overflow:hidden
+}
+#teacher .roster-head{
+  padding-bottom:11px!important;
+  border-bottom-color:#1e333e!important
+}
+#teacher .roster-head .eyebrow,
+#teacher .app-shortcuts-head .eyebrow{
+  color:#78c7d1!important
+}
+#teacher .bot-card{
+  border-color:color-mix(in srgb,var(--c) 62%,#2c4550)!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.035),rgba(0,0,0,.045)),
+    #11212b!important;
+  box-shadow:
+    0 8px 20px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.045)!important
+}
+#teacher .crew>b{
+  color:#edf4f6!important;
+  font-weight:780!important;
+  letter-spacing:-.01em!important
+}
+#teacher .crew>small{color:#718692!important}
+
+/* Teacher control deck */
+#teacher .teacher-controlbar{
+  border-color:#203744!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.012),transparent),
+    #0a1720!important;
+  box-shadow:var(--refine-shadow-1),var(--refine-inner)!important
+}
+#teacher .teacher-control-group{
+  border-color:#223944!important;
+  background:#0d1a23!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.018)!important
+}
+#teacher .teacher-control-group.response-group{
+  border-color:#27434a!important;
+  background:#0d1b22!important
+}
+#teacher .teacher-control-group.session-group{
+  border-color:#3a3238!important;
+  background:#15181d!important
+}
+#teacher .control-group-label{
+  color:#758894!important;
+  font-weight:880!important
+}
+#teacher .teacher-controlbar .control{
+  border-color:#2a424e!important;
+  background:linear-gradient(180deg,#12232c,#0f1d26)!important;
+  color:#aebdc4!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02)!important
+}
+#teacher .teacher-controlbar .control:hover{
+  border-color:#3b5c6a!important;
+  background:linear-gradient(180deg,#162a35,#11222c)!important;
+  color:#f0f6f8!important;
+  box-shadow:0 7px 16px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.03)!important
+}
+#teacher .teacher-controlbar .control.active{
+  border-color:#51828d!important;
+  background:linear-gradient(180deg,#173841,#153038)!important;
+  color:#c9eff3!important;
+  box-shadow:0 0 0 1px rgba(110,215,231,.04),inset 3px 0 0 #6ed7e7!important
+}
+#teacher .teacher-controlbar .control.enabled{
+  border-color:#47725d!important;
+  background:linear-gradient(180deg,#173329,#142920)!important;
+  color:#bae6ce!important;
+  box-shadow:inset 3px 0 0 #71d4aa!important
+}
+#teacher .teacher-controlbar .control .ico{
+  border:1px solid #243c48!important;
+  background:#0a171f!important;
+  color:#8399a4!important
+}
+#teacher .teacher-controlbar .control.active .ico{
+  border-color:#365f69!important;
+  background:#102b33!important;
+  color:#9de9f1!important
+}
+#teacher .teacher-controlbar .control.enabled .ico{
+  border-color:#335846!important;
+  background:#10261d!important;
+  color:#9fe1bd!important
+}
+
+/* Activity shortcuts */
+#teacher .app-shortcuts-panel{
+  border-radius:15px!important
+}
+#teacher .app-shortcuts-head{
+  border-bottom-color:#1f343f!important
+}
+#teacher .app-shortcut-icon{
+  border:1px solid rgba(255,255,255,.10)!important;
+  box-shadow:
+    0 10px 22px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.18)!important;
+  transition:transform .16s ease,box-shadow .16s ease,filter .16s ease!important
+}
+#teacher .app-shortcut:hover .app-shortcut-icon{
+  transform:translateY(-2px) scale(1.025)!important;
+  filter:saturate(1.06) brightness(1.04)!important;
+  box-shadow:
+    0 14px 28px rgba(0,0,0,.25),
+    0 0 18px rgba(110,215,231,.08),
+    inset 0 1px 0 rgba(255,255,255,.20)!important
+}
+#teacher .app-shortcut-label{
+  color:#cdd9de!important;
+  font-weight:760!important
+}
+
+/* Right rail */
+#teacher .right-rail>.panel,
+#teacher .attention-summary{
+  border-color:#203844!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.012),transparent),
+    #0b1820!important;
+  box-shadow:var(--refine-shadow-1),var(--refine-inner)!important
+}
+#teacher .section-heading{
+  color:#82959f!important;
+  font-weight:850!important
+}
+#teacher .section-heading span{letter-spacing:.105em!important}
+#teacher .student-row,
+#teacher .help-row,
+#teacher .alert-row{
+  border-color:#1c303a!important
+}
+#teacher .clear{
+  border-color:#2b4653!important;
+  background:#10202a!important;
+  color:#9babb4!important;
+  box-shadow:var(--refine-inner)!important
+}
+#teacher .clear:hover{
+  border-color:#3b5d6a!important;
+  background:#142832!important;
+  color:#e7eff2!important
+}
+
+/* Student refinement */
+body.role-student .device{
+  border-color:#284653!important;
+  box-shadow:0 24px 60px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.025)!important
+}
+body.role-student .device-head{
+  box-shadow:inset 0 -1px 0 rgba(255,255,255,.012)!important
+}
+body.role-student .student-join-card{
+  border-color:#2a4a57!important;
+  box-shadow:0 16px 36px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.025)!important
+}
+body.role-student .join-avatar-choice{
+  border-color:#2b4854!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.015),transparent 35%),
+    linear-gradient(180deg,#10212a,#0b1820)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02)!important
+}
+body.role-student .join-avatar-choice:hover{
+  border-color:#3a6170!important;
+  background:linear-gradient(180deg,#142a35,#0e2029)!important
+}
+body.role-student .join-avatar-choice.selected{
+  border-color:#62d7e8!important;
+  box-shadow:
+    0 0 0 3px rgba(98,215,232,.10),
+    0 12px 26px rgba(0,0,0,.20),
+    0 0 24px rgba(98,215,232,.14)!important
+}
+body.role-student .join-avatar-selected.has-selection{
+  border-color:#3f7685!important;
+  background:linear-gradient(135deg,#0e2a34,#0c1d25)!important;
+  box-shadow:inset 3px 0 0 #6ed7e7,var(--refine-inner)!important
+}
+body.role-student .join-primary{
+  background:linear-gradient(135deg,#3fbdd5,#477fe3)!important;
+  border-color:#63ccdf!important;
+  box-shadow:0 10px 22px rgba(36,120,191,.18),inset 0 1px 0 rgba(255,255,255,.10)!important
+}
+body.role-student .join-secondary{
+  border-color:#34515e!important;
+  background:#102029!important
+}
+body.role-student .student-actions button{
+  border-color:#2d4b57!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.014),transparent),
+    linear-gradient(180deg,#142832,#0f1f28)!important;
+  box-shadow:0 5px 12px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.025)!important
+}
+body.role-student .student-actions button:hover:not(:disabled){
+  border-color:#406473!important;
+  background:linear-gradient(180deg,#182f3a,#122630)!important
+}
+
+/* Shared display */
+body.role-shared .shared-screen{
+  background:
+    radial-gradient(circle at 50% 12%,rgba(74,132,158,.08),transparent 36%),
+    linear-gradient(180deg,#0b1821,#08131b)!important
+}
+body.role-shared .shared-screen .mirror-top,
+body.role-shared .shared-screen .mirror-footer{
+  background:rgba(7,18,26,.93)!important;
+  backdrop-filter:blur(16px)!important
+}
+body.role-shared .board-public-head{
+  border-color:#315767!important;
+  background:rgba(7,20,28,.86)!important;
+  box-shadow:0 10px 26px rgba(0,0,0,.28)!important
+}
+
+/* Toasts + scrollbars */
+.toast{
+  border-color:#315261!important;
+  background:rgba(12,28,37,.96)!important;
+  color:#eaf2f4!important;
+  box-shadow:0 16px 34px rgba(0,0,0,.35)!important;
+  backdrop-filter:blur(12px)!important
+}
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-track{background:#08131b}
+*::-webkit-scrollbar-thumb{
+  border:2px solid #08131b;
+  border-radius:999px;
+  background:#2b424e
+}
+*::-webkit-scrollbar-thumb:hover{background:#385766}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    scroll-behavior:auto!important;
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.001ms!important
+  }
+  button:hover:not(:disabled),
+  #teacher .app-shortcut:hover .app-shortcut-icon{
+    transform:none!important
+  }
 }
 </style>
 </head>
