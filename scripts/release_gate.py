@@ -81,6 +81,7 @@ def main() -> int:
         '<style id="v53-7-high-fidelity-calculator-mirror">',
         '<style id="v53-9-roster-signal-refresh">',
         '<style id="v54-0-student-experience-overhaul">',
+        '<style id="v54-1-visual-refinement-system">',
     )
     check("html shell: head closes before body opens", head_close >= 0 and body_open > head_close and bool(re.search(r"</head>\s*<body(?:\s|>)", html, re.I)))
     check("html shell: release styles are inside head", head_close >= 0 and all(0 <= html.find(tag) < head_close for tag in release_styles))
