@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v54.1 — Visual Refinement System</title>
+<title>SI Mothership v54.2 — Roster Visual Detail Pass</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -4916,6 +4916,176 @@ body.role-shared .board-public-head{
   }
 }
 </style>
+
+<style id="v54-2-roster-visual-detail">
+/* v54.2 — screenshot-driven roster detail pass.
+   Visual/markup grouping only; classroom signals and state remain unchanged. */
+#teacher .crew-avatar-stage{
+  position:relative;
+  width:max-content;
+  margin:0 auto
+}
+#teacher .crew-avatar-stage .stem{
+  position:relative;
+  z-index:2
+}
+
+/* Sparse classes become deliberate student pods instead of full-width empty columns. */
+#teacher .roster-card.sparse-roster .roster-crew-pane{
+  min-height:250px!important;
+  padding:8px 0 2px
+}
+#teacher .roster-card.sparse-roster .avatar-line{
+  grid-template-columns:repeat(auto-fit,minmax(230px,280px))!important;
+  justify-content:center!important;
+  align-items:stretch!important;
+  gap:22px!important
+}
+#teacher .roster-card.sparse-roster .crew{
+  width:100%;
+  min-height:240px;
+  padding:20px 18px 16px!important;
+  border:1px solid #213d49;
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 50% 28%,color-mix(in srgb,var(--c) 9%,transparent),transparent 44%),
+    linear-gradient(180deg,rgba(255,255,255,.014),transparent 35%),
+    #0a1820;
+  box-shadow:
+    0 14px 34px rgba(0,0,0,.14),
+    inset 0 1px 0 rgba(255,255,255,.02);
+  transition:border-color .14s ease,background .14s ease,box-shadow .14s ease,transform .14s ease
+}
+#teacher .roster-card.sparse-roster .crew:hover{
+  border-color:#2d5360!important;
+  background:
+    radial-gradient(circle at 50% 28%,color-mix(in srgb,var(--c) 12%,transparent),transparent 45%),
+    linear-gradient(180deg,rgba(255,255,255,.018),transparent 35%),
+    #0c1b24!important;
+  box-shadow:
+    0 18px 40px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.025)
+}
+#teacher .roster-card.sparse-roster .bot-card{
+  width:148px!important;
+  height:146px!important;
+  border-radius:34px!important;
+  font-size:76px!important;
+  margin-bottom:12px!important
+}
+#teacher .roster-card.sparse-roster .bot-card img{border-radius:33px!important}
+#teacher .roster-card.sparse-roster .bot-card .builtin-avatar-glyph{font-size:78px!important}
+#teacher .roster-card.sparse-roster .crew>b{
+  margin-top:4px!important;
+  font-size:17px!important;
+  line-height:1.15
+}
+#teacher .roster-card.sparse-roster .crew>small{
+  margin-top:5px!important;
+  font-size:10px!important
+}
+
+/* Status chips are attached to the avatar, not the roster edges. */
+#teacher .crew .buzz-chip,
+#teacher .crew .hand-chip,
+#teacher .crew .help-chip{
+  position:absolute!important;
+  z-index:8!important;
+  margin:0!important;
+  white-space:nowrap;
+  pointer-events:none
+}
+#teacher .crew .buzz-chip{
+  left:-18px!important;
+  top:16px!important;
+  right:auto!important
+}
+#teacher .crew .hand-chip{
+  right:-18px!important;
+  top:16px!important;
+  left:auto!important
+}
+#teacher .crew .help-chip{
+  right:-14px!important;
+  top:auto!important;
+  bottom:7px!important;
+  padding:4px 7px!important;
+  border:1px solid #c94c6b!important;
+  border-radius:999px!important;
+  background:#3a1421!important;
+  color:#ff94ad!important;
+  font-size:7px!important;
+  font-style:normal!important;
+  font-weight:950!important;
+  box-shadow:0 0 16px rgba(226,71,111,.30)!important
+}
+#teacher .roster-card.sparse-roster .crew .buzz-chip,
+#teacher .roster-card.sparse-roster .crew .hand-chip{
+  top:18px!important;
+  padding:6px 9px!important;
+  font-size:9px!important
+}
+#teacher .roster-card.sparse-roster .crew .buzz-chip{left:-24px!important}
+#teacher .roster-card.sparse-roster .crew .hand-chip{right:-24px!important}
+#teacher .roster-card.sparse-roster .crew .help-chip{
+  right:-20px!important;
+  bottom:8px!important;
+  padding:5px 8px!important;
+  font-size:8px!important
+}
+
+/* Current prompt response is one strong pill; don't repeat it below. */
+#teacher .roster-card.sparse-roster .crew .ready-pill{
+  margin-top:8px!important;
+  min-height:24px!important;
+  padding:4px 10px!important;
+  border-color:#33556a!important;
+  background:#0d2130!important;
+  color:#a9dff0!important;
+  font-size:8px!important;
+  letter-spacing:.06em!important
+}
+#teacher .crew .response-note{
+  margin-top:5px!important;
+  color:#78cbd8!important;
+  font-weight:750!important
+}
+
+/* When a live signal is active, the pod quietly echoes it while the avatar keeps the bright cue. */
+#teacher .roster-card.sparse-roster .crew.buzz-glow{
+  border-color:#2f6678!important;
+  box-shadow:0 14px 34px rgba(0,0,0,.14),inset 0 0 0 1px rgba(85,221,255,.05)!important
+}
+#teacher .roster-card.sparse-roster .crew.hand-raised-glow{
+  border-color:#66582f!important
+}
+#teacher .roster-card.sparse-roster .crew.ready-glow{
+  border-color:#35644f!important
+}
+
+/* Dense rosters still keep signals close to each student's avatar. */
+#teacher .avatar-line:not(:has(.crew:nth-child(5))) .crew-avatar-stage{
+  margin-left:auto;
+  margin-right:auto
+}
+@media(max-width:1200px){
+  #teacher .roster-card.sparse-roster .avatar-line{
+    grid-template-columns:repeat(auto-fit,minmax(210px,260px))!important
+  }
+}
+@media(max-width:720px){
+  #teacher .roster-card.sparse-roster .avatar-line{
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr))!important
+  }
+  #teacher .roster-card.sparse-roster .bot-card{
+    width:126px!important;
+    height:124px!important
+  }
+  #teacher .roster-card.sparse-roster .crew .buzz-chip{left:-16px!important}
+  #teacher .roster-card.sparse-roster .crew .hand-chip{right:-16px!important}
+  #teacher .roster-card.sparse-roster .crew .help-chip{right:-12px!important}
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -7020,7 +7190,8 @@ function renderRoster(){
     }
     const readyGlow=!activity&&s.readyResponse==='Ready'&&!s.offline&&state.screen!=='lobby'&&state.screen!=='brb';
     const boardGlow=activity&&activeActivity()?.type==='board'&&boardState()?.controller===s.n&&!s.offline;
-    return `<div class="crew ${s.offline?'offline':''} ${readyGlow?'ready-glow':''} ${boardGlow?'board-control-glow':''} ${hand?'hand-raised-glow':''} ${buzzed?'buzz-glow':''} ${buzzIndex===0?'buzz-first':''}" style="--c:${s.c}"><div class="stem"></div><div class="bot-card ${String(s.avatarKey||'').startsWith('custom_')?'custom-avatar-card':''}">${avatarRosterMarkup(s)}</div><b>${s.n}</b><small>${s.offline?'Reconnecting':'Connected'}</small>${pill}<span class="response-note">${esc(resp)}</span>${buzzed?`<em class="buzz-chip">ϟ BUZZ ${buzzIndex+1}</em>`:''}${hand?'<em class="hand-chip">✋ HAND</em>':''}${help?'<em class="help-chip">HELP</em>':''}</div>`;
+    const showResponseNote=!!resp&&!(state.promptActive&&['ready','emotion','understanding'].includes(state.screen));
+    return `<div class="crew ${s.offline?'offline':''} ${readyGlow?'ready-glow':''} ${boardGlow?'board-control-glow':''} ${hand?'hand-raised-glow':''} ${buzzed?'buzz-glow':''} ${buzzIndex===0?'buzz-first':''}" style="--c:${s.c}"><div class="crew-avatar-stage"><div class="stem"></div><div class="bot-card ${String(s.avatarKey||'').startsWith('custom_')?'custom-avatar-card':''}">${avatarRosterMarkup(s)}</div>${buzzed?`<em class="buzz-chip">ϟ BUZZ ${buzzIndex+1}</em>`:''}${hand?'<em class="hand-chip">✋ HAND</em>':''}${help?'<em class="help-chip">HELP</em>':''}</div><b>${s.n}</b><small>${s.offline?'Reconnecting':'Connected'}</small>${pill}${showResponseNote?`<span class="response-note">${esc(resp)}</span>`:''}</div>`;
   }).join('');
   $('#rosterRange').textContent=state.students.length?`${state.rosterPage*8+1}–${Math.min(state.rosterPage*8+8,state.students.length)} of ${state.students.length}`:'No students joined';
   $('#rosterPageLabel').textContent=`${state.rosterPage+1} / ${pageCount}`;
