@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v55.4 — Classroom Workflow Polish</title>
+<title>SI Mothership v55.5 — Activity Library Organization</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -6661,6 +6661,421 @@ body.role-student .million-student-lifelines button{
 }
 </style>
 
+
+<style id="v55-5-activity-library-organization">
+/* v55.5 — searchable, categorized Activity Library. */
+#activitiesPanel .activity-library-toolbar{
+  display:grid;
+  grid-template-columns:minmax(280px,.78fr) minmax(430px,1.22fr);
+  gap:12px;
+  align-items:center;
+  margin:0 0 14px;
+  padding:12px;
+  border:1px solid #2b4855;
+  border-radius:14px;
+  background:linear-gradient(180deg,#0b1a23,#08151d);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025)
+}
+#activitiesPanel .activity-library-search-wrap{
+  min-width:0;
+  height:42px;
+  display:grid;
+  grid-template-columns:32px minmax(0,1fr) 32px;
+  align-items:center;
+  border:1px solid #315361;
+  border-radius:11px;
+  background:#07131a;
+  overflow:hidden
+}
+#activitiesPanel .activity-library-search-wrap>span{
+  display:grid;
+  place-items:center;
+  color:#69cfe0;
+  font-size:19px
+}
+#activitiesPanel .activity-library-search-wrap input{
+  width:100%;
+  height:40px;
+  border:0!important;
+  outline:0;
+  background:transparent!important;
+  color:#edf5f7;
+  font-size:12px
+}
+#activitiesPanel .activity-library-search-wrap input::placeholder{color:#637b84}
+#activitiesPanel .activity-library-search-wrap button{
+  width:28px;
+  height:28px;
+  margin-right:4px;
+  padding:0;
+  border:1px solid #304e5a;
+  border-radius:8px;
+  background:#0f222b;
+  color:#8fa7af;
+  font-size:17px
+}
+#activitiesPanel .activity-library-filters{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:6px
+}
+#activitiesPanel .activity-library-filters button{
+  min-width:0;
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:7px;
+  padding:7px 9px;
+  border:1px solid #2d4a57;
+  border-radius:10px;
+  background:#0d1e27;
+  color:#91a8b0;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.035em
+}
+#activitiesPanel .activity-library-filters button b{
+  min-width:20px;
+  height:20px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:#172d37;
+  color:#78919a;
+  font-size:8px
+}
+#activitiesPanel .activity-library-filters button:hover{
+  border-color:#416875;
+  background:#112832
+}
+#activitiesPanel .activity-library-filters button.active{
+  border-color:#58c9dc;
+  background:linear-gradient(180deg,#103541,#0d2933);
+  color:#c8f6fc;
+  box-shadow:0 0 0 2px rgba(88,201,220,.06),0 0 18px rgba(88,201,220,.07)
+}
+#activitiesPanel .activity-library-filters button.active b{
+  background:#174553;
+  color:#a8f1fb
+}
+#activitiesPanel .activity-library-shelves{
+  display:grid;
+  grid-template-columns:.9fr 1.1fr;
+  gap:12px;
+  margin-bottom:16px
+}
+#activitiesPanel .activity-library-shelves .preset-section{
+  min-width:0;
+  margin:0!important;
+  padding:13px!important;
+  border:1px solid #294653!important;
+  border-radius:14px!important;
+  background:linear-gradient(180deg,#0b1922,#08141c)!important
+}
+#activitiesPanel .preset-section-head{
+  gap:10px;
+  margin-bottom:10px!important
+}
+#activitiesPanel .preset-section-head>div{min-width:0}
+#activitiesPanel .library-kicker{
+  display:block;
+  margin-bottom:3px;
+  color:#67828c;
+  font-size:7px;
+  font-weight:950;
+  letter-spacing:.15em
+}
+#activitiesPanel .preset-section-head h3{
+  margin:0!important;
+  color:#e2ecef!important;
+  font-size:15px!important;
+  letter-spacing:-.015em
+}
+#activitiesPanel .preset-section-head>span{
+  align-self:flex-end;
+  color:#6e858e!important;
+  font-size:8px!important
+}
+#activitiesPanel .preset-recent{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:7px!important
+}
+#activitiesPanel .preset-recent-card{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center;
+  gap:10px;
+  min-height:58px!important;
+  padding:8px 9px!important;
+  border-color:#294754!important;
+  border-radius:10px!important;
+  background:#0a1820!important
+}
+#activitiesPanel .recent-card-top{
+  min-width:0;
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr);
+  align-items:center;
+  gap:8px
+}
+#activitiesPanel .recent-app-icon{
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border:1px solid #315463;
+  border-radius:9px;
+  background:linear-gradient(145deg,#163341,#10242d);
+  color:#75ddea;
+  overflow:hidden
+}
+#activitiesPanel .recent-app-icon svg{
+  width:22px;
+  height:22px
+}
+#activitiesPanel .recent-card-top>div{min-width:0}
+#activitiesPanel .recent-card-top b{
+  display:block;
+  overflow:hidden;
+  color:#dce9ed!important;
+  font-size:10px!important;
+  text-overflow:ellipsis;
+  white-space:nowrap
+}
+#activitiesPanel .recent-card-top small{
+  display:block;
+  margin-top:3px;
+  overflow:hidden;
+  color:#6f8690!important;
+  font-size:7px!important;
+  text-overflow:ellipsis;
+  white-space:nowrap
+}
+#activitiesPanel .preset-recent-actions{
+  display:flex!important;
+  gap:5px!important
+}
+#activitiesPanel .preset-recent-actions button{
+  min-height:30px!important;
+  padding:6px 8px!important;
+  font-size:8px!important
+}
+#activitiesPanel .preset-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:7px!important
+}
+#activitiesPanel .preset-card{
+  min-width:0;
+  padding:9px!important;
+  border-color:#2b4654!important;
+  border-radius:10px!important;
+  background:#0a1820!important
+}
+#activitiesPanel .preset-card-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:6px
+}
+#activitiesPanel .preset-app{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap
+}
+#activitiesPanel .preset-category{
+  flex:0 0 auto;
+  color:#708892;
+  font-size:6px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase
+}
+#activitiesPanel .preset-card h4{
+  margin:7px 0 3px!important;
+  overflow:hidden;
+  color:#e0ebee!important;
+  font-size:11px!important;
+  text-overflow:ellipsis;
+  white-space:nowrap
+}
+#activitiesPanel .preset-card p{
+  min-height:28px!important;
+  margin:0 0 7px!important;
+  color:#788f98!important;
+  font-size:7px!important;
+  line-height:1.35!important
+}
+#activitiesPanel .preset-actions{
+  gap:4px!important
+}
+#activitiesPanel .preset-actions button{
+  min-height:28px!important;
+  padding:5px 6px!important;
+  font-size:7px!important
+}
+#activitiesPanel .empty-shelf .empty{
+  min-height:98px;
+  display:grid;
+  place-items:center;
+  padding:16px;
+  border:1px dashed #284653;
+  border-radius:10px;
+  background:#08151c;
+  color:#657d86!important;
+  text-align:center;
+  font-size:9px
+}
+#activitiesPanel .activity-catalog{
+  padding:14px;
+  border:1px solid #294653;
+  border-radius:15px;
+  background:linear-gradient(180deg,#0a1821,#08141b)
+}
+#activitiesPanel .activity-catalog-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px
+}
+#activitiesPanel .activity-catalog-head h3{
+  margin:2px 0 0;
+  color:#e7f0f2;
+  font-size:18px;
+  letter-spacing:-.02em
+}
+#activitiesPanel .activity-catalog-head>span{
+  color:#718891;
+  font-size:8px;
+  font-weight:850;
+  letter-spacing:.04em
+}
+#activitiesPanel .activity-catalog-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px
+}
+#activitiesPanel .activity-catalog-grid .real-app-card{
+  min-width:0;
+  min-height:220px;
+  padding:13px!important;
+  border-color:#2b4855!important;
+  background:
+    linear-gradient(155deg,rgba(255,255,255,.025),transparent 34%),
+    #0a1820!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important
+}
+#activitiesPanel .activity-catalog-grid .real-app-card:hover{
+  border-color:#3a606d!important;
+  transform:translateY(-1px)
+}
+#activitiesPanel .activity-card-badges{
+  min-height:21px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:7px
+}
+#activitiesPanel .activity-card-badges .app-status{
+  position:static!important;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap
+}
+#activitiesPanel .activity-category-pill{
+  flex:0 0 auto;
+  padding:4px 6px;
+  border:1px solid #34515c;
+  border-radius:999px;
+  background:#0d222a;
+  color:#78929a;
+  font-size:6px;
+  font-weight:950;
+  letter-spacing:.07em;
+  text-transform:uppercase
+}
+#activitiesPanel .activity-catalog-grid .act-icon{
+  margin-top:10px!important
+}
+#activitiesPanel .activity-catalog-grid .real-app-card h3{
+  margin-top:8px!important;
+  font-size:17px!important
+}
+#activitiesPanel .activity-catalog-grid .app-meta{
+  min-height:28px;
+  color:#7f98a1!important;
+  font-size:8px!important;
+  line-height:1.35
+}
+#activitiesPanel .activity-catalog-grid .real-app-card p{
+  min-height:48px;
+  margin-bottom:10px!important;
+  color:#718891!important;
+  font-size:9px!important;
+  line-height:1.42!important
+}
+#activitiesPanel .activity-library-empty{
+  grid-column:1/-1;
+  min-height:180px;
+  display:grid;
+  place-items:center;
+  align-content:center;
+  padding:24px;
+  border:1px dashed #2d4d59;
+  border-radius:12px;
+  background:#08151c;
+  text-align:center
+}
+#activitiesPanel .activity-library-empty b{
+  color:#c5d6db;
+  font-size:15px
+}
+#activitiesPanel .activity-library-empty span{
+  margin-top:5px;
+  color:#6d858e;
+  font-size:9px
+}
+#activitiesPanel .activity-library-empty button{
+  margin-top:12px;
+  min-height:32px;
+  border:1px solid #3d6975;
+  border-radius:9px;
+  background:#10303a;
+  color:#a8e9f2;
+  font-size:9px;
+  font-weight:900
+}
+@media(max-width:1100px){
+  #activitiesPanel .activity-library-toolbar{
+    grid-template-columns:1fr
+  }
+  #activitiesPanel .activity-catalog-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))
+  }
+}
+@media(max-width:850px){
+  #activitiesPanel .activity-library-shelves{
+    grid-template-columns:1fr
+  }
+}
+@media(max-width:680px){
+  #activitiesPanel .activity-library-filters{
+    grid-template-columns:repeat(2,minmax(0,1fr))
+  }
+  #activitiesPanel .activity-library-filters button:first-child{
+    grid-column:1/-1
+  }
+  #activitiesPanel .activity-catalog-grid,
+  #activitiesPanel .preset-grid{
+    grid-template-columns:1fr!important
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -7008,6 +7423,46 @@ const APP_REGISTRY=[
  {id:'million',name:'MILLION',icon:'◆',subtitle:'Command Seat · Four Choices · Mission Ladder',status:'GAME SHOW',description:'Multiple-choice ladder game with a rotating Command Seat, whole-class play-along, configurable lifelines, and teacher-controlled reveals.'},
  {id:'scientific-calculator',name:'SCIENTIFIC CALCULATOR',icon:'ƒx',subtitle:'Four-Line Scientific Calculator · Share · Launch for Class',status:'CLASSROOM TOOL',description:'Familiar multi-line scientific calculator with exact fractions, DEG/RAD, trig, logs, powers, history, and independent student sessions.'}
 ];
+
+/* v55.5 — teacher-local Activity Library organization state. */
+let activityLibraryQuery='';
+let activityLibraryCategory='all';
+const ACTIVITY_LIBRARY_CATEGORY_ORDER=['all','presentation','collaboration','games','tools'];
+const ACTIVITY_LIBRARY_CATEGORY_LABELS={
+  all:'All',
+  presentation:'Presentation',
+  collaboration:'Collaboration',
+  games:'Games',
+  tools:'Tools'
+};
+function activityLibraryCategoryFor(appId){
+  const id=String(appId||'');
+  if(id==='si-plus')return 'presentation';
+  if(['vector','board','orbit'].includes(id))return 'collaboration';
+  if(['minefield','sketch','pixel','starwheel','crew-survey','million'].includes(id))return 'games';
+  if(id==='scientific-calculator')return 'tools';
+  return 'all';
+}
+function activityLibraryCategoryLabel(appId){
+  return ACTIVITY_LIBRARY_CATEGORY_LABELS[activityLibraryCategoryFor(appId)]||'Activity';
+}
+function activityLibraryMatches(app,query=activityLibraryQuery,category=activityLibraryCategory){
+  if(!app)return false;
+  const cat=activityLibraryCategoryFor(app.id);
+  if(category!=='all'&&cat!==category)return false;
+  const q=String(query||'').trim().toLocaleLowerCase();
+  if(!q)return true;
+  const hay=[app.name,app.subtitle,app.description,app.status,ACTIVITY_LIBRARY_CATEGORY_LABELS[cat]].join(' ').toLocaleLowerCase();
+  return hay.includes(q);
+}
+function activityLibraryEntryMatches(appId,label,extra=''){
+  const app=appById(appId);
+  if(activityLibraryCategory!=='all'&&activityLibraryCategoryFor(appId)!==activityLibraryCategory)return false;
+  const q=String(activityLibraryQuery||'').trim().toLocaleLowerCase();
+  if(!q)return true;
+  const hay=[label,extra,app?.name,app?.subtitle,app?.description,ACTIVITY_LIBRARY_CATEGORY_LABELS[activityLibraryCategoryFor(appId)]].join(' ').toLocaleLowerCase();
+  return hay.includes(q);
+}
 
 // v55.0 Game Show Pack setup state — teacher-local until launch.
 const CREW_SURVEY_SAMPLE=[
@@ -9556,7 +10011,7 @@ function renderActivities(){
 
   picker.classList.add('hidden');grid.classList.remove('hidden');
   title.textContent='Activity Library';
-  subtitle.textContent='Every working Mothership app lives here. Open activities normally, or customize the nine Mission Control shortcuts below.';
+  subtitle.textContent='Find what you need quickly, reopen recent work, or customize the nine Mission Control shortcuts.';
   header.innerHTML=state.assigningSlot!==null?`<button id="cancelAssignBtn">Cancel shortcut assignment</button>`:'';
   const cancel=$('#cancelAssignBtn');if(cancel)cancel.onclick=()=>{state.assigningSlot=null;render()};
 
@@ -9575,34 +10030,71 @@ function renderActivities(){
       </div>
     </div>`;
   }).join('');
-  $$('[data-shortcut-replace]').forEach(b=>b.onclick=()=>beginShortcutAssignment(Number(b.dataset.shortcutReplace)));
-  $$('[data-shortcut-remove]').forEach(b=>b.onclick=()=>removeAppShortcut(Number(b.dataset.shortcutRemove)));
+  $('[data-shortcut-replace]').forEach(b=>b.onclick=()=>beginShortcutAssignment(Number(b.dataset.shortcutReplace)));
+  $('[data-shortcut-remove]').forEach(b=>b.onclick=()=>removeAppShortcut(Number(b.dataset.shortcutRemove)));
+
   const presets=loadActivityPresets(),recent=loadRecentActivities();
-  const presetSection=presets.length?`<div class="preset-section"><div class="preset-section-head"><h3>Saved Presets</h3><span>${presets.length} reusable setup${presets.length===1?'':'s'}</span></div><div class="preset-grid">${presets.map(p=>`<div class="preset-card"><span class="preset-app">${esc(activityDisplayName(p.appId))}</span><h4>${esc(p.name)}</h4><p>${esc(activityPresetSummary(p))}</p><div class="preset-actions"><button data-preset-launch="${esc(p.id)}">▶ Launch</button><button data-preset-open="${esc(p.id)}">Open / Edit</button><button class="delete" data-preset-delete="${esc(p.id)}">×</button></div></div>`).join('')}</div></div>`:`<div class="preset-section"><div class="preset-section-head"><h3>Saved Presets</h3><span>Configure an activity once, then save it here.</span></div><div class="empty">No presets yet. Open MINEFIELD, STARWHEEL, Sketch, VECTOR, ORBIT, or PIXEL REVEAL to save your first setup.</div></div>`;
-  const recentSection=recent.length?`<div class="preset-section"><div class="preset-section-head"><h3>Recent Activities</h3><span>Reopen setup or relaunch in one click</span></div><div class="preset-recent">${recent.map((item,i)=>`<div class="preset-recent-card"><b>${esc(item.label||activityDisplayName(item.appId))}</b><small>${esc(activityDisplayName(item.appId))}${item.presetId?' · preset':''}${item.config?' · setup saved':''}</small><div class="preset-recent-actions"><button data-recent-open="${i}">Open</button><button data-recent-launch="${i}">▶ Launch</button></div></div>`).join('')}</div></div>`:'';
-  const presetLibraryMarkup=`<div class="preset-library">${presetSection}${recentSection}</div>`;
-  grid.innerHTML=presetLibraryMarkup+APP_REGISTRY.map(app=>{
+  const visibleApps=APP_REGISTRY.filter(app=>activityLibraryMatches(app));
+  const filteredPresets=presets.filter(p=>activityLibraryEntryMatches(p.appId,p.name,activityPresetSummary(p)));
+  const filteredRecent=recent.map((item,index)=>({item,index})).filter(x=>activityLibraryEntryMatches(x.item.appId,x.item.label||activityDisplayName(x.item.appId),x.item.presetId?'preset':'recent'));
+  const categoryCounts=Object.fromEntries(ACTIVITY_LIBRARY_CATEGORY_ORDER.map(cat=>[cat,cat==='all'?APP_REGISTRY.length:APP_REGISTRY.filter(app=>activityLibraryCategoryFor(app.id)===cat).length]));
+  const queryActive=!!String(activityLibraryQuery||'').trim();
+  const filtered=activityLibraryCategory!=='all'||queryActive;
+
+  const toolbar=`<div class="activity-library-toolbar">
+    <div class="activity-library-search-wrap"><span>⌕</span><input id="activityLibrarySearch" type="search" value="${esc(activityLibraryQuery)}" placeholder="Search activities, games, tools…" autocomplete="off"><button id="activityLibrarySearchClear" class="${queryActive?'':'hidden'}" type="button" aria-label="Clear activity search">×</button></div>
+    <div class="activity-library-filters">${ACTIVITY_LIBRARY_CATEGORY_ORDER.map(cat=>`<button type="button" data-activity-category="${cat}" class="${activityLibraryCategory===cat?'active':''}"><span>${ACTIVITY_LIBRARY_CATEGORY_LABELS[cat]}</span><b>${categoryCounts[cat]}</b></button>`).join('')}</div>
+  </div>`;
+
+  const recentSection=filteredRecent.length
+    ? `<section class="preset-section recent-shelf"><div class="preset-section-head"><div><span class="library-kicker">PICK UP WHERE YOU LEFT OFF</span><h3>Recent Activities</h3></div><span>${filteredRecent.length} shown</span></div><div class="preset-recent">${filteredRecent.slice(0,6).map(({item,index})=>`<div class="preset-recent-card"><div class="recent-card-top"><span class="recent-app-icon">${appIconMarkup(item.appId)}</span><div><b>${esc(item.label||activityDisplayName(item.appId))}</b><small>${esc(activityDisplayName(item.appId))}${item.presetId?' · preset':''}${item.config?' · setup saved':''}</small></div></div><div class="preset-recent-actions"><button data-recent-open="${index}">Open</button><button data-recent-launch="${index}">▶ Launch</button></div></div>`).join('')}</div></section>`
+    : `<section class="preset-section recent-shelf empty-shelf"><div class="preset-section-head"><div><span class="library-kicker">PICK UP WHERE YOU LEFT OFF</span><h3>Recent Activities</h3></div></div><div class="empty">${filtered?'No recent activities match this view.':'Launch an activity and it will appear here for quick reopening.'}</div></section>`;
+
+  const presetSection=filteredPresets.length
+    ? `<section class="preset-section saved-shelf"><div class="preset-section-head"><div><span class="library-kicker">REUSABLE SETUPS</span><h3>Saved Presets</h3></div><span>${filteredPresets.length} shown</span></div><div class="preset-grid">${filteredPresets.slice(0,8).map(p=>`<div class="preset-card"><div class="preset-card-head"><span class="preset-app">${esc(activityDisplayName(p.appId))}</span><span class="preset-category">${esc(activityLibraryCategoryLabel(p.appId))}</span></div><h4>${esc(p.name)}</h4><p>${esc(activityPresetSummary(p))}</p><div class="preset-actions"><button data-preset-launch="${esc(p.id)}">▶ Launch</button><button data-preset-open="${esc(p.id)}">Open / Edit</button><button class="delete" data-preset-delete="${esc(p.id)}">×</button></div></div>`).join('')}</div></section>`
+    : `<section class="preset-section saved-shelf empty-shelf"><div class="preset-section-head"><div><span class="library-kicker">REUSABLE SETUPS</span><h3>Saved Presets</h3></div></div><div class="empty">${filtered?'No saved presets match this view.':'Configure an activity once and save it here for one-click reuse.'}</div></section>`;
+
+  const catalogCards=visibleApps.map(app=>{
     const slot=state.favoriteSlots.indexOf(app.id);
     const targetCurrent=state.assigningSlot!==null?appById(state.favoriteSlots[state.assigningSlot]):null;
     const assignButton=state.assigningSlot!==null
       ? `<button class="secondary" data-assign-app="${app.id}">${targetCurrent?'↻ Replace':'＋ Add to'} Shortcut ${state.assigningSlot+1}</button>`
       : (slot>=0?`<button class="secondary" data-manage-shortcut="${slot}">⚙ Manage Shortcut ${slot+1}</button>`:`<button class="secondary" data-add-app="${app.id}">＋ Add to Shortcuts</button>`);
-    return `<div class="activity-card real-app-card"><span class="app-status">${esc(app.status)}</span><div class="act-icon">${appIconMarkup(app.id)}</div><h3>${esc(app.name)}</h3><div class="app-meta">${esc(app.subtitle)}</div><p>${esc(app.description)}</p><div class="real-app-actions"><button data-open-app="${app.id}">Open ${esc(app.name)}</button>${assignButton}</div></div>`;
+    return `<div class="activity-card real-app-card" data-activity-category="${activityLibraryCategoryFor(app.id)}">
+      <div class="activity-card-badges"><span class="app-status">${esc(app.status)}</span><span class="activity-category-pill">${esc(activityLibraryCategoryLabel(app.id))}</span></div>
+      <div class="act-icon">${appIconMarkup(app.id)}</div><h3>${esc(app.name)}</h3><div class="app-meta">${esc(app.subtitle)}</div><p>${esc(app.description)}</p>
+      <div class="real-app-actions"><button data-open-app="${app.id}">Open ${esc(app.name)}</button>${assignButton}</div>
+    </div>`;
   }).join('');
-  $$('[data-preset-launch]').forEach(b=>b.onclick=()=>launchActivityPreset(b.dataset.presetLaunch));
-  $$('[data-preset-open]').forEach(b=>b.onclick=()=>{const p=loadActivityPresets().find(x=>x.id===b.dataset.presetOpen);if(p)applyActivityPreset(p,{launch:false})});
-  $$('[data-preset-delete]').forEach(b=>b.onclick=()=>deleteActivityPreset(b.dataset.presetDelete));
-  $$('[data-recent-open]').forEach(b=>b.onclick=()=>reopenRecentActivity(loadRecentActivities()[Number(b.dataset.recentOpen)],false));
-  $$('[data-recent-launch]').forEach(b=>b.onclick=()=>reopenRecentActivity(loadRecentActivities()[Number(b.dataset.recentLaunch)],true));
-  $$('[data-open-app]').forEach(b=>b.onclick=()=>openApp(b.dataset.openApp));
-  $$('[data-manage-shortcut]').forEach(b=>b.onclick=()=>beginShortcutAssignment(Number(b.dataset.manageShortcut)));
-  $$('[data-assign-app]').forEach(b=>b.onclick=()=>{
+
+  const catalog=`<section class="activity-catalog"><div class="activity-catalog-head"><div><span class="library-kicker">FULL LIBRARY</span><h3>Activities</h3></div><span>Showing ${visibleApps.length} of ${APP_REGISTRY.length}</span></div><div class="activity-catalog-grid">${catalogCards||`<div class="activity-library-empty"><b>No activities found</b><span>Try another search or choose a different category.</span><button id="resetActivityLibraryFilters" type="button">Show all activities</button></div>`}</div></section>`;
+
+  grid.innerHTML=toolbar+`<div class="activity-library-shelves">${recentSection}${presetSection}</div>`+catalog;
+
+  const search=$('#activityLibrarySearch');
+  if(search)search.oninput=e=>{
+    const value=e.target.value,cursor=e.target.selectionStart??value.length;
+    activityLibraryQuery=value;renderActivities();
+    const next=$('#activityLibrarySearch');if(next){next.focus();try{next.setSelectionRange(cursor,cursor)}catch(err){}}
+  };
+  const searchClear=$('#activityLibrarySearchClear');if(searchClear)searchClear.onclick=()=>{activityLibraryQuery='';renderActivities();const next=$('#activityLibrarySearch');if(next)next.focus()};
+  $('[data-activity-category]').forEach(b=>b.onclick=()=>{activityLibraryCategory=b.dataset.activityCategory||'all';renderActivities()});
+  const resetFilters=$('#resetActivityLibraryFilters');if(resetFilters)resetFilters.onclick=()=>{activityLibraryQuery='';activityLibraryCategory='all';renderActivities()};
+
+  $('[data-preset-launch]').forEach(b=>b.onclick=()=>launchActivityPreset(b.dataset.presetLaunch));
+  $('[data-preset-open]').forEach(b=>b.onclick=()=>{const p=loadActivityPresets().find(x=>x.id===b.dataset.presetOpen);if(p)applyActivityPreset(p,{launch:false})});
+  $('[data-preset-delete]').forEach(b=>b.onclick=()=>deleteActivityPreset(b.dataset.presetDelete));
+  $('[data-recent-open]').forEach(b=>b.onclick=()=>reopenRecentActivity(loadRecentActivities()[Number(b.dataset.recentOpen)],false));
+  $('[data-recent-launch]').forEach(b=>b.onclick=()=>reopenRecentActivity(loadRecentActivities()[Number(b.dataset.recentLaunch)],true));
+  $('[data-open-app]').forEach(b=>b.onclick=()=>openApp(b.dataset.openApp));
+  $('[data-manage-shortcut]').forEach(b=>b.onclick=()=>beginShortcutAssignment(Number(b.dataset.manageShortcut)));
+  $('[data-assign-app]').forEach(b=>b.onclick=()=>{
     const id=b.dataset.assignApp,slot=state.assigningSlot;
     const previous=state.favoriteSlots.indexOf(id);
     if(previous>=0&&previous!==slot)state.favoriteSlots[previous]=null;
     state.favoriteSlots[slot]=id;state.assigningSlot=null;persistAppShortcuts();render();toast(`${appById(id)?.name||'App'} added to Shortcut ${slot+1}`);
   });
-  $$('[data-add-app]').forEach(b=>b.onclick=()=>{
+  $('[data-add-app]').forEach(b=>b.onclick=()=>{
     const id=b.dataset.addApp;let slot=state.favoriteSlots.findIndex(x=>!x);
     if(slot<0){toast('All 9 shortcuts are full — use Replace or Remove in the Shortcut Manager above');return}
     state.favoriteSlots[slot]=id;persistAppShortcuts();render();toast(`${appById(id)?.name||'App'} added to Shortcut ${slot+1}`);
