@@ -88,6 +88,7 @@ def main() -> int:
         '<style id="v55-2-game-show-visual-refinement">',
         '<style id="v55-3-shortcut-manager">',
         '<style id="v55-4-classroom-workflow-polish">',
+        '<style id="v55-5-activity-library-organization">',
     )
     check("html shell: head closes before body opens", head_close >= 0 and body_open > head_close and bool(re.search(r"</head>\s*<body(?:\s|>)", html, re.I)))
     check("html shell: release styles are inside head", head_close >= 0 and all(0 <= html.find(tag) < head_close for tag in release_styles))
@@ -212,6 +213,16 @@ def main() -> int:
     check("classroom QA: shortcut replacement keeps duplicate-slot cleanup", "previous>=0&&previous!==slot" in html and "state.favoriteSlots[previous]=null" in html and "state.favoriteSlots[slot]=id" in html)
     check("classroom polish: release style remains", '<style id="v55-4-classroom-workflow-polish">' in html)
     check("classroom polish: integrated buzz hand help styles remain", all(x in html for x in ('.crew-signal-dock .buzz-chip', '.crew-signal-dock .hand-chip', '.crew-signal-dock .help-chip')))
+
+    # v55.5 searchable, categorized Activity Library.
+    library_render = segment(html, "function renderActivities(")
+    check("activity library: release style remains", '<style id="v55-5-activity-library-organization">' in html)
+    check("activity library: search remains teacher-local", "let activityLibraryQuery=''" in html and "activityLibraryQuery" not in segment(html, "function sharedStateSnapshot("))
+    check("activity library: category filters remain", all(x in html for x in ("ACTIVITY_LIBRARY_CATEGORY_ORDER", "'presentation'", "'collaboration'", "'games'", "'tools'")))
+    check("activity library: every registered app category is represented", all(x in html for x in ("id==='si-plus'", "['vector','board','orbit']", "['minefield','sketch','pixel','starwheel','crew-survey','million']", "id==='scientific-calculator'")))
+    check("activity library: recent shelf precedes saved presets", "activity-library-shelves" in library_render and "recentSection" in library_render and "presetSection" in library_render and "recentSection}${presetSection}" in library_render)
+    check("activity library: catalog filters before rendering", "const visibleApps=APP_REGISTRY.filter(app=>activityLibraryMatches(app))" in library_render and "Showing ${visibleApps.length} of ${APP_REGISTRY.length}" in library_render)
+    check("activity library: shortcut management remains available", all(x in library_render for x in ("data-shortcut-replace", "data-shortcut-remove", "data-manage-shortcut", "data-add-app")))
 
     # Inline JavaScript parse validation.
     scripts = re.findall(r"<script[^>]*>(.*?)</script>", html, flags=re.S | re.I)
