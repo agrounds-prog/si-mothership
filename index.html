@@ -7132,7 +7132,7 @@ function crewSurveyStudentMarkup(run,s){
 function wireCrewSurveyStudent(){
   if(activeActivity()?.type!=='crew-survey')return;
   const buzz=$('#crewSurveyBuzzBtn');if(buzz)buzz.onclick=()=>{sendGameShowAction('crew-survey','buzz');buzz.disabled=true;toast('Buzz sent')};
-  $('[data-cs-aac]').forEach(b=>b.onclick=()=>crewSurveyStudentSubmitAnswer(b.dataset.csAac,'aac'));
+  document.querySelectorAll('[data-cs-aac]').forEach(b=>b.onclick=()=>crewSurveyStudentSubmitAnswer(b.dataset.csAac,'aac'));
   const send=$('#crewSurveyAnswerSend'),input=$('#crewSurveyAnswerInput');if(send)send.onclick=()=>crewSurveyStudentSubmitAnswer(input?.value||'','type');if(input)input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send?.click()}};
 }
 
@@ -7207,10 +7207,10 @@ function millionStudentMarkup(run,s){
 }
 function wireMillionStudent(){
   if(activeActivity()?.type!=='million')return;const m=millionState(),s=selectedStudent();if(!m||!s)return;
-  $('[data-million-choice]').forEach(b=>b.onclick=()=>sendGameShowAction('million',m.pilot===s.n?'select':'predict',b.dataset.millionChoice));
+  document.querySelectorAll('[data-million-choice]').forEach(b=>b.onclick=()=>sendGameShowAction('million',m.pilot===s.n?'select':'predict',b.dataset.millionChoice));
   const lock=$('#millionLockBtn');if(lock)lock.onclick=()=>{sendGameShowAction('million','lock');toast('Answer locked')};
   const lifeBtn=$('#millionLifeBtn'),lifeBox=$('#millionStudentLifelines');if(lifeBtn&&lifeBox)lifeBtn.onclick=()=>lifeBox.classList.toggle('open');
-  $('[data-million-life-use]').forEach(b=>b.onclick=()=>sendGameShowAction('million','lifeline',b.dataset.millionLifeUse));
+  document.querySelectorAll('[data-million-life-use]').forEach(b=>b.onclick=()=>sendGameShowAction('million','lifeline',b.dataset.millionLifeUse));
 }
 
 function activitySharedMarkup(big=false){
@@ -7739,10 +7739,10 @@ function wireActivityController(){
 
   const csArm=$('#crewSurveyArmBtn');if(csArm)csArm.onclick=crewSurveyArmBuzzers;
   const csReset=$('#crewSurveyResetBuzzBtn');if(csReset)csReset.onclick=crewSurveyResetBuzzers;
-  $('[data-cs-contestant]').forEach(sel=>sel.onchange=()=>crewSurveySetContestant(Number(sel.dataset.csContestant),sel.value));
-  $('[data-cs-reveal]').forEach(b=>b.onclick=()=>crewSurveyReveal(Number(b.dataset.csReveal)));
-  $('[data-cs-control]').forEach(b=>b.onclick=()=>crewSurveySetControl(Number(b.dataset.csControl)));
-  $('[data-cs-award]').forEach(b=>b.onclick=()=>crewSurveyAwardRound(Number(b.dataset.csAward)));
+  document.querySelectorAll('[data-cs-contestant]').forEach(sel=>sel.onchange=()=>crewSurveySetContestant(Number(sel.dataset.csContestant),sel.value));
+  document.querySelectorAll('[data-cs-reveal]').forEach(b=>b.onclick=()=>crewSurveyReveal(Number(b.dataset.csReveal)));
+  document.querySelectorAll('[data-cs-control]').forEach(b=>b.onclick=()=>crewSurveySetControl(Number(b.dataset.csControl)));
+  document.querySelectorAll('[data-cs-award]').forEach(b=>b.onclick=()=>crewSurveyAwardRound(Number(b.dataset.csAward)));
   const csStrike=$('#crewSurveyStrikeBtn');if(csStrike)csStrike.onclick=crewSurveyStrike;
   const csNext=$('#crewSurveyNextPlayerBtn');if(csNext)csNext.onclick=crewSurveyNextPlayer;
   const csRound=$('#crewSurveyNewRoundBtn');if(csRound)csRound.onclick=crewSurveyNewRound;
@@ -7751,8 +7751,8 @@ function wireActivityController(){
   const millionCorrect=$('#millionCorrectBtn');if(millionCorrect)millionCorrect.onclick=()=>millionResolve(true);
   const millionWrong=$('#millionWrongBtn');if(millionWrong)millionWrong.onclick=()=>millionResolve(false);
   const millionNext=$('#millionNextBtn');if(millionNext)millionNext.onclick=millionNextQuestion;
-  $('[data-million-teacher-life]').forEach(b=>b.onclick=()=>millionUseLifeline(b.dataset.millionTeacherLife));
-  $('[data-million-grant]').forEach(b=>b.onclick=()=>millionGrantLifeline(b.dataset.millionGrant));
+  document.querySelectorAll('[data-million-teacher-life]').forEach(b=>b.onclick=()=>millionUseLifeline(b.dataset.millionTeacherLife));
+  document.querySelectorAll('[data-million-grant]').forEach(b=>b.onclick=()=>millionGrantLifeline(b.dataset.millionGrant));
   const pollVisible=$('#millionPollVisibleBtn');if(pollVisible)pollVisible.onclick=()=>{const m=millionState();if(m){m.pollVisible=!m.pollVisible;render()}};
 
   const swAccept=$('#starwheelAcceptSolveBtn');if(swAccept)swAccept.onclick=acceptStarwheelSolve;
@@ -7879,10 +7879,10 @@ function renderActivities(){
     $('#crewSurveyPrompt').oninput=e=>crewSurveyDraft.prompt=e.target.value;
     $('#crewSurveyScoring').onchange=e=>crewSurveyDraft.scoring=!!e.target.checked;
     $('#crewSurveyAacVocab').oninput=e=>crewSurveyDraft.aacVocab=e.target.value.split(',').map(x=>x.trim()).filter(Boolean).slice(0,10);
-    $('[data-cs-answer-text]').forEach(el=>el.oninput=()=>crewSurveyDraft.answers[Number(el.dataset.csAnswerText)].text=el.value);
-    $('[data-cs-answer-value]').forEach(el=>el.oninput=()=>crewSurveyDraft.answers[Number(el.dataset.csAnswerValue)].value=Math.max(0,Number(el.value||0)));
-    $('[data-cs-remove-answer]').forEach(b=>b.onclick=()=>{crewSurveyDraft.answers.splice(Number(b.dataset.csRemoveAnswer),1);renderActivities()});
-    $('[data-cs-aac-student]').forEach(el=>el.onchange=()=>{const n=el.dataset.csAacStudent,set=new Set(crewSurveyDraft.aacStudents||[]);el.checked?set.add(n):set.delete(n);crewSurveyDraft.aacStudents=[...set]});
+    document.querySelectorAll('[data-cs-answer-text]').forEach(el=>el.oninput=()=>crewSurveyDraft.answers[Number(el.dataset.csAnswerText)].text=el.value);
+    document.querySelectorAll('[data-cs-answer-value]').forEach(el=>el.oninput=()=>crewSurveyDraft.answers[Number(el.dataset.csAnswerValue)].value=Math.max(0,Number(el.value||0)));
+    document.querySelectorAll('[data-cs-remove-answer]').forEach(b=>b.onclick=()=>{crewSurveyDraft.answers.splice(Number(b.dataset.csRemoveAnswer),1);renderActivities()});
+    document.querySelectorAll('[data-cs-aac-student]').forEach(el=>el.onchange=()=>{const n=el.dataset.csAacStudent,set=new Set(crewSurveyDraft.aacStudents||[]);el.checked?set.add(n):set.delete(n);crewSurveyDraft.aacStudents=[...set]});
     $('#crewSurveyAddAnswer').onclick=()=>{if(crewSurveyDraft.answers.length>=8)return toast('CREW SURVEY supports up to 8 answers');crewSurveyDraft.answers.push({text:'',value:0});renderActivities()};
     $('#crewSurveySampleBtn').onclick=()=>{crewSurveyDraft.prompt='Name something students usually carry in a backpack.';crewSurveyDraft.answers=CREW_SURVEY_SAMPLE.map(x=>({...x}));crewSurveyDraft.aacVocab=['Pencil','Notebook','Folder','Computer','Water','Food','Book','Phone','Other','Pass'];renderActivities()};
     $('#launchCrewSurveyBtn').onclick=launchCrewSurvey;return;
@@ -7898,7 +7898,7 @@ function renderActivities(){
     $('#millionPilot').onchange=e=>millionDraft.pilot=e.target.value;
     $('#millionPilotMode').onchange=e=>millionDraft.pilotMode=e.target.value;
     $('#millionRisk').onchange=e=>millionDraft.risk=e.target.value;
-    $('[data-million-life]').forEach(el=>el.oninput=()=>millionDraft.lifelines[el.dataset.millionLife]=Math.max(0,Math.min(5,Number(el.value||0))));
+    document.querySelectorAll('[data-million-life]').forEach(el=>el.oninput=()=>millionDraft.lifelines[el.dataset.millionLife]=Math.max(0,Math.min(5,Number(el.value||0))));
     $('#millionSampleBtn').onclick=()=>{millionDraft.questionsText=MILLION_SAMPLE_TEXT;renderActivities()};
     $('#launchMillionBtn').onclick=launchMillion;return;
   }
