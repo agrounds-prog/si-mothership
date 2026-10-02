@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "55.7"
+APP_VERSION = "55.8"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -552,22 +552,23 @@ body.si-classroom-model.si-hifi-model.si-calculator-popup-mode{
   align-items:initial!important;
   justify-content:initial!important;
   min-width:0!important;
-  width:max-content!important;
+  width:0!important;
   max-width:none!important;
   min-height:0!important;
-  height:max-content!important;
+  height:0!important;
   margin:0!important;
   padding:0!important;
-  overflow:hidden!important;
+  overflow:visible!important;
   background:#10171c!important
 }
-/* Popup mode is a device viewport: calculator begins at content pixel 0,0. */
 body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-calculator{
   display:block!important;
   width:332px!important;
   max-width:332px!important;
   margin:0!important;
   padding:13px 31px 31px!important;
+  transform:scale(.88)!important;
+  transform-origin:top left!important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.75),
     inset 0 -12px 22px rgba(56,74,82,.18)!important
@@ -575,18 +576,38 @@ body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-calcula
 body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-lcd{min-height:104px!important}
 body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-key{min-height:34px!important}
 </style>
+<style id="v55-8-calculator-bare-popup">
+/* Popup mode contains only the physical calculator; Mothership tool-page chrome is removed. */
+html.si-calculator-popup,
+html.si-calculator-popup body{
+  scrollbar-width:none!important
+}
+html.si-calculator-popup::-webkit-scrollbar,
+html.si-calculator-popup body::-webkit-scrollbar{
+  display:none!important
+}
+</style>
 <script id="v55-6-calculator-popup-window-script">
 (function(){
   let fitPass=0;
-  function fitCalculatorPopup(){
-    if(!document.body)return;
+  function isolateCalculator(){
+    if(!document.body)return null;
     document.documentElement.classList.add('si-calculator-popup');
     document.body.classList.add('si-calculator-popup-mode');
     const calc=document.querySelector('.si-model-calculator');
+    if(!calc)return null;
+    if(calc.parentElement!==document.body)document.body.appendChild(calc);
+    Array.from(document.body.children).forEach(function(child){
+      if(child!==calc)child.hidden=true;
+    });
+    return calc;
+  }
+  function fitCalculatorPopup(){
+    const calc=isolateCalculator();
     if(!calc)return;
     const rect=calc.getBoundingClientRect();
-    const wantedW=Math.ceil(rect.right);
-    const wantedH=Math.ceil(rect.bottom);
+    const wantedW=Math.ceil(rect.width);
+    const wantedH=Math.ceil(rect.height);
     const deltaW=wantedW-window.innerWidth;
     const deltaH=wantedH-window.innerHeight;
     if(Math.abs(deltaW)<=1&&Math.abs(deltaH)<=1)return;
@@ -595,14 +616,16 @@ body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-key{min
       if(typeof window.resizeBy==='function')window.resizeBy(deltaW,deltaH);
       else window.resizeTo(window.outerWidth+deltaW,window.outerHeight+deltaH);
     }catch(e){}
-    if(fitPass<5)setTimeout(fitCalculatorPopup,70);
+    if(fitPass<6)setTimeout(fitCalculatorPopup,70);
   }
   function boot(){
     try{window.opener=null}catch(e){}
+    isolateCalculator();
     fitCalculatorPopup();
     requestAnimationFrame(fitCalculatorPopup);
-    setTimeout(fitCalculatorPopup,120);
-    setTimeout(fitCalculatorPopup,320);
+    setTimeout(fitCalculatorPopup,100);
+    setTimeout(fitCalculatorPopup,260);
+    setTimeout(fitCalculatorPopup,520);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
   else boot();
@@ -2402,7 +2425,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — CALCULATOR POPUP ALIGNMENT")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — BARE CALCULATOR POPUP")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
