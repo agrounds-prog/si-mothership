@@ -302,7 +302,7 @@ def main() -> int:
     check("calculator classroom: normal activity launch closes calculator", "if(state.calculatorLaunch)state.calculatorLaunch=null;" in segment(html, "function recordActivityLaunch("))
 
     # v55.12 stable calculator overlay window for screen-sharing/modeling.
-    check("calculator popup: teacher launcher requests stationary popup", "scientificCalculatorPopupUrl" in html and "popup=yes,width=280,height=700" in html and "siScientificCalculator" in html)
+    check("calculator popup: teacher launcher requests stationary popup", "scientificCalculatorPopupUrl" in html and "popup=yes,width=340,height=820" in html and "siScientificCalculator" in html)
     check("calculator popup: class launch also opens teacher modeling window", "openScientificCalculator(settings)" in segment(html, "function launchScientificCalculatorForClass("))
     check("calculator popup: route injects popup skin only when requested", 'request.query.get("popup")' in server and "CALCULATOR_POPUP_STYLE if popup_mode else" in server)
     check("calculator popup: calculator is pinned to browser content origin", "display:block!important" in server and "width:0!important" in server and "padding:0!important" in server and "margin:0!important" in server)
@@ -311,11 +311,14 @@ def main() -> int:
     check("calculator bare popup: tool-page chrome is removed from popup body", "function isolateCalculator()" in server and "document.body.appendChild(calc)" in server and "if(child!==calc)child.hidden=true" in server)
     check("calculator stable popup: window never resizes itself", "window.resizeBy" not in server and "window.resizeTo" not in server)
     check("calculator stable popup: no layout observer feedback loop", "ResizeObserver" not in segment(server, 'id="v55-6-calculator-popup-window-script"') and "MutationObserver" not in segment(server, 'id="v55-6-calculator-popup-window-script"'))
-    check("calculator stable popup: preferred device scale is compact", "const preferredScale=.68" in server and "--si-popup-scale,.68" in server)
+    check("calculator stable popup: preferred device scale is compact", "const preferredScale=.80" in server and "--si-popup-scale,.80" in server)
     check("calculator stable popup: full visible descendants determine fit", "function visualBounds(calc)" in server and "calc.querySelectorAll('*')" in server and "bottom=Math.max(bottom,r.bottom)" in server)
     check("calculator stable popup: calculator scales to current viewport", "window.innerWidth-4" in server and "window.innerHeight-4" in server and "preferredScale*ratio*.985" in server)
     check("calculator stable popup: manual teacher resize only rescales content", "window.addEventListener('resize',fitCalculatorInsideWindow)" in server)
     check("calculator stable popup: launch stays near screen origin", "left=8,top=8" in html)
+    check("calculator readable popup: default window is larger", "popup=yes,width=340,height=820" in html)
+    check("calculator readable popup: preferred scale is eighty percent", "const preferredScale=.80" in server and "--si-popup-scale,.80" in server)
+    check("calculator readable popup: LCD text gets slight popup-only boost", ".si-model-lcd *{" in server and "font-size:1.05em!important" in server)
 
     # Historical selector invariant: $() is single-element; $() is multi-element.
     bad_selector_lines = []
