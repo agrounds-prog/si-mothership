@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "55.9"
+APP_VERSION = "55.10"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -604,6 +604,8 @@ html.si-calculator-popup body::-webkit-scrollbar{
   }
   function calculatorVisualBounds(calc){
     const scale=.79;
+    const sideSafety=2;
+    const bottomSafety=24;
     const base=calc.getBoundingClientRect();
     let left=base.left,top=base.top,right=base.right,bottom=base.bottom;
     Array.from(calc.querySelectorAll('*')).forEach(function(el){
@@ -616,7 +618,10 @@ html.si-calculator-popup body::-webkit-scrollbar{
     });
     right=Math.max(right,left+(calc.scrollWidth||0)*scale);
     bottom=Math.max(bottom,top+(calc.scrollHeight||0)*scale);
-    return {width:Math.ceil(right-left+2),height:Math.ceil(bottom-top+2)};
+    return {
+      width:Math.ceil(right-left+sideSafety),
+      height:Math.ceil(bottom-top+bottomSafety)
+    };
   }
   function fitCalculatorPopup(){
     const calc=isolateCalculator();
@@ -634,15 +639,36 @@ html.si-calculator-popup body::-webkit-scrollbar{
     }catch(e){}
     if(fitPass<8)setTimeout(fitCalculatorPopup,80);
   }
+  function scheduleFit(){
+    fitPass=0;
+    requestAnimationFrame(fitCalculatorPopup);
+    setTimeout(fitCalculatorPopup,80);
+  }
+  function watchCalculator(calc){
+    if(!calc)return;
+    if('ResizeObserver' in window){
+      const ro=new ResizeObserver(scheduleFit);
+      ro.observe(calc);
+      Array.from(calc.children).forEach(function(child){ro.observe(child)});
+    }
+    if('MutationObserver' in window){
+      const mo=new MutationObserver(scheduleFit);
+      mo.observe(calc,{subtree:true,childList:true,attributes:true,characterData:true});
+    }
+  }
   function boot(){
     try{window.opener=null}catch(e){}
-    isolateCalculator();
+    const calc=isolateCalculator();
+    watchCalculator(calc);
     fitCalculatorPopup();
     requestAnimationFrame(fitCalculatorPopup);
     setTimeout(fitCalculatorPopup,100);
     setTimeout(fitCalculatorPopup,260);
     setTimeout(fitCalculatorPopup,520);
     setTimeout(fitCalculatorPopup,900);
+    setTimeout(fitCalculatorPopup,1500);
+    setTimeout(fitCalculatorPopup,2500);
+    window.addEventListener('load',scheduleFit,{once:true});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
   else boot();
@@ -2442,7 +2468,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — CALCULATOR FIT REFINEMENT")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — CALCULATOR BOTTOM FIT")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
