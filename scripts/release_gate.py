@@ -315,6 +315,9 @@ def main() -> int:
     check("calculator bare popup: popup fits transformed device only", "function calculatorVisualBounds(calc)" in server and "calc.querySelectorAll('*')" in server and "calc.scrollHeight" in server and "fitPass<8" in server)
     check("calculator fit: overflowing keypad contributes to popup height", "right=Math.max(right,left+(calc.scrollWidth||0)*scale)" in server and "bottom=Math.max(bottom,top+(calc.scrollHeight||0)*scale)" in server)
     check("calculator fit: visible descendants contribute to popup bounds", "Array.from(calc.querySelectorAll('*'))" in server and "bottom=Math.max(bottom,r.bottom)" in server)
+    check("calculator bottom fit: keeps safety space below final key row", "const bottomSafety=24" in server and "height:Math.ceil(bottom-top+bottomSafety)" in server)
+    check("calculator bottom fit: reacts to late calculator layout", "ResizeObserver" in server and "MutationObserver" in server and "window.addEventListener('load',scheduleFit" in server)
+    check("calculator bottom fit: late layout resets fit budget", "function scheduleFit()" in server and "fitPass=0;" in segment(server, "function scheduleFit()"))
 
     # Historical selector invariant: $() is single-element; $() is multi-element.
     bad_selector_lines = []
