@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "55.14"
+APP_VERSION = "55.15"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -543,7 +543,7 @@ body.si-classroom-model.si-hifi-model .si-model-key [class*="second"]{
    control deck, 5-column keypad, key hierarchy, and silver-rail silhouette. */
 body.si-classroom-model.si-hifi-model .si-model-calculator{
   width:min(318px,calc(100vw - 20px))!important;
-  max-width:318px!important;
+  max-width:300px!important;
   padding:10px 27px 24px!important;
   border:1px solid #c2c8ca!important;
   border-radius:24px 24px 62px 62px / 20px 20px 48px 48px!important;
@@ -848,6 +848,218 @@ body.si-classroom-model.si-hifi-model .si-ref-hidden-clear{
   else applyReferenceLayout();
 })();
 </script>
+<style id="v55-15-physical-calculator-layout">
+/* v55.15 — physical reference pass.
+   Explicit key slots and proportions follow the classroom TI-30XS MultiView reference,
+   while all branding remains SI Mothership. */
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-calculator{
+  width:min(300px,calc(100vw - 14px))!important;
+  max-width:300px!important;
+  padding:9px 28px 23px!important;
+  border-radius:22px 22px 58px 58px / 18px 18px 45px 45px!important;
+  background:
+    linear-gradient(90deg,
+      #e5e7e7 0 7.2%,
+      #c9cfd1 7.2% 9.4%,
+      #3f6977 9.4% 90.6%,
+      #c9cfd1 90.6% 92.8%,
+      #e5e7e7 92.8% 100%)!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-calculator:before{
+  left:25px!important;
+  right:25px!important;
+  top:4px!important;
+  bottom:15px!important;
+  border-radius:14px 14px 44px 44px / 11px 11px 34px 34px!important;
+  background:linear-gradient(180deg,#4a7280 0,#416d7b 35%,#3a6674 72%,#355f6d 100%)!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-plate{
+  min-height:26px!important;
+  margin:0 9px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-plate b{
+  font-size:12px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-ref-solar{
+  width:84px!important;
+  height:22px!important;
+  margin:-1px auto 3px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-brandbar{
+  height:13px!important;
+  margin:0 13px 4px!important;
+  font-size:5.5px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-lcd{
+  min-height:82px!important;
+  height:82px!important;
+  margin:0 9px 7px!important;
+  padding:6px 7px!important;
+  border-width:4px!important;
+  border-radius:3px 3px 8px 8px!important
+}
+
+/* Top physical control deck: 2nd, mode, delete, then the oval/circular nav cluster. */
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-ref-control-deck{
+  grid-template-columns:40px 40px 40px 29px 29px!important;
+  grid-template-rows:29px 13px!important;
+  column-gap:5px!important;
+  row-gap:1px!important;
+  margin:1px 7px 4px!important;
+  padding:0!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-ref-control-deck>.si-model-key{
+  min-height:26px!important;
+  height:26px!important;
+  padding:2px!important;
+  border-radius:7px!important;
+  font-size:8px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-ref-control-deck>[data-action="second"]{
+  border-color:#a9ce55!important;
+  background:linear-gradient(180deg,#b8df64,#93bc43)!important;
+  color:#132015!important;
+  text-shadow:none!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-ref-control-deck .si-model-navpad{
+  width:58px!important;
+  height:45px!important;
+  border-width:3px!important;
+  border-color:#d6d8d9!important;
+  border-radius:50%!important;
+  background:
+    radial-gradient(circle at 50% 50%,#4c474d 0 18%,transparent 20%),
+    conic-gradient(from 45deg,#6b656c,#403b41,#6e676f,#403a40,#6b656c)!important
+}
+
+/* Exact physical 7 x 5 matrix. JS sets row/column explicitly per key identity. */
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad{
+  display:grid!important;
+  grid-template-columns:repeat(5,1fr)!important;
+  grid-template-rows:repeat(7,25px)!important;
+  grid-auto-flow:row!important;
+  gap:4px 5px!important;
+  margin:0 7px!important;
+  padding:0!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key{
+  min-height:25px!important;
+  height:25px!important;
+  padding:1px 2px!important;
+  border-radius:8px!important;
+  font-size:8px!important;
+  line-height:.9!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="1"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="3"]{
+  background:linear-gradient(180deg,#476d7b,#315865)!important;
+  border-color:#577782!important;
+  color:#f6f8f8!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-col="5"]{
+  background:linear-gradient(180deg,#635e65,#474249)!important;
+  border-color:#777179!important;
+  color:#fff!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="4"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="4"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="4"][data-ref-col="4"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="5"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="5"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="5"][data-ref-col="4"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="4"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="7"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="7"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="7"][data-ref-col="4"]{
+  background:linear-gradient(180deg,#f5f4f1,#d9dcda)!important;
+  border-color:#e4e7e5!important;
+  color:#182125!important;
+  font-size:10px!important;
+  text-shadow:none!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-role="enter"]{
+  background:linear-gradient(180deg,#efedf0,#d5d2d5)!important;
+  border-color:#dedcdf!important;
+  color:#27232a!important;
+  font-size:7px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key small,
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key .secondary,
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key .alt,
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key [class*="second"]{
+  font-size:5px!important;
+  color:#bedb72!important
+}
+@media(max-width:430px){
+  body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-calculator{
+    width:min(296px,calc(100vw - 4px))!important;
+    padding:8px 27px 21px!important
+  }
+}
+</style>
+<script id="v55-15-physical-calculator-layout-script">
+(function(){
+  function actionOf(k){return String(k&&k.dataset&&k.dataset.action||'').toLowerCase()}
+  function textOf(k){return String(k&&k.textContent||'').replace(/\s+/g,' ').trim().toLowerCase()}
+  function keyBlob(k){return actionOf(k)+' '+textOf(k)}
+  function matches(k,tests){const blob=keyBlob(k);return tests.some(function(t){return t.test(blob)})}
+  function applyPhysicalKeyMap(){
+    const keypad=document.querySelector('.si-model-keypad');
+    if(!keypad)return;
+    let pool=Array.from(keypad.querySelectorAll(':scope > [data-action]')).filter(function(k){return !k.hidden});
+    function take(tests){
+      const idx=pool.findIndex(function(k){return matches(k,tests)});
+      if(idx<0)return null;
+      return pool.splice(idx,1)[0];
+    }
+    function digit(n){return take([new RegExp('(?:^|\\s)(?:digit[-_ ]?)?'+n+'(?:\\s|$)')])}
+    const slots=[
+      [[/\blog\b/],[/\bln\b|natural.?log/],[/fraction|frac|n\/?d/],[/\bee\b|exponent|sci.?notation/],[/f.?[↔<>].?d|toggle.?frac|decimal.?fraction/]],
+      [[/\bpi\b|π/],[/\bsin\b/],[/\bcos\b/],[/\btan\b/],[/divide|÷/]],
+      [[/power|x\^|\^/],[/reciprocal|1\s*\/\s*x/],[/lparen|left.?paren|\(/],[/rparen|right.?paren|\)/],[/multiply|×|\*/]],
+      [[/square|x²|x2/],null,null,null,[/subtract|minus|−/]],
+      [[/sqrt|root|√/],null,null,null,[/\badd\b|plus|\+/]],
+      [[/\bsto\b|store/],null,null,null,[/^e$|\beuler\b|constant.?e/]],
+      [[/\bon\b|power.?on/],null,[/decimal|\./],[/negate|sign|\(−\)|\(-\)/],[/enter|equals|=/]]
+    ];
+    const placed=[];
+    for(let r=0;r<7;r++){
+      for(let c=0;c<5;c++){
+        let key=null;
+        if(r===3&&c>=1&&c<=3)key=digit(10-c);      /* 7 8 9 */
+        else if(r===4&&c>=1&&c<=3)key=digit(7-c);  /* 4 5 6 */
+        else if(r===5&&c>=1&&c<=3)key=digit(4-c);  /* 1 2 3 */
+        else if(r===6&&c===1)key=digit(0);
+        else if(slots[r][c])key=take(slots[r][c]);
+        if(!key&&pool.length)key=pool.shift();
+        if(!key)continue;
+        key.dataset.refRow=String(r+1);
+        key.dataset.refCol=String(c+1);
+        key.style.gridRow=String(r+1);
+        key.style.gridColumn=String(c+1);
+        if(r===6&&c===4)key.dataset.refRole='enter';
+        placed.push(key);
+      }
+    }
+    pool.forEach(function(key,index){
+      const slot=placed.length+index;
+      const r=Math.min(7,Math.floor(slot/5)+1),c=(slot%5)+1;
+      key.dataset.refRow=String(r);
+      key.dataset.refCol=String(c);
+      key.style.gridRow=String(r);
+      key.style.gridColumn=String(c);
+      placed.push(key);
+    });
+    placed.forEach(function(key){keypad.appendChild(key)});
+    keypad.dataset.refPhysicalMapped='1';
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyPhysicalKeyMap,{once:true});
+  else applyPhysicalKeyMap();
+})();
+</script>
 """
 
 CALCULATOR_POPUP_STYLE = r"""
@@ -875,7 +1087,7 @@ body.si-classroom-model.si-hifi-model.si-calculator-popup-mode{
 body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-calculator{
   display:block!important;
   width:318px!important;
-  max-width:318px!important;
+  max-width:300px!important;
   margin:0!important;
   padding:13px 31px 31px!important;
   transform:scale(var(--si-popup-scale,.80))!important;
@@ -2750,7 +2962,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — REFERENCE CALCULATOR LAYOUT")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — PHYSICAL CALCULATOR LAYOUT")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
