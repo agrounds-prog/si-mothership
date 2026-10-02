@@ -307,7 +307,7 @@ def main() -> int:
     check("calculator popup: route injects popup skin only when requested", 'request.query.get("popup")' in server and "CALCULATOR_POPUP_STYLE if popup_mode else" in server)
     check("calculator popup: rendered calculator self-sizes its browser window", 'id="v55-6-calculator-popup-window"' in server and "getBoundingClientRect()" in server and "window.resizeBy(deltaW,deltaH)" in server)
     check("calculator popup: calculator is pinned to browser content origin", "display:block!important" in server and "width:0!important" in server and "padding:0!important" in server and "margin:0!important" in server)
-    check("calculator popup: viewport-delta fitting replaces page-box fitting", "wantedW=bounds.width" in server and "wantedH=bounds.height" in server and "deltaW=wantedW-window.innerWidth" in server and "deltaH=wantedH-window.innerHeight" in server)
+    check("calculator popup: viewport-delta fitting replaces page-box fitting", "wantedW=Math.min(fitted.bounds.width,fitted.limits.width)" in server and "wantedH=Math.min(fitted.bounds.height,fitted.limits.height)" in server and "deltaW=wantedW-window.innerWidth" in server and "deltaH=wantedH-window.innerHeight" in server)
     check("calculator popup: normal physical calculator proportions remain", "width:332px!important" in server and "min-height:104px!important" in server and "min-height:34px!important" in server)
     check("calculator bare popup: release style remains", 'id="v55-8-calculator-bare-popup"' in server)
     check("calculator bare popup: tool-page chrome is removed from popup body", "function isolateCalculator()" in server and "document.body.appendChild(calc)" in server and "if(child!==calc)child.hidden=true" in server)
