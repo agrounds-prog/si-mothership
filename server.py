@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "55.10"
+APP_VERSION = "55.11"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -567,7 +567,7 @@ body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-calcula
   max-width:332px!important;
   margin:0!important;
   padding:13px 31px 31px!important;
-  transform:scale(.79)!important;
+  transform:scale(var(--si-popup-scale,.70))!important;
   transform-origin:top left!important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.75),
@@ -602,10 +602,14 @@ html.si-calculator-popup body::-webkit-scrollbar{
     });
     return calc;
   }
+  function popupScale(calc){
+    const raw=parseFloat(getComputedStyle(calc).getPropertyValue('--si-popup-scale'));
+    return Number.isFinite(raw)&&raw>0?raw:.70;
+  }
   function calculatorVisualBounds(calc){
-    const scale=.79;
+    const scale=popupScale(calc);
     const sideSafety=2;
-    const bottomSafety=24;
+    const bottomSafety=10;
     const base=calc.getBoundingClientRect();
     let left=base.left,top=base.top,right=base.right,bottom=base.bottom;
     Array.from(calc.querySelectorAll('*')).forEach(function(el){
@@ -623,12 +627,35 @@ html.si-calculator-popup body::-webkit-scrollbar{
       height:Math.ceil(bottom-top+bottomSafety)
     };
   }
+  function popupInnerLimits(){
+    const screenW=(window.screen&&window.screen.availWidth)||window.outerWidth||window.innerWidth;
+    const screenH=(window.screen&&window.screen.availHeight)||window.outerHeight||window.innerHeight;
+    const chromeW=Math.max(0,window.outerWidth-window.innerWidth);
+    const chromeH=Math.max(0,window.outerHeight-window.innerHeight);
+    return {
+      width:Math.max(220,screenW-chromeW-16),
+      height:Math.max(360,screenH-chromeH-16)
+    };
+  }
+  function screenFitCalculator(calc){
+    const preferred=.70;
+    calc.style.setProperty('--si-popup-scale',String(preferred));
+    let bounds=calculatorVisualBounds(calc);
+    const limits=popupInnerLimits();
+    const ratio=Math.min(1,limits.width/bounds.width,limits.height/bounds.height);
+    const scale=Math.max(.52,preferred*ratio*.985);
+    if(scale<preferred){
+      calc.style.setProperty('--si-popup-scale',String(scale));
+      bounds=calculatorVisualBounds(calc);
+    }
+    return {bounds:bounds,limits:limits,scale:scale};
+  }
   function fitCalculatorPopup(){
     const calc=isolateCalculator();
     if(!calc)return;
-    const bounds=calculatorVisualBounds(calc);
-    const wantedW=bounds.width;
-    const wantedH=bounds.height;
+    const fitted=screenFitCalculator(calc);
+    const wantedW=Math.min(fitted.bounds.width,fitted.limits.width);
+    const wantedH=Math.min(fitted.bounds.height,fitted.limits.height);
     const deltaW=wantedW-window.innerWidth;
     const deltaH=wantedH-window.innerHeight;
     if(Math.abs(deltaW)<=1&&Math.abs(deltaH)<=1)return;
@@ -2468,7 +2495,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — CALCULATOR BOTTOM FIT")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — SCREEN-FIT CALCULATOR POPUP")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
