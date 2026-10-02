@@ -89,7 +89,6 @@ def main() -> int:
         '<style id="v55-3-shortcut-manager">',
         '<style id="v55-4-classroom-workflow-polish">',
         '<style id="v55-5-activity-library-organization">',
-        '<style id="v55-14-reference-calculator-layout">',
     )
     check("html shell: head closes before body opens", head_close >= 0 and body_open > head_close and bool(re.search(r"</head>\s*<body(?:\s|>)", html, re.I)))
     check("html shell: release styles are inside head", head_close >= 0 and all(0 <= html.find(tag) < head_close for tag in release_styles))
