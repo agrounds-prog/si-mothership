@@ -302,7 +302,7 @@ def main() -> int:
     check("calculator classroom: normal activity launch closes calculator", "if(state.calculatorLaunch)state.calculatorLaunch=null;" in segment(html, "function recordActivityLaunch("))
 
     # v55.6 compact calculator overlay window for screen-sharing/modeling.
-    check("calculator popup: teacher launcher requests compact popup", "scientificCalculatorPopupUrl" in html and "popup=yes,width=300,height=560" in html and "siScientificCalculator" in html)
+    check("calculator popup: teacher launcher requests compact popup", "scientificCalculatorPopupUrl" in html and "popup=yes,width=275,height=520" in html and "siScientificCalculator" in html)
     check("calculator popup: class launch also opens teacher modeling window", "openScientificCalculator(settings)" in segment(html, "function launchScientificCalculatorForClass("))
     check("calculator popup: route injects popup skin only when requested", 'request.query.get("popup")' in server and "CALCULATOR_POPUP_STYLE if popup_mode else" in server)
     check("calculator popup: rendered calculator self-sizes its browser window", 'id="v55-6-calculator-popup-window"' in server and "getBoundingClientRect()" in server and "window.resizeBy(deltaW,deltaH)" in server)
@@ -311,13 +311,18 @@ def main() -> int:
     check("calculator popup: normal physical calculator proportions remain", "width:332px!important" in server and "min-height:104px!important" in server and "min-height:34px!important" in server)
     check("calculator bare popup: release style remains", 'id="v55-8-calculator-bare-popup"' in server)
     check("calculator bare popup: tool-page chrome is removed from popup body", "function isolateCalculator()" in server and "document.body.appendChild(calc)" in server and "if(child!==calc)child.hidden=true" in server)
-    check("calculator bare popup: device is intentionally smaller", "transform:scale(.79)!important" in server and "transform-origin:top left!important" in server)
+    check("calculator bare popup: device is intentionally smaller", "transform:scale(var(--si-popup-scale,.70))!important" in server and "transform-origin:top left!important" in server)
     check("calculator bare popup: popup fits transformed device only", "function calculatorVisualBounds(calc)" in server and "calc.querySelectorAll('*')" in server and "calc.scrollHeight" in server and "fitPass<8" in server)
     check("calculator fit: overflowing keypad contributes to popup height", "right=Math.max(right,left+(calc.scrollWidth||0)*scale)" in server and "bottom=Math.max(bottom,top+(calc.scrollHeight||0)*scale)" in server)
     check("calculator fit: visible descendants contribute to popup bounds", "Array.from(calc.querySelectorAll('*'))" in server and "bottom=Math.max(bottom,r.bottom)" in server)
-    check("calculator bottom fit: keeps safety space below final key row", "const bottomSafety=24" in server and "height:Math.ceil(bottom-top+bottomSafety)" in server)
+    check("calculator bottom fit: keeps safety space below final key row", "const bottomSafety=10" in server and "height:Math.ceil(bottom-top+bottomSafety)" in server)
     check("calculator bottom fit: reacts to late calculator layout", "ResizeObserver" in server and "MutationObserver" in server and "window.addEventListener('load',scheduleFit" in server)
     check("calculator bottom fit: late layout resets fit budget", "function scheduleFit()" in server and "fitPass=0;" in segment(server, "function scheduleFit()"))
+    check("calculator screen fit: preferred scale is about seventy percent", "const preferred=.70" in server and "--si-popup-scale,.70" in server)
+    check("calculator screen fit: available display height caps popup", "window.screen.availHeight" in server and "screenH-chromeH-16" in server and "Math.min(fitted.bounds.height,fitted.limits.height)" in server)
+    check("calculator screen fit: browser chrome is subtracted", "window.outerHeight-window.innerHeight" in server and "window.outerWidth-window.innerWidth" in server)
+    check("calculator screen fit: device shrinks before browser resize", "function screenFitCalculator(calc)" in server and "preferred*ratio*.985" in server and "calc.style.setProperty('--si-popup-scale'" in server)
+    check("calculator screen fit: popup launches near screen origin", "left=8,top=8" in html)
 
     # Historical selector invariant: $() is single-element; $() is multi-element.
     bad_selector_lines = []
