@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "55.11"
+APP_VERSION = "55.12"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -567,7 +567,7 @@ body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-calcula
   max-width:332px!important;
   margin:0!important;
   padding:13px 31px 31px!important;
-  transform:scale(var(--si-popup-scale,.70))!important;
+  transform:scale(var(--si-popup-scale,.68))!important;
   transform-origin:top left!important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.75),
@@ -589,7 +589,8 @@ html.si-calculator-popup body::-webkit-scrollbar{
 </style>
 <script id="v55-6-calculator-popup-window-script">
 (function(){
-  let fitPass=0;
+  const preferredScale=.68;
+  let lastScale=0;
   function isolateCalculator(){
     if(!document.body)return null;
     document.documentElement.classList.add('si-calculator-popup');
@@ -602,14 +603,7 @@ html.si-calculator-popup body::-webkit-scrollbar{
     });
     return calc;
   }
-  function popupScale(calc){
-    const raw=parseFloat(getComputedStyle(calc).getPropertyValue('--si-popup-scale'));
-    return Number.isFinite(raw)&&raw>0?raw:.70;
-  }
-  function calculatorVisualBounds(calc){
-    const scale=popupScale(calc);
-    const sideSafety=2;
-    const bottomSafety=10;
+  function visualBounds(calc){
     const base=calc.getBoundingClientRect();
     let left=base.left,top=base.top,right=base.right,bottom=base.bottom;
     Array.from(calc.querySelectorAll('*')).forEach(function(el){
@@ -620,82 +614,28 @@ html.si-calculator-popup body::-webkit-scrollbar{
       left=Math.min(left,r.left);top=Math.min(top,r.top);
       right=Math.max(right,r.right);bottom=Math.max(bottom,r.bottom);
     });
-    right=Math.max(right,left+(calc.scrollWidth||0)*scale);
-    bottom=Math.max(bottom,top+(calc.scrollHeight||0)*scale);
-    return {
-      width:Math.ceil(right-left+sideSafety),
-      height:Math.ceil(bottom-top+bottomSafety)
-    };
+    return {width:Math.max(1,right-left),height:Math.max(1,bottom-top)};
   }
-  function popupInnerLimits(){
-    const screenW=(window.screen&&window.screen.availWidth)||window.outerWidth||window.innerWidth;
-    const screenH=(window.screen&&window.screen.availHeight)||window.outerHeight||window.innerHeight;
-    const chromeW=Math.max(0,window.outerWidth-window.innerWidth);
-    const chromeH=Math.max(0,window.outerHeight-window.innerHeight);
-    return {
-      width:Math.max(220,screenW-chromeW-16),
-      height:Math.max(360,screenH-chromeH-16)
-    };
-  }
-  function screenFitCalculator(calc){
-    const preferred=.70;
-    calc.style.setProperty('--si-popup-scale',String(preferred));
-    let bounds=calculatorVisualBounds(calc);
-    const limits=popupInnerLimits();
-    const ratio=Math.min(1,limits.width/bounds.width,limits.height/bounds.height);
-    const scale=Math.max(.52,preferred*ratio*.985);
-    if(scale<preferred){
-      calc.style.setProperty('--si-popup-scale',String(scale));
-      bounds=calculatorVisualBounds(calc);
-    }
-    return {bounds:bounds,limits:limits,scale:scale};
-  }
-  function fitCalculatorPopup(){
+  function fitCalculatorInsideWindow(){
     const calc=isolateCalculator();
     if(!calc)return;
-    const fitted=screenFitCalculator(calc);
-    const wantedW=Math.min(fitted.bounds.width,fitted.limits.width);
-    const wantedH=Math.min(fitted.bounds.height,fitted.limits.height);
-    const deltaW=wantedW-window.innerWidth;
-    const deltaH=wantedH-window.innerHeight;
-    if(Math.abs(deltaW)<=1&&Math.abs(deltaH)<=1)return;
-    fitPass+=1;
-    try{
-      if(typeof window.resizeBy==='function')window.resizeBy(deltaW,deltaH);
-      else window.resizeTo(window.outerWidth+deltaW,window.outerHeight+deltaH);
-    }catch(e){}
-    if(fitPass<8)setTimeout(fitCalculatorPopup,80);
-  }
-  function scheduleFit(){
-    fitPass=0;
-    requestAnimationFrame(fitCalculatorPopup);
-    setTimeout(fitCalculatorPopup,80);
-  }
-  function watchCalculator(calc){
-    if(!calc)return;
-    if('ResizeObserver' in window){
-      const ro=new ResizeObserver(scheduleFit);
-      ro.observe(calc);
-      Array.from(calc.children).forEach(function(child){ro.observe(child)});
-    }
-    if('MutationObserver' in window){
-      const mo=new MutationObserver(scheduleFit);
-      mo.observe(calc,{subtree:true,childList:true,attributes:true,characterData:true});
-    }
+    calc.style.setProperty('--si-popup-scale',String(preferredScale));
+    const bounds=visualBounds(calc);
+    const usableW=Math.max(1,window.innerWidth-4);
+    const usableH=Math.max(1,window.innerHeight-4);
+    const ratio=Math.min(1,usableW/bounds.width,usableH/bounds.height);
+    const scale=Math.max(.48,preferredScale*ratio*.985);
+    if(Math.abs(scale-lastScale)<.003)return;
+    lastScale=scale;
+    calc.style.setProperty('--si-popup-scale',String(scale));
   }
   function boot(){
     try{window.opener=null}catch(e){}
-    const calc=isolateCalculator();
-    watchCalculator(calc);
-    fitCalculatorPopup();
-    requestAnimationFrame(fitCalculatorPopup);
-    setTimeout(fitCalculatorPopup,100);
-    setTimeout(fitCalculatorPopup,260);
-    setTimeout(fitCalculatorPopup,520);
-    setTimeout(fitCalculatorPopup,900);
-    setTimeout(fitCalculatorPopup,1500);
-    setTimeout(fitCalculatorPopup,2500);
-    window.addEventListener('load',scheduleFit,{once:true});
+    isolateCalculator();
+    fitCalculatorInsideWindow();
+    requestAnimationFrame(fitCalculatorInsideWindow);
+    window.addEventListener('load',fitCalculatorInsideWindow,{once:true});
+    window.addEventListener('resize',fitCalculatorInsideWindow);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
   else boot();
@@ -2495,7 +2435,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — SCREEN-FIT CALCULATOR POPUP")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — STABLE CALCULATOR POPUP")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
