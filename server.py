@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "55.8"
+APP_VERSION = "55.9"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -567,7 +567,7 @@ body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-calcula
   max-width:332px!important;
   margin:0!important;
   padding:13px 31px 31px!important;
-  transform:scale(.88)!important;
+  transform:scale(.79)!important;
   transform-origin:top left!important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.75),
@@ -602,12 +602,28 @@ html.si-calculator-popup body::-webkit-scrollbar{
     });
     return calc;
   }
+  function calculatorVisualBounds(calc){
+    const scale=.79;
+    const base=calc.getBoundingClientRect();
+    let left=base.left,top=base.top,right=base.right,bottom=base.bottom;
+    Array.from(calc.querySelectorAll('*')).forEach(function(el){
+      const style=getComputedStyle(el);
+      if(style.display==='none'||style.visibility==='hidden')return;
+      const r=el.getBoundingClientRect();
+      if(r.width<=0&&r.height<=0)return;
+      left=Math.min(left,r.left);top=Math.min(top,r.top);
+      right=Math.max(right,r.right);bottom=Math.max(bottom,r.bottom);
+    });
+    right=Math.max(right,left+(calc.scrollWidth||0)*scale);
+    bottom=Math.max(bottom,top+(calc.scrollHeight||0)*scale);
+    return {width:Math.ceil(right-left+2),height:Math.ceil(bottom-top+2)};
+  }
   function fitCalculatorPopup(){
     const calc=isolateCalculator();
     if(!calc)return;
-    const rect=calc.getBoundingClientRect();
-    const wantedW=Math.ceil(rect.width);
-    const wantedH=Math.ceil(rect.height);
+    const bounds=calculatorVisualBounds(calc);
+    const wantedW=bounds.width;
+    const wantedH=bounds.height;
     const deltaW=wantedW-window.innerWidth;
     const deltaH=wantedH-window.innerHeight;
     if(Math.abs(deltaW)<=1&&Math.abs(deltaH)<=1)return;
@@ -616,7 +632,7 @@ html.si-calculator-popup body::-webkit-scrollbar{
       if(typeof window.resizeBy==='function')window.resizeBy(deltaW,deltaH);
       else window.resizeTo(window.outerWidth+deltaW,window.outerHeight+deltaH);
     }catch(e){}
-    if(fitPass<6)setTimeout(fitCalculatorPopup,70);
+    if(fitPass<8)setTimeout(fitCalculatorPopup,80);
   }
   function boot(){
     try{window.opener=null}catch(e){}
@@ -626,6 +642,7 @@ html.si-calculator-popup body::-webkit-scrollbar{
     setTimeout(fitCalculatorPopup,100);
     setTimeout(fitCalculatorPopup,260);
     setTimeout(fitCalculatorPopup,520);
+    setTimeout(fitCalculatorPopup,900);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
   else boot();
@@ -2425,7 +2442,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — BARE CALCULATOR POPUP")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — CALCULATOR FIT REFINEMENT")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
