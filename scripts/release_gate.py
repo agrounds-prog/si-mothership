@@ -326,6 +326,13 @@ def main() -> int:
     check("calculator reference layout: silver rails and teal center remain", "#e0e3e4 0 8%" in server and "#3b6675 10.2% 89.8%" in server)
     check("calculator reference layout: solar panel and SI maker line remain", "si-ref-solar" in server and "SI MOTHERSHIP" in server)
     check("calculator reference layout: number and operator hierarchy remain", "#f5f4f1" in server and "#716a73" in server and "data-model-group=\"number\"" in server)
+    check("calculator physical layout: release style remains", 'id="v55-15-physical-calculator-layout"' in server and 'id="v55-15-physical-calculator-layout-script"' in server)
+    check("calculator physical layout: explicit seven-by-five key map remains", "const slots=[" in server and "for(let r=0;r<7;r++)" in server and "for(let c=0;c<5;c++)" in server)
+    check("calculator physical layout: number block is pinned to reference rows", "/* 7 8 9 */" in server and "/* 4 5 6 */" in server and "/* 1 2 3 */" in server and "key=digit(0)" in server)
+    check("calculator physical layout: arithmetic column is explicit", all(x in server for x in ("/divide|÷/", "/multiply|×|\\*/", "/subtract|minus|−/", "/\\badd\\b|plus|\\+/")))
+    check("calculator physical layout: function rows are identity-mapped", all(x in server for x in ("/\\blog\\b/", "/\\bln\\b|natural.?log/", "/\\bsin\\b/", "/\\bcos\\b/", "/\\btan\\b/", "/reciprocal|1\\s*\\/\\s*x/")))
+    check("calculator physical layout: green second key and circular nav remain", "#b8df64" in server and "border-radius:50%!important" in server and "si-model-navpad" in server)
+    check("calculator physical layout: matrix placement is explicit", "key.style.gridRow=String(r+1)" in server and "key.style.gridColumn=String(c+1)" in server and "refPhysicalMapped='1'" in server)
 
     # Historical selector invariant: $() is single-element; $() is multi-element.
     bad_selector_lines = []
