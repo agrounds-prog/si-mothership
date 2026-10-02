@@ -850,7 +850,7 @@ body.si-classroom-model.si-hifi-model .si-ref-hidden-clear{
 </script>
 <style id="v55-15-physical-calculator-layout">
 /* v55.15 — physical reference pass.
-   Explicit key slots and proportions follow the classroom TI-30XS MultiView reference,
+   Explicit key slots and proportions follow the classroom reference calculator,
    while all branding remains SI Mothership. */
 body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-calculator{
   width:min(300px,calc(100vw - 14px))!important;
