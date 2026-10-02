@@ -89,6 +89,7 @@ def main() -> int:
         '<style id="v55-3-shortcut-manager">',
         '<style id="v55-4-classroom-workflow-polish">',
         '<style id="v55-5-activity-library-organization">',
+        '<style id="v55-14-reference-calculator-layout">',
     )
     check("html shell: head closes before body opens", head_close >= 0 and body_open > head_close and bool(re.search(r"</head>\s*<body(?:\s|>)", html, re.I)))
     check("html shell: release styles are inside head", head_close >= 0 and all(0 <= html.find(tag) < head_close for tag in release_styles))
@@ -306,7 +307,7 @@ def main() -> int:
     check("calculator popup: class launch also opens teacher modeling window", "openScientificCalculator(settings)" in segment(html, "function launchScientificCalculatorForClass("))
     check("calculator popup: route injects popup skin only when requested", 'request.query.get("popup")' in server and "CALCULATOR_POPUP_STYLE if popup_mode else" in server)
     check("calculator popup: calculator is pinned to browser content origin", "display:block!important" in server and "width:0!important" in server and "padding:0!important" in server and "margin:0!important" in server)
-    check("calculator popup: normal physical calculator proportions remain", "width:332px!important" in server and "min-height:104px!important" in server and "min-height:34px!important" in server)
+    check("calculator popup: normal physical calculator proportions remain", "width:318px!important" in server and "min-height:88px!important" in server and "min-height:27px!important" in server)
     check("calculator bare popup: release style remains", 'id="v55-8-calculator-bare-popup"' in server)
     check("calculator bare popup: tool-page chrome is removed from popup body", "function isolateCalculator()" in server and "document.body.appendChild(calc)" in server and "if(child!==calc)child.hidden=true" in server)
     check("calculator stable popup: window never resizes itself", "window.resizeBy" not in server and "window.resizeTo" not in server)
@@ -319,6 +320,13 @@ def main() -> int:
     check("calculator readable popup: default window is larger", "popup=yes,width=340,height=820" in html)
     check("calculator readable popup: preferred scale is eighty percent", "const preferredScale=.80" in server and "--si-popup-scale,.80" in server)
     check("calculator readable popup: LCD text gets slight popup-only boost", ".si-model-lcd *{" in server and "font-size:1.05em!important" in server)
+    check("calculator reference layout: release style remains", 'id="v55-14-reference-calculator-layout"' in server)
+    check("calculator reference layout: top deck is three controls plus nav", "si-ref-control-deck" in server and "grid-template-columns:repeat(3,minmax(0,1fr)) 31px 31px" in server and "top=[second,mode,del]" in server)
+    check("calculator reference layout: clear is secondary legend not a fourth top key", "si-ref-clear-legend" in server and "clear.hidden=true" in server and "clear.click()" in server)
+    check("calculator reference layout: remaining keypad is five columns", "grid-template-columns:repeat(5,minmax(0,1fr))!important" in server and "data-ref-matrix-count" not in server)
+    check("calculator reference layout: silver rails and teal center remain", "#e0e3e4 0 8%" in server and "#3b6675 10.2% 89.8%" in server)
+    check("calculator reference layout: solar panel and SI maker line remain", "si-ref-solar" in server and "SI MOTHERSHIP" in server)
+    check("calculator reference layout: number and operator hierarchy remain", "#f5f4f1" in server and "#716a73" in server and "data-model-group=\"number\"" in server)
 
     # Historical selector invariant: $() is single-element; $() is multi-element.
     bad_selector_lines = []
