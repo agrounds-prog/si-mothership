@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "55.12"
+APP_VERSION = "55.13"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -567,13 +567,17 @@ body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-calcula
   max-width:332px!important;
   margin:0!important;
   padding:13px 31px 31px!important;
-  transform:scale(var(--si-popup-scale,.68))!important;
+  transform:scale(var(--si-popup-scale,.80))!important;
   transform-origin:top left!important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.75),
     inset 0 -12px 22px rgba(56,74,82,.18)!important
 }
 body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-lcd{min-height:104px!important}
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-lcd,
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-lcd *{
+  font-size:1.05em!important
+}
 body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-key{min-height:34px!important}
 </style>
 <style id="v55-8-calculator-bare-popup">
@@ -589,7 +593,7 @@ html.si-calculator-popup body::-webkit-scrollbar{
 </style>
 <script id="v55-6-calculator-popup-window-script">
 (function(){
-  const preferredScale=.68;
+  const preferredScale=.80;
   let lastScale=0;
   function isolateCalculator(){
     if(!document.body)return null;
@@ -2435,7 +2439,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — STABLE CALCULATOR POPUP")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — READABLE CALCULATOR POPUP")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
