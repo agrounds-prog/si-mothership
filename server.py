@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "55.21"
+APP_VERSION = "55.22"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -1991,7 +1991,7 @@ body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate 
 }
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad{
   grid-template-columns:repeat(5,minmax(0,1fr))!important;
-  grid-template-rows:20px 20px 24px 25px 25px 26px!important;
+  grid-template-rows:21px 21px 28px 29px 29px 30px!important;
   column-gap:5px!important;row-gap:7px!important;margin:0 5px!important
 }
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key{
@@ -2066,6 +2066,21 @@ body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-lcd *{
 }
 body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-key{min-height:0!important}
 </style>
+<style id="v55-22-calculator-popup-fit">
+/* v55.22 — popup-only fit guard and non-overlapping numeric row geometry. */
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-keypad{
+  grid-template-rows:21px 21px 28px 29px 29px 30px!important;
+  row-gap:7px!important
+}
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-keypad>.si-model-key[data-ref-row="3"],
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-keypad>.si-model-key[data-ref-row="4"],
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-keypad>.si-model-key[data-ref-row="5"],
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-keypad>.si-model-key[data-ref-row="6"]{
+  min-height:0!important;
+  height:100%!important;
+  overflow:visible!important
+}
+</style>
 <style id="v55-8-calculator-bare-popup">
 /* Popup mode contains only the physical calculator; Mothership tool-page chrome is removed. */
 html.si-calculator-popup,
@@ -2079,7 +2094,7 @@ html.si-calculator-popup body::-webkit-scrollbar{
 </style>
 <script id="v55-6-calculator-popup-window-script">
 (function(){
-  const preferredScale=.88;
+  const preferredScale=.82;
   let lastScale=0;
   function isolateCalculator(){
     if(!document.body)return null;
@@ -2114,7 +2129,7 @@ html.si-calculator-popup body::-webkit-scrollbar{
     const usableW=Math.max(1,window.innerWidth-4);
     const usableH=Math.max(1,window.innerHeight-4);
     const ratio=Math.min(1,usableW/bounds.width,usableH/bounds.height);
-    const scale=Math.max(.48,preferredScale*ratio*.985);
+    const scale=Math.max(.36,preferredScale*ratio*.975);
     if(Math.abs(scale-lastScale)<.003)return;
     lastScale=scale;
     calc.style.setProperty('--si-popup-scale',String(scale));
@@ -2123,7 +2138,15 @@ html.si-calculator-popup body::-webkit-scrollbar{
     try{window.opener=null}catch(e){}
     isolateCalculator();
     fitCalculatorInsideWindow();
-    requestAnimationFrame(fitCalculatorInsideWindow);
+    requestAnimationFrame(function(){
+      fitCalculatorInsideWindow();
+      requestAnimationFrame(fitCalculatorInsideWindow);
+    });
+    /* Final layout scripts can move keys after DOMContentLoaded. Re-measure a few
+       times after settling; these are finite checks, not a resize/observer loop. */
+    setTimeout(fitCalculatorInsideWindow,60);
+    setTimeout(fitCalculatorInsideWindow,180);
+    setTimeout(fitCalculatorInsideWindow,420);
     window.addEventListener('load',fitCalculatorInsideWindow,{once:true});
     window.addEventListener('resize',fitCalculatorInsideWindow);
   }
@@ -3925,7 +3948,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — CALCULATOR POPUP CORRECTION")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — CALCULATOR POPUP FIT")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
