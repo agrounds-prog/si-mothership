@@ -376,7 +376,7 @@ def main() -> int:
     check("calculator popup fit v55.22: no automatic window resize introduced", "window.resizeBy" not in server and "window.resizeTo" not in server and "ResizeObserver" not in server)
     check("calculator key alignment v55.23: release style remains", 'id="v55-23-calculator-key-alignment"' in server)
     check("calculator key alignment v55.23: digit matcher uses action and label fallbacks", "action===\'digit\'+target" in server and "label===target" in server and "split(/\\\\s+/).includes(target)" in server)
-    check("calculator key alignment v55.23: extras cannot overwrite row six", "const fallbackRow=6" not in segment(server, \'id="v55-17-reference-calculator-layout-script"\') and "key.hidden=true" in segment(server, \'id="v55-17-reference-calculator-layout-script"\') and "si-ref-extra-key" in server)
+    check("calculator key alignment v55.23: extras cannot overwrite row six", "const fallbackRow=6" not in segment(server, 'id="v55-17-reference-calculator-layout-script"') and "key.hidden=true" in segment(server, 'id="v55-17-reference-calculator-layout-script"') and "si-ref-extra-key" in server)
     check("calculator key alignment v55.23: five columns remain explicit", "grid-template-columns:repeat(5,minmax(0,1fr))!important" in server and "column-gap:6px!important" in server)
     check("calculator key alignment v55.23: operation column is muted", 'data-ref-col="5"' in server and "#5a6870" in server and "#384b54" in server)
     check("calculator key alignment v55.23: popup gets bottom safety margin", "margin-bottom:8px!important" in server)
