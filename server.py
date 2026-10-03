@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "55.20"
+APP_VERSION = "55.21"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -1930,14 +1930,14 @@ body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate 
 }
 </style>
 
-<style id="v55-20-calculator-final-geometry">
-/* v55.20 — final physical-reference geometry pass.
+<style id="v55-21-calculator-screenshot-correction">
+/* v55.21 — corrective visual pass based on the actual popup screenshot.
    Visual proportions only; calculator engine, privacy boundaries, and popup behavior remain unchanged. */
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-calculator{
-  width:min(294px,calc(100vw - 8px))!important;
-  max-width:294px!important;
-  padding:8px 25px 28px!important;
-  border-radius:20px 20px 72px 72px / 16px 16px 58px 58px!important;
+  width:min(288px,calc(100vw - 8px))!important;
+  max-width:288px!important;
+  padding:7px 25px 22px!important;
+  border-radius:18px 18px 60px 60px / 14px 14px 47px 47px!important;
   background:linear-gradient(90deg,
     #fbfbfb 0 5.8%,#e7e9e9 5.8% 8.6%,#c1c7c9 8.6% 10%,
     #486f7d 10% 90%,
@@ -1946,12 +1946,12 @@ body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate 
   box-shadow:inset 0 1px 0 rgba(255,255,255,.98),inset 10px 0 14px rgba(255,255,255,.44),inset -10px 0 14px rgba(0,0,0,.08),0 14px 30px rgba(0,0,0,.25)!important
 }
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-calculator:before{
-  left:23px!important;right:23px!important;top:3px!important;bottom:16px!important;
-  border-radius:13px 13px 56px 56px / 10px 10px 45px 45px!important;
+  left:23px!important;right:23px!important;top:3px!important;bottom:12px!important;
+  border-radius:11px 11px 47px 47px / 8px 8px 37px 37px!important;
   background:linear-gradient(180deg,#507887 0,#496f7e 29%,#426b79 61%,#396270 100%)!important
 }
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-plate{
-  min-height:30px!important;margin:1px 10px 1px!important;padding-top:1px!important
+  min-height:27px!important;margin:0 11px 0!important;padding-top:1px!important
 }
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-plate b{
   font-size:13.4px!important;line-height:1!important
@@ -1960,19 +1960,19 @@ body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate 
   margin-top:2px!important;font-size:6px!important;letter-spacing:.22em!important
 }
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-solar{
-  width:92px!important;height:25px!important;margin:0 auto 4px!important
+  width:89px!important;height:22px!important;margin:-1px auto 3px!important
 }
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-brandbar{
-  height:14px!important;margin:0 12px 5px!important;font-size:5.4px!important
+  height:12px!important;margin:0 15px 4px!important;font-size:5.3px!important
 }
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-lcd{
-  min-height:88px!important;height:88px!important;margin:0 3px 12px!important;padding:7px 8px!important;
-  border:5px solid #2f4f59!important;border-bottom-width:7px!important;border-radius:3px 3px 13px 13px!important
+  min-height:78px!important;height:78px!important;margin:0 5px 8px!important;padding:6px 8px!important;
+  border:5px solid #2f4f59!important;border-bottom-width:6px!important;border-radius:4px 4px 10px 10px!important
 }
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck{
-  grid-template-columns:37px 37px 37px 31px 31px!important;
-  grid-template-rows:22px 22px 22px!important;
-  column-gap:5px!important;row-gap:8px!important;margin:0 4px 14px!important
+  grid-template-columns:40px 40px 40px 31px 31px!important;
+  grid-template-rows:20px 20px 20px!important;
+  column-gap:5px!important;row-gap:6px!important;margin:0 5px 8px!important
 }
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck:after{
   right:-21px!important;top:-5px!important;width:99px!important;height:64px!important;border-radius:38px 0 0 38px!important;
@@ -1980,7 +1980,7 @@ body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate 
 }
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck>.si-model-key,
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck>.si-ref-placeholder{
-  min-height:22px!important;height:22px!important;padding:1px 2px!important;border-radius:999px!important;font-size:7px!important
+  min-height:20px!important;height:20px!important;padding:1px 2px!important;border-radius:999px!important;font-size:6.8px!important
 }
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck .si-model-navpad{
   width:70px!important;height:49px!important;outline:6px solid #f1f1ef!important;outline-offset:1px!important;
@@ -1991,11 +1991,11 @@ body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate 
 }
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad{
   grid-template-columns:repeat(5,minmax(0,1fr))!important;
-  grid-template-rows:22px 22px 30px 30px 30px 31px!important;
-  column-gap:6px!important;row-gap:11px!important;margin:0 4px!important
+  grid-template-rows:20px 20px 24px 25px 25px 26px!important;
+  column-gap:5px!important;row-gap:7px!important;margin:0 5px!important
 }
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key{
-  padding:1px 2px!important;font-size:7.8px!important
+  padding:1px 2px!important;font-size:7.3px!important
 }
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="3"][data-ref-col="2"],
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="3"][data-ref-col="3"],
@@ -2009,17 +2009,19 @@ body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate 
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="2"],
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="3"],
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="4"]{
-  border-radius:8px 6px 9px 6px!important;font-size:12px!important;font-weight:900!important
+  border-radius:7px 5px 7px 5px!important;font-size:10.8px!important;font-weight:900!important
 }
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-key small,
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-key .secondary,
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-key .alt,
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-key [class*="second"]{
-  top:-8px!important;font-size:4.3px!important;font-weight:900!important
+  top:-6px!important;font-size:4.2px!important;font-weight:900!important
 }
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-role="enter"]{
   font-size:7.2px!important
 }
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-navpad{display:none!important}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck:after{display:none!important}
 </style>
 """
 
@@ -3923,7 +3925,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — CALCULATOR FINAL GEOMETRY")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — CALCULATOR POPUP CORRECTION")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
