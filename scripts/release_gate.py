@@ -335,7 +335,7 @@ def main() -> int:
     check("calculator physical layout: matrix placement is explicit", "key.style.gridRow=String(r+1)" in server and "key.style.gridColumn=String(c+1)" in server and "refPhysicalMapped='1'" in server)
     check("calculator visual fidelity: release style remains", 'id="v55-16-calculator-visual-fidelity"' in server)
     check("calculator visual fidelity: tapered shell and silver rails remain", "clip-path:polygon(7% 0,93% 0" in server and "#eef0ef 0 6.8%" in server and "#416b79 9.1% 90.9%" in server)
-    check("calculator visual fidelity: physical LCD height is not re-inflated", "min-height:74px!important;height:74px!important" in server and "min-height:104px!important" not in segment(server, 'id="v55-6-calculator-popup-window"'))
+    check("calculator visual fidelity: physical LCD height tracks final reference", "min-height:80px!important;height:80px!important" in server and "min-height:104px!important" not in segment(server, 'id="v55-6-calculator-popup-window"'))
     check("calculator visual fidelity: popup does not inflate mapped key height", ".si-model-key{min-height:0!important}" in server)
     check("calculator visual fidelity: nav has bright reference bezel", "outline:6px solid #eef0ef!important" in server and "width:54px!important" in server and "height:40px!important" in server)
     check("calculator visual fidelity: function and numeric key shapes differ", "grid-template-rows:22px 22px 22px 25px 25px 25px 25px!important" in server and "border-radius:999px!important" in server and "border-radius:7px 5px 7px 5px!important" in server)
