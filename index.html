@@ -7076,6 +7076,31 @@ body.role-student .million-student-lifelines button{
 }
 </style>
 
+
+<style id="v55-24-match-bingo-foundation">
+.game-builder-shell{width:100%;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.8fr);gap:16px;align-items:start}
+.game-builder-card{background:linear-gradient(180deg,#10283a,#0b1b29);border:1px solid #2c5872;border-radius:18px;padding:16px;box-shadow:inset 0 1px 0 #ffffff12}
+.game-builder-card h3,.game-builder-card h4{margin:0 0 10px}.game-builder-card label{display:block;font-size:12px;font-weight:800;color:#b9d8ea;margin:10px 0 5px}
+.game-builder-card input,.game-builder-card textarea,.game-builder-card select{width:100%;box-sizing:border-box;background:#08131d;color:#f4fbff;border:1px solid #335c73;border-radius:10px;padding:10px}
+.game-builder-card textarea{min-height:120px;resize:vertical}.game-builder-row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.game-builder-row>*{flex:1}
+.game-builder-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.game-builder-actions button{min-width:120px}.game-builder-actions .primary{background:linear-gradient(180deg,#38e36d,#10a942);color:#04180a}
+.game-builder-actions .danger{background:#5c2030}.game-library-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;max-height:300px;overflow:auto}
+.game-library-tile{position:relative;min-height:82px;border:1px solid #315c73;background:#0b1d2b;border-radius:11px;padding:7px;color:#eaf8ff;text-align:center}
+.game-library-tile.selected{outline:2px solid #57ee96;border-color:#57ee96}.game-library-tile img{width:100%;height:54px;object-fit:contain;border-radius:7px;background:#f5f7ef}
+.game-library-tile b{display:block;font-size:10px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.game-library-empty{grid-column:1/-1;padding:20px;text-align:center;color:#8fb1c4;border:1px dashed #345568;border-radius:12px}
+.game-set-list{display:grid;gap:8px;margin-top:10px}.game-set-item{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid #284c62;border-radius:11px;background:#0a1925}
+.game-set-item>div{flex:1;min-width:0}.game-set-item b,.game-set-item small{display:block}.game-set-item small{color:#89aabc}.game-set-item button{padding:7px 9px}
+.foundation-preview{border:1px solid #37637d;border-radius:16px;background:radial-gradient(circle at 50% 10%,#183f68,#07131f 60%);padding:16px;min-height:240px}
+.foundation-preview-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}.foundation-preview-tile{aspect-ratio:1;border-radius:10px;background:linear-gradient(180deg,#1e79c8,#0b3a6e);border:1px solid #6fc6ff;display:flex;align-items:center;justify-content:center;font-weight:900}
+.foundation-preview-bingo{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:12px}.foundation-preview-bingo>div{aspect-ratio:1;background:#f7f6ee;color:#13202a;border-radius:7px;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px;font-size:10px;font-weight:800}
+.foundation-public{width:min(900px,94vw);margin:auto;text-align:center}.foundation-board{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;max-width:780px;margin:22px auto}
+.foundation-board .card{aspect-ratio:1;border-radius:12px;background:linear-gradient(180deg,#156fbd,#08345f);border:2px solid #6ed3ff;display:flex;align-items:center;justify-content:center;font-size:clamp(16px,3vw,28px);font-weight:900;box-shadow:0 6px 16px #0005}
+.foundation-call{max-width:620px;margin:20px auto;padding:30px;border-radius:22px;background:#f7f7ef;color:#13212a;border:5px solid #1780b8;font-size:clamp(26px,5vw,58px);font-weight:950}
+.student-game-foundation{max-width:650px;margin:auto}.student-game-card{background:linear-gradient(180deg,#0f3450,#081826);border:1px solid #3f799c;border-radius:20px;padding:20px;text-align:center}
+.student-game-mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:15px auto;max-width:360px}.student-game-mini-grid span{aspect-ratio:1;border-radius:8px;background:#f1f3ec;color:#17232a;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;padding:3px}
+@media(max-width:900px){.game-builder-shell{grid-template-columns:1fr}.game-library-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -7372,6 +7397,91 @@ async function importAvatarSet(fileList){
 }
 function normalizeAvatarImage(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(new Error('Could not read image'));reader.onload=()=>{const img=new Image();img.onerror=()=>reject(new Error('Could not open image'));img.onload=()=>{const size=512,c=document.createElement('canvas'),ctx=c.getContext('2d');c.width=size;c.height=size;const scale=Math.max(size/img.width,size/img.height),w=img.width*scale,h=img.height*scale,x=(size-w)/2,y=(size-h)/2;ctx.fillStyle='#0b1729';ctx.fillRect(0,0,size,size);ctx.drawImage(img,x,y,w,h);let data='';try{data=c.toDataURL('image/webp',.86)}catch(e){data=c.toDataURL('image/jpeg',.88)}resolve(data)};img.src=String(reader.result)};reader.readAsDataURL(file)})}
 
+
+/* v55.24 MATCH + BINGO shared authoring foundation */
+const GAME_IMAGE_LIBRARY_STORE='siMothership.imageLibrary.v1';
+const MATCH_SET_STORE='siMothership.matchSets.v1';
+const BINGO_SET_STORE='siMothership.bingoSets.v1';
+function loadGameStore(key,fallback=[]){try{const raw=localStorage.getItem(key),v=raw?JSON.parse(raw):fallback;return Array.isArray(v)?v:fallback}catch(e){return fallback}}
+function persistGameStore(key,value){
+  try{localStorage.setItem(key,JSON.stringify(value))}catch(e){toast('Game content could not be saved — browser storage may be full');return false}
+  if(typeof NETWORK_SYNC!=='undefined'&&NETWORK_SYNC&&SESSION_ROLE==='teacher'){
+    fetch('/api/storage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key,value:JSON.stringify(value)})}).catch(()=>{});
+  }
+  return true;
+}
+let gameImageLibrary=loadGameStore(GAME_IMAGE_LIBRARY_STORE,[]);
+let matchSets=loadGameStore(MATCH_SET_STORE,[]);
+let bingoSets=loadGameStore(BINGO_SET_STORE,[]);
+let matchDraft={name:'Animals',quick:'Dog | Dog\nCat | Cat\nElephant | Elephant\nGiraffe | Giraffe\nLion | Lion\nFrog | Frog',selectedImages:[]};
+let bingoDraft={name:'Animals',quick:'Dog | Dog\nCat | Cat\nElephant | Elephant\nGiraffe | Giraffe\nLion | Lion\nFrog | Frog\nZebra | Zebra\nPanda | Panda\nPenguin | Penguin\nButterfly | Butterfly\nTurtle | Turtle\nMonkey | Monkey\nStar | Star\nApple | Apple\nDuck | Duck\nFish | Fish',size:4,pattern:'line',free:false,selectedImages:[]};
+function newGameAssetId(){return 'img_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)}
+function gameImageName(file){return String(file?.name||'Image').replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim().slice(0,60)||'Image'}
+function normalizeGameImage(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=()=>reject(new Error('read'));r.onload=()=>{const img=new Image();img.onerror=()=>reject(new Error('image'));img.onload=()=>{const size=640,canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');canvas.width=size;canvas.height=size;ctx.fillStyle='#f7f7ef';ctx.fillRect(0,0,size,size);const scale=Math.min((size-40)/img.width,(size-40)/img.height),w=img.width*scale,h=img.height*scale;ctx.drawImage(img,(size-w)/2,(size-h)/2,w,h);let data='';try{data=canvas.toDataURL('image/webp',.82)}catch(e){data=canvas.toDataURL('image/jpeg',.86)}resolve(data)};img.src=String(r.result)};r.readAsDataURL(file)})}
+async function importGameImages(files){
+  const list=Array.from(files||[]).filter(f=>String(f.type||'').startsWith('image/')).slice(0,36);if(!list.length)return;
+  const added=[];
+  for(const file of list){try{added.push({id:newGameAssetId(),name:gameImageName(file),image:await normalizeGameImage(file),collection:'Custom',createdAt:Date.now()})}catch(e){}}
+  if(!added.length)return toast('Could not import those images');
+  gameImageLibrary=[...gameImageLibrary,...added];persistGameStore(GAME_IMAGE_LIBRARY_STORE,gameImageLibrary);toast(added.length+' image'+(added.length===1?'':'s')+' added to Mothership Image Library');renderActivities();
+}
+function parsePairLines(text){
+  return String(text||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map((line,i)=>{
+    const p=line.split('|');const a=String(p[0]||'').trim(),b=String(p.slice(1).join('|')||p[0]||'').trim();
+    return a&&b?{id:'pair_'+i+'_'+Date.now().toString(36),a:{type:'text',value:a},b:{type:'text',value:b}}:null;
+  }).filter(Boolean).slice(0,24);
+}
+function parseBingoLines(text){
+  return String(text||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map((line,i)=>{
+    const p=line.split('|');const call=String(p[0]||'').trim(),card=String(p.slice(1).join('|')||p[0]||'').trim();
+    return call&&card?{id:'item_'+i+'_'+Date.now().toString(36),call:{type:'text',value:call},card:{type:'text',value:card}}:null;
+  }).filter(Boolean).slice(0,48);
+}
+function contentMarkup(side){
+  if(!side)return '';
+  if(side.type==='image')return '<img src="'+esc(side.value)+'" alt="'+esc(side.label||'Game image')+'">';
+  return '<span>'+esc(side.value||'')+'</span>';
+}
+function gameImagePickerMarkup(selected=[]){
+  const set=new Set(selected||[]);
+  return '<div class="game-library-grid">'+(gameImageLibrary.length?gameImageLibrary.map(a=>'<button class="game-library-tile '+(set.has(a.id)?'selected':'')+'" data-game-image="'+esc(a.id)+'"><img src="'+a.image+'" alt="'+esc(a.name)+'"><b>'+esc(a.name)+'</b></button>').join(''):'<div class="game-library-empty">Your shared Mothership Image Library is empty. Upload images once, then reuse them here.</div>')+'</div>';
+}
+function pairsFromSelectedImages(ids){
+  return (ids||[]).map((id,i)=>gameImageLibrary.find(a=>a.id===id)).filter(Boolean).map((a,i)=>({id:'pair_img_'+i+'_'+Date.now().toString(36),a:{type:'image',value:a.image,label:a.name},b:{type:'image',value:a.image,label:a.name}}));
+}
+function bingoItemsFromSelectedImages(ids){
+  return (ids||[]).map(id=>gameImageLibrary.find(a=>a.id===id)).filter(Boolean).map((a,i)=>({id:'item_img_'+i+'_'+Date.now().toString(36),call:{type:'image',value:a.image,label:a.name},card:{type:'image',value:a.image,label:a.name}}));
+}
+function saveMatchDraft(){
+  const pairs=[...parsePairLines(matchDraft.quick),...pairsFromSelectedImages(matchDraft.selectedImages)].slice(0,24);
+  if(pairs.length<4)return toast('Add at least four MATCH pairs');
+  const set={id:'matchset_'+Date.now().toString(36),name:String(matchDraft.name||'MATCH Set').trim().slice(0,80)||'MATCH Set',pairs,createdAt:Date.now()};
+  matchSets=[set,...matchSets.filter(x=>x.id!==set.id)];persistGameStore(MATCH_SET_STORE,matchSets);toast('MATCH set saved');renderActivities();return set;
+}
+function saveBingoDraft(){
+  const items=[...parseBingoLines(bingoDraft.quick),...bingoItemsFromSelectedImages(bingoDraft.selectedImages)].slice(0,48);
+  const size=Math.max(3,Math.min(6,Number(bingoDraft.size||4))),need=size*size-(bingoDraft.free&&size%2===1?1:0);
+  if(items.length<need)return toast('This card size needs at least '+need+' Bingo items');
+  const set={id:'bingoset_'+Date.now().toString(36),name:String(bingoDraft.name||'Bingo Set').trim().slice(0,80)||'Bingo Set',items,size,pattern:bingoDraft.pattern||'line',free:!!bingoDraft.free,createdAt:Date.now()};
+  bingoSets=[set,...bingoSets.filter(x=>x.id!==set.id)];persistGameStore(BINGO_SET_STORE,bingoSets);toast('Bingo set saved');renderActivities();return set;
+}
+function shuffleCopy(items,seed=''){let a=items.map(x=>deepClone(x)),h=2166136261;for(const ch of String(seed))h=(h^ch.charCodeAt(0))*16777619>>>0;for(let i=a.length-1;i>0;i--){h=(h*1664525+1013904223)>>>0;const j=h%(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+function launchMatchSet(set){
+  const students=connectedStudents();if(!students.length)return toast('Have at least one student join before launching MATCH');
+  const cards=shuffleCopy((set.pairs||[]).flatMap((p,i)=>[{id:p.id+'_a',pairId:p.id,content:p.a},{id:p.id+'_b',pairId:p.id,content:p.b}]),Date.now());
+  state.activityRun={activityId:'match-game',runToken:newActivityRunToken(),phase:'lobby',responses:{},matchConfig:{setId:set.id,name:set.name,pairs:deepClone(set.pairs)},match:{cards,matched:[],selected:[],activeStudentIndex:0,attempts:0,message:'Board ready. Start when your crew is ready.'}};
+  state.screen='activity';state.promptActive=false;state.assigningSlot=null;recordActivityLaunch('match',set.name);render();toast('MATCH loaded — students moved to Activity Lobby');
+}
+function launchBingoSet(set){
+  const order=shuffleCopy(set.items||[],Date.now()).map(x=>x.id);
+  state.activityRun={activityId:'bingo-game',runToken:newActivityRunToken(),phase:'lobby',responses:{},bingoConfig:{setId:set.id,name:set.name,items:deepClone(set.items),size:set.size,pattern:set.pattern,free:!!set.free},bingo:{callOrder:order,called:[],current:null,claims:[],message:'Cards generated. Start when the class is ready.'}};
+  state.screen='activity';state.promptActive=false;state.assigningSlot=null;recordActivityLaunch('bingo',set.name);render();toast('BINGO loaded — private cards are ready');
+}
+function bingoCardFor(name,run=state.activityRun){
+  const cfg=run?.bingoConfig||{},size=Number(cfg.size||4),count=size*size,items=shuffleCopy(cfg.items||[],String(run?.runToken||'')+'|'+String(name||'student')).slice(0,count);
+  if(cfg.free&&size%2===1){const mid=Math.floor(count/2);items.splice(mid,0,{id:'free',card:{type:'text',value:'FREE'}});return items.slice(0,count)}
+  return items;
+}
 const studentSeed=[
  {n:'Maya',c:'#5be8ff',understanding:'Got it'},
  {n:'Jordan',c:'#9e7cff',hand:true},
@@ -7407,7 +7517,9 @@ const activitySeed=[
  {id:'pixel-game',name:'PIXEL REVEAL',icon:'▦',type:'pixel',text:'Mystery-image reveal and private guessing game'},
  {id:'starwheel-game',name:'STARWHEEL',icon:'✧',type:'starwheel',text:'Spin-and-solve team word puzzle game'},
  {id:'crew-survey-game',name:'CREW SURVEY',icon:'▥',type:'crew-survey',text:'Survey-board team game with dedicated buzzers, reveals, strikes, and steals'},
- {id:'million-game',name:'MILLION',icon:'◆',type:'million',text:'Command Seat multiple-choice ladder game with crew lifelines'}
+ {id:'million-game',name:'MILLION',icon:'◆',type:'million',text:'Command Seat multiple-choice ladder game with crew lifelines'},
+ {id:'match-game',name:'MATCH',icon:'▦',type:'match',text:'Visual memory game with private student turns and shared Zoom board'},
+ {id:'bingo-game',name:'BINGO',icon:'▦',type:'bingo',text:'Private randomized Bingo cards with a shared classroom caller'}
 ];
 
 const APP_REGISTRY=[
@@ -7421,6 +7533,8 @@ const APP_REGISTRY=[
  {id:'starwheel',name:'STARWHEEL',icon:'✧',subtitle:'Spin the Core · Find the Letters · Restore the Transmission',status:'REWARDS ARCADE',description:'Team-based spin-and-solve word puzzle with rotating pilots, private student controls, and Mission Control solve approval.'},
  {id:'crew-survey',name:'CREW SURVEY',icon:'▥',subtitle:'Face-Off · Survey Board · Strikes · Steal',status:'GAME SHOW',description:'Two-crew survey-board game with teacher-controlled answer reveals, a dedicated server-authoritative buzzer, rotating turns, strikes, steals, and AAC/type support.'},
  {id:'million',name:'MILLION',icon:'◆',subtitle:'Command Seat · Four Choices · Mission Ladder',status:'GAME SHOW',description:'Multiple-choice ladder game with a rotating Command Seat, whole-class play-along, configurable lifelines, and teacher-controlled reveals.'},
+ {id:'match',name:'MATCH',icon:'▦',subtitle:'Flip · Remember · Match',status:'REWARDS ARCADE',description:'Zoom-friendly visual memory game with reusable pairs, randomized boards, and private student controllers.'},
+ {id:'bingo',name:'BINGO',icon:'▦',subtitle:'Generate · Call · Mark · Verify',status:'REWARDS ARCADE',description:'Custom Bingo with reusable call/card content and private randomized student cards.'},
  {id:'scientific-calculator',name:'SCIENTIFIC CALCULATOR',icon:'ƒx',subtitle:'Four-Line Scientific Calculator · Share · Launch for Class',status:'CLASSROOM TOOL',description:'Familiar multi-line scientific calculator with exact fractions, DEG/RAD, trig, logs, powers, history, and independent student sessions.'}
 ];
 
@@ -7439,7 +7553,7 @@ function activityLibraryCategoryFor(appId){
   const id=String(appId||'');
   if(id==='si-plus')return 'presentation';
   if(['vector','board','orbit'].includes(id))return 'collaboration';
-  if(['minefield','sketch','pixel','starwheel','crew-survey','million'].includes(id))return 'games';
+  if(['minefield','sketch','pixel','starwheel','crew-survey','million','match','bingo'].includes(id))return 'games';
   if(id==='scientific-calculator')return 'tools';
   return 'all';
 }
@@ -7578,6 +7692,8 @@ function appIconMarkup(idOrType){
   if(id==='starwheel'||id==='starwheel-game')return `<svg ${common}><circle cx="32" cy="32" r="24" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="32" cy="32" r="8" fill="currentColor" opacity=".9"/><path d="M32 8v16M32 40v16M8 32h16M40 32h16M15 15l11 11M38 38l11 11M49 15L38 26M26 38L15 49" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M32 2l5 8H27z" fill="currentColor"/></svg>`;
   if(id==='crew-survey'||id==='crew-survey-game')return `<svg ${common}><rect x="8" y="11" width="48" height="39" rx="9" fill="none" stroke="currentColor" stroke-width="3"/><path d="M16 21h19M16 31h24M16 41h16" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M45 19v24" stroke="currentColor" stroke-width="3" opacity=".55"/><circle cx="48" cy="22" r="3" fill="currentColor"/><circle cx="48" cy="33" r="3" fill="currentColor"/><circle cx="48" cy="44" r="3" fill="currentColor"/></svg>`;
   if(id==='million'||id==='million-game')return `<svg ${common}><path d="M15 52h34M18 45h28M21 38h22M24 31h16M27 24h10M30 17h4" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M32 7l5 7h-10z" fill="currentColor"/></svg>`;
+  if(id==='match'||id==='match-game')return `<svg ${common}><rect x="8" y="10" width="21" height="20" rx="5" fill="none" stroke="currentColor" stroke-width="3"/><rect x="35" y="10" width="21" height="20" rx="5" fill="none" stroke="currentColor" stroke-width="3"/><rect x="8" y="36" width="21" height="18" rx="5" fill="currentColor" opacity=".25" stroke="currentColor" stroke-width="3"/><rect x="35" y="36" width="21" height="18" rx="5" fill="currentColor" opacity=".25" stroke="currentColor" stroke-width="3"/><path d="M15 20h7M42 20h7M15 45h7M42 45h7" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`;
+  if(id==='bingo'||id==='bingo-game')return `<svg ${common}><rect x="8" y="8" width="48" height="48" rx="10" fill="none" stroke="currentColor" stroke-width="3"/><path d="M20 8v48M32 8v48M44 8v48M8 20h48M8 32h48M8 44h48" stroke="currentColor" stroke-width="2" opacity=".55"/><path d="M32 24l2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" fill="currentColor"/></svg>`;
   if(id==='scientific-calculator')return `<svg ${common}><rect x="13" y="6" width="38" height="52" rx="8" fill="none" stroke="currentColor" stroke-width="3"/><rect x="19" y="12" width="26" height="11" rx="2" fill="currentColor" opacity=".28"/><path d="M21 30h4M30 30h4M39 30h4M21 38h4M30 38h4M39 38h4M21 46h4M30 46h4M39 46h4" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/><path d="M21 53h13M39 53h4" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg>`;
   return `<span class="fallback-app-glyph">✦</span>`;
 }
@@ -8490,7 +8606,7 @@ function teacherSummaryActivityParticipant(t,name){
 function teacherSummaryAppIdForActivity(a){
   if(!a)return'activity';
   if(a.type==='presentation')return'si-plus';
-  if(a.type==='minefield')return'minefield';if(a.type==='vector')return'vector';if(a.type==='board')return'board';if(a.type==='orbit')return'orbit';if(a.type==='pixel')return'pixel';if(a.type==='sketch')return'sketch';if(a.type==='starwheel')return'starwheel';
+  if(a.type==='minefield')return'minefield';if(a.type==='vector')return'vector';if(a.type==='board')return'board';if(a.type==='orbit')return'orbit';if(a.type==='pixel')return'pixel';if(a.type==='sketch')return'sketch';if(a.type==='starwheel')return'starwheel';if(a.type==='match')return'match';if(a.type==='bingo')return'bingo';
   return String(a.id||a.type||'activity');
 }
 function teacherSummaryFinalizeActivity(){
@@ -8730,7 +8846,7 @@ function activityPhaseLabel(){if(!state.activityRun)return '';if(state.activityR
 
 function activityWorkflowAppLabel(a=activeActivity()){
   if(!a)return'Activity';
-  return a.type==='presentation'?'SI+ Presentation':a.type==='crew-survey'?'CREW SURVEY':a.type==='million'?'MILLION':a.type==='minefield'?'MINEFIELD':a.type==='vector'?'VECTOR':a.type==='board'?'BOARD':a.type==='orbit'?'ORBIT':a.type==='pixel'?'PIXEL REVEAL':a.type==='sketch'?'SKETCH SIGNAL':a.type==='starwheel'?'STARWHEEL':(a.name||'Activity');
+  return a.type==='presentation'?'SI+ Presentation':a.type==='crew-survey'?'CREW SURVEY':a.type==='million'?'MILLION':a.type==='minefield'?'MINEFIELD':a.type==='vector'?'VECTOR':a.type==='board'?'BOARD':a.type==='orbit'?'ORBIT':a.type==='pixel'?'PIXEL REVEAL':a.type==='sketch'?'SKETCH SIGNAL':a.type==='starwheel'?'STARWHEEL':a.type==='match'?'MATCH':a.type==='bingo'?'BINGO':(a.name||'Activity');
 }
 function startOrResumeActivityRun(){
   const a=activeActivity(),run=state.activityRun;if(!run)return;
@@ -9185,6 +9301,14 @@ function activitySharedMarkup(big=false){
   const a=activeActivity(),run=state.activityRun;if(!a||!run)return '';
   const h=big?60:34, p=big?28:18;
   if(run.phase==='lobby')return `<div class="activity-lobby-public"><span class="eyebrow">ACTIVITY LOBBY</span><div class="activity-app-icon">${appIconMarkup(activityIconId(a))}</div><h3 style="font-size:${h}px">${esc(a.name)}</h3><p style="font-size:${p}px">Waiting for your teacher to begin…</p><div class="lobby-status-pill">${connectedStudents().length} students connected</div></div>`;
+  if(a.type==='match'){
+    const m=run.match||{},cards=m.cards||[],matched=new Set(m.matched||[]),selected=new Set(m.selected||[]);
+    return `<div class="foundation-public"><span class="eyebrow">MOTHERSHIP · MATCH</span><h3 style="font-size:${big?52:34}px">${esc(run.matchConfig?.name||'MATCH')}</h3><p>${esc(m.message||'Remember where every signal is hiding.')}</p><div class="foundation-board" style="grid-template-columns:repeat(${cards.length<=16?4:cards.length<=20?5:6},minmax(0,1fr))">${cards.map((card,i)=>`<div class="card">${matched.has(card.id)||selected.has(card.id)?contentMarkup(card.content):i+1}</div>`).join('')}</div></div>`;
+  }
+  if(a.type==='bingo'){
+    const b=run.bingo||{},cfg=run.bingoConfig||{},current=(cfg.items||[]).find(x=>x.id===b.current);
+    return `<div class="foundation-public"><span class="eyebrow">MOTHERSHIP · BINGO</span><h3 style="font-size:${big?52:34}px">${esc(cfg.name||'BINGO')}</h3><div class="foundation-call">${current?contentMarkup(current.call):'READY TO CALL'}</div><p>${(b.called||[]).length} called · Win pattern: ${esc(cfg.pattern||'line')}</p></div>`;
+  }
   if(a.type==='crew-survey'){return crewSurveySharedMarkup(run,big);}
   if(a.type==='million'){return millionSharedMarkup(run,big);}
   if(a.type==='minefield'){
@@ -9310,6 +9434,14 @@ function studentMarkup(){
   if(state.activityRun){
     const a=activeActivity(),run=state.activityRun;
     if(run.phase==='lobby')return `<div class="student-prompt activity-wait"><span class="eyebrow">ACTIVITY LOBBY</span><div class="activity-app-icon">${appIconMarkup(activityIconId(a))}</div><h2>${esc(a.name)}</h2><p>You're in. Waiting for your teacher to begin…</p><div class="student-lobby-avatar">${studentAvatarBadgeMarkup(s)}</div></div>`;
+    if(a.type==='match'){
+      const m=run.match||{},cards=m.cards||[],active=connectedStudents()[Number(m.activeStudentIndex||0)%Math.max(1,connectedStudents().length)];
+      return `<div class="student-game-foundation"><div class="student-game-card"><span class="eyebrow">MOTHERSHIP · MATCH</span><h2>${active?.n===s?.n?'YOUR TURN':'WATCH & REMEMBER'}</h2><p>${active?.n===s?.n?'Your tile controls will activate in the gameplay pass.':'Watch the shared board. Your turn will rotate automatically.'}</p><div class="student-game-mini-grid">${cards.slice(0,16).map((x,i)=>`<span>${i+1}</span>`).join('')}</div></div></div>`;
+    }
+    if(a.type==='bingo'){
+      const cfg=run.bingoConfig||{},card=bingoCardFor(s?.n,run),size=Number(cfg.size||4);
+      return `<div class="student-game-foundation"><div class="student-game-card"><span class="eyebrow">MOTHERSHIP · BINGO</span><h2>${esc(s?.n||'Student')}'s Private Card</h2><p>Your randomized card is ready. Marking and claim controls arrive in the gameplay pass.</p><div class="student-game-mini-grid" style="grid-template-columns:repeat(${size},1fr)">${card.map(item=>`<span>${contentMarkup(item.card)}</span>`).join('')}</div></div></div>`;
+    }
     if(a.type==='crew-survey')return crewSurveyStudentMarkup(run,s);
     if(a.type==='million')return millionStudentMarkup(run,s);
     if(a.type==='starwheel'){
@@ -9860,6 +9992,37 @@ function renderActivities(){
     const s=scientificCalculatorSettings(),url=scientificCalculatorUrl(s),qr=`${PUBLIC_ORIGIN}/api/qr?url=${encodeURIComponent(url)}`,live=!!state.calculatorLaunch;
     grid.innerHTML=`<div class="calculator-setup-panel"><div class="calculator-setup-main"><div class="calculator-device-icon" aria-hidden="true"><div class="screen"></div><div class="keys">${Array.from({length:20},()=>'<i></i>').join('')}</div></div><div class="calculator-setup-copy"><span class="app-status">CLASSROOM TOOL</span><h3>SI Scientific Calculator</h3><p>Familiar four-line scientific calculator workflow with exact fractions, trig, logs, powers, history, and independent student calculator state.</p>${live?'<span class="calculator-live-chip">● LIVE FOR CLASS</span>':''}</div></div><div class="calculator-settings-card"><label>ANGLE MODE<select id="calculatorAngleMode"><option value="deg" ${s.angle==='deg'?'selected':''}>DEG · Degrees</option><option value="rad" ${s.angle==='rad'?'selected':''}>RAD · Radians</option></select></label><label>NUMBER FORMAT<select id="calculatorNumberFormat"><option value="normal" ${s.format==='normal'?'selected':''}>Normal</option><option value="scientific" ${s.format==='scientific'?'selected':''}>Scientific</option></select></label><div class="calculator-action-grid"><button id="openCalculatorSelfBtn">↗ Open Calculator</button><button class="primary" id="launchCalculatorClassBtn">▶ Launch for Class</button><button id="copyCalculatorLinkBtn">⧉ Copy Share Link</button><button id="showCalculatorQrBtn">▣ Show QR Code</button>${live?'<button class="danger" id="endCalculatorClassBtn">× End for Class</button>':''}</div></div><div class="calculator-qr-wrap hidden" id="calculatorQrWrap"><img src="${qr}" alt="QR code for SI Scientific Calculator"><div class="calculator-share-url">${esc(url)}</div></div></div>`;
     $('#calculatorAngleMode').onchange=e=>{state.calculatorSettings=scientificCalculatorSettings({...state.calculatorSettings,angle:e.target.value})};$('#calculatorNumberFormat').onchange=e=>{state.calculatorSettings=scientificCalculatorSettings({...state.calculatorSettings,format:e.target.value})};$('#openCalculatorSelfBtn').onclick=openScientificCalculator;$('#launchCalculatorClassBtn').onclick=launchScientificCalculatorForClass;$('#copyCalculatorLinkBtn').onclick=copyScientificCalculatorLink;$('#showCalculatorQrBtn').onclick=()=>{const q=$('#calculatorQrWrap'),b=$('#showCalculatorQrBtn');q.classList.toggle('hidden');b.textContent=q.classList.contains('hidden')?'▣ Show QR Code':'▣ Hide QR Code'};const end=$('#endCalculatorClassBtn');if(end)end.onclick=endScientificCalculatorForClass;return;
+  }
+
+
+  if(state.activeApp==='match'){
+    note.classList.add('hidden');picker.classList.add('hidden');grid.classList.remove('hidden');
+    title.textContent='MATCH';subtitle.textContent='LOAD IMAGES → BUILD PAIRS → FLIP → REMEMBER → MATCH';header.innerHTML=`<button id="backToAppsBtn">← Activity Library</button>`;$('#backToAppsBtn').onclick=backToAppLibrary;
+    const pairs=parsePairLines(matchDraft.quick),selected=new Set(matchDraft.selectedImages||[]);
+    grid.innerHTML=`<div class="game-builder-shell"><div class="game-builder-card"><span class="app-status">REWARDS ARCADE</span><h3>Create MATCH Set</h3><label>SET NAME</label><input id="matchSetName" value="${esc(matchDraft.name)}"><label>QUICK PAIRS · one pair per line · left | right</label><textarea id="matchQuickPairs">${esc(matchDraft.quick)}</textarea><div class="game-builder-actions"><button id="matchUploadBtn">＋ Upload Images</button><input id="matchUploadInput" type="file" accept="image/*" multiple hidden><button id="matchSelectAllImages">Use All Library Images</button><button id="matchClearImages">Clear Image Selection</button></div><label>MOTHERSHIP IMAGE LIBRARY · ${gameImageLibrary.length} saved</label>${gameImagePickerMarkup(matchDraft.selectedImages)}<div class="game-builder-actions"><button id="matchSaveBtn">Save Set</button><button class="primary" id="matchLaunchDraftBtn">▶ Save & Launch MATCH</button></div></div><div><div class="foundation-preview"><span class="eyebrow">BOARD PREVIEW</span><h3>${esc(matchDraft.name||'MATCH')}</h3><div class="foundation-preview-grid">${Array.from({length:Math.min(16,Math.max(8,(pairs.length+(matchDraft.selectedImages||[]).length)*2))},(_,i)=>`<div class="foundation-preview-tile">${i+1}</div>`).join('')}</div></div><div class="game-builder-card" style="margin-top:14px"><h4>Saved MATCH Sets</h4><div class="game-set-list">${matchSets.length?matchSets.map(s=>`<div class="game-set-item"><div><b>${esc(s.name)}</b><small>${s.pairs?.length||0} pairs · ${(s.pairs?.length||0)*2} tiles</small></div><button data-match-launch="${s.id}">Launch</button><button data-match-delete="${s.id}">×</button></div>`).join(''):'<div class="game-library-empty">No saved MATCH sets yet.</div>'}</div></div></div></div>`;
+    $('#matchSetName').oninput=e=>matchDraft.name=e.target.value;$('#matchQuickPairs').oninput=e=>matchDraft.quick=e.target.value;
+    $('#matchUploadBtn').onclick=()=>$('#matchUploadInput').click();$('#matchUploadInput').onchange=e=>importGameImages(e.target.files);
+    $$('[data-game-image]').forEach(b=>b.onclick=()=>{const id=b.dataset.gameImage,arr=new Set(matchDraft.selectedImages||[]);arr.has(id)?arr.delete(id):arr.add(id);matchDraft.selectedImages=[...arr];renderActivities()});
+    $('#matchSelectAllImages').onclick=()=>{matchDraft.selectedImages=gameImageLibrary.map(x=>x.id);renderActivities()};$('#matchClearImages').onclick=()=>{matchDraft.selectedImages=[];renderActivities()};
+    $('#matchSaveBtn').onclick=saveMatchDraft;$('#matchLaunchDraftBtn').onclick=()=>{const s=saveMatchDraft();if(s)launchMatchSet(s)};
+    $$('[data-match-launch]').forEach(b=>b.onclick=()=>{const s=matchSets.find(x=>x.id===b.dataset.matchLaunch);if(s)launchMatchSet(s)});
+    $$('[data-match-delete]').forEach(b=>b.onclick=()=>{matchSets=matchSets.filter(x=>x.id!==b.dataset.matchDelete);persistGameStore(MATCH_SET_STORE,matchSets);renderActivities()});
+    return;
+  }
+
+  if(state.activeApp==='bingo'){
+    note.classList.add('hidden');picker.classList.add('hidden');grid.classList.remove('hidden');
+    title.textContent='BINGO';subtitle.textContent='LOAD THE SET → GENERATE CARDS → CALL → MARK → VERIFY → BINGO!';header.innerHTML=`<button id="backToAppsBtn">← Activity Library</button>`;$('#backToAppsBtn').onclick=backToAppLibrary;
+    const items=parseBingoLines(bingoDraft.quick),size=Number(bingoDraft.size||4);
+    grid.innerHTML=`<div class="game-builder-shell"><div class="game-builder-card"><span class="app-status">REWARDS ARCADE</span><h3>Create Bingo Set</h3><label>SET NAME</label><input id="bingoSetName" value="${esc(bingoDraft.name)}"><label>QUICK ITEMS · call side | card side</label><textarea id="bingoQuickItems">${esc(bingoDraft.quick)}</textarea><div class="game-builder-row"><label>CARD SIZE<select id="bingoCardSize"><option value="3" ${size===3?'selected':''}>3 × 3</option><option value="4" ${size===4?'selected':''}>4 × 4</option><option value="5" ${size===5?'selected':''}>5 × 5</option><option value="6" ${size===6?'selected':''}>6 × 6</option></select></label><label>WIN PATTERN<select id="bingoPattern"><option value="line" ${bingoDraft.pattern==='line'?'selected':''}>Line</option><option value="corners" ${bingoDraft.pattern==='corners'?'selected':''}>Four Corners</option><option value="x" ${bingoDraft.pattern==='x'?'selected':''}>X</option><option value="blackout" ${bingoDraft.pattern==='blackout'?'selected':''}>Blackout</option></select></label></div><label><input id="bingoFreeSpace" type="checkbox" ${bingoDraft.free?'checked':''}> Free center space when card size allows</label><div class="game-builder-actions"><button id="bingoUploadBtn">＋ Upload Images</button><input id="bingoUploadInput" type="file" accept="image/*" multiple hidden><button id="bingoSelectAllImages">Use All Library Images</button><button id="bingoClearImages">Clear Image Selection</button></div><label>MOTHERSHIP IMAGE LIBRARY · ${gameImageLibrary.length} saved</label>${gameImagePickerMarkup(bingoDraft.selectedImages)}<div class="game-builder-actions"><button id="bingoSaveBtn">Save Set</button><button class="primary" id="bingoLaunchDraftBtn">▶ Save & Generate Cards</button></div></div><div><div class="foundation-preview"><span class="eyebrow">SAMPLE STUDENT CARD</span><h3>${esc(bingoDraft.name||'BINGO')}</h3><div class="foundation-preview-bingo" style="grid-template-columns:repeat(${Math.min(6,size)},1fr)">${Array.from({length:size*size},(_,i)=>`<div>${esc(items[i%Math.max(1,items.length)]?.card?.value||'★')}</div>`).join('')}</div></div><div class="game-builder-card" style="margin-top:14px"><h4>Saved Bingo Sets</h4><div class="game-set-list">${bingoSets.length?bingoSets.map(s=>`<div class="game-set-item"><div><b>${esc(s.name)}</b><small>${s.size}×${s.size} · ${s.items?.length||0} items · ${esc(s.pattern||'line')}</small></div><button data-bingo-launch="${s.id}">Launch</button><button data-bingo-delete="${s.id}">×</button></div>`).join(''):'<div class="game-library-empty">No saved Bingo sets yet.</div>'}</div></div></div></div>`;
+    $('#bingoSetName').oninput=e=>bingoDraft.name=e.target.value;$('#bingoQuickItems').oninput=e=>bingoDraft.quick=e.target.value;$('#bingoCardSize').onchange=e=>{bingoDraft.size=Number(e.target.value);renderActivities()};$('#bingoPattern').onchange=e=>bingoDraft.pattern=e.target.value;$('#bingoFreeSpace').onchange=e=>bingoDraft.free=e.target.checked;
+    $('#bingoUploadBtn').onclick=()=>$('#bingoUploadInput').click();$('#bingoUploadInput').onchange=e=>importGameImages(e.target.files);
+    $$('[data-game-image]').forEach(b=>b.onclick=()=>{const id=b.dataset.gameImage,arr=new Set(bingoDraft.selectedImages||[]);arr.has(id)?arr.delete(id):arr.add(id);bingoDraft.selectedImages=[...arr];renderActivities()});
+    $('#bingoSelectAllImages').onclick=()=>{bingoDraft.selectedImages=gameImageLibrary.map(x=>x.id);renderActivities()};$('#bingoClearImages').onclick=()=>{bingoDraft.selectedImages=[];renderActivities()};
+    $('#bingoSaveBtn').onclick=saveBingoDraft;$('#bingoLaunchDraftBtn').onclick=()=>{const s=saveBingoDraft();if(s)launchBingoSet(s)};
+    $$('[data-bingo-launch]').forEach(b=>b.onclick=()=>{const s=bingoSets.find(x=>x.id===b.dataset.bingoLaunch);if(s)launchBingoSet(s)});
+    $$('[data-bingo-delete]').forEach(b=>b.onclick=()=>{bingoSets=bingoSets.filter(x=>x.id!==b.dataset.bingoDelete);persistGameStore(BINGO_SET_STORE,bingoSets);renderActivities()});
+    return;
   }
 
   if(state.activeApp==='crew-survey'){
