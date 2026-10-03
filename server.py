@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "55.17"
+APP_VERSION = "55.18"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -1741,6 +1741,115 @@ body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate 
 })();
 </script>
 
+<style id="v55-18-calculator-reference-polish">
+/* v55.18 — visual-only physical-reference polish. Mapping and engine behavior unchanged. */
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-calculator{
+  width:min(288px,calc(100vw - 8px))!important;
+  max-width:288px!important;
+  padding:7px 27px 24px!important;
+  border-color:#d7dadb!important;
+  border-radius:18px 18px 62px 62px / 14px 14px 49px 49px!important;
+  background:linear-gradient(90deg,#f7f8f7 0 5.2%,#e9ebeb 5.2% 7.7%,#c5cbcc 7.7% 9.2%,#466f7d 9.2% 90.8%,#c5cbcc 90.8% 92.3%,#e9ebeb 92.3% 94.8%,#f7f8f7 94.8% 100%)!important;
+  clip-path:polygon(7.5% 0,92.5% 0,96.8% 1.5%,99% 6.5%,100% 80%,98.8% 89.5%,95% 95%,86% 99%,72% 100%,28% 100%,14% 99%,5% 95%,1.2% 89.5%,0 80%,1% 6.5%,3.2% 1.5%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.98),inset 8px 0 12px rgba(255,255,255,.38),inset -8px 0 12px rgba(0,0,0,.085),0 13px 30px rgba(0,0,0,.26)!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-calculator:before{
+  left:23px!important;right:23px!important;top:3px!important;bottom:13px!important;
+  border-radius:11px 11px 48px 48px / 8px 8px 38px 38px!important;
+  background:linear-gradient(180deg,#4f7886 0,#466f7e 28%,#406b79 63%,#376372 100%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -11px 18px rgba(0,0,0,.13),inset 0 0 18px rgba(0,0,0,.035)!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-plate{
+  min-height:28px!important;margin:0 12px 1px!important;padding-top:1px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-plate b{
+  color:#f3f5f5!important;font-size:12.5px!important;font-weight:900!important;letter-spacing:.015em!important;text-shadow:0 1px 0 rgba(0,0,0,.24)!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-plate span{
+  color:#dce5e8!important;font-size:5.8px!important;font-style:italic!important;letter-spacing:.18em!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-solar{
+  width:91px!important;height:23px!important;margin:-1px auto 3px!important;border:1px solid #27383e!important;border-radius:3px!important;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 1px,transparent 1px 22px),linear-gradient(180deg,#3d3d40 0,#252629 100%)!important;
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.65),inset 0 -1px 0 rgba(255,255,255,.035),0 1px 0 rgba(255,255,255,.07)!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-brandbar{
+  height:12px!important;margin:0 16px 4px!important;border-radius:2px!important;background:transparent!important;color:#eef2f2!important;
+  font-size:5.1px!important;font-weight:800!important;letter-spacing:.035em!important;box-shadow:none!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-brandbar:before{
+  background:#f2f4f3!important;color:#416c7b!important;border:0!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-lcd{
+  min-height:80px!important;height:80px!important;margin:0 6px 8px!important;padding:6px 8px!important;
+  border:5px solid #2e4a53!important;border-bottom-width:6px!important;border-radius:4px 4px 10px 10px!important;
+  background:linear-gradient(180deg,#d9ddd0 0,#cbd2c4 100%)!important;color:#222c28!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.48),inset 0 5px 9px rgba(77,88,73,.07),0 1px 0 #6e858c,0 3px 4px rgba(0,0,0,.22)!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck{
+  grid-template-rows:21px 21px 21px!important;column-gap:5px!important;row-gap:7px!important;margin:0 7px 10px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck:after{
+  right:-19px!important;top:-4px!important;width:98px!important;height:59px!important;border-radius:34px 0 0 34px!important;
+  background:linear-gradient(90deg,#f6f7f6 0,#e9ebeb 70%,#d9ddde 100%)!important;
+  box-shadow:inset 1px 0 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(0,0,0,.045),-1px 0 0 rgba(183,190,192,.45)!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck>.si-model-key,
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck>.si-ref-placeholder{
+  min-height:20px!important;height:20px!important;border-color:#58717a!important;background:linear-gradient(180deg,#557783 0,#355763 100%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 1px 0 #173038,0 2px 3px rgba(0,0,0,.22)!important;font-size:6.6px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck>[data-action="second"]{
+  background:linear-gradient(180deg,#bde36a 0,#96c342 100%)!important;border-color:#cbe981!important;color:#15220e!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck .si-model-navpad{
+  width:70px!important;height:47px!important;border:2px solid #504a50!important;outline:5px solid #eef0ef!important;outline-offset:0!important;
+  background:radial-gradient(circle at 50% 50%,#48434a 0 18%,transparent 20%),conic-gradient(from 45deg,#766f76 0 12.5%,#423d43 12.5% 25%,#777077 25% 37.5%,#413c42 37.5% 50%,#777077 50% 62.5%,#413c42 62.5% 75%,#756e75 75% 87.5%,#413c42 87.5% 100%)!important;
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.19),inset 0 -2px 4px rgba(0,0,0,.31),0 2px 3px rgba(0,0,0,.3)!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck .si-model-navpad:before{inset:7px 16px!important;border-color:rgba(233,236,237,.29)!important}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck .si-model-navpad:after{width:11px!important;height:11px!important;background:#454047!important}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad{
+  grid-template-rows:21px 21px 25px 25px 25px 26px!important;gap:7px 5px!important;margin:0 7px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key{
+  border-width:1px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 1px 0 #173039,0 2px 3px rgba(0,0,0,.22)!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="1"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-col="1"]{
+  background:linear-gradient(180deg,#537784 0,#355d69 100%)!important;border-color:#617f89!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="1"][data-ref-col="5"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="2"][data-ref-col="5"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="3"][data-ref-col="5"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="4"][data-ref-col="5"]{
+  background:linear-gradient(180deg,#686169 0,#4b454d 100%)!important;border-color:#777078!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="3"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="3"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="3"][data-ref-col="4"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="4"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="4"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="4"][data-ref-col="4"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="5"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="5"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="5"][data-ref-col="4"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="4"]{
+  background:linear-gradient(180deg,#fbfaf8 0,#e0e3e0 100%)!important;border-color:#e8eae8!important;border-radius:7px 5px 7px 5px!important;color:#1e2427!important;text-shadow:none!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-role="enter"]{
+  background:linear-gradient(180deg,#f9f7f8,#dddadd)!important;border-color:#ece8eb!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-key small,
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-key .secondary,
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-key .alt,
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-key [class*="second"]{
+  top:-6px!important;color:#bfdc66!important;font-size:4.4px!important;font-weight:850!important;letter-spacing:.01em!important
+}
+</style>
 """
 
 CALCULATOR_POPUP_STYLE = r"""
@@ -3643,7 +3752,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — REFERENCE CALCULATOR LAYOUT")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — CALCULATOR REFERENCE POLISH")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
