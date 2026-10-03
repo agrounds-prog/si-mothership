@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "55.24"
+APP_VERSION = "55.25"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -3823,6 +3823,227 @@ def student_connection_present(token: str = "", name: str = "") -> bool:
     return False
 
 
+
+def _match_connected_names(state: dict) -> list[str]:
+    return [
+        str(st.get("n") or "")
+        for st in state.get("students", [])
+        if isinstance(st, dict) and not st.get("offline") and str(st.get("n") or "")
+    ]
+
+
+def _match_snapshot(match: dict) -> dict:
+    return {
+        "matched": copy.deepcopy(match.get("matched") or []),
+        "selected": copy.deepcopy(match.get("selected") or []),
+        "activeStudentIndex": int(match.get("activeStudentIndex", 0) or 0),
+        "attempts": int(match.get("attempts", 0) or 0),
+        "scores": copy.deepcopy(match.get("scores") or {}),
+        "locked": bool(match.get("locked")),
+        "teacherLocked": bool(match.get("teacherLocked")),
+        "pendingResolution": copy.deepcopy(match.get("pendingResolution")),
+        "lastResolved": copy.deepcopy(match.get("lastResolved")),
+        "complete": bool(match.get("complete")),
+        "message": str(match.get("message") or ""),
+    }
+
+
+def _match_active_name(state: dict, run: dict) -> str:
+    match = run.get("match") if isinstance(run.get("match"), dict) else {}
+    names = _match_connected_names(state)
+    if not names:
+        return ""
+    try:
+        idx = int(match.get("activeStudentIndex", 0) or 0) % len(names)
+    except (TypeError, ValueError):
+        idx = 0
+    return names[idx]
+
+
+def _match_restore(match: dict, snapshot: dict) -> None:
+    keep_history = match.get("history") if isinstance(match.get("history"), list) else []
+    match.clear()
+    match.update(copy.deepcopy(snapshot))
+    match["history"] = keep_history
+    match["turnStart"] = None
+
+
+def _match_apply_request(state: dict, run: dict, actor: str, request: dict, teacher: bool = False) -> None:
+    match = run.get("match") if isinstance(run.get("match"), dict) else None
+    if not isinstance(match, dict):
+        return
+    cards = match.get("cards") if isinstance(match.get("cards"), list) else []
+    kind = str(request.get("type") or "")
+    value = str(request.get("value") or "")
+    active_name = _match_active_name(state, run)
+
+    if kind == "select":
+        if teacher or not actor or actor != active_name:
+            return
+        if match.get("locked") or match.get("complete") or match.get("pendingResolution"):
+            return
+        selected = match.get("selected") if isinstance(match.get("selected"), list) else []
+        matched = set(str(x) for x in (match.get("matched") if isinstance(match.get("matched"), list) else []))
+        if len(selected) >= 2 or value in selected or value in matched:
+            return
+        card = next((x for x in cards if isinstance(x, dict) and str(x.get("id") or "") == value), None)
+        if not card:
+            return
+        if not selected:
+            match["turnStart"] = _match_snapshot(match)
+        selected = list(selected) + [value]
+        match["selected"] = selected
+        card_num = next((i + 1 for i, x in enumerate(cards) if isinstance(x, dict) and str(x.get("id") or "") == value), 0)
+        match["message"] = f"{actor} revealed card {card_num}."
+        if len(selected) == 2:
+            picked = [next((x for x in cards if isinstance(x, dict) and str(x.get("id") or "") == cid), None) for cid in selected]
+            is_match = bool(picked[0] and picked[1] and str(picked[0].get("pairId") or "") == str(picked[1].get("pairId") or ""))
+            match["attempts"] = int(match.get("attempts", 0) or 0) + 1
+            match["locked"] = True
+            nonce = "mr_" + secrets.token_hex(5)
+            match["pendingResolution"] = {
+                "result": "match" if is_match else "miss",
+                "cards": selected[:],
+                "player": actor,
+                "nonce": nonce,
+                "resolveAt": int(time.time() * 1000) + 1300,
+            }
+            if is_match:
+                merged = list(dict.fromkeys([*(match.get("matched") or []), *selected]))
+                match["matched"] = merged
+                scores = match.setdefault("scores", {})
+                scores[actor] = int(scores.get(actor, 0) or 0) + 1
+                match["message"] = f"MATCH! {actor} found a pair."
+            else:
+                match["message"] = "No match — remember those cards."
+        return
+
+    if not teacher:
+        return
+
+    if kind == "resolve":
+        pending = match.get("pendingResolution")
+        if not isinstance(pending, dict):
+            return
+        if match.get("pauseAfterReveal"):
+            return
+        match["lastResolved"] = {
+            "result": str(pending.get("result") or ""),
+            "cards": copy.deepcopy(pending.get("cards") or []),
+            "player": str(pending.get("player") or ""),
+        }
+        turn_start = match.get("turnStart")
+        if isinstance(turn_start, dict):
+            history = match.setdefault("history", [])
+            history.append(copy.deepcopy(turn_start))
+            if len(history) > 20:
+                del history[:-20]
+        match["selected"] = []
+        match["pendingResolution"] = None
+        match["turnStart"] = None
+        all_cards = len(cards)
+        matched_count = len(match.get("matched") or [])
+        if all_cards > 0 and matched_count >= all_cards:
+            match["complete"] = True
+            match["locked"] = True
+            match["message"] = "BOARD CLEARED! Every pair has been found."
+        else:
+            match["activeStudentIndex"] = int(match.get("activeStudentIndex", 0) or 0) + 1
+            match["locked"] = bool(match.get("teacherLocked"))
+            nxt = _match_active_name(state, run) or "Next player"
+            match["message"] = f"{nxt} is up — pick two cards."
+        return
+
+    if kind == "toggle_lock":
+        match["teacherLocked"] = not bool(match.get("teacherLocked"))
+        match["locked"] = bool(match.get("teacherLocked")) or isinstance(match.get("pendingResolution"), dict)
+        match["message"] = "Board locked by Mission Control." if match.get("teacherLocked") else "Board resumed."
+        return
+
+    if kind == "toggle_pause":
+        match["pauseAfterReveal"] = not bool(match.get("pauseAfterReveal"))
+        match["message"] = "Pause After Reveal is ON." if match.get("pauseAfterReveal") else "Pause After Reveal is OFF."
+        return
+
+    if kind == "continue":
+        if isinstance(match.get("pendingResolution"), dict):
+            match["pauseAfterReveal"] = False
+            _match_apply_request(state, run, actor, {"type": "resolve"}, teacher=True)
+        return
+
+    if kind == "undo":
+        history = match.get("history") if isinstance(match.get("history"), list) else []
+        if history:
+            prev = history.pop()
+            _match_restore(match, prev)
+            match["history"] = history
+            match["teacherLocked"] = False
+            match["locked"] = False
+            match["pendingResolution"] = None
+            match["turnStart"] = None
+            match["message"] = "Last turn undone by Mission Control."
+        return
+
+    if kind == "retry":
+        base = match.get("turnStart")
+        history = match.get("history") if isinstance(match.get("history"), list) else []
+        if not isinstance(base, dict) and history:
+            base = history.pop()
+        if isinstance(base, dict):
+            keep_index = int(base.get("activeStudentIndex", match.get("activeStudentIndex", 0)) or 0)
+            _match_restore(match, base)
+            match["history"] = history
+            match["activeStudentIndex"] = keep_index
+            match["teacherLocked"] = False
+            match["locked"] = False
+            match["pendingResolution"] = None
+            match["turnStart"] = None
+            match["message"] = f"{_match_active_name(state, run) or 'Player'} retries the turn."
+        return
+
+    if kind == "skip":
+        match["selected"] = []
+        match["pendingResolution"] = None
+        match["turnStart"] = None
+        match["activeStudentIndex"] = int(match.get("activeStudentIndex", 0) or 0) + 1
+        match["locked"] = bool(match.get("teacherLocked"))
+        match["message"] = f"{_match_active_name(state, run) or 'Next player'} is up."
+        return
+
+    if kind == "mark_match":
+        selected = match.get("selected") if isinstance(match.get("selected"), list) else []
+        if len(selected) != 2:
+            return
+        player = _match_active_name(state, run) or "Player"
+        match["matched"] = list(dict.fromkeys([*(match.get("matched") or []), *selected]))
+        scores = match.setdefault("scores", {})
+        scores[player] = int(scores.get(player, 0) or 0) + 1
+        match["pendingResolution"] = {
+            "result": "match",
+            "cards": selected[:],
+            "player": player,
+            "nonce": "mr_" + secrets.token_hex(5),
+            "resolveAt": int(time.time() * 1000) + 300,
+        }
+        match["locked"] = True
+        match["message"] = "Mission Control marked this pair as a match."
+        return
+
+    if kind == "return_pair":
+        last = match.get("lastResolved")
+        if isinstance(last, dict) and str(last.get("result") or "") == "match":
+            last_cards = set(str(x) for x in (last.get("cards") or []))
+            match["matched"] = [x for x in (match.get("matched") or []) if str(x) not in last_cards]
+            player = str(last.get("player") or "")
+            scores = match.setdefault("scores", {})
+            if player and int(scores.get(player, 0) or 0) > 0:
+                scores[player] = max(0, int(scores.get(player, 0) or 0) - 1)
+            match["complete"] = False
+            match["locked"] = bool(match.get("teacherLocked"))
+            match["lastResolved"] = None
+            match["message"] = "Last matched pair returned to the board."
+
+
 async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
     role = (request.query.get("role") or "client").lower()
     if role == "teacher" and not teacher_authorized(request):
@@ -3882,6 +4103,29 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                         _starwheel_apply_request(current, run, name, request_data)
                         save_runtime_state(current)
                         await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
+                elif mtype == "match_action" and isinstance(data.get("request"), dict):
+                    request_data = copy.deepcopy(data["request"])
+                    meta = CLIENT_META.get(ws, {})
+                    current = copy.deepcopy(LATEST_STATE) if isinstance(LATEST_STATE, dict) else None
+                    run = current.get("activityRun") if isinstance(current, dict) else None
+                    if not isinstance(run, dict) or str(run.get("activityId") or "") != "match-game" or str(run.get("phase") or "") != "running":
+                        continue
+                    if role == "student":
+                        token = str(meta.get("student_token") or data.get("student_token") or "")
+                        name = str(meta.get("student_name") or data.get("student_name") or "")
+                        if token and not meta.get("student_token"):
+                            meta["student_token"] = token
+                        if name and not meta.get("student_name"):
+                            meta["student_name"] = name
+                        CLIENT_META[ws] = meta
+                        request_data["name"] = name
+                        _match_apply_request(current, run, name, request_data, teacher=False)
+                    elif role == "teacher":
+                        _match_apply_request(current, run, "Teacher", request_data, teacher=True)
+                    else:
+                        continue
+                    save_runtime_state(current)
+                    await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
                 elif mtype == "game_show_action" and isinstance(data.get("request"), dict):
                     if role != "student":
                         continue
@@ -3995,7 +4239,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — MATCH + BINGO FOUNDATION")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — MATCH GAMEPLAY")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
