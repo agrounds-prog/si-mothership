@@ -1653,7 +1653,7 @@ body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate 
     const ee=take([/\bee\b|exponent|sci.?notation|x10/]);
     const table=take([/\btable\b/]);
     const clear=take([/\bclear\b/]);
-    const eKey=take([/^e$|\beuler\b|constant.?e/]);
+    const eKey=take([/\be\b|euler|constant.?e/]);
 
     place(second,deck,1,1);
     place(mode,deck,1,2);
