@@ -7101,6 +7101,13 @@ body.role-student .million-student-lifelines button{
 .student-game-mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:15px auto;max-width:360px}.student-game-mini-grid span{aspect-ratio:1;border-radius:8px;background:#f1f3ec;color:#17232a;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;padding:3px}
 @media(max-width:900px){.game-builder-shell{grid-template-columns:1fr}.game-library-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 </style>
+<style id="v55-25-match-gameplay">
+.match-public-status{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:8px 0 12px}.match-public-status span{background:#0b2740;border:1px solid #2d6d91;border-radius:999px;padding:7px 12px;font-weight:800}
+.foundation-board .card.revealed,.foundation-board .card.matched{background:#f7f6ee;color:#14232c;border-color:#7ee8aa;overflow:hidden;padding:5px}.foundation-board .card img{width:100%;height:100%;object-fit:contain;border-radius:7px}.foundation-board .card.matched{box-shadow:0 0 0 2px #39df72,0 0 22px #39df7270}.foundation-board .card.pending{box-shadow:0 0 0 3px #ffd85d,0 0 24px #ffd85d77}
+.match-student-grid{display:grid;gap:7px;margin:15px auto;max-width:430px}.match-student-grid button{aspect-ratio:1;border-radius:10px;border:1px solid #6cc8ff;background:linear-gradient(180deg,#176fb8,#093b69);color:white;font-weight:950;font-size:16px;overflow:hidden;padding:4px}.match-student-grid button.open{background:#f5f5ed;color:#15232b;border-color:#78e6a6}.match-student-grid button img{width:100%;height:100%;object-fit:contain;border-radius:7px}.match-student-grid button:disabled{opacity:.82}
+.match-teacher-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.65fr);gap:14px}.match-teacher-card{background:#0b1b28;border:1px solid #31566d;border-radius:16px;padding:14px}.match-teacher-score{display:grid;gap:6px}.match-teacher-score>div{display:flex;justify-content:space-between;gap:10px;background:#10283a;border-radius:9px;padding:7px 9px}.match-control-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.match-control-grid button{min-height:44px}.match-control-grid .primary-action{background:linear-gradient(180deg,#31dd69,#109a3c)}.match-control-grid .danger-action{background:#7a2634}.match-current-player{font-size:22px;font-weight:950;color:#76e9ff}.match-result-chip{display:inline-flex;border-radius:999px;padding:6px 10px;background:#17334a;border:1px solid #3e718f;font-weight:800;margin-top:8px}
+@media(max-width:900px){.match-teacher-grid{grid-template-columns:1fr}.match-control-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -7469,13 +7476,85 @@ function shuffleCopy(items,seed=''){let a=items.map(x=>deepClone(x)),h=216613626
 function launchMatchSet(set){
   const students=connectedStudents();if(!students.length)return toast('Have at least one student join before launching MATCH');
   const cards=shuffleCopy((set.pairs||[]).flatMap((p,i)=>[{id:p.id+'_a',pairId:p.id,content:p.a},{id:p.id+'_b',pairId:p.id,content:p.b}]),Date.now());
-  state.activityRun={activityId:'match-game',runToken:newActivityRunToken(),phase:'lobby',responses:{},matchConfig:{setId:set.id,name:set.name,pairs:deepClone(set.pairs)},match:{cards,matched:[],selected:[],activeStudentIndex:0,attempts:0,message:'Board ready. Start when your crew is ready.'}};
+  state.activityRun={activityId:'match-game',runToken:newActivityRunToken(),phase:'lobby',responses:{},matchConfig:{setId:set.id,name:set.name,pairs:deepClone(set.pairs),turnRule:'one_each'},match:{cards,matched:[],selected:[],activeStudentIndex:0,attempts:0,scores:{},locked:false,teacherLocked:false,pauseAfterReveal:false,pendingResolution:null,turnStart:null,history:[],lastResolved:null,complete:false,message:'Board ready. Start when your crew is ready.'}};
   state.screen='activity';state.promptActive=false;state.assigningSlot=null;recordActivityLaunch('match',set.name);render();toast('MATCH loaded — students moved to Activity Lobby');
 }
 function launchBingoSet(set){
   const order=shuffleCopy(set.items||[],Date.now()).map(x=>x.id);
   state.activityRun={activityId:'bingo-game',runToken:newActivityRunToken(),phase:'lobby',responses:{},bingoConfig:{setId:set.id,name:set.name,items:deepClone(set.items),size:set.size,pattern:set.pattern,free:!!set.free},bingo:{callOrder:order,called:[],current:null,claims:[],message:'Cards generated. Start when the class is ready.'}};
   state.screen='activity';state.promptActive=false;state.assigningSlot=null;recordActivityLaunch('bingo',set.name);render();toast('BINGO loaded — private cards are ready');
+}
+
+function matchState(run=state.activityRun){return run?.match||null}
+function matchActiveStudent(run=state.activityRun){
+  const m=matchState(run),crew=connectedStudents();if(!m||!crew.length)return null;
+  return crew[((Number(m.activeStudentIndex||0)%crew.length)+crew.length)%crew.length]||null;
+}
+function matchSnapshot(m){
+  return {matched:deepClone(m.matched||[]),selected:deepClone(m.selected||[]),activeStudentIndex:Number(m.activeStudentIndex||0),attempts:Number(m.attempts||0),scores:deepClone(m.scores||{}),locked:!!m.locked,teacherLocked:!!m.teacherLocked,pendingResolution:deepClone(m.pendingResolution),lastResolved:deepClone(m.lastResolved),complete:!!m.complete,message:String(m.message||'')};
+}
+function applyMatchLocalAction(type,value,name){
+  const run=state.activityRun,m=matchState(run);if(!run||run.activityId!=='match-game'||!m)return;
+  if(type==='select'){
+    const active=matchActiveStudent(run);if(!active||active.n!==name||m.locked||m.complete||m.pendingResolution)return;
+    const card=(m.cards||[]).find(x=>x.id===value);if(!card||(m.matched||[]).includes(card.id)||(m.selected||[]).includes(card.id))return;
+    if(!(m.selected||[]).length)m.turnStart=matchSnapshot(m);
+    m.selected=[...(m.selected||[]),card.id];m.message=name+' revealed card '+((m.cards||[]).findIndex(x=>x.id===card.id)+1)+'.';
+    if(m.selected.length===2){
+      const picked=m.selected.map(id=>(m.cards||[]).find(x=>x.id===id)).filter(Boolean),isMatch=picked.length===2&&picked[0].pairId===picked[1].pairId;
+      m.attempts=Number(m.attempts||0)+1;m.locked=true;
+      m.pendingResolution={result:isMatch?'match':'miss',cards:m.selected.slice(),player:name,nonce:'mr_'+Date.now().toString(36),resolveAt:Date.now()+1300};
+      if(isMatch){m.matched=[...new Set([...(m.matched||[]),...m.selected])];m.scores=m.scores||{};m.scores[name]=Number(m.scores[name]||0)+1;m.message='MATCH! '+name+' found a pair.'}
+      else m.message='No match — remember those cards.';
+    }
+  }else if(type==='resolve'){
+    const p=m.pendingResolution;if(!p)return;
+    m.lastResolved={result:p.result,cards:(p.cards||[]).slice(),player:p.player};
+    if(m.turnStart){m.history=m.history||[];m.history.push(deepClone(m.turnStart));if(m.history.length>20)m.history.shift()}
+    m.selected=[];m.pendingResolution=null;m.turnStart=null;
+    const all=(m.cards||[]).length>0&&(m.matched||[]).length>=(m.cards||[]).length;
+    if(all){m.complete=true;m.locked=true;m.message='BOARD CLEARED! Every pair has been found.'}
+    else{m.activeStudentIndex=Number(m.activeStudentIndex||0)+1;m.locked=!!m.teacherLocked;m.message=(matchActiveStudent(run)?.n||'Next player')+' is up — pick two cards.'}
+  }else if(type==='toggle_lock'){m.teacherLocked=!m.teacherLocked;m.locked=m.teacherLocked||!!m.pendingResolution;m.message=m.teacherLocked?'Board locked by Mission Control.':'Board resumed.'}
+  else if(type==='toggle_pause'){m.pauseAfterReveal=!m.pauseAfterReveal;m.message=m.pauseAfterReveal?'Pause After Reveal is ON.':'Pause After Reveal is OFF.'}
+  else if(type==='continue'){if(m.pendingResolution){m.pauseAfterReveal=false;applyMatchLocalAction('resolve','',name)}}
+  else if(type==='undo'){
+    const prev=(m.history||[]).pop();if(prev){Object.assign(m,deepClone(prev));m.teacherLocked=false;m.locked=false;m.pendingResolution=null;m.turnStart=null;m.message='Last turn undone by Mission Control.'}
+  }else if(type==='retry'){
+    const base=m.turnStart||(m.history||[]).pop();if(base){const keep=Number(base.activeStudentIndex||m.activeStudentIndex||0);Object.assign(m,deepClone(base));m.activeStudentIndex=keep;m.teacherLocked=false;m.locked=false;m.pendingResolution=null;m.turnStart=null;m.message=(matchActiveStudent(run)?.n||'Player')+' retries the turn.'}
+  }else if(type==='skip'){m.selected=[];m.pendingResolution=null;m.turnStart=null;m.activeStudentIndex=Number(m.activeStudentIndex||0)+1;m.locked=!!m.teacherLocked;m.message=(matchActiveStudent(run)?.n||'Next player')+' is up.'}
+  else if(type==='mark_match'&&m.selected?.length===2){
+    const player=matchActiveStudent(run)?.n||name||'Player';m.matched=[...new Set([...(m.matched||[]),...m.selected])];m.scores=m.scores||{};m.scores[player]=Number(m.scores[player]||0)+1;m.pendingResolution={result:'match',cards:m.selected.slice(),player,nonce:'mr_'+Date.now().toString(36),resolveAt:Date.now()+300};m.locked=true;m.message='Mission Control marked this pair as a match.';
+  }else if(type==='return_pair'){
+    const last=m.lastResolved;if(last?.result==='match'){m.matched=(m.matched||[]).filter(id=>!(last.cards||[]).includes(id));if(last.player&&m.scores?.[last.player])m.scores[last.player]=Math.max(0,Number(m.scores[last.player])-1);m.complete=false;m.locked=!!m.teacherLocked;m.lastResolved=null;m.message='Last matched pair returned to the board.'}
+  }
+}
+function sendMatchAction(type,value=''){
+  const s=selectedStudent(),name=s?.n||'',request={id:'match_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),type,value,name,at:Date.now()};
+  if(NETWORK_SYNC&&networkHydrated&&networkSocket&&networkSocket.readyState===WebSocket.OPEN){
+    try{networkSocket.send(JSON.stringify({type:'match_action',request,student_name:name,student_token:currentStudentIdentity()?.student_token||''}));return}catch(e){}
+  }
+  applyMatchLocalAction(type,value,name);render();
+}
+function teacherMatchAction(type,value=''){
+  const request={id:'match_teacher_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),type,value,at:Date.now()};
+  if(NETWORK_SYNC&&networkHydrated&&networkSocket&&networkSocket.readyState===WebSocket.OPEN){
+    try{networkSocket.send(JSON.stringify({type:'match_action',request}));return}catch(e){}
+  }
+  applyMatchLocalAction(type,value,'Teacher');render();
+}
+let matchResolutionTimer=null,matchResolutionNonce='';
+function scheduleMatchResolution(){
+  if(SESSION_ROLE!=='teacher')return;
+  const m=matchState();const p=m?.pendingResolution;if(!p||m?.pauseAfterReveal)return;
+  const nonce=String(p.nonce||'');if(nonce&&nonce===matchResolutionNonce)return;
+  matchResolutionNonce=nonce;clearTimeout(matchResolutionTimer);
+  const delay=Math.max(80,Number(p.resolveAt||Date.now()+100)-Date.now());
+  matchResolutionTimer=setTimeout(()=>{const cur=matchState()?.pendingResolution;if(cur&&String(cur.nonce||'')===nonce)teacherMatchAction('resolve')},delay);
+}
+function wireMatchStudent(){
+  if(activeActivity()?.type!=='match'||state.activityRun?.phase!=='running')return;
+  document.querySelectorAll('[data-match-pick]').forEach(b=>b.onclick=()=>sendMatchAction('select',b.dataset.matchPick));
 }
 function bingoCardFor(name,run=state.activityRun){
   const cfg=run?.bingoConfig||{},size=Number(cfg.size||4),count=size*size,items=shuffleCopy(cfg.items||[],String(run?.runToken||'')+'|'+String(name||'student')).slice(0,count);
@@ -8858,6 +8937,9 @@ function startOrResumeActivityRun(){
   if(a?.type==='orbit'){run.orbitResponses={};run.orbitPaused=false;run.orbitRevealCrew=!run.orbitConfig.anonymous;run.orbitSpotlight=null;run.orbitClusters=[];run.orbitAssignments={};run.orbitClusterView=false;run.orbitBefore=null;run.orbitCompare=false;run.orbitRound=1}
   if(a?.type==='pixel')initializePixelRun(run);
   if(a?.type==='sketch')initializeSketchRun(run);
+  if(a?.type==='match'){
+    const m=matchState(run);if(m){m.selected=[];m.pendingResolution=null;m.turnStart=null;m.teacherLocked=false;m.locked=false;m.complete=false;m.activeStudentIndex=Math.max(0,Number(m.activeStudentIndex||0));m.message=(matchActiveStudent(run)?.n||'First player')+' is up — pick two cards.'}
+  }
   render();
   toast(a?.type==='minefield'?'MINEFIELD started — Navigator controls synchronized':a?.type==='vector'?'VECTOR started — student pin controls synchronized':a?.type==='orbit'?'ORBIT started — student response fields synchronized':a?.type==='pixel'?'PIXEL REVEAL started — private guess controls synchronized':a?.type==='sketch'?'SKETCH SIGNAL started — artist and private guesses synchronized':a?.type==='starwheel'?'STARWHEEL started — active pilot controls synchronized':'Activity started — student controls synchronized');
 }
@@ -9302,8 +9384,8 @@ function activitySharedMarkup(big=false){
   const h=big?60:34, p=big?28:18;
   if(run.phase==='lobby')return `<div class="activity-lobby-public"><span class="eyebrow">ACTIVITY LOBBY</span><div class="activity-app-icon">${appIconMarkup(activityIconId(a))}</div><h3 style="font-size:${h}px">${esc(a.name)}</h3><p style="font-size:${p}px">Waiting for your teacher to begin…</p><div class="lobby-status-pill">${connectedStudents().length} students connected</div></div>`;
   if(a.type==='match'){
-    const m=run.match||{},cards=m.cards||[],matched=new Set(m.matched||[]),selected=new Set(m.selected||[]);
-    return `<div class="foundation-public"><span class="eyebrow">MOTHERSHIP · MATCH</span><h3 style="font-size:${big?52:34}px">${esc(run.matchConfig?.name||'MATCH')}</h3><p>${esc(m.message||'Remember where every signal is hiding.')}</p><div class="foundation-board" style="grid-template-columns:repeat(${cards.length<=16?4:cards.length<=20?5:6},minmax(0,1fr))">${cards.map((card,i)=>`<div class="card">${matched.has(card.id)||selected.has(card.id)?contentMarkup(card.content):i+1}</div>`).join('')}</div></div>`;
+    const m=run.match||{},cards=m.cards||[],matched=new Set(m.matched||[]),selected=new Set(m.selected||[]),active=matchActiveStudent(run);
+    return `<div class="foundation-public"><span class="eyebrow">MOTHERSHIP · MATCH</span><h3 style="font-size:${big?52:34}px">${m.complete?'BOARD CLEARED!':esc(run.matchConfig?.name||'MATCH')}</h3><div class="match-public-status"><span>${esc(active?.n||'—')} · CURRENT PLAYER</span><span>${matched.size/2} PAIRS FOUND</span><span>${Number(m.attempts||0)} ATTEMPTS</span></div><p>${esc(m.message||'Remember where every signal is hiding.')}</p><div class="foundation-board" style="grid-template-columns:repeat(${cards.length<=16?4:cards.length<=20?5:6},minmax(0,1fr))">${cards.map((card,i)=>{const open=matched.has(card.id)||selected.has(card.id);return `<div class="card ${matched.has(card.id)?'matched':''} ${selected.has(card.id)?'revealed pending':''}">${open?contentMarkup(card.content):i+1}</div>`}).join('')}</div></div>`;
   }
   if(a.type==='bingo'){
     const b=run.bingo||{},cfg=run.bingoConfig||{},current=(cfg.items||[]).find(x=>x.id===b.current);
@@ -9435,8 +9517,8 @@ function studentMarkup(){
     const a=activeActivity(),run=state.activityRun;
     if(run.phase==='lobby')return `<div class="student-prompt activity-wait"><span class="eyebrow">ACTIVITY LOBBY</span><div class="activity-app-icon">${appIconMarkup(activityIconId(a))}</div><h2>${esc(a.name)}</h2><p>You're in. Waiting for your teacher to begin…</p><div class="student-lobby-avatar">${studentAvatarBadgeMarkup(s)}</div></div>`;
     if(a.type==='match'){
-      const m=run.match||{},cards=m.cards||[],active=connectedStudents()[Number(m.activeStudentIndex||0)%Math.max(1,connectedStudents().length)];
-      return `<div class="student-game-foundation"><div class="student-game-card"><span class="eyebrow">MOTHERSHIP · MATCH</span><h2>${active?.n===s?.n?'YOUR TURN':'WATCH & REMEMBER'}</h2><p>${active?.n===s?.n?'Your tile controls will activate in the gameplay pass.':'Watch the shared board. Your turn will rotate automatically.'}</p><div class="student-game-mini-grid">${cards.slice(0,16).map((x,i)=>`<span>${i+1}</span>`).join('')}</div></div></div>`;
+      const m=run.match||{},cards=m.cards||[],active=matchActiveStudent(run),mine=active?.n===s?.n,matched=new Set(m.matched||[]),selected=new Set(m.selected||[]),cols=cards.length<=16?4:cards.length<=20?5:6;
+      return `<div class="student-game-foundation"><div class="student-game-card"><span class="eyebrow">MOTHERSHIP · MATCH</span><h2>${m.complete?'BOARD CLEARED!':mine?'YOUR TURN':'WATCH & REMEMBER'}</h2><p>${m.complete?'Every pair has been found.':mine?(m.locked?'Wait for the reveal to resolve.':'Pick two cards.'):(esc(active?.n||'A classmate')+' is choosing. Watch the shared board.')}</p><div class="match-student-grid" style="grid-template-columns:repeat(${cols},1fr)">${cards.map((card,i)=>{const open=matched.has(card.id)||selected.has(card.id),disabled=!mine||m.locked||m.complete||open;return `<button class="${open?'open':''}" data-match-pick="${esc(card.id)}" ${disabled?'disabled':''}>${open?contentMarkup(card.content):i+1}</button>`}).join('')}</div><div class="prompt-caption">${Number(m.scores?.[s?.n]||0)} pairs found by you · ${(m.matched||[]).length/2} total</div></div></div>`;
     }
     if(a.type==='bingo'){
       const cfg=run.bingoConfig||{},card=bingoCardFor(s?.n,run),size=Number(cfg.size||4);
@@ -9762,8 +9844,13 @@ function renderActivityController(){
   const box=$('#activityControllerPanel');if(!box||!state.activityRun)return;
   const a=activeActivity(),run=state.activityRun,connected=connectedStudents();
   if(run.phase==='lobby'){
-    const resuming=!!run.resumePending,label=a.type==='presentation'?'Presentation':a.type==='crew-survey'?'CREW SURVEY':a.type==='million'?'MILLION':a.type==='minefield'?'MINEFIELD':a.type==='vector'?'VECTOR':a.type==='board'?'BOARD':a.type==='orbit'?'ORBIT':a.type==='pixel'?'PIXEL REVEAL':a.type==='sketch'?'SKETCH SIGNAL':a.type==='starwheel'?'STARWHEEL':'Activity';
+    const resuming=!!run.resumePending,label=a.type==='presentation'?'Presentation':a.type==='crew-survey'?'CREW SURVEY':a.type==='million'?'MILLION':a.type==='minefield'?'MINEFIELD':a.type==='vector'?'VECTOR':a.type==='board'?'BOARD':a.type==='orbit'?'ORBIT':a.type==='pixel'?'PIXEL REVEAL':a.type==='sketch'?'SKETCH SIGNAL':a.type==='starwheel'?'STARWHEEL':a.type==='match'?'MATCH':a.type==='bingo'?'BINGO':'Activity';
     box.innerHTML=`<div class="activity-controller-head"><div><span class="eyebrow">${resuming?'ACTIVITY PAUSED':'ACTIVITY LOADED'}</span><h2>${esc(a.name)}</h2><p>${resuming?'Progress is saved. Resume when the class is ready.':'Students are in the Activity Lobby. Start when you\'re ready.'}</p></div><span class="controller-chip">${connected.length} students</span></div><div class="controller-grid lobby-controller"><button class="primary-action" id="startActivityBtn">▶ ${resuming?'Resume':'Start'} ${label}</button><button id="returnClassBtn">✓ Finish & Return</button><button class="minefield-send-lobby" id="sendActivityLobbyBtn" disabled>Ⅱ Progress Paused</button><button class="danger-action" id="emergencyActivityBtn">⚠ Emergency Return</button></div>`;
+  } else if(a.type==='match'){
+    const m=matchState(run)||{},active=matchActiveStudent(run),scores=m.scores||{},selected=m.selected||[],pending=m.pendingResolution,last=m.lastResolved;
+    box.innerHTML=`<div class="activity-controller-head"><div><span class="slide-badge instruction">MATCH · MISSION CONTROL</span><h2>${esc(run.matchConfig?.name||'MATCH')}</h2><p>${esc(m.message||'')}</p><div class="match-result-chip">${m.complete?'BOARD CLEARED':pending?(pending.result==='match'?'MATCH REVEALED':'NO MATCH REVEALED'):(m.locked?'BOARD LOCKED':'TURN ACTIVE')}</div></div><div class="controller-stats"><b>${(m.matched||[]).length/2}</b> pairs · <b>${Number(m.attempts||0)}</b> attempts</div></div>
+    <div class="match-teacher-grid"><div class="match-teacher-card"><h4>CURRENT TURN</h4><div class="match-current-player">${esc(active?.n||'No connected student')}</div><p>Selected cards: ${selected.length?selected.map(id=>(m.cards||[]).findIndex(x=>x.id===id)+1).join(' · '):'none'}</p><div class="match-control-grid"><button id="matchLockBtn">${m.teacherLocked?'▶ RESUME':'🔒 LOCK BOARD'}</button><button id="matchPauseRevealBtn">${m.pauseAfterReveal?'✓ ':''}PAUSE AFTER REVEAL</button><button class="primary-action" id="matchContinueBtn" ${pending?'':'disabled'}>CONTINUE</button><button id="matchUndoBtn" ${(m.history||[]).length?'':'disabled'}>↶ UNDO LAST TURN</button><button id="matchRetryBtn" ${m.turnStart||(m.history||[]).length?'':'disabled'}>↻ RETRY TURN</button><button id="matchSkipBtn">SKIP / NEXT PLAYER</button><button id="matchNextTeamBtn">NEXT TEAM →</button><button id="matchMarkBtn" ${selected.length===2?'':'disabled'}>✓ MARK AS MATCH</button><button id="matchReturnPairBtn" ${last?.result==='match'?'':'disabled'}>↩ RETURN LAST PAIR</button></div></div><div class="match-teacher-card"><h4>SCOREBOARD</h4><div class="match-teacher-score">${connected.map(st=>`<div><b>${esc(st.n)}</b><span>${Number(scores[st.n]||0)} pair${Number(scores[st.n]||0)===1?'':'s'}</span></div>`).join('')||'<div class="empty">No connected students.</div>'}</div></div></div>
+    <div class="controller-safety"><button id="returnClassBtn">✓ Finish & Return</button><button class="minefield-send-lobby" id="sendActivityLobbyBtn">Ⅱ Pause & Keep Progress</button><button class="danger-action" id="emergencyActivityBtn">⚠ Emergency Return</button></div>`;
   } else if(a.type==='crew-survey'){
     const cs=crewSurveyState(run),cfg=crewSurveyConfig(run),answers=cfg.answers||[],winner=cs?.buzzer?.winner,winnerTeam=crewSurveyTeamFor(winner,run),control=cs?.controlTeam,last=cs?.lastResponse;
     const contestant=(team)=>{const members=cs?.teams?.[team]||[],current=(cs?.buzzer?.eligible||[])[team]||members[0]||'';return `<select data-cs-contestant="${team}">${members.map(n=>`<option value="${esc(n)}" ${n===current?'selected':''}>${esc(n)}</option>`).join('')}</select>`};
@@ -9838,6 +9925,16 @@ function wireActivityController(){
   const next=$('#nextSlideBtn');if(next)next.onclick=()=>changeSlide(1);
   const res=$('#toggleResultsBtn');if(res)res.onclick=()=>{state.activityRun.showResults=!state.activityRun.showResults;render()};
   const rev=$('#revealAnswerBtn');if(rev)rev.onclick=()=>{state.activityRun.revealAnswer=!state.activityRun.revealAnswer;render()};
+  const matchLock=$('#matchLockBtn');if(matchLock)matchLock.onclick=()=>teacherMatchAction('toggle_lock');
+  const matchPause=$('#matchPauseRevealBtn');if(matchPause)matchPause.onclick=()=>teacherMatchAction('toggle_pause');
+  const matchContinue=$('#matchContinueBtn');if(matchContinue)matchContinue.onclick=()=>teacherMatchAction('continue');
+  const matchUndo=$('#matchUndoBtn');if(matchUndo)matchUndo.onclick=()=>teacherMatchAction('undo');
+  const matchRetry=$('#matchRetryBtn');if(matchRetry)matchRetry.onclick=()=>teacherMatchAction('retry');
+  const matchSkip=$('#matchSkipBtn');if(matchSkip)matchSkip.onclick=()=>teacherMatchAction('skip');
+  const matchNextTeam=$('#matchNextTeamBtn');if(matchNextTeam)matchNextTeam.onclick=()=>teacherMatchAction('skip');
+  const matchMark=$('#matchMarkBtn');if(matchMark)matchMark.onclick=()=>teacherMatchAction('mark_match');
+  const matchReturn=$('#matchReturnPairBtn');if(matchReturn)matchReturn.onclick=()=>teacherMatchAction('return_pair');
+
 
   const csArm=$('#crewSurveyArmBtn');if(csArm)csArm.onclick=crewSurveyArmBuzzers;
   const csReset=$('#crewSurveyResetBuzzBtn');if(csReset)csReset.onclick=crewSurveyResetBuzzers;
@@ -10350,6 +10447,12 @@ function renderStudentControls(){
   if(state.calculatorLaunch&&String(state.calculatorLaunch.id||'')!==String(studentCalculatorDismissedLaunchId||'')){if(zoneWrap)zoneWrap.dataset.app='scientific-calculator';label.innerHTML='<b>SCIENTIFIC CALCULATOR</b><span>Independent session · Back to Classroom is above</span>';zone.className='student-actions';zone.innerHTML='';return}
   if(state.activityRun&&state.activityRun.phase==='running'){
     const a=activeActivity(),slide=currentSlide();if(zoneWrap)zoneWrap.dataset.app=a?.type||'activity';
+    if(a.type==='match'){
+      const m=matchState(),active=matchActiveStudent(),mine=active?.n===s?.n;
+      label.innerHTML='<b>MATCH CONTROLS</b><span>'+esc(m?.complete?'Board cleared':mine?'Your turn':'Watch the shared board')+'</span>';zone.className='student-actions';
+      if(!mine||m?.complete){zone.innerHTML='<button disabled>◉<br>'+esc(m?.complete?'Complete':'Watch & Remember')+'</button>';return}
+      zone.innerHTML='<button disabled>★<br>'+(Number(m?.scores?.[s.n]||0))+' Pairs</button>';return;
+    }
     if(a.type==='crew-survey'||a.type==='million'){if(zoneWrap)zoneWrap.dataset.app=a.type;label.innerHTML='<b>'+esc(a.name)+'</b><span>Game controls are above</span>';zone.className='student-actions';zone.innerHTML='';return}
     if(a.type==='starwheel'){
       const run=state.activityRun,sw=starwheelState(run),pilot=starwheelActivePilot(run),isPilot=!!pilot&&pilot.n===s?.n;
@@ -10615,7 +10718,7 @@ function animateStarwheelWheels(){
   starwheelLastAnimatedNonce=nonce;
 }
 function renderPublic(){
-  $('#mirrorContent').innerHTML=sharedMarkup('normal');$('#sharedContent').innerHTML=sharedMarkup('big');$('#studentContent').innerHTML=studentMarkup();wireStudentJoin();wireStudentCalculator();wireStudentResponses();wireMinefieldStudent();wireVectorStudent();wireBoardStudent();wireSketchStudent();wireOrbitStudent();wireStarwheelStudent();wireCrewSurveyStudent();wireMillionStudent();renderStudentControls();animateStarwheelWheels();requestAnimationFrame(paintPixelFocusCanvases);
+  $('#mirrorContent').innerHTML=sharedMarkup('normal');$('#sharedContent').innerHTML=sharedMarkup('big');$('#studentContent').innerHTML=studentMarkup();wireStudentJoin();wireStudentCalculator();wireStudentResponses();wireMinefieldStudent();wireVectorStudent();wireBoardStudent();wireSketchStudent();wireOrbitStudent();wireStarwheelStudent();wireCrewSurveyStudent();wireMillionStudent();wireMatchStudent();renderStudentControls();animateStarwheelWheels();scheduleMatchResolution();requestAnimationFrame(paintPixelFocusCanvases);
   const conn=$('#studentConnectionLabel');if(conn)conn.innerHTML=studentNeedsJoin()?'<span style="width:9px;height:9px;border-radius:50%;display:inline-block;background:#ffc35d;box-shadow:0 0 12px #ffc35d88"></span>&nbsp; Join Class':'<span class="pulse"></span>&nbsp; Connected';
   const label=state.ended?'ENDED':state.activityRun?(activeActivity()?.type==='board'?'BOARD LIVE':state.activityRun.phase==='lobby'?'ACTIVITY LOBBY':'ACTIVITY LIVE'):state.screen==='brb'?'WE’LL BE RIGHT BACK':state.screen.toUpperCase();$('#mirrorLabel').textContent=label;$('#sharedLabel').textContent=label;updateSecondScreen();
 }
