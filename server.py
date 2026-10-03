@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "55.23"
+APP_VERSION = "55.24"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -2222,6 +2222,9 @@ PERSISTED_STORAGE_KEYS = {
     "siMothership.activityPresets.v1",
     "siMothership.recentActivities.v1",
     "siMothership.sessionHistory.v1",
+    "siMothership.imageLibrary.v1",
+    "siMothership.matchSets.v1",
+    "siMothership.bingoSets.v1",
 }
 
 CLIENTS: set[web.WebSocketResponse] = set()
@@ -3992,7 +3995,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — CALCULATOR KEY ALIGNMENT")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — MATCH + BINGO FOUNDATION")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
