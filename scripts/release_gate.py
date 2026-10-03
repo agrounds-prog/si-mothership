@@ -362,6 +362,15 @@ def main() -> int:
     check("calculator fidelity v55.19: numeric labels stay prominent", "font-size:11.5px!important;font-weight:900!important" in server)
     check("calculator fidelity v55.19: popup remains stationary", "window.resizeBy" not in server and "window.resizeTo" not in server)
 
+    check("calculator final geometry v55.20: release style remains", 'id="v55-20-calculator-final-geometry"' in server)
+    check("calculator final geometry v55.20: taller shell proportions remain", "width:min(294px,calc(100vw - 8px))!important" in server and "padding:8px 25px 28px!important" in server)
+    check("calculator final geometry v55.20: outer rails remain pronounced", "#fbfbfb 0 5.8%" in server and "#c1c7c9 8.6% 10%" in server)
+    check("calculator final geometry v55.20: display is deeper", "min-height:88px!important;height:88px!important" in server and "margin:0 3px 12px!important" in server)
+    check("calculator final geometry v55.20: upper control spacing remains", "grid-template-rows:22px 22px 22px!important" in server and "row-gap:8px!important" in server)
+    check("calculator final geometry v55.20: nav geometry remains", "width:70px!important;height:49px!important" in server and "outline:6px solid #f1f1ef!important" in server)
+    check("calculator final geometry v55.20: lower keypad is vertically opened", "grid-template-rows:22px 22px 30px 30px 30px 31px!important" in server and "row-gap:11px!important" in server)
+    check("calculator final geometry v55.20: popup launch remains stationary", "popup=yes,width=340,height=650,left=8,top=8" in html and "window.resizeBy" not in server and "window.resizeTo" not in server)
+
     check("calculator reference accurate: arithmetic column remains physical", all(x in server for x in ("take([/divide|÷/])", "take([/multiply|×|\\*/])", "take([/subtract|minus|−/])", "take([/\\badd\\b|plus|\\+/])")))
     check("calculator reference accurate: number block remains pinned", all(x in server for x in ("takeDigit(7),takeDigit(8),takeDigit(9)", "takeDigit(4),takeDigit(5),takeDigit(6)", "takeDigit(1),takeDigit(2),takeDigit(3)", "takeDigit(0)")))
     check("calculator reference accurate: physical white nav surround remains", "si-ref-control-deck:after" in server and "width:96px" in server and "height:57px" in server)
