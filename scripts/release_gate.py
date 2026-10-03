@@ -219,7 +219,7 @@ def main() -> int:
     check("activity library: release style remains", '<style id="v55-5-activity-library-organization">' in html)
     check("activity library: search remains teacher-local", "let activityLibraryQuery=''" in html and "activityLibraryQuery" not in segment(html, "function sharedStateSnapshot("))
     check("activity library: category filters remain", all(x in html for x in ("ACTIVITY_LIBRARY_CATEGORY_ORDER", "'presentation'", "'collaboration'", "'games'", "'tools'")))
-    check("activity library: every registered app category is represented", all(x in html for x in ("id==='si-plus'", "['vector','board','orbit']", "['minefield','sketch','pixel','starwheel','crew-survey','million']", "id==='scientific-calculator'")))
+    check("activity library: every registered app category is represented", all(x in html for x in ("id==='si-plus'", "['vector','board','orbit']", "['minefield','sketch','pixel','starwheel','crew-survey','million','match','bingo']", "id==='scientific-calculator'")))
     check("activity library: recent shelf precedes saved presets", "activity-library-shelves" in library_render and "recentSection" in library_render and "presetSection" in library_render and "recentSection}${presetSection}" in library_render)
     check("activity library: catalog filters before rendering", "const visibleApps=APP_REGISTRY.filter(app=>activityLibraryMatches(app))" in library_render and "Showing ${visibleApps.length} of ${APP_REGISTRY.length}" in library_render)
     check("activity library: shortcut management remains available", all(x in library_render for x in ("data-shortcut-replace", "data-shortcut-remove", "data-manage-shortcut", "data-add-app")))
