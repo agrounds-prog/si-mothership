@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "55.16"
+APP_VERSION = "55.17"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -1288,6 +1288,459 @@ body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-m
   }
 }
 </style>
+
+<style id="v55-17-reference-calculator-layout">
+/* v55.17 — final reference-layout correction.
+   Structure follows the classroom reference: 3-row upper control area around
+   the nav pad, then a 6 x 5 lower keypad. SI branding is retained. */
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-calculator{
+  width:min(286px,calc(100vw - 8px))!important;
+  max-width:286px!important;
+  padding:7px 26px 23px!important;
+  border:1px solid #d9dcdd!important;
+  border-radius:17px 17px 61px 61px / 14px 14px 48px 48px!important;
+  background:
+    linear-gradient(90deg,
+      #f2f3f2 0 6.4%,
+      #d5dadb 6.4% 9%,
+      #456d7b 9% 91%,
+      #d5dadb 91% 93.6%,
+      #f2f3f2 93.6% 100%)!important;
+  clip-path:polygon(7% 0,93% 0,97.5% 1.8%,99.3% 8%,100% 82%,98.5% 91%,93% 97%,80% 100%,20% 100%,7% 97%,1.5% 91%,0 82%,.7% 8%,2.5% 1.8%)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.98),
+    inset 7px 0 10px rgba(255,255,255,.34),
+    inset -7px 0 10px rgba(0,0,0,.075),
+    0 16px 32px rgba(0,0,0,.3)!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-calculator:before{
+  left:22px!important;
+  right:22px!important;
+  top:3px!important;
+  bottom:13px!important;
+  border-radius:10px 10px 47px 47px / 8px 8px 37px 37px!important;
+  background:
+    linear-gradient(180deg,#4c7482 0,#456f7d 31%,#3f6977 65%,#376271 100%)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.11),
+    inset 0 -12px 17px rgba(0,0,0,.12)!important
+}
+
+/* Reference-like model name / solar / maker / LCD stack. */
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-plate{
+  min-height:27px!important;
+  margin:0 10px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-plate b{
+  font-size:12px!important;
+  letter-spacing:.015em!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-plate span{
+  margin-top:1px!important;
+  font-size:5.7px!important;
+  font-style:italic!important;
+  letter-spacing:.17em!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-solar{
+  width:88px!important;
+  height:22px!important;
+  margin:-1px auto 3px!important;
+  border:1px solid #2c424b!important;
+  border-radius:4px!important;
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.022) 0 1px,transparent 1px 22px),
+    linear-gradient(180deg,#454043,#2c2b2e)!important;
+  box-shadow:
+    inset 0 1px 3px rgba(0,0,0,.62),
+    0 1px 0 rgba(255,255,255,.07)!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-brandbar{
+  height:13px!important;
+  margin:0 13px 4px!important;
+  font-size:5.3px!important;
+  letter-spacing:.04em!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-brandbar:before{
+  width:11px!important;
+  height:11px!important;
+  font-size:4.2px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-lcd{
+  min-height:80px!important;
+  height:80px!important;
+  margin:0 7px 7px!important;
+  padding:6px 8px!important;
+  border:4px solid #2f4d57!important;
+  border-radius:3px 3px 9px 9px!important;
+  background:linear-gradient(180deg,#d9ded1,#c8d0c1)!important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.5),
+    inset 0 5px 9px rgba(78,88,73,.08),
+    0 2px 0 rgba(255,255,255,.07),
+    0 3px 5px rgba(0,0,0,.2)!important
+}
+
+/* Three physical upper rows. Nav occupies columns 4-5 across rows 1-2. */
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck{
+  position:relative!important;
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  grid-template-rows:22px 22px 22px!important;
+  column-gap:5px!important;
+  row-gap:7px!important;
+  margin:0 7px 10px!important;
+  padding:0!important;
+  align-items:center!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck:after{
+  content:"";
+  position:absolute;
+  z-index:0;
+  right:-18px;
+  top:-3px;
+  width:96px;
+  height:57px;
+  border-radius:32px 0 0 32px;
+  background:
+    linear-gradient(90deg,#f3f4f3 0,#e2e5e5 73%,#d3d8d9 100%);
+  box-shadow:
+    inset 1px 0 0 rgba(255,255,255,.9),
+    inset 0 -1px 0 rgba(0,0,0,.045);
+  pointer-events:none
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck>*{
+  position:relative;
+  z-index:1
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck>.si-model-key,
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck>.si-ref-placeholder{
+  min-width:0!important;
+  min-height:21px!important;
+  height:21px!important;
+  padding:1px 2px!important;
+  border:1px solid #56717c!important;
+  border-radius:999px!important;
+  background:linear-gradient(180deg,#50717e,#345762)!important;
+  color:#f3f6f7!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    0 2px 0 #173039,
+    0 3px 3px rgba(0,0,0,.22)!important;
+  font:800 6.8px/.95 Arial,Helvetica,sans-serif!important;
+  text-shadow:0 1px 0 rgba(0,0,0,.28)!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck>[data-action="second"]{
+  background:linear-gradient(180deg,#b9df5b,#91bd3d)!important;
+  border-color:#bfe16e!important;
+  color:#152314!important;
+  text-shadow:none!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-placeholder{
+  opacity:.82;
+  cursor:not-allowed
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck .si-model-navpad{
+  grid-column:4 / 6!important;
+  grid-row:1 / 3!important;
+  width:72px!important;
+  height:48px!important;
+  margin:0!important;
+  align-self:center!important;
+  justify-self:center!important;
+  border:2px solid #4d484f!important;
+  border-radius:50%!important;
+  outline:0!important;
+  background:
+    radial-gradient(circle at 50% 50%,#4b464c 0 18%,transparent 20%),
+    conic-gradient(from 45deg,#716a71,#3d383e,#746d74,#3d383f,#716a71)!important;
+  box-shadow:
+    inset 0 1px 2px rgba(255,255,255,.18),
+    inset 0 -2px 4px rgba(0,0,0,.3),
+    0 2px 3px rgba(0,0,0,.3)!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck .si-model-navpad:before{
+  inset:7px 17px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-control-deck .si-model-navpad:after{
+  width:10px!important;
+  height:10px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-navpad span{
+  font-size:5px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-ref-clear-legend{
+  display:none!important
+}
+
+/* Actual lower face is six rows by five columns. */
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad{
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  grid-template-rows:22px 22px 25px 25px 25px 26px!important;
+  grid-auto-flow:row!important;
+  gap:7px 5px!important;
+  margin:0 7px!important;
+  padding:0!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key{
+  min-width:0!important;
+  min-height:0!important;
+  height:100%!important;
+  padding:1px 2px!important;
+  border-radius:999px!important;
+  font-size:7px!important;
+  line-height:.9!important;
+  position:relative!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.17),
+    0 2px 0 #18313a,
+    0 3px 3px rgba(0,0,0,.24)!important
+}
+
+/* Function keys are teal; arithmetic operators are plum/charcoal. */
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="1"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-col="1"]{
+  background:linear-gradient(180deg,#4d7481,#335b67)!important;
+  border-color:#5b7b87!important;
+  color:#f6f8f8!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="1"][data-ref-col="5"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="2"][data-ref-col="5"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="3"][data-ref-col="5"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="4"][data-ref-col="5"]{
+  background:linear-gradient(180deg,#675f67,#49434b)!important;
+  border-color:#777079!important;
+  color:#fff!important;
+  font-size:10px!important
+}
+
+/* White numeric block and white lower-right answer/enter caps. */
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="3"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="3"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="3"][data-ref-col="4"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="4"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="4"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="4"][data-ref-col="4"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="5"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="5"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="5"][data-ref-col="4"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="4"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="5"][data-ref-col="5"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="5"]{
+  border-radius:8px 5px 8px 5px!important;
+  background:linear-gradient(180deg,#faf9f7,#dfe2df)!important;
+  border-color:#e7e9e7!important;
+  color:#1b2226!important;
+  text-shadow:none!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="3"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="3"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="3"][data-ref-col="4"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="4"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="4"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="4"][data-ref-col="4"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="5"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="5"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="5"][data-ref-col="4"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="4"]{
+  font-size:9.5px!important;
+  font-weight:900!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="5"][data-ref-col="5"],
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="5"]{
+  border-radius:999px!important;
+  font-size:7px!important
+}
+
+/* Physical second-function legends live in the gap above each key. */
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-key small,
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-key .secondary,
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-key .alt,
+body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-key [class*="second"]{
+  position:absolute!important;
+  left:2px!important;
+  top:-6px!important;
+  color:#b9d663!important;
+  font-size:4.5px!important;
+  line-height:1!important;
+  text-shadow:none!important;
+  pointer-events:none!important
+}
+
+@media(max-width:430px){
+  body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-calculator{
+    width:min(282px,calc(100vw - 4px))!important;
+    padding:7px 25px 22px!important
+  }
+}
+</style>
+<script id="v55-17-reference-calculator-layout-script">
+(function(){
+  function actionOf(k){return String(k&&k.dataset&&k.dataset.action||'').toLowerCase()}
+  function textOf(k){return String(k&&k.textContent||'').replace(/\s+/g,' ').trim().toLowerCase()}
+  function blobOf(k){return actionOf(k)+' '+textOf(k)}
+  function applyReferenceAccurateLayout(){
+    if(!document.body)return;
+    const calc=document.querySelector('.si-model-calculator');
+    const keypad=document.querySelector('.si-model-keypad');
+    const deck=document.querySelector('.si-ref-control-deck');
+    if(!calc||!keypad||!deck)return;
+    document.body.classList.add('si-reference-accurate');
+
+    const legend=deck.querySelector('.si-ref-clear-legend');
+    if(legend)legend.remove();
+    deck.querySelectorAll('.si-ref-placeholder').forEach(function(p){p.remove()});
+
+    const all=Array.from(new Set([
+      ...deck.querySelectorAll('[data-action]'),
+      ...keypad.querySelectorAll('[data-action]')
+    ]));
+    all.forEach(function(k){
+      k.hidden=false;
+      k.classList.remove('si-ref-hidden-clear');
+      delete k.dataset.refRow;
+      delete k.dataset.refCol;
+      delete k.dataset.refRole;
+      k.style.gridRow='';
+      k.style.gridColumn='';
+    });
+    const used=new Set();
+    function take(tests){
+      const key=all.find(function(k){
+        if(used.has(k))return false;
+        const blob=blobOf(k);
+        return tests.some(function(t){return t.test(blob)});
+      })||null;
+      if(key)used.add(key);
+      return key;
+    }
+    function takeDigit(n){
+      return take([new RegExp('(?:^|\\s)(?:digit[-_ ]?)?'+n+'(?:\\s|$)')]);
+    }
+    function place(el,parent,row,col,rowSpan=1,colSpan=1){
+      if(!el)return;
+      parent.appendChild(el);
+      el.style.gridRow=rowSpan>1?row+' / span '+rowSpan:String(row);
+      el.style.gridColumn=colSpan>1?col+' / span '+colSpan:String(col);
+      el.dataset.refRow=String(row);
+      el.dataset.refCol=String(col);
+    }
+    function placeholder(label,row,col){
+      const p=document.createElement('button');
+      p.type='button';
+      p.disabled=true;
+      p.className='si-ref-placeholder';
+      p.textContent=label;
+      p.title=label+' position from the physical reference; not available in this SI build';
+      p.setAttribute('aria-label',p.title);
+      place(p,deck,row,col);
+      return p;
+    }
+
+    const second=take([/\bsecond\b|\b2nd\b/]);
+    const mode=take([/\bmode\b/]);
+    const del=take([/delete|\bdel\b/]);
+    const log=take([/\blog\b/]);
+    const prb=take([/\bprb\b|probab/]);
+    const data=take([/\bdata\b/]);
+    const ln=take([/\bln\b|natural.?log/]);
+    const frac=take([/fraction|frac|n\/?d/]);
+    const ee=take([/\bee\b|exponent|sci.?notation|x10/]);
+    const table=take([/\btable\b/]);
+    const clear=take([/\bclear\b/]);
+    const eKey=take([/^e$|\beuler\b|constant.?e/]);
+
+    place(second,deck,1,1);
+    place(mode,deck,1,2);
+    place(del,deck,1,3);
+    place(log,deck,2,1);
+    if(prb)place(prb,deck,2,2);else placeholder('prb',2,2);
+    if(data)place(data,deck,2,3);else placeholder('data',2,3);
+    place(ln,deck,3,1);
+    place(frac,deck,3,2);
+    place(ee,deck,3,3);
+    place(table||eKey,deck,3,4);
+    place(clear,deck,3,5);
+
+    const nav=calc.querySelector('.si-model-navpad');
+    if(nav){
+      deck.appendChild(nav);
+      nav.style.gridRow='1 / span 2';
+      nav.style.gridColumn='4 / span 2';
+    }
+
+    const rows=[
+      [
+        take([/\bpi\b|π/]),
+        take([/\bsin\b/]),
+        take([/\bcos\b/]),
+        take([/\btan\b/]),
+        take([/divide|÷/])
+      ],
+      [
+        take([/power|x\^|\^/]),
+        take([/reciprocal|1\s*\/\s*x/]),
+        take([/lparen|left.?paren|\(/]),
+        take([/rparen|right.?paren|\)/]),
+        take([/multiply|×|\*/])
+      ],
+      [
+        take([/square|x²|x2/]),
+        takeDigit(7),takeDigit(8),takeDigit(9),
+        take([/subtract|minus|−/])
+      ],
+      [
+        take([/variables?|xyz|abc/])||take([/sqrt|root|√/]),
+        takeDigit(4),takeDigit(5),takeDigit(6),
+        take([/\badd\b|plus|\+/])
+      ],
+      [
+        take([/\bsto\b|store/]),
+        takeDigit(1),takeDigit(2),takeDigit(3),
+        take([/f.?[↔<>].?d|toggle.?frac|decimal.?fraction|answer.?toggle/])
+      ],
+      [
+        take([/\bon\b|power.?on/])||take([/\bans\b|answer/]),
+        takeDigit(0),
+        take([/decimal|\./]),
+        take([/negate|sign|\(−\)|\(-\)/]),
+        take([/enter|equals|=/])
+      ]
+    ];
+
+    rows.forEach(function(rowKeys,r){
+      rowKeys.forEach(function(key,c){
+        if(!key)return;
+        place(key,keypad,r+1,c+1);
+        if(r===5&&c===4)key.dataset.refRole='enter';
+      });
+    });
+
+    /* Keep any genuinely extra SI functions accessible without breaking the face map. */
+    const leftovers=all.filter(function(k){return !used.has(k)});
+    leftovers.forEach(function(key,index){
+      const fallbackRow=6;
+      const fallbackCol=Math.min(5,index+1);
+      key.classList.add('si-ref-extra-key');
+      place(key,keypad,fallbackRow,fallbackCol);
+    });
+
+    const plate=calc.querySelector('.si-model-plate');
+    if(plate)plate.innerHTML='<div><b>SI-30XS</b><span>MULTIVIEW</span></div>';
+    const brand=calc.querySelector('.si-model-brandbar');
+    if(brand)brand.textContent='SI MOTHERSHIP';
+    keypad.dataset.refPhysicalMapped='2';
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyReferenceAccurateLayout,{once:true});
+  else applyReferenceAccurateLayout();
+})();
+</script>
+
 """
 
 CALCULATOR_POPUP_STYLE = r"""
@@ -1314,17 +1767,17 @@ body.si-classroom-model.si-hifi-model.si-calculator-popup-mode{
 }
 body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-calculator{
   display:block!important;
-  width:294px!important;
-  max-width:294px!important;
+  width:286px!important;
+  max-width:286px!important;
   margin:0!important;
-  padding:13px 31px 31px!important;
+  padding:7px 26px 23px!important;
   transform:scale(var(--si-popup-scale,.88))!important;
   transform-origin:top left!important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.75),
     inset 0 -12px 22px rgba(56,74,82,.18)!important
 }
-body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-lcd{min-height:74px!important;height:74px!important}
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-lcd{min-height:80px!important;height:80px!important}
 body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-lcd,
 body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-lcd *{
   font-size:1.05em!important
@@ -3190,7 +3643,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — CALCULATOR VISUAL FIDELITY")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — REFERENCE CALCULATOR LAYOUT")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
