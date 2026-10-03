@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "55.15"
+APP_VERSION = "55.16"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -1060,6 +1060,234 @@ body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-m
   else applyPhysicalKeyMap();
 })();
 </script>
+<style id="v55-16-calculator-visual-fidelity">
+/* v55.16 — closer physical-reference proportions while preserving SI branding. */
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-calculator{
+  width:min(294px,calc(100vw - 10px))!important;
+  max-width:294px!important;
+  padding:8px 27px 22px!important;
+  border:1px solid #d4d8d9!important;
+  border-radius:18px 18px 58px 58px / 15px 15px 46px 46px!important;
+  background:
+    linear-gradient(90deg,
+      #eef0ef 0 6.8%,
+      #d0d5d6 6.8% 9.1%,
+      #416b79 9.1% 90.9%,
+      #d0d5d6 90.9% 93.2%,
+      #eef0ef 93.2% 100%)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    inset 6px 0 9px rgba(255,255,255,.32),
+    inset -6px 0 9px rgba(0,0,0,.08),
+    0 16px 34px rgba(0,0,0,.31)!important;
+  clip-path:polygon(7% 0,93% 0,97% 2%,99% 9%,100% 82%,98% 91%,92% 97%,79% 100%,21% 100%,8% 97%,2% 91%,0 82%,1% 9%,3% 2%)
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-calculator:before{
+  left:23px!important;
+  right:23px!important;
+  top:3px!important;
+  bottom:14px!important;
+  border-radius:11px 11px 44px 44px / 9px 9px 34px 34px!important;
+  background:
+    linear-gradient(180deg,#4b7482 0,#426f7e 32%,#3b6877 67%,#345f6e 100%)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.11),
+    inset 0 -10px 16px rgba(0,0,0,.12)!important
+}
+
+/* Compact model / solar / maker / LCD stack. */
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-plate{
+  min-height:24px!important;
+  margin:0 12px!important;
+  padding:0!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-plate b{
+  font-size:11px!important;
+  letter-spacing:.02em!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-plate span{
+  margin-top:0!important;
+  font-size:5.4px!important;
+  letter-spacing:.13em!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-ref-solar{
+  width:82px!important;
+  height:17px!important;
+  margin:0 auto 2px!important;
+  border-radius:2px!important;
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 1px,transparent 1px 20px),
+    linear-gradient(180deg,#37383a,#252628)!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-brandbar{
+  height:11px!important;
+  margin:0 15px 3px!important;
+  font-size:5px!important;
+  letter-spacing:.035em!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-brandbar:before{
+  width:10px!important;
+  height:10px!important;
+  font-size:4px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-lcd{
+  min-height:74px!important;
+  height:74px!important;
+  margin:0 8px 8px!important;
+  padding:5px 7px!important;
+  border:4px solid #31505a!important;
+  border-radius:3px 3px 8px 8px!important;
+  background:linear-gradient(180deg,#d9dfd0,#c8d0bf)!important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.48),
+    inset 0 4px 8px rgba(75,86,70,.08),
+    0 2px 0 rgba(255,255,255,.07),
+    0 3px 4px rgba(0,0,0,.18)!important
+}
+
+/* Upper controls are compact pills; nav sits in a bright physical bezel. */
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-ref-control-deck{
+  grid-template-columns:37px 37px 37px 27px 27px!important;
+  grid-template-rows:24px 12px!important;
+  column-gap:5px!important;
+  row-gap:1px!important;
+  margin:0 8px 6px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-ref-control-deck>.si-model-key{
+  min-height:22px!important;
+  height:22px!important;
+  border-radius:999px!important;
+  padding:1px 2px!important;
+  font-size:7px!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    0 2px 0 #17303a,
+    0 3px 4px rgba(0,0,0,.22)!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-ref-control-deck>[data-action="second"]{
+  background:linear-gradient(180deg,#b8df5c,#91bd3c)!important;
+  border-color:#b8dc67!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-ref-clear-legend{
+  margin:-2px 0 0!important;
+  color:#b7d45d!important;
+  font-size:5.3px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-ref-control-deck .si-model-navpad{
+  width:54px!important;
+  height:40px!important;
+  border:2px solid #575259!important;
+  border-radius:50%!important;
+  outline:6px solid #eef0ef!important;
+  outline-offset:0!important;
+  background:
+    radial-gradient(circle at 50% 50%,#443f45 0 18%,transparent 20%),
+    conic-gradient(from 45deg,#6b646c,#38343a,#746c74,#39343a,#6b646c)!important;
+  box-shadow:
+    inset 0 1px 2px rgba(255,255,255,.18),
+    inset 0 -2px 4px rgba(0,0,0,.3),
+    0 2px 3px rgba(0,0,0,.28)!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-ref-control-deck .si-model-navpad:before{
+  inset:6px 13px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-ref-control-deck .si-model-navpad:after{
+  width:9px!important;
+  height:9px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-navpad span{
+  font-size:5px!important
+}
+
+/* Reference keypad rhythm: three small function rows, then larger lower keys. */
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  grid-template-rows:22px 22px 22px 25px 25px 25px 25px!important;
+  gap:7px 5px!important;
+  margin:0 8px!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key{
+  min-height:0!important;
+  height:100%!important;
+  padding:1px 2px!important;
+  border-radius:9px!important;
+  font-size:7px!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.17),
+    0 2px 0 #18313a,
+    0 3px 3px rgba(0,0,0,.24)!important;
+  position:relative!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="1"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="3"]{
+  border-radius:999px!important;
+  background:linear-gradient(180deg,#4c7381,#315966)!important;
+  border-color:#597987!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-col="5"]{
+  border-radius:999px!important;
+  background:linear-gradient(180deg,#645d65,#484149)!important;
+  border-color:#746e75!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="4"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="4"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="4"][data-ref-col="4"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="5"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="5"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="5"][data-ref-col="4"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="6"][data-ref-col="4"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="7"][data-ref-col="2"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="7"][data-ref-col="3"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-row="7"][data-ref-col="4"]{
+  border-radius:7px 5px 7px 5px!important;
+  background:linear-gradient(180deg,#faf9f6,#dfe2df)!important;
+  border-color:#e5e8e6!important;
+  color:#1b2226!important;
+  font-size:9px!important;
+  text-shadow:none!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-col="1"][data-ref-row="4"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-col="1"][data-ref-row="5"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-col="1"][data-ref-row="6"],
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-col="1"][data-ref-row="7"]{
+  border-radius:999px!important;
+  background:linear-gradient(180deg,#426b79,#2e5663)!important;
+  border-color:#537783!important
+}
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key[data-ref-role="enter"]{
+  border-radius:999px!important;
+  background:linear-gradient(180deg,#f7f2f5,#dcd7db)!important;
+  color:#27232a!important
+}
+
+/* Secondary legends sit visually above their primary key like the physical device. */
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key small,
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key .secondary,
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key .alt,
+body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-keypad>.si-model-key [class*="second"]{
+  position:absolute!important;
+  left:2px!important;
+  top:-6px!important;
+  width:max-content!important;
+  max-width:calc(100% + 6px)!important;
+  overflow:hidden!important;
+  color:#b8d75f!important;
+  font-size:4.6px!important;
+  line-height:1!important;
+  text-shadow:none!important;
+  pointer-events:none!important
+}
+
+@media(max-width:430px){
+  body.si-classroom-model.si-hifi-model.si-reference-layout .si-model-calculator{
+    width:min(290px,calc(100vw - 4px))!important;
+    padding:8px 26px 21px!important
+  }
+}
+</style>
 """
 
 CALCULATOR_POPUP_STYLE = r"""
@@ -1086,22 +1314,22 @@ body.si-classroom-model.si-hifi-model.si-calculator-popup-mode{
 }
 body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-calculator{
   display:block!important;
-  width:318px!important;
-  max-width:300px!important;
+  width:294px!important;
+  max-width:294px!important;
   margin:0!important;
   padding:13px 31px 31px!important;
-  transform:scale(var(--si-popup-scale,.80))!important;
+  transform:scale(var(--si-popup-scale,.88))!important;
   transform-origin:top left!important;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.75),
     inset 0 -12px 22px rgba(56,74,82,.18)!important
 }
-body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-lcd{min-height:104px!important}
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-lcd{min-height:74px!important;height:74px!important}
 body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-lcd,
 body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-lcd *{
   font-size:1.05em!important
 }
-body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-key{min-height:34px!important}
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-key{min-height:0!important}
 </style>
 <style id="v55-8-calculator-bare-popup">
 /* Popup mode contains only the physical calculator; Mothership tool-page chrome is removed. */
@@ -1116,7 +1344,7 @@ html.si-calculator-popup body::-webkit-scrollbar{
 </style>
 <script id="v55-6-calculator-popup-window-script">
 (function(){
-  const preferredScale=.80;
+  const preferredScale=.88;
   let lastScale=0;
   function isolateCalculator(){
     if(!document.body)return null;
@@ -2962,7 +3190,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — PHYSICAL CALCULATOR LAYOUT")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — CALCULATOR VISUAL FIDELITY")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
