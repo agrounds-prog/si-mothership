@@ -371,6 +371,12 @@ def main() -> int:
     check("calculator final geometry v55.20: lower keypad is vertically opened", "grid-template-rows:22px 22px 30px 30px 30px 31px!important" in server and "row-gap:11px!important" in server)
     check("calculator final geometry v55.20: popup launch remains stationary", "popup=yes,width=340,height=650,left=8,top=8" in html and "window.resizeBy" not in server and "window.resizeTo" not in server)
 
+    check("calculator screenshot correction v55.21: release style remains", 'id="v55-21-calculator-screenshot-correction"' in server)
+    check("calculator screenshot correction v55.21: duplicate decorative nav is hidden", ".si-model-navpad{display:none!important}" in server)
+    check("calculator screenshot correction v55.21: compact LCD restored", "min-height:78px!important;height:78px!important" in server)
+    check("calculator screenshot correction v55.21: compact control rows restored", "grid-template-rows:20px 20px 20px!important" in server and "row-gap:6px!important" in server)
+    check("calculator screenshot correction v55.21: compact keypad restores popup fit", "grid-template-rows:20px 20px 24px 25px 25px 26px!important" in server and "row-gap:7px!important" in server)
+    check("calculator screenshot correction v55.21: popup window contract unchanged", "popup=yes,width=340,height=650,left=8,top=8" in html and "window.resizeBy" not in server and "window.resizeTo" not in server)
     check("calculator reference accurate: arithmetic column remains physical", all(x in server for x in ("take([/divide|÷/])", "take([/multiply|×|\\*/])", "take([/subtract|minus|−/])", "take([/\\badd\\b|plus|\\+/])")))
     check("calculator reference accurate: number block remains pinned", all(x in server for x in ("takeDigit(7),takeDigit(8),takeDigit(9)", "takeDigit(4),takeDigit(5),takeDigit(6)", "takeDigit(1),takeDigit(2),takeDigit(3)", "takeDigit(0)")))
     check("calculator reference accurate: physical white nav surround remains", "si-ref-control-deck:after" in server and "width:96px" in server and "height:57px" in server)
