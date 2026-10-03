@@ -1852,7 +1852,7 @@ body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate 
 </style>
 
 <style id="v55-19-calculator-reference-fidelity">
-/* v55.19 — visual-only TI-30XS reference-fidelity pass.
+/* v55.19 — visual-only physical-reference fidelity pass.
    Engine, shared-display privacy boundary, and stationary popup behavior are unchanged. */
 body.si-classroom-model.si-hifi-model.si-reference-layout.si-reference-accurate .si-model-calculator{
   width:min(292px,calc(100vw - 8px))!important;
