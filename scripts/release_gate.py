@@ -302,11 +302,11 @@ def main() -> int:
     check("calculator classroom: normal activity launch closes calculator", "if(state.calculatorLaunch)state.calculatorLaunch=null;" in segment(html, "function recordActivityLaunch("))
 
     # v55.12 stable calculator overlay window for screen-sharing/modeling.
-    check("calculator popup: teacher launcher requests stationary popup", "scientificCalculatorPopupUrl" in html and "popup=yes,width=340,height=820" in html and "siScientificCalculator" in html)
+    check("calculator popup: teacher launcher requests stationary popup", "scientificCalculatorPopupUrl" in html and "popup=yes,width=340,height=650" in html and "siScientificCalculator" in html)
     check("calculator popup: class launch also opens teacher modeling window", "openScientificCalculator(settings)" in segment(html, "function launchScientificCalculatorForClass("))
     check("calculator popup: route injects popup skin only when requested", 'request.query.get("popup")' in server and "CALCULATOR_POPUP_STYLE if popup_mode else" in server)
     check("calculator popup: calculator is pinned to browser content origin", "display:block!important" in server and "width:0!important" in server and "padding:0!important" in server and "margin:0!important" in server)
-    check("calculator popup: normal physical calculator proportions remain", "width:294px!important" in server and "min-height:74px!important" in server and "grid-template-rows:22px 22px 22px 25px 25px 25px 25px!important" in server)
+    check("calculator popup: normal physical calculator proportions remain", "width:286px!important" in server and "min-height:80px!important" in server and "grid-template-rows:22px 22px 25px 25px 25px 26px!important" in server)
     check("calculator bare popup: release style remains", 'id="v55-8-calculator-bare-popup"' in server)
     check("calculator bare popup: tool-page chrome is removed from popup body", "function isolateCalculator()" in server and "document.body.appendChild(calc)" in server and "if(child!==calc)child.hidden=true" in server)
     check("calculator stable popup: window never resizes itself", "window.resizeBy" not in server and "window.resizeTo" not in server)
@@ -316,7 +316,7 @@ def main() -> int:
     check("calculator stable popup: calculator scales to current viewport", "window.innerWidth-4" in server and "window.innerHeight-4" in server and "preferredScale*ratio*.985" in server)
     check("calculator stable popup: manual teacher resize only rescales content", "window.addEventListener('resize',fitCalculatorInsideWindow)" in server)
     check("calculator stable popup: launch stays near screen origin", "left=8,top=8" in html)
-    check("calculator readable popup: default window is larger", "popup=yes,width=340,height=820" in html)
+    check("calculator readable popup: compact overlay window remains", "popup=yes,width=340,height=650" in html)
     check("calculator readable popup: preferred scale is whole-device eighty-eight percent", "const preferredScale=.88" in server and "--si-popup-scale,.88" in server)
     check("calculator readable popup: LCD text gets slight popup-only boost", ".si-model-lcd *{" in server and "font-size:1.05em!important" in server)
     check("calculator reference layout: release style remains", 'id="v55-14-reference-calculator-layout"' in server)
@@ -340,6 +340,16 @@ def main() -> int:
     check("calculator visual fidelity: nav has bright reference bezel", "outline:6px solid #eef0ef!important" in server and "width:54px!important" in server and "height:40px!important" in server)
     check("calculator visual fidelity: function and numeric key shapes differ", "grid-template-rows:22px 22px 22px 25px 25px 25px 25px!important" in server and "border-radius:999px!important" in server and "border-radius:7px 5px 7px 5px!important" in server)
     check("calculator visual fidelity: secondary legends float above keys", "top:-6px!important" in server and "color:#b8d75f!important" in server)
+    check("calculator reference accurate: release style and script remain", 'id="v55-17-reference-calculator-layout"' in server and 'id="v55-17-reference-calculator-layout-script"' in server)
+    check("calculator reference accurate: upper face is three rows by five columns", "grid-template-rows:22px 22px 22px!important" in server and "grid-template-columns:repeat(5,minmax(0,1fr))!important" in segment(server, 'id="v55-17-reference-calculator-layout"'))
+    check("calculator reference accurate: nav spans upper two rows", "nav.style.gridRow='1 / span 2'" in server and "nav.style.gridColumn='4 / span 2'" in server)
+    check("calculator reference accurate: physical log-prb-data positions remain", "place(log,deck,2,1)" in server and "placeholder('prb',2,2)" in server and "placeholder('data',2,3)" in server)
+    check("calculator reference accurate: lower keypad is six by five", "grid-template-rows:22px 22px 25px 25px 25px 26px!important" in server and "rows.forEach(function(rowKeys,r)" in server)
+    check("calculator reference accurate: arithmetic column remains physical", all(x in server for x in ("take([/divide|÷/])", "take([/multiply|×|\\*/])", "take([/subtract|minus|−/])", "take([/\\badd\\b|plus|\\+/])")))
+    check("calculator reference accurate: number block remains pinned", all(x in server for x in ("takeDigit(7),takeDigit(8),takeDigit(9)", "takeDigit(4),takeDigit(5),takeDigit(6)", "takeDigit(1),takeDigit(2),takeDigit(3)", "takeDigit(0)")))
+    check("calculator reference accurate: physical white nav surround remains", "si-ref-control-deck:after" in server and "width:96px" in server and "height:57px" in server)
+    check("calculator reference accurate: SI-30XS face branding remains", "SI-30XS" in server and "MULTIVIEW" in server and "SI MOTHERSHIP" in server)
+    check("calculator reference accurate: popup remains stable", "window.resizeBy" not in server and "window.resizeTo" not in server)
 
     # Historical selector invariant: $() is single-element; $() is multi-element.
     bad_selector_lines = []
