@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "55.25"
+APP_VERSION = "55.26"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -2474,6 +2474,24 @@ def _state_for_role(state: dict, role: str, token: str = "", name: str = "") -> 
                 million["crewPredictions"] = {}
                 million["selectedAnswer"] = ""
 
+    if isinstance(run, dict) and str(run.get("activityId") or "") == "bingo-game":
+        bingo = run.get("bingo")
+        if isinstance(bingo, dict):
+            cards = bingo.get("cards") if isinstance(bingo.get("cards"), dict) else {}
+            marks = bingo.get("marks") if isinstance(bingo.get("marks"), dict) else {}
+            results = bingo.get("claimResults") if isinstance(bingo.get("claimResults"), dict) else {}
+            claims = bingo.get("claims") if isinstance(bingo.get("claims"), list) else []
+            if role == "student" and own_name:
+                bingo["cards"] = {own_name: copy.deepcopy(cards.get(own_name, []))}
+                bingo["marks"] = {own_name: copy.deepcopy(marks.get(own_name, []))}
+                bingo["claimResults"] = {own_name: copy.deepcopy(results[own_name])} if own_name in results else {}
+                bingo["claims"] = [copy.deepcopy(x) for x in claims if isinstance(x, dict) and str(x.get("name") or "") == own_name]
+            else:
+                bingo["cards"] = {}
+                bingo["marks"] = {}
+                bingo["claimResults"] = {}
+                bingo["claims"] = []
+
     if role != "student":
         # Shared/unknown non-teacher clients receive display-safe state only.
         out["buzz"] = []
@@ -4044,6 +4062,154 @@ def _match_apply_request(state: dict, run: dict, actor: str, request: dict, teac
             match["message"] = "Last matched pair returned to the board."
 
 
+
+def _bingo_winning_sets(size: int, pattern: str) -> list[list[int]]:
+    n = max(3, min(6, int(size or 4)))
+    rows = [[r * n + col for col in range(n)] for r in range(n)]
+    cols = [[row * n + col for row in range(n)] for col in range(n)]
+    if pattern == "corners":
+        return [[0, n - 1, n * (n - 1), n * n - 1]]
+    if pattern == "x":
+        return [[*(i * n + i for i in range(n)), *(i * n + (n - 1 - i) for i in range(n))]]
+    if pattern == "blackout":
+        return [list(range(n * n))]
+    return rows + cols + [
+        [i * n + i for i in range(n)],
+        [i * n + (n - 1 - i) for i in range(n)],
+    ]
+
+
+def _bingo_claim_valid(run: dict, name: str) -> bool:
+    cfg = run.get("bingoConfig") if isinstance(run.get("bingoConfig"), dict) else {}
+    bingo = run.get("bingo") if isinstance(run.get("bingo"), dict) else {}
+    cards = bingo.get("cards") if isinstance(bingo.get("cards"), dict) else {}
+    ids = cards.get(name) if isinstance(cards.get(name), list) else []
+    if not ids:
+        return False
+    marks_map = bingo.get("marks") if isinstance(bingo.get("marks"), dict) else {}
+    marked = {str(x) for x in (marks_map.get(name) if isinstance(marks_map.get(name), list) else [])}
+    called = {str(x) for x in (bingo.get("called") if isinstance(bingo.get("called"), list) else [])}
+    valid_marked = {
+        str(item_id)
+        for item_id in ids
+        if str(item_id) == "free" or (str(item_id) in marked and str(item_id) in called)
+    }
+    try:
+        size = int(cfg.get("size", 4) or 4)
+    except (TypeError, ValueError):
+        size = 4
+    pattern = str(cfg.get("pattern") or "line")
+    for win_set in _bingo_winning_sets(size, pattern):
+        if all(0 <= idx < len(ids) and str(ids[idx]) in valid_marked for idx in win_set):
+            return True
+    return False
+
+
+def _bingo_apply_request(state: dict, run: dict, actor: str, request: dict, teacher: bool = False) -> None:
+    bingo = run.get("bingo") if isinstance(run.get("bingo"), dict) else None
+    cfg = run.get("bingoConfig") if isinstance(run.get("bingoConfig"), dict) else {}
+    if not isinstance(bingo, dict):
+        return
+    kind = str(request.get("type") or "")
+    value = str(request.get("value") or "")
+    items = cfg.get("items") if isinstance(cfg.get("items"), list) else []
+    item_ids = {str(x.get("id") or "") for x in items if isinstance(x, dict)}
+
+    if not teacher:
+        if not actor:
+            return
+        cards = bingo.get("cards") if isinstance(bingo.get("cards"), dict) else {}
+        card_ids = cards.get(actor) if isinstance(cards.get(actor), list) else []
+        if kind == "mark":
+            if value == "free" or value not in {str(x) for x in card_ids}:
+                return
+            called = {str(x) for x in (bingo.get("called") if isinstance(bingo.get("called"), list) else [])}
+            if value not in called:
+                return
+            marks = bingo.setdefault("marks", {})
+            own = {str(x) for x in (marks.get(actor) if isinstance(marks.get(actor), list) else [])}
+            if value in own:
+                own.remove(value)
+            else:
+                own.add(value)
+            marks[actor] = list(own)
+            results = bingo.setdefault("claimResults", {})
+            results.pop(actor, None)
+            return
+        if kind == "claim":
+            valid = _bingo_claim_valid(run, actor)
+            claim = {
+                "id": "claim_" + secrets.token_hex(6),
+                "name": actor,
+                "valid": bool(valid),
+                "at": int(time.time() * 1000),
+                "status": "pending",
+            }
+            claims = bingo.setdefault("claims", [])
+            claims.insert(0, claim)
+            results = bingo.setdefault("claimResults", {})
+            results[actor] = {
+                "valid": bool(valid),
+                "at": claim["at"],
+                "message": "BINGO verified! Waiting for teacher reveal." if valid else "Not yet — your card does not have a valid Bingo yet.",
+            }
+            bingo["message"] = f"{actor} has a verified BINGO claim!" if valid else f"{actor} claimed Bingo — not valid yet."
+            return
+        return
+
+    if kind == "call_next":
+        called = [str(x) for x in (bingo.get("called") if isinstance(bingo.get("called"), list) else [])]
+        order = [str(x) for x in (bingo.get("callOrder") if isinstance(bingo.get("callOrder"), list) else [])]
+        next_id = next((x for x in order if x not in called and x in item_ids), "")
+        if not next_id:
+            bingo["message"] = "All call items have been used."
+            return
+        bingo["current"] = next_id
+        bingo["called"] = called + [next_id]
+        bingo["callNonce"] = int(bingo.get("callNonce", 0) or 0) + 1
+        item = next((x for x in items if isinstance(x, dict) and str(x.get("id") or "") == next_id), None)
+        call_side = item.get("call") if isinstance(item, dict) and isinstance(item.get("call"), dict) else {}
+        label = str(call_side.get("label") or call_side.get("value") or "next item")
+        bingo["message"] = f"Called {label}."
+        return
+
+    if kind == "repeat":
+        if bingo.get("current"):
+            bingo["callNonce"] = int(bingo.get("callNonce", 0) or 0) + 1
+            bingo["message"] = "Repeating the last call."
+        return
+
+    if kind == "reveal_claim":
+        claims = bingo.get("claims") if isinstance(bingo.get("claims"), list) else []
+        claim = next((x for x in claims if isinstance(x, dict) and str(x.get("id") or "") == value and x.get("valid")), None)
+        if not claim:
+            return
+        name = str(claim.get("name") or "")
+        cards = bingo.get("cards") if isinstance(bingo.get("cards"), dict) else {}
+        marks = bingo.get("marks") if isinstance(bingo.get("marks"), dict) else {}
+        bingo["reveal"] = {
+            "name": name,
+            "claimId": str(claim.get("id") or ""),
+            "card": copy.deepcopy(cards.get(name) if isinstance(cards.get(name), list) else []),
+            "marks": copy.deepcopy(marks.get(name) if isinstance(marks.get(name), list) else []),
+            "at": int(time.time() * 1000),
+        }
+        claim["status"] = "revealed"
+        bingo["message"] = f"{name} has BINGO!"
+        return
+
+    if kind == "dismiss_claim":
+        claims = bingo.get("claims") if isinstance(bingo.get("claims"), list) else []
+        claim = next((x for x in claims if isinstance(x, dict) and str(x.get("id") or "") == value), None)
+        if claim:
+            claim["status"] = "dismissed"
+        return
+
+    if kind == "clear_reveal":
+        bingo["reveal"] = None
+        bingo["message"] = "Continue calling when ready."
+
+
 async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
     role = (request.query.get("role") or "client").lower()
     if role == "teacher" and not teacher_authorized(request):
@@ -4122,6 +4288,29 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                         _match_apply_request(current, run, name, request_data, teacher=False)
                     elif role == "teacher":
                         _match_apply_request(current, run, "Teacher", request_data, teacher=True)
+                    else:
+                        continue
+                    save_runtime_state(current)
+                    await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
+                elif mtype == "bingo_action" and isinstance(data.get("request"), dict):
+                    request_data = copy.deepcopy(data["request"])
+                    meta = CLIENT_META.get(ws, {})
+                    current = copy.deepcopy(LATEST_STATE) if isinstance(LATEST_STATE, dict) else None
+                    run = current.get("activityRun") if isinstance(current, dict) else None
+                    if not isinstance(run, dict) or str(run.get("activityId") or "") != "bingo-game" or str(run.get("phase") or "") != "running":
+                        continue
+                    if role == "student":
+                        token = str(meta.get("student_token") or data.get("student_token") or "")
+                        name = str(meta.get("student_name") or data.get("student_name") or "")
+                        if token and not meta.get("student_token"):
+                            meta["student_token"] = token
+                        if name and not meta.get("student_name"):
+                            meta["student_name"] = name
+                        CLIENT_META[ws] = meta
+                        request_data["name"] = name
+                        _bingo_apply_request(current, run, name, request_data, teacher=False)
+                    elif role == "teacher":
+                        _bingo_apply_request(current, run, "Teacher", request_data, teacher=True)
                     else:
                         continue
                     save_runtime_state(current)
@@ -4239,7 +4428,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — MATCH GAMEPLAY")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — BINGO GAMEPLAY")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
