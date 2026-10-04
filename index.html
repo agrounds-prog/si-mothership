@@ -7119,6 +7119,11 @@ body.role-student .million-student-lifelines button{
 .bingo-reveal{max-width:780px;margin:10px auto;padding:26px;border-radius:24px;background:radial-gradient(circle at 50% 30%,#4a1874,#130a31 70%);border:2px solid #d171ff;box-shadow:0 0 40px #a33cff66}.bingo-reveal h3{font-size:clamp(48px,8vw,92px);margin:0;color:#ffd849;text-shadow:0 4px 0 #7c2a2a}.bingo-reveal-board{display:grid;gap:5px;max-width:420px;margin:18px auto}.bingo-reveal-board span{aspect-ratio:1;border-radius:8px;background:#f7f6ee;color:#17242c;display:flex;align-items:center;justify-content:center;padding:3px;overflow:hidden;font-size:10px;font-weight:900}.bingo-reveal-board span.win{background:#72ef98;box-shadow:0 0 0 2px #39df72}.bingo-reveal-board img{width:100%;height:100%;object-fit:contain}
 @media(max-width:900px){.bingo-shared-main,.bingo-teacher-grid{grid-template-columns:1fr}.bingo-teacher-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
+
+<style id="v55-27-match-completion">
+.match-end-results{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:10px auto 0}.match-end-results span{background:#0d2b3f;border:1px solid #39708d;border-radius:999px;padding:7px 12px}
+.match-consult-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:9px}.match-consult-grid button{min-height:38px;border-radius:8px;background:#153f5c}.game-show-crew-preview{display:grid;gap:7px;margin-top:10px}.game-show-crew-preview>div{background:#0e2535;border:1px solid #31566d;border-radius:10px;padding:8px}.game-show-crew-preview b,.game-show-crew-preview span{display:block}.game-show-crew-preview span{font-size:11px;color:#a9c5d4;margin-top:3px}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -7432,6 +7437,7 @@ let gameImageLibrary=loadGameStore(GAME_IMAGE_LIBRARY_STORE,[]);
 let matchSets=loadGameStore(MATCH_SET_STORE,[]);
 let bingoSets=loadGameStore(BINGO_SET_STORE,[]);
 let matchDraft={name:'Animals',quick:'Dog | Dog\nCat | Cat\nElephant | Elephant\nGiraffe | Giraffe\nLion | Lion\nFrog | Frog',selectedImages:[]};
+let matchLaunchSettings={mode:'teams',teamCount:3,turnRule:'one_each',crewConsult:true,scoring:'pairs'};
 let bingoDraft={name:'Animals',quick:'Dog | Dog\nCat | Cat\nElephant | Elephant\nGiraffe | Giraffe\nLion | Lion\nFrog | Frog\nZebra | Zebra\nPanda | Panda\nPenguin | Penguin\nButterfly | Butterfly\nTurtle | Turtle\nMonkey | Monkey\nStar | Star\nApple | Apple\nDuck | Duck\nFish | Fish',size:4,pattern:'line',free:false,selectedImages:[]};
 function newGameAssetId(){return 'img_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)}
 function gameImageName(file){return String(file?.name||'Image').replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim().slice(0,60)||'Image'}
@@ -7484,10 +7490,34 @@ function saveBingoDraft(){
   bingoSets=[set,...bingoSets.filter(x=>x.id!==set.id)];persistGameStore(BINGO_SET_STORE,bingoSets);toast('Bingo set saved');renderActivities();return set;
 }
 function shuffleCopy(items,seed=''){let a=items.map(x=>deepClone(x)),h=2166136261;for(const ch of String(seed))h=(h^ch.charCodeAt(0))*16777619>>>0;for(let i=a.length-1;i>0;i--){h=(h*1664525+1013904223)>>>0;const j=h%(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function matchTeamMeta(i){return [{name:'Blue Crew',icon:'🔵'},{name:'Red Crew',icon:'🔴'},{name:'Gold Crew',icon:'🟡'},{name:'Green Crew',icon:'🟢'}][Number(i)||0]||{name:'Crew '+(Number(i)+1),icon:'●'}}
+function matchTeamAssignments(students,count){
+  const n=Math.max(2,Math.min(4,Number(count||3))),out={};(students||[]).forEach((st,i)=>out[st.n]=i%n);return out;
+}
+function matchTeamMembers(team,run=state.activityRun){
+  const cfg=run?.matchConfig||{},assign=cfg.teamAssignments||{};return connectedStudents().filter(st=>Number(assign[st.n])===Number(team));
+}
+function matchActiveTeam(run=state.activityRun){const m=matchState(run),cfg=run?.matchConfig||{};return cfg.mode==='teams'?Math.max(0,Number(m?.activeTeam||0)):null}
+function matchTeamIndexForStudent(name,run=state.activityRun){const cfg=run?.matchConfig||{};return cfg.mode==='teams'?Number(cfg.teamAssignments?.[name]??-1):-1}
+function matchAdvanceTurn(run=state.activityRun,{forceTeam=false}={}){
+  const m=matchState(run),cfg=run?.matchConfig||{};if(!m)return;
+  if(cfg.mode!=='teams'){m.activeStudentIndex=Number(m.activeStudentIndex||0)+1;return}
+  const count=Math.max(2,Math.min(4,Number(cfg.teamCount||3))),current=Math.max(0,Number(m.activeTeam||0))%count;
+  m.teamPlayerIndexes=m.teamPlayerIndexes||{};
+  const members=matchTeamMembers(current,run);
+  if(!forceTeam&&members.length)m.teamPlayerIndexes[current]=(Number(m.teamPlayerIndexes[current]||0)+1)%members.length;
+  for(let step=1;step<=count;step++){const next=(current+step)%count;if(matchTeamMembers(next,run).length){m.activeTeam=next;break}}
+}
+function matchConsultAggregate(run=state.activityRun){
+  const m=matchState(run),suggestions=m?.consult?.suggestions||{},counts={};Object.values(suggestions).forEach(id=>{if(id)counts[id]=Number(counts[id]||0)+1});
+  return Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([id,count])=>({id,count,number:(m.cards||[]).findIndex(x=>x.id===id)+1})).filter(x=>x.number>0);
+}
 function launchMatchSet(set){
   const students=connectedStudents();if(!students.length)return toast('Have at least one student join before launching MATCH');
+  const settings=deepClone(matchLaunchSettings),teamCount=Math.max(2,Math.min(4,Number(settings.teamCount||3))),assignments=settings.mode==='teams'?matchTeamAssignments(students,teamCount):{};
   const cards=shuffleCopy((set.pairs||[]).flatMap((p,i)=>[{id:p.id+'_a',pairId:p.id,content:p.a},{id:p.id+'_b',pairId:p.id,content:p.b}]),Date.now());
-  state.activityRun={activityId:'match-game',runToken:newActivityRunToken(),phase:'lobby',responses:{},matchConfig:{setId:set.id,name:set.name,pairs:deepClone(set.pairs),turnRule:'one_each'},match:{cards,matched:[],selected:[],activeStudentIndex:0,attempts:0,scores:{},locked:false,teacherLocked:false,pauseAfterReveal:false,pendingResolution:null,turnStart:null,history:[],lastResolved:null,complete:false,message:'Board ready. Start when your crew is ready.'}};
+  state.activityRun={activityId:'match-game',runToken:newActivityRunToken(),phase:'lobby',responses:{},matchConfig:{setId:set.id,name:set.name,pairs:deepClone(set.pairs),mode:settings.mode,teamCount,teamAssignments:assignments,turnRule:settings.turnRule,crewConsult:!!settings.crewConsult,scoring:settings.scoring||'pairs'},match:{cards,matched:[],selected:[],activeStudentIndex:0,activeTeam:0,teamPlayerIndexes:{},attempts:0,scores:{},teamScores:{},locked:false,teacherLocked:false,pauseAfterReveal:false,pendingResolution:null,turnStart:null,history:[],lastResolved:null,consult:{open:false,promptCardId:null,suggestions:{}},complete:false,message:'Board ready. Start when your crew is ready.'}};
   state.screen='activity';state.promptActive=false;state.assigningSlot=null;recordActivityLaunch('match',set.name);render();toast('MATCH loaded — students moved to Activity Lobby');
 }
 function launchBingoSet(set){
@@ -7499,11 +7529,15 @@ function launchBingoSet(set){
 
 function matchState(run=state.activityRun){return run?.match||null}
 function matchActiveStudent(run=state.activityRun){
-  const m=matchState(run),crew=connectedStudents();if(!m||!crew.length)return null;
+  const m=matchState(run),cfg=run?.matchConfig||{},crew=connectedStudents();if(!m||!crew.length)return null;
+  if(cfg.mode==='teams'){
+    const team=Math.max(0,Number(m.activeTeam||0)),members=matchTeamMembers(team,run);if(!members.length)return crew[0]||null;
+    const idx=Math.max(0,Number(m.teamPlayerIndexes?.[team]||0))%members.length;return members[idx]||null;
+  }
   return crew[((Number(m.activeStudentIndex||0)%crew.length)+crew.length)%crew.length]||null;
 }
 function matchSnapshot(m){
-  return {matched:deepClone(m.matched||[]),selected:deepClone(m.selected||[]),activeStudentIndex:Number(m.activeStudentIndex||0),attempts:Number(m.attempts||0),scores:deepClone(m.scores||{}),locked:!!m.locked,teacherLocked:!!m.teacherLocked,pendingResolution:deepClone(m.pendingResolution),lastResolved:deepClone(m.lastResolved),complete:!!m.complete,message:String(m.message||'')};
+  return {matched:deepClone(m.matched||[]),selected:deepClone(m.selected||[]),activeStudentIndex:Number(m.activeStudentIndex||0),activeTeam:Number(m.activeTeam||0),teamPlayerIndexes:deepClone(m.teamPlayerIndexes||{}),attempts:Number(m.attempts||0),scores:deepClone(m.scores||{}),teamScores:deepClone(m.teamScores||{}),locked:!!m.locked,teacherLocked:!!m.teacherLocked,pendingResolution:deepClone(m.pendingResolution),lastResolved:deepClone(m.lastResolved),consult:deepClone(m.consult||{open:false,promptCardId:null,suggestions:{}}),complete:!!m.complete,message:String(m.message||'')};
 }
 function applyMatchLocalAction(type,value,name){
   const run=state.activityRun,m=matchState(run);if(!run||run.activityId!=='match-game'||!m)return;
@@ -7516,7 +7550,11 @@ function applyMatchLocalAction(type,value,name){
       const picked=m.selected.map(id=>(m.cards||[]).find(x=>x.id===id)).filter(Boolean),isMatch=picked.length===2&&picked[0].pairId===picked[1].pairId;
       m.attempts=Number(m.attempts||0)+1;m.locked=true;
       m.pendingResolution={result:isMatch?'match':'miss',cards:m.selected.slice(),player:name,nonce:'mr_'+Date.now().toString(36),resolveAt:Date.now()+1300};
-      if(isMatch){m.matched=[...new Set([...(m.matched||[]),...m.selected])];m.scores=m.scores||{};m.scores[name]=Number(m.scores[name]||0)+1;m.message='MATCH! '+name+' found a pair.'}
+      if(isMatch){
+        m.matched=[...new Set([...(m.matched||[]),...m.selected])];m.scores=m.scores||{};m.teamScores=m.teamScores||{};
+        if(run.matchConfig?.scoring!=='no_score'){m.scores[name]=Number(m.scores[name]||0)+1;const team=matchTeamIndexForStudent(name,run);if(team>=0)m.teamScores[team]=Number(m.teamScores[team]||0)+1}
+        m.message='MATCH! '+name+' found a pair.';
+      }
       else m.message='No match — remember those cards.';
     }
   }else if(type==='resolve'){
@@ -7526,7 +7564,12 @@ function applyMatchLocalAction(type,value,name){
     m.selected=[];m.pendingResolution=null;m.turnStart=null;
     const all=(m.cards||[]).length>0&&(m.matched||[]).length>=(m.cards||[]).length;
     if(all){m.complete=true;m.locked=true;m.message='BOARD CLEARED! Every pair has been found.'}
-    else{m.activeStudentIndex=Number(m.activeStudentIndex||0)+1;m.locked=!!m.teacherLocked;m.message=(matchActiveStudent(run)?.n||'Next player')+' is up — pick two cards.'}
+    else{
+      const goAgain=p.result==='match'&&run.matchConfig?.turnRule==='match_go_again';
+      if(!goAgain)matchAdvanceTurn(run);
+      m.locked=!!m.teacherLocked;m.consult={open:false,promptCardId:null,suggestions:{}};
+      m.message=(matchActiveStudent(run)?.n||'Next player')+(goAgain?' matched — go again!':' is up — pick two cards.');
+    }
   }else if(type==='toggle_lock'){m.teacherLocked=!m.teacherLocked;m.locked=m.teacherLocked||!!m.pendingResolution;m.message=m.teacherLocked?'Board locked by Mission Control.':'Board resumed.'}
   else if(type==='toggle_pause'){m.pauseAfterReveal=!m.pauseAfterReveal;m.message=m.pauseAfterReveal?'Pause After Reveal is ON.':'Pause After Reveal is OFF.'}
   else if(type==='continue'){if(m.pendingResolution){m.pauseAfterReveal=false;applyMatchLocalAction('resolve','',name)}}
@@ -7534,12 +7577,28 @@ function applyMatchLocalAction(type,value,name){
     const prev=(m.history||[]).pop();if(prev){Object.assign(m,deepClone(prev));m.teacherLocked=false;m.locked=false;m.pendingResolution=null;m.turnStart=null;m.message='Last turn undone by Mission Control.'}
   }else if(type==='retry'){
     const base=m.turnStart||(m.history||[]).pop();if(base){const keep=Number(base.activeStudentIndex||m.activeStudentIndex||0);Object.assign(m,deepClone(base));m.activeStudentIndex=keep;m.teacherLocked=false;m.locked=false;m.pendingResolution=null;m.turnStart=null;m.message=(matchActiveStudent(run)?.n||'Player')+' retries the turn.'}
-  }else if(type==='skip'){m.selected=[];m.pendingResolution=null;m.turnStart=null;m.activeStudentIndex=Number(m.activeStudentIndex||0)+1;m.locked=!!m.teacherLocked;m.message=(matchActiveStudent(run)?.n||'Next player')+' is up.'}
+  }else if(type==='skip'){
+    m.selected=[];m.pendingResolution=null;m.turnStart=null;m.consult={open:false,promptCardId:null,suggestions:{}};matchAdvanceTurn(run);m.locked=!!m.teacherLocked;m.message=(matchActiveStudent(run)?.n||'Next player')+' is up.';
+  }else if(type==='next_team'){
+    m.selected=[];m.pendingResolution=null;m.turnStart=null;m.consult={open:false,promptCardId:null,suggestions:{}};matchAdvanceTurn(run,{forceTeam:true});m.locked=!!m.teacherLocked;m.message=(matchActiveStudent(run)?.n||'Next player')+' is up for '+(run.matchConfig?.mode==='teams'?matchTeamMeta(m.activeTeam).name:'the next turn')+'.';
+  }else if(type==='consult_open'){
+    if(!run.matchConfig?.crewConsult||!m.selected?.length||m.selected.length>1)return;m.consult={open:true,promptCardId:m.selected[0],suggestions:{}};m.message='Crew Consult is open — teammates are sending suggestions.';
+  }else if(type==='consult_suggest'){
+    if(!m.consult?.open)return;const active=matchActiveStudent(run),activeTeam=matchTeamIndexForStudent(active?.n,run),senderTeam=matchTeamIndexForStudent(name,run);if(name===active?.n||senderTeam<0||senderTeam!==activeTeam)return;
+    const card=(m.cards||[]).find(x=>x.id===value);if(!card||(m.matched||[]).includes(value)||(m.selected||[]).includes(value))return;m.consult.suggestions=m.consult.suggestions||{};m.consult.suggestions[name]=value;
+  }else if(type==='consult_close'){if(m.consult)m.consult.open=false;
   else if(type==='mark_match'&&m.selected?.length===2){
-    const player=matchActiveStudent(run)?.n||name||'Player';m.matched=[...new Set([...(m.matched||[]),...m.selected])];m.scores=m.scores||{};m.scores[player]=Number(m.scores[player]||0)+1;m.pendingResolution={result:'match',cards:m.selected.slice(),player,nonce:'mr_'+Date.now().toString(36),resolveAt:Date.now()+300};m.locked=true;m.message='Mission Control marked this pair as a match.';
+    const player=matchActiveStudent(run)?.n||name||'Player';m.matched=[...new Set([...(m.matched||[]),...m.selected])];m.scores=m.scores||{};m.teamScores=m.teamScores||{};if(run.matchConfig?.scoring!=='no_score'){m.scores[player]=Number(m.scores[player]||0)+1;const team=matchTeamIndexForStudent(player,run);if(team>=0)m.teamScores[team]=Number(m.teamScores[team]||0)+1};m.pendingResolution={result:'match',cards:m.selected.slice(),player,nonce:'mr_'+Date.now().toString(36),resolveAt:Date.now()+300};m.locked=true;m.message='Mission Control marked this pair as a match.';
   }else if(type==='return_pair'){
-    const last=m.lastResolved;if(last?.result==='match'){m.matched=(m.matched||[]).filter(id=>!(last.cards||[]).includes(id));if(last.player&&m.scores?.[last.player])m.scores[last.player]=Math.max(0,Number(m.scores[last.player])-1);m.complete=false;m.locked=!!m.teacherLocked;m.lastResolved=null;m.message='Last matched pair returned to the board.'}
+    const last=m.lastResolved;if(last?.result==='match'){m.matched=(m.matched||[]).filter(id=>!(last.cards||[]).includes(id));if(last.player&&m.scores?.[last.player])m.scores[last.player]=Math.max(0,Number(m.scores[last.player])-1);const team=matchTeamIndexForStudent(last.player,run);if(team>=0&&m.teamScores?.[team])m.teamScores[team]=Math.max(0,Number(m.teamScores[team])-1);m.complete=false;m.locked=!!m.teacherLocked;m.lastResolved=null;m.message='Last matched pair returned to the board.'}
   }
+}
+
+function rematchCurrentMatch(newTeams=false){
+  const run=state.activityRun,cfg=run?.matchConfig;if(!run||!cfg)return;
+  const set={id:cfg.setId,name:cfg.name,pairs:deepClone(cfg.pairs||[])};
+  if(newTeams&&cfg.mode==='teams')matchLaunchSettings.teamCount=Math.max(2,Math.min(4,Number(cfg.teamCount||3)));
+  launchMatchSet(set);
 }
 function sendMatchAction(type,value=''){
   const s=selectedStudent(),name=s?.n||'',request={id:'match_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),type,value,name,at:Date.now()};
@@ -7567,6 +7626,7 @@ function scheduleMatchResolution(){
 function wireMatchStudent(){
   if(activeActivity()?.type!=='match'||state.activityRun?.phase!=='running')return;
   document.querySelectorAll('[data-match-pick]').forEach(b=>b.onclick=()=>sendMatchAction('select',b.dataset.matchPick));
+  const ask=$('#matchAskCrewBtn');if(ask)ask.onclick=()=>sendMatchAction('consult_open');document.querySelectorAll('[data-match-consult-pick]').forEach(b=>b.onclick=()=>sendMatchAction('consult_suggest',b.dataset.matchConsultPick));const close=$('#matchCloseConsultBtn');if(close)close.onclick=()=>sendMatchAction('consult_close');
 }
 function bingoCardFor(name,run=state.activityRun){
   const cfg=run?.bingoConfig||{},b=run?.bingo||{},size=Number(cfg.size||4),count=size*size,ids=b.cards?.[name];
@@ -9446,7 +9506,7 @@ function activitySharedMarkup(big=false){
   if(run.phase==='lobby')return `<div class="activity-lobby-public"><span class="eyebrow">ACTIVITY LOBBY</span><div class="activity-app-icon">${appIconMarkup(activityIconId(a))}</div><h3 style="font-size:${h}px">${esc(a.name)}</h3><p style="font-size:${p}px">Waiting for your teacher to begin…</p><div class="lobby-status-pill">${connectedStudents().length} students connected</div></div>`;
   if(a.type==='match'){
     const m=run.match||{},cards=m.cards||[],matched=new Set(m.matched||[]),selected=new Set(m.selected||[]),active=matchActiveStudent(run);
-    return `<div class="foundation-public"><span class="eyebrow">MOTHERSHIP · MATCH</span><h3 style="font-size:${big?52:34}px">${m.complete?'BOARD CLEARED!':esc(run.matchConfig?.name||'MATCH')}</h3><div class="match-public-status"><span>${esc(active?.n||'—')} · CURRENT PLAYER</span><span>${matched.size/2} PAIRS FOUND</span><span>${Number(m.attempts||0)} ATTEMPTS</span></div><p>${esc(m.message||'Remember where every signal is hiding.')}</p><div class="foundation-board" style="grid-template-columns:repeat(${cards.length<=16?4:cards.length<=20?5:6},minmax(0,1fr))">${cards.map((card,i)=>{const open=matched.has(card.id)||selected.has(card.id);return `<div class="card ${matched.has(card.id)?'matched':''} ${selected.has(card.id)?'revealed pending':''}">${open?contentMarkup(card.content):i+1}</div>`}).join('')}</div></div>`;
+    return `<div class="foundation-public"><span class="eyebrow">MOTHERSHIP · MATCH</span><h3 style="font-size:${big?52:34}px">${m.complete?'BOARD CLEARED!':esc(run.matchConfig?.name||'MATCH')}</h3><div class="match-public-status"><span>${run.matchConfig?.mode==='teams'?(matchTeamMeta(m.activeTeam).icon+' '+matchTeamMeta(m.activeTeam).name+' · '):''}${esc(active?.n||'—')} · CURRENT PLAYER</span><span>${matched.size/2} PAIRS FOUND</span><span>${Number(m.attempts||0)} ATTEMPTS</span></div>${m.complete?`<div class="match-end-results"><h4>FINAL RESULTS</h4>${run.matchConfig?.mode==='teams'?Array.from({length:Number(run.matchConfig.teamCount||3)},(_,i)=>`<span>${matchTeamMeta(i).icon} ${matchTeamMeta(i).name} · <b>${Number(m.teamScores?.[i]||0)} pairs</b></span>`).join(''):connectedStudents().map(st=>`<span>${esc(st.n)} · <b>${Number(m.scores?.[st.n]||0)} pairs</b></span>`).join('')}</div>`:''}<p>${esc(m.message||'Remember where every signal is hiding.')}</p><div class="foundation-board" style="grid-template-columns:repeat(${cards.length<=16?4:cards.length<=20?5:6},minmax(0,1fr))">${cards.map((card,i)=>{const open=matched.has(card.id)||selected.has(card.id);return `<div class="card ${matched.has(card.id)?'matched':''} ${selected.has(card.id)?'revealed pending':''}">${open?contentMarkup(card.content):i+1}</div>`}).join('')}</div></div>`;
   }
   if(a.type==='bingo'){
     const b=run.bingo||{},cfg=run.bingoConfig||{},current=(cfg.items||[]).find(x=>x.id===b.current),history=(b.called||[]).slice(-9).reverse();
@@ -9580,7 +9640,7 @@ function studentMarkup(){
     if(run.phase==='lobby')return `<div class="student-prompt activity-wait"><span class="eyebrow">ACTIVITY LOBBY</span><div class="activity-app-icon">${appIconMarkup(activityIconId(a))}</div><h2>${esc(a.name)}</h2><p>You're in. Waiting for your teacher to begin…</p><div class="student-lobby-avatar">${studentAvatarBadgeMarkup(s)}</div></div>`;
     if(a.type==='match'){
       const m=run.match||{},cards=m.cards||[],active=matchActiveStudent(run),mine=active?.n===s?.n,matched=new Set(m.matched||[]),selected=new Set(m.selected||[]),cols=cards.length<=16?4:cards.length<=20?5:6;
-      return `<div class="student-game-foundation"><div class="student-game-card"><span class="eyebrow">MOTHERSHIP · MATCH</span><h2>${m.complete?'BOARD CLEARED!':mine?'YOUR TURN':'WATCH & REMEMBER'}</h2><p>${m.complete?'Every pair has been found.':mine?(m.locked?'Wait for the reveal to resolve.':'Pick two cards.'):(esc(active?.n||'A classmate')+' is choosing. Watch the shared board.')}</p><div class="match-student-grid" style="grid-template-columns:repeat(${cols},1fr)">${cards.map((card,i)=>{const open=matched.has(card.id)||selected.has(card.id),disabled=!mine||m.locked||m.complete||open;return `<button class="${open?'open':''}" data-match-pick="${esc(card.id)}" ${disabled?'disabled':''}>${open?contentMarkup(card.content):i+1}</button>`}).join('')}</div><div class="prompt-caption">${Number(m.scores?.[s?.n]||0)} pairs found by you · ${(m.matched||[]).length/2} total</div></div></div>`;
+      return `<div class="student-game-foundation"><div class="student-game-card"><span class="eyebrow">MOTHERSHIP · MATCH</span><h2>${m.complete?'BOARD CLEARED!':mine?'YOUR TURN':'WATCH & REMEMBER'}</h2><p>${run.matchConfig?.mode==='teams'?matchTeamMeta(matchTeamIndexForStudent(s?.n,run)).icon+' '+esc(matchTeamMeta(matchTeamIndexForStudent(s?.n,run)).name)+' · ':''}${m.complete?'Every pair has been found.':mine?(m.locked?'Wait for the reveal to resolve.':'Pick two cards.'):(esc(active?.n||'A classmate')+' is choosing. Watch the shared board.')}</p><div class="match-student-grid" style="grid-template-columns:repeat(${cols},1fr)">${cards.map((card,i)=>{const open=matched.has(card.id)||selected.has(card.id),disabled=!mine||m.locked||m.complete||open;return `<button class="${open?'open':''}" data-match-pick="${esc(card.id)}" ${disabled?'disabled':''}>${open?contentMarkup(card.content):i+1}</button>`}).join('')}</div>${run.matchConfig?.crewConsult&&mine&&m.selected?.length===1&&!m.consult?.open?`<button class="bingo-claim-button" id="matchAskCrewBtn">ASK MY CREW</button>`:''}${m.consult?.open&&run.matchConfig?.mode==='teams'&&matchTeamIndexForStudent(s?.n,run)===Number(m.activeTeam)&&!mine?`<div class="bingo-claim-status"><b>CREW CONSULT</b><p>Where should ${esc(active?.n||'your teammate')} look next?</p><div class="match-consult-grid">${cards.map((card,i)=>`<button data-match-consult-pick="${esc(card.id)}" ${matched.has(card.id)||selected.has(card.id)?'disabled':''}>${i+1}</button>`).join('')}</div></div>`:''}${m.consult?.open&&mine?`<div class="bingo-claim-status valid"><b>CREW SUGGESTIONS</b><p>${matchConsultAggregate(run).map(x=>'Card '+x.number+' ×'+x.count).join(' · ')||'Waiting for suggestions…'}</p><button id="matchCloseConsultBtn">Close Consult</button></div>`:''}<div class="prompt-caption">${run.matchConfig?.scoring==='no_score'?'Crew Memory · no score':Number(m.scores?.[s?.n]||0)+' pairs found by you'} · ${(m.matched||[]).length/2} total</div></div></div>`;
     }
     if(a.type==='bingo'){
       const cfg=run.bingoConfig||{},b=run.bingo||{},card=bingoCardFor(s?.n,run),size=Number(cfg.size||4),marks=new Set(b.marks?.[s?.n]||[]),called=new Set(b.called||[]),result=b.claimResults?.[s?.n];
@@ -9915,9 +9975,9 @@ function renderActivityController(){
     <div class="bingo-teacher-card"><h4>BINGO CLAIMS</h4><div class="bingo-claims-list">${claims.length?claims.map(cl=>`<div class="bingo-claim-row ${cl.valid?'valid':'invalid'}"><div><b>${esc(cl.name)}</b><small>${cl.valid?'✓ Valid '+esc(cfg.pattern||'line'):'Not yet — no valid '+esc(cfg.pattern||'line')}</small></div><div class="bingo-claim-row-actions">${cl.valid?`<button data-bingo-reveal-claim="${cl.id}">Reveal on Zoom</button>`:''}<button data-bingo-dismiss-claim="${cl.id}">Dismiss</button></div></div>`).join(''):'<div class="empty">No Bingo claims yet.</div>'}</div></div></div>
     <div class="controller-safety"><button id="returnClassBtn">✓ Finish & Return</button><button class="minefield-send-lobby" id="sendActivityLobbyBtn">Ⅱ Pause & Keep Progress</button><button class="danger-action" id="emergencyActivityBtn">⚠ Emergency Return</button></div>`;
   } else if(a.type==='match'){
-    const m=matchState(run)||{},active=matchActiveStudent(run),scores=m.scores||{},selected=m.selected||[],pending=m.pendingResolution,last=m.lastResolved;
+    const m=matchState(run)||{},active=matchActiveStudent(run),scores=m.scores||{},selected=m.selected||[],pending=m.pendingResolution,last=m.lastResolved,teamMode=run.matchConfig?.mode==='teams',consult=matchConsultAggregate(run);
     box.innerHTML=`<div class="activity-controller-head"><div><span class="slide-badge instruction">MATCH · MISSION CONTROL</span><h2>${esc(run.matchConfig?.name||'MATCH')}</h2><p>${esc(m.message||'')}</p><div class="match-result-chip">${m.complete?'BOARD CLEARED':pending?(pending.result==='match'?'MATCH REVEALED':'NO MATCH REVEALED'):(m.locked?'BOARD LOCKED':'TURN ACTIVE')}</div></div><div class="controller-stats"><b>${(m.matched||[]).length/2}</b> pairs · <b>${Number(m.attempts||0)}</b> attempts</div></div>
-    <div class="match-teacher-grid"><div class="match-teacher-card"><h4>CURRENT TURN</h4><div class="match-current-player">${esc(active?.n||'No connected student')}</div><p>Selected cards: ${selected.length?selected.map(id=>(m.cards||[]).findIndex(x=>x.id===id)+1).join(' · '):'none'}</p><div class="match-control-grid"><button id="matchLockBtn">${m.teacherLocked?'▶ RESUME':'🔒 LOCK BOARD'}</button><button id="matchPauseRevealBtn">${m.pauseAfterReveal?'✓ ':''}PAUSE AFTER REVEAL</button><button class="primary-action" id="matchContinueBtn" ${pending?'':'disabled'}>CONTINUE</button><button id="matchUndoBtn" ${(m.history||[]).length?'':'disabled'}>↶ UNDO LAST TURN</button><button id="matchRetryBtn" ${m.turnStart||(m.history||[]).length?'':'disabled'}>↻ RETRY TURN</button><button id="matchSkipBtn">SKIP / NEXT PLAYER</button><button id="matchNextTeamBtn">NEXT TEAM →</button><button id="matchMarkBtn" ${selected.length===2?'':'disabled'}>✓ MARK AS MATCH</button><button id="matchReturnPairBtn" ${last?.result==='match'?'':'disabled'}>↩ RETURN LAST PAIR</button></div></div><div class="match-teacher-card"><h4>SCOREBOARD</h4><div class="match-teacher-score">${connected.map(st=>`<div><b>${esc(st.n)}</b><span>${Number(scores[st.n]||0)} pair${Number(scores[st.n]||0)===1?'':'s'}</span></div>`).join('')||'<div class="empty">No connected students.</div>'}</div></div></div>
+    <div class="match-teacher-grid"><div class="match-teacher-card"><h4>CURRENT TURN</h4><div class="match-current-player">${teamMode?matchTeamMeta(m.activeTeam).icon+' '+esc(matchTeamMeta(m.activeTeam).name)+' · ':''}${esc(active?.n||'No connected student')}</div><p>Selected cards: ${selected.length?selected.map(id=>(m.cards||[]).findIndex(x=>x.id===id)+1).join(' · '):'none'}</p><div class="match-control-grid"><button id="matchLockBtn">${m.teacherLocked?'▶ RESUME':'🔒 LOCK BOARD'}</button><button id="matchPauseRevealBtn">${m.pauseAfterReveal?'✓ ':''}PAUSE AFTER REVEAL</button><button class="primary-action" id="matchContinueBtn" ${pending?'':'disabled'}>CONTINUE</button><button id="matchUndoBtn" ${(m.history||[]).length?'':'disabled'}>↶ UNDO LAST TURN</button><button id="matchRetryBtn" ${m.turnStart||(m.history||[]).length?'':'disabled'}>↻ RETRY TURN</button><button id="matchSkipBtn">SKIP / NEXT PLAYER</button><button id="matchNextTeamBtn" ${teamMode?'':'disabled'}>NEXT TEAM →</button><button id="matchMarkBtn" ${selected.length===2?'':'disabled'}>✓ MARK AS MATCH</button><button id="matchReturnPairBtn" ${last?.result==='match'?'':'disabled'}>↩ RETURN LAST PAIR</button></div></div><div class="match-teacher-card"><h4>SCOREBOARD</h4><div class="match-teacher-score">${teamMode?Array.from({length:Number(run.matchConfig?.teamCount||3)},(_,i)=>`<div><b>${matchTeamMeta(i).icon} ${matchTeamMeta(i).name}</b><span>${Number(m.teamScores?.[i]||0)} pairs</span></div>`).join(''):connected.map(st=>`<div><b>${esc(st.n)}</b><span>${Number(scores[st.n]||0)} pair${Number(scores[st.n]||0)===1?'':'s'}</span></div>`).join('')||'<div class="empty">No connected students.</div>'}</div>${m.consult?.open?`<div class="bingo-claim-status"><b>CREW CONSULT OPEN</b><p>${consult.map(x=>'Card '+x.number+' ×'+x.count).join(' · ')||'Waiting for suggestions…'}</p></div>`:''}${m.complete?`<div class="game-builder-actions"><button id="matchPlayAgainBtn">PLAY AGAIN</button><button id="matchRematchBtn">REMATCH</button><button id="matchNewTeamsBtn" ${teamMode?'':'disabled'}>NEW TEAMS</button><button id="matchChooseSetBtn">CHOOSE ANOTHER SET</button></div>`:''}</div></div>
     <div class="controller-safety"><button id="returnClassBtn">✓ Finish & Return</button><button class="minefield-send-lobby" id="sendActivityLobbyBtn">Ⅱ Pause & Keep Progress</button><button class="danger-action" id="emergencyActivityBtn">⚠ Emergency Return</button></div>`;
   } else if(a.type==='crew-survey'){
     const cs=crewSurveyState(run),cfg=crewSurveyConfig(run),answers=cfg.answers||[],winner=cs?.buzzer?.winner,winnerTeam=crewSurveyTeamFor(winner,run),control=cs?.controlTeam,last=cs?.lastResponse;
@@ -10005,9 +10065,13 @@ function wireActivityController(){
   const matchUndo=$('#matchUndoBtn');if(matchUndo)matchUndo.onclick=()=>teacherMatchAction('undo');
   const matchRetry=$('#matchRetryBtn');if(matchRetry)matchRetry.onclick=()=>teacherMatchAction('retry');
   const matchSkip=$('#matchSkipBtn');if(matchSkip)matchSkip.onclick=()=>teacherMatchAction('skip');
-  const matchNextTeam=$('#matchNextTeamBtn');if(matchNextTeam)matchNextTeam.onclick=()=>teacherMatchAction('skip');
+  const matchNextTeam=$('#matchNextTeamBtn');if(matchNextTeam)matchNextTeam.onclick=()=>teacherMatchAction('next_team');
   const matchMark=$('#matchMarkBtn');if(matchMark)matchMark.onclick=()=>teacherMatchAction('mark_match');
   const matchReturn=$('#matchReturnPairBtn');if(matchReturn)matchReturn.onclick=()=>teacherMatchAction('return_pair');
+  const matchPlayAgain=$('#matchPlayAgainBtn');if(matchPlayAgain)matchPlayAgain.onclick=()=>rematchCurrentMatch(false);
+  const matchRematch=$('#matchRematchBtn');if(matchRematch)matchRematch.onclick=()=>rematchCurrentMatch(false);
+  const matchNewTeams=$('#matchNewTeamsBtn');if(matchNewTeams)matchNewTeams.onclick=()=>{matchLaunchSettings.mode='teams';rematchCurrentMatch(true)};
+  const matchChooseSet=$('#matchChooseSetBtn');if(matchChooseSet)matchChooseSet.onclick=()=>{returnToClassroom('normal');state.activeApp='match';state.screen='activities';render()};
 
 
   const csArm=$('#crewSurveyArmBtn');if(csArm)csArm.onclick=crewSurveyArmBuzzers;
@@ -10170,8 +10234,9 @@ function renderActivities(){
     note.classList.add('hidden');picker.classList.add('hidden');grid.classList.remove('hidden');
     title.textContent='MATCH';subtitle.textContent='LOAD IMAGES → BUILD PAIRS → FLIP → REMEMBER → MATCH';header.innerHTML=`<button id="backToAppsBtn">← Activity Library</button>`;$('#backToAppsBtn').onclick=backToAppLibrary;
     const pairs=parsePairLines(matchDraft.quick),selected=new Set(matchDraft.selectedImages||[]);
-    grid.innerHTML=`<div class="game-builder-shell"><div class="game-builder-card"><span class="app-status">REWARDS ARCADE</span><h3>Create MATCH Set</h3><label>SET NAME</label><input id="matchSetName" value="${esc(matchDraft.name)}"><label>QUICK PAIRS · one pair per line · left | right</label><textarea id="matchQuickPairs">${esc(matchDraft.quick)}</textarea><div class="game-builder-actions"><button id="matchUploadBtn">＋ Upload Images</button><input id="matchUploadInput" type="file" accept="image/*" multiple hidden><button id="matchSelectAllImages">Use All Library Images</button><button id="matchClearImages">Clear Image Selection</button></div><label>MOTHERSHIP IMAGE LIBRARY · ${gameImageLibrary.length} saved</label>${gameImagePickerMarkup(matchDraft.selectedImages)}<div class="game-builder-actions"><button id="matchSaveBtn">Save Set</button><button class="primary" id="matchLaunchDraftBtn">▶ Save & Launch MATCH</button></div></div><div><div class="foundation-preview"><span class="eyebrow">BOARD PREVIEW</span><h3>${esc(matchDraft.name||'MATCH')}</h3><div class="foundation-preview-grid">${Array.from({length:Math.min(16,Math.max(8,(pairs.length+(matchDraft.selectedImages||[]).length)*2))},(_,i)=>`<div class="foundation-preview-tile">${i+1}</div>`).join('')}</div></div><div class="game-builder-card" style="margin-top:14px"><h4>Saved MATCH Sets</h4><div class="game-set-list">${matchSets.length?matchSets.map(s=>`<div class="game-set-item"><div><b>${esc(s.name)}</b><small>${s.pairs?.length||0} pairs · ${(s.pairs?.length||0)*2} tiles</small></div><button data-match-launch="${s.id}">Launch</button><button data-match-delete="${s.id}">×</button></div>`).join(''):'<div class="game-library-empty">No saved MATCH sets yet.</div>'}</div></div></div></div>`;
+    grid.innerHTML=`<div class="game-builder-shell"><div class="game-builder-card"><span class="app-status">REWARDS ARCADE</span><h3>Create MATCH Set</h3><p class="setup-copy">Saved sets contain only pair content. Choose teams and rules fresh for each launch.</p><label>SET NAME</label><input id="matchSetName" value="${esc(matchDraft.name)}"><label>QUICK PAIRS · one pair per line · left | right</label><textarea id="matchQuickPairs">${esc(matchDraft.quick)}</textarea><div class="game-builder-actions"><button id="matchUploadBtn">＋ Upload Images</button><input id="matchUploadInput" type="file" accept="image/*" multiple hidden><button id="matchSelectAllImages">Use All Library Images</button><button id="matchClearImages">Clear Image Selection</button></div><label>MOTHERSHIP IMAGE LIBRARY · ${gameImageLibrary.length} saved</label>${gameImagePickerMarkup(matchDraft.selectedImages)}<div class="game-builder-actions"><button id="matchSaveBtn">Save Set</button><button class="primary" id="matchLaunchDraftBtn">▶ Save & Launch MATCH</button></div></div><div><div class="game-builder-card"><h4>Launch Settings</h4><div class="game-builder-row"><label>MODE<select id="matchMode"><option value="teams" ${matchLaunchSettings.mode==='teams'?'selected':''}>Teams</option><option value="individual" ${matchLaunchSettings.mode==='individual'?'selected':''}>Individual Rotation</option></select></label><label>TEAMS<select id="matchTeamCount" ${matchLaunchSettings.mode!=='teams'?'disabled':''}><option value="2" ${matchLaunchSettings.teamCount===2?'selected':''}>2 Teams</option><option value="3" ${matchLaunchSettings.teamCount===3?'selected':''}>3 Teams</option><option value="4" ${matchLaunchSettings.teamCount===4?'selected':''}>4 Teams</option></select></label></div><div class="game-builder-row"><label>TURN RULE<select id="matchTurnRule"><option value="one_each" ${matchLaunchSettings.turnRule==='one_each'?'selected':''}>One Turn Each</option><option value="match_go_again" ${matchLaunchSettings.turnRule==='match_go_again'?'selected':''}>Match = Go Again</option></select></label><label>SCORING<select id="matchScoring"><option value="pairs" ${matchLaunchSettings.scoring==='pairs'?'selected':''}>Pairs</option><option value="no_score" ${matchLaunchSettings.scoring==='no_score'?'selected':''}>No Score / Crew Memory</option></select></label></div><label><input id="matchCrewConsult" type="checkbox" ${matchLaunchSettings.crewConsult?'checked':''}> Enable Crew Consult</label><div class="game-show-crew-preview">${matchLaunchSettings.mode==='teams'?Array.from({length:matchLaunchSettings.teamCount},(_,team)=>`<div><b>${matchTeamMeta(team).icon} ${matchTeamMeta(team).name}</b><span>${connectedStudents().filter((s,i)=>i%matchLaunchSettings.teamCount===team).map(s=>esc(s.n)).join(' · ')||'Waiting for students'}</span></div>`).join(''):'<div><b>INDIVIDUAL ROTATION</b><span>${connectedStudents().map(s=>esc(s.n)).join(' · ')||'Waiting for students'}</span></div>'}</div></div><div class="foundation-preview"><span class="eyebrow">BOARD PREVIEW</span><h3>${esc(matchDraft.name||'MATCH')}</h3><div class="foundation-preview-grid">${Array.from({length:Math.min(16,Math.max(8,(pairs.length+(matchDraft.selectedImages||[]).length)*2))},(_,i)=>`<div class="foundation-preview-tile">${i+1}</div>`).join('')}</div></div><div class="game-builder-card" style="margin-top:14px"><h4>Saved MATCH Sets</h4><div class="game-set-list">${matchSets.length?matchSets.map(s=>`<div class="game-set-item"><div><b>${esc(s.name)}</b><small>${s.pairs?.length||0} pairs · ${(s.pairs?.length||0)*2} tiles</small></div><button data-match-launch="${s.id}">Launch</button><button data-match-delete="${s.id}">×</button></div>`).join(''):'<div class="game-library-empty">No saved MATCH sets yet.</div>'}</div></div></div></div>`;
     $('#matchSetName').oninput=e=>matchDraft.name=e.target.value;$('#matchQuickPairs').oninput=e=>matchDraft.quick=e.target.value;
+    $('#matchMode').onchange=e=>{matchLaunchSettings.mode=e.target.value;renderActivities()};$('#matchTeamCount').onchange=e=>{matchLaunchSettings.teamCount=Number(e.target.value);renderActivities()};$('#matchTurnRule').onchange=e=>matchLaunchSettings.turnRule=e.target.value;$('#matchScoring').onchange=e=>matchLaunchSettings.scoring=e.target.value;$('#matchCrewConsult').onchange=e=>matchLaunchSettings.crewConsult=e.target.checked;
     $('#matchUploadBtn').onclick=()=>$('#matchUploadInput').click();$('#matchUploadInput').onchange=e=>importGameImages(e.target.files);
     $$('[data-game-image]').forEach(b=>b.onclick=()=>{const id=b.dataset.gameImage,arr=new Set(matchDraft.selectedImages||[]);arr.has(id)?arr.delete(id):arr.add(id);matchDraft.selectedImages=[...arr];renderActivities()});
     $('#matchSelectAllImages').onclick=()=>{matchDraft.selectedImages=gameImageLibrary.map(x=>x.id);renderActivities()};$('#matchClearImages').onclick=()=>{matchDraft.selectedImages=[];renderActivities()};
