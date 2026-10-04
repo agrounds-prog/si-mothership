@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v55.29 — Mission Control Header Cleanup</title>
+<title>SI Mothership v55.30 — Single Mission Control Bar</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -7394,6 +7394,134 @@ body.role-student .million-student-lifelines button{
   #teacher .session-group .control-group-buttons{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
 </style>
+
+<style id="v55-30-single-mission-control-bar">
+/* v55.30 — one compact Mission Control bar.
+   Visible controls simplified; legacy workflow/session hooks remain hidden for compatibility. */
+#teacher .single-mission-bar{
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:10px!important;
+  min-height:62px!important;
+  margin:0!important;
+  padding:8px 10px!important;
+  border-radius:14px!important;
+  overflow:visible!important
+}
+#teacher .single-mission-status{
+  min-width:150px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding-right:10px;
+  border-right:1px solid #203744
+}
+#teacher .single-mission-status .mission-context-title{
+  min-height:20px;
+  margin:0!important
+}
+#teacher .single-mission-status .mission-context-title>b{
+  max-width:170px!important;
+  font-size:15px!important
+}
+#teacher .single-mission-status .students-see{
+  display:block!important;
+  margin-top:3px!important;
+  color:#687d89!important;
+  font-size:7px!important;
+  letter-spacing:.03em!important
+}
+#teacher .single-mission-controls{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  flex-wrap:nowrap
+}
+#teacher .single-mission-controls .control{
+  width:auto!important;
+  min-width:0!important;
+  min-height:38px!important;
+  margin:0!important;
+  padding:6px 8px!important;
+  border-radius:8px!important;
+  justify-content:center!important;
+  gap:4px!important;
+  white-space:nowrap
+}
+#teacher .single-mission-controls .control .ico{
+  width:17px!important;
+  height:17px!important;
+  flex:0 0 17px!important;
+  font-size:10px!important
+}
+#teacher .single-mission-controls .control b{
+  font-size:8px!important;
+  overflow:visible!important;
+  text-overflow:clip!important
+}
+#teacher .single-mission-controls .control small{display:none!important}
+#teacher .single-mission-danger{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  padding-left:10px;
+  border-left:1px solid #203744
+}
+#teacher .single-mission-danger .emergency-btn,
+#teacher .single-mission-danger .end-btn{
+  width:auto!important;
+  min-width:96px!important;
+  min-height:38px!important;
+  margin:0!important;
+  padding:6px 9px!important;
+  border-radius:8px!important;
+  font-size:8px!important;
+  white-space:nowrap!important
+}
+#teacher .single-mission-danger .emergency-btn{
+  border-color:#765039!important;
+  background:#2b1d17!important;
+  color:#efbe99!important
+}
+#teacher .single-mission-danger .end-btn{
+  border-color:#653848!important;
+  background:#251820!important;
+  color:#e9a2b0!important
+}
+#teacher .mission-compat-controls{display:none!important}
+#teacher .command-deck{gap:8px!important}
+
+@media(max-width:1600px){
+  #teacher .single-mission-bar{
+    grid-template-columns:auto minmax(0,1fr) auto!important
+  }
+  #teacher .single-mission-controls{
+    flex-wrap:wrap
+  }
+}
+@media(max-width:1180px){
+  #teacher .single-mission-bar{
+    grid-template-columns:1fr auto!important
+  }
+  #teacher .single-mission-status{
+    grid-column:1/-1;
+    border-right:0;
+    border-bottom:1px solid #203744;
+    padding:0 0 7px!important
+  }
+}
+@media(max-width:760px){
+  #teacher .single-mission-bar{grid-template-columns:1fr!important}
+  #teacher .single-mission-controls{flex-wrap:wrap}
+  #teacher .single-mission-danger{
+    padding:7px 0 0!important;
+    border-left:0;
+    border-top:1px solid #203744
+  }
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -7405,53 +7533,38 @@ body.role-student .million-student-lifelines button{
 
 
 <main class="command-deck"><div class="deck-header"><div><span class="eyebrow">MISSION CONTROL</span><h1 id="missionTitle">Crew in the lobby</h1></div><div class="metrics"><span class="metric">⌁ <b id="connectedMetric">23</b> connected</span><span class="metric">◷ <b>24:18</b> elapsed</span></div></div>
-<div class="teacher-controlbar" id="teacherControlBar">
-  <div class="teacher-live-strip">
-    <div class="mission-context">
-      <span class="mission-context-pulse"></span>
-      <div class="mission-context-copy">
-        <span class="mission-context-kicker">MISSION CONTROL</span>
-        <div class="mission-context-title"><b id="missionContextName">Classroom</b><span class="mission-state-pill" id="missionContextState">Ready</span></div>
-        <span class="students-see">STUDENTS SEE: <b id="teacherQuickStatus">LOBBY</b><span id="missionContextDetail"></span></span>
-      </div>
-    </div>
-    <span class="teacher-live-hint">Mission Control · teacher only</span>
-  </div>
-  <div class="teacher-control-groups">
-    <div class="teacher-control-group nav-group">
-      <span class="control-group-label">NAVIGATION</span>
-      <div class="control-group-buttons">
-        <button class="control active" data-control="lobby"><span class="ico">♧</span><span class="copy"><b>Lobby</b><small>Everyone is here</small></span></button>
-        <button class="control" data-control="classroom"><span class="ico">⌂</span><span class="copy"><b>Classroom</b><small>Return live</small></span></button>
-        <button class="control" data-control="agenda"><span class="ico">▤</span><span class="copy"><b>Agenda</b><small>Push instructions</small></span></button>
-        <button class="control" data-control="activities"><span class="ico">✦</span><span class="copy"><b>Activities</b><small>App library</small></span></button>
-      </div>
-    </div>
-    <div class="teacher-control-group response-group">
-      <span class="control-group-label">STUDENT RESPONSE</span>
-      <div class="control-group-buttons">
-        <button class="control" data-control="ready"><span class="ico">⬡</span><span class="copy"><b>Ready Check</b><small>Check the room</small></span></button>
-        <button class="control enabled" data-toggle="hand"><span class="ico">✋</span><span class="copy"><b>Raise Hand</b><small id="handStatus">Enabled</small></span></button>
-        <button class="control enabled" data-toggle="buzz"><span class="ico">ϟ</span><span class="copy"><b>Buzz</b><small id="buzzStatus">Enabled</small></span></button>
-        <button class="control enabled" data-toggle="help"><span class="ico">?</span><span class="copy"><b>Ask for Help</b><small id="helpStatus">Enabled</small></span></button>
-        <button class="control" data-toggle="picture"><span class="ico">⌾</span><span class="copy"><b>Picture Prompt</b><small id="pictureStatus">Paused</small></span></button>
-        <button class="control" data-send="emotion"><span class="ico">♡</span><span class="copy"><b>Emotion</b><small>Send check</small></span></button>
-        <button class="control" data-send="understanding"><span class="ico">◫</span><span class="copy"><b>Understanding</b><small>Send check</small></span></button>
-      </div>
-    </div>
-    <div class="teacher-control-group session-group">
-      <span class="control-group-label">SESSION</span>
-      <div class="control-group-buttons">
-        <button class="session-summary-btn" id="sessionSummaryBtn">▤ Summary</button>
-        <button class="session-history-btn" id="sessionHistoryBtn">◷ History</button>
-        <button class="workflow-primary mission-workflow-btn hidden" id="activityWorkflowStart">▶ Start</button>
-        <button class="workflow-pause mission-workflow-btn hidden" id="activityWorkflowPause">Ⅱ Pause & Keep Progress</button>
-        <button class="workflow-finish mission-workflow-btn hidden" id="activityWorkflowFinish">✓ Finish & Return</button>
-        <button class="emergency-btn hidden" id="emergencyReturnBtn">⚠ Emergency Return</button>
-        <button class="end-btn" id="endBtn">↪ End Session</button>
-      </div>
+<div class="teacher-controlbar single-mission-bar" id="teacherControlBar">
+  <div class="single-mission-status">
+    <span class="mission-context-pulse"></span>
+    <div class="mission-context-copy">
+      <div class="mission-context-title"><b id="missionContextName">Classroom</b><span class="mission-state-pill" id="missionContextState">Ready</span></div>
+      <span class="students-see">STUDENTS SEE: <b id="teacherQuickStatus">LOBBY</b><span id="missionContextDetail"></span></span>
     </div>
   </div>
+  <div class="single-mission-controls">
+    <button class="control active" data-control="lobby"><span class="ico">♧</span><span class="copy"><b>Lobby</b></span></button>
+    <button class="control" data-control="activities"><span class="ico">✦</span><span class="copy"><b>Activities</b></span></button>
+    <button class="control" data-control="agenda"><span class="ico">▤</span><span class="copy"><b>Agenda</b></span></button>
+    <button class="control" data-control="ready"><span class="ico">⬡</span><span class="copy"><b>Ready Check</b></span></button>
+    <button class="control enabled" data-toggle="hand"><span class="ico">✋</span><span class="copy"><b>Raise Hand</b><small id="handStatus">Enabled</small></span></button>
+    <button class="control enabled" data-toggle="buzz"><span class="ico">ϟ</span><span class="copy"><b>Buzz</b><small id="buzzStatus">Enabled</small></span></button>
+    <button class="control enabled" data-toggle="help"><span class="ico">?</span><span class="copy"><b>Ask for Help</b><small id="helpStatus">Enabled</small></span></button>
+    <button class="control" data-toggle="picture"><span class="ico">⌾</span><span class="copy"><b>Picture Prompt</b><small id="pictureStatus">Paused</small></span></button>
+    <button class="control" data-send="emotion"><span class="ico">♡</span><span class="copy"><b>Emotion</b></span></button>
+    <button class="control" data-send="understanding"><span class="ico">◫</span><span class="copy"><b>Understanding</b></span></button>
+  </div>
+  <div class="single-mission-danger">
+    <button class="emergency-btn hidden" id="emergencyReturnBtn">⚠ Emergency Return</button>
+    <button class="end-btn" id="endBtn">↪ End Session</button>
+  </div>
+</div>
+<div class="mission-compat-controls hidden" aria-hidden="true">
+  <button class="control" data-control="classroom">Classroom</button>
+  <button class="session-summary-btn" id="sessionSummaryBtn">Summary</button>
+  <button class="session-history-btn" id="sessionHistoryBtn">History</button>
+  <button class="workflow-primary mission-workflow-btn" id="activityWorkflowStart">Start</button>
+  <button class="workflow-pause mission-workflow-btn" id="activityWorkflowPause">Pause & Keep Progress</button>
+  <button class="workflow-finish mission-workflow-btn" id="activityWorkflowFinish">Finish & Return</button>
 </div>
 <div class="activity-workflow-bar hidden" id="activityWorkflowBar" aria-hidden="true">
   <div class="activity-workflow-main"><span class="activity-workflow-pulse"></span><div class="activity-workflow-copy"><span id="activityWorkflowEyebrow">ACTIVE ACTIVITY</span><b id="activityWorkflowName">Activity</b><small id="activityWorkflowDetail">Live</small></div></div>
