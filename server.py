@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "55.33"
+APP_VERSION = "55.34"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -4583,7 +4583,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — TWO-STEP STUDENT JOIN")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — RIGHT RAIL EMPTY-STATE POLISH")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
