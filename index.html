@@ -7437,7 +7437,7 @@ let gameImageLibrary=loadGameStore(GAME_IMAGE_LIBRARY_STORE,[]);
 let matchSets=loadGameStore(MATCH_SET_STORE,[]);
 let bingoSets=loadGameStore(BINGO_SET_STORE,[]);
 let matchDraft={name:'Animals',quick:'Dog | Dog\nCat | Cat\nElephant | Elephant\nGiraffe | Giraffe\nLion | Lion\nFrog | Frog',selectedImages:[]};
-let matchLaunchSettings={mode:'teams',teamCount:3,turnRule:'one_each',crewConsult:true,scoring:'pairs'};
+let matchLaunchSettings={mode:'teams',teamCount:3,turnRule:'one_each',crewConsult:true,scoring:'pairs',teamNonce:0};
 let bingoDraft={name:'Animals',quick:'Dog | Dog\nCat | Cat\nElephant | Elephant\nGiraffe | Giraffe\nLion | Lion\nFrog | Frog\nZebra | Zebra\nPanda | Panda\nPenguin | Penguin\nButterfly | Butterfly\nTurtle | Turtle\nMonkey | Monkey\nStar | Star\nApple | Apple\nDuck | Duck\nFish | Fish',size:4,pattern:'line',free:false,selectedImages:[]};
 function newGameAssetId(){return 'img_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)}
 function gameImageName(file){return String(file?.name||'Image').replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim().slice(0,60)||'Image'}
@@ -7493,7 +7493,8 @@ function shuffleCopy(items,seed=''){let a=items.map(x=>deepClone(x)),h=216613626
 
 function matchTeamMeta(i){return [{name:'Blue Crew',icon:'🔵'},{name:'Red Crew',icon:'🔴'},{name:'Gold Crew',icon:'🟡'},{name:'Green Crew',icon:'🟢'}][Number(i)||0]||{name:'Crew '+(Number(i)+1),icon:'●'}}
 function matchTeamAssignments(students,count){
-  const n=Math.max(2,Math.min(4,Number(count||3))),out={};(students||[]).forEach((st,i)=>out[st.n]=i%n);return out;
+  const n=Math.max(2,Math.min(4,Number(count||3))),out={},source=matchLaunchSettings.teamNonce?shuffleCopy(students||[],String(matchLaunchSettings.teamNonce)):(students||[]);
+  source.forEach((st,i)=>out[st.n]=i%n);return out;
 }
 function matchTeamMembers(team,run=state.activityRun){
   const cfg=run?.matchConfig||{},assign=cfg.teamAssignments||{};return connectedStudents().filter(st=>Number(assign[st.n])===Number(team));
@@ -8843,6 +8844,10 @@ function teacherSummaryObserveActivity(){
     const sw=run.starwheel||{},pilot=starwheelActivePilot(run);teacherSummaryActivityParticipant(t,pilot?.n);teacherSummaryActivityParticipant(t,sw.solvedBy);
     t.scores={label:'STARWHEEL',students:deepClone(sw.scores?.students||{}),teams:deepClone(sw.scores?.teams||{})};
   }
+  if(a?.type==='match'){
+    const m=run.match||{};Object.keys(m.scores||{}).forEach(name=>{teacherSummaryActivityParticipant(t,name);teacherSummaryActivityResponse(t,'match:'+name+':'+Number(m.scores?.[name]||0),name)});
+    t.scores={label:'MATCH',students:deepClone(m.scores||{}),teams:deepClone(m.teamScores||{})};
+  }
   if(a?.type==='minefield'){
     const mode=minefieldMode(run),nav=minefieldNavigator(run,mode==='teacher'?'class':null);if(nav?.n&&nav.n!=='Teacher')teacherSummaryActivityParticipant(t,nav.n);
   }
@@ -10070,7 +10075,7 @@ function wireActivityController(){
   const matchReturn=$('#matchReturnPairBtn');if(matchReturn)matchReturn.onclick=()=>teacherMatchAction('return_pair');
   const matchPlayAgain=$('#matchPlayAgainBtn');if(matchPlayAgain)matchPlayAgain.onclick=()=>rematchCurrentMatch(false);
   const matchRematch=$('#matchRematchBtn');if(matchRematch)matchRematch.onclick=()=>rematchCurrentMatch(false);
-  const matchNewTeams=$('#matchNewTeamsBtn');if(matchNewTeams)matchNewTeams.onclick=()=>{matchLaunchSettings.mode='teams';rematchCurrentMatch(true)};
+  const matchNewTeams=$('#matchNewTeamsBtn');if(matchNewTeams)matchNewTeams.onclick=()=>{matchLaunchSettings.mode='teams';matchLaunchSettings.teamNonce=Date.now();rematchCurrentMatch(true)};
   const matchChooseSet=$('#matchChooseSetBtn');if(matchChooseSet)matchChooseSet.onclick=()=>{returnToClassroom('normal');state.activeApp='match';state.screen='activities';render()};
 
 
