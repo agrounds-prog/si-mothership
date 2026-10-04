@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v55.27 — MATCH Completion</title>
+<title>SI Mothership v55.28 — Live Roster Compact</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -7123,6 +7123,133 @@ body.role-student .million-student-lifelines button{
 <style id="v55-27-match-completion">
 .match-end-results{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:10px auto 0}.match-end-results span{background:#0d2b3f;border:1px solid #39708d;border-radius:999px;padding:7px 12px}
 .match-consult-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:9px}.match-consult-grid button{min-height:38px;border-radius:8px;background:#153f5c}.game-show-crew-preview{display:grid;gap:7px;margin-top:10px}.game-show-crew-preview>div{background:#0e2535;border:1px solid #31566d;border-radius:10px;padding:8px}.game-show-crew-preview b,.game-show-crew-preview span{display:block}.game-show-crew-preview span{font-size:11px;color:#a9c5d4;margin-top:3px}
+</style>
+
+<style id="v55-28-live-roster-compact">
+/* v55.28 — compact Live Roster. Presentation only: preserve roster state, alerts and authority. */
+#teacher .roster-card .roster-inner{
+  padding:14px 16px 11px!important
+}
+#teacher .roster-card .roster-head{
+  min-height:34px!important;
+  margin-bottom:10px!important;
+  padding-bottom:9px!important
+}
+#teacher .roster-card .roster-head .left{gap:8px!important}
+#teacher .roster-card .roster-head-actions{gap:6px!important}
+#teacher .roster-card .custom-roster-btn{
+  min-height:26px!important;
+  height:26px!important;
+  padding:4px 8px!important;
+  font-size:9px!important
+}
+#teacher .roster-card .carousel-controls{gap:6px!important;font-size:9px!important}
+#teacher .roster-card .carousel-controls button{
+  width:26px!important;
+  height:26px!important;
+  border-radius:8px!important;
+  font-size:16px!important
+}
+#teacher .roster-card .avatar-line{gap:9px!important}
+#teacher .roster-card .status-icons{height:23px!important}
+#teacher .roster-card .status-icons span{
+  width:20px!important;
+  height:20px!important;
+  font-size:10px!important
+}
+#teacher .roster-card .bot-card{
+  width:64px!important;
+  height:62px!important;
+  margin-bottom:6px!important;
+  border-radius:16px!important;
+  font-size:32px!important
+}
+#teacher .roster-card .crew b{font-size:12px!important}
+#teacher .roster-card .crew small{font-size:9px!important;margin-top:3px!important}
+#teacher .roster-card .page-dots{margin-top:8px!important}
+
+/* One/two students: retain the wide pod layout, but remove the oversized hero treatment. */
+#teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))){
+  grid-template-columns:repeat(auto-fit,minmax(330px,420px))!important;
+  gap:14px!important
+}
+#teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))) .crew{
+  min-height:168px!important;
+  grid-template-columns:150px minmax(145px,1fr)!important;
+  column-gap:18px!important;
+  padding:12px 18px 12px 13px!important;
+  border-radius:18px!important
+}
+#teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))) .bot-card{
+  width:142px!important;
+  height:140px!important;
+  border-radius:30px!important;
+  font-size:71px!important
+}
+#teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))) .bot-card img{border-radius:29px!important}
+#teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))) .bot-card .builtin-avatar-glyph{font-size:72px!important}
+#teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))) .crew>b{
+  font-size:18px!important
+}
+#teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))) .crew>small{
+  font-size:9px!important;
+  margin-bottom:7px!important
+}
+#teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))) .ready-pill{
+  min-width:104px!important;
+  min-height:24px!important;
+  padding:4px 9px!important;
+  font-size:8px!important
+}
+
+/* Three/four students: shorten the pods and reduce avatars while preserving names and status cues. */
+#teacher .roster-card.sparse-roster .avatar-line:has(.crew:nth-child(3)){
+  grid-template-columns:repeat(auto-fit,minmax(176px,216px))!important;
+  gap:13px!important
+}
+#teacher .roster-card.sparse-roster .avatar-line:has(.crew:nth-child(3)) .crew{
+  min-height:218px!important;
+  padding:14px 13px 12px!important
+}
+#teacher .roster-card.sparse-roster .avatar-line:has(.crew:nth-child(3)) .bot-card{
+  width:123px!important;
+  height:122px!important;
+  border-radius:28px!important;
+  font-size:64px!important;
+  margin-bottom:8px!important
+}
+#teacher .roster-card.sparse-roster .avatar-line:has(.crew:nth-child(3)) .bot-card img{border-radius:27px!important}
+#teacher .roster-card.sparse-roster .avatar-line:has(.crew:nth-child(3)) .bot-card .builtin-avatar-glyph{font-size:65px!important}
+#teacher .roster-card.sparse-roster .avatar-line:has(.crew:nth-child(3)) .crew>b{font-size:15px!important}
+
+#teacher .roster-card.sparse-roster .crew-signal-dock{min-height:26px!important;gap:5px!important}
+#teacher .roster-card.sparse-roster .crew-signal-dock .buzz-chip,
+#teacher .roster-card.sparse-roster .crew-signal-dock .hand-chip,
+#teacher .roster-card.sparse-roster .crew-signal-dock .help-chip{
+  min-height:21px!important;
+  padding:4px 6px!important;
+  font-size:7.5px!important
+}
+#teacher .roster-card.sparse-roster .ready-pill{
+  min-height:24px!important;
+  padding:4px 9px!important;
+  font-size:8px!important
+}
+#teacher .roster-card.sparse-roster #rosterRange{
+  min-height:20px!important;
+  padding:3px 7px!important;
+  font-size:8px!important
+}
+
+@media(max-width:900px){
+  #teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))){
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr))!important
+  }
+  #teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))) .crew{
+    min-height:220px!important;
+    padding:14px 13px 12px!important
+  }
+}
 </style>
 </head>
 <body>
