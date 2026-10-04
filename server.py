@@ -39,7 +39,7 @@ _RAILWAY_PUBLIC_DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip().strip("/
 PUBLIC_BASE_URL = _EXPLICIT_PUBLIC_BASE_URL or (f"https://{_RAILWAY_PUBLIC_DOMAIN}" if _RAILWAY_PUBLIC_DOMAIN else "")
 NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "true", "yes", "on"}
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-APP_VERSION = "55.26"
+APP_VERSION = "55.27"
 
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
@@ -2474,6 +2474,25 @@ def _state_for_role(state: dict, role: str, token: str = "", name: str = "") -> 
                 million["crewPredictions"] = {}
                 million["selectedAnswer"] = ""
 
+    if isinstance(run, dict) and str(run.get("activityId") or "") == "match-game":
+        match = run.get("match")
+        cfg = run.get("matchConfig") if isinstance(run.get("matchConfig"), dict) else {}
+        if isinstance(match, dict):
+            consult = match.get("consult") if isinstance(match.get("consult"), dict) else {}
+            suggestions = consult.get("suggestions") if isinstance(consult.get("suggestions"), dict) else {}
+            if role == "student" and own_name:
+                active_name = _match_active_name(out, run)
+                own_team = _match_team_index(run, own_name)
+                active_team = _match_team_index(run, active_name)
+                if own_name == active_name:
+                    consult["suggestions"] = copy.deepcopy(suggestions)
+                elif bool(consult.get("open")) and own_team >= 0 and own_team == active_team:
+                    consult["suggestions"] = {own_name: copy.deepcopy(suggestions[own_name])} if own_name in suggestions else {}
+                else:
+                    match["consult"] = {"open": False, "promptCardId": None, "suggestions": {}}
+            elif role != "teacher":
+                match["consult"] = {"open": False, "promptCardId": None, "suggestions": {}}
+
     if isinstance(run, dict) and str(run.get("activityId") or "") == "bingo-game":
         bingo = run.get("bingo")
         if isinstance(bingo, dict):
@@ -3850,17 +3869,39 @@ def _match_connected_names(state: dict) -> list[str]:
     ]
 
 
+def _match_team_index(run: dict, name: str) -> int:
+    cfg = run.get("matchConfig") if isinstance(run.get("matchConfig"), dict) else {}
+    if str(cfg.get("mode") or "individual") != "teams":
+        return -1
+    assignments = cfg.get("teamAssignments") if isinstance(cfg.get("teamAssignments"), dict) else {}
+    try:
+        return int(assignments.get(name, -1))
+    except (TypeError, ValueError):
+        return -1
+
+
+def _match_team_members(state: dict, run: dict, team_index: int) -> list[str]:
+    return [
+        name for name in _match_connected_names(state)
+        if _match_team_index(run, name) == int(team_index)
+    ]
+
+
 def _match_snapshot(match: dict) -> dict:
     return {
         "matched": copy.deepcopy(match.get("matched") or []),
         "selected": copy.deepcopy(match.get("selected") or []),
         "activeStudentIndex": int(match.get("activeStudentIndex", 0) or 0),
+        "activeTeam": int(match.get("activeTeam", 0) or 0),
+        "teamPlayerIndexes": copy.deepcopy(match.get("teamPlayerIndexes") or {}),
         "attempts": int(match.get("attempts", 0) or 0),
         "scores": copy.deepcopy(match.get("scores") or {}),
+        "teamScores": copy.deepcopy(match.get("teamScores") or {}),
         "locked": bool(match.get("locked")),
         "teacherLocked": bool(match.get("teacherLocked")),
         "pendingResolution": copy.deepcopy(match.get("pendingResolution")),
         "lastResolved": copy.deepcopy(match.get("lastResolved")),
+        "consult": copy.deepcopy(match.get("consult") or {"open": False, "promptCardId": None, "suggestions": {}}),
         "complete": bool(match.get("complete")),
         "message": str(match.get("message") or ""),
     }
@@ -3868,14 +3909,64 @@ def _match_snapshot(match: dict) -> dict:
 
 def _match_active_name(state: dict, run: dict) -> str:
     match = run.get("match") if isinstance(run.get("match"), dict) else {}
+    cfg = run.get("matchConfig") if isinstance(run.get("matchConfig"), dict) else {}
     names = _match_connected_names(state)
     if not names:
         return ""
+    if str(cfg.get("mode") or "individual") == "teams":
+        try:
+            team_count = max(2, min(4, int(cfg.get("teamCount", 3) or 3)))
+            active_team = int(match.get("activeTeam", 0) or 0) % team_count
+        except (TypeError, ValueError):
+            team_count, active_team = 3, 0
+        members = _match_team_members(state, run, active_team)
+        if not members:
+            for step in range(1, team_count + 1):
+                candidate = (active_team + step) % team_count
+                members = _match_team_members(state, run, candidate)
+                if members:
+                    active_team = candidate
+                    match["activeTeam"] = active_team
+                    break
+        if not members:
+            return names[0]
+        indexes = match.setdefault("teamPlayerIndexes", {})
+        try:
+            idx = int(indexes.get(str(active_team), indexes.get(active_team, 0)) or 0) % len(members)
+        except (TypeError, ValueError):
+            idx = 0
+        return members[idx]
     try:
         idx = int(match.get("activeStudentIndex", 0) or 0) % len(names)
     except (TypeError, ValueError):
         idx = 0
     return names[idx]
+
+
+def _match_advance_turn(state: dict, run: dict, force_team: bool = False) -> None:
+    match = run.get("match") if isinstance(run.get("match"), dict) else {}
+    cfg = run.get("matchConfig") if isinstance(run.get("matchConfig"), dict) else {}
+    if str(cfg.get("mode") or "individual") != "teams":
+        match["activeStudentIndex"] = int(match.get("activeStudentIndex", 0) or 0) + 1
+        return
+    try:
+        count = max(2, min(4, int(cfg.get("teamCount", 3) or 3)))
+        current = int(match.get("activeTeam", 0) or 0) % count
+    except (TypeError, ValueError):
+        count, current = 3, 0
+    indexes = match.setdefault("teamPlayerIndexes", {})
+    members = _match_team_members(state, run, current)
+    if not force_team and members:
+        try:
+            current_idx = int(indexes.get(str(current), indexes.get(current, 0)) or 0)
+        except (TypeError, ValueError):
+            current_idx = 0
+        indexes[str(current)] = (current_idx + 1) % len(members)
+    for step in range(1, count + 1):
+        candidate = (current + step) % count
+        if _match_team_members(state, run, candidate):
+            match["activeTeam"] = candidate
+            break
 
 
 def _match_restore(match: dict, snapshot: dict) -> None:
@@ -3888,6 +3979,7 @@ def _match_restore(match: dict, snapshot: dict) -> None:
 
 def _match_apply_request(state: dict, run: dict, actor: str, request: dict, teacher: bool = False) -> None:
     match = run.get("match") if isinstance(run.get("match"), dict) else None
+    cfg = run.get("matchConfig") if isinstance(run.get("matchConfig"), dict) else {}
     if not isinstance(match, dict):
         return
     cards = match.get("cards") if isinstance(match.get("cards"), list) else []
@@ -3895,48 +3987,85 @@ def _match_apply_request(state: dict, run: dict, actor: str, request: dict, teac
     value = str(request.get("value") or "")
     active_name = _match_active_name(state, run)
 
-    if kind == "select":
-        if teacher or not actor or actor != active_name:
-            return
-        if match.get("locked") or match.get("complete") or match.get("pendingResolution"):
-            return
-        selected = match.get("selected") if isinstance(match.get("selected"), list) else []
-        matched = set(str(x) for x in (match.get("matched") if isinstance(match.get("matched"), list) else []))
-        if len(selected) >= 2 or value in selected or value in matched:
-            return
-        card = next((x for x in cards if isinstance(x, dict) and str(x.get("id") or "") == value), None)
-        if not card:
-            return
-        if not selected:
-            match["turnStart"] = _match_snapshot(match)
-        selected = list(selected) + [value]
-        match["selected"] = selected
-        card_num = next((i + 1 for i, x in enumerate(cards) if isinstance(x, dict) and str(x.get("id") or "") == value), 0)
-        match["message"] = f"{actor} revealed card {card_num}."
-        if len(selected) == 2:
-            picked = [next((x for x in cards if isinstance(x, dict) and str(x.get("id") or "") == cid), None) for cid in selected]
-            is_match = bool(picked[0] and picked[1] and str(picked[0].get("pairId") or "") == str(picked[1].get("pairId") or ""))
-            match["attempts"] = int(match.get("attempts", 0) or 0) + 1
-            match["locked"] = True
-            nonce = "mr_" + secrets.token_hex(5)
-            match["pendingResolution"] = {
-                "result": "match" if is_match else "miss",
-                "cards": selected[:],
-                "player": actor,
-                "nonce": nonce,
-                "resolveAt": int(time.time() * 1000) + 1300,
-            }
-            if is_match:
-                merged = list(dict.fromkeys([*(match.get("matched") or []), *selected]))
-                match["matched"] = merged
-                scores = match.setdefault("scores", {})
-                scores[actor] = int(scores.get(actor, 0) or 0) + 1
-                match["message"] = f"MATCH! {actor} found a pair."
-            else:
-                match["message"] = "No match — remember those cards."
-        return
-
     if not teacher:
+        if kind == "select":
+            if not actor or actor != active_name:
+                return
+            if match.get("locked") or match.get("complete") or match.get("pendingResolution"):
+                return
+            selected = match.get("selected") if isinstance(match.get("selected"), list) else []
+            matched = set(str(x) for x in (match.get("matched") if isinstance(match.get("matched"), list) else []))
+            if len(selected) >= 2 or value in selected or value in matched:
+                return
+            card = next((x for x in cards if isinstance(x, dict) and str(x.get("id") or "") == value), None)
+            if not card:
+                return
+            if not selected:
+                match["turnStart"] = _match_snapshot(match)
+            selected = list(selected) + [value]
+            match["selected"] = selected
+            card_num = next((i + 1 for i, x in enumerate(cards) if isinstance(x, dict) and str(x.get("id") or "") == value), 0)
+            match["message"] = f"{actor} revealed card {card_num}."
+            if len(selected) == 2:
+                picked = [next((x for x in cards if isinstance(x, dict) and str(x.get("id") or "") == cid), None) for cid in selected]
+                is_match = bool(picked[0] and picked[1] and str(picked[0].get("pairId") or "") == str(picked[1].get("pairId") or ""))
+                match["attempts"] = int(match.get("attempts", 0) or 0) + 1
+                match["locked"] = True
+                match["pendingResolution"] = {
+                    "result": "match" if is_match else "miss",
+                    "cards": selected[:],
+                    "player": actor,
+                    "nonce": "mr_" + secrets.token_hex(5),
+                    "resolveAt": int(time.time() * 1000) + 1300,
+                }
+                if is_match:
+                    match["matched"] = list(dict.fromkeys([*(match.get("matched") or []), *selected]))
+                    if str(cfg.get("scoring") or "pairs") != "no_score":
+                        scores = match.setdefault("scores", {})
+                        scores[actor] = int(scores.get(actor, 0) or 0) + 1
+                        team = _match_team_index(run, actor)
+                        if team >= 0:
+                            team_scores = match.setdefault("teamScores", {})
+                            key = str(team)
+                            team_scores[key] = int(team_scores.get(key, team_scores.get(team, 0)) or 0) + 1
+                    match["message"] = f"MATCH! {actor} found a pair."
+                else:
+                    match["message"] = "No match — remember those cards."
+            return
+
+        if kind == "consult_open":
+            if not cfg.get("crewConsult") or actor != active_name:
+                return
+            selected = match.get("selected") if isinstance(match.get("selected"), list) else []
+            if len(selected) != 1:
+                return
+            match["consult"] = {"open": True, "promptCardId": selected[0], "suggestions": {}}
+            match["message"] = "Crew Consult is open — teammates are sending suggestions."
+            return
+
+        if kind == "consult_suggest":
+            consult = match.get("consult") if isinstance(match.get("consult"), dict) else {}
+            if not consult.get("open") or actor == active_name:
+                return
+            active_team = _match_team_index(run, active_name)
+            actor_team = _match_team_index(run, actor)
+            if active_team < 0 or actor_team != active_team:
+                return
+            matched = set(str(x) for x in (match.get("matched") if isinstance(match.get("matched"), list) else []))
+            selected = set(str(x) for x in (match.get("selected") if isinstance(match.get("selected"), list) else []))
+            card = next((x for x in cards if isinstance(x, dict) and str(x.get("id") or "") == value), None)
+            if not card or value in matched or value in selected:
+                return
+            suggestions = consult.setdefault("suggestions", {})
+            suggestions[actor] = value
+            return
+
+        if kind == "consult_close":
+            if actor != active_name:
+                return
+            consult = match.get("consult") if isinstance(match.get("consult"), dict) else {}
+            consult["open"] = False
+            return
         return
 
     if kind == "resolve":
@@ -3959,6 +4088,7 @@ def _match_apply_request(state: dict, run: dict, actor: str, request: dict, teac
         match["selected"] = []
         match["pendingResolution"] = None
         match["turnStart"] = None
+        match["consult"] = {"open": False, "promptCardId": None, "suggestions": {}}
         all_cards = len(cards)
         matched_count = len(match.get("matched") or [])
         if all_cards > 0 and matched_count >= all_cards:
@@ -3966,10 +4096,12 @@ def _match_apply_request(state: dict, run: dict, actor: str, request: dict, teac
             match["locked"] = True
             match["message"] = "BOARD CLEARED! Every pair has been found."
         else:
-            match["activeStudentIndex"] = int(match.get("activeStudentIndex", 0) or 0) + 1
+            go_again = str(pending.get("result") or "") == "match" and str(cfg.get("turnRule") or "one_each") == "match_go_again"
+            if not go_again:
+                _match_advance_turn(state, run)
             match["locked"] = bool(match.get("teacherLocked"))
             nxt = _match_active_name(state, run) or "Next player"
-            match["message"] = f"{nxt} is up — pick two cards."
+            match["message"] = f"{nxt} matched — go again!" if go_again else f"{nxt} is up — pick two cards."
         return
 
     if kind == "toggle_lock":
@@ -4008,14 +4140,13 @@ def _match_apply_request(state: dict, run: dict, actor: str, request: dict, teac
         if not isinstance(base, dict) and history:
             base = history.pop()
         if isinstance(base, dict):
-            keep_index = int(base.get("activeStudentIndex", match.get("activeStudentIndex", 0)) or 0)
             _match_restore(match, base)
             match["history"] = history
-            match["activeStudentIndex"] = keep_index
             match["teacherLocked"] = False
             match["locked"] = False
             match["pendingResolution"] = None
             match["turnStart"] = None
+            match["consult"] = {"open": False, "promptCardId": None, "suggestions": {}}
             match["message"] = f"{_match_active_name(state, run) or 'Player'} retries the turn."
         return
 
@@ -4023,9 +4154,22 @@ def _match_apply_request(state: dict, run: dict, actor: str, request: dict, teac
         match["selected"] = []
         match["pendingResolution"] = None
         match["turnStart"] = None
-        match["activeStudentIndex"] = int(match.get("activeStudentIndex", 0) or 0) + 1
+        match["consult"] = {"open": False, "promptCardId": None, "suggestions": {}}
+        _match_advance_turn(state, run)
         match["locked"] = bool(match.get("teacherLocked"))
         match["message"] = f"{_match_active_name(state, run) or 'Next player'} is up."
+        return
+
+    if kind == "next_team":
+        if str(cfg.get("mode") or "individual") != "teams":
+            return
+        match["selected"] = []
+        match["pendingResolution"] = None
+        match["turnStart"] = None
+        match["consult"] = {"open": False, "promptCardId": None, "suggestions": {}}
+        _match_advance_turn(state, run, force_team=True)
+        match["locked"] = bool(match.get("teacherLocked"))
+        match["message"] = f"{_match_active_name(state, run) or 'Next player'} is up for the next team."
         return
 
     if kind == "mark_match":
@@ -4034,8 +4178,14 @@ def _match_apply_request(state: dict, run: dict, actor: str, request: dict, teac
             return
         player = _match_active_name(state, run) or "Player"
         match["matched"] = list(dict.fromkeys([*(match.get("matched") or []), *selected]))
-        scores = match.setdefault("scores", {})
-        scores[player] = int(scores.get(player, 0) or 0) + 1
+        if str(cfg.get("scoring") or "pairs") != "no_score":
+            scores = match.setdefault("scores", {})
+            scores[player] = int(scores.get(player, 0) or 0) + 1
+            team = _match_team_index(run, player)
+            if team >= 0:
+                team_scores = match.setdefault("teamScores", {})
+                key = str(team)
+                team_scores[key] = int(team_scores.get(key, team_scores.get(team, 0)) or 0) + 1
         match["pendingResolution"] = {
             "result": "match",
             "cards": selected[:],
@@ -4056,11 +4206,16 @@ def _match_apply_request(state: dict, run: dict, actor: str, request: dict, teac
             scores = match.setdefault("scores", {})
             if player and int(scores.get(player, 0) or 0) > 0:
                 scores[player] = max(0, int(scores.get(player, 0) or 0) - 1)
+            team = _match_team_index(run, player)
+            if team >= 0:
+                team_scores = match.setdefault("teamScores", {})
+                key = str(team)
+                if int(team_scores.get(key, team_scores.get(team, 0)) or 0) > 0:
+                    team_scores[key] = max(0, int(team_scores.get(key, team_scores.get(team, 0)) or 0) - 1)
             match["complete"] = False
             match["locked"] = bool(match.get("teacherLocked"))
             match["lastResolved"] = None
             match["message"] = "Last matched pair returned to the board."
-
 
 
 def _bingo_winning_sets(size: int, pattern: str) -> list[list[int]]:
@@ -4428,7 +4583,7 @@ async def main() -> None:
 
     urls = session_urls(PUBLIC_ORIGIN)
     print("\n" + "=" * 72)
-    print(f" SI MOTHERSHIP v{APP_VERSION} — BINGO GAMEPLAY")
+    print(f" SI MOTHERSHIP v{APP_VERSION} — MATCH COMPLETION")
     print("=" * 72)
     print(f" Teacher:       {PUBLIC_ORIGIN}/")
     print(f" Student:       {urls['student_url']}")
