@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v55.33 — Two-Step Student Join</title>
+<title>SI Mothership v55.34 — Right Rail Empty-State Polish</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -7773,6 +7773,110 @@ body.role-student .join-confirm-actions .join-primary{
   body.role-student .join-confirm-actions{padding-top:8px!important}
 }
 </style>
+
+<style id="v55-34-right-rail-empty-state-polish">
+/* v55.34 — right rail uses compact empty states and expands only when content arrives. */
+#teacher .right-rail{
+  gap:10px!important
+}
+#teacher .attention-summary{
+  min-height:0!important;
+  padding:10px 11px!important
+}
+#teacher .attention-summary-copy span{font-size:7px!important}
+#teacher .attention-summary-copy b{font-size:10px!important}
+#teacher .attention-summary-chips{gap:5px!important}
+#teacher .attention-chip{
+  min-height:22px!important;
+  padding:3px 7px!important;
+  font-size:8px!important
+}
+#teacher .right-rail .attention-panel{
+  min-height:0!important;
+  flex:0 0 auto!important;
+  padding:10px 11px!important
+}
+#teacher .right-rail .attention-panel .section-heading{
+  min-height:24px!important;
+  margin:0!important
+}
+#teacher .right-rail .attention-panel.is-empty{
+  min-height:46px!important;
+  padding:9px 11px!important
+}
+#teacher .right-rail .attention-panel.is-empty .empty,
+#teacher .right-rail .attention-panel.is-empty #buzzRows,
+#teacher .right-rail .attention-panel.is-empty #helpRows,
+#teacher .right-rail .attention-panel.is-empty #photoRows,
+#teacher .right-rail .attention-panel.is-empty .clear,
+#teacher .right-rail .attention-panel.is-empty .photo-inbox-actions{
+  display:none!important
+}
+#teacher .right-rail .attention-panel:not(.is-empty) #buzzRows,
+#teacher .right-rail .attention-panel:not(.is-empty) #helpRows,
+#teacher .right-rail .attention-panel:not(.is-empty) #photoRows{
+  margin-top:6px!important
+}
+#teacher .right-rail #buzzPanel{
+  min-height:0!important;
+  flex:0 0 auto!important
+}
+#teacher .right-rail #buzzPanel:not(.is-empty){
+  min-height:120px!important
+}
+#teacher .right-rail #buzzPanel #buzzRows{
+  flex:0 1 auto!important
+}
+#teacher .right-rail #buzzPanel .clear{
+  margin-top:8px!important
+}
+#teacher .right-rail #photoInboxPanel:not(.is-empty),
+#teacher .right-rail #helpInboxPanel:not(.is-empty){
+  min-height:110px!important
+}
+
+/* Shared Screen stays available, but no longer consumes a large rail block. */
+#teacher .right-rail .screen-dock{
+  margin-top:0!important;
+  padding:10px 11px!important
+}
+#teacher .right-rail .screen-dock-head{
+  margin-bottom:6px!important
+}
+#teacher .right-rail .screen-dock .launch-screen-btn{
+  min-height:32px!important;
+  margin:0 0 6px!important
+}
+#teacher .right-rail .screen-dock .mirror-screen{
+  width:100%!important;
+  max-width:none!important;
+  height:92px!important;
+  aspect-ratio:auto!important;
+  margin:0!important;
+  overflow:hidden!important
+}
+#teacher .right-rail .screen-dock .mirror-top{
+  height:25px!important;
+  min-height:25px!important;
+  padding:0 7px!important;
+  font-size:7px!important
+}
+#teacher .right-rail .screen-dock .mirror-content{
+  min-height:41px!important;
+  height:41px!important;
+  overflow:hidden!important
+}
+#teacher .right-rail .screen-dock .mirror-footer{
+  height:24px!important;
+  min-height:24px!important;
+  padding:0 7px!important;
+  font-size:7px!important
+}
+@media(max-width:1150px){
+  #teacher .right-rail .attention-panel.is-empty{min-height:44px!important}
+  #teacher .right-rail .screen-dock .mirror-screen{height:88px!important}
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -10585,6 +10689,8 @@ function renderRight(){
   attentionCounts.forEach(([sel,n])=>{const el=$(sel);if(el)el.textContent=n});
   const attentionStates=[['#attentionHelpChip',helpTotal],['#attentionBuzzChip',buzzTotal],['#attentionPhotoChip',photoTotal],['#helpInboxPanel',helpTotal],['#buzzPanel',buzzTotal],['#photoInboxPanel',photoTotal]];
   attentionStates.forEach(([sel,n])=>{const el=$(sel);if(el)el.classList.toggle(sel.includes('Chip')?'active':'has-attention',n>0)});
+  const inboxEmptyStates=[['#helpInboxPanel',helpTotal],['#buzzPanel',buzzTotal],['#photoInboxPanel',photoTotal]];
+  inboxEmptyStates.forEach(([sel,n])=>{const el=$(sel);if(el)el.classList.toggle('is-empty',n===0)});
   $('#photoRows').innerHTML=photoTotal?state.photos.slice(0,3).map(p=>`<div class="help-row photo-row"><img class="photo-thumb" data-photo-open="${p.id}" src="${p.data}" alt="Photo from ${p.name}"><span><b>${p.name}</b><small>${p.seen?'Viewed':'NEW PHOTO'}</small></span><button class="checkbtn" data-photo-view="${p.id}" title="View photo">⌕</button><button class="checkbtn photo-delete" data-photo-delete="${p.id}" title="Delete photo">×</button></div>`).join(''):'<p class="empty">No photos submitted</p>';
   $$('[data-photo-view]').forEach(b=>b.onclick=()=>openPhotoViewer(Number(b.dataset.photoView)));
   $$('[data-photo-open]').forEach(el=>el.onclick=()=>openPhotoViewer(Number(el.dataset.photoOpen)));
