@@ -7108,6 +7108,17 @@ body.role-student .million-student-lifelines button{
 .match-teacher-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.65fr);gap:14px}.match-teacher-card{background:#0b1b28;border:1px solid #31566d;border-radius:16px;padding:14px}.match-teacher-score{display:grid;gap:6px}.match-teacher-score>div{display:flex;justify-content:space-between;gap:10px;background:#10283a;border-radius:9px;padding:7px 9px}.match-control-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.match-control-grid button{min-height:44px}.match-control-grid .primary-action{background:linear-gradient(180deg,#31dd69,#109a3c)}.match-control-grid .danger-action{background:#7a2634}.match-current-player{font-size:22px;font-weight:950;color:#76e9ff}.match-result-chip{display:inline-flex;border-radius:999px;padding:6px 10px;background:#17334a;border:1px solid #3e718f;font-weight:800;margin-top:8px}
 @media(max-width:900px){.match-teacher-grid{grid-template-columns:1fr}.match-control-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+
+<style id="v55-26-bingo-gameplay">
+.bingo-shared-wrap{width:min(940px,95vw);margin:auto;text-align:center}.bingo-shared-main{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(230px,.65fr);gap:18px;align-items:stretch;margin-top:16px}
+.bingo-call-card{min-height:300px;border-radius:24px;background:#f8f7ef;color:#10202a;border:5px solid #1682bd;display:flex;align-items:center;justify-content:center;padding:24px;font-size:clamp(28px,5vw,64px);font-weight:950;overflow:hidden}.bingo-call-card img{max-width:100%;max-height:260px;object-fit:contain}
+.bingo-history{background:#0b1d2b;border:1px solid #315d78;border-radius:18px;padding:14px;text-align:left}.bingo-history-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.bingo-history-grid span{aspect-ratio:1;border-radius:9px;background:#112c40;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:4px;font-size:10px;font-weight:800}.bingo-history-grid img{width:100%;height:100%;object-fit:contain}
+.bingo-student-board{display:grid;gap:6px;margin:16px auto;max-width:480px}.bingo-student-cell{aspect-ratio:1;border-radius:10px;border:2px solid #3d6f8d;background:#f7f6ee;color:#13202a;padding:4px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;font-weight:850;overflow:hidden}.bingo-student-cell img{width:100%;height:100%;object-fit:contain}.bingo-student-cell.marked{background:#7af29b;border-color:#35d665;box-shadow:0 0 0 2px #39df7270}.bingo-student-cell.uncalled{opacity:.72}.bingo-student-cell.free{background:#ffd85d}
+.bingo-claim-button{width:100%;min-height:52px;margin-top:12px;background:linear-gradient(180deg,#ff445d,#d91f38);font-size:18px;font-weight:950}.bingo-claim-status{margin-top:10px;border-radius:12px;padding:10px;background:#112a3b;border:1px solid #37667e}.bingo-claim-status.valid{border-color:#44e977;background:#0b3820}.bingo-claim-status.invalid{border-color:#ff6b78;background:#3b1520}
+.bingo-teacher-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:14px}.bingo-teacher-card{background:#0b1b28;border:1px solid #31566d;border-radius:16px;padding:14px}.bingo-teacher-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.bingo-teacher-actions button{min-height:46px}.bingo-claims-list{display:grid;gap:8px}.bingo-claim-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:#10283a;border-radius:10px;padding:9px}.bingo-claim-row.valid{outline:1px solid #49e879}.bingo-claim-row.invalid{outline:1px solid #ff6676}.bingo-claim-row small{display:block;color:#9fc0d2}.bingo-claim-row-actions{display:flex;gap:6px}
+.bingo-reveal{max-width:780px;margin:10px auto;padding:26px;border-radius:24px;background:radial-gradient(circle at 50% 30%,#4a1874,#130a31 70%);border:2px solid #d171ff;box-shadow:0 0 40px #a33cff66}.bingo-reveal h3{font-size:clamp(48px,8vw,92px);margin:0;color:#ffd849;text-shadow:0 4px 0 #7c2a2a}.bingo-reveal-board{display:grid;gap:5px;max-width:420px;margin:18px auto}.bingo-reveal-board span{aspect-ratio:1;border-radius:8px;background:#f7f6ee;color:#17242c;display:flex;align-items:center;justify-content:center;padding:3px;overflow:hidden;font-size:10px;font-weight:900}.bingo-reveal-board span.win{background:#72ef98;box-shadow:0 0 0 2px #39df72}.bingo-reveal-board img{width:100%;height:100%;object-fit:contain}
+@media(max-width:900px){.bingo-shared-main,.bingo-teacher-grid{grid-template-columns:1fr}.bingo-teacher-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -7480,8 +7491,9 @@ function launchMatchSet(set){
   state.screen='activity';state.promptActive=false;state.assigningSlot=null;recordActivityLaunch('match',set.name);render();toast('MATCH loaded — students moved to Activity Lobby');
 }
 function launchBingoSet(set){
-  const order=shuffleCopy(set.items||[],Date.now()).map(x=>x.id);
-  state.activityRun={activityId:'bingo-game',runToken:newActivityRunToken(),phase:'lobby',responses:{},bingoConfig:{setId:set.id,name:set.name,items:deepClone(set.items),size:set.size,pattern:set.pattern,free:!!set.free},bingo:{callOrder:order,called:[],current:null,claims:[],message:'Cards generated. Start when the class is ready.'}};
+  const runToken=newActivityRunToken(),order=shuffleCopy(set.items||[],Date.now()).map(x=>x.id),cards={};
+  connectedStudents().forEach(st=>{const size=Number(set.size||4),count=size*size,ids=shuffleCopy(set.items||[],runToken+'|'+st.n).slice(0,count).map(x=>x.id);if(set.free&&size%2===1)ids[Math.floor(count/2)]='free';cards[st.n]=ids});
+  state.activityRun={activityId:'bingo-game',runToken,phase:'lobby',responses:{},bingoConfig:{setId:set.id,name:set.name,items:deepClone(set.items),size:set.size,pattern:set.pattern,free:!!set.free},bingo:{callOrder:order,called:[],current:null,cards,marks:{},claimResults:{},claims:[],reveal:null,callNonce:0,message:'Cards generated. Start when the class is ready.'}};
   state.screen='activity';state.promptActive=false;state.assigningSlot=null;recordActivityLaunch('bingo',set.name);render();toast('BINGO loaded — private cards are ready');
 }
 
@@ -7557,9 +7569,57 @@ function wireMatchStudent(){
   document.querySelectorAll('[data-match-pick]').forEach(b=>b.onclick=()=>sendMatchAction('select',b.dataset.matchPick));
 }
 function bingoCardFor(name,run=state.activityRun){
-  const cfg=run?.bingoConfig||{},size=Number(cfg.size||4),count=size*size,items=shuffleCopy(cfg.items||[],String(run?.runToken||'')+'|'+String(name||'student')).slice(0,count);
-  if(cfg.free&&size%2===1){const mid=Math.floor(count/2);items.splice(mid,0,{id:'free',card:{type:'text',value:'FREE'}});return items.slice(0,count)}
+  const cfg=run?.bingoConfig||{},b=run?.bingo||{},size=Number(cfg.size||4),count=size*size,ids=b.cards?.[name];
+  if(Array.isArray(ids)&&ids.length){return ids.slice(0,count).map(id=>id==='free'?{id:'free',card:{type:'text',value:'FREE'}}:(cfg.items||[]).find(x=>x.id===id)).filter(Boolean)}
+  const items=shuffleCopy(cfg.items||[],String(run?.runToken||'')+'|'+String(name||'student')).slice(0,count);
+  if(cfg.free&&size%2===1){const mid=Math.floor(count/2);items[mid]={id:'free',card:{type:'text',value:'FREE'}}}
   return items;
+}
+function bingoState(run=state.activityRun){return run?.bingo||null}
+function bingoItem(id,run=state.activityRun){return (run?.bingoConfig?.items||[]).find(x=>x.id===id)||null}
+function bingoWinningIndexSets(size,pattern){
+  const n=Math.max(3,Math.min(6,Number(size||4))),rows=Array.from({length:n},(_,r)=>Array.from({length:n},(_,c)=>r*n+c)),cols=Array.from({length:n},(_,c)=>Array.from({length:n},(_,r)=>r*n+c));
+  if(pattern==='corners')return [[0,n-1,n*(n-1),n*n-1]];
+  if(pattern==='x')return [[...Array.from({length:n},(_,i)=>i*n+i),...Array.from({length:n},(_,i)=>i*n+(n-1-i))]];
+  if(pattern==='blackout')return [Array.from({length:n*n},(_,i)=>i)];
+  return [...rows,...cols,Array.from({length:n},(_,i)=>i*n+i),Array.from({length:n},(_,i)=>i*n+(n-1-i))];
+}
+function bingoClaimValid(name,run=state.activityRun){
+  const cfg=run?.bingoConfig||{},b=run?.bingo||{},ids=b.cards?.[name]||[],marks=new Set(b.marks?.[name]||[]),called=new Set(b.called||[]);
+  const validMarked=new Set(ids.filter(id=>id==='free'||(marks.has(id)&&called.has(id))));
+  return bingoWinningIndexSets(cfg.size,cfg.pattern).some(set=>set.every(i=>ids[i]&&validMarked.has(ids[i])));
+}
+function applyBingoLocalAction(type,value,name){
+  const run=state.activityRun,b=bingoState(run);if(!run||run.activityId!=='bingo-game'||!b)return;
+  if(type==='mark'){
+    const ids=b.cards?.[name]||[];if(!ids.includes(value)||value==='free'||!(b.called||[]).includes(value))return;
+    b.marks=b.marks||{};const marks=new Set(b.marks[name]||[]);marks.has(value)?marks.delete(value):marks.add(value);b.marks[name]=[...marks];b.claimResults=b.claimResults||{};delete b.claimResults[name];
+  }else if(type==='claim'){
+    const valid=bingoClaimValid(name,run),claim={id:'claim_'+Date.now().toString(36),name,valid,at:Date.now(),status:'pending'};
+    b.claims=b.claims||[];b.claims.unshift(claim);b.claimResults=b.claimResults||{};b.claimResults[name]={valid,at:Date.now(),message:valid?'BINGO verified! Waiting for teacher reveal.':'Not yet — your card does not have a valid Bingo yet.'};b.message=valid?name+' has a verified BINGO claim!':name+' claimed Bingo — not valid yet.';
+  }else if(type==='call_next'){
+    const next=(b.callOrder||[]).find(id=>!(b.called||[]).includes(id));if(!next){b.message='All call items have been used.';return}b.current=next;b.called=[...(b.called||[]),next];b.callNonce=Number(b.callNonce||0)+1;b.message='Called '+(bingoItem(next,run)?.call?.label||bingoItem(next,run)?.call?.value||'next item')+'.';
+  }else if(type==='repeat'){if(b.current){b.callNonce=Number(b.callNonce||0)+1;b.message='Repeating the last call.'}}
+  else if(type==='reveal_claim'){
+    const claim=(b.claims||[]).find(x=>x.id===value&&x.valid);if(!claim)return;b.reveal={name:claim.name,claimId:claim.id,card:(b.cards?.[claim.name]||[]).slice(),marks:(b.marks?.[claim.name]||[]).slice(),at:Date.now()};claim.status='revealed';b.message=claim.name+' has BINGO!';
+  }else if(type==='dismiss_claim'){
+    const claim=(b.claims||[]).find(x=>x.id===value);if(claim)claim.status='dismissed';
+  }else if(type==='clear_reveal'){b.reveal=null;b.message='Continue calling when ready.'}
+}
+function sendBingoAction(type,value=''){
+  const s=selectedStudent(),name=s?.n||'',request={id:'bingo_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),type,value,name,at:Date.now()};
+  if(NETWORK_SYNC&&networkHydrated&&networkSocket&&networkSocket.readyState===WebSocket.OPEN){try{networkSocket.send(JSON.stringify({type:'bingo_action',request,student_name:name,student_token:currentStudentIdentity()?.student_token||''}));return}catch(e){}}
+  applyBingoLocalAction(type,value,name);render();
+}
+function teacherBingoAction(type,value=''){
+  const request={id:'bingo_teacher_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),type,value,at:Date.now()};
+  if(NETWORK_SYNC&&networkHydrated&&networkSocket&&networkSocket.readyState===WebSocket.OPEN){try{networkSocket.send(JSON.stringify({type:'bingo_action',request}));return}catch(e){}}
+  applyBingoLocalAction(type,value,'Teacher');render();
+}
+function wireBingoStudent(){
+  if(activeActivity()?.type!=='bingo'||state.activityRun?.phase!=='running')return;
+  document.querySelectorAll('[data-bingo-mark]').forEach(b=>b.onclick=()=>sendBingoAction('mark',b.dataset.bingoMark));
+  const claim=$('#studentBingoClaimBtn');if(claim)claim.onclick=()=>sendBingoAction('claim');
 }
 const studentSeed=[
  {n:'Maya',c:'#5be8ff',understanding:'Got it'},
@@ -8940,6 +9000,7 @@ function startOrResumeActivityRun(){
   if(a?.type==='match'){
     const m=matchState(run);if(m){m.selected=[];m.pendingResolution=null;m.turnStart=null;m.teacherLocked=false;m.locked=false;m.complete=false;m.activeStudentIndex=Math.max(0,Number(m.activeStudentIndex||0));m.message=(matchActiveStudent(run)?.n||'First player')+' is up — pick two cards.'}
   }
+  if(a?.type==='bingo'){const b=bingoState(run);if(b){b.reveal=null;b.message='BINGO is live — Mission Control may call the first item.'}}
   render();
   toast(a?.type==='minefield'?'MINEFIELD started — Navigator controls synchronized':a?.type==='vector'?'VECTOR started — student pin controls synchronized':a?.type==='orbit'?'ORBIT started — student response fields synchronized':a?.type==='pixel'?'PIXEL REVEAL started — private guess controls synchronized':a?.type==='sketch'?'SKETCH SIGNAL started — artist and private guesses synchronized':a?.type==='starwheel'?'STARWHEEL started — active pilot controls synchronized':'Activity started — student controls synchronized');
 }
@@ -9388,8 +9449,9 @@ function activitySharedMarkup(big=false){
     return `<div class="foundation-public"><span class="eyebrow">MOTHERSHIP · MATCH</span><h3 style="font-size:${big?52:34}px">${m.complete?'BOARD CLEARED!':esc(run.matchConfig?.name||'MATCH')}</h3><div class="match-public-status"><span>${esc(active?.n||'—')} · CURRENT PLAYER</span><span>${matched.size/2} PAIRS FOUND</span><span>${Number(m.attempts||0)} ATTEMPTS</span></div><p>${esc(m.message||'Remember where every signal is hiding.')}</p><div class="foundation-board" style="grid-template-columns:repeat(${cards.length<=16?4:cards.length<=20?5:6},minmax(0,1fr))">${cards.map((card,i)=>{const open=matched.has(card.id)||selected.has(card.id);return `<div class="card ${matched.has(card.id)?'matched':''} ${selected.has(card.id)?'revealed pending':''}">${open?contentMarkup(card.content):i+1}</div>`}).join('')}</div></div>`;
   }
   if(a.type==='bingo'){
-    const b=run.bingo||{},cfg=run.bingoConfig||{},current=(cfg.items||[]).find(x=>x.id===b.current);
-    return `<div class="foundation-public"><span class="eyebrow">MOTHERSHIP · BINGO</span><h3 style="font-size:${big?52:34}px">${esc(cfg.name||'BINGO')}</h3><div class="foundation-call">${current?contentMarkup(current.call):'READY TO CALL'}</div><p>${(b.called||[]).length} called · Win pattern: ${esc(cfg.pattern||'line')}</p></div>`;
+    const b=run.bingo||{},cfg=run.bingoConfig||{},current=(cfg.items||[]).find(x=>x.id===b.current),history=(b.called||[]).slice(-9).reverse();
+    if(b.reveal){const r=b.reveal,card=(r.card||[]).map(id=>id==='free'?{id:'free',card:{type:'text',value:'FREE'}}:(cfg.items||[]).find(x=>x.id===id)).filter(Boolean),marks=new Set([...(r.marks||[]),'free']);return `<div class="bingo-reveal"><span class="eyebrow">MOTHERSHIP · BINGO</span><h3>BINGO!</h3><h2>${esc(r.name||'Winner')}</h2><div class="bingo-reveal-board" style="grid-template-columns:repeat(${Number(cfg.size||4)},1fr)">${card.map(item=>`<span class="${marks.has(item.id)?'win':''}">${contentMarkup(item.card)}</span>`).join('')}</div></div>`}
+    return `<div class="bingo-shared-wrap"><span class="eyebrow">MOTHERSHIP · BINGO</span><h3 style="font-size:${big?52:34}px">${esc(cfg.name||'BINGO')}</h3><div class="bingo-shared-main"><div><div class="bingo-call-card">${current?contentMarkup(current.call):'READY TO CALL'}</div><p>${esc(b.message||'')}</p></div><div class="bingo-history"><h4>CALL HISTORY</h4><div class="bingo-history-grid">${history.map(id=>{const item=bingoItem(id,run);return `<span>${item?contentMarkup(item.call):''}</span>`}).join('')||'<span>—</span>'}</div><p>${(b.called||[]).length} / ${(cfg.items||[]).length} called</p><small>Win pattern: ${esc(cfg.pattern||'line')}</small></div></div></div>`;
   }
   if(a.type==='crew-survey'){return crewSurveySharedMarkup(run,big);}
   if(a.type==='million'){return millionSharedMarkup(run,big);}
@@ -9521,8 +9583,8 @@ function studentMarkup(){
       return `<div class="student-game-foundation"><div class="student-game-card"><span class="eyebrow">MOTHERSHIP · MATCH</span><h2>${m.complete?'BOARD CLEARED!':mine?'YOUR TURN':'WATCH & REMEMBER'}</h2><p>${m.complete?'Every pair has been found.':mine?(m.locked?'Wait for the reveal to resolve.':'Pick two cards.'):(esc(active?.n||'A classmate')+' is choosing. Watch the shared board.')}</p><div class="match-student-grid" style="grid-template-columns:repeat(${cols},1fr)">${cards.map((card,i)=>{const open=matched.has(card.id)||selected.has(card.id),disabled=!mine||m.locked||m.complete||open;return `<button class="${open?'open':''}" data-match-pick="${esc(card.id)}" ${disabled?'disabled':''}>${open?contentMarkup(card.content):i+1}</button>`}).join('')}</div><div class="prompt-caption">${Number(m.scores?.[s?.n]||0)} pairs found by you · ${(m.matched||[]).length/2} total</div></div></div>`;
     }
     if(a.type==='bingo'){
-      const cfg=run.bingoConfig||{},card=bingoCardFor(s?.n,run),size=Number(cfg.size||4);
-      return `<div class="student-game-foundation"><div class="student-game-card"><span class="eyebrow">MOTHERSHIP · BINGO</span><h2>${esc(s?.n||'Student')}'s Private Card</h2><p>Your randomized card is ready. Marking and claim controls arrive in the gameplay pass.</p><div class="student-game-mini-grid" style="grid-template-columns:repeat(${size},1fr)">${card.map(item=>`<span>${contentMarkup(item.card)}</span>`).join('')}</div></div></div>`;
+      const cfg=run.bingoConfig||{},b=run.bingo||{},card=bingoCardFor(s?.n,run),size=Number(cfg.size||4),marks=new Set(b.marks?.[s?.n]||[]),called=new Set(b.called||[]),result=b.claimResults?.[s?.n];
+      return `<div class="student-game-foundation"><div class="student-game-card"><span class="eyebrow">MOTHERSHIP · BINGO</span><h2>${esc(s?.n||'Student')}'s Private Card</h2><p>${b.current?'Mark the item if it appears on your card.':'Waiting for the first call…'}</p><div class="bingo-student-board" style="grid-template-columns:repeat(${size},1fr)">${card.map(item=>{const free=item.id==='free',can=free||called.has(item.id),marked=free||marks.has(item.id);return `<button class="bingo-student-cell ${marked?'marked':''} ${free?'free':''} ${can?'':'uncalled'}" data-bingo-mark="${esc(item.id)}" ${free||!can?'disabled':''}>${contentMarkup(item.card)}</button>`}).join('')}</div><div class="prompt-caption">${marks.size+(card.some(x=>x.id==='free')?1:0)} marked · ${(b.called||[]).length} calls</div><button class="bingo-claim-button" id="studentBingoClaimBtn">BINGO!</button>${result?`<div class="bingo-claim-status ${result.valid?'valid':'invalid'}"><b>${result.valid?'✓ VALID BINGO':'Not yet!'}</b><p>${esc(result.message||'')}</p></div>`:''}</div></div>`;
     }
     if(a.type==='crew-survey')return crewSurveyStudentMarkup(run,s);
     if(a.type==='million')return millionStudentMarkup(run,s);
@@ -9846,6 +9908,12 @@ function renderActivityController(){
   if(run.phase==='lobby'){
     const resuming=!!run.resumePending,label=a.type==='presentation'?'Presentation':a.type==='crew-survey'?'CREW SURVEY':a.type==='million'?'MILLION':a.type==='minefield'?'MINEFIELD':a.type==='vector'?'VECTOR':a.type==='board'?'BOARD':a.type==='orbit'?'ORBIT':a.type==='pixel'?'PIXEL REVEAL':a.type==='sketch'?'SKETCH SIGNAL':a.type==='starwheel'?'STARWHEEL':a.type==='match'?'MATCH':a.type==='bingo'?'BINGO':'Activity';
     box.innerHTML=`<div class="activity-controller-head"><div><span class="eyebrow">${resuming?'ACTIVITY PAUSED':'ACTIVITY LOADED'}</span><h2>${esc(a.name)}</h2><p>${resuming?'Progress is saved. Resume when the class is ready.':'Students are in the Activity Lobby. Start when you\'re ready.'}</p></div><span class="controller-chip">${connected.length} students</span></div><div class="controller-grid lobby-controller"><button class="primary-action" id="startActivityBtn">▶ ${resuming?'Resume':'Start'} ${label}</button><button id="returnClassBtn">✓ Finish & Return</button><button class="minefield-send-lobby" id="sendActivityLobbyBtn" disabled>Ⅱ Progress Paused</button><button class="danger-action" id="emergencyActivityBtn">⚠ Emergency Return</button></div>`;
+  } else if(a.type==='bingo'){
+    const b=bingoState(run)||{},cfg=run.bingoConfig||{},current=bingoItem(b.current,run),claims=(b.claims||[]).filter(x=>x.status!=='dismissed'),history=(b.called||[]).slice(-12).reverse();
+    box.innerHTML=`<div class="activity-controller-head"><div><span class="slide-badge instruction">BINGO · MISSION CONTROL</span><h2>${esc(cfg.name||'BINGO')}</h2><p>${esc(b.message||'')}</p></div><div class="controller-stats"><b>${(b.called||[]).length}</b> / ${(cfg.items||[]).length} called · <b>${claims.length}</b> claims</div></div>
+    <div class="bingo-teacher-grid"><div class="bingo-teacher-card"><h4>CALLER</h4><div class="foundation-call">${current?contentMarkup(current.call):'READY TO CALL'}</div><div class="bingo-teacher-actions"><button class="primary-action" id="bingoCallNextBtn">📣 CALL NEXT</button><button id="bingoRepeatBtn" ${current?'':'disabled'}>↻ REPEAT LAST CALL</button><button id="bingoClearRevealBtn" ${b.reveal?'':'disabled'}>Return to Caller</button></div><h4 style="margin-top:14px">CALL HISTORY</h4><div class="bingo-history-grid">${history.map(id=>{const item=bingoItem(id,run);return `<span>${item?contentMarkup(item.call):''}</span>`}).join('')||'<span>—</span>'}</div></div>
+    <div class="bingo-teacher-card"><h4>BINGO CLAIMS</h4><div class="bingo-claims-list">${claims.length?claims.map(cl=>`<div class="bingo-claim-row ${cl.valid?'valid':'invalid'}"><div><b>${esc(cl.name)}</b><small>${cl.valid?'✓ Valid '+esc(cfg.pattern||'line'):'Not yet — no valid '+esc(cfg.pattern||'line')}</small></div><div class="bingo-claim-row-actions">${cl.valid?`<button data-bingo-reveal-claim="${cl.id}">Reveal on Zoom</button>`:''}<button data-bingo-dismiss-claim="${cl.id}">Dismiss</button></div></div>`).join(''):'<div class="empty">No Bingo claims yet.</div>'}</div></div></div>
+    <div class="controller-safety"><button id="returnClassBtn">✓ Finish & Return</button><button class="minefield-send-lobby" id="sendActivityLobbyBtn">Ⅱ Pause & Keep Progress</button><button class="danger-action" id="emergencyActivityBtn">⚠ Emergency Return</button></div>`;
   } else if(a.type==='match'){
     const m=matchState(run)||{},active=matchActiveStudent(run),scores=m.scores||{},selected=m.selected||[],pending=m.pendingResolution,last=m.lastResolved;
     box.innerHTML=`<div class="activity-controller-head"><div><span class="slide-badge instruction">MATCH · MISSION CONTROL</span><h2>${esc(run.matchConfig?.name||'MATCH')}</h2><p>${esc(m.message||'')}</p><div class="match-result-chip">${m.complete?'BOARD CLEARED':pending?(pending.result==='match'?'MATCH REVEALED':'NO MATCH REVEALED'):(m.locked?'BOARD LOCKED':'TURN ACTIVE')}</div></div><div class="controller-stats"><b>${(m.matched||[]).length/2}</b> pairs · <b>${Number(m.attempts||0)}</b> attempts</div></div>
@@ -9925,6 +9993,12 @@ function wireActivityController(){
   const next=$('#nextSlideBtn');if(next)next.onclick=()=>changeSlide(1);
   const res=$('#toggleResultsBtn');if(res)res.onclick=()=>{state.activityRun.showResults=!state.activityRun.showResults;render()};
   const rev=$('#revealAnswerBtn');if(rev)rev.onclick=()=>{state.activityRun.revealAnswer=!state.activityRun.revealAnswer;render()};
+  const bingoCallNext=$('#bingoCallNextBtn');if(bingoCallNext)bingoCallNext.onclick=()=>teacherBingoAction('call_next');
+  const bingoRepeat=$('#bingoRepeatBtn');if(bingoRepeat)bingoRepeat.onclick=()=>teacherBingoAction('repeat');
+  const bingoClearReveal=$('#bingoClearRevealBtn');if(bingoClearReveal)bingoClearReveal.onclick=()=>teacherBingoAction('clear_reveal');
+  $$('[data-bingo-reveal-claim]').forEach(b=>b.onclick=()=>teacherBingoAction('reveal_claim',b.dataset.bingoRevealClaim));
+  $$('[data-bingo-dismiss-claim]').forEach(b=>b.onclick=()=>teacherBingoAction('dismiss_claim',b.dataset.bingoDismissClaim));
+
   const matchLock=$('#matchLockBtn');if(matchLock)matchLock.onclick=()=>teacherMatchAction('toggle_lock');
   const matchPause=$('#matchPauseRevealBtn');if(matchPause)matchPause.onclick=()=>teacherMatchAction('toggle_pause');
   const matchContinue=$('#matchContinueBtn');if(matchContinue)matchContinue.onclick=()=>teacherMatchAction('continue');
@@ -10447,6 +10521,9 @@ function renderStudentControls(){
   if(state.calculatorLaunch&&String(state.calculatorLaunch.id||'')!==String(studentCalculatorDismissedLaunchId||'')){if(zoneWrap)zoneWrap.dataset.app='scientific-calculator';label.innerHTML='<b>SCIENTIFIC CALCULATOR</b><span>Independent session · Back to Classroom is above</span>';zone.className='student-actions';zone.innerHTML='';return}
   if(state.activityRun&&state.activityRun.phase==='running'){
     const a=activeActivity(),slide=currentSlide();if(zoneWrap)zoneWrap.dataset.app=a?.type||'activity';
+    if(a.type==='bingo'){
+      const b=bingoState(),r=b?.claimResults?.[s?.n];label.innerHTML='<b>BINGO CONTROLS</b><span>'+esc(r?.valid?'Verified Bingo':r?'Keep playing':'Private card above')+'</span>';zone.className='student-actions';zone.innerHTML='<button disabled>▦<br>'+((b?.marks?.[s?.n]||[]).length)+' Marked</button>';return;
+    }
     if(a.type==='match'){
       const m=matchState(),active=matchActiveStudent(),mine=active?.n===s?.n;
       label.innerHTML='<b>MATCH CONTROLS</b><span>'+esc(m?.complete?'Board cleared':mine?'Your turn':'Watch the shared board')+'</span>';zone.className='student-actions';
@@ -10718,7 +10795,7 @@ function animateStarwheelWheels(){
   starwheelLastAnimatedNonce=nonce;
 }
 function renderPublic(){
-  $('#mirrorContent').innerHTML=sharedMarkup('normal');$('#sharedContent').innerHTML=sharedMarkup('big');$('#studentContent').innerHTML=studentMarkup();wireStudentJoin();wireStudentCalculator();wireStudentResponses();wireMinefieldStudent();wireVectorStudent();wireBoardStudent();wireSketchStudent();wireOrbitStudent();wireStarwheelStudent();wireCrewSurveyStudent();wireMillionStudent();wireMatchStudent();renderStudentControls();animateStarwheelWheels();scheduleMatchResolution();requestAnimationFrame(paintPixelFocusCanvases);
+  $('#mirrorContent').innerHTML=sharedMarkup('normal');$('#sharedContent').innerHTML=sharedMarkup('big');$('#studentContent').innerHTML=studentMarkup();wireStudentJoin();wireStudentCalculator();wireStudentResponses();wireMinefieldStudent();wireVectorStudent();wireBoardStudent();wireSketchStudent();wireOrbitStudent();wireStarwheelStudent();wireCrewSurveyStudent();wireMillionStudent();wireMatchStudent();wireBingoStudent();renderStudentControls();animateStarwheelWheels();scheduleMatchResolution();requestAnimationFrame(paintPixelFocusCanvases);
   const conn=$('#studentConnectionLabel');if(conn)conn.innerHTML=studentNeedsJoin()?'<span style="width:9px;height:9px;border-radius:50%;display:inline-block;background:#ffc35d;box-shadow:0 0 12px #ffc35d88"></span>&nbsp; Join Class':'<span class="pulse"></span>&nbsp; Connected';
   const label=state.ended?'ENDED':state.activityRun?(activeActivity()?.type==='board'?'BOARD LIVE':state.activityRun.phase==='lobby'?'ACTIVITY LOBBY':'ACTIVITY LIVE'):state.screen==='brb'?'WE’LL BE RIGHT BACK':state.screen.toUpperCase();$('#mirrorLabel').textContent=label;$('#sharedLabel').textContent=label;updateSecondScreen();
 }
