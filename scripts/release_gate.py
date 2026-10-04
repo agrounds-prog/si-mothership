@@ -376,7 +376,7 @@ def main() -> int:
     check("calculator popup fit v55.22: no automatic window resize introduced", "window.resizeBy" not in server and "window.resizeTo" not in server and "ResizeObserver" not in server)
     check("mission control header v55.29: release style remains", 'id="v55-29-mission-control-header-cleanup"' in html)
     check("mission control header v55.29: activity context moved into header", all(x in html for x in ("missionContextName","missionContextState","missionContextDetail","mission-context-title")))
-    check("mission control header v55.29: workflow actions live in session group", all(x in html for x in ("id=\\\"activityWorkflowStart\\\"","id=\\\"activityWorkflowPause\\\"","id=\\\"activityWorkflowFinish\\\"","mission-workflow-btn")))
+    check("mission control header v55.29: workflow actions live in session group", all(x in html for x in ('id="activityWorkflowStart"','id="activityWorkflowPause"','id="activityWorkflowFinish"',"mission-workflow-btn")))
     check("mission control header v55.29: legacy activity strip is visually suppressed", "#teacher #activityWorkflowBar{display:none!important}" in html and 'aria-hidden="true"' in html)
     check("mission control header v55.29: workflow handlers remain wired", all(x in html for x in ("workflowStart.onclick=startOrResumeActivityRun","workflowPause.onclick=sendActivityToLobby","workflowFinish.onclick=finishActiveActivity")))
     check("live roster compact v55.28: release style remains", 'id="v55-28-live-roster-compact"' in html)
