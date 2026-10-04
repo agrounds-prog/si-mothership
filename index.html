@@ -7587,7 +7587,8 @@ function applyMatchLocalAction(type,value,name){
   }else if(type==='consult_suggest'){
     if(!m.consult?.open)return;const active=matchActiveStudent(run),activeTeam=matchTeamIndexForStudent(active?.n,run),senderTeam=matchTeamIndexForStudent(name,run);if(name===active?.n||senderTeam<0||senderTeam!==activeTeam)return;
     const card=(m.cards||[]).find(x=>x.id===value);if(!card||(m.matched||[]).includes(value)||(m.selected||[]).includes(value))return;m.consult.suggestions=m.consult.suggestions||{};m.consult.suggestions[name]=value;
-  }else if(type==='consult_close'){if(m.consult)m.consult.open=false;
+  }else if(type==='consult_close'){
+    if(m.consult)m.consult.open=false;
   }else if(type==='mark_match'&&m.selected?.length===2){
     const player=matchActiveStudent(run)?.n||name||'Player';m.matched=[...new Set([...(m.matched||[]),...m.selected])];m.scores=m.scores||{};m.teamScores=m.teamScores||{};if(run.matchConfig?.scoring!=='no_score'){m.scores[player]=Number(m.scores[player]||0)+1;const team=matchTeamIndexForStudent(player,run);if(team>=0)m.teamScores[team]=Number(m.teamScores[team]||0)+1};m.pendingResolution={result:'match',cards:m.selected.slice(),player,nonce:'mr_'+Date.now().toString(36),resolveAt:Date.now()+300};m.locked=true;m.message='Mission Control marked this pair as a match.';
   }else if(type==='return_pair'){
