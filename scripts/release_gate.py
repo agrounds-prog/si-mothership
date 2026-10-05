@@ -519,6 +519,17 @@ def main() -> int:
     check("activity library v56.3: top illustrated controls remain crisp", "brightness(1.18)" in v563_css and "#teacher .single-mission-controls .control .ico.v562-art" in v563_css)
     check("activity library v56.3: shortcut actions remain functional", 'data-shortcut-replace="' in html and 'data-shortcut-remove="' in html and 'data-open-app="' in html)
 
+    # v56.4 station modules and empty states.
+    v564_style = re.search(r'<style id="v56-4-station-modules-empty-states">(.*?)</style>', html, re.S)
+    v564_css = v564_style.group(1) if v564_style else ""
+    check("station modules v56.4: dedicated integration layer remains", bool(v564_style))
+    check("station modules v56.4: roster header uses illustrated badge", "v562-app-crew-survey" in html and "v564-panel-art" in html)
+    check("station modules v56.4: right rail modules use illustrated badges", all(x in html for x in ["v562-control-buzz","v562-control-picture","v562-control-help","v562-control-understanding"]))
+    check("station modules v56.4: shared screen module keeps illustrated badge", "SHARED SCREEN" in html and "v562-control-lobby" in html)
+    check("station modules v56.4: empty roster gets illustrated scanner state", "v564-empty-roster" in html and "CREW SCANNER" in html and "#teacher .v564-empty-roster-art>.v562-art" in v564_css)
+    check("station modules v56.4: ended panel keeps illustrated mission-complete art", "v564-session-complete-art" in html and "#teacher .v564-session-complete-art>.v562-art" in v564_css)
+    check("station modules v56.4: shared screen functionality hooks remain", 'id="launchSecondScreenBtn"' in html and 'id="mirrorContent"' in html and 'id="mirrorLabel"' in html)
+
     # Historical selector invariant: $() is single-element; $() is multi-element.
     bad_selector_lines = []
     for number, line in enumerate(html.splitlines(), 1):
