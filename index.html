@@ -11511,7 +11511,7 @@ function activitySharedMarkup(big=false){
     const slide=currentSlide();if(!slide)return '';
     if(slide.type==='instruction'){
       const imageOnly=!!slide.image&&!ytId(slide.youtube);
-      if(imageOnly)return `<div class="si-plus-viewport-image" style="width:100vw;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:0;padding:8px;box-sizing:border-box"><img src="${slide.image}" alt="Slide image" style="display:block;width:auto!important;height:auto!important;max-width:calc(100vw - 16px)!important;max-height:calc(100dvh - 16px)!important;object-fit:contain!important;object-position:center;margin:auto;border-radius:12px"></div>`;
+      if(imageOnly)return `<div class="si-plus-viewport-image" style="width:100vw;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:0;padding:8px;box-sizing:border-box"><img src="${slide.image}" alt="Slide image" style="display:block;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;object-position:center;margin:auto;border-radius:12px"></div>`;
       const media=`<div class="presentation-media-stack">${slide.image?`<img src="${slide.image}" alt="Slide image">`:''}${ytId(slide.youtube)?`<iframe src="${ytEmbed(ytId(slide.youtube),false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`:''}</div>`;
       return `<div class="presentation-public"><div class="slide-count">Slide ${run.slideIndex+1} of ${a.slides.length}</div><h3 style="font-size:${big?54:34}px">${esc(slide.title)}</h3>${media}<p style="font-size:${big?27:18}px">${esc(slide.text)}</p></div>`;
     }
@@ -11531,7 +11531,7 @@ function responseSlideMarkup(slide,big=false){
   const reveal=slide.type==='question'&&run.revealAnswer;
   const hasAnswerOptions=(slide.choices||[]).length>0;
   const imageOnly=!!slide.image&&!hasAnswerOptions&&!ytId(slide.youtube);
-  if(imageOnly)return `<div class="si-plus-viewport-image" style="width:100vw;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:0;padding:8px;box-sizing:border-box"><img src="${slide.image}" alt="Slide image" style="display:block;width:auto!important;height:auto!important;max-width:calc(100vw - 16px)!important;max-height:calc(100dvh - 16px)!important;object-fit:contain!important;object-position:center;margin:auto;border-radius:12px"></div>`;
+  if(imageOnly)return `<div class="si-plus-viewport-image" style="width:100vw;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:0;padding:8px;box-sizing:border-box"><img src="${slide.image}" alt="Slide image" style="display:block;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;object-position:center;margin:auto;border-radius:12px"></div>`;
   const image=slide.image?`<img class="question-visual" src="${slide.image}" alt="Question visual">`:'';
   const rows=(slide.choices||[]).map(c=>{
     const pct=count?Math.round((counts[c.key]||0)/count*100):0;
