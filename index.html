@@ -8833,6 +8833,180 @@ body.role-shared .shared-screen .response-slide.no-answer-options > p.supporting
   line-height:1.25!important
 }
 </style>
+
+<style id="v56-5-true-fullscreen-image-slides">
+/* v56.5 — a shared SI+ image with no answer choices is a true viewport presentation.
+   Portrait pages fill browser height; landscape images fill browser width. Nothing is cropped. */
+
+/* Collapse all Mothership shared-screen chrome while the current slide is image-focused. */
+body.role-shared #shared:has(.image-focus-slide){
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  background:#061426!important
+}
+body.role-shared #shared:has(.image-focus-slide)::after{
+  display:none!important
+}
+body.role-shared #shared .shared-screen:has(.image-focus-slide){
+  position:fixed!important;
+  inset:0!important;
+  display:block!important;
+  width:100vw!important;
+  height:100dvh!important;
+  min-height:100dvh!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  overflow:hidden!important;
+  background:#061426!important;
+  box-shadow:none!important
+}
+body.role-shared #shared .shared-screen:has(.image-focus-slide) > .mirror-top,
+body.role-shared #shared .shared-screen:has(.image-focus-slide) > .mirror-footer{
+  display:none!important
+}
+body.role-shared #shared .shared-screen:has(.image-focus-slide) > .mirror-content{
+  position:fixed!important;
+  inset:0!important;
+  display:block!important;
+  width:100vw!important;
+  height:100dvh!important;
+  min-width:100vw!important;
+  min-height:100dvh!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important
+}
+body.role-shared #shared .shared-screen:has(.image-focus-slide) > .mirror-content::before{
+  display:none!important
+}
+
+/* The slide itself becomes the viewport instead of a centered card. */
+body.role-shared .image-focus-slide{
+  position:fixed!important;
+  inset:0!important;
+  z-index:20!important;
+  display:block!important;
+  width:100vw!important;
+  height:100dvh!important;
+  min-width:100vw!important;
+  min-height:100dvh!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  overflow:hidden!important;
+  background:#061426!important;
+  box-shadow:none!important
+}
+body.role-shared .image-focus-slide::before{
+  display:none!important
+}
+
+/* Image-only presentation mode does not reserve room for hidden slide furniture. */
+body.role-shared .image-focus-slide > .slide-count,
+body.role-shared .image-focus-slide > .slide-meta,
+body.role-shared .image-focus-slide > h3,
+body.role-shared .image-focus-slide > p,
+body.role-shared .image-focus-slide > .public-answer-list{
+  display:none!important
+}
+
+/* Instruction-slide images. */
+body.role-shared .image-focus-slide > .presentation-media-stack{
+  position:absolute!important;
+  inset:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100vw!important;
+  height:100dvh!important;
+  min-width:100vw!important;
+  min-height:100dvh!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:clamp(4px,.55vw,10px)!important;
+  gap:0!important;
+  overflow:hidden!important
+}
+body.role-shared .image-focus-slide > .presentation-media-stack > img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  margin:0!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  border-radius:10px!important;
+  box-shadow:none!important
+}
+
+/* Question/poll slides that have an image but currently no loaded choices. */
+body.role-shared .image-focus-slide > .question-visual{
+  position:absolute!important;
+  inset:clamp(4px,.55vw,10px)!important;
+  display:block!important;
+  width:calc(100vw - clamp(8px,1.1vw,20px))!important;
+  height:calc(100dvh - clamp(8px,1.1vw,20px))!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  border-radius:10px!important;
+  box-shadow:none!important
+}
+
+/* Keep the teacher dashboard's miniature monitor miniature. */
+#teacher .mirror-screen .image-focus-slide{
+  position:relative!important;
+  inset:auto!important;
+  z-index:auto!important;
+  width:100%!important;
+  height:auto!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  padding:0!important;
+  background:transparent!important
+}
+#teacher .mirror-screen .image-focus-slide > .presentation-media-stack{
+  position:relative!important;
+  inset:auto!important;
+  width:100%!important;
+  height:auto!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:0!important
+}
+#teacher .mirror-screen .image-focus-slide > .presentation-media-stack > img,
+#teacher .mirror-screen .image-focus-slide > .question-visual{
+  position:relative!important;
+  inset:auto!important;
+  width:auto!important;
+  height:auto!important;
+  max-width:130px!important;
+  max-height:82px!important;
+  margin:auto!important
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -11279,7 +11453,7 @@ function activitySharedMarkup(big=false){
   if(a.type==='pixel'){return pixelSharedMarkup(run,big);}
   if(a.type==='presentation'){
     const slide=currentSlide();if(!slide)return '';
-    if(slide.type==='instruction'){const media=`<div class="presentation-media-stack">${slide.image?`<img src="${slide.image}" alt="Slide image">`:''}${ytId(slide.youtube)?`<iframe src="${ytEmbed(ytId(slide.youtube),false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`:''}</div>`;return `<div class="presentation-public"><div class="slide-count">Slide ${run.slideIndex+1} of ${a.slides.length}</div><h3 style="font-size:${big?54:34}px">${esc(slide.title)}</h3>${media}<p style="font-size:${big?27:18}px">${esc(slide.text)}</p></div>`;}
+    if(slide.type==='instruction'){const imageFocus=!!slide.image&&!ytId(slide.youtube);const media=`<div class="presentation-media-stack">${slide.image?`<img src="${slide.image}" alt="Slide image">`:''}${ytId(slide.youtube)?`<iframe src="${ytEmbed(ytId(slide.youtube),false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`:''}</div>`;return `<div class="presentation-public ${imageFocus?'image-focus-slide':''}"><div class="slide-count">Slide ${run.slideIndex+1} of ${a.slides.length}</div><h3 style="font-size:${big?54:34}px">${esc(slide.title)}</h3>${media}<p style="font-size:${big?27:18}px">${esc(slide.text)}</p></div>`;}
     return responseSlideMarkup(slide,big);
   }
   if(a.type==='binary'||a.type==='exit'){
@@ -11301,7 +11475,7 @@ function responseSlideMarkup(slide,big=false){
     const correct=reveal&&c.key===slide.correct, dim=reveal&&c.key!==slide.correct;
     return `<div class="public-answer ${correct?'correct':''} ${dim?'dim':''}"><span class="answer-key key-${c.key}">${c.key}</span><span class="answer-copy">${esc(c.text)}${c.image?`<img class="public-choice-image" src="${c.image}" alt="Answer ${c.key} image">`:''}</span>${show?`<span class="result-count">${counts[c.key]||0} · ${pct}%</span><span class="result-bar"><i style="width:${pct}%"></i></span>`:''}${correct?'<span class="correct-check">✓</span>':''}</div>`
   }).join('');
-  const video=ytId(slide.youtube)?`<div class="presentation-media-stack"><iframe src="${ytEmbed(ytId(slide.youtube),false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`:'';return `<div class="presentation-public response-slide ${hasAnswerOptions?'':'no-answer-options'}"><div class="slide-meta"><span class="slide-badge ${slide.type}">${slide.type.toUpperCase()}</span><span>${count} of ${connected.length} responded</span></div>${image}<h3 style="font-size:${big?42:29}px">${esc(slide.title)}</h3>${video}${slide.text?`<p class="supporting" style="font-size:${big?21:15}px">${esc(slide.text)}</p>`:''}<div class="public-answer-list">${rows}</div></div>`;
+  const video=ytId(slide.youtube)?`<div class="presentation-media-stack"><iframe src="${ytEmbed(ytId(slide.youtube),false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`:'';const imageFocus=!!slide.image&&!hasAnswerOptions&&!ytId(slide.youtube);return `<div class="presentation-public response-slide ${hasAnswerOptions?'':'no-answer-options'} ${imageFocus?'image-focus-slide':''}"><div class="slide-meta"><span class="slide-badge ${slide.type}">${slide.type.toUpperCase()}</span><span>${count} of ${connected.length} responded</span></div>${image}<h3 style="font-size:${big?42:29}px">${esc(slide.title)}</h3>${video}${slide.text?`<p class="supporting" style="font-size:${big?21:15}px">${esc(slide.text)}</p>`:''}<div class="public-answer-list">${rows}</div></div>`;
 }
 
 function sharedMarkup(size='normal'){
