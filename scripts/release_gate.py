@@ -488,6 +488,16 @@ def main() -> int:
     check("space station v56.0: activity modules remain dimensional", "#teacher .app-shortcut-icon" in v56_css and "translateY(-4px)" in v56_css)
     check("space station v56.0: shared screen monitor styling remains", "#teacher .right-rail .screen-dock .mirror-screen" in v56_css and "aspect-ratio:16/9" in html)
 
+    # v56.1 command deck polish.
+    v561_style = re.search(r'<style id="v56-1-command-deck-polish">(.*?)</style>', html, re.S)
+    v561_css = v561_style.group(1) if v561_style else ""
+    check("command deck v56.1: dedicated polish layer remains", bool(v561_style))
+    check("command deck v56.1: console modules remain avatar-inspired", "--module:#45e8ff" in v561_css and "#teacher .single-mission-controls .control:nth-child(8)" in v561_css)
+    check("command deck v56.1: cockpit framing remains", "#teacher .workspace:before" in v561_css and "#teacher .single-mission-bar:before" in v561_css)
+    check("command deck v56.1: roster pod polish remains", "#teacher .roster-card.sparse-roster .crew" in v561_css and "#teacher .bot-card" in v561_css)
+    check("command deck v56.1: activity modules remain dimensional", "#teacher .app-shortcut-icon:after" in v561_css and "width:62px" in v561_css)
+    check("command deck v56.1: right rail monitor polish remains", "#teacher .screen-dock .mirror-screen:after" in v561_css and "#teacher .attention-summary-copy span:before" in v561_css)
+
     # Historical selector invariant: $() is single-element; $() is multi-element.
     bad_selector_lines = []
     for number, line in enumerate(html.splitlines(), 1):
