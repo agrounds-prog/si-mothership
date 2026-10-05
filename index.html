@@ -9007,6 +9007,62 @@ body.role-shared .image-focus-slide > .question-visual{
   margin:auto!important
 }
 </style>
+
+<style id="v56-6-viewport-image-direct-render">
+/* Direct-render image-only SI+ slides: no card or old presentation sizing can limit them. */
+body.role-shared .shared-screen .mirror-content:has(> .si-plus-viewport-image),
+#shared .shared-screen .mirror-content:has(> .si-plus-viewport-image){
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  max-width:none!important;
+  max-height:none!important;
+  padding:0!important;
+  margin:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important
+}
+body.role-shared .shared-screen:has(.si-plus-viewport-image) > .mirror-top,
+body.role-shared .shared-screen:has(.si-plus-viewport-image) > .mirror-footer,
+#shared .shared-screen:has(.si-plus-viewport-image) > .mirror-top,
+#shared .shared-screen:has(.si-plus-viewport-image) > .mirror-footer{
+  display:none!important
+}
+body.role-shared .shared-screen:has(.si-plus-viewport-image),
+#shared .shared-screen:has(.si-plus-viewport-image){
+  display:block!important;
+  width:100vw!important;
+  height:100dvh!important;
+  min-height:100dvh!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  overflow:hidden!important
+}
+body.role-shared .si-plus-viewport-image{
+  width:100vw!important;
+  height:100dvh!important;
+  min-width:100vw!important;
+  min-height:100dvh!important;
+  max-width:none!important;
+  max-height:none!important
+}
+/* Teacher's tiny monitor must never inherit the viewport-sized presentation. */
+#teacher .mirror-screen .si-plus-viewport-image{
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:2px!important
+}
+#teacher .mirror-screen .si-plus-viewport-image img{
+  max-width:100%!important;
+  max-height:100%!important
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -11453,7 +11509,12 @@ function activitySharedMarkup(big=false){
   if(a.type==='pixel'){return pixelSharedMarkup(run,big);}
   if(a.type==='presentation'){
     const slide=currentSlide();if(!slide)return '';
-    if(slide.type==='instruction'){const imageFocus=!!slide.image&&!ytId(slide.youtube);const media=`<div class="presentation-media-stack">${slide.image?`<img src="${slide.image}" alt="Slide image">`:''}${ytId(slide.youtube)?`<iframe src="${ytEmbed(ytId(slide.youtube),false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`:''}</div>`;return `<div class="presentation-public ${imageFocus?'image-focus-slide':''}"><div class="slide-count">Slide ${run.slideIndex+1} of ${a.slides.length}</div><h3 style="font-size:${big?54:34}px">${esc(slide.title)}</h3>${media}<p style="font-size:${big?27:18}px">${esc(slide.text)}</p></div>`;}
+    if(slide.type==='instruction'){
+      const imageOnly=!!slide.image&&!ytId(slide.youtube);
+      if(imageOnly)return `<div class="si-plus-viewport-image" style="width:100vw;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:0;padding:8px;box-sizing:border-box"><img src="${slide.image}" alt="Slide image" style="display:block;width:auto!important;height:auto!important;max-width:calc(100vw - 16px)!important;max-height:calc(100dvh - 16px)!important;object-fit:contain!important;object-position:center;margin:auto;border-radius:12px"></div>`;
+      const media=`<div class="presentation-media-stack">${slide.image?`<img src="${slide.image}" alt="Slide image">`:''}${ytId(slide.youtube)?`<iframe src="${ytEmbed(ytId(slide.youtube),false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`:''}</div>`;
+      return `<div class="presentation-public"><div class="slide-count">Slide ${run.slideIndex+1} of ${a.slides.length}</div><h3 style="font-size:${big?54:34}px">${esc(slide.title)}</h3>${media}<p style="font-size:${big?27:18}px">${esc(slide.text)}</p></div>`;
+    }
     return responseSlideMarkup(slide,big);
   }
   if(a.type==='binary'||a.type==='exit'){
@@ -11468,8 +11529,10 @@ function responseSlideMarkup(slide,big=false){
   const counts={A:0,B:0,C:0,D:0};Object.values(responses).forEach(v=>{if(counts[v]!==undefined)counts[v]++});
   const show=run.showResults;
   const reveal=slide.type==='question'&&run.revealAnswer;
-  const image=slide.image?`<img class="question-visual" src="${slide.image}" alt="Question visual">`:'';
   const hasAnswerOptions=(slide.choices||[]).length>0;
+  const imageOnly=!!slide.image&&!hasAnswerOptions&&!ytId(slide.youtube);
+  if(imageOnly)return `<div class="si-plus-viewport-image" style="width:100vw;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:0;padding:8px;box-sizing:border-box"><img src="${slide.image}" alt="Slide image" style="display:block;width:auto!important;height:auto!important;max-width:calc(100vw - 16px)!important;max-height:calc(100dvh - 16px)!important;object-fit:contain!important;object-position:center;margin:auto;border-radius:12px"></div>`;
+  const image=slide.image?`<img class="question-visual" src="${slide.image}" alt="Question visual">`:'';
   const rows=(slide.choices||[]).map(c=>{
     const pct=count?Math.round((counts[c.key]||0)/count*100):0;
     const correct=reveal&&c.key===slide.correct, dim=reveal&&c.key!==slide.correct;
