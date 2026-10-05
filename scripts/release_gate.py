@@ -476,6 +476,18 @@ def main() -> int:
     check("calculator reference accurate: SI-30XS face branding remains", "SI-30XS" in server and "MULTIVIEW" in server and "SI MOTHERSHIP" in server)
     check("calculator reference accurate: popup remains stable", "window.resizeBy" not in server and "window.resizeTo" not in server)
 
+    # v56.0 space-station visual system.
+    v56_style = re.search(r'<style id="v56-0-space-station-visual-system">(.*?)</style>', html, re.S)
+    v56_css = v56_style.group(1) if v56_style else ""
+    check("space station v56.0: dedicated visual system remains", bool(v56_style))
+    check("space station v56.0: legacy device testing tabs removed", "Teacher Dashboard" not in html and "Open Test Student" not in html and '<div class="viewbar">' not in html)
+    check("space station v56.0: join code remains in unified header", 'class="topbar v56-topbar"' in html and 'class="class-code"' in html and 'id="copyCode"' in html)
+    check("space station v56.0: teacher control behavior hooks remain", 'id="teacherControlBar"' in html and 'data-control="lobby"' in html and 'data-toggle="buzz"' in html and 'data-send="understanding"' in html)
+    check("space station v56.0: avatar-forward neon controls remain", "--station-cyan:#45e8ff" in v56_css and "#teacher .single-mission-controls .control" in v56_css and "#teacher .bot-card" in v56_css)
+    check("space station v56.0: command viewport remains", "#teacher .deck-header:before" in v56_css and "YOUR CLASSROOM · CONNECTED · ON A MISSION" in v56_css)
+    check("space station v56.0: activity modules remain dimensional", "#teacher .app-shortcut-icon" in v56_css and "translateY(-4px)" in v56_css)
+    check("space station v56.0: shared screen monitor styling remains", "#teacher .right-rail .screen-dock .mirror-screen" in v56_css and "aspect-ratio:16/9" in html)
+
     # Historical selector invariant: $() is single-element; $() is multi-element.
     bad_selector_lines = []
     for number, line in enumerate(html.splitlines(), 1):
