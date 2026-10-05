@@ -11529,7 +11529,11 @@ function responseSlideMarkup(slide,big=false){
   const counts={A:0,B:0,C:0,D:0};Object.values(responses).forEach(v=>{if(counts[v]!==undefined)counts[v]++});
   const show=run.showResults;
   const reveal=slide.type==='question'&&run.revealAnswer;
-  const hasAnswerOptions=(slide.choices||[]).length>0;
+  const hasAnswerOptions=(slide.choices||[]).some(c=>{
+    const text=String(c?.text||'').trim();
+    const placeholder=/^(?:Answer|Option)\s+[A-D]$/i.test(text);
+    return !!c?.image || (!!text&&!placeholder);
+  });
   const imageOnly=!!slide.image&&!hasAnswerOptions&&!ytId(slide.youtube);
   if(imageOnly)return `<div class="si-plus-viewport-image" style="width:100vw;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:0;padding:8px;box-sizing:border-box"><img src="${slide.image}" alt="Slide image" style="display:block;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;object-position:center;margin:auto;border-radius:12px"></div>`;
   const image=slide.image?`<img class="question-visual" src="${slide.image}" alt="Question visual">`:'';
