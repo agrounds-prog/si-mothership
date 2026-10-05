@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v56.3 — Activity Library Visual Integration</title>
+<title>SI Mothership v56.4 — Station Modules & Empty States</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -9371,6 +9371,239 @@ body.role-shared .si-plus-viewport-image{
   #activitiesPanel .activity-catalog-grid .act-icon{width:74px!important;height:74px!important}
 }
 </style>
+
+<style id="v56-4-station-modules-empty-states">
+/* v56.4 — extend illustrated station language into roster, status modules, and empty/end states. */
+.v564-panel-label{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:7px!important;
+}
+.v564-panel-art{
+  width:24px!important;
+  height:24px!important;
+  flex:0 0 24px!important;
+  border:1px solid rgba(102,224,255,.32)!important;
+  border-radius:7px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 0 12px rgba(69,226,255,.12)!important;
+  filter:saturate(1.16) brightness(1.15)!important;
+}
+#teacher .roster-head .left{
+  display:flex!important;
+  align-items:center!important;
+}
+#teacher .roster-head .left:before{
+  display:none!important;
+}
+#teacher .roster-head .left .v564-panel-art{
+  width:32px!important;
+  height:32px!important;
+  flex-basis:32px!important;
+  border-radius:9px!important;
+  margin-right:2px;
+}
+#teacher .attention-summary{
+  min-height:64px!important;
+  padding:8px 10px!important;
+  border-color:#2c617a!important;
+  background:
+    radial-gradient(circle at 8% 50%,rgba(58,225,255,.07),transparent 26%),
+    linear-gradient(180deg,#0b202b,#081821)!important;
+}
+#teacher .attention-summary-copy{
+  gap:7px!important;
+}
+#teacher .attention-summary-copy>span{
+  color:#8eb7c5!important;
+}
+#teacher .attention-summary-copy b{
+  margin-top:3px;
+  color:#e6f2f5!important;
+}
+#teacher .attention-summary-chips{
+  gap:5px!important;
+}
+#teacher .attention-chip{
+  min-width:40px!important;
+  min-height:28px!important;
+  border-radius:9px!important;
+  background:linear-gradient(180deg,#102a38,#0b1e29)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+}
+#teacher .right-rail>.attention-panel{
+  padding:9px 11px!important;
+  border-color:#28586e!important;
+  background:
+    linear-gradient(155deg,rgba(255,255,255,.018),transparent 40%),
+    linear-gradient(180deg,#0a1d27,#071720)!important;
+}
+#teacher .right-rail .section-heading{
+  min-height:34px!important;
+  padding:0!important;
+  border-bottom:0!important;
+}
+#teacher .right-rail .section-heading .v564-panel-label{
+  color:#8fb4c1!important;
+  font-size:8.5px!important;
+  font-weight:950!important;
+  letter-spacing:.11em!important;
+}
+#teacher .right-rail .section-heading>b{
+  min-width:29px!important;
+  height:25px!important;
+  display:grid!important;
+  place-items:center!important;
+  border:1px solid #315d72!important;
+  border-radius:8px!important;
+  background:#091923!important;
+  color:#aac8d2!important;
+}
+#teacher .right-rail .empty{
+  margin:2px 0 0!important;
+  padding:11px 5px!important;
+  color:#607d89!important;
+  font-size:8px!important;
+}
+#teacher .screen-dock{
+  padding:10px!important;
+  border-color:#2e6e88!important;
+  background:
+    radial-gradient(circle at 10% 0%,rgba(57,225,255,.06),transparent 25%),
+    linear-gradient(180deg,#0b2230,#071721)!important;
+}
+#teacher .screen-dock .screen-dock-head{
+  min-height:32px!important;
+  margin-bottom:7px!important;
+}
+#teacher .screen-dock .screen-dock-title{
+  font-size:8.5px!important;
+  letter-spacing:.1em!important;
+}
+#teacher .screen-dock .mirror-live{
+  padding:4px 7px!important;
+  border:1px solid #2f855d;
+  border-radius:999px;
+  background:#0c2d21;
+  color:#6ff2ae!important;
+  font-size:7px!important;
+  box-shadow:0 0 12px rgba(76,236,158,.1);
+}
+#teacher .screen-dock .launch-screen-btn{
+  min-height:35px!important;
+  margin-bottom:8px!important;
+  border-radius:9px!important;
+  background:
+    linear-gradient(180deg,#123a53,#0b283c)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 5px 13px rgba(0,0,0,.2)!important;
+}
+#teacher .screen-dock .mirror-screen{
+  border-color:#2b7c9b!important;
+  background:
+    radial-gradient(circle at 72% 24%,rgba(67,93,198,.32),transparent 32%),
+    linear-gradient(180deg,#08152d,#030a16)!important;
+  box-shadow:inset 0 0 45px rgba(62,201,255,.07),0 12px 26px rgba(0,0,0,.32)!important;
+}
+
+#teacher .v564-empty-roster{
+  min-height:215px!important;
+  grid-template-columns:88px minmax(0,420px)!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:22px!important;
+  padding:24px!important;
+  border-color:#2a5264!important;
+  background:
+    radial-gradient(circle at 42% 50%,rgba(49,209,236,.07),transparent 30%),
+    linear-gradient(180deg,#091b24,#07151d)!important;
+  text-align:left!important;
+}
+#teacher .v564-empty-roster-art{
+  width:88px;height:88px;
+  display:grid;place-items:center;
+  padding:7px;
+  border:1px solid #326c82;
+  border-radius:23px;
+  background:linear-gradient(180deg,#0b2635,#081b26);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 26px rgba(74,221,255,.10),0 12px 25px rgba(0,0,0,.22);
+}
+#teacher .v564-empty-roster-art>.v562-art{
+  width:100%!important;height:100%!important;
+  border-radius:17px!important;
+  filter:saturate(1.2) brightness(1.17)!important;
+}
+#teacher .v564-empty-roster small{
+  display:block;
+  margin-bottom:6px;
+  color:#57ddec;
+  font-size:7px;
+  font-weight:950;
+  letter-spacing:.17em;
+}
+#teacher .v564-empty-roster b{
+  margin:0 0 6px!important;
+  color:#e3f0f4!important;
+  font-size:18px!important;
+}
+#teacher .v564-empty-roster span{
+  max-width:390px!important;
+  color:#76909b!important;
+  font-size:10px!important;
+  line-height:1.5!important;
+}
+
+#teacher #genericPanel{
+  overflow:hidden;
+  border-color:#2a5b71!important;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(82,89,255,.08),transparent 32%),
+    linear-gradient(180deg,#091b26,#07151e)!important;
+}
+#teacher #genericPanel .generic-box{
+  min-height:275px!important;
+  display:grid;
+  place-items:center;
+  align-content:center;
+  border-color:#2b5265!important;
+  background:
+    radial-gradient(circle at 50% 20%,rgba(60,207,255,.06),transparent 36%),
+    #091821!important;
+}
+#teacher .v564-session-complete-art{
+  width:76px;height:76px;
+  display:grid;place-items:center;
+  margin:2px auto 10px;
+  padding:6px;
+  border:1px solid #6f4052;
+  border-radius:20px;
+  background:linear-gradient(180deg,#2f1722,#1c1018);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 26px rgba(255,82,139,.10);
+}
+#teacher .v564-session-complete-art>.v562-art{
+  width:100%!important;height:100%!important;
+  border-radius:15px!important;
+  filter:saturate(1.16) brightness(1.12)!important;
+}
+#teacher #genericPanel #genericAction{
+  min-width:160px;
+  min-height:40px;
+  border:1px solid #3f7188!important;
+  border-radius:10px!important;
+  background:linear-gradient(180deg,#15394d,#0d2938)!important;
+  color:#e3f8fd!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 7px 17px rgba(0,0,0,.21);
+}
+#teacher #genericPanel #genericAction:hover{
+  border-color:#5ad9ec!important;
+  background:linear-gradient(180deg,#19516a,#10394b)!important;
+}
+@media(max-width:760px){
+  #teacher .v564-empty-roster{
+    grid-template-columns:1fr!important;
+    justify-items:center!important;
+    text-align:center!important;
+  }
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -9421,7 +9654,7 @@ body.role-shared .si-plus-viewport-image{
 </div>
 <div class="top-picture-prompt hidden" id="picturePromptBox"><input id="picturePromptText" value="Take a picture of your completed work." /><button id="sendPicturePrompt">Send picture prompt</button></div>
 
-<section class="main-card roster-card" id="lobbyPanel"><div class="roster-inner"><div class="roster-head"><div class="left"><span class="eyebrow">LIVE ROSTER</span><strong id="rosterRange">1–8 of 24</strong></div><div class="roster-head-actions"><button class="custom-roster-btn" id="openCustomRoster">◉ Custom Roster</button><div class="carousel-controls"><button id="prevRoster">‹</button><span id="rosterPageLabel">1 / 3</span><button id="nextRoster">›</button></div></div></div><div class="roster-alert hidden" id="rosterAlert"></div><div class="roster-stage"><div class="roster-crew-pane"><div class="avatar-line" id="avatarLine"></div><div class="page-dots" id="pageDots"></div></div></div></div></section>
+<section class="main-card roster-card" id="lobbyPanel"><div class="roster-inner"><div class="roster-head"><div class="left"><span class="v564-panel-art v562-art v562-app-crew-survey" aria-hidden="true"></span><span class="eyebrow">LIVE ROSTER</span><strong id="rosterRange">1–8 of 24</strong></div><div class="roster-head-actions"><button class="custom-roster-btn" id="openCustomRoster">◉ Custom Roster</button><div class="carousel-controls"><button id="prevRoster">‹</button><span id="rosterPageLabel">1 / 3</span><button id="nextRoster">›</button></div></div></div><div class="roster-alert hidden" id="rosterAlert"></div><div class="roster-stage"><div class="roster-crew-pane"><div class="avatar-line" id="avatarLine"></div><div class="page-dots" id="pageDots"></div></div></div></div></section>
 <section class="main-card custom-roster-panel hidden" id="customRosterPanel"></section>
 <section class="main-card activity-controller hidden" id="activityControllerPanel"></section>
 <div class="board-calculator-overlay hidden" id="boardCalculatorOverlay" aria-hidden="true">
@@ -9450,18 +9683,18 @@ body.role-shared .si-plus-viewport-image{
 
 <aside class="right-rail">
 <div class="attention-summary" id="attentionSummary">
-  <div class="attention-summary-copy"><span>CLASS ALERTS</span><b id="attentionSummaryText">No active alerts</b></div>
+  <div class="attention-summary-copy"><span class="v564-panel-label"><span class="v564-panel-art v562-art v562-control-understanding" aria-hidden="true"></span><span>CLASS ALERTS</span></span><b id="attentionSummaryText">No active alerts</b></div>
   <div class="attention-summary-chips">
     <span class="attention-chip help" id="attentionHelpChip">? <b id="attentionHelpCount">0</b></span>
     <span class="attention-chip buzz" id="attentionBuzzChip">ϟ <b id="attentionBuzzCount">0</b></span>
     <span class="attention-chip photo" id="attentionPhotoChip">▧ <b id="attentionPhotoCount">0</b></span>
   </div>
 </div>
-<section class="panel buzz-panel attention-panel" id="buzzPanel"><div class="section-heading"><span>ϟ&nbsp; BUZZ QUEUE</span><b id="buzzCount">2</b></div><div id="buzzRows"></div><button class="clear" id="clearBuzz">Clear queue</button></section>
-<section class="panel attention-panel" id="photoInboxPanel"><div class="section-heading"><span>▧&nbsp; PHOTO INBOX</span><b id="photoCount">0</b></div><div id="photoRows"><p class="empty">No photos submitted</p></div><div class="photo-inbox-actions"><button class="clear" id="openGallery">Open gallery</button><button class="clear danger-clear" id="clearPhotos">Clear all</button></div></section>
-<section class="panel attention-panel" id="helpInboxPanel"><div class="section-heading"><span>?&nbsp; ASK FOR HELP</span><b id="helpCount">1</b></div><div id="helpRows"></div></section>
+<section class="panel buzz-panel attention-panel" id="buzzPanel"><div class="section-heading"><span class="v564-panel-label"><span class="v564-panel-art v562-art v562-control-buzz" aria-hidden="true"></span><span>BUZZ QUEUE</span></span><b id="buzzCount">2</b></div><div id="buzzRows"></div><button class="clear" id="clearBuzz">Clear queue</button></section>
+<section class="panel attention-panel" id="photoInboxPanel"><div class="section-heading"><span class="v564-panel-label"><span class="v564-panel-art v562-art v562-control-picture" aria-hidden="true"></span><span>PHOTO INBOX</span></span><b id="photoCount">0</b></div><div id="photoRows"><p class="empty">No photos submitted</p></div><div class="photo-inbox-actions"><button class="clear" id="openGallery">Open gallery</button><button class="clear danger-clear" id="clearPhotos">Clear all</button></div></section>
+<section class="panel attention-panel" id="helpInboxPanel"><div class="section-heading"><span class="v564-panel-label"><span class="v564-panel-art v562-art v562-control-help" aria-hidden="true"></span><span>ASK FOR HELP</span></span><b id="helpCount">1</b></div><div id="helpRows"></div></section>
 <section class="panel screen-dock">
-  <div class="screen-dock-head"><span class="screen-dock-title">▣ SHARED SCREEN</span><span class="mirror-live">LIVE</span></div>
+  <div class="screen-dock-head"><span class="screen-dock-title v564-panel-label"><span class="v564-panel-art v562-art v562-control-lobby" aria-hidden="true"></span><span>SHARED SCREEN</span></span><span class="mirror-live">LIVE</span></div>
   <button class="launch-screen-btn" id="launchSecondScreenBtn">↗ Launch 2nd Screen</button>
   <div class="mirror-screen"><div class="mirror-top"><span>🚀&nbsp; <b>SI Mothership</b></span><strong>7K3M</strong></div><div class="mirror-content" id="mirrorContent"></div><div class="mirror-footer"><span><span class="pulse"></span>&nbsp; <span id="mirrorLabel">LOBBY</span></span><span>Mirror</span></div></div>
 </section></aside>
@@ -12123,7 +12356,7 @@ function renderRoster(){
   const list=state.students.slice(state.rosterPage*8,state.rosterPage*8+8);
   const activity=state.activityRun,a=activeActivity(),slide=currentSlide();
   const sparseSignals=state.students.length<=4;
-  if(!list.length){$('#avatarLine').innerHTML='<div class="empty-roster-message"><div><b>No students joined yet</b><span>Students will appear here after they enter the class code and choose an avatar.</span></div></div>';$('#rosterRange').textContent='0 students';$('#rosterPageLabel').textContent='1 / 1';$('#pageDots').innerHTML='<button class="active"></button>';renderRosterAlert();return}
+  if(!list.length){$('#avatarLine').innerHTML='<div class="empty-roster-message v564-empty-roster"><div class="v564-empty-roster-art"><span class="v562-art v562-app-crew-survey" aria-hidden="true"></span></div><div><small>CREW SCANNER</small><b>No students joined yet</b><span>Students will appear here after they enter the class code and choose an avatar.</span></div></div>';$('#rosterRange').textContent='0 students';$('#rosterPageLabel').textContent='1 / 1';$('#pageDots').innerHTML='<button class="active"></button>';renderRosterAlert();return}
   $('#avatarLine').innerHTML=list.map(s=>{
     const help=(state.helpMessages||[]).some(m=>m.name===s.n&&!(state.helpDeletedIds||[]).includes(String(m.id))),hand=state.alerts.some(a=>a.type==='hand'&&a.name===s.n),buzzIndex=state.buzz.indexOf(s.n),buzzed=buzzIndex>=0,resp=responseLabel(s);
     let primaryClass='',primaryIcon='○',pill='';
@@ -12241,7 +12474,7 @@ function setMissionPanel(){
   $('#activityControllerPanel').classList.toggle('hidden',!state.activityRun||state.ended);
   const genericShow=state.ended||(!state.customRosterOpen&&!state.activityRun&&['ready','emotion','understanding','picture'].includes(state.screen)&&!state.promptActive);
   $('#genericPanel').classList.toggle('hidden',!genericShow);
-  if(state.ended){$('#missionTitle').textContent='Session complete';$('#genericEyebrow').textContent='SESSION ENDED';$('#genericTitle').textContent='Mission complete';$('#genericCopy').textContent='The classroom session has ended.';$('#genericActions').innerHTML='<button id="genericAction">Start new session</button>'}
+  if(state.ended){$('#missionTitle').textContent='Session complete';$('#genericEyebrow').textContent='SESSION ENDED';$('#genericTitle').textContent='Mission complete';$('#genericCopy').textContent='The classroom session has ended.';$('#genericActions').innerHTML='<div class="v564-session-complete-art"><span class="v562-art v562-control-end" aria-hidden="true"></span></div><button id="genericAction">Start new session</button>'}
   else if(state.activityRun){$('#missionTitle').textContent=`${activeActivity()?.name||'Activity'} · ${activityPhaseLabel()}`;renderActivityController()}
   else {
     $('#missionTitle').textContent=state.customRosterOpen?'Custom Roster · Roster Sets':state.screen==='activities'?(state.presentationEditor?'Presentation builder':state.presentationLibraryOpen?'Saved presentations':'Apps in progress'):state.screen==='agenda'?'Agenda sender':state.screen==='brb'?'We’ll Be Right Back':state.screen==='lobby'?'Crew in the lobby':'Crew live';
