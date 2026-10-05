@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v56.2 — Illustrated Control System</title>
+<title>SI Mothership v56.3 — Activity Library Visual Integration</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -9063,6 +9063,314 @@ body.role-shared .si-plus-viewport-image{
   max-height:100%!important
 }
 </style>
+
+<style id="v56-3-activity-library-visual-integration">
+/* v56.3 — carry the illustrated Mothership visual language through the Activity Library. */
+#teacher .single-mission-controls .control .ico.v562-art{
+  filter:saturate(1.18) brightness(1.18) contrast(1.04)!important;
+  opacity:1!important;
+}
+#teacher .single-mission-controls .control:not(.active):not(.enabled) .ico.v562-art{
+  filter:saturate(1.12) brightness(1.12) contrast(1.03)!important;
+}
+#teacher .single-mission-controls .control.active .ico.v562-art,
+#teacher .single-mission-controls .control.enabled .ico.v562-art{
+  filter:saturate(1.24) brightness(1.22) contrast(1.05)!important;
+}
+#activitiesPanel{
+  position:relative;
+  overflow:hidden;
+  border-color:#285c74!important;
+  background:
+    radial-gradient(circle at 78% -8%,rgba(82,91,255,.11),transparent 28%),
+    radial-gradient(circle at 18% 18%,rgba(41,221,255,.07),transparent 30%),
+    linear-gradient(180deg,#081923,#06131c)!important;
+}
+#activitiesPanel:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.28;
+  background-image:
+    radial-gradient(circle,#62e7ff 0 1px,transparent 1.2px),
+    radial-gradient(circle,#8b79ff 0 1px,transparent 1.2px);
+  background-size:97px 97px,131px 131px;
+  background-position:14px 20px,56px 72px;
+  mask-image:linear-gradient(180deg,#000,transparent 64%);
+}
+#activitiesPanel>*{position:relative;z-index:1}
+#activitiesPanel .mode-title{
+  margin-bottom:16px!important;
+  padding:2px 0 12px;
+  border-bottom:1px solid #1d4255;
+}
+#activitiesPanel .mode-title .eyebrow{
+  color:#68ebfb!important;
+  text-shadow:0 0 12px rgba(75,229,255,.24);
+}
+#activitiesPanel .mode-title h2{
+  margin-top:5px!important;
+  font-size:28px!important;
+  letter-spacing:-.035em!important;
+}
+#activitiesPanel #favoriteAppsWrap.shortcut-manager{
+  padding:12px!important;
+  border-color:#2b596e!important;
+  background:
+    linear-gradient(180deg,rgba(10,29,40,.98),rgba(6,20,29,.99))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 14px 28px rgba(0,0,0,.2)!important;
+}
+#activitiesPanel .shortcut-manager .favorite-title{
+  padding:0 3px 3px;
+}
+#activitiesPanel .shortcut-manager .favorite-title .eyebrow:before{
+  content:"▦";
+  display:inline-grid;
+  place-items:center;
+  width:22px;height:22px;
+  margin-right:7px;
+  border:1px solid #2d647b;
+  border-radius:7px;
+  background:#0b2a3a;
+  color:#6defff;
+}
+#activitiesPanel .shortcut-manage-card{
+  grid-template-columns:62px minmax(0,1fr)!important;
+  min-height:94px;
+  padding:10px!important;
+  border-color:#2b5367!important;
+  border-radius:14px!important;
+  background:
+    linear-gradient(150deg,rgba(255,255,255,.025),transparent 40%),
+    linear-gradient(180deg,#0d212c,#091821)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 9px 20px rgba(0,0,0,.18)!important;
+}
+#activitiesPanel .shortcut-manage-card:hover{
+  border-color:#3d758e!important;
+  transform:translateY(-1px);
+}
+#activitiesPanel .shortcut-manage-icon{
+  width:62px!important;
+  height:62px!important;
+  padding:0!important;
+  border-color:#3a6f86!important;
+  border-radius:15px!important;
+  background:#071620!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 5px 15px rgba(0,0,0,.28),0 0 18px rgba(68,221,255,.08)!important;
+}
+#activitiesPanel .shortcut-manage-icon>.v562-art{
+  width:100%!important;height:100%!important;
+  border-radius:14px!important;
+  filter:saturate(1.18) brightness(1.15)!important;
+}
+#activitiesPanel .shortcut-manage-copy small{
+  color:#7294a2!important;
+  font-size:7px!important;
+}
+#activitiesPanel .shortcut-manage-copy b{
+  margin-top:4px!important;
+  font-size:13px!important;
+}
+#activitiesPanel .shortcut-manage-copy span{
+  margin-top:5px!important;
+  color:#77909b!important;
+  font-size:8px!important;
+}
+#activitiesPanel .shortcut-manage-actions button{
+  min-height:32px!important;
+  border-color:#326078!important;
+  border-radius:9px!important;
+  background:linear-gradient(180deg,#113043,#0c2331)!important;
+  color:#c6e5ec!important;
+}
+#activitiesPanel .shortcut-manage-actions button:hover{
+  border-color:#54bdd3!important;
+  background:linear-gradient(180deg,#16435a,#103244)!important;
+  color:#e5fbff!important;
+}
+#activitiesPanel .shortcut-manage-actions button.remove{
+  border-color:#71384b!important;
+  background:linear-gradient(180deg,#321925,#25121c)!important;
+  color:#f0a5b8!important;
+}
+#activitiesPanel .activity-library-toolbar{
+  border-color:#2a566a!important;
+  background:linear-gradient(180deg,#0b202b,#081821)!important;
+}
+#activitiesPanel .activity-library-search-wrap{
+  border-color:#32667b!important;
+  background:#06141c!important;
+}
+#activitiesPanel .activity-library-filters button{
+  border-color:#2f5669!important;
+  background:linear-gradient(180deg,#102632,#0c1e28)!important;
+}
+#activitiesPanel .activity-library-filters button.active{
+  border-color:#60d9ec!important;
+  background:linear-gradient(180deg,#104051,#0d2d3a)!important;
+  box-shadow:0 0 18px rgba(72,224,248,.11)!important;
+}
+#activitiesPanel .activity-library-shelves .preset-section,
+#activitiesPanel .activity-catalog{
+  border-color:#2a5366!important;
+  background:
+    linear-gradient(155deg,rgba(255,255,255,.018),transparent 38%),
+    linear-gradient(180deg,#0b1d27,#081720)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 10px 24px rgba(0,0,0,.15)!important;
+}
+#activitiesPanel .library-kicker{
+  color:#68a9ba!important;
+}
+#activitiesPanel .preset-recent-card{
+  min-height:70px!important;
+  padding:9px!important;
+  border-color:#2d5366!important;
+  background:linear-gradient(180deg,#0c202a,#091820)!important;
+}
+#activitiesPanel .recent-card-top{
+  grid-template-columns:48px minmax(0,1fr)!important;
+}
+#activitiesPanel .recent-app-icon{
+  width:48px!important;height:48px!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border:1px solid #367189!important;
+  border-radius:12px!important;
+  background:#06151f!important;
+  box-shadow:0 5px 14px rgba(0,0,0,.26)!important;
+}
+#activitiesPanel .recent-app-icon>.v562-art{
+  width:100%!important;height:100%!important;
+  border-radius:11px!important;
+  filter:saturate(1.18) brightness(1.15)!important;
+}
+#activitiesPanel .preset-recent-card b{font-size:11px!important}
+#activitiesPanel .preset-recent-card small{color:#78939d!important}
+#activitiesPanel .preset-card{
+  position:relative;
+  overflow:hidden;
+  border-color:#2b5366!important;
+  background:
+    radial-gradient(circle at 0 0,rgba(92,199,255,.06),transparent 36%),
+    linear-gradient(180deg,#0c202a,#091820)!important;
+}
+#activitiesPanel .preset-card-head{
+  align-items:center!important;
+}
+#activitiesPanel .preset-card-identity{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+#activitiesPanel .preset-card-icon{
+  width:38px;height:38px;
+  flex:0 0 38px;
+  display:block;
+  overflow:hidden;
+  border:1px solid #356c83;
+  border-radius:10px;
+  background:#07151f;
+}
+#activitiesPanel .preset-card-icon>.v562-art{
+  width:100%!important;height:100%!important;
+  border-radius:9px!important;
+  filter:saturate(1.16) brightness(1.13)!important;
+}
+#activitiesPanel .preset-app{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+#activitiesPanel .activity-catalog-grid{
+  gap:12px!important;
+}
+#activitiesPanel .activity-catalog-grid .real-app-card{
+  position:relative;
+  overflow:hidden;
+  min-height:250px!important;
+  border-color:#2c566a!important;
+  border-radius:15px!important;
+  background:
+    radial-gradient(circle at 18% 15%,rgba(72,203,255,.07),transparent 28%),
+    linear-gradient(180deg,#0c202a,#091821)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 10px 24px rgba(0,0,0,.19)!important;
+}
+#activitiesPanel .activity-catalog-grid .real-app-card:hover{
+  border-color:#43859d!important;
+  transform:translateY(-2px)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 14px 28px rgba(0,0,0,.24),0 0 22px rgba(66,219,255,.07)!important;
+}
+#activitiesPanel .activity-catalog-grid .act-icon{
+  width:86px!important;
+  height:86px!important;
+  display:grid!important;
+  place-items:center!important;
+  margin:11px 0 5px!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border:1px solid #38738b;
+  border-radius:20px;
+  background:#06151f;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 7px 18px rgba(0,0,0,.29),0 0 23px rgba(70,221,255,.09);
+}
+#activitiesPanel .activity-catalog-grid .act-icon>.v562-art{
+  width:100%!important;height:100%!important;
+  border-radius:19px!important;
+  filter:saturate(1.2) brightness(1.16)!important;
+  transition:transform .16s ease,filter .16s ease;
+}
+#activitiesPanel .activity-catalog-grid .real-app-card:hover .act-icon>.v562-art{
+  transform:scale(1.055);
+  filter:saturate(1.28) brightness(1.2)!important;
+}
+#activitiesPanel .activity-catalog-grid .real-app-card h3{
+  color:#f1f8fa!important;
+  font-size:18px!important;
+}
+#activitiesPanel .activity-catalog-grid .app-meta{
+  color:#89a7b1!important;
+}
+#activitiesPanel .activity-catalog-grid .real-app-card p{
+  color:#78929c!important;
+}
+#activitiesPanel .real-app-actions button,
+#activitiesPanel .preset-recent-actions button,
+#activitiesPanel .preset-actions button{
+  border:1px solid #326178!important;
+  border-radius:9px!important;
+  background:linear-gradient(180deg,#12354a,#0d2737)!important;
+  color:#cdeaf1!important;
+}
+#activitiesPanel .real-app-actions button:hover,
+#activitiesPanel .preset-recent-actions button:hover,
+#activitiesPanel .preset-actions button:hover{
+  border-color:#59cfe4!important;
+  background:linear-gradient(180deg,#17465d,#103346)!important;
+  color:#f2fdff!important;
+}
+#activitiesPanel .real-app-actions .secondary{
+  border-color:#4d477d!important;
+  background:linear-gradient(180deg,#262444,#1b1a34)!important;
+  color:#d8ccff!important;
+}
+#activitiesPanel .preset-actions .delete{
+  border-color:#6e394a!important;
+  background:#2b1720!important;
+  color:#f3a7ba!important;
+}
+@media(max-width:1050px){
+  #activitiesPanel .shortcut-manage-card{grid-template-columns:56px minmax(0,1fr)!important}
+  #activitiesPanel .shortcut-manage-icon{width:56px!important;height:56px!important}
+}
+@media(max-width:680px){
+  #activitiesPanel .activity-catalog-grid .act-icon{width:74px!important;height:74px!important}
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -12414,7 +12722,7 @@ function renderActivities(){
   fav.innerHTML=state.favoriteSlots.map((id,i)=>{
     const app=appById(id),active=state.assigningSlot===i;
     return `<div class="shortcut-manage-card ${app?'':'empty'} ${active?'active':''}">
-      <div class="shortcut-manage-icon">${app?appIconMarkup(app.id):'＋'}</div>
+      <div class="shortcut-manage-icon">${app?appIllustratedIconMarkup(app.id):'＋'}</div>
       <div class="shortcut-manage-copy"><small>SLOT ${i+1}</small><b>${app?esc(app.name):'Empty shortcut'}</b><span>${active?(app?'Choose a replacement below':'Choose an activity below'):(app?'Available from Mission Control':'Ready for an activity')}</span></div>
       <div class="shortcut-manage-actions">
         <button data-shortcut-replace="${i}">${app?'Replace':'＋ Add'}</button>
@@ -12439,11 +12747,11 @@ function renderActivities(){
   </div>`;
 
   const recentSection=filteredRecent.length
-    ? `<section class="preset-section recent-shelf"><div class="preset-section-head"><div><span class="library-kicker">PICK UP WHERE YOU LEFT OFF</span><h3>Recent Activities</h3></div><span>${filteredRecent.length} shown</span></div><div class="preset-recent">${filteredRecent.slice(0,6).map(({item,index})=>`<div class="preset-recent-card"><div class="recent-card-top"><span class="recent-app-icon">${appIconMarkup(item.appId)}</span><div><b>${esc(item.label||activityDisplayName(item.appId))}</b><small>${esc(activityDisplayName(item.appId))}${item.presetId?' · preset':''}${item.config?' · setup saved':''}</small></div></div><div class="preset-recent-actions"><button data-recent-open="${index}">Open</button><button data-recent-launch="${index}">▶ Launch</button></div></div>`).join('')}</div></section>`
+    ? `<section class="preset-section recent-shelf"><div class="preset-section-head"><div><span class="library-kicker">PICK UP WHERE YOU LEFT OFF</span><h3>Recent Activities</h3></div><span>${filteredRecent.length} shown</span></div><div class="preset-recent">${filteredRecent.slice(0,6).map(({item,index})=>`<div class="preset-recent-card"><div class="recent-card-top"><span class="recent-app-icon">${appIllustratedIconMarkup(item.appId)}</span><div><b>${esc(item.label||activityDisplayName(item.appId))}</b><small>${esc(activityDisplayName(item.appId))}${item.presetId?' · preset':''}${item.config?' · setup saved':''}</small></div></div><div class="preset-recent-actions"><button data-recent-open="${index}">Open</button><button data-recent-launch="${index}">▶ Launch</button></div></div>`).join('')}</div></section>`
     : `<section class="preset-section recent-shelf empty-shelf"><div class="preset-section-head"><div><span class="library-kicker">PICK UP WHERE YOU LEFT OFF</span><h3>Recent Activities</h3></div></div><div class="empty">${filtered?'No recent activities match this view.':'Launch an activity and it will appear here for quick reopening.'}</div></section>`;
 
   const presetSection=filteredPresets.length
-    ? `<section class="preset-section saved-shelf"><div class="preset-section-head"><div><span class="library-kicker">REUSABLE SETUPS</span><h3>Saved Presets</h3></div><span>${filteredPresets.length} shown</span></div><div class="preset-grid">${filteredPresets.slice(0,8).map(p=>`<div class="preset-card"><div class="preset-card-head"><span class="preset-app">${esc(activityDisplayName(p.appId))}</span><span class="preset-category">${esc(activityLibraryCategoryLabel(p.appId))}</span></div><h4>${esc(p.name)}</h4><p>${esc(activityPresetSummary(p))}</p><div class="preset-actions"><button data-preset-launch="${esc(p.id)}">▶ Launch</button><button data-preset-open="${esc(p.id)}">Open / Edit</button><button class="delete" data-preset-delete="${esc(p.id)}">×</button></div></div>`).join('')}</div></section>`
+    ? `<section class="preset-section saved-shelf"><div class="preset-section-head"><div><span class="library-kicker">REUSABLE SETUPS</span><h3>Saved Presets</h3></div><span>${filteredPresets.length} shown</span></div><div class="preset-grid">${filteredPresets.slice(0,8).map(p=>`<div class="preset-card"><div class="preset-card-head"><div class="preset-card-identity"><span class="preset-card-icon">${appIllustratedIconMarkup(p.appId)}</span><span class="preset-app">${esc(activityDisplayName(p.appId))}</span></div><span class="preset-category">${esc(activityLibraryCategoryLabel(p.appId))}</span></div><h4>${esc(p.name)}</h4><p>${esc(activityPresetSummary(p))}</p><div class="preset-actions"><button data-preset-launch="${esc(p.id)}">▶ Launch</button><button data-preset-open="${esc(p.id)}">Open / Edit</button><button class="delete" data-preset-delete="${esc(p.id)}">×</button></div></div>`).join('')}</div></section>`
     : `<section class="preset-section saved-shelf empty-shelf"><div class="preset-section-head"><div><span class="library-kicker">REUSABLE SETUPS</span><h3>Saved Presets</h3></div></div><div class="empty">${filtered?'No saved presets match this view.':'Configure an activity once and save it here for one-click reuse.'}</div></section>`;
 
   const catalogCards=visibleApps.map(app=>{
@@ -12454,7 +12762,7 @@ function renderActivities(){
       : (slot>=0?`<button class="secondary" data-manage-shortcut="${slot}">⚙ Manage Shortcut ${slot+1}</button>`:`<button class="secondary" data-add-app="${app.id}">＋ Add to Shortcuts</button>`);
     return `<div class="activity-card real-app-card" data-activity-category="${activityLibraryCategoryFor(app.id)}">
       <div class="activity-card-badges"><span class="app-status">${esc(app.status)}</span><span class="activity-category-pill">${esc(activityLibraryCategoryLabel(app.id))}</span></div>
-      <div class="act-icon">${appIconMarkup(app.id)}</div><h3>${esc(app.name)}</h3><div class="app-meta">${esc(app.subtitle)}</div><p>${esc(app.description)}</p>
+      <div class="act-icon">${appIllustratedIconMarkup(app.id)}</div><h3>${esc(app.name)}</h3><div class="app-meta">${esc(app.subtitle)}</div><p>${esc(app.description)}</p>
       <div class="real-app-actions"><button data-open-app="${app.id}">Open ${esc(app.name)}</button>${assignButton}</div>
     </div>`;
   }).join('');
