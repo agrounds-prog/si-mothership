@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v55.35 — Dashboard Fit & Edge-Case Pass</title>
+<title>SI Mothership v55.36 — Shared Screen Preview Restore</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -8036,6 +8036,68 @@ body.role-student #studentConnectionLabel,
   overflow:hidden!important;
   text-overflow:ellipsis!important;
   white-space:nowrap!important
+}
+</style>
+
+<style id="v55-36-shared-screen-preview-restore">
+/* v55.36 — restore full teacher-side Shared Screen preview after rail compacting. */
+#teacher .right-rail .screen-dock .mirror-screen{
+  width:100%!important;
+  max-width:none!important;
+  height:auto!important;
+  min-height:0!important;
+  aspect-ratio:16/9!important;
+  display:flex!important;
+  flex-direction:column!important;
+  margin:0!important;
+  overflow:hidden!important
+}
+#teacher .right-rail .screen-dock .mirror-top{
+  flex:0 0 26px!important;
+  height:26px!important;
+  min-height:26px!important;
+  padding:0 7px!important;
+  font-size:7px!important
+}
+#teacher .right-rail .screen-dock .mirror-content{
+  flex:1 1 auto!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  padding:5px!important;
+  overflow:hidden!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important
+}
+#teacher .right-rail .screen-dock .mirror-footer{
+  flex:0 0 23px!important;
+  height:23px!important;
+  min-height:23px!important;
+  padding:0 7px!important;
+  font-size:7px!important
+}
+#teacher .right-rail .screen-dock .join-lobby{
+  gap:4px!important;
+  max-height:100%!important;
+  overflow:hidden!important
+}
+#teacher .right-rail .screen-dock .join-qr{
+  width:58px!important;
+  height:58px!important;
+  padding:3px!important
+}
+#teacher .right-rail .screen-dock .join-code-big{
+  font-size:15px!important
+}
+#teacher .right-rail .screen-dock .join-url{
+  font-size:6px!important
+}
+@media(max-width:1150px){
+  #teacher .right-rail .screen-dock .mirror-screen{
+    height:auto!important;
+    aspect-ratio:16/9!important
+  }
 }
 </style>
 </head>
