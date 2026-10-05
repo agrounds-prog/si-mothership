@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v56.0 — Space Station Visual System</title>
+<title>SI Mothership v56.1 — Command Deck Polish</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -8277,6 +8277,327 @@ body.role-student .v56-topbar,body.role-shared .v56-topbar{display:none!importan
 #teacher .screen-dock{border-color:#2a6a84!important;background:linear-gradient(180deg,#0a2132,#061522)!important}#teacher .screen-dock .screen-dock-title{color:#a8dff0!important}#teacher .screen-dock .launch-screen-btn{min-height:36px!important;border-color:#2d6e91!important;background:linear-gradient(180deg,#123552,#0c263d)!important;box-shadow:inset 0 1px 0 #ffffff11}#teacher .right-rail .screen-dock .mirror-screen{border:2px solid #28607e!important;border-radius:11px!important;background:radial-gradient(circle at 68% 22%,#273a79 0,#0b1b3b 25%,#030a16 72%)!important;box-shadow:inset 0 0 40px #12658b14,0 10px 30px #0005!important}#teacher .screen-dock .mirror-top,#teacher .screen-dock .mirror-footer{background:#03101b99}
 @media(max-width:1000px){.v56-topbar{height:auto!important;min-height:70px;flex-wrap:wrap;gap:8px;padding:10px 16px!important}.v56-topbar .session-pill{position:static!important;transform:none!important;order:3}.v56-topbar .top-actions{flex-wrap:wrap;justify-content:flex-end}#teacher .deck-header{height:120px!important}}
 @media(max-width:720px){.v56-topbar .class-context{display:none}.v56-topbar .outline{display:none}#teacher .deck-header{height:112px!important;padding:17px!important}#teacher .deck-header h1{font-size:32px!important}#teacher .deck-header:before{right:-50px;opacity:.5}}
+</style>
+
+
+<style id="v56-1-command-deck-polish">
+/* v56.1 — Command Deck polish. Visual-only refinement; classroom behavior is unchanged. */
+:root{
+  --hull-edge:#1c536f;
+  --hull-highlight:#7cefff;
+  --console-shadow:0 18px 46px rgba(0,0,0,.42);
+}
+#teacher .workspace{
+  position:relative;
+  isolation:isolate;
+}
+#teacher .workspace:before{
+  content:"";
+  position:fixed;
+  left:0;right:0;bottom:0;height:38vh;
+  z-index:-1;
+  pointer-events:none;
+  opacity:.22;
+  background:
+    linear-gradient(rgba(64,185,255,.08) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(64,185,255,.08) 1px,transparent 1px);
+  background-size:48px 48px;
+  transform:perspective(420px) rotateX(62deg) scale(1.35);
+  transform-origin:bottom center;
+  mask-image:linear-gradient(to top,#000,transparent 82%);
+}
+#teacher .mission-grid{
+  gap:14px!important;
+}
+#teacher .deck-header{
+  border-color:#27627f!important;
+  background:
+    linear-gradient(90deg,rgba(2,12,24,.96) 0 42%,rgba(5,15,35,.82) 58%,rgba(6,12,29,.94) 100%),
+    radial-gradient(circle at 78% 50%,rgba(65,161,255,.25),transparent 30%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -1px 0 rgba(55,201,255,.08),0 20px 46px rgba(0,0,0,.48)!important;
+}
+#teacher .deck-header:before{
+  width:270px!important;height:270px!important;right:84px!important;top:-112px!important;
+  background:
+    radial-gradient(circle at 37% 31%,rgba(176,243,255,.75) 0 3%,transparent 3.6%),
+    radial-gradient(circle at 46% 42%,#4478cc 0 37%,#233c7c 38% 47%,#0c112b 49% 100%)!important;
+  box-shadow:0 0 0 1px rgba(101,208,255,.16),0 0 72px rgba(65,98,255,.34)!important;
+}
+#teacher .deck-header .eyebrow:before{
+  content:"◈";
+  display:inline-block;
+  margin-right:7px;
+  color:#ff79d8;
+  text-shadow:0 0 12px #ff5fc888;
+}
+#teacher .deck-header h1{font-size:44px!important}
+#teacher .deck-header .metrics{
+  position:absolute;
+  top:18px;right:18px;
+  padding:5px;
+  border:1px solid rgba(58,118,151,.65);
+  border-radius:13px;
+  background:rgba(3,13,24,.64);
+  backdrop-filter:blur(8px);
+}
+#teacher .metric{
+  min-height:30px;
+  border-radius:9px!important;
+}
+#teacher .single-mission-bar{
+  position:relative;
+  overflow:visible!important;
+  border:1px solid #2a5d77!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 13px 31px rgba(0,0,0,.38)!important;
+}
+#teacher .single-mission-bar:before,
+#teacher .single-mission-bar:after{
+  content:"";
+  position:absolute;
+  top:12px;bottom:12px;
+  width:3px;
+  border-radius:99px;
+  background:linear-gradient(#5ceeff,transparent 38%,transparent 62%,#9b72ff);
+  opacity:.75;
+  box-shadow:0 0 11px #44e9ff66;
+}
+#teacher .single-mission-bar:before{left:-5px}
+#teacher .single-mission-bar:after{right:-5px}
+#teacher .single-mission-status{
+  min-width:190px!important;
+  padding-right:13px!important;
+}
+#teacher .mission-context-title b{
+  font-size:14px!important;
+  letter-spacing:.01em;
+}
+#teacher .mission-state-pill{
+  border-color:#315d72!important;
+  background:#0a2432!important;
+}
+#teacher .single-mission-controls{
+  align-items:stretch!important;
+}
+#teacher .single-mission-controls .control{
+  --module:#45e8ff;
+  --module-deep:#0a2b3c;
+  min-width:68px!important;
+  padding:6px 9px 7px!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  gap:3px!important;
+  border-color:color-mix(in srgb,var(--module) 35%,#25465b)!important;
+  background:
+    linear-gradient(180deg,color-mix(in srgb,var(--module-deep) 82%,#102838),#061621)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    inset 0 -6px 12px rgba(0,0,0,.18),
+    0 3px 0 #020a10,
+    0 8px 18px rgba(0,0,0,.30)!important;
+}
+#teacher .single-mission-controls .control:nth-child(2){--module:#9a78ff;--module-deep:#211b45}
+#teacher .single-mission-controls .control:nth-child(3){--module:#5eb7ff;--module-deep:#112f4b}
+#teacher .single-mission-controls .control:nth-child(4){--module:#45e8ff;--module-deep:#0b3547}
+#teacher .single-mission-controls .control:nth-child(5){--module:#ffd45e;--module-deep:#3b3011}
+#teacher .single-mission-controls .control:nth-child(6){--module:#62f1ae;--module-deep:#123b2d}
+#teacher .single-mission-controls .control:nth-child(7){--module:#64e6d6;--module-deep:#103b38}
+#teacher .single-mission-controls .control:nth-child(8){--module:#ff7fca;--module-deep:#401a35}
+#teacher .single-mission-controls .control:nth-child(9){--module:#ff75c8;--module-deep:#3a1733}
+#teacher .single-mission-controls .control:nth-child(10){--module:#b28cff;--module-deep:#291c45}
+#teacher .single-mission-controls .control .ico{
+  width:29px!important;height:29px!important;flex-basis:29px!important;
+  border-radius:10px!important;
+  background:
+    radial-gradient(circle at 30% 24%,rgba(255,255,255,.25),transparent 24%),
+    color-mix(in srgb,var(--module) 22%,#092131)!important;
+  border:1px solid color-mix(in srgb,var(--module) 54%,transparent);
+  color:var(--module)!important;
+  text-shadow:0 0 12px color-mix(in srgb,var(--module) 78%,transparent);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 0 14px color-mix(in srgb,var(--module) 18%,transparent)!important;
+}
+#teacher .single-mission-controls .control b{
+  font-size:7px!important;
+  line-height:1.05!important;
+  letter-spacing:.025em;
+}
+#teacher .single-mission-controls .control small{
+  display:block!important;
+  max-width:62px;
+  color:color-mix(in srgb,var(--module) 74%,#9bb0ba)!important;
+  font-size:6px!important;
+  line-height:1!important;
+}
+#teacher .single-mission-controls .control.active,
+#teacher .single-mission-controls .control.enabled{
+  border-color:color-mix(in srgb,var(--module) 70%,#fff 8%)!important;
+  background:
+    linear-gradient(180deg,color-mix(in srgb,var(--module-deep) 72%,var(--module) 12%),var(--module-deep))!important;
+  box-shadow:
+    inset 0 0 18px color-mix(in srgb,var(--module) 11%,transparent),
+    inset 0 1px 0 rgba(255,255,255,.20),
+    0 3px 0 #02090f,
+    0 0 18px color-mix(in srgb,var(--module) 24%,transparent)!important;
+}
+#teacher .single-mission-danger .end-btn{
+  height:48px;
+  border-radius:12px!important;
+}
+#teacher .main-card,
+#teacher .app-shortcuts-panel,
+#teacher .attention-summary,
+#teacher .right-rail>.panel{
+  position:relative;
+  border-radius:16px!important;
+  border-color:#24546d!important;
+  background:
+    linear-gradient(180deg,rgba(9,27,40,.98),rgba(4,15,26,.99))!important;
+  box-shadow:var(--console-shadow),inset 0 1px 0 rgba(255,255,255,.055)!important;
+}
+#teacher .main-card:before,
+#teacher .app-shortcuts-panel:after,
+#teacher .right-rail>.panel:before{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+  inset:7px;
+  border:1px solid rgba(90,209,255,.035);
+  border-radius:11px;
+}
+#teacher .roster-head{
+  min-height:54px!important;
+  padding-left:14px!important;
+  padding-right:14px!important;
+}
+#teacher .roster-head .left{
+  gap:9px!important;
+}
+#teacher .roster-head .left:before{
+  width:30px!important;height:30px!important;
+  border:1px solid #29637b!important;
+  border-radius:10px!important;
+  background:
+    radial-gradient(circle at 32% 27%,rgba(255,255,255,.18),transparent 18%),
+    linear-gradient(145deg,#0d4660,#0b2639)!important;
+}
+#teacher .custom-roster-btn,
+#teacher .carousel-controls button{
+  border-color:#315c73!important;
+  background:linear-gradient(180deg,#102b3e,#0a1e2e)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+}
+#teacher .roster-stage{
+  background:
+    radial-gradient(ellipse at 50% 85%,rgba(58,171,255,.07),transparent 58%);
+}
+#teacher .roster-card.sparse-roster .crew{
+  border-color:#28516a!important;
+  background:
+    radial-gradient(circle at 50% 24%,color-mix(in srgb,var(--c) 16%,transparent),transparent 45%),
+    linear-gradient(180deg,rgba(14,39,54,.94),rgba(6,19,29,.98))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 13px 28px rgba(0,0,0,.36)!important;
+}
+#teacher .bot-card{
+  transform:translateZ(0);
+}
+#teacher .app-shortcuts-head{
+  min-height:50px;
+  padding-bottom:10px!important;
+}
+#teacher .app-shortcuts-head .eyebrow:before{
+  content:"▦";
+  display:inline-grid;
+  place-items:center;
+  width:22px;height:22px;
+  margin-right:8px;
+  border:1px solid #28627c;
+  border-radius:7px;
+  color:#72edff;
+  background:#092738;
+}
+#teacher .home-app-grid{
+  padding-top:11px!important;
+}
+#teacher .app-shortcut{
+  position:relative;
+}
+#teacher .app-shortcut-icon{
+  width:62px!important;height:62px!important;
+  border-radius:18px!important;
+}
+#teacher .app-shortcut-icon:after{
+  content:"";
+  position:absolute;
+  inset:5px;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:13px;
+  pointer-events:none;
+}
+#teacher .app-shortcut-label{
+  max-width:106px!important;
+  font-size:9px!important;
+  letter-spacing:.015em;
+}
+#teacher .attention-summary{
+  min-height:60px;
+  border-color:#2b6179!important;
+}
+#teacher .attention-summary-copy span:before{
+  content:"●";
+  margin-right:7px;
+  color:#58f0ae;
+  text-shadow:0 0 9px #58f0ae;
+}
+#teacher .attention-summary-chips .attention-chip{
+  min-width:39px!important;
+  border-radius:9px!important;
+}
+#teacher .right-rail .section-heading{
+  min-height:40px;
+  padding:0 3px 8px!important;
+}
+#teacher .right-rail .section-heading span{
+  letter-spacing:.12em!important;
+  font-size:9px!important;
+}
+#teacher .screen-dock .screen-dock-head{
+  min-height:34px;
+}
+#teacher .screen-dock .mirror-screen{
+  position:relative;
+  overflow:hidden;
+  border-color:#2b7796!important;
+  box-shadow:inset 0 0 35px rgba(41,173,233,.09),0 10px 25px rgba(0,0,0,.43),0 0 0 1px rgba(93,227,255,.06)!important;
+}
+#teacher .screen-dock .mirror-screen:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(120deg,transparent 0 42%,rgba(129,234,255,.035) 47%,transparent 52%);
+}
+#teacher .launch-screen-btn{
+  position:relative;
+  overflow:hidden;
+}
+#teacher .launch-screen-btn:before{
+  content:"";
+  position:absolute;left:-35%;top:0;width:25%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);
+  transform:skewX(-18deg);
+}
+#teacher .launch-screen-btn:hover:before{left:115%;transition:left .6s ease}
+@media(max-width:1380px){
+  #teacher .single-mission-controls .control{min-width:60px!important;padding-left:6px!important;padding-right:6px!important}
+  #teacher .single-mission-controls .control small{display:none!important}
+}
+@media(max-width:1100px){
+  #teacher .deck-header h1{font-size:38px!important}
+  #teacher .deck-header:before{right:20px!important;opacity:.6}
+}
+@media(max-width:760px){
+  #teacher .deck-header h1{font-size:30px!important}
+  #teacher .deck-header .metrics{position:static!important}
+}
 </style>
 
 </head>
