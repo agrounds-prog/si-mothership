@@ -508,6 +508,17 @@ def main() -> int:
     check("illustrated controls v56.2: image tiles stay interactive through original hooks", 'data-control="lobby"' in html and 'data-toggle="buzz"' in html and 'data-send="understanding"' in html and 'id="endBtn"' in html)
     check("illustrated controls v56.2: sprite positions cover shortcut row", "v562-app-si-plus" in v562_css and "v562-app-starwheel" in v562_css and "v562-app-scientific-calculator" in v562_css)
 
+    # v56.3 Activity Library visual integration.
+    v563_style = re.search(r'<style id="v56-3-activity-library-visual-integration">(.*?)</style>', html, re.S)
+    v563_css = v563_style.group(1) if v563_style else ""
+    check("activity library v56.3: dedicated integration layer remains", bool(v563_style))
+    check("activity library v56.3: shortcut manager uses illustrated assets", "appIllustratedIconMarkup(app.id)" in html and "#activitiesPanel .shortcut-manage-icon>.v562-art" in v563_css)
+    check("activity library v56.3: recent shelf uses illustrated assets", "appIllustratedIconMarkup(item.appId)" in html and "#activitiesPanel .recent-app-icon>.v562-art" in v563_css)
+    check("activity library v56.3: presets carry artwork identity", "preset-card-icon" in html and "#activitiesPanel .preset-card-icon>.v562-art" in v563_css)
+    check("activity library v56.3: catalog cards use illustrated assets", "#activitiesPanel .activity-catalog-grid .act-icon>.v562-art" in v563_css and "appIllustratedIconMarkup(app.id)" in html)
+    check("activity library v56.3: top illustrated controls remain crisp", "brightness(1.18)" in v563_css and "#teacher .single-mission-controls .control .ico.v562-art" in v563_css)
+    check("activity library v56.3: shortcut actions remain functional", 'data-shortcut-replace="' in html and 'data-shortcut-remove="' in html and 'data-open-app="' in html)
+
     # Historical selector invariant: $() is single-element; $() is multi-element.
     bad_selector_lines = []
     for number, line in enumerate(html.splitlines(), 1):
