@@ -8757,6 +8757,82 @@ body.role-shared .shared-screen .public-choice-image{
   width:clamp(85px,7.5vw,124px)!important;height:clamp(50px,6.5vh,78px)!important;object-fit:contain!important
 }
 </style>
+
+<style id="v56-4-image-only-presentation-fill">
+/* v56.4 — if an image slide has no answer options, use the entire presentation canvas. */
+body.role-shared .shared-screen .response-slide.no-answer-options:has(> .question-visual):not(:has(> .presentation-media-stack)),
+#shared .shared-screen .response-slide.no-answer-options:has(> .question-visual):not(:has(> .presentation-media-stack)){
+  box-sizing:border-box;
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  grid-template-rows:auto minmax(0,1fr) auto!important;
+  align-items:center;
+  justify-items:center;
+  width:100%!important;
+  max-width:none!important;
+  height:100%!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:4px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:hidden!important
+}
+body.role-shared .shared-screen .response-slide.no-answer-options:has(> .question-visual):not(:has(> .presentation-media-stack))::before,
+#shared .shared-screen .response-slide.no-answer-options:has(> .question-visual):not(:has(> .presentation-media-stack))::before{
+  display:none!important
+}
+body.role-shared .shared-screen .response-slide.no-answer-options > .slide-meta,
+body.role-shared .shared-screen .response-slide.no-answer-options > .public-answer-list,
+#shared .shared-screen .response-slide.no-answer-options > .slide-meta,
+#shared .shared-screen .response-slide.no-answer-options > .public-answer-list{
+  display:none!important
+}
+body.role-shared .shared-screen .response-slide.no-answer-options > h3,
+#shared .shared-screen .response-slide.no-answer-options > h3{
+  grid-column:1!important;
+  grid-row:1!important;
+  max-width:96%!important;
+  margin:2px auto 5px!important;
+  font-size:clamp(22px,2.5vw,40px)!important;
+  line-height:1.12!important
+}
+body.role-shared .shared-screen .response-slide.no-answer-options > h3:empty,
+body.role-shared .shared-screen .response-slide.no-answer-options > p.supporting:empty,
+#shared .shared-screen .response-slide.no-answer-options > h3:empty,
+#shared .shared-screen .response-slide.no-answer-options > p.supporting:empty{
+  display:none!important
+}
+body.role-shared .shared-screen .response-slide.no-answer-options > .question-visual,
+#shared .shared-screen .response-slide.no-answer-options > .question-visual{
+  grid-column:1!important;
+  grid-row:2!important;
+  align-self:stretch!important;
+  justify-self:stretch!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  margin:0!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  border-radius:12px!important
+}
+body.role-shared .shared-screen .response-slide.no-answer-options > p.supporting,
+#shared .shared-screen .response-slide.no-answer-options > p.supporting{
+  grid-column:1!important;
+  grid-row:3!important;
+  max-width:96%!important;
+  margin:5px auto 2px!important;
+  font-size:clamp(14px,1.45vw,21px)!important;
+  line-height:1.25!important
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -11219,12 +11295,13 @@ function responseSlideMarkup(slide,big=false){
   const show=run.showResults;
   const reveal=slide.type==='question'&&run.revealAnswer;
   const image=slide.image?`<img class="question-visual" src="${slide.image}" alt="Question visual">`:'';
+  const hasAnswerOptions=(slide.choices||[]).length>0;
   const rows=(slide.choices||[]).map(c=>{
     const pct=count?Math.round((counts[c.key]||0)/count*100):0;
     const correct=reveal&&c.key===slide.correct, dim=reveal&&c.key!==slide.correct;
     return `<div class="public-answer ${correct?'correct':''} ${dim?'dim':''}"><span class="answer-key key-${c.key}">${c.key}</span><span class="answer-copy">${esc(c.text)}${c.image?`<img class="public-choice-image" src="${c.image}" alt="Answer ${c.key} image">`:''}</span>${show?`<span class="result-count">${counts[c.key]||0} · ${pct}%</span><span class="result-bar"><i style="width:${pct}%"></i></span>`:''}${correct?'<span class="correct-check">✓</span>':''}</div>`
   }).join('');
-  const video=ytId(slide.youtube)?`<div class="presentation-media-stack"><iframe src="${ytEmbed(ytId(slide.youtube),false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`:'';return `<div class="presentation-public response-slide"><div class="slide-meta"><span class="slide-badge ${slide.type}">${slide.type.toUpperCase()}</span><span>${count} of ${connected.length} responded</span></div>${image}<h3 style="font-size:${big?42:29}px">${esc(slide.title)}</h3>${video}${slide.text?`<p class="supporting" style="font-size:${big?21:15}px">${esc(slide.text)}</p>`:''}<div class="public-answer-list">${rows}</div></div>`;
+  const video=ytId(slide.youtube)?`<div class="presentation-media-stack"><iframe src="${ytEmbed(ytId(slide.youtube),false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`:'';return `<div class="presentation-public response-slide ${hasAnswerOptions?'':'no-answer-options'}"><div class="slide-meta"><span class="slide-badge ${slide.type}">${slide.type.toUpperCase()}</span><span>${count} of ${connected.length} responded</span></div>${image}<h3 style="font-size:${big?42:29}px">${esc(slide.title)}</h3>${video}${slide.text?`<p class="supporting" style="font-size:${big?21:15}px">${esc(slide.text)}</p>`:''}<div class="public-answer-list">${rows}</div></div>`;
 }
 
 function sharedMarkup(size='normal'){
