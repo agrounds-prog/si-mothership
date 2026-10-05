@@ -498,6 +498,16 @@ def main() -> int:
     check("command deck v56.1: activity modules remain dimensional", "#teacher .app-shortcut-icon:after" in v561_css and "width:62px" in v561_css)
     check("command deck v56.1: right rail monitor polish remains", "#teacher .screen-dock .mirror-screen:after" in v561_css and "#teacher .attention-summary-copy span:before" in v561_css)
 
+    # v56.2 illustrated control system.
+    v562_style = re.search(r'<style id="v56-2-illustrated-control-system">(.*?)</style>', html, re.S)
+    v562_css = v562_style.group(1) if v562_style else ""
+    check("illustrated controls v56.2: dedicated artwork layer remains", bool(v562_style))
+    check("illustrated controls v56.2: embedded WebP sprite remains", "data:image/webp;base64," in v562_css and "--v562-sprite" in v562_css)
+    check("illustrated controls v56.2: all primary control art classes remain", all(x in html for x in ["v562-control-lobby","v562-control-activities","v562-control-agenda","v562-control-ready","v562-control-hand","v562-control-buzz","v562-control-help","v562-control-picture","v562-control-emotion","v562-control-understanding","v562-control-end"]))
+    check("illustrated controls v56.2: shortcut image mapping remains", "function appIllustratedIconClass" in html and "v562-app-scientific-calculator" in html and "appIllustratedIconMarkup(app.id)" in html)
+    check("illustrated controls v56.2: image tiles stay interactive through original hooks", 'data-control="lobby"' in html and 'data-toggle="buzz"' in html and 'data-send="understanding"' in html and 'id="endBtn"' in html)
+    check("illustrated controls v56.2: sprite positions cover shortcut row", "v562-app-si-plus" in v562_css and "v562-app-starwheel" in v562_css and "v562-app-scientific-calculator" in v562_css)
+
     # Historical selector invariant: $() is single-element; $() is multi-element.
     bad_selector_lines = []
     for number, line in enumerate(html.splitlines(), 1):
