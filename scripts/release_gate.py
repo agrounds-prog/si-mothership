@@ -377,7 +377,7 @@ def main() -> int:
     check("shared screen preview v55.38: release style remains", 'id="v55-38-expanded-shared-screen-monitor"' in html)
     check("shared screen preview v55.38: desktop rail expands substantially", "grid-template-columns:minmax(0,1fr) 540px!important" in html and "width:540px!important" in html)
     check("shared screen preview v55.38: responsive rail fallbacks remain", "grid-template-columns:minmax(0,1fr) 500px!important" in html and "grid-template-columns:minmax(0,1fr) 450px!important" in html)
-    check("shared screen preview v55.38: mirror stays responsive 16:9", 'id="v55-38-expanded-shared-screen-monitor"' in html and "aspect-ratio:16/9!important" in segment(html, 'id="v55-38-expanded-shared-screen-monitor"', "</style>") and "flex:1 1 auto!important" in segment(html, 'id="v55-38-expanded-shared-screen-monitor"', "</style>"))
+    check("shared screen preview v55.38: mirror stays responsive 16:9", 'id="v55-38-expanded-shared-screen-monitor"' in html and "aspect-ratio:16/9!important" in html and "flex:1 1 auto!important" in html and "padding:7px!important" in html)
     check("shared screen preview v55.38: lobby details scale with monitor", "width:94px!important" in html and "height:94px!important" in html and "font-size:22px!important" in html)
     check("shared screen preview v55.38: compact-width mirror can span wider", "width:min(760px,100%)!important" in html)
     check("shared screen preview v55.37: release style remains", 'id="v55-37-larger-shared-screen-preview"' in html)
