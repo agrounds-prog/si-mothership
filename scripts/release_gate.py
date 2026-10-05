@@ -480,7 +480,7 @@ def main() -> int:
     v56_style = re.search(r'<style id="v56-0-space-station-visual-system">(.*?)</style>', html, re.S)
     v56_css = v56_style.group(1) if v56_style else ""
     check("space station v56.0: dedicated visual system remains", bool(v56_style))
-    check("space station v56.0: legacy device testing tabs removed", "Teacher Dashboard" not in html and "Open Test Student" not in html and '<div class="viewbar">' not in html)
+    check("space station v56.0: legacy device testing tabs removed", "Teacher Dashboard" not in html and '<div class="viewbar">' not in html and '<div class="tabs">' not in html)
     check("space station v56.0: join code remains in unified header", 'class="topbar v56-topbar"' in html and 'class="class-code"' in html and 'id="copyCode"' in html)
     check("space station v56.0: teacher control behavior hooks remain", 'id="teacherControlBar"' in html and 'data-control="lobby"' in html and 'data-toggle="buzz"' in html and 'data-send="understanding"' in html)
     check("space station v56.0: avatar-forward neon controls remain", "--station-cyan:#45e8ff" in v56_css and "#teacher .single-mission-controls .control" in v56_css and "#teacher .bot-card" in v56_css)
