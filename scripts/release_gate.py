@@ -78,6 +78,11 @@ def main() -> int:
     check("runtime art centering v56.8.2: activity cluster keeps intrinsic centering", "width:max-content!important" in runtime_centering_css and "margin-left:auto!important" in runtime_centering_css and "margin-right:auto!important" in runtime_centering_css)
     check("runtime art centering v56.8.2: activity art has per-icon optical offsets", "--v5682-app-x" in runtime_centering_css and ".v562-app-crew-survey" in runtime_centering_css and ".v562-app-scientific-calculator" in runtime_centering_css)
 
+    check("control row polish v56.8.3: controls share fixed hardware footprint", "width:76px!important" in runtime_centering_css and "height:76px!important" in runtime_centering_css and "grid-template-rows:48px 18px!important" in runtime_centering_css)
+    check("control row polish v56.8.3: compact control rhythm remains", "#teacher .single-mission-controls{" in runtime_centering_css and "gap:5px!important" in runtime_centering_css)
+    check("control row polish v56.8.3: End Session matches control geometry", "#teacher .v562-end-btn{" in runtime_centering_css and "max-width:76px!important" in runtime_centering_css and "max-height:76px!important" in runtime_centering_css)
+    check("control row polish v56.8.3: End Session label baseline is fixed", "#teacher .v562-end-btn>span:last-child{" in runtime_centering_css and "height:18px!important" in runtime_centering_css and "white-space:nowrap!important" in runtime_centering_css)
+
     # HTML shell integrity: release styles must not split structural tags.
     head_close = html.find("</head>")
     body_open = html.find("<body", head_close)

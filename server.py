@@ -138,6 +138,116 @@ CONTROL_ART_CENTERING_STYLE = r"""
   pointer-events:none!important;
 }
 
+
+/* v56.8.3 control-row polish: one footprint, one baseline, one rhythm. */
+#teacher .single-mission-controls{
+  gap:5px!important;
+  align-items:stretch!important;
+}
+#teacher .single-mission-controls .control{
+  width:76px!important;
+  min-width:76px!important;
+  max-width:76px!important;
+  height:76px!important;
+  min-height:76px!important;
+  max-height:76px!important;
+  display:grid!important;
+  grid-template-columns:76px!important;
+  grid-template-rows:48px 18px!important;
+  row-gap:4px!important;
+  align-items:start!important;
+  justify-items:center!important;
+  justify-content:center!important;
+  padding:6px 0 0!important;
+}
+#teacher .single-mission-controls .control .ico.v562-art{
+  grid-row:1!important;
+  align-self:start!important;
+  justify-self:center!important;
+  margin:0!important;
+}
+#teacher .single-mission-controls .control .copy{
+  grid-row:2!important;
+  width:68px!important;
+  min-height:18px!important;
+  height:18px!important;
+  margin:0!important;
+  align-self:start!important;
+  justify-self:center!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:1px!important;
+}
+#teacher .single-mission-controls .control b{
+  width:68px!important;
+  max-width:68px!important;
+  margin:0!important;
+  line-height:1.05!important;
+}
+#teacher .single-mission-controls .control small{
+  width:68px!important;
+  max-width:68px!important;
+  margin:0!important;
+  line-height:1!important;
+}
+
+/* End Session is now the same hardware module as every other control.
+   Danger is communicated by color, not by a larger or lower button. */
+#teacher .single-mission-danger{
+  width:auto!important;
+  min-width:86px!important;
+  display:flex!important;
+  align-items:stretch!important;
+  justify-content:center!important;
+  padding:0 0 0 10px!important;
+}
+#teacher .v562-end-btn{
+  width:76px!important;
+  min-width:76px!important;
+  max-width:76px!important;
+  height:76px!important;
+  min-height:76px!important;
+  max-height:76px!important;
+  display:grid!important;
+  grid-template-columns:76px!important;
+  grid-template-rows:48px 18px!important;
+  row-gap:4px!important;
+  align-items:start!important;
+  justify-items:center!important;
+  justify-content:center!important;
+  padding:6px 0 0!important;
+  margin:0!important;
+  border-radius:14px!important;
+}
+#teacher .v562-end-btn .v562-art{
+  grid-row:1!important;
+  width:48px!important;
+  height:48px!important;
+  flex:0 0 48px!important;
+  margin:0!important;
+  align-self:start!important;
+  justify-self:center!important;
+  border-radius:12px!important;
+}
+#teacher .v562-end-btn>span:last-child{
+  grid-row:2!important;
+  width:68px!important;
+  max-width:68px!important;
+  height:18px!important;
+  margin:0!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  align-self:start!important;
+  justify-self:center!important;
+  color:#ff9ab5!important;
+  font-size:7.2px!important;
+  font-weight:900!important;
+  line-height:1.05!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+}
+
 /* Activity launchers: center the illustrated subject inside each 66px hardware frame. */
 #teacher .app-shortcut-icon{
   position:relative!important;
