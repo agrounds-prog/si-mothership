@@ -103,6 +103,12 @@ def main() -> int:
     check("floating tile deck v56.8.7: End Session uses same floating footprint", "#teacher .single-mission-danger{" in runtime_centering_css and "width:78px!important" in runtime_centering_css and "#teacher .v562-end-btn .v562-art{" in runtime_centering_css)
     check("floating tile deck v56.8.7: activity deck gets textured surface", "#teacher .activity-shortcuts" in runtime_centering_css and "#teacher .app-shortcut{" in runtime_centering_css and "background:transparent!important" in runtime_centering_css)
 
+    check("exact tile alignment v56.8.8: shortcut art is exact 64px cell", "#teacher .app-shortcut-icon>.v562-art{" in runtime_centering_css and "width:64px!important" in runtime_centering_css and "height:64px!important" in runtime_centering_css)
+    check("exact tile alignment v56.8.8: shortcut optical offsets are zeroed", "--v5682-app-x:0px!important" in runtime_centering_css and "--v5682-app-y:0px!important" in runtime_centering_css)
+    check("exact tile alignment v56.8.8: classroom art is exact 64px cell", "#teacher .single-mission-controls .control .ico.v562-art{" in runtime_centering_css and "flex:0 0 64px!important" in runtime_centering_css)
+    check("exact tile alignment v56.8.8: End Session overrides legacy specificity", "#teacher .single-mission-danger .end-btn.v562-end-btn{" in runtime_centering_css and "background:transparent!important" in runtime_centering_css)
+    check("exact tile alignment v56.8.8: End Session rocket tile is 64px", "#teacher .single-mission-danger .end-btn.v562-end-btn>.v562-art.v562-control-end{" in runtime_centering_css and "background-position:0% 66.667%!important" in runtime_centering_css)
+
     # HTML shell integrity: release styles must not split structural tags.
     head_close = html.find("</head>")
     body_open = html.find("<body", head_close)
