@@ -92,6 +92,11 @@ def main() -> int:
     check("control art repair v56.8.5: legacy glyph text is cleared", 'ico.textContent = ""' in repair_js)
     check("control art repair v56.8.5: End Session legacy shells are removed", "#teacher .v562-end-btn:before" in runtime_centering_css and "#teacher .single-mission-danger:after" in runtime_centering_css)
 
+    check("direct illustrated controls v56.8.6: actual sprite is restored", "background-image:var(--v562-sprite)!important" in runtime_centering_css)
+    check("direct illustrated controls v56.8.6: standard pseudo overlays are removed", "#teacher .single-mission-controls .control .ico.v562-art:before" in runtime_centering_css and "content:none!important" in runtime_centering_css)
+    check("direct illustrated controls v56.8.6: standard tiles stay 60px", "min-width:60px!important" in runtime_centering_css and "min-height:60px!important" in runtime_centering_css)
+    check("direct illustrated controls v56.8.6: End Session art uses direct sprite tile", "#teacher .v562-end-btn .v562-art{" in runtime_centering_css and "background-image:var(--v562-sprite)!important" in runtime_centering_css)
+
     # HTML shell integrity: release styles must not split structural tags.
     head_close = html.find("</head>")
     body_open = html.find("<body", head_close)
