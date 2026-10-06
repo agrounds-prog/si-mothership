@@ -66,8 +66,7 @@ jobs:
           - .github/workflows/release-gate.yml — CI gate
           - scientific-calculator/ — bundled calculator assets
           EOF
-          printf '%s
-' "407657e8f99cb01ce8b795790b3e00932d226127" > handoff/PRODUCTION_SHA.txt
+          echo "407657e8f99cb01ce8b795790b3e00932d226127" > handoff/PRODUCTION_SHA.txt
           zip -r SI_Mothership_HANDOFF_v56_8_2026-10-05.zip handoff >/dev/null
 
       - name: Upload handoff artifact
