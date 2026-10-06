@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v56.4 — Station Modules & Empty States</title>
+<title>SI Mothership v56.5 — Illustrated Asset Refinement</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -9602,6 +9602,230 @@ body.role-shared .si-plus-viewport-image{
     justify-items:center!important;
     text-align:center!important;
   }
+}
+</style>
+
+<style id="v56-5-illustrated-asset-refinement">
+/* v56.5 — refine the illustrated asset system so controls read as intentional hardware modules, not sprite crops. */
+.v562-art{
+  position:relative!important;
+  overflow:hidden!important;
+  isolation:isolate;
+  image-rendering:auto;
+  --art-accent:#59e8ff;
+  --art-deep:#071722;
+  background-color:var(--art-deep)!important;
+  background-clip:padding-box!important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.05),
+    inset 0 -10px 18px rgba(0,0,0,.10)!important;
+}
+.v562-art:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  border-radius:inherit;
+  background:
+    radial-gradient(circle at 28% 18%,rgba(255,255,255,.18),transparent 20%),
+    linear-gradient(145deg,rgba(255,255,255,.05),transparent 42%,rgba(0,0,0,.10));
+  mix-blend-mode:screen;
+  opacity:.72;
+}
+.v562-art:after{
+  content:"";
+  position:absolute;
+  inset:3px;
+  z-index:2;
+  pointer-events:none;
+  border:1px solid color-mix(in srgb,var(--art-accent) 32%,transparent);
+  border-radius:calc(inherit - 2px);
+  box-shadow:
+    inset 0 0 14px color-mix(in srgb,var(--art-accent) 7%,transparent),
+    0 0 10px color-mix(in srgb,var(--art-accent) 5%,transparent);
+}
+.v562-control-lobby,.v562-app-si-plus{--art-accent:#51e5ff;--art-deep:#08202c}
+.v562-control-activities,.v562-app-crew-survey{--art-accent:#a982ff;--art-deep:#1b1533}
+.v562-control-agenda,.v562-app-bingo{--art-accent:#63b9ff;--art-deep:#0a2038}
+.v562-control-ready,.v562-app-board{--art-accent:#54e4ef;--art-deep:#082a33}
+.v562-control-hand,.v562-app-starwheel{--art-accent:#ffd76a;--art-deep:#33280c}
+.v562-control-buzz,.v562-app-match{--art-accent:#64f4b0;--art-deep:#0c2f23}
+.v562-control-help,.v562-app-sketch-signal{--art-accent:#5ce0d6;--art-deep:#0b302e}
+.v562-control-picture,.v562-app-pixel-reveal{--art-accent:#ff7eba;--art-deep:#35172a}
+.v562-control-emotion{--art-accent:#ff74cf;--art-deep:#33152d}
+.v562-control-understanding,.v562-app-scientific-calculator{--art-accent:#ae8cff;--art-deep:#24183b}
+.v562-control-end{--art-accent:#ff6f96;--art-deep:#351420}
+
+#teacher .single-mission-bar{
+  padding:8px 10px!important;
+}
+#teacher .single-mission-controls{
+  gap:6px!important;
+}
+#teacher .single-mission-controls .control{
+  min-width:76px!important;
+  min-height:64px!important;
+  padding:5px 6px 6px!important;
+  border-radius:13px!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.025),transparent 28%),
+    linear-gradient(180deg,#0c2230,#081823)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.09),
+    inset 0 -7px 12px rgba(0,0,0,.13),
+    0 3px 0 #02090f,
+    0 7px 15px rgba(0,0,0,.28)!important;
+}
+#teacher .single-mission-controls .control .ico.v562-art{
+  width:48px!important;
+  height:48px!important;
+  flex-basis:48px!important;
+  border:1px solid color-mix(in srgb,var(--art-accent) 52%,#fff 5%)!important;
+  border-radius:13px!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    0 5px 12px rgba(0,0,0,.32),
+    0 0 18px color-mix(in srgb,var(--art-accent) 18%,transparent)!important;
+  filter:saturate(1.24) brightness(1.2) contrast(1.045)!important;
+  transition:transform .14s ease,filter .14s ease,box-shadow .14s ease!important;
+}
+#teacher .single-mission-controls .control:hover .ico.v562-art{
+  transform:translateY(-2px) scale(1.04)!important;
+  filter:saturate(1.32) brightness(1.25) contrast(1.05)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.22),
+    0 7px 15px rgba(0,0,0,.34),
+    0 0 24px color-mix(in srgb,var(--art-accent) 28%,transparent)!important;
+}
+#teacher .single-mission-controls .control.active .ico.v562-art,
+#teacher .single-mission-controls .control.enabled .ico.v562-art{
+  border-color:color-mix(in srgb,var(--art-accent) 75%,white 7%)!important;
+  filter:saturate(1.34) brightness(1.25) contrast(1.055)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.25),
+    0 6px 14px rgba(0,0,0,.32),
+    0 0 26px color-mix(in srgb,var(--art-accent) 34%,transparent)!important;
+}
+#teacher .single-mission-controls .control .copy{
+  width:100%;
+  align-items:center!important;
+  gap:1px!important;
+}
+#teacher .single-mission-controls .control b{
+  max-width:72px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:7.4px!important;
+  letter-spacing:.012em!important;
+  text-align:center;
+}
+#teacher .single-mission-controls .control small{
+  max-width:72px!important;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:5.8px!important;
+  text-align:center;
+}
+#teacher .v562-end-btn{
+  min-width:94px!important;
+  min-height:64px!important;
+  border-radius:13px!important;
+  padding:5px 7px 6px!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.025),transparent 30%),
+    linear-gradient(180deg,#3a1826,#27101b)!important;
+}
+#teacher .v562-end-btn .v562-art{
+  width:44px!important;
+  height:44px!important;
+  border-radius:12px!important;
+  filter:saturate(1.27) brightness(1.18)!important;
+}
+#teacher .v562-end-btn>span:last-child{
+  margin-top:1px;
+  font-size:7.4px!important;
+}
+
+#teacher .app-shortcut-icon{
+  width:66px!important;
+  height:66px!important;
+  border-radius:18px!important;
+  border-color:rgba(124,232,255,.42)!important;
+  background:#06141d!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.13),
+    0 5px 0 #041019,
+    0 11px 20px rgba(0,0,0,.34),
+    0 0 20px rgba(76,211,255,.12)!important;
+}
+#teacher .app-shortcut-icon>.v562-art{
+  transform:scale(1)!important;
+  filter:saturate(1.24) brightness(1.18) contrast(1.04)!important;
+}
+#teacher .app-shortcut:hover .app-shortcut-icon>.v562-art{
+  transform:scale(1.055)!important;
+  filter:saturate(1.34) brightness(1.23) contrast(1.05)!important;
+}
+#teacher .app-shortcut-label{
+  margin-top:8px!important;
+  font-size:8.4px!important;
+  font-weight:900!important;
+  letter-spacing:.02em!important;
+}
+
+#activitiesPanel .shortcut-manage-icon,
+#activitiesPanel .recent-app-icon,
+#activitiesPanel .preset-card-icon,
+#activitiesPanel .activity-catalog-grid .act-icon,
+#teacher .v564-empty-roster-art,
+#teacher .v564-session-complete-art{
+  position:relative;
+  overflow:hidden;
+}
+#activitiesPanel .shortcut-manage-icon>.v562-art,
+#activitiesPanel .recent-app-icon>.v562-art,
+#activitiesPanel .preset-card-icon>.v562-art,
+#activitiesPanel .activity-catalog-grid .act-icon>.v562-art,
+#teacher .v564-empty-roster-art>.v562-art,
+#teacher .v564-session-complete-art>.v562-art{
+  filter:saturate(1.28) brightness(1.19) contrast(1.04)!important;
+}
+#activitiesPanel .activity-catalog-grid .real-app-card:hover .act-icon>.v562-art{
+  transform:scale(1.045)!important;
+  filter:saturate(1.38) brightness(1.24) contrast(1.05)!important;
+}
+
+#teacher .v564-panel-art{
+  filter:saturate(1.28) brightness(1.2) contrast(1.04)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.17),
+    0 0 14px color-mix(in srgb,var(--art-accent) 18%,transparent)!important;
+}
+
+/* State belongs to the hardware frame, not a dimming filter over the art. */
+#teacher .single-mission-controls .control.active,
+#teacher .single-mission-controls .control.enabled{
+  outline:1px solid color-mix(in srgb,var(--module) 24%,transparent);
+  outline-offset:1px;
+}
+#teacher .single-mission-controls .control:not(.active):not(.enabled){
+  opacity:1!important;
+}
+#teacher .single-mission-controls .control:not(.active):not(.enabled) .v562-art{
+  opacity:1!important;
+}
+
+@media(max-width:1380px){
+  #teacher .single-mission-controls .control{min-width:68px!important}
+  #teacher .single-mission-controls .control .ico.v562-art{
+    width:42px!important;height:42px!important;flex-basis:42px!important
+  }
+}
+@media(max-width:1150px){
+  #teacher .single-mission-controls .control{min-width:66px!important}
 }
 </style>
 </head>
