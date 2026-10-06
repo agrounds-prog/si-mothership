@@ -68,70 +68,17 @@ def main() -> int:
     check("version: title and server match", bool(title_version and server_version and title_version.group(1) == server_version.group(1)))
 
 
-    # v56.8.2 runtime visual hotfix: production server injects the final centering layer.
-    runtime_centering = re.search(r'CONTROL_ART_CENTERING_STYLE\s*=\s*r?"""(.*?)"""', server, re.S)
-    runtime_centering_css = runtime_centering.group(1) if runtime_centering else ""
-    check("runtime art centering v56.8.2: style constant remains", bool(runtime_centering))
-    check("runtime art centering v56.8.2: final style is injected into served index", 'text = text.replace("</head>", CONTROL_ART_CENTERING_STYLE + CONTROL_ART_REPAIR_SCRIPT + CONTROL_TILE_HARD_RESET + CONTROL_END_INLINE_FIX + CONTROL_END_HARD_CLEAN + "</head>", 1)' in server)
-    check("runtime art centering v56.8.2: End Session stays on desktop control row", "grid-template-columns:auto minmax(0,1fr) auto!important" in runtime_centering_css and "grid-column:auto!important" in runtime_centering_css)
-    check("runtime art centering v56.8.2: End Session source art is optically reframed", "width:124px!important" in runtime_centering_css and "background-position:0% 66.667%!important" in runtime_centering_css)
-    check("runtime art centering v56.8.2: activity cluster keeps intrinsic centering", "width:max-content!important" in runtime_centering_css and "margin-left:auto!important" in runtime_centering_css and "margin-right:auto!important" in runtime_centering_css)
-    check("runtime art centering v56.8.2: activity art has per-icon optical offsets", "--v5682-app-x" in runtime_centering_css and ".v562-app-crew-survey" in runtime_centering_css and ".v562-app-scientific-calculator" in runtime_centering_css)
-
-    check("authoritative controls v56.8.4: standard modules use one footprint", "width:72px!important" in runtime_centering_css and "height:82px!important" in runtime_centering_css and "gap:6px!important" in runtime_centering_css)
-    check("authoritative controls v56.8.4: real illustrated art is 60px", "width:60px!important" in runtime_centering_css and "height:60px!important" in runtime_centering_css)
-    check("authoritative controls v56.8.4: legacy glyph overlay is disabled", "#teacher .single-mission-controls .control .ico.v562-art:after{" in runtime_centering_css and 'display:none!important' in runtime_centering_css)
-    check("authoritative controls v56.8.4: End Session matches module geometry", "#teacher .v562-end-btn{" in runtime_centering_css and "max-width:72px!important" in runtime_centering_css and "max-height:82px!important" in runtime_centering_css)
-    check("authoritative controls v56.8.4: End Session art matches standard art size", "#teacher .v562-end-btn .v562-art{" in runtime_centering_css and "flex:0 0 60px!important" in runtime_centering_css)
-
-    repair_script = re.search(r'CONTROL_ART_REPAIR_SCRIPT\s*=\s*r?"""(.*?)"""', server, re.S)
-    repair_js = repair_script.group(1) if repair_script else ""
-    check("control art repair v56.8.5: repair script remains", bool(repair_script))
-    check("control art repair v56.8.5: canonical server injects repair script", 'CONTROL_ART_CENTERING_STYLE + CONTROL_ART_REPAIR_SCRIPT' in server)
-    check("control art repair v56.8.5: standard controls receive illustrated art class", 'ico.classList.add("v562-art", cls)' in repair_js)
-    check("control art repair v56.8.5: legacy glyph text is cleared", 'ico.textContent = ""' in repair_js)
-    check("control art repair v56.8.5: End Session legacy shells are removed", "#teacher .v562-end-btn:before" in runtime_centering_css and "#teacher .single-mission-danger:after" in runtime_centering_css)
-
-    check("direct illustrated controls v56.8.6: actual sprite is restored", "background-image:var(--v562-sprite)!important" in runtime_centering_css)
-    check("direct illustrated controls v56.8.6: standard pseudo overlays are removed", "#teacher .single-mission-controls .control .ico.v562-art:before" in runtime_centering_css and "content:none!important" in runtime_centering_css)
-    check("direct illustrated controls v56.8.6: standard tiles stay 60px", "min-width:60px!important" in runtime_centering_css and "min-height:60px!important" in runtime_centering_css)
-    check("direct illustrated controls v56.8.6: End Session art uses direct sprite tile", "#teacher .v562-end-btn .v562-art{" in runtime_centering_css and "background-image:var(--v562-sprite)!important" in runtime_centering_css)
-
-    check("floating tile deck v56.8.7: mission bar texture layer remains", "repeating-linear-gradient(0deg" in runtime_centering_css and "#teacher .single-mission-bar:before" in runtime_centering_css)
-    check("floating tile deck v56.8.7: controls have no outer hardware box", "#teacher .single-mission-controls .control{" in runtime_centering_css and "background:transparent!important" in runtime_centering_css and "box-shadow:none!important" in runtime_centering_css)
-    check("floating tile deck v56.8.7: illustrated art is the floating button", "width:58px!important" in runtime_centering_css and "border-radius:15px!important" in runtime_centering_css and "translateY(-3px) scale(1.035)" in runtime_centering_css)
-    check("floating tile deck v56.8.7: End Session uses same floating footprint", "#teacher .single-mission-danger{" in runtime_centering_css and "width:78px!important" in runtime_centering_css and "#teacher .v562-end-btn .v562-art{" in runtime_centering_css)
-    check("floating tile deck v56.8.7: activity deck gets textured surface", "#teacher .activity-shortcuts" in runtime_centering_css and "#teacher .app-shortcut{" in runtime_centering_css and "background:transparent!important" in runtime_centering_css)
-
-    check("exact tile alignment v56.8.8: shortcut art is exact 64px cell", "#teacher .app-shortcut-icon>.v562-art{" in runtime_centering_css and "width:64px!important" in runtime_centering_css and "height:64px!important" in runtime_centering_css)
-    check("exact tile alignment v56.8.8: shortcut optical offsets are zeroed", "--v5682-app-x:0px!important" in runtime_centering_css and "--v5682-app-y:0px!important" in runtime_centering_css)
-    check("exact tile alignment v56.8.8: classroom art is exact 64px cell", "#teacher .single-mission-controls .control .ico.v562-art{" in runtime_centering_css and "flex:0 0 64px!important" in runtime_centering_css)
-    check("exact tile alignment v56.8.8: End Session overrides legacy specificity", "#teacher .single-mission-danger .end-btn.v562-end-btn{" in runtime_centering_css and "background:transparent!important" in runtime_centering_css)
-    check("exact tile alignment v56.8.8: End Session rocket tile is 64px", "#teacher .single-mission-danger .end-btn.v562-end-btn>.v562-art.v562-control-end{" in runtime_centering_css and "background-position:0% 66.667%!important" in runtime_centering_css)
-
-    hard_reset = re.search(r'CONTROL_TILE_HARD_RESET\s*=\s*r?"""(.*?)"""', server, re.S)
-    hard_reset_text = hard_reset.group(1) if hard_reset else ""
-    check("tile hard reset v56.8.9: dedicated final renderer remains", bool(hard_reset))
-    check("tile hard reset v56.8.9: shortcut wrapper strips old frame", '"box-shadow":"none"' in hard_reset_text and '"overflow":"hidden"' in hard_reset_text)
-    check("tile hard reset v56.8.9: source cell margin is cropped", "const CELL=68, CROP=2" in hard_reset_text and 'SHEET_W=340' in hard_reset_text and 'SHEET_H=272' in hard_reset_text)
-    check("tile hard reset v56.8.9: End Session uses centered spaceship cell", "spriteTile(art,1,2" in hard_reset_text)
-    check("tile hard reset v56.8.9: old pseudo layers are removed", "#teacher .app-shortcut-icon:after" in hard_reset_text and "#teacher #endBtn:after" in hard_reset_text)
-
-    end_inline = re.search(r'CONTROL_END_INLINE_FIX\s*=\s*r?"""(.*?)"""', server, re.S)
-    end_inline_text = end_inline.group(1) if end_inline else ""
-    check("End Session inline v56.9.0: dedicated fix remains", bool(end_inline))
-    check("End Session inline v56.9.0: existing button moves into control row", 'controls.appendChild(end)' in end_inline_text)
-    check("End Session inline v56.9.0: button becomes standard control", 'end.className="control v5690-end-inline"' in end_inline_text)
-    check("End Session inline v56.9.0: old danger wrapper is hidden", "v5690-empty-danger" in end_inline_text and "display:none!important" in end_inline_text)
-    check("End Session inline v56.9.0: label uses standard copy structure", 'copy.className="copy"' in end_inline_text and 'b.textContent="End Session"' in end_inline_text)
-
-    end_clean = re.search(r'CONTROL_END_HARD_CLEAN\s*=\s*r?"""(.*?)"""', server, re.S)
-    end_clean_text = end_clean.group(1) if end_clean else ""
-    check("End Session hard clean v56.9.2: final reset remains", bool(end_clean))
-    check("End Session hard clean v56.9.2: all legacy button styling is reset", "#teacher #endBtn.v5692-end-clean{" in end_clean_text and "all:unset!important" in end_clean_text)
-    check("End Session hard clean v56.9.2: danger wrapper is hidden", "#teacher .single-mission-danger{display:none!important}" in end_clean_text)
-    check("End Session hard clean v56.9.2: duplicate end buttons are removed", "existing.slice(1).forEach" in end_clean_text)
-    check("End Session hard clean v56.9.2: button is appended to classroom controls", "controls.appendChild(end)" in end_clean_text)
+    # v56.9.3 canonical Classroom controls live directly in index.html.
+    canonical_controls = extract_style(html, "v56-9-3-canonical-classroom-controls")
+    check("canonical controls v56.9.3: source style remains", bool(canonical_controls))
+    check("canonical controls v56.9.3: runtime patch injection is gone", 'CONTROL_ART_CENTERING_STYLE + CONTROL_ART_REPAIR_SCRIPT' not in server)
+    check("canonical controls v56.9.3: End Session is in the standard control row", '<button class="control" id="endBtn">' in html)
+    check("canonical controls v56.9.3: End Session no longer uses legacy end classes", 'id="endBtn"' in html and 'class="end-btn v562-end-btn" id="endBtn"' not in html)
+    check("canonical controls v56.9.3: standard launcher footprint is 72x86", "width:72px!important" in canonical_controls and "height:86px!important" in canonical_controls)
+    check("canonical controls v56.9.3: standard art footprint is 64px", "width:64px!important" in canonical_controls and "height:64px!important" in canonical_controls and "flex:0 0 64px!important" in canonical_controls)
+    check("canonical controls v56.9.3: End Session inherits standard control geometry", "#teacher #endBtn{" in canonical_controls and "#teacher #endBtn .ico.v562-art{" in canonical_controls)
+    check("canonical controls v56.9.3: legacy danger slot collapses when unused", "#teacher .single-mission-danger:has(#emergencyReturnBtn.hidden)" in canonical_controls)
+    check("canonical controls v56.9.3: Activity Shortcut inner frame padding is removed", "#teacher .app-shortcut-icon{" in canonical_controls and "padding:0!important" in canonical_controls and "#teacher .app-shortcut-icon:after" in canonical_controls)
 
     # HTML shell integrity: release styles must not split structural tags.
     head_close = html.find("</head>")
