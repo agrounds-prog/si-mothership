@@ -69,7 +69,8 @@ def main() -> int:
 
 
     # v56.9.3 canonical Classroom controls live directly in index.html.
-    canonical_controls = extract_style(html, "v56-9-3-canonical-classroom-controls")
+    canonical_style = re.search(r'<style id="v56-9-3-canonical-classroom-controls">(.*?)</style>', html, re.S)
+    canonical_controls = canonical_style.group(1) if canonical_style else ""
     check("canonical controls v56.9.3: source style remains", bool(canonical_controls))
     check("canonical controls v56.9.3: runtime patch injection is gone", 'CONTROL_ART_CENTERING_STYLE + CONTROL_ART_REPAIR_SCRIPT' not in server)
     check("canonical controls v56.9.3: End Session is in the standard control row", '<button class="control" id="endBtn">' in html)
