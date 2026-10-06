@@ -564,6 +564,17 @@ def main() -> int:
     check("button system v56.7: literal escaped header gap is removed", "</header>\\n\\n<section id=\"teacher\"" not in html)
     check("button system v56.7: classroom behavior hooks remain", 'id="teacherControlBar"' in html and 'data-control="activities"' in html and 'data-toggle="picture"' in html and 'id="endBtn"' in html)
 
+    # v56.8 unified button system.
+    v568_style = re.search(r'<style id="v56-8-unified-button-system">(.*?)</style>', html, re.S)
+    v568_css = v568_style.group(1) if v568_style else ""
+    check("unified buttons v56.8: dedicated layer remains", bool(v568_style))
+    check("unified buttons v56.8: activity shortcuts are centered fixed modules", "grid-template-columns:repeat(9,84px)!important" in v568_css and "justify-content:center!important" in v568_css)
+    check("unified buttons v56.8: classroom controls use launcher geometry", "grid-template-rows:62px 20px!important" in v568_css and "#teacher .single-mission-controls .control" in v568_css)
+    check("unified buttons v56.8: classroom art tiles match shortcut family", "width:60px!important" in v568_css and "border-radius:16px!important" in v568_css)
+    check("unified buttons v56.8: state styling stays on art tiles", "#teacher .single-mission-controls .control.active .ico.v562-art" in v568_css and "#teacher .single-mission-controls .control.enabled .ico.v562-art" in v568_css)
+    check("unified buttons v56.8: end session joins unified family", "#teacher .v562-end-btn" in v568_css and "grid-template-rows:62px 20px!important" in v568_css)
+    check("unified buttons v56.8: behavior hooks remain", 'data-control="lobby"' in html and 'data-toggle="buzz"' in html and 'data-send="understanding"' in html and 'id="endBtn"' in html)
+
     # Historical selector invariant: $() is single-element; $() is multi-element.
     bad_selector_lines = []
     for number, line in enumerate(html.splitlines(), 1):
