@@ -1158,6 +1158,110 @@ CONTROL_END_INLINE_FIX = r"""
 </script>
 """
 
+CONTROL_END_HARD_CLEAN = r"""
+<style id="v56-9-2-end-hard-clean">
+#teacher .single-mission-danger{display:none!important}
+#teacher #endBtn.v5692-end-clean{
+  all:unset!important;
+  box-sizing:border-box!important;
+  width:72px!important;
+  min-width:72px!important;
+  max-width:72px!important;
+  height:86px!important;
+  min-height:86px!important;
+  max-height:86px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:5px!important;
+  cursor:pointer!important;
+  color:inherit!important;
+}
+#teacher #endBtn.v5692-end-clean:before,
+#teacher #endBtn.v5692-end-clean:after,
+#teacher #endBtn.v5692-end-clean .ico:before,
+#teacher #endBtn.v5692-end-clean .ico:after{
+  content:none!important;
+  display:none!important;
+}
+#teacher #endBtn.v5692-end-clean .ico{
+  all:unset!important;
+  box-sizing:border-box!important;
+  width:64px!important;
+  height:64px!important;
+  min-width:64px!important;
+  min-height:64px!important;
+  max-width:64px!important;
+  max-height:64px!important;
+  flex:0 0 64px!important;
+  display:block!important;
+  margin:0 auto!important;
+  border:1px solid #ff5d91!important;
+  border-radius:12px!important;
+  background-image:var(--v562-sprite)!important;
+  background-repeat:no-repeat!important;
+  background-size:500% 400%!important;
+  background-position:25% 66.667%!important;
+  background-color:#190711!important;
+  box-shadow:0 3px 0 #260812,0 8px 16px rgba(0,0,0,.28),0 0 14px rgba(255,62,126,.24)!important;
+}
+#teacher #endBtn.v5692-end-clean .copy{
+  all:unset!important;
+  box-sizing:border-box!important;
+  width:72px!important;
+  height:17px!important;
+  min-height:17px!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+}
+#teacher #endBtn.v5692-end-clean .copy b{
+  all:unset!important;
+  width:72px!important;
+  display:block!important;
+  color:#ff9eb9!important;
+  font:900 7px/1.05 Arial,Helvetica,sans-serif!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+}
+</style>
+<script id="v56-9-2-end-hard-clean-script">
+(function(){
+  function cleanEnd(){
+    const controls=document.querySelector("#teacher .single-mission-controls");
+    if(!controls) return;
+
+    const existing=Array.from(document.querySelectorAll("#teacher #endBtn"));
+    let end=existing[0] || document.createElement("button");
+    existing.slice(1).forEach(function(node){node.remove();});
+
+    if(end.parentElement!==controls) controls.appendChild(end);
+    end.id="endBtn";
+    end.className="v5692-end-clean";
+    end.innerHTML='<span class="ico" aria-hidden="true"></span><span class="copy"><b>End Session</b></span>';
+
+    const danger=document.querySelector("#teacher .single-mission-danger");
+    if(danger) danger.style.setProperty("display","none","important");
+  }
+
+  function boot(){
+    cleanEnd();
+    const root=document.querySelector("#teacher");
+    if(root && !root.__v5692Observer){
+      const obs=new MutationObserver(function(){requestAnimationFrame(cleanEnd);});
+      obs.observe(root,{childList:true,subtree:true});
+      root.__v5692Observer=obs;
+    }
+    setTimeout(cleanEnd,200);
+    setTimeout(cleanEnd,800);
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot,{once:true});
+  else boot();
+})();
+</script>
+"""
+
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
 /* SI-branded classroom modeling skin.
@@ -4771,7 +4875,7 @@ async def index(request: web.Request) -> web.Response:
         + "</script>"
     )
     text = text.replace("<head>", "<head>" + injected, 1)
-    text = text.replace("</head>", CONTROL_ART_CENTERING_STYLE + CONTROL_ART_REPAIR_SCRIPT + CONTROL_TILE_HARD_RESET + CONTROL_END_INLINE_FIX + "</head>", 1)
+    text = text.replace("</head>", CONTROL_ART_CENTERING_STYLE + CONTROL_ART_REPAIR_SCRIPT + CONTROL_TILE_HARD_RESET + CONTROL_END_INLINE_FIX + CONTROL_END_HARD_CLEAN + "</head>", 1)
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
 
