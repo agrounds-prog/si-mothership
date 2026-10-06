@@ -67,6 +67,17 @@ def main() -> int:
     server_version = re.search(r'APP_VERSION\s*=\s*"([^"]+)"', server)
     check("version: title and server match", bool(title_version and server_version and title_version.group(1) == server_version.group(1)))
 
+
+    # v56.8.2 runtime visual hotfix: production server injects the final centering layer.
+    runtime_centering = re.search(r'CONTROL_ART_CENTERING_STYLE\s*=\s*r?"""(.*?)"""', server, re.S)
+    runtime_centering_css = runtime_centering.group(1) if runtime_centering else ""
+    check("runtime art centering v56.8.2: style constant remains", bool(runtime_centering))
+    check("runtime art centering v56.8.2: final style is injected into served index", 'text = text.replace("</head>", CONTROL_ART_CENTERING_STYLE + "</head>", 1)' in server)
+    check("runtime art centering v56.8.2: End Session stays on desktop control row", "grid-template-columns:auto minmax(0,1fr) auto!important" in runtime_centering_css and "grid-column:auto!important" in runtime_centering_css)
+    check("runtime art centering v56.8.2: End Session source art is optically reframed", "width:124px!important" in runtime_centering_css and "background-position:0% 66.667%!important" in runtime_centering_css)
+    check("runtime art centering v56.8.2: activity cluster keeps intrinsic centering", "width:max-content!important" in runtime_centering_css and "margin-left:auto!important" in runtime_centering_css and "margin-right:auto!important" in runtime_centering_css)
+    check("runtime art centering v56.8.2: activity art has per-icon optical offsets", "--v5682-app-x" in runtime_centering_css and ".v562-app-crew-survey" in runtime_centering_css and ".v562-app-scientific-calculator" in runtime_centering_css)
+
     # HTML shell integrity: release styles must not split structural tags.
     head_close = html.find("</head>")
     body_open = html.find("<body", head_close)

@@ -41,6 +41,136 @@ NO_BROWSER = os.getenv("MOTHERSHIP_NO_BROWSER", "").strip().lower() in {"1", "tr
 JOIN_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 APP_VERSION = "56.8.1"
 
+CONTROL_ART_CENTERING_STYLE = r"""
+<style id="v56-8-2-runtime-art-centering">
+/* Production hotfix: center the illustrated subject, not only its sprite cell. */
+
+/* The old laptop breakpoint was dropping End Session onto a second row around 1440px.
+   The current compact launcher set fits on one row, so keep all controls aligned. */
+@media (min-width:1181px) and (max-width:1450px){
+  #teacher .single-mission-bar{
+    grid-template-columns:auto minmax(0,1fr) auto!important;
+  }
+  #teacher .single-mission-danger{
+    grid-column:auto!important;
+    align-self:center!important;
+    justify-content:center!important;
+    padding:0 0 0 10px!important;
+    border-top:0!important;
+    border-left:1px solid #203744!important;
+  }
+}
+
+/* Keep the nine-launcher cluster geometrically centered, then correct the tiny optical bias. */
+#teacher .home-app-grid{
+  width:max-content!important;
+  max-width:100%!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  padding-left:0!important;
+  padding-right:0!important;
+  transform:translateX(-2px)!important;
+}
+
+/* Classroom controls: paint the sprite on a larger inner layer so each subject can be
+   optically centered without moving the hardware tile or its label. */
+#teacher .single-mission-controls .control .ico.v562-art,
+#teacher .v562-end-btn .v562-art{
+  background-image:none!important;
+  background-color:var(--art-deep,#071722)!important;
+  position:relative!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+}
+#teacher .single-mission-controls .control .ico.v562-art:before,
+#teacher .v562-end-btn .v562-art:before{
+  content:""!important;
+  position:absolute!important;
+  z-index:0!important;
+  left:50%!important;
+  top:50%!important;
+  width:82px!important;
+  height:82px!important;
+  transform:translate(calc(-50% + var(--v5682-x,0px)),calc(-50% + var(--v5682-y,0px)))!important;
+  border:0!important;
+  border-radius:14px!important;
+  background-color:transparent!important;
+  background-image:var(--v562-sprite)!important;
+  background-repeat:no-repeat!important;
+  background-size:500% 400%!important;
+  background-position:var(--v5682-bg-x,0%) var(--v5682-bg-y,0%)!important;
+  box-shadow:none!important;
+  mix-blend-mode:normal!important;
+  opacity:1!important;
+  pointer-events:none!important;
+}
+#teacher .single-mission-controls .control .ico.v562-art:after{
+  z-index:3!important;
+}
+#teacher .v562-control-lobby{--v5682-bg-x:0%;--v5682-bg-y:0%;--v5682-x:-5px;--v5682-y:-4px}
+#teacher .v562-control-activities{--v5682-bg-x:25%;--v5682-bg-y:0%;--v5682-x:-9px;--v5682-y:2px}
+#teacher .v562-control-agenda{--v5682-bg-x:50%;--v5682-bg-y:0%;--v5682-x:-10px;--v5682-y:-5px}
+#teacher .v562-control-ready{--v5682-bg-x:75%;--v5682-bg-y:0%;--v5682-x:-11px;--v5682-y:-3px}
+#teacher .v562-control-hand{--v5682-bg-x:100%;--v5682-bg-y:0%;--v5682-x:-5px;--v5682-y:-8px}
+#teacher .v562-control-buzz{--v5682-bg-x:0%;--v5682-bg-y:33.333%;--v5682-x:-11px;--v5682-y:0px}
+#teacher .v562-control-help{--v5682-bg-x:25%;--v5682-bg-y:33.333%;--v5682-x:-8px;--v5682-y:-3px}
+#teacher .v562-control-picture{--v5682-bg-x:50%;--v5682-bg-y:33.333%;--v5682-x:0px;--v5682-y:1px}
+#teacher .v562-control-emotion{--v5682-bg-x:75%;--v5682-bg-y:33.333%;--v5682-x:-7px;--v5682-y:-1px}
+#teacher .v562-control-understanding{--v5682-bg-x:100%;--v5682-bg-y:33.333%;--v5682-x:-10px;--v5682-y:-7px}
+
+/* End Session needs a stronger crop because the source rocket sits far to the right. */
+#teacher .v562-end-btn .v562-art:before{
+  width:124px!important;
+  height:124px!important;
+  transform:translate(calc(-50% - 32px),calc(-50% - 7px))!important;
+  background-position:0% 66.667%!important;
+  border-radius:18px!important;
+}
+#teacher .v562-end-btn .v562-art:after{
+  content:""!important;
+  position:absolute!important;
+  inset:4px!important;
+  z-index:4!important;
+  border:1px solid rgba(255,116,151,.32)!important;
+  border-radius:12px!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.08),transparent 42%)!important;
+  box-shadow:inset 0 0 12px rgba(255,83,130,.08)!important;
+  pointer-events:none!important;
+}
+
+/* Activity launchers: center the illustrated subject inside each 66px hardware frame. */
+#teacher .app-shortcut-icon{
+  position:relative!important;
+  overflow:hidden!important;
+}
+#teacher .app-shortcut-icon>.v562-art{
+  position:absolute!important;
+  z-index:0!important;
+  left:50%!important;
+  top:50%!important;
+  width:88px!important;
+  height:88px!important;
+  margin:0!important;
+  transform:translate(calc(-50% + var(--v5682-app-x,0px)),calc(-50% + var(--v5682-app-y,0px)))!important;
+  border-radius:15px!important;
+  background-size:500% 400%!important;
+  transform-origin:50% 50%!important;
+}
+#teacher .app-shortcut:hover .app-shortcut-icon>.v562-art{
+  transform:translate(calc(-50% + var(--v5682-app-x,0px)),calc(-50% + var(--v5682-app-y,0px)))!important;
+}
+#teacher .v562-app-si-plus{--v5682-app-x:2px;--v5682-app-y:6px}
+#teacher .v562-app-crew-survey{--v5682-app-x:-11px;--v5682-app-y:-9px}
+#teacher .v562-app-bingo{--v5682-app-x:-3px;--v5682-app-y:-5px}
+#teacher .v562-app-board{--v5682-app-x:-2px;--v5682-app-y:-3px}
+#teacher .v562-app-match{--v5682-app-x:1px;--v5682-app-y:-7px}
+#teacher .v562-app-pixel-reveal{--v5682-app-x:-2px;--v5682-app-y:-6px}
+#teacher .v562-app-sketch-signal{--v5682-app-x:2px;--v5682-app-y:-8px}
+#teacher .v562-app-starwheel{--v5682-app-x:5px;--v5682-app-y:7px}
+#teacher .v562-app-scientific-calculator{--v5682-app-x:4px;--v5682-app-y:3px}
+</style>
+"""
+
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
 /* SI-branded classroom modeling skin.
@@ -3654,6 +3784,7 @@ async def index(request: web.Request) -> web.Response:
         + "</script>"
     )
     text = text.replace("<head>", "<head>" + injected, 1)
+    text = text.replace("</head>", CONTROL_ART_CENTERING_STYLE + "</head>", 1)
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
 
