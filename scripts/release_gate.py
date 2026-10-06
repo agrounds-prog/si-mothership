@@ -63,7 +63,7 @@ def main() -> int:
     server = SERVER.read_text(encoding="utf-8")
 
     # Version consistency.
-    title_version = re.search(r"<title>[^<]*v(\d+\.\d+)", html)
+    title_version = re.search(r"<title>[^<]*v(\d+\.\d+(?:\.\d+)?)", html)
     server_version = re.search(r'APP_VERSION\s*=\s*"([^"]+)"', server)
     check("version: title and server match", bool(title_version and server_version and title_version.group(1) == server_version.group(1)))
 
