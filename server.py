@@ -353,6 +353,46 @@ CONTROL_ART_CENTERING_STYLE = r"""
   background:none!important;
   box-shadow:none!important;
 }
+
+/* v56.8.6 direct illustrated control art.
+   The previous runtime layer accidentally hid the actual sprite with background-image:none
+   and tried to redraw it through :before. That left the legacy glyph look in place.
+   Render the real sprite directly on the control tile and remove both pseudo overlays. */
+#teacher .single-mission-controls .control .ico.v562-art,
+#teacher .v562-end-btn .v562-art{
+  background-image:var(--v562-sprite)!important;
+  background-repeat:no-repeat!important;
+  background-size:500% 400%!important;
+  opacity:1!important;
+  filter:saturate(1.18) brightness(1.10) contrast(1.04)!important;
+}
+#teacher .single-mission-controls .control .ico.v562-art:before,
+#teacher .single-mission-controls .control .ico.v562-art:after,
+#teacher .v562-end-btn .v562-art:before,
+#teacher .v562-end-btn .v562-art:after{
+  content:none!important;
+  display:none!important;
+  opacity:0!important;
+  background:none!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+#teacher .single-mission-controls .control .ico.v562-art{
+  width:60px!important;
+  height:60px!important;
+  min-width:60px!important;
+  min-height:60px!important;
+  flex:0 0 60px!important;
+  padding:0!important;
+}
+#teacher .v562-end-btn .v562-art{
+  width:60px!important;
+  height:60px!important;
+  min-width:60px!important;
+  min-height:60px!important;
+  flex:0 0 60px!important;
+  padding:0!important;
+}
 </style>
 """
 
