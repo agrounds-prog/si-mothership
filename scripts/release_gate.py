@@ -78,10 +78,11 @@ def main() -> int:
     check("runtime art centering v56.8.2: activity cluster keeps intrinsic centering", "width:max-content!important" in runtime_centering_css and "margin-left:auto!important" in runtime_centering_css and "margin-right:auto!important" in runtime_centering_css)
     check("runtime art centering v56.8.2: activity art has per-icon optical offsets", "--v5682-app-x" in runtime_centering_css and ".v562-app-crew-survey" in runtime_centering_css and ".v562-app-scientific-calculator" in runtime_centering_css)
 
-    check("control row polish v56.8.3: controls share fixed hardware footprint", "width:76px!important" in runtime_centering_css and "height:76px!important" in runtime_centering_css and "grid-template-rows:48px 18px!important" in runtime_centering_css)
-    check("control row polish v56.8.3: compact control rhythm remains", "#teacher .single-mission-controls{" in runtime_centering_css and "gap:5px!important" in runtime_centering_css)
-    check("control row polish v56.8.3: End Session matches control geometry", "#teacher .v562-end-btn{" in runtime_centering_css and "max-width:76px!important" in runtime_centering_css and "max-height:76px!important" in runtime_centering_css)
-    check("control row polish v56.8.3: End Session label baseline is fixed", "#teacher .v562-end-btn>span:last-child{" in runtime_centering_css and "height:18px!important" in runtime_centering_css and "white-space:nowrap!important" in runtime_centering_css)
+    check("authoritative controls v56.8.4: standard modules use one footprint", "width:72px!important" in runtime_centering_css and "height:82px!important" in runtime_centering_css and "gap:6px!important" in runtime_centering_css)
+    check("authoritative controls v56.8.4: real illustrated art is 60px", "width:60px!important" in runtime_centering_css and "height:60px!important" in runtime_centering_css)
+    check("authoritative controls v56.8.4: legacy glyph overlay is disabled", "#teacher .single-mission-controls .control .ico.v562-art:after{" in runtime_centering_css and 'display:none!important' in runtime_centering_css)
+    check("authoritative controls v56.8.4: End Session matches module geometry", "#teacher .v562-end-btn{" in runtime_centering_css and "max-width:72px!important" in runtime_centering_css and "max-height:82px!important" in runtime_centering_css)
+    check("authoritative controls v56.8.4: End Session art matches standard art size", "#teacher .v562-end-btn .v562-art{" in runtime_centering_css and "flex:0 0 60px!important" in runtime_centering_css)
 
     # HTML shell integrity: release styles must not split structural tags.
     head_close = html.find("</head>")
