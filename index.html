@@ -10940,6 +10940,205 @@ body.role-shared .si-plus-viewport-image{
   }
 }
 </style>
+
+<style id="v56-9-3-canonical-classroom-controls">
+/* Canonical Classroom launcher system.
+   This is the final source-level owner for the row; no runtime JS is required. */
+#teacher .single-mission-bar{
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+  align-items:center!important;
+  min-height:94px!important;
+  padding:9px 12px!important;
+}
+#teacher .single-mission-controls{
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  gap:8px!important;
+  flex-wrap:nowrap!important;
+  min-width:0!important;
+}
+#teacher .single-mission-controls .control{
+  width:72px!important;
+  min-width:72px!important;
+  max-width:72px!important;
+  height:86px!important;
+  min-height:86px!important;
+  max-height:86px!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:5px!important;
+  border:0!important;
+  outline:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+  transform:none!important;
+}
+#teacher .single-mission-controls .control:before,
+#teacher .single-mission-controls .control:after{
+  content:none!important;
+  display:none!important;
+}
+#teacher .single-mission-controls .control .ico.v562-art{
+  width:64px!important;
+  height:64px!important;
+  min-width:64px!important;
+  min-height:64px!important;
+  max-width:64px!important;
+  max-height:64px!important;
+  flex:0 0 64px!important;
+  margin:0 auto!important;
+  padding:0!important;
+  position:relative!important;
+  border:1px solid color-mix(in srgb,var(--art-accent,#50e6ff) 72%,#dffcff 28%)!important;
+  border-radius:14px!important;
+  background-image:var(--v562-sprite)!important;
+  background-repeat:no-repeat!important;
+  background-size:500% 400%!important;
+  background-color:#071822!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    0 3px 0 rgba(1,8,13,.82),
+    0 9px 18px rgba(0,0,0,.28),
+    0 0 14px color-mix(in srgb,var(--art-accent,#50e6ff) 20%,transparent)!important;
+  transform:none!important;
+  filter:saturate(1.12) brightness(1.08) contrast(1.03)!important;
+  overflow:hidden!important;
+}
+#teacher .single-mission-controls .control .ico.v562-art:before,
+#teacher .single-mission-controls .control .ico.v562-art:after{
+  content:none!important;
+  display:none!important;
+}
+#teacher .single-mission-controls .control .copy{
+  width:72px!important;
+  min-width:72px!important;
+  max-width:72px!important;
+  height:17px!important;
+  min-height:17px!important;
+  max-height:17px!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:1px!important;
+  overflow:visible!important;
+}
+#teacher .single-mission-controls .control b{
+  width:72px!important;
+  max-width:72px!important;
+  margin:0!important;
+  color:#dceff5!important;
+  font-size:7px!important;
+  font-weight:900!important;
+  line-height:1.05!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+#teacher .single-mission-controls .control small{
+  width:72px!important;
+  max-width:72px!important;
+  margin:0!important;
+  color:#718d98!important;
+  font-size:5.2px!important;
+  line-height:1!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+}
+#teacher .single-mission-controls .control:hover{
+  transform:none!important;
+}
+#teacher .single-mission-controls .control:hover .ico.v562-art{
+  transform:translateY(-2px)!important;
+  filter:saturate(1.20) brightness(1.12) contrast(1.04)!important;
+}
+
+/* End Session is intentionally NOT a separate component anymore. */
+#teacher #endBtn{
+  --art-accent:#ff6f96;
+  --art-deep:#351420;
+}
+#teacher #endBtn .ico.v562-art{
+  border-color:#ff6f96!important;
+  background-color:#1a0911!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    0 3px 0 #240811,
+    0 9px 18px rgba(0,0,0,.28),
+    0 0 16px rgba(255,82,132,.26)!important;
+}
+#teacher #endBtn b{
+  color:#ff9eb7!important;
+}
+
+/* The legacy danger slot is reserved only for Emergency Return.
+   When that control is hidden, the slot consumes no row space. */
+#teacher .single-mission-danger:has(#emergencyReturnBtn.hidden){
+  display:none!important;
+}
+#teacher .single-mission-danger{
+  align-self:center!important;
+}
+
+/* Activity launchers: remove old inner padding/frame so the visible tile is centered
+   inside the launcher footprint rather than inside another padded box. */
+#teacher .app-shortcut{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+}
+#teacher .app-shortcut-icon{
+  width:66px!important;
+  height:66px!important;
+  min-width:66px!important;
+  min-height:66px!important;
+  max-width:66px!important;
+  max-height:66px!important;
+  margin:0 auto!important;
+  padding:0!important;
+  position:relative!important;
+  overflow:hidden!important;
+  border:0!important;
+  border-radius:15px!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#teacher .app-shortcut-icon:before,
+#teacher .app-shortcut-icon:after{
+  content:none!important;
+  display:none!important;
+}
+#teacher .app-shortcut-icon>.v562-art{
+  position:absolute!important;
+  inset:0!important;
+  width:66px!important;
+  height:66px!important;
+  min-width:66px!important;
+  min-height:66px!important;
+  max-width:66px!important;
+  max-height:66px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:15px!important;
+  transform:none!important;
+}
+#teacher .app-shortcut:hover .app-shortcut-icon>.v562-art{
+  transform:none!important;
+}
+</style>
+
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -10969,7 +11168,7 @@ body.role-shared .si-plus-viewport-image{
     <button class="control" data-toggle="picture"><span class="ico v562-art v562-control-picture" aria-hidden="true"></span><span class="copy"><b>Picture Prompt</b><small id="pictureStatus">Paused</small></span></button>
     <button class="control" data-send="emotion"><span class="ico v562-art v562-control-emotion" aria-hidden="true"></span><span class="copy"><b>Emotion</b></span></button>
     <button class="control" data-send="understanding"><span class="ico v562-art v562-control-understanding" aria-hidden="true"></span><span class="copy"><b>Understanding</b></span></button>
-    <button class="control v5691-end-inline" id="endBtn"><span class="ico v562-art v562-control-end" aria-hidden="true"></span><span class="copy"><b>End Session</b></span></button>
+    <button class="control" id="endBtn"><span class="ico v562-art v562-control-end" aria-hidden="true"></span><span class="copy"><b>End Session</b></span></button>
   </div>
   <div class="single-mission-danger">
     <button class="emergency-btn hidden" id="emergencyReturnBtn">⚠ Emergency Return</button>
