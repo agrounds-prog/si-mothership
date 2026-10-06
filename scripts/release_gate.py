@@ -72,7 +72,7 @@ def main() -> int:
     runtime_centering = re.search(r'CONTROL_ART_CENTERING_STYLE\s*=\s*r?"""(.*?)"""', server, re.S)
     runtime_centering_css = runtime_centering.group(1) if runtime_centering else ""
     check("runtime art centering v56.8.2: style constant remains", bool(runtime_centering))
-    check("runtime art centering v56.8.2: final style is injected into served index", 'text = text.replace("</head>", CONTROL_ART_CENTERING_STYLE + "</head>", 1)' in server)
+    check("runtime art centering v56.8.2: final style is injected into served index", 'text = text.replace("</head>", CONTROL_ART_CENTERING_STYLE + CONTROL_ART_REPAIR_SCRIPT + "</head>", 1)' in server)
     check("runtime art centering v56.8.2: End Session stays on desktop control row", "grid-template-columns:auto minmax(0,1fr) auto!important" in runtime_centering_css and "grid-column:auto!important" in runtime_centering_css)
     check("runtime art centering v56.8.2: End Session source art is optically reframed", "width:124px!important" in runtime_centering_css and "background-position:0% 66.667%!important" in runtime_centering_css)
     check("runtime art centering v56.8.2: activity cluster keeps intrinsic centering", "width:max-content!important" in runtime_centering_css and "margin-left:auto!important" in runtime_centering_css and "margin-right:auto!important" in runtime_centering_css)
