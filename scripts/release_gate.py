@@ -72,7 +72,7 @@ def main() -> int:
     runtime_centering = re.search(r'CONTROL_ART_CENTERING_STYLE\s*=\s*r?"""(.*?)"""', server, re.S)
     runtime_centering_css = runtime_centering.group(1) if runtime_centering else ""
     check("runtime art centering v56.8.2: style constant remains", bool(runtime_centering))
-    check("runtime art centering v56.8.2: final style is injected into served index", 'text = text.replace("</head>", CONTROL_ART_CENTERING_STYLE + CONTROL_ART_REPAIR_SCRIPT + CONTROL_TILE_HARD_RESET + "</head>", 1)' in server)
+    check("runtime art centering v56.8.2: final style is injected into served index", 'text = text.replace("</head>", CONTROL_ART_CENTERING_STYLE + CONTROL_ART_REPAIR_SCRIPT + CONTROL_TILE_HARD_RESET + CONTROL_END_INLINE_FIX + "</head>", 1)' in server)
     check("runtime art centering v56.8.2: End Session stays on desktop control row", "grid-template-columns:auto minmax(0,1fr) auto!important" in runtime_centering_css and "grid-column:auto!important" in runtime_centering_css)
     check("runtime art centering v56.8.2: End Session source art is optically reframed", "width:124px!important" in runtime_centering_css and "background-position:0% 66.667%!important" in runtime_centering_css)
     check("runtime art centering v56.8.2: activity cluster keeps intrinsic centering", "width:max-content!important" in runtime_centering_css and "margin-left:auto!important" in runtime_centering_css and "margin-right:auto!important" in runtime_centering_css)
@@ -116,6 +116,14 @@ def main() -> int:
     check("tile hard reset v56.8.9: source cell margin is cropped", "const CELL=68, CROP=2" in hard_reset_text and 'SHEET_W=340' in hard_reset_text and 'SHEET_H=272' in hard_reset_text)
     check("tile hard reset v56.8.9: End Session uses centered spaceship cell", "spriteTile(art,1,2" in hard_reset_text)
     check("tile hard reset v56.8.9: old pseudo layers are removed", "#teacher .app-shortcut-icon:after" in hard_reset_text and "#teacher #endBtn:after" in hard_reset_text)
+
+    end_inline = re.search(r'CONTROL_END_INLINE_FIX\s*=\s*r?"""(.*?)"""', server, re.S)
+    end_inline_text = end_inline.group(1) if end_inline else ""
+    check("End Session inline v56.9.0: dedicated fix remains", bool(end_inline))
+    check("End Session inline v56.9.0: existing button moves into control row", 'controls.appendChild(end)' in end_inline_text)
+    check("End Session inline v56.9.0: button becomes standard control", 'end.className="control v5690-end-inline"' in end_inline_text)
+    check("End Session inline v56.9.0: old danger wrapper is hidden", "v5690-empty-danger" in end_inline_text and "display:none!important" in end_inline_text)
+    check("End Session inline v56.9.0: label uses standard copy structure", 'copy.className="copy"' in end_inline_text and 'b.textContent="End Session"' in end_inline_text)
 
     # HTML shell integrity: release styles must not split structural tags.
     head_close = html.find("</head>")
