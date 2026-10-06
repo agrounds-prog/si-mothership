@@ -338,7 +338,82 @@ CONTROL_ART_CENTERING_STYLE = r"""
 #teacher .v562-app-sketch-signal{--v5682-app-x:2px;--v5682-app-y:-8px}
 #teacher .v562-app-starwheel{--v5682-app-x:5px;--v5682-app-y:7px}
 #teacher .v562-app-scientific-calculator{--v5682-app-x:4px;--v5682-app-y:3px}
+
+/* v56.8.5: remove legacy visible layers that sit behind/in front of the real art. */
+#teacher .single-mission-controls .control .ico:after{
+  content:none!important;
+  display:none!important;
+}
+#teacher .v562-end-btn:before,
+#teacher .v562-end-btn:after,
+#teacher .single-mission-danger:before,
+#teacher .single-mission-danger:after{
+  content:none!important;
+  display:none!important;
+  background:none!important;
+  box-shadow:none!important;
+}
 </style>
+"""
+
+CONTROL_ART_REPAIR_SCRIPT = r"""
+<script id="v56-8-5-control-art-repair">
+(function(){
+  const RULES = [
+    ["picture prompt","v562-control-picture"],
+    ["ready check","v562-control-ready"],
+    ["raise hand","v562-control-hand"],
+    ["ask for help","v562-control-help"],
+    ["understanding","v562-control-understanding"],
+    ["activities","v562-control-activities"],
+    ["agenda","v562-control-agenda"],
+    ["emotion","v562-control-emotion"],
+    ["lobby","v562-control-lobby"],
+    ["buzz","v562-control-buzz"]
+  ];
+
+  function descriptor(el){
+    const attrs = Array.from(el.attributes || []).map(a => a.name + "=" + a.value).join(" ");
+    return (attrs + " " + (el.textContent || "")).toLowerCase().replace(/\s+/g," ");
+  }
+
+  function repair(){
+    document.querySelectorAll("#teacher .single-mission-controls .control").forEach((control) => {
+      const desc = descriptor(control);
+      const rule = RULES.find(([needle]) => desc.includes(needle));
+      if(!rule) return;
+      const cls = rule[1];
+      control.classList.add(cls);
+      const ico = control.querySelector(".ico");
+      if(!ico) return;
+      ico.classList.add("v562-art", cls);
+      if((ico.textContent || "").trim()) ico.textContent = "";
+      ico.setAttribute("aria-hidden","true");
+    });
+
+    const end = document.querySelector("#teacher #endBtn, #teacher .v562-end-btn");
+    if(end){
+      end.classList.add("v562-end-btn");
+      const danger = end.closest(".single-mission-danger");
+      if(danger) danger.classList.add("v5685-danger-clean");
+      const art = end.querySelector(".v562-art, .ico");
+      if(art){
+        art.classList.add("v562-art");
+        if((art.textContent || "").trim()) art.textContent = "";
+        art.setAttribute("aria-hidden","true");
+      }
+    }
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", repair, {once:true});
+  }else{
+    repair();
+  }
+  setTimeout(repair,250);
+  setTimeout(repair,1000);
+})();
+</script>
 """
 
 CALCULATOR_MODELING_STYLE = r"""
@@ -3954,7 +4029,7 @@ async def index(request: web.Request) -> web.Response:
         + "</script>"
     )
     text = text.replace("<head>", "<head>" + injected, 1)
-    text = text.replace("</head>", CONTROL_ART_CENTERING_STYLE + "</head>", 1)
+    text = text.replace("</head>", CONTROL_ART_CENTERING_STYLE + CONTROL_ART_REPAIR_SCRIPT + "</head>", 1)
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
 
