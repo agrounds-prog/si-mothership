@@ -1026,6 +1026,138 @@ CONTROL_TILE_HARD_RESET = r"""
 </script>
 """
 
+CONTROL_END_INLINE_FIX = r"""
+<style id="v56-9-0-end-inline-fix">
+/* End Session is a normal Classroom control now. No special right-hand module. */
+#teacher #endBtn.v5690-end-inline{
+  --art-accent:#ff5d91;
+  --art-deep:#1b0710;
+  width:72px!important;
+  min-width:72px!important;
+  max-width:72px!important;
+  height:86px!important;
+  min-height:86px!important;
+  max-height:86px!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:5px!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+#teacher #endBtn.v5690-end-inline .ico.v562-art{
+  width:64px!important;
+  height:64px!important;
+  min-width:64px!important;
+  min-height:64px!important;
+  max-width:64px!important;
+  max-height:64px!important;
+  flex:0 0 64px!important;
+  margin:0 auto!important;
+  padding:0!important;
+  border:1px solid #ff5d91!important;
+  border-radius:12px!important;
+  background-color:#190711!important;
+  box-shadow:
+    0 3px 0 #260812,
+    0 8px 16px rgba(0,0,0,.28),
+    0 0 16px rgba(255,62,126,.26)!important;
+  transform:none!important;
+}
+#teacher #endBtn.v5690-end-inline .copy{
+  width:72px!important;
+  min-width:72px!important;
+  max-width:72px!important;
+  height:17px!important;
+  min-height:17px!important;
+  max-height:17px!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  background:transparent!important;
+}
+#teacher #endBtn.v5690-end-inline .copy b{
+  width:72px!important;
+  max-width:72px!important;
+  margin:0!important;
+  color:#ff9eb9!important;
+  font-size:7px!important;
+  font-weight:900!important;
+  line-height:1.05!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+}
+#teacher .single-mission-danger.v5690-empty-danger{
+  display:none!important;
+}
+</style>
+<script id="v56-9-0-end-inline-fix-script">
+(function(){
+  function alignEnd(){
+    const controls=document.querySelector("#teacher .single-mission-controls");
+    const end=document.querySelector("#teacher #endBtn");
+    if(!controls||!end) return;
+
+    /* Move the existing button itself, preserving its click handler. */
+    if(end.parentElement!==controls) controls.appendChild(end);
+
+    end.className="control v5690-end-inline";
+    end.removeAttribute("style");
+
+    let art=end.querySelector(".v562-art,.ico");
+    if(!art){
+      art=document.createElement("span");
+      end.prepend(art);
+    }
+    art.className="ico v562-art v562-control-end";
+    art.setAttribute("aria-hidden","true");
+    art.textContent="";
+
+    let copy=end.querySelector(".copy");
+    if(!copy){
+      const oldLabel=Array.from(end.children).find(function(node){
+        return node!==art && node.nodeType===1;
+      });
+      copy=document.createElement("span");
+      copy.className="copy";
+      const b=document.createElement("b");
+      b.textContent="End Session";
+      copy.appendChild(b);
+      if(oldLabel) oldLabel.remove();
+      end.appendChild(copy);
+    }else{
+      copy.innerHTML="<b>End Session</b>";
+    }
+
+    const danger=document.querySelector("#teacher .single-mission-danger");
+    if(danger) danger.classList.add("v5690-empty-danger");
+  }
+
+  function boot(){
+    alignEnd();
+    const root=document.querySelector("#teacher");
+    if(root && !root.__v5690Observer){
+      const obs=new MutationObserver(function(){requestAnimationFrame(alignEnd);});
+      obs.observe(root,{childList:true,subtree:true});
+      root.__v5690Observer=obs;
+    }
+    setTimeout(alignEnd,150);
+    setTimeout(alignEnd,700);
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot,{once:true});
+  else boot();
+})();
+</script>
+"""
+
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
 /* SI-branded classroom modeling skin.
@@ -4639,7 +4771,7 @@ async def index(request: web.Request) -> web.Response:
         + "</script>"
     )
     text = text.replace("<head>", "<head>" + injected, 1)
-    text = text.replace("</head>", CONTROL_ART_CENTERING_STYLE + CONTROL_ART_REPAIR_SCRIPT + CONTROL_TILE_HARD_RESET + "</head>", 1)
+    text = text.replace("</head>", CONTROL_ART_CENTERING_STYLE + CONTROL_ART_REPAIR_SCRIPT + CONTROL_TILE_HARD_RESET + CONTROL_END_INLINE_FIX + "</head>", 1)
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
 
