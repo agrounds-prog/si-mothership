@@ -84,6 +84,14 @@ def main() -> int:
     check("authoritative controls v56.8.4: End Session matches module geometry", "#teacher .v562-end-btn{" in runtime_centering_css and "max-width:72px!important" in runtime_centering_css and "max-height:82px!important" in runtime_centering_css)
     check("authoritative controls v56.8.4: End Session art matches standard art size", "#teacher .v562-end-btn .v562-art{" in runtime_centering_css and "flex:0 0 60px!important" in runtime_centering_css)
 
+    repair_script = re.search(r'CONTROL_ART_REPAIR_SCRIPT\s*=\s*r?"""(.*?)"""', server, re.S)
+    repair_js = repair_script.group(1) if repair_script else ""
+    check("control art repair v56.8.5: repair script remains", bool(repair_script))
+    check("control art repair v56.8.5: canonical server injects repair script", 'CONTROL_ART_CENTERING_STYLE + CONTROL_ART_REPAIR_SCRIPT' in server)
+    check("control art repair v56.8.5: standard controls receive illustrated art class", 'ico.classList.add("v562-art", cls)' in repair_js)
+    check("control art repair v56.8.5: legacy glyph text is cleared", 'ico.textContent = ""' in repair_js)
+    check("control art repair v56.8.5: End Session legacy shells are removed", "#teacher .v562-end-btn:before" in runtime_centering_css and "#teacher .single-mission-danger:after" in runtime_centering_css)
+
     # HTML shell integrity: release styles must not split structural tags.
     head_close = html.find("</head>")
     body_open = html.find("<body", head_close)
