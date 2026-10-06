@@ -139,113 +139,173 @@ CONTROL_ART_CENTERING_STYLE = r"""
 }
 
 
-/* v56.8.3 control-row polish: one footprint, one baseline, one rhythm. */
+/* v56.8.4 authoritative control renderer.
+   Older release layers still exist in the handoff for compatibility, but this final layer
+   owns the visible Classroom launcher geometry and removes the legacy glyph overlay. */
 #teacher .single-mission-controls{
-  gap:5px!important;
-  align-items:stretch!important;
+  gap:6px!important;
+  align-items:flex-start!important;
 }
+
+/* All standard Classroom controls use one simple vertical stack: 60px art + 6px gap + 16px label. */
 #teacher .single-mission-controls .control{
-  width:76px!important;
-  min-width:76px!important;
-  max-width:76px!important;
-  height:76px!important;
-  min-height:76px!important;
-  max-height:76px!important;
-  display:grid!important;
-  grid-template-columns:76px!important;
-  grid-template-rows:48px 18px!important;
-  row-gap:4px!important;
-  align-items:start!important;
-  justify-items:center!important;
-  justify-content:center!important;
-  padding:6px 0 0!important;
-}
-#teacher .single-mission-controls .control .ico.v562-art{
-  grid-row:1!important;
-  align-self:start!important;
-  justify-self:center!important;
+  width:72px!important;
+  min-width:72px!important;
+  max-width:72px!important;
+  height:82px!important;
+  min-height:82px!important;
+  max-height:82px!important;
   margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:6px!important;
+  border:0!important;
+  outline:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+
+/* Show only the illustrated sprite. The old centered symbol in :after was literally being
+   painted on top of the artwork, making the new art look like the old icon system. */
+#teacher .single-mission-controls .control .ico.v562-art{
+  width:60px!important;
+  height:60px!important;
+  min-width:60px!important;
+  min-height:60px!important;
+  flex:0 0 60px!important;
+  margin:0!important;
+  padding:0!important;
+  align-self:center!important;
+}
+#teacher .single-mission-controls .control .ico.v562-art:after{
+  content:""!important;
+  display:none!important;
 }
 #teacher .single-mission-controls .control .copy{
-  grid-row:2!important;
-  width:68px!important;
-  min-height:18px!important;
-  height:18px!important;
+  width:72px!important;
+  min-width:72px!important;
+  max-width:72px!important;
+  height:16px!important;
+  min-height:16px!important;
+  max-height:16px!important;
   margin:0!important;
-  align-self:start!important;
-  justify-self:center!important;
+  padding:0!important;
+  display:flex!important;
+  flex-direction:column!important;
   align-items:center!important;
   justify-content:flex-start!important;
   gap:1px!important;
+  overflow:visible!important;
 }
 #teacher .single-mission-controls .control b{
-  width:68px!important;
-  max-width:68px!important;
+  width:72px!important;
+  max-width:72px!important;
   margin:0!important;
+  font-size:7px!important;
   line-height:1.05!important;
+  text-align:center!important;
 }
 #teacher .single-mission-controls .control small{
-  width:68px!important;
-  max-width:68px!important;
+  width:72px!important;
+  max-width:72px!important;
   margin:0!important;
+  font-size:5.2px!important;
   line-height:1!important;
+  text-align:center!important;
 }
 
-/* End Session is now the same hardware module as every other control.
-   Danger is communicated by color, not by a larger or lower button. */
+/* End Session is the same module size and the same 60px artwork size.
+   Only its danger palette distinguishes it from the other launchers. */
 #teacher .single-mission-danger{
-  width:auto!important;
-  min-width:86px!important;
-  display:flex!important;
-  align-items:stretch!important;
-  justify-content:center!important;
+  width:82px!important;
+  min-width:82px!important;
+  max-width:82px!important;
+  height:82px!important;
+  min-height:82px!important;
+  max-height:82px!important;
+  margin:0!important;
   padding:0 0 0 10px!important;
-}
-#teacher .v562-end-btn{
-  width:76px!important;
-  min-width:76px!important;
-  max-width:76px!important;
-  height:76px!important;
-  min-height:76px!important;
-  max-height:76px!important;
-  display:grid!important;
-  grid-template-columns:76px!important;
-  grid-template-rows:48px 18px!important;
-  row-gap:4px!important;
-  align-items:start!important;
-  justify-items:center!important;
-  justify-content:center!important;
-  padding:6px 0 0!important;
-  margin:0!important;
-  border-radius:14px!important;
-}
-#teacher .v562-end-btn .v562-art{
-  grid-row:1!important;
-  width:48px!important;
-  height:48px!important;
-  flex:0 0 48px!important;
-  margin:0!important;
-  align-self:start!important;
-  justify-self:center!important;
-  border-radius:12px!important;
-}
-#teacher .v562-end-btn>span:last-child{
-  grid-row:2!important;
-  width:68px!important;
-  max-width:68px!important;
-  height:18px!important;
-  margin:0!important;
   display:flex!important;
   align-items:flex-start!important;
   justify-content:center!important;
-  align-self:start!important;
-  justify-self:center!important;
-  color:#ff9ab5!important;
-  font-size:7.2px!important;
+  align-self:flex-start!important;
+}
+#teacher .v562-end-btn{
+  width:72px!important;
+  min-width:72px!important;
+  max-width:72px!important;
+  height:82px!important;
+  min-height:82px!important;
+  max-height:82px!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:6px!important;
+  border:0!important;
+  outline:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+#teacher .v562-end-btn .v562-art{
+  width:60px!important;
+  height:60px!important;
+  min-width:60px!important;
+  min-height:60px!important;
+  flex:0 0 60px!important;
+  margin:0!important;
+  padding:0!important;
+  align-self:center!important;
+  border:1px solid #8c3853!important;
+  border-radius:16px!important;
+  background-color:#1b0710!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 4px 0 #1c0710,
+    0 9px 17px rgba(0,0,0,.30),
+    0 0 18px rgba(255,83,130,.20)!important;
+}
+#teacher .v562-end-btn>span:last-child{
+  width:72px!important;
+  min-width:72px!important;
+  max-width:72px!important;
+  height:16px!important;
+  min-height:16px!important;
+  max-height:16px!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  color:#ff9ab3!important;
+  font-size:7px!important;
   font-weight:900!important;
   line-height:1.05!important;
   text-align:center!important;
   white-space:nowrap!important;
+}
+
+/* Keep hover motion on the artwork only, never on the module footprint. */
+#teacher .single-mission-controls .control:hover{
+  transform:none!important;
+}
+#teacher .single-mission-controls .control:hover .ico.v562-art{
+  transform:translateY(-2px)!important;
+}
+#teacher .v562-end-btn:hover{
+  transform:none!important;
+}
+#teacher .v562-end-btn:hover .v562-art{
+  transform:translateY(-2px)!important;
 }
 
 /* Activity launchers: center the illustrated subject inside each 66px hardware frame. */
