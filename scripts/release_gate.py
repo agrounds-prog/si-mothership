@@ -553,6 +553,17 @@ def main() -> int:
     check("command header v56.6: reset behavior hook remains", 'id="resetBtn"' in html)
     check("command header v56.6: teacher mission title remains dynamic", 'id="missionTitle"' in html)
 
+    # v56.7 button system and crew pod polish.
+    v567_style = re.search(r'<style id="v56-7-button-system-crew-pods">(.*?)</style>', html, re.S)
+    v567_css = v567_style.group(1) if v567_style else ""
+    check("button system v56.7: dedicated cleanup layer remains", bool(v567_style))
+    check("button system v56.7: mission-control module geometry is normalized", "width:76px!important" in v567_css and "min-height:76px!important" in v567_css)
+    check("button system v56.7: recognizable top control overlays remain", 'content:"⌂"!important' in v567_css and 'content:"✋"!important' in v567_css and 'content:"♥"!important' in v567_css)
+    check("button system v56.7: activity launcher tiles remain normalized", "#teacher .home-app-grid" in v567_css and "grid-template-columns:repeat(9" in v567_css and "width:66px!important" in v567_css)
+    check("button system v56.7: one-student crew pod polish remains", "grid-template-columns:320px!important" in v567_css and "width:320px!important" in v567_css)
+    check("button system v56.7: literal escaped header gap is removed", "</header>\\n\\n<section id=\"teacher\"" not in html)
+    check("button system v56.7: classroom behavior hooks remain", 'id="teacherControlBar"' in html and 'data-control="activities"' in html and 'data-toggle="picture"' in html and 'id="endBtn"' in html)
+
     # Historical selector invariant: $() is single-element; $() is multi-element.
     bad_selector_lines = []
     for number, line in enumerate(html.splitlines(), 1):
