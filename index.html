@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v56.5 — Illustrated Asset Refinement</title>
+<title>SI Mothership v56.6 — Header & Command Deck</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -9828,14 +9828,432 @@ body.role-shared .si-plus-viewport-image{
   #teacher .single-mission-controls .control{min-width:66px!important}
 }
 </style>
+
+<style id="v56-6-header-command-deck">
+/* v56.6 — premium command header + cinematic teacher viewport. Visual only. */
+.v566-topbar{
+  height:78px!important;
+  padding:0 26px!important;
+  border-bottom-color:rgba(84,213,244,.24)!important;
+  background:
+    radial-gradient(circle at 14% -80%,rgba(80,137,255,.18),transparent 38%),
+    linear-gradient(180deg,rgba(5,17,29,.985),rgba(4,12,22,.97))!important;
+  box-shadow:
+    inset 0 -1px 0 rgba(122,226,255,.06),
+    0 13px 30px rgba(0,0,0,.30)!important;
+}
+.v566-topbar:before{
+  content:"";
+  position:absolute;
+  left:18px;right:18px;bottom:6px;
+  height:1px;
+  pointer-events:none;
+  background:linear-gradient(90deg,transparent 0,#2b718b 18%,#55e6ff 42%,#8d73ff 58%,#2b718b 82%,transparent 100%);
+  opacity:.22;
+}
+.v566-topbar .brand{
+  min-width:245px;
+}
+.v566-brand-mark{
+  width:48px!important;
+  height:48px!important;
+  padding:4px;
+  overflow:hidden;
+  border:1px solid #34758c!important;
+  background:linear-gradient(180deg,#0d2938,#081a25)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.12),
+    0 0 0 1px rgba(88,230,255,.05),
+    0 0 26px rgba(72,193,255,.16)!important;
+}
+.v566-brand-mark>.v562-art{
+  width:100%!important;
+  height:100%!important;
+  border-radius:10px!important;
+  filter:saturate(1.28) brightness(1.18)!important;
+}
+.v566-topbar .brand-copy b{
+  font-size:21px!important;
+  letter-spacing:-.025em!important;
+  background:linear-gradient(90deg,#fff,#dff9ff 62%,#84dff1);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.v566-topbar .brand-copy small{
+  margin-top:6px!important;
+  font-size:7px!important;
+  color:#59dcec!important;
+  letter-spacing:.26em!important;
+}
+.v566-live-pill{
+  min-width:170px;
+  padding:7px 13px!important;
+  border-radius:13px!important;
+  border-color:#287287!important;
+  background:
+    radial-gradient(circle at 12% 50%,rgba(57,241,176,.10),transparent 30%),
+    linear-gradient(180deg,#0a2735,#071c27)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 0 18px rgba(68,226,255,.08)!important;
+}
+.v566-live-pill>span:last-child{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  line-height:1;
+}
+.v566-live-pill small{
+  color:#6d9da9;
+  font-size:6px;
+  font-weight:950;
+  letter-spacing:.16em;
+}
+.v566-live-pill b{
+  color:#e8fbff;
+  font-size:10px;
+  letter-spacing:.035em;
+}
+.v566-live-pill .pulse{
+  width:8px;height:8px;
+  box-shadow:0 0 0 5px rgba(90,231,161,.10),0 0 14px rgba(90,231,161,.82)!important;
+}
+.v566-topbar .top-actions{
+  gap:8px!important;
+}
+.v566-topbar .class-context{
+  min-height:46px;
+  display:flex!important;
+  flex-direction:column;
+  justify-content:center;
+  gap:3px;
+  padding:7px 12px!important;
+  border-color:#274d63!important;
+  border-radius:11px!important;
+  background:linear-gradient(180deg,#091c29,#071620)!important;
+}
+.v566-topbar .class-context small{
+  color:#6c91a2;
+  font-size:6px;
+  font-weight:950;
+  letter-spacing:.16em;
+}
+.v566-topbar .class-context b{
+  color:#d7e8ee;
+  font-size:10px;
+  font-weight:850;
+}
+.v566-topbar .class-code{
+  min-height:46px!important;
+  display:grid!important;
+  grid-template-columns:auto auto;
+  grid-template-rows:auto auto;
+  column-gap:8px!important;
+  row-gap:1px!important;
+  padding:7px 9px 6px 11px!important;
+  border-color:#2e6a82!important;
+  border-radius:11px!important;
+  background:
+    radial-gradient(circle at 80% 0,rgba(67,220,255,.08),transparent 34%),
+    linear-gradient(180deg,#0a2231,#071925)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.07),
+    0 0 16px rgba(69,232,255,.07)!important;
+}
+.v566-topbar .class-code small{
+  grid-column:1;
+  grid-row:1;
+  align-self:end;
+  font-size:6px!important;
+  letter-spacing:.16em;
+}
+.v566-topbar .class-code strong{
+  grid-column:1;
+  grid-row:2;
+  font-size:18px!important;
+  line-height:1;
+  letter-spacing:.15em!important;
+}
+.v566-topbar .copy-code{
+  grid-column:2;
+  grid-row:1/3;
+  align-self:center;
+  width:30px;height:30px;
+  display:grid;place-items:center;
+  border:1px solid #315c70!important;
+  border-radius:8px;
+  background:#0a1b27!important;
+  transition:transform .12s ease,border-color .12s ease,color .12s ease;
+}
+.v566-topbar .copy-code:hover{
+  transform:translateY(-1px);
+  border-color:#54dcef!important;
+  color:#75efff!important;
+}
+.v566-reset{
+  min-height:46px!important;
+  min-width:110px;
+  display:flex!important;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:0 12px!important;
+  border-radius:11px!important;
+}
+.v566-reset>span{
+  color:#79dcec;
+  font-size:15px;
+  line-height:1;
+}
+.v566-reset>b{
+  font-size:9px;
+  font-weight:850;
+}
+
+#teacher .v566-deck-header{
+  height:148px!important;
+  margin-bottom:11px!important;
+  padding:22px 24px 19px!important;
+  isolation:isolate;
+  border-color:#2b667f!important;
+  border-radius:20px!important;
+  background:
+    linear-gradient(90deg,rgba(4,16,27,.985) 0 37%,rgba(4,14,27,.79) 50%,rgba(5,12,28,.56) 66%,rgba(7,15,30,.88) 100%)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.075),
+    inset 0 -1px 0 rgba(70,205,255,.07),
+    0 18px 40px rgba(0,0,0,.38)!important;
+}
+#teacher .v566-deck-header:before{
+  content:""!important;
+  position:absolute!important;
+  left:8px!important;right:8px!important;top:8px!important;bottom:8px!important;
+  width:auto!important;height:auto!important;
+  border-radius:14px!important;
+  border:1px solid rgba(80,188,226,.08)!important;
+  background:none!important;
+  box-shadow:inset 0 0 30px rgba(58,183,238,.025)!important;
+  opacity:1!important;
+  pointer-events:none;
+}
+#teacher .v566-deck-header:after{
+  content:"COMMAND DECK 01 · PRIMARY CLASSROOM LINK · SYSTEMS NOMINAL"!important;
+  left:25px!important;
+  bottom:14px!important;
+  color:#648a9a!important;
+  font-size:6px!important;
+  letter-spacing:.18em!important;
+}
+#teacher .v566-deck-copy{
+  position:relative;
+  z-index:4!important;
+  max-width:52%;
+}
+#teacher .v566-deck-copy .eyebrow{
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+#teacher .v566-deck-copy .eyebrow:before{
+  content:"";
+  width:7px;height:7px;
+  border-radius:2px;
+  background:#ff74d1;
+  box-shadow:0 0 13px rgba(255,100,207,.64);
+  transform:rotate(45deg);
+}
+#teacher .v566-deck-header h1{
+  margin-top:7px!important;
+  max-width:620px!important;
+  font-size:43px!important;
+  line-height:.98!important;
+}
+#teacher .v566-deck-subline{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:11px;
+  color:#648795;
+  font-size:6px;
+  font-weight:950;
+  letter-spacing:.12em;
+}
+#teacher .v566-deck-subline i{
+  width:4px;height:4px;
+  border-radius:50%;
+  background:#55e8b0;
+  box-shadow:0 0 9px rgba(85,232,176,.75);
+}
+#teacher .v566-space-viewport{
+  position:absolute;
+  z-index:1;
+  right:235px;
+  top:9px;
+  width:410px;
+  height:128px;
+  overflow:hidden;
+  pointer-events:none;
+  border-left:1px solid rgba(72,172,210,.08);
+  border-right:1px solid rgba(72,172,210,.05);
+  background:
+    radial-gradient(circle at 68% 35%,rgba(74,107,255,.12),transparent 22%),
+    radial-gradient(circle at 42% 60%,rgba(73,214,255,.045),transparent 28%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 14%,#000 88%,transparent 100%);
+}
+#teacher .v566-space-viewport:before,
+#teacher .v566-space-viewport:after{
+  content:"";
+  position:absolute;
+  height:1px;
+  left:26px;right:20px;
+  background:linear-gradient(90deg,transparent,#37738b66,transparent);
+}
+#teacher .v566-space-viewport:before{top:18px}
+#teacher .v566-space-viewport:after{bottom:16px}
+#teacher .v566-planet{
+  position:absolute;
+  width:154px;height:154px;
+  right:58px;top:-50px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 30% 24%,rgba(209,248,255,.52) 0 2%,transparent 2.7%),
+    radial-gradient(circle at 36% 31%,rgba(123,226,255,.18) 0 8%,transparent 9%),
+    radial-gradient(circle at 42% 42%,#4978ce 0 35%,#253f83 37% 47%,#0d1634 49% 100%);
+  box-shadow:
+    inset -24px -22px 30px rgba(2,4,18,.54),
+    0 0 50px rgba(59,95,255,.30);
+}
+#teacher .v566-planet:after{
+  content:"";
+  position:absolute;
+  left:-28px;right:-28px;
+  top:67px;height:20px;
+  border:2px solid rgba(142,171,255,.28);
+  border-radius:50%;
+  transform:rotate(-10deg);
+}
+#teacher .v566-orbit{
+  position:absolute;
+  border:1px solid rgba(89,218,255,.15);
+  border-radius:50%;
+  transform:rotate(-16deg);
+}
+#teacher .v566-orbit.orbit-a{
+  width:258px;height:74px;
+  right:11px;top:24px;
+}
+#teacher .v566-orbit.orbit-b{
+  width:320px;height:98px;
+  right:-20px;top:10px;
+  border-color:rgba(152,115,255,.10);
+}
+#teacher .v566-star{
+  position:absolute;
+  width:3px;height:3px;
+  border-radius:50%;
+  background:#b8f6ff;
+  box-shadow:0 0 8px #6eeaff;
+}
+#teacher .v566-star.star-a{left:62px;top:28px}
+#teacher .v566-star.star-b{left:132px;top:83px;width:2px;height:2px}
+#teacher .v566-star.star-c{right:23px;top:82px;width:2px;height:2px;background:#b399ff}
+#teacher .v566-ship-trace{
+  position:absolute;
+  left:125px;top:57px;
+  width:45px;height:1px;
+  background:linear-gradient(90deg,transparent,#57e8ff 72%,#fff);
+  transform:rotate(-11deg);
+  box-shadow:0 0 7px rgba(83,232,255,.54);
+}
+#teacher .v566-ship-trace:after{
+  content:"";
+  position:absolute;
+  right:-1px;top:-2px;
+  width:5px;height:5px;
+  border-radius:50% 50% 50% 0;
+  transform:rotate(-45deg);
+  background:#eaffff;
+  box-shadow:0 0 9px #62eaff;
+}
+#teacher .v566-metrics{
+  position:absolute!important;
+  z-index:5;
+  top:17px!important;
+  right:17px!important;
+  width:200px;
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:6px!important;
+  padding:0!important;
+  border:0!important;
+  background:none!important;
+  backdrop-filter:none!important;
+}
+#teacher .v566-metrics .metric{
+  min-height:48px;
+  display:flex!important;
+  flex-direction:column;
+  align-items:flex-start!important;
+  justify-content:center;
+  gap:4px!important;
+  padding:7px 10px!important;
+  border-color:#29566d!important;
+  border-radius:10px!important;
+  background:
+    linear-gradient(180deg,rgba(10,29,42,.94),rgba(7,22,32,.94))!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.055),
+    0 6px 15px rgba(0,0,0,.20)!important;
+}
+#teacher .v566-metrics .metric small{
+  color:#638896;
+  font-size:6px;
+  font-weight:950;
+  letter-spacing:.13em;
+}
+#teacher .v566-metrics .metric>span{
+  color:#87a7b3;
+  font-size:8px;
+}
+#teacher .v566-metrics .metric b{
+  color:#e8fbff!important;
+  font-size:12px;
+  text-shadow:0 0 10px rgba(89,226,255,.16);
+}
+@media(max-width:1450px){
+  #teacher .v566-space-viewport{right:210px;width:330px}
+}
+@media(max-width:1180px){
+  .v566-topbar .class-context{display:none!important}
+  #teacher .v566-space-viewport{right:190px;width:285px;opacity:.7}
+  #teacher .v566-deck-copy{max-width:58%}
+}
+@media(max-width:900px){
+  .v566-topbar{height:auto!important;min-height:72px;flex-wrap:wrap;gap:8px;padding:9px 14px!important}
+  .v566-topbar .brand{min-width:0}
+  .v566-live-pill{position:static!important;transform:none!important;order:3}
+  .v566-reset b{display:none}
+  .v566-reset{min-width:44px!important;width:44px;padding:0!important}
+  #teacher .v566-deck-header{height:136px!important}
+  #teacher .v566-space-viewport{right:150px;width:230px;opacity:.5}
+  #teacher .v566-deck-header h1{font-size:35px!important}
+  #teacher .v566-metrics{width:150px}
+}
+@media(max-width:700px){
+  #teacher .v566-space-viewport{display:none}
+  #teacher .v566-deck-copy{max-width:68%}
+  #teacher .v566-metrics{width:130px}
+  #teacher .v566-deck-header h1{font-size:30px!important}
+  #teacher .v566-deck-subline{display:none}
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
 
-<header class="topbar v56-topbar"><div class="brand"><span class="brand-mark">🚀</span><span class="brand-copy"><b>SI Mothership</b><small>MISSION CONTROL</small></span></div><div class="session-pill"><span class="pulse"></span>Classroom LIVE</div><div class="top-actions"><span class="class-context">Explorers · Period 2</span><div class="class-code"><small>JOIN CODE</small><strong>7K3M</strong><button class="copy-code" id="copyCode" title="Copy join code">⧉</button></div><button class="outline" id="resetBtn">Reset Session</button></div></header>\n\n<section id="teacher" class="view active"><div class="workspace"><div class="mission-grid">
+<header class="topbar v56-topbar v566-topbar"><div class="brand"><span class="brand-mark v566-brand-mark"><span class="v562-art v562-app-si-plus" aria-hidden="true"></span></span><span class="brand-copy"><b>SI Mothership</b><small>MISSION CONTROL</small></span></div><div class="session-pill v566-live-pill"><span class="pulse"></span><span><small>STATUS</small><b>Classroom LIVE</b></span></div><div class="top-actions"><span class="class-context"><small>CLASS</small><b>Explorers · Period 2</b></span><div class="class-code"><small>JOIN CODE</small><strong>7K3M</strong><button class="copy-code" id="copyCode" title="Copy join code">⧉</button></div><button class="outline v566-reset" id="resetBtn"><span>↺</span><b>Reset Session</b></button></div></header>\n\n<section id="teacher" class="view active"><div class="workspace"><div class="mission-grid">
 
 
-<main class="command-deck"><div class="deck-header"><div><span class="eyebrow">MISSION CONTROL</span><h1 id="missionTitle">Crew in the lobby</h1></div><div class="metrics"><span class="metric">⌁ <b id="connectedMetric">23</b> connected</span><span class="metric">◷ <b>24:18</b> elapsed</span></div></div>
+<main class="command-deck"><div class="deck-header v566-deck-header"><div class="v566-deck-copy"><span class="eyebrow">MISSION CONTROL</span><h1 id="missionTitle">Crew in the lobby</h1><div class="v566-deck-subline"><span>PRIMARY TEACHER CONSOLE</span><i></i><span>CREW LINK ACTIVE</span></div></div><div class="v566-space-viewport" aria-hidden="true"><span class="v566-star star-a"></span><span class="v566-star star-b"></span><span class="v566-star star-c"></span><span class="v566-orbit orbit-a"></span><span class="v566-orbit orbit-b"></span><span class="v566-planet"></span><span class="v566-ship-trace"></span></div><div class="metrics v566-metrics"><span class="metric"><small>CREW LINK</small><span>⌁ <b id="connectedMetric">23</b> connected</span></span><span class="metric"><small>MISSION TIME</small><span>◷ <b>24:18</b> elapsed</span></span></div></div>
 <div class="teacher-controlbar single-mission-bar" id="teacherControlBar">
   <div class="single-mission-status">
     <span class="mission-context-pulse"></span>
