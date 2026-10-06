@@ -851,6 +851,181 @@ CONTROL_ART_REPAIR_SCRIPT = r"""
 </script>
 """
 
+CONTROL_TILE_HARD_RESET = r"""
+<style id="v56-8-9-tile-hard-reset">
+#teacher .app-shortcut-icon:before,
+#teacher .app-shortcut-icon:after,
+#teacher .app-shortcut-icon>.v562-art:before,
+#teacher .app-shortcut-icon>.v562-art:after,
+#teacher .single-mission-controls .control .ico:before,
+#teacher .single-mission-controls .control .ico:after,
+#teacher .single-mission-danger:before,
+#teacher .single-mission-danger:after,
+#teacher #endBtn:before,
+#teacher #endBtn:after,
+#teacher #endBtn .v562-art:before,
+#teacher #endBtn .v562-art:after{
+  content:none!important;
+  display:none!important;
+  background:none!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+</style>
+<script id="v56-8-9-tile-hard-reset-script">
+(function(){
+  const CELL=68, CROP=2, SHEET_W=340, SHEET_H=272;
+  const cells={
+    "v562-control-lobby":[0,0],
+    "v562-control-activities":[1,0],
+    "v562-control-agenda":[2,0],
+    "v562-control-ready":[3,0],
+    "v562-control-hand":[4,0],
+    "v562-control-buzz":[0,1],
+    "v562-control-help":[1,1],
+    "v562-control-picture":[2,1],
+    "v562-control-emotion":[3,1],
+    "v562-control-understanding":[4,1],
+    "v562-app-si-plus":[1,2],
+    "v562-app-crew-survey":[2,2],
+    "v562-app-bingo":[3,2],
+    "v562-app-board":[4,2],
+    "v562-app-match":[0,3],
+    "v562-app-pixel-reveal":[1,3],
+    "v562-app-sketch-signal":[2,3],
+    "v562-app-starwheel":[3,3],
+    "v562-app-scientific-calculator":[4,3]
+  };
+
+  function imp(el,props){
+    if(!el) return;
+    for(const entry of Object.entries(props)) el.style.setProperty(entry[0],entry[1],"important");
+  }
+  function pos(c,r){
+    return (-(c*CELL+CROP))+"px "+(-(r*CELL+CROP))+"px";
+  }
+  function spriteTile(el,c,r,extra){
+    if(!el) return;
+    if((el.textContent||"").trim()) el.textContent="";
+    imp(el,Object.assign({
+      "width":"64px","height":"64px",
+      "min-width":"64px","min-height":"64px",
+      "max-width":"64px","max-height":"64px",
+      "flex":"0 0 64px",
+      "margin":"0 auto","padding":"0",
+      "background-image":"var(--v562-sprite)",
+      "background-repeat":"no-repeat",
+      "background-size":SHEET_W+"px "+SHEET_H+"px",
+      "background-position":pos(c,r),
+      "background-color":"transparent",
+      "border-radius":"12px",
+      "transform":"none",
+      "filter":"saturate(1.14) brightness(1.08) contrast(1.03)",
+      "box-sizing":"border-box"
+    },extra||{}));
+  }
+
+  function repairShortcuts(){
+    document.querySelectorAll("#teacher .app-shortcut").forEach(function(app){
+      imp(app,{
+        "display":"flex","flex-direction":"column","align-items":"center",
+        "justify-content":"flex-start","background":"transparent",
+        "border":"0","box-shadow":"none"
+      });
+      const wrap=app.querySelector(".app-shortcut-icon");
+      const art=wrap && wrap.querySelector(".v562-art");
+      if(!wrap||!art) return;
+      imp(wrap,{
+        "width":"64px","height":"64px",
+        "min-width":"64px","min-height":"64px",
+        "max-width":"64px","max-height":"64px",
+        "margin":"0 auto","padding":"0",
+        "position":"relative","overflow":"hidden",
+        "background":"transparent","border":"0",
+        "border-radius":"12px","box-shadow":"none"
+      });
+      const hit=Object.entries(cells).find(function(entry){return art.classList.contains(entry[0]);});
+      if(hit) spriteTile(art,hit[1][0],hit[1][1],{
+        "position":"absolute","left":"0","top":"0"
+      });
+    });
+  }
+
+  function repairClassroom(){
+    document.querySelectorAll("#teacher .single-mission-controls .control").forEach(function(control){
+      imp(control,{
+        "background":"transparent","border":"0","box-shadow":"none",
+        "padding":"0","overflow":"visible"
+      });
+      const art=control.querySelector(".ico");
+      if(!art) return;
+      const hit=Object.entries(cells).find(function(entry){return art.classList.contains(entry[0]);});
+      if(hit) spriteTile(art,hit[1][0],hit[1][1],{
+        "border":"0","box-shadow":"0 3px 0 rgba(1,8,13,.75),0 8px 16px rgba(0,0,0,.26)"
+      });
+    });
+  }
+
+  function repairEnd(){
+    const danger=document.querySelector("#teacher .single-mission-danger");
+    const end=document.querySelector("#teacher #endBtn");
+    if(danger) imp(danger,{
+      "width":"82px","min-width":"82px","max-width":"82px",
+      "height":"86px","min-height":"86px","max-height":"86px",
+      "margin":"0","padding":"0 0 0 10px",
+      "display":"flex","align-items":"flex-start","justify-content":"center",
+      "background":"transparent","border":"0","border-left":"1px solid rgba(107,161,180,.20)",
+      "box-shadow":"none","overflow":"visible"
+    });
+    if(!end) return;
+    imp(end,{
+      "width":"72px","min-width":"72px","max-width":"72px",
+      "height":"86px","min-height":"86px","max-height":"86px",
+      "margin":"0","padding":"0",
+      "display":"flex","flex-direction":"column",
+      "align-items":"center","justify-content":"flex-start","gap":"5px",
+      "background":"transparent","border":"0","border-radius":"0",
+      "box-shadow":"none","overflow":"visible"
+    });
+    const art=end.querySelector(".v562-art,.ico");
+    if(art){
+      spriteTile(art,1,2,{
+        "border":"1px solid #ff5d91",
+        "box-shadow":"0 3px 0 #260812,0 9px 18px rgba(0,0,0,.30),0 0 16px rgba(255,62,126,.30)"
+      });
+    }
+    const label=end.querySelector("span:last-child");
+    imp(label,{
+      "width":"72px","height":"17px","margin":"0","padding":"0",
+      "display":"flex","align-items":"flex-start","justify-content":"center",
+      "background":"transparent","border":"0","box-shadow":"none",
+      "color":"#ff9eb9","font-size":"7px","font-weight":"900",
+      "line-height":"1.05","white-space":"nowrap"
+    });
+  }
+
+  function repair(){
+    repairShortcuts();
+    repairClassroom();
+    repairEnd();
+  }
+  function boot(){
+    repair();
+    const root=document.querySelector("#teacher");
+    if(root && !root.__v5689Observer){
+      const obs=new MutationObserver(function(){requestAnimationFrame(repair);});
+      obs.observe(root,{childList:true,subtree:true});
+      root.__v5689Observer=obs;
+    }
+    setTimeout(repair,200);
+    setTimeout(repair,800);
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot,{once:true});
+  else boot();
+})();
+</script>
+"""
+
 CALCULATOR_MODELING_STYLE = r"""
 <style id="v53-6-calculator-classroom-modeling">
 /* SI-branded classroom modeling skin.
@@ -4464,7 +4639,7 @@ async def index(request: web.Request) -> web.Response:
         + "</script>"
     )
     text = text.replace("<head>", "<head>" + injected, 1)
-    text = text.replace("</head>", CONTROL_ART_CENTERING_STYLE + CONTROL_ART_REPAIR_SCRIPT + "</head>", 1)
+    text = text.replace("</head>", CONTROL_ART_CENTERING_STYLE + CONTROL_ART_REPAIR_SCRIPT + CONTROL_TILE_HARD_RESET + "</head>", 1)
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
 
