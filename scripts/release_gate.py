@@ -541,6 +541,18 @@ def main() -> int:
     check("illustrated assets v56.5: activity library art refinement remains", "#activitiesPanel .activity-catalog-grid .act-icon>.v562-art" in v565_css)
     check("illustrated assets v56.5: original behavior hooks remain", 'data-control="lobby"' in html and 'data-toggle="hand"' in html and 'data-send="emotion"' in html and 'id="endBtn"' in html)
 
+    # v56.6 header and command deck polish.
+    v566_style = re.search(r'<style id="v56-6-header-command-deck">(.*?)</style>', html, re.S)
+    v566_css = v566_style.group(1) if v566_style else ""
+    check("command header v56.6: dedicated polish layer remains", bool(v566_style))
+    check("command header v56.6: illustrated brand module remains", "v566-brand-mark" in html and "v562-app-si-plus" in html)
+    check("command header v56.6: live status block remains", "v566-live-pill" in html and "Classroom LIVE" in html)
+    check("command header v56.6: class and join-code modules remain", "class-context" in html and 'id="copyCode"' in html and "JOIN CODE" in html)
+    check("command header v56.6: cinematic viewport remains", "v566-space-viewport" in html and "v566-planet" in html and "#teacher .v566-space-viewport" in v566_css)
+    check("command header v56.6: mission metrics remain dynamic", 'id="connectedMetric"' in html and "MISSION TIME" in html and "#teacher .v566-metrics" in v566_css)
+    check("command header v56.6: reset behavior hook remains", 'id="resetBtn"' in html)
+    check("command header v56.6: teacher mission title remains dynamic", 'id="missionTitle"' in html)
+
     # Historical selector invariant: $() is single-element; $() is multi-element.
     bad_selector_lines = []
     for number, line in enumerate(html.splitlines(), 1):
