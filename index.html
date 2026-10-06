@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SI Mothership v56.7 — Button System & Crew Pods</title>
+<title>SI Mothership v56.8 — Unified Button System</title>
 <style>
 :root{--bg:#050b18;--panel:#0b1629;--panel2:#0e1a30;--line:#223552;--text:#f4f7ff;--muted:#8190aa;--cyan:#5be8ff;--green:#5ae7a1;--purple:#9e7cff;--amber:#ffc35d;--pink:#ff6eae;--blue:#5f9eff;--orange:#f58c61;--lime:#c9e45b;--danger:#ff7797}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -10624,6 +10624,281 @@ body.role-shared .si-plus-viewport-image{
   }
   #teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(2))) .crew{
     width:100%!important;
+  }
+}
+</style>
+
+<style id="v56-8-unified-button-system">
+/* v56.8 — make Classroom controls and Activity Shortcuts one visual family. */
+
+/* Activity dock: fixed modules centered as one group, not stretched across the panel. */
+#teacher .home-app-grid{
+  grid-template-columns:repeat(9,84px)!important;
+  grid-auto-rows:96px!important;
+  justify-content:center!important;
+  justify-items:center!important;
+  align-items:start!important;
+  gap:8px 16px!important;
+  width:100%!important;
+  padding:10px 14px 2px!important;
+}
+#teacher .app-shortcut{
+  width:84px!important;
+  min-width:84px!important;
+  max-width:84px!important;
+  display:grid!important;
+  grid-template-rows:68px 20px!important;
+  justify-items:center!important;
+  align-items:start!important;
+  padding:0!important;
+}
+#teacher .app-shortcut-icon{
+  width:66px!important;
+  height:66px!important;
+  margin:0!important;
+  padding:3px!important;
+  align-self:start!important;
+}
+#teacher .app-shortcut-label{
+  width:84px!important;
+  max-width:84px!important;
+  height:20px!important;
+  margin:7px 0 0!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  text-align:center!important;
+  line-height:1.08!important;
+  font-size:7.2px!important;
+}
+
+/* Classroom controls now use the same "art tile + label" construction as Activity Shortcuts. */
+#teacher .single-mission-bar{
+  min-height:92px!important;
+  padding:9px 10px!important;
+}
+#teacher .single-mission-controls{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:flex-start!important;
+  gap:8px!important;
+}
+#teacher .single-mission-controls .control{
+  width:72px!important;
+  min-width:72px!important;
+  max-width:72px!important;
+  min-height:82px!important;
+  margin:0!important;
+  padding:0!important;
+  display:grid!important;
+  grid-template-rows:62px 20px!important;
+  justify-items:center!important;
+  align-items:start!important;
+  gap:0!important;
+  border:0!important;
+  outline:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+#teacher .single-mission-controls .control .ico.v562-art{
+  width:60px!important;
+  height:60px!important;
+  flex:0 0 60px!important;
+  margin:0!important;
+  padding:3px!important;
+  border:1px solid #36728a!important;
+  border-radius:16px!important;
+  background-size:500% 400%!important;
+  background-color:#071923!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 4px 0 #041018,
+    0 9px 17px rgba(0,0,0,.30),
+    0 0 16px color-mix(in srgb,var(--art-accent) 15%,transparent)!important;
+  filter:saturate(1.24) brightness(1.16) contrast(1.04)!important;
+  transition:transform .14s ease,filter .14s ease,border-color .14s ease,box-shadow .14s ease!important;
+}
+#teacher .single-mission-controls .control .ico.v562-art:before{
+  opacity:.34!important;
+}
+#teacher .single-mission-controls .control .ico.v562-art:after{
+  inset:auto!important;
+  width:auto!important;
+  height:auto!important;
+  left:50%!important;
+  top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#f6feff!important;
+  font-size:15px!important;
+  font-weight:1000!important;
+  line-height:1!important;
+  text-shadow:
+    0 1px 2px rgba(0,0,0,.85),
+    0 0 10px color-mix(in srgb,var(--art-accent) 76%,transparent)!important;
+}
+#teacher .single-mission-controls .control .copy{
+  width:72px!important;
+  min-height:20px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:1px!important;
+  margin:7px 0 0!important;
+}
+#teacher .single-mission-controls .control b{
+  width:72px!important;
+  max-width:72px!important;
+  margin:0!important;
+  color:#d9eaf0!important;
+  font-size:7px!important;
+  font-weight:900!important;
+  line-height:1.05!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#teacher .single-mission-controls .control small{
+  width:72px!important;
+  max-width:72px!important;
+  margin:1px 0 0!important;
+  font-size:5.2px!important;
+  line-height:1!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  color:#7ea2ae!important;
+}
+
+/* States highlight the art tile itself, matching launcher behavior. */
+#teacher .single-mission-controls .control:hover{
+  transform:none!important;
+}
+#teacher .single-mission-controls .control:hover .ico.v562-art{
+  transform:translateY(-2px)!important;
+  border-color:#51cae2!important;
+  filter:saturate(1.31) brightness(1.21) contrast(1.05)!important;
+}
+#teacher .single-mission-controls .control.active .ico.v562-art{
+  border-color:#5cecff!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    0 4px 0 #041018,
+    0 9px 17px rgba(0,0,0,.30),
+    0 0 23px rgba(75,225,255,.26)!important;
+}
+#teacher .single-mission-controls .control.enabled .ico.v562-art{
+  border-color:color-mix(in srgb,var(--art-accent) 75%,#fff 7%)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    0 4px 0 #041018,
+    0 9px 17px rgba(0,0,0,.30),
+    0 0 22px color-mix(in srgb,var(--art-accent) 28%,transparent)!important;
+}
+#teacher .single-mission-controls .control.enabled small{
+  color:color-mix(in srgb,var(--art-accent) 80%,#9db6bd)!important;
+}
+#teacher .single-mission-controls .control:not(.active):not(.enabled) .ico.v562-art{
+  opacity:1!important;
+}
+
+/* End Session also joins the same family while retaining danger color. */
+#teacher .single-mission-danger{
+  min-width:82px!important;
+  padding-left:10px!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+}
+#teacher .v562-end-btn{
+  width:72px!important;
+  min-width:72px!important;
+  max-width:72px!important;
+  min-height:82px!important;
+  margin:0!important;
+  padding:0!important;
+  display:grid!important;
+  grid-template-rows:62px 20px!important;
+  justify-items:center!important;
+  align-items:start!important;
+  gap:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#teacher .v562-end-btn .v562-art{
+  width:60px!important;
+  height:60px!important;
+  margin:0!important;
+  border:1px solid #8c3853!important;
+  border-radius:16px!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 4px 0 #1c0710,
+    0 9px 17px rgba(0,0,0,.30),
+    0 0 18px rgba(255,83,130,.20)!important;
+}
+#teacher .v562-end-btn>span:last-child{
+  width:72px!important;
+  margin:7px 0 0!important;
+  color:#ff9ab3!important;
+  font-size:7px!important;
+  font-weight:900!important;
+  line-height:1.05!important;
+  text-align:center!important;
+}
+
+/* Keep left-side classroom status vertically balanced against launcher-style controls. */
+#teacher .single-mission-status{
+  align-self:stretch!important;
+  display:flex!important;
+  align-items:center!important;
+}
+
+/* High-density breakpoints preserve centering rather than stretching. */
+@media(max-width:1500px){
+  #teacher .home-app-grid{
+    grid-template-columns:repeat(9,78px)!important;
+    gap:8px 10px!important;
+  }
+  #teacher .app-shortcut{
+    width:78px!important;min-width:78px!important;max-width:78px!important;
+  }
+  #teacher .app-shortcut-label{
+    width:78px!important;max-width:78px!important;
+  }
+  #teacher .single-mission-controls{gap:6px!important}
+  #teacher .single-mission-controls .control{
+    width:68px!important;min-width:68px!important;max-width:68px!important;
+  }
+  #teacher .single-mission-controls .control .copy,
+  #teacher .single-mission-controls .control b,
+  #teacher .single-mission-controls .control small{
+    width:68px!important;max-width:68px!important;
+  }
+}
+@media(max-width:1200px){
+  #teacher .home-app-grid{
+    grid-template-columns:repeat(5,84px)!important;
+    justify-content:center!important;
+  }
+  #teacher .single-mission-controls{
+    justify-content:flex-start!important;
+    flex-wrap:wrap!important;
+  }
+}
+@media(max-width:760px){
+  #teacher .home-app-grid{
+    grid-template-columns:repeat(3,84px)!important;
   }
 }
 </style>
