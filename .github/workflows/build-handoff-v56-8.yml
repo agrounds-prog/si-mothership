@@ -1,0 +1,79 @@
+name: Build v56.8 handoff
+
+on:
+  push:
+    branches:
+      - handoff-v56-8-2026-10-05
+
+jobs:
+  handoff:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout exact production SHA
+        uses: actions/checkout@v4
+        with:
+          ref: 407657e8f99cb01ce8b795790b3e00932d226127
+          fetch-depth: 1
+
+      - name: Assemble handoff package
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p handoff/scripts handoff/.github/workflows handoff/scientific-calculator
+          cp index.html handoff/
+          cp server.py handoff/
+          cp Dockerfile Procfile railway.json render.yaml requirements.txt handoff/
+          cp README.md HOSTED_DEPLOY.md RAILWAY_DEPLOY.md SESSION_CONTRACT.md handoff/
+          cp env.example env.railway.example start_mac_linux.sh start_windows.bat handoff/
+          cp scripts/release_gate.py handoff/scripts/
+          cp .github/workflows/release-gate.yml handoff/.github/workflows/
+          cp scientific-calculator/*.gz handoff/scientific-calculator/
+          cat > handoff/HANDOFF.md <<'EOF'
+          # SI Mothership v56.8 Handoff
+
+          Production version: v56.8
+          Exact production SHA: 407657e8f99cb01ce8b795790b3e00932d226127
+          Production URL: https://mothership-web-production.up.railway.app/
+          Railway service: mothership-web
+          Railway deployment: dd9b0769-02ae-4d71-8e30-1d9b03553a40
+          Region: sfo
+          Persistent volume: mothership-data mounted at /data
+          Healthcheck: /api/health
+          Start command: python server.py
+
+          ## Current visual state
+          v56.8 unifies the Classroom control buttons with the illustrated Activity Shortcut visual system and centers the shortcut group using fixed-width launcher modules.
+
+          ## Known visual issue / next task
+          The Activity Shortcut group still appears visually left-biased in the user's latest screenshot despite CSS centering. The next pass should inspect the actual parent panel width / internal layout constraints and center the launcher row relative to the visible content area, not merely the grid container. Preserve the current illustrated icon art and all behavior.
+
+          ## Deployment discipline
+          1. Edit canonical source only.
+          2. Bump APP_VERSION.
+          3. Add/update release_gate.py checks.
+          4. Run the exact-SHA GitHub Actions release gate.
+          5. Require 0 failures.
+          6. Deploy the exact gated SHA to the existing Railway production service.
+          7. Preserve domain, variables, /data volume, sfo region, healthcheck, start command, and service identity.
+          8. Verify Railway reaches SUCCESS and production runtime matches the intended version.
+
+          ## Core files
+          - index.html — primary app UI, styles, and client logic
+          - server.py — server/runtime and synchronized state
+          - scripts/release_gate.py — regression/release gate
+          - .github/workflows/release-gate.yml — CI gate
+          - scientific-calculator/ — bundled calculator assets
+          EOF
+          printf '%s
+' "407657e8f99cb01ce8b795790b3e00932d226127" > handoff/PRODUCTION_SHA.txt
+          zip -r SI_Mothership_HANDOFF_v56_8_2026-10-05.zip handoff >/dev/null
+
+      - name: Upload handoff artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SI_Mothership_HANDOFF_v56_8_2026-10-05
+          path: SI_Mothership_HANDOFF_v56_8_2026-10-05.zip
+          if-no-files-found: error
+          retention-days: 7
