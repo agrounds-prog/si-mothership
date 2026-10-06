@@ -575,6 +575,13 @@ def main() -> int:
     check("unified buttons v56.8: end session joins unified family", "#teacher .v562-end-btn" in v568_css and "grid-template-rows:62px 20px!important" in v568_css)
     check("unified buttons v56.8: behavior hooks remain", 'data-control="lobby"' in html and 'data-toggle="buzz"' in html and 'data-send="understanding"' in html and 'id="endBtn"' in html)
 
+    # v56.8.1 shortcut centering hotfix.
+    v5681_style = re.search(r'<style id="v56-8-1-shortcut-centering-fix">(.*?)</style>', html, re.S)
+    v5681_css = v5681_style.group(1) if v5681_style else ""
+    check("shortcut centering v56.8.1: dedicated fix layer remains", bool(v5681_style))
+    check("shortcut centering v56.8.1: shortcut cluster uses intrinsic width", "width:max-content!important" in v5681_css and "margin-left:auto!important" in v5681_css and "margin-right:auto!important" in v5681_css)
+    check("shortcut centering v56.8.1: desktop nine-slot geometry remains", "grid-template-columns:repeat(9,84px)!important" in v5681_css)
+    check("shortcut centering v56.8.1: responsive groups remain centered", "repeat(5,84px)!important" in v5681_css and "repeat(3,84px)!important" in v5681_css)
     # Historical selector invariant: $() is single-element; $() is multi-element.
     bad_selector_lines = []
     for number, line in enumerate(html.splitlines(), 1):
