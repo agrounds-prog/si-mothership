@@ -393,6 +393,228 @@ CONTROL_ART_CENTERING_STYLE = r"""
   flex:0 0 60px!important;
   padding:0!important;
 }
+
+/* v56.8.7 floating tile deck.
+   The illustrated art is now the button. There is no larger hardware box for the
+   artwork to look off-center inside. Detail moves to the console surface behind it. */
+#teacher .single-mission-bar{
+  position:relative!important;
+  overflow:hidden!important;
+  background:
+    radial-gradient(circle at 19% 20%,rgba(67,224,255,.12) 0 1px,transparent 2px),
+    radial-gradient(circle at 72% 30%,rgba(128,110,255,.13) 0 1px,transparent 2px),
+    radial-gradient(circle at 88% 72%,rgba(255,107,181,.08) 0 1px,transparent 2px),
+    linear-gradient(90deg,rgba(25,130,158,.08),transparent 20%,transparent 80%,rgba(114,73,164,.08)),
+    repeating-linear-gradient(0deg,rgba(129,224,244,.022) 0 1px,transparent 1px 5px),
+    linear-gradient(180deg,#081b27 0%,#06151f 56%,#05121b 100%)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(122,230,255,.12),
+    inset 0 -1px 0 rgba(36,110,138,.26),
+    inset 0 0 38px rgba(0,0,0,.32)!important;
+}
+#teacher .single-mission-bar:before{
+  content:""!important;
+  position:absolute!important;
+  inset:8px 12px!important;
+  pointer-events:none!important;
+  border:1px solid rgba(80,190,220,.09)!important;
+  border-radius:14px!important;
+  background:
+    linear-gradient(90deg,transparent 0 7%,rgba(72,221,255,.08) 7.1% 7.35%,transparent 7.5% 93%,rgba(147,100,255,.07) 93.1% 93.35%,transparent 93.5%),
+    linear-gradient(180deg,rgba(255,255,255,.018),transparent 28%,transparent 72%,rgba(38,183,221,.018))!important;
+}
+#teacher .single-mission-bar:after{
+  content:""!important;
+  position:absolute!important;
+  left:250px!important;
+  right:95px!important;
+  bottom:10px!important;
+  height:2px!important;
+  pointer-events:none!important;
+  background:linear-gradient(90deg,transparent,#46d8f1 18%,#7556f0 50%,#46d8f1 82%,transparent)!important;
+  opacity:.16!important;
+  box-shadow:0 -28px 30px rgba(62,211,238,.06)!important;
+}
+
+#teacher .single-mission-controls{
+  position:relative!important;
+  z-index:2!important;
+  gap:10px!important;
+  padding:7px 10px 5px!important;
+  align-items:flex-start!important;
+}
+#teacher .single-mission-controls .control{
+  width:66px!important;
+  min-width:66px!important;
+  max-width:66px!important;
+  height:80px!important;
+  min-height:80px!important;
+  max-height:80px!important;
+  padding:0!important;
+  margin:0!important;
+  gap:5px!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+#teacher .single-mission-controls .control .ico.v562-art{
+  width:58px!important;
+  height:58px!important;
+  min-width:58px!important;
+  min-height:58px!important;
+  flex:0 0 58px!important;
+  margin:0 auto!important;
+  border:1px solid color-mix(in srgb,var(--art-accent,#42dff5) 74%,#dffcff 26%)!important;
+  border-radius:15px!important;
+  background-color:#081a24!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    inset 0 -10px 20px rgba(0,0,0,.12),
+    0 3px 0 rgba(1,8,13,.82),
+    0 10px 18px rgba(0,0,0,.30),
+    0 0 13px color-mix(in srgb,var(--art-accent,#42dff5) 24%,transparent)!important;
+  transform:none!important;
+  transition:transform .15s ease,filter .15s ease,box-shadow .15s ease!important;
+}
+#teacher .single-mission-controls .control:hover .ico.v562-art{
+  transform:translateY(-3px) scale(1.035)!important;
+  filter:saturate(1.22) brightness(1.13) contrast(1.05)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.22),
+    inset 0 -10px 20px rgba(0,0,0,.10),
+    0 4px 0 rgba(1,8,13,.78),
+    0 13px 22px rgba(0,0,0,.34),
+    0 0 20px color-mix(in srgb,var(--art-accent,#42dff5) 38%,transparent)!important;
+}
+#teacher .single-mission-controls .control.active .ico.v562-art,
+#teacher .single-mission-controls .control.enabled .ico.v562-art{
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.24),
+    0 3px 0 rgba(1,8,13,.82),
+    0 10px 18px rgba(0,0,0,.28),
+    0 0 23px color-mix(in srgb,var(--art-accent,#42dff5) 48%,transparent)!important;
+}
+#teacher .single-mission-controls .control .copy{
+  width:66px!important;
+  min-width:66px!important;
+  max-width:66px!important;
+  height:17px!important;
+  min-height:17px!important;
+  max-height:17px!important;
+  margin:0!important;
+  padding:0!important;
+}
+#teacher .single-mission-controls .control b{
+  width:66px!important;
+  max-width:66px!important;
+  color:#d9edf3!important;
+  text-shadow:0 1px 6px rgba(78,213,245,.18)!important;
+}
+#teacher .single-mission-controls .control small{
+  width:66px!important;
+  max-width:66px!important;
+  color:#708d99!important;
+}
+
+/* End Session floats like every other tile; danger styling is only the palette. */
+#teacher .single-mission-danger{
+  position:relative!important;
+  z-index:2!important;
+  width:78px!important;
+  min-width:78px!important;
+  max-width:78px!important;
+  height:80px!important;
+  min-height:80px!important;
+  max-height:80px!important;
+  padding:7px 0 0 10px!important;
+  margin:0!important;
+  border-left:1px solid rgba(107,161,180,.20)!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#teacher .v562-end-btn{
+  width:66px!important;
+  min-width:66px!important;
+  max-width:66px!important;
+  height:80px!important;
+  min-height:80px!important;
+  max-height:80px!important;
+  gap:5px!important;
+  padding:0!important;
+  margin:0!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+#teacher .v562-end-btn .v562-art{
+  width:58px!important;
+  height:58px!important;
+  min-width:58px!important;
+  min-height:58px!important;
+  flex:0 0 58px!important;
+  margin:0 auto!important;
+  border:1px solid #ff5d91!important;
+  border-radius:15px!important;
+  background-color:#190711!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    0 3px 0 #260812,
+    0 10px 18px rgba(0,0,0,.31),
+    0 0 15px rgba(255,62,126,.30)!important;
+  transform:none!important;
+  transition:transform .15s ease,filter .15s ease,box-shadow .15s ease!important;
+}
+#teacher .v562-end-btn:hover .v562-art{
+  transform:translateY(-3px) scale(1.035)!important;
+  filter:saturate(1.18) brightness(1.10)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.20),
+    0 4px 0 #260812,
+    0 13px 22px rgba(0,0,0,.34),
+    0 0 24px rgba(255,62,126,.43)!important;
+}
+#teacher .v562-end-btn>span:last-child{
+  width:66px!important;
+  max-width:66px!important;
+  color:#ff9eb9!important;
+  text-shadow:0 1px 7px rgba(255,63,125,.24)!important;
+}
+
+/* Activity Shortcuts use the same floating-object language and a richer deck surface. */
+#teacher .activity-shortcuts,
+#teacher .home-apps,
+#teacher .activity-shortcut-panel{
+  background:
+    radial-gradient(circle at 9% 27%,rgba(58,214,243,.07) 0 1px,transparent 2px),
+    radial-gradient(circle at 84% 22%,rgba(145,93,250,.07) 0 1px,transparent 2px),
+    repeating-linear-gradient(0deg,rgba(83,198,225,.017) 0 1px,transparent 1px 6px),
+    linear-gradient(180deg,rgba(7,28,40,.96),rgba(4,19,28,.98))!important;
+  box-shadow:
+    inset 0 1px 0 rgba(117,224,248,.10),
+    inset 0 0 42px rgba(0,0,0,.28)!important;
+}
+#teacher .app-shortcut{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+#teacher .app-shortcut-icon{
+  border-radius:16px!important;
+  box-shadow:
+    0 3px 0 rgba(1,8,13,.84),
+    0 10px 20px rgba(0,0,0,.32),
+    0 0 15px rgba(57,210,238,.13)!important;
+  transition:transform .15s ease,box-shadow .15s ease!important;
+}
+#teacher .app-shortcut:hover .app-shortcut-icon{
+  transform:translateY(-3px)!important;
+  box-shadow:
+    0 4px 0 rgba(1,8,13,.80),
+    0 14px 24px rgba(0,0,0,.35),
+    0 0 22px rgba(82,223,249,.22)!important;
+}
 </style>
 """
 

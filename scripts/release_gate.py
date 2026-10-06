@@ -97,6 +97,12 @@ def main() -> int:
     check("direct illustrated controls v56.8.6: standard tiles stay 60px", "min-width:60px!important" in runtime_centering_css and "min-height:60px!important" in runtime_centering_css)
     check("direct illustrated controls v56.8.6: End Session art uses direct sprite tile", "#teacher .v562-end-btn .v562-art{" in runtime_centering_css and "background-image:var(--v562-sprite)!important" in runtime_centering_css)
 
+    check("floating tile deck v56.8.7: mission bar texture layer remains", "repeating-linear-gradient(0deg" in runtime_centering_css and "#teacher .single-mission-bar:before" in runtime_centering_css)
+    check("floating tile deck v56.8.7: controls have no outer hardware box", "#teacher .single-mission-controls .control{" in runtime_centering_css and "background:transparent!important" in runtime_centering_css and "box-shadow:none!important" in runtime_centering_css)
+    check("floating tile deck v56.8.7: illustrated art is the floating button", "width:58px!important" in runtime_centering_css and "border-radius:15px!important" in runtime_centering_css and "translateY(-3px) scale(1.035)" in runtime_centering_css)
+    check("floating tile deck v56.8.7: End Session uses same floating footprint", "#teacher .single-mission-danger{" in runtime_centering_css and "width:78px!important" in runtime_centering_css and "#teacher .v562-end-btn .v562-art{" in runtime_centering_css)
+    check("floating tile deck v56.8.7: activity deck gets textured surface", "#teacher .activity-shortcuts" in runtime_centering_css and "#teacher .app-shortcut{" in runtime_centering_css and "background:transparent!important" in runtime_centering_css)
+
     # HTML shell integrity: release styles must not split structural tags.
     head_close = html.find("</head>")
     body_open = html.find("<body", head_close)
