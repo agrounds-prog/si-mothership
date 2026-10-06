@@ -615,6 +615,179 @@ CONTROL_ART_CENTERING_STYLE = r"""
     0 14px 24px rgba(0,0,0,.35),
     0 0 22px rgba(82,223,249,.22)!important;
 }
+
+/* v56.8.8 exact sprite-cell alignment.
+   The source sprite is a 5 x 4 sheet of exact 64 x 64 cells. Previous 58/88px
+   reframing introduced artificial top/left bias. Render every tile 1:1. */
+#teacher .app-shortcut{
+  width:84px!important;
+  min-width:84px!important;
+  max-width:84px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:6px!important;
+}
+#teacher .app-shortcut-icon{
+  width:64px!important;
+  height:64px!important;
+  min-width:64px!important;
+  min-height:64px!important;
+  max-width:64px!important;
+  max-height:64px!important;
+  margin:0 auto!important;
+  padding:0!important;
+  position:relative!important;
+  overflow:visible!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:12px!important;
+}
+#teacher .app-shortcut-icon>.v562-art{
+  position:absolute!important;
+  inset:0!important;
+  left:0!important;
+  top:0!important;
+  width:64px!important;
+  height:64px!important;
+  min-width:64px!important;
+  min-height:64px!important;
+  max-width:64px!important;
+  max-height:64px!important;
+  margin:0!important;
+  padding:0!important;
+  transform:none!important;
+  background-size:500% 400%!important;
+  border:0!important;
+  border-radius:12px!important;
+  box-shadow:none!important;
+}
+#teacher .app-shortcut:hover .app-shortcut-icon>.v562-art{
+  transform:none!important;
+}
+#teacher .v562-app-si-plus,
+#teacher .v562-app-crew-survey,
+#teacher .v562-app-bingo,
+#teacher .v562-app-board,
+#teacher .v562-app-match,
+#teacher .v562-app-pixel-reveal,
+#teacher .v562-app-sketch-signal,
+#teacher .v562-app-starwheel,
+#teacher .v562-app-scientific-calculator{
+  --v5682-app-x:0px!important;
+  --v5682-app-y:0px!important;
+}
+
+/* Classroom tiles use the same exact 64px source-cell geometry. */
+#teacher .single-mission-controls .control{
+  width:72px!important;
+  min-width:72px!important;
+  max-width:72px!important;
+  height:86px!important;
+  min-height:86px!important;
+  max-height:86px!important;
+  gap:5px!important;
+}
+#teacher .single-mission-controls .control .ico.v562-art{
+  width:64px!important;
+  height:64px!important;
+  min-width:64px!important;
+  min-height:64px!important;
+  max-width:64px!important;
+  max-height:64px!important;
+  flex:0 0 64px!important;
+  margin:0 auto!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:12px!important;
+  background-size:500% 400%!important;
+  box-shadow:
+    0 3px 0 rgba(1,8,13,.78),
+    0 9px 18px rgba(0,0,0,.28),
+    0 0 13px color-mix(in srgb,var(--art-accent,#42dff5) 18%,transparent)!important;
+  transform:none!important;
+}
+
+/* Override the older, more-specific End Session rule instead of fighting it from a
+   weaker selector. The wrapper is fully transparent; only the 64px rocket tile remains. */
+#teacher .single-mission-danger{
+  width:82px!important;
+  min-width:82px!important;
+  max-width:82px!important;
+  height:86px!important;
+  min-height:86px!important;
+  max-height:86px!important;
+  padding:0 0 0 10px!important;
+  margin:0!important;
+  align-items:flex-start!important;
+  background:transparent!important;
+  border-top:0!important;
+  border-right:0!important;
+  border-bottom:0!important;
+  box-shadow:none!important;
+}
+#teacher .single-mission-danger .end-btn.v562-end-btn{
+  width:72px!important;
+  min-width:72px!important;
+  max-width:72px!important;
+  height:86px!important;
+  min-height:86px!important;
+  max-height:86px!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:5px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+#teacher .single-mission-danger .end-btn.v562-end-btn>.v562-art.v562-control-end{
+  width:64px!important;
+  height:64px!important;
+  min-width:64px!important;
+  min-height:64px!important;
+  max-width:64px!important;
+  max-height:64px!important;
+  flex:0 0 64px!important;
+  margin:0 auto!important;
+  padding:0!important;
+  background-image:var(--v562-sprite)!important;
+  background-position:0% 66.667%!important;
+  background-size:500% 400%!important;
+  background-repeat:no-repeat!important;
+  border:1px solid #ff5d91!important;
+  border-radius:12px!important;
+  box-shadow:
+    0 3px 0 #260812,
+    0 9px 18px rgba(0,0,0,.30),
+    0 0 16px rgba(255,62,126,.28)!important;
+  transform:none!important;
+}
+#teacher .single-mission-danger .end-btn.v562-end-btn>span:last-child{
+  width:72px!important;
+  min-width:72px!important;
+  max-width:72px!important;
+  height:17px!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  color:#ff9eb9!important;
+  font-size:7px!important;
+  font-weight:900!important;
+  line-height:1.05!important;
+  white-space:nowrap!important;
+}
 </style>
 """
 
