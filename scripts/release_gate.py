@@ -530,6 +530,17 @@ def main() -> int:
     check("station modules v56.4: ended panel keeps illustrated mission-complete art", "v564-session-complete-art" in html and "#teacher .v564-session-complete-art>.v562-art" in v564_css)
     check("station modules v56.4: shared screen functionality hooks remain", 'id="launchSecondScreenBtn"' in html and 'id="mirrorContent"' in html and 'id="mirrorLabel"' in html)
 
+    # v56.5 illustrated asset refinement.
+    v565_style = re.search(r'<style id="v56-5-illustrated-asset-refinement">(.*?)</style>', html, re.S)
+    v565_css = v565_style.group(1) if v565_style else ""
+    check("illustrated assets v56.5: dedicated refinement layer remains", bool(v565_style))
+    check("illustrated assets v56.5: artwork gets per-module accent framing", "--art-accent:#59e8ff" in v565_css and ".v562-control-end{--art-accent:#ff6f96" in v565_css)
+    check("illustrated assets v56.5: primary control art remains prominent", "width:48px!important" in v565_css and "#teacher .single-mission-controls .control .ico.v562-art" in v565_css)
+    check("illustrated assets v56.5: state styling stays on hardware frame", "State belongs to the hardware frame" in v565_css and "opacity:1!important" in v565_css)
+    check("illustrated assets v56.5: shortcut art remains enlarged and crisp", "#teacher .app-shortcut-icon" in v565_css and "width:66px!important" in v565_css)
+    check("illustrated assets v56.5: activity library art refinement remains", "#activitiesPanel .activity-catalog-grid .act-icon>.v562-art" in v565_css)
+    check("illustrated assets v56.5: original behavior hooks remain", 'data-control="lobby"' in html and 'data-toggle="hand"' in html and 'data-send="emotion"' in html and 'id="endBtn"' in html)
+
     # Historical selector invariant: $() is single-element; $() is multi-element.
     bad_selector_lines = []
     for number, line in enumerate(html.splitlines(), 1):
