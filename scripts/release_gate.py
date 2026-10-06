@@ -72,7 +72,7 @@ def main() -> int:
     runtime_centering = re.search(r'CONTROL_ART_CENTERING_STYLE\s*=\s*r?"""(.*?)"""', server, re.S)
     runtime_centering_css = runtime_centering.group(1) if runtime_centering else ""
     check("runtime art centering v56.8.2: style constant remains", bool(runtime_centering))
-    check("runtime art centering v56.8.2: final style is injected into served index", 'text = text.replace("</head>", CONTROL_ART_CENTERING_STYLE + CONTROL_ART_REPAIR_SCRIPT + "</head>", 1)' in server)
+    check("runtime art centering v56.8.2: final style is injected into served index", 'text = text.replace("</head>", CONTROL_ART_CENTERING_STYLE + CONTROL_ART_REPAIR_SCRIPT + CONTROL_TILE_HARD_RESET + "</head>", 1)' in server)
     check("runtime art centering v56.8.2: End Session stays on desktop control row", "grid-template-columns:auto minmax(0,1fr) auto!important" in runtime_centering_css and "grid-column:auto!important" in runtime_centering_css)
     check("runtime art centering v56.8.2: End Session source art is optically reframed", "width:124px!important" in runtime_centering_css and "background-position:0% 66.667%!important" in runtime_centering_css)
     check("runtime art centering v56.8.2: activity cluster keeps intrinsic centering", "width:max-content!important" in runtime_centering_css and "margin-left:auto!important" in runtime_centering_css and "margin-right:auto!important" in runtime_centering_css)
@@ -108,6 +108,14 @@ def main() -> int:
     check("exact tile alignment v56.8.8: classroom art is exact 64px cell", "#teacher .single-mission-controls .control .ico.v562-art{" in runtime_centering_css and "flex:0 0 64px!important" in runtime_centering_css)
     check("exact tile alignment v56.8.8: End Session overrides legacy specificity", "#teacher .single-mission-danger .end-btn.v562-end-btn{" in runtime_centering_css and "background:transparent!important" in runtime_centering_css)
     check("exact tile alignment v56.8.8: End Session rocket tile is 64px", "#teacher .single-mission-danger .end-btn.v562-end-btn>.v562-art.v562-control-end{" in runtime_centering_css and "background-position:0% 66.667%!important" in runtime_centering_css)
+
+    hard_reset = re.search(r'CONTROL_TILE_HARD_RESET\s*=\s*r?"""(.*?)"""', server, re.S)
+    hard_reset_text = hard_reset.group(1) if hard_reset else ""
+    check("tile hard reset v56.8.9: dedicated final renderer remains", bool(hard_reset))
+    check("tile hard reset v56.8.9: shortcut wrapper strips old frame", '"box-shadow":"none"' in hard_reset_text and '"overflow":"hidden"' in hard_reset_text)
+    check("tile hard reset v56.8.9: source cell margin is cropped", "const CELL=68, CROP=2" in hard_reset_text and 'SHEET_W=340' in hard_reset_text and 'SHEET_H=272' in hard_reset_text)
+    check("tile hard reset v56.8.9: End Session uses centered spaceship cell", "spriteTile(art,1,2" in hard_reset_text)
+    check("tile hard reset v56.8.9: old pseudo layers are removed", "#teacher .app-shortcut-icon:after" in hard_reset_text and "#teacher #endBtn:after" in hard_reset_text)
 
     # HTML shell integrity: release styles must not split structural tags.
     head_close = html.find("</head>")
