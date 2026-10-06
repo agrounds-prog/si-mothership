@@ -25,7 +25,6 @@ import qrcode
 
 ROOT = Path(__file__).resolve().parent
 INDEX_PATH = ROOT / "index.html"
-ASSETS_DIR = ROOT / "assets"
 CALCULATOR_DIR = ROOT / "scientific-calculator"
 CALCULATOR_INDEX_GZ = CALCULATOR_DIR / "index.html.gz"
 CALCULATOR_ENGINE_GZ = CALCULATOR_DIR / "engine.js.gz"
@@ -5767,7 +5766,6 @@ def create_app() -> web.Application:
     app = web.Application(client_max_size=32 * 1024 * 1024)
     app.router.add_get("/", index)
     app.router.add_get("/index.html", index)
-    app.router.add_static("/assets/", path=ASSETS_DIR, name="assets")
     app.router.add_get("/tools/scientific-calculator", scientific_calculator)
     app.router.add_get("/tools/scientific-calculator/", scientific_calculator)
     app.router.add_get("/tools/scientific-calculator/engine.js", scientific_calculator_engine)
