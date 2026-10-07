@@ -15031,6 +15031,31 @@ body.role-student .response-btn.selected{border-color:#65eaff!important;backgrou
  body.role-student .student-actions button{min-height:64px!important}
 }
 </style>
+<style id="v57-student-signal-buttons">
+/* v57 — concept-art signal colors for standard Student Device controls. */
+body.role-student .student-actions.home-controls button[data-class-action]{position:relative!important;overflow:hidden!important}
+body.role-student .student-actions.home-controls button[data-class-action]:before{
+  display:block!important;margin:0 auto 6px!important;font-size:24px!important;line-height:1!important;
+  filter:drop-shadow(0 2px 5px rgba(0,0,0,.35));
+}
+body.role-student .student-actions.home-controls button[data-class-action="ready"]{border-color:#258f66!important;background:linear-gradient(180deg,#123d31,#0b2721)!important}
+body.role-student .student-actions.home-controls button[data-class-action="ready"]:before{content:"👍"}
+body.role-student .student-actions.home-controls button[data-class-action="hand"]{border-color:#b08b2d!important;background:linear-gradient(180deg,#443717,#29230f)!important}
+body.role-student .student-actions.home-controls button[data-class-action="hand"]:before{content:"✋"}
+body.role-student .student-actions.home-controls button[data-class-action="help"]{border-color:#c94d42!important;background:linear-gradient(180deg,#4b211f,#2d1516)!important}
+body.role-student .student-actions.home-controls button[data-class-action="help"]:before{content:"🛟"}
+body.role-student .student-actions.home-controls button[data-class-action="buzz"]{border-color:#287cc4!important;background:linear-gradient(180deg,#123b5d,#0a2943)!important}
+body.role-student .student-actions.home-controls button[data-class-action="buzz"]:before{content:"⚡"}
+body.role-student .student-actions.home-controls button[data-class-action="picture"]{border-color:#9347ca!important;background:linear-gradient(180deg,#3b2258,#26163c)!important}
+body.role-student .student-actions.home-controls button[data-class-action="picture"]:before{content:"📷"}
+body.role-student .student-actions.home-controls button[data-class-action]:disabled{opacity:.38!important;filter:saturate(.45)!important}
+body.role-student .student-actions.home-controls button[data-class-action].on{filter:saturate(1.25) brightness(1.12)!important}
+body.role-student .student-actions.home-controls button[data-class-action="ready"].on{box-shadow:inset 0 1px 0 #ffffff20,0 5px 0 #03101a,0 0 26px rgba(53,236,155,.34)!important}
+body.role-student .student-actions.home-controls button[data-class-action="hand"].on{box-shadow:inset 0 1px 0 #ffffff20,0 5px 0 #03101a,0 0 26px rgba(255,202,65,.30)!important}
+body.role-student .student-actions.home-controls button[data-class-action="help"].on{box-shadow:inset 0 1px 0 #ffffff20,0 5px 0 #03101a,0 0 26px rgba(255,89,75,.30)!important}
+body.role-student .student-actions.home-controls button[data-class-action="buzz"].on{box-shadow:inset 0 1px 0 #ffffff20,0 5px 0 #03101a,0 0 26px rgba(55,170,255,.32)!important}
+body.role-student .student-actions.home-controls button[data-class-action="picture"].on{box-shadow:inset 0 1px 0 #ffffff20,0 5px 0 #03101a,0 0 26px rgba(194,92,255,.32)!important}
+</style>
 </head><body><div class="shared-screen second-window"><div class="mirror-top"><span>🚀 <b>SI Mothership · Explorers</b></span><strong>JOIN 7K3M</strong></div><div class="mirror-content" id="secondContent"></div><div class="mirror-footer"><span><span class="pulse"></span>&nbsp; <span id="secondLabel">LOBBY</span></span><span>Student login + classroom display</span></div></div></body></html>`);secondScreenWindow.document.close();
   try{
     const c=secondScreenWindow.document.getElementById('secondContent'),l=secondScreenWindow.document.getElementById('secondLabel');
