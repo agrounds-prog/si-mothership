@@ -1,0 +1,41 @@
+name: One-shot Student Device vibrant controls
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-shot-student-vibrant-controls.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Apply vibrant Student Device controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object index.html)" = "b957bc62a26732cc0c95308116dc6ad351ec3ca7"
+          python - <<'PY'
+          from pathlib import Path
+          p=Path("index.html")
+          s=p.read_text(encoding="utf-8")
+          marker='id="v62-student-vibrant-controls"'
+          assert marker not in s
+          block="<style id=\"v62-student-vibrant-controls\">\n/* Buttons-only vibrancy pass. No layout or behavior changes. */\nbody.role-student .student-actions.home-controls button[data-class-action]{\n  border-width:2px!important;\n  box-shadow:\n    inset 0 1px 0 rgba(255,255,255,.24),\n    inset 0 -18px 34px rgba(0,0,0,.14),\n    0 10px 24px rgba(0,0,0,.38),\n    0 0 22px color-mix(in srgb,currentColor 28%,transparent)!important;\n}\nbody.role-student .student-actions.home-controls .student-command-icon{\n  background:\n    radial-gradient(circle at 36% 28%,rgba(255,255,255,.20),transparent 34%),\n    rgba(2,10,18,.48)!important;\n  box-shadow:\n    inset 0 0 18px rgba(255,255,255,.13),\n    0 0 0 4px color-mix(in srgb,currentColor 12%,transparent),\n    0 0 22px currentColor,\n    0 0 38px color-mix(in srgb,currentColor 50%,transparent)!important;\n}\nbody.role-student .student-actions.home-controls button[data-class-action]::before{\n  background:linear-gradient(90deg,transparent,rgba(255,255,255,.20),transparent)!important;\n  opacity:.8!important;\n}\nbody.role-student .student-actions.home-controls button[data-class-action]::after{\n  height:5px!important;\n  width:38px!important;\n  opacity:.9!important;\n  box-shadow:0 0 16px currentColor,0 0 30px color-mix(in srgb,currentColor 55%,transparent)!important;\n}\nbody.role-student .student-actions.home-controls .student-command-copy b{\n  text-shadow:0 0 12px rgba(255,255,255,.10)!important;\n}\nbody.role-student .student-actions.home-controls .student-command-copy small{\n  color:#ecf7ff!important;\n  opacity:.92!important;\n}\n\nbody.role-student .student-actions.home-controls button[data-class-action=\"ready\"]{\n  color:#62ffd0!important;\n  border-color:#34f2aa!important;\n  background:\n    radial-gradient(circle at 20% 50%,rgba(62,255,187,.50),transparent 32%),\n    radial-gradient(circle at 85% 0%,rgba(87,255,215,.16),transparent 35%),\n    linear-gradient(145deg,#0a6149,#0b3a37 58%,#08242b)!important;\n  box-shadow:\n    inset 0 1px 0 rgba(255,255,255,.24),\n    inset 0 -18px 34px rgba(0,0,0,.12),\n    0 10px 24px rgba(0,0,0,.38),\n    0 0 24px rgba(52,242,170,.38)!important;\n}\nbody.role-student .student-actions.home-controls button[data-class-action=\"hand\"]{\n  color:#ffd861!important;\n  border-color:#ffbd39!important;\n  background:\n    radial-gradient(circle at 20% 50%,rgba(255,194,63,.52),transparent 32%),\n    radial-gradient(circle at 85% 0%,rgba(255,224,116,.17),transparent 35%),\n    linear-gradient(145deg,#70460b,#493516 58%,#292119)!important;\n  box-shadow:\n    inset 0 1px 0 rgba(255,255,255,.24),\n    inset 0 -18px 34px rgba(0,0,0,.12),\n    0 10px 24px rgba(0,0,0,.38),\n    0 0 24px rgba(255,189,57,.36)!important;\n}\nbody.role-student .student-actions.home-controls button[data-class-action=\"help\"]{\n  color:#cf8cff!important;\n  border-color:#b06cff!important;\n  background:\n    radial-gradient(circle at 20% 50%,rgba(194,103,255,.52),transparent 32%),\n    radial-gradient(circle at 85% 0%,rgba(221,159,255,.16),transparent 35%),\n    linear-gradient(145deg,#56237e,#36244d 58%,#22192d)!important;\n  box-shadow:\n    inset 0 1px 0 rgba(255,255,255,.24),\n    inset 0 -18px 34px rgba(0,0,0,.12),\n    0 10px 24px rgba(0,0,0,.38),\n    0 0 24px rgba(176,108,255,.38)!important;\n}\nbody.role-student .student-actions.home-controls button[data-class-action=\"buzz\"]{\n  color:#ff78d4!important;\n  border-color:#ff4fba!important;\n  background:\n    radial-gradient(circle at 20% 50%,rgba(255,75,188,.52),transparent 32%),\n    radial-gradient(circle at 85% 0%,rgba(255,146,219,.16),transparent 35%),\n    linear-gradient(145deg,#6d174f,#45213f 58%,#281727)!important;\n  box-shadow:\n    inset 0 1px 0 rgba(255,255,255,.24),\n    inset 0 -18px 34px rgba(0,0,0,.12),\n    0 10px 24px rgba(0,0,0,.38),\n    0 0 24px rgba(255,79,186,.38)!important;\n}\nbody.role-student .student-actions.home-controls button[data-class-action=\"picture\"]{\n  color:#72e8ff!important;\n  border-color:#43cfff!important;\n  background:\n    radial-gradient(circle at 12% 50%,rgba(66,207,255,.50),transparent 28%),\n    radial-gradient(circle at 86% 0%,rgba(125,231,255,.17),transparent 38%),\n    linear-gradient(145deg,#0a5878,#0c3956 58%,#082538)!important;\n  box-shadow:\n    inset 0 1px 0 rgba(255,255,255,.24),\n    inset 0 -18px 34px rgba(0,0,0,.12),\n    0 10px 24px rgba(0,0,0,.38),\n    0 0 26px rgba(67,207,255,.40)!important;\n}\nbody.role-student .student-actions.home-controls button[data-class-action]:disabled{\n  opacity:.94!important;\n  filter:saturate(1.06) brightness(.98)!important;\n}\nbody.role-student .student-actions.home-controls button[data-class-action].on{\n  filter:saturate(1.28) brightness(1.12)!important;\n  transform:translateY(-1px)!important;\n}\n</style>"
+          pos=s.index("</head>")
+          s=s[:pos]+block+"\n"+s[pos:]
+          assert s.count(marker)==1
+          assert s.index(marker)<s.index("</head>")
+          p.write_text(s,encoding="utf-8")
+          print("bytes",p.stat().st_size)
+          PY
+          rm -f .github/workflows/one-shot-student-vibrant-controls.yml
+          git config user.name 'SI Mothership Visual Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.html .github/workflows/one-shot-student-vibrant-controls.yml
+          git commit -m 'Boost Student Device control vibrancy'
+          git push origin HEAD:main
