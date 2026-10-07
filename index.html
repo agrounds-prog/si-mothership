@@ -11773,6 +11773,108 @@ body.role-student .student-actions.home-controls button[data-class-action].on{
   }
 }
 </style>
+<style id="v64-student-ready-check">
+body.role-student .student-prompt.ready-check-surface{
+  width:min(100%,650px)!important;
+  max-width:650px!important;
+  padding:34px 28px!important;
+  border:2px solid #3bbce9!important;
+  border-radius:28px!important;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(54,193,241,.24),transparent 36%),
+    linear-gradient(180deg,#0a2a41,#061725 72%,#04111d)!important;
+  box-shadow:inset 0 0 0 6px #020b13,inset 0 0 0 7px rgba(104,226,255,.12),0 20px 48px rgba(0,0,0,.42),0 0 32px rgba(51,202,255,.15)!important;
+}
+body.role-student .ready-check-surface .eyebrow{
+  color:#8feeff!important;
+  font-size:11px!important;
+  letter-spacing:.22em!important;
+}
+body.role-student .ready-check-surface h2{
+  margin:10px 0 8px!important;
+  font-size:clamp(38px,8vw,58px)!important;
+  line-height:1!important;
+  color:#fff!important;
+  text-shadow:0 0 20px rgba(95,224,255,.16)!important;
+}
+body.role-student .ready-check-surface>p{
+  margin:0!important;
+  color:#bfd5e1!important;
+  font-size:16px!important;
+}
+body.role-student .ready-check-surface .response-grid.ready-grid{
+  max-width:560px!important;
+  margin:24px auto 0!important;
+  gap:14px!important;
+}
+body.role-student .ready-check-surface .response-btn{
+  min-height:118px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:12px!important;
+  border-width:2px!important;
+  border-radius:22px!important;
+  font-size:21px!important;
+  font-weight:950!important;
+  transition:transform .15s ease,filter .15s ease,box-shadow .15s ease!important;
+}
+body.role-student .ready-check-surface .ready-yes{
+  color:#ecfff7!important;
+  border-color:#37e4a2!important;
+  background:
+    radial-gradient(circle at 20% 50%,rgba(60,255,187,.42),transparent 34%),
+    linear-gradient(145deg,#0d5a44,#0a332f 62%,#082229)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 10px 22px rgba(0,0,0,.34),0 0 26px rgba(55,228,162,.30)!important;
+}
+body.role-student .ready-check-surface .ready-later{
+  color:#fff6db!important;
+  border-color:#ffbd4a!important;
+  background:
+    radial-gradient(circle at 20% 50%,rgba(255,193,70,.38),transparent 34%),
+    linear-gradient(145deg,#5a390b,#312819 62%,#191a1e)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 10px 22px rgba(0,0,0,.34),0 0 26px rgba(255,189,74,.25)!important;
+}
+body.role-student .ready-check-surface .response-btn span.ready-choice-icon{
+  width:50px!important;
+  height:50px!important;
+  display:grid!important;
+  place-items:center!important;
+  flex:0 0 50px!important;
+  border:2px solid currentColor!important;
+  border-radius:50%!important;
+  font-size:26px!important;
+  background:rgba(2,10,17,.38)!important;
+  box-shadow:0 0 20px currentColor!important;
+}
+body.role-student .ready-check-surface .response-btn.selected{
+  transform:translateY(-2px)!important;
+  filter:saturate(1.25) brightness(1.08)!important;
+  outline:3px solid rgba(255,255,255,.82)!important;
+  outline-offset:2px!important;
+}
+body.role-student .ready-check-surface .ready-confirmation{
+  margin-top:18px!important;
+  padding:10px 14px!important;
+  border:1px solid rgba(111,230,255,.34)!important;
+  border-radius:999px!important;
+  background:#071b2a!important;
+  color:#ccefff!important;
+  font-size:11px!important;
+  font-weight:850!important;
+  letter-spacing:.04em!important;
+}
+@media(max-width:520px){
+  body.role-student .device-main:has(.ready-check-surface){padding:10px 8px 12px!important;min-height:0!important;align-items:flex-start!important}
+  body.role-student .student-prompt.ready-check-surface{padding:22px 14px 18px!important;border-radius:22px!important}
+  body.role-student .ready-check-surface h2{font-size:38px!important;margin:7px 0 6px!important}
+  body.role-student .ready-check-surface>p{font-size:14px!important}
+  body.role-student .ready-check-surface .response-grid.ready-grid{grid-template-columns:1fr 1fr!important;gap:9px!important;margin-top:18px!important}
+  body.role-student .ready-check-surface .response-btn{min-height:88px!important;gap:7px!important;font-size:15px!important;border-radius:17px!important;padding:9px!important}
+  body.role-student .ready-check-surface .response-btn span.ready-choice-icon{width:38px!important;height:38px!important;flex-basis:38px!important;font-size:20px!important}
+  body.role-student .ready-check-surface .ready-confirmation{margin-top:12px!important;font-size:9px!important}
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -14415,7 +14517,7 @@ function studentMarkup(){
   if(state.screen==='agenda'&&state.agendaLive)return sharedMarkup('big');
   if(state.screen==='classroom')return `<div class="student-prompt cinematic-student-window cinematic-classroom"><div class="cinematic-classroom-grid"><div class="student-lobby-avatar cinematic-pilot-card">${studentAvatarBadgeMarkup(s)}</div><div class="cinematic-message-console"><span class="eyebrow">CLASSROOM LIVE</span><div class="cinematic-status-line"><i></i><span>MOTHERSHIP LINK · STANDBY</span></div><h2>Welcome aboard</h2><p>Use your Classroom Controls when your teacher enables them.</p></div></div><div class="cinematic-horizon" aria-hidden="true"></div></div>`;
   if(state.screen==='agenda'&&!state.agendaLive)return `<div class="student-prompt cinematic-student-window cinematic-classroom"><div class="cinematic-classroom-grid"><div class="student-lobby-avatar cinematic-pilot-card">${studentAvatarBadgeMarkup(s)}</div><div class="cinematic-message-console"><span class="eyebrow">CLASSROOM LIVE</span><div class="cinematic-status-line"><i></i><span>AWAITING TRANSMISSION</span></div><h2>Waiting for your teacher</h2><p>The next Agenda item has not been launched yet.</p></div></div><div class="cinematic-horizon" aria-hidden="true"></div></div>`;
-  if(state.screen==='ready')return `<div class="student-prompt"><span class="eyebrow">READY CHECK</span><h2>Are you ready?</h2><p>Your answer goes to your teacher.</p><div class="response-grid"><button class="response-btn ${s.readyResponse==='Ready'?'selected':''}" data-response="ready" data-value="Ready">✓ Ready</button><button class="response-btn ${s.readyResponse==='Not yet'?'selected':''}" data-response="ready" data-value="Not yet">◷ Not yet</button></div></div>`;
+  if(state.screen==='ready')return `<div class="student-prompt ready-check-surface"><span class="eyebrow">READY CHECK</span><h2>Are you ready?</h2><p>Your answer goes directly to your teacher.</p><div class="response-grid ready-grid"><button class="response-btn ready-yes ${s.readyResponse==='Ready'?'selected':''}" data-response="ready" data-value="Ready"><span class="ready-choice-icon">✓</span><span>Ready</span></button><button class="response-btn ready-later ${s.readyResponse==='Not yet'?'selected':''}" data-response="ready" data-value="Not yet"><span class="ready-choice-icon">◷</span><span>Not yet</span></button></div>${s.readyResponse?`<div class="ready-confirmation">${s.readyResponse==='Ready'?'✓ Ready response sent':'◷ Not yet response sent'}</div>`:''}</div>`;
   if(state.screen==='emotion'){
     const opts=[['😄','Great'],['🙂','Good'],['😐','Okay'],['😟','Worried'],['😣','Upset']];
     return `<div class="student-prompt"><span class="eyebrow">EMOTION CHECK</span><h2>How are you feeling?</h2><div class="response-grid emotion">${opts.map(([e,v])=>`<button class="response-btn ${s.emotion===v?'selected':''}" data-response="emotion" data-value="${v}">${e}<small>${v}</small></button>`).join('')}</div></div>`;
