@@ -14840,7 +14840,7 @@ function renderStudentControls(){
   }
   label.innerHTML=`<b>CLASSROOM CONTROLS</b><span>${state.activityRun?'Available while waiting / following along':'Your standard controls'}</span>`;
   const homeLocked=state.screen==='lobby'||state.screen==='brb'||state.ended;
-  zone.className='student-actions home-controls';zone.innerHTML=`<button data-class-action="ready" class="${s.readyResponse==='Ready'?'on':''}" ${!state.readyEnabled||homeLocked?'disabled':''}>✓<br>${s.readyResponse==='Ready'?'Ready':'I’m Ready'}</button><button data-class-action="hand" class="${state.alerts.some(a=>a.type==='hand'&&a.name===s.n)?'on':''}" ${!state.handEnabled||homeLocked?'disabled':''}>✋<br>Raise Hand</button><button data-class-action="help" class="${(state.helpMessages||[]).some(m=>m.name===s.n&&!(state.helpDeletedIds||[]).includes(String(m.id)))?'on':''}" ${!state.helpEnabled||homeLocked?'disabled':''}>?<br>Ask for Help</button><button data-class-action="buzz" class="${state.buzz.includes(s.n)?'on':''}" ${!state.buzzEnabled||homeLocked?'disabled':''}>⚡<br>Buzz In</button><button data-class-action="picture" ${!state.pictureEnabled||homeLocked?'disabled':''}>📷<br>Send Photo</button>`;
+  zone.className='student-actions home-controls';zone.innerHTML=`<button data-class-action="ready" class="${s.readyResponse==='Ready'?'on':''}" ${!state.readyEnabled||homeLocked?'disabled':''}><span class="student-command-icon">✓</span><span class="student-command-copy"><b>${s.readyResponse==='Ready'?'Ready':'I’m Ready'}</b><small>Let your teacher know</small></span></button><button data-class-action="hand" class="${state.alerts.some(a=>a.type==='hand'&&a.name===s.n)?'on':''}" ${!state.handEnabled||homeLocked?'disabled':''}><span class="student-command-icon">✋</span><span class="student-command-copy"><b>Raise Hand</b><small>Get the teacher’s attention</small></span></button><button data-class-action="help" class="${(state.helpMessages||[]).some(m=>m.name===s.n&&!(state.helpDeletedIds||[]).includes(String(m.id)))?'on':''}" ${!state.helpEnabled||homeLocked?'disabled':''}><span class="student-command-icon">?</span><span class="student-command-copy"><b>Ask for Help</b><small>Send a help request</small></span></button><button data-class-action="buzz" class="${state.buzz.includes(s.n)?'on':''}" ${!state.buzzEnabled||homeLocked?'disabled':''}><span class="student-command-icon">⚡</span><span class="student-command-copy"><b>Buzz In</b><small>Jump into the discussion</small></span></button><button data-class-action="picture" ${!state.pictureEnabled||homeLocked?'disabled':''}><span class="student-command-icon">📷</span><span class="student-command-copy"><b>Send Photo</b><small>Share a photo with your teacher</small></span></button>`;
   wireStudentControlButtons();
 }
 
@@ -15127,6 +15127,82 @@ body.role-student .cinematic-message-console .cinematic-status-line{justify-cont
 body.role-student .cinematic-message-console h2{margin-left:0!important;text-align:left!important}
 body.role-student .cinematic-message-console p{margin-left:0!important;text-align:left!important;max-width:520px!important}
 @media(max-width:720px){body.role-student .device-main:has(.cinematic-student-window){padding:10px!important}body.role-student .cinematic-student-window{min-height:420px!important;padding:28px 17px 26px!important;border-radius:24px!important}body.role-student .cinematic-student-window h2{font-size:36px!important}body.role-student .cinematic-pilot-card{min-width:190px!important;margin-top:20px!important;padding:14px 19px 12px!important}body.role-student .cinematic-pilot-card .student-avatar-mini{width:118px!important;height:118px!important;border-radius:30px!important;font-size:66px!important}body.role-student .cinematic-classroom-grid{grid-template-columns:1fr!important;gap:16px!important}body.role-student .cinematic-classroom .cinematic-pilot-card{width:190px!important;margin:0 auto!important}body.role-student .cinematic-classroom .cinematic-pilot-card .student-avatar-mini{width:108px!important;height:108px!important;font-size:60px!important}body.role-student .cinematic-message-console{min-height:190px!important;align-items:center!important;padding:20px 16px!important;text-align:center!important}body.role-student .cinematic-message-console .eyebrow{align-self:center!important}body.role-student .cinematic-message-console .cinematic-status-line{justify-content:center!important}body.role-student .cinematic-message-console h2,body.role-student .cinematic-message-console p{margin-left:auto!important;margin-right:auto!important;text-align:center!important}}
+</style>
+
+<style id="v60-student-concept-live">
+/* Concept implementation: Student Device command deck. Keeps existing live actions/IDs. */
+body.role-student{background:#020813!important}
+body.role-student .student-shell{max-width:860px!important;margin:0 auto!important;padding:0!important}
+body.role-student .device{border:1px solid #214e67!important;border-radius:0!important;background:#03101b!important;box-shadow:none!important;overflow:hidden!important}
+body.role-student .device-head{min-height:72px!important;height:auto!important;padding:calc(13px + env(safe-area-inset-top,0px)) 18px 13px!important;border-bottom:1px solid #1f627f!important;background:linear-gradient(180deg,#071a2c,#051523)!important;box-shadow:inset 0 -1px 0 rgba(116,229,255,.08)!important}
+body.role-student .device-head>span:first-child{font-size:15px!important;letter-spacing:.11em!important;text-transform:uppercase!important;color:#dff9ff!important}
+body.role-student #studentConnectionLabel{display:inline-flex!important;align-items:center!important;gap:5px!important;padding:8px 11px!important;border:1px solid #285d76!important;border-radius:999px!important;background:#092033!important;color:#bfefff!important;font-size:12px!important;font-weight:850!important}
+body.role-student .student-demo-bar{display:none!important}
+body.role-student .device-main:has(.cinematic-lobby){min-height:0!important;padding:16px 12px 22px!important;align-items:flex-start!important;background:
+  radial-gradient(circle at 50% 13%,rgba(24,126,185,.29),transparent 31%),
+  radial-gradient(circle at 14% 24%,rgba(64,219,255,.06) 0 1px,transparent 2px),
+  radial-gradient(circle at 78% 17%,rgba(255,255,255,.13) 0 1px,transparent 2px),
+  linear-gradient(180deg,#03101d 0%,#061b2c 48%,#03101b 100%)!important;
+  background-size:auto,47px 47px,61px 61px,auto!important}
+body.role-student .cinematic-student-window.cinematic-lobby{width:100%!important;max-width:none!important;min-height:0!important;padding:25px 18px 28px!important;border:1px solid #2caed3!important;border-radius:28px!important;background:
+  linear-gradient(180deg,rgba(10,42,64,.84),rgba(3,16,29,.94)),
+  radial-gradient(circle at 50% 25%,rgba(39,180,236,.20),transparent 45%)!important;
+  box-shadow:inset 0 0 0 6px #020b14,inset 0 0 0 7px rgba(100,226,255,.12),0 17px 42px rgba(0,0,0,.44),0 0 32px rgba(20,183,238,.14)!important}
+body.role-student .cinematic-student-window.cinematic-lobby:before{inset:11px!important;border-radius:20px!important;border-color:rgba(91,220,255,.17)!important}
+body.role-student .cinematic-student-window.cinematic-lobby:after{content:""!important;top:122px!important;left:50%!important;width:88%!important;height:330px!important;transform:translateX(-50%)!important;border:0!important;border-radius:40% 40% 16% 16%!important;background:
+  radial-gradient(ellipse at 50% 70%,rgba(16,116,172,.25),transparent 56%),
+  linear-gradient(90deg,transparent,rgba(60,209,255,.07),transparent)!important;
+  box-shadow:inset 0 0 60px rgba(61,196,255,.06)!important}
+body.role-student .cinematic-lobby>.eyebrow{order:1!important;margin:1px 0 3px!important;color:#8ceeff!important;font-size:12px!important;font-weight:950!important;letter-spacing:.24em!important}
+body.role-student .cinematic-lobby>.cinematic-status-line{order:4!important;margin:13px 0 0!important;font-size:9px!important;color:#77bdd2!important}
+body.role-student .cinematic-lobby>h2{order:2!important;margin:5px 0 3px!important;font-size:clamp(42px,11vw,64px)!important;line-height:.98!important;color:#fff!important;text-shadow:0 0 24px rgba(80,217,255,.20)!important}
+body.role-student .cinematic-lobby>p{order:3!important;margin:5px auto 8px!important;font-size:clamp(16px,4.4vw,21px)!important;color:#c7dce7!important}
+body.role-student .cinematic-lobby>.cinematic-pilot-card{order:5!important;width:min(100%,420px)!important;min-width:0!important;margin:18px auto 0!important;padding:14px 14px 17px!important;gap:6px!important;border:2px solid #36bde7!important;border-radius:30px!important;background:linear-gradient(180deg,#0b314a,#051724)!important;box-shadow:inset 0 0 0 5px #020b13,inset 0 0 0 6px rgba(116,230,255,.14),0 18px 40px rgba(0,0,0,.42),0 0 34px rgba(47,204,255,.20)!important}
+body.role-student .cinematic-lobby>.cinematic-pilot-card:before{content:"YOUR AVATAR"!important;order:2!important;margin-top:8px!important;color:#7be8ff!important;font-size:9px!important;font-weight:950!important;letter-spacing:.22em!important}
+body.role-student .cinematic-lobby .cinematic-pilot-card .student-avatar-mini{order:1!important;width:min(72vw,300px)!important;height:min(72vw,300px)!important;max-width:300px!important;max-height:300px!important;border:3px solid #74e6ff!important;border-radius:26px!important;background:#03101c!important;box-shadow:inset 0 0 0 5px #020a12,0 0 0 1px rgba(255,255,255,.18),0 0 28px rgba(65,210,255,.30)!important}
+body.role-student .cinematic-lobby .cinematic-pilot-card .student-avatar-mini img{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover!important;border-radius:21px!important}
+body.role-student .cinematic-lobby .cinematic-pilot-card>.student-avatar-mini+span{order:3!important;display:block!important;margin-top:0!important;color:#f5fbff!important;font-size:clamp(24px,7vw,34px)!important;font-weight:950!important;line-height:1.05!important;letter-spacing:-.03em!important}
+body.role-student .cinematic-lobby>.cinematic-horizon{display:none!important}
+
+body.role-student .student-control-zone{padding:16px 12px calc(18px + env(safe-area-inset-bottom,0px))!important;border-top:1px solid #21617c!important;background:linear-gradient(180deg,#051522,#020b13)!important}
+body.role-student .student-control-label{padding:0 5px 12px!important;color:#819bad!important;font-size:10px!important}
+body.role-student .student-control-label b{font-size:12px!important;color:#83efff!important;letter-spacing:.18em!important}
+body.role-student .student-control-label span{color:#738a9d!important;font-size:10px!important}
+body.role-student .student-actions.home-controls{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;padding:0!important;border:0!important}
+body.role-student .student-actions.home-controls button[data-class-action]{position:relative!important;min-height:100px!important;padding:13px 14px!important;display:grid!important;grid-template-columns:60px minmax(0,1fr)!important;gap:13px!important;align-items:center!important;text-align:left!important;border:1px solid rgba(103,178,216,.55)!important;border-radius:22px!important;background:linear-gradient(145deg,#0b2a43,#071727)!important;color:#fff!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.09),inset 0 0 22px rgba(45,133,176,.06),0 8px 18px rgba(0,0,0,.32)!important;overflow:hidden!important;transition:transform .15s ease,filter .15s ease,box-shadow .15s ease!important}
+body.role-student .student-actions.home-controls button[data-class-action]::after{content:""!important;position:absolute!important;inset:0!important;pointer-events:none!important;background:linear-gradient(120deg,rgba(255,255,255,.08),transparent 34%)!important}
+body.role-student .student-actions.home-controls .student-command-icon{width:58px!important;height:58px!important;display:grid!important;place-items:center!important;border:2px solid currentColor!important;border-radius:50%!important;font-size:30px!important;font-weight:950!important;background:rgba(3,12,20,.44)!important;box-shadow:inset 0 0 18px rgba(255,255,255,.07),0 0 20px currentColor!important}
+body.role-student .student-actions.home-controls .student-command-copy{min-width:0!important;display:flex!important;flex-direction:column!important;gap:3px!important}
+body.role-student .student-actions.home-controls .student-command-copy b{font-size:16px!important;line-height:1.08!important;color:#f8fcff!important;white-space:normal!important}
+body.role-student .student-actions.home-controls .student-command-copy small{font-size:10px!important;line-height:1.25!important;color:#a8bfd0!important;font-weight:700!important}
+body.role-student .student-actions.home-controls button[data-class-action="ready"]{color:#64f1c1!important;border-color:#2aba8b!important;background:radial-gradient(circle at 15% 50%,rgba(35,221,160,.18),transparent 29%),linear-gradient(145deg,#0a352f,#09202a)!important}
+body.role-student .student-actions.home-controls button[data-class-action="hand"]{color:#ffc85d!important;border-color:#9b7530!important;background:radial-gradient(circle at 15% 50%,rgba(255,183,48,.18),transparent 29%),linear-gradient(145deg,#39290d,#15202a)!important}
+body.role-student .student-actions.home-controls button[data-class-action="help"]{color:#bd82ff!important;border-color:#7651a4!important;background:radial-gradient(circle at 15% 50%,rgba(174,87,255,.18),transparent 29%),linear-gradient(145deg,#27163c,#12182b)!important}
+body.role-student .student-actions.home-controls button[data-class-action="buzz"]{color:#ff69c9!important;border-color:#9b3d7a!important;background:radial-gradient(circle at 15% 50%,rgba(255,65,178,.18),transparent 29%),linear-gradient(145deg,#3b1230,#121a2c)!important}
+body.role-student .student-actions.home-controls button[data-class-action="picture"]{grid-column:1/-1!important;color:#6edbff!important;border-color:#287fa8!important;background:radial-gradient(circle at 8% 50%,rgba(32,166,255,.20),transparent 24%),linear-gradient(145deg,#0a3150,#081a2e)!important}
+body.role-student .student-actions.home-controls button[data-class-action]:disabled{opacity:.68!important;filter:saturate(.72) brightness(.83)!important;cursor:default!important}
+body.role-student .student-actions.home-controls button[data-class-action]:not(:disabled):active{transform:translateY(2px) scale(.992)!important}
+body.role-student .student-actions.home-controls button[data-class-action].on{opacity:1!important;filter:saturate(1.15) brightness(1.06)!important}
+body.role-student .toast{left:50%!important;right:auto!important;top:calc(82px + env(safe-area-inset-top,0px))!important;bottom:auto!important;max-width:calc(100vw - 34px)!important;transform:translate(-50%,-8px)!important;white-space:nowrap!important}
+body.role-student .toast.show{transform:translate(-50%,0)!important}
+
+@media(max-width:520px){
+  body.role-student .device-head{padding-left:13px!important;padding-right:13px!important}
+  body.role-student .device-head>span:first-child{font-size:12px!important;letter-spacing:.07em!important}
+  body.role-student #studentConnectionLabel{padding:7px 9px!important;font-size:10px!important}
+  body.role-student .device-main:has(.cinematic-lobby){padding:10px 8px 14px!important}
+  body.role-student .cinematic-student-window.cinematic-lobby{padding:22px 12px 18px!important;border-radius:24px!important}
+  body.role-student .cinematic-lobby>.cinematic-pilot-card{width:min(100%,350px)!important;margin-top:14px!important;padding:11px 11px 14px!important;border-radius:25px!important}
+  body.role-student .cinematic-lobby .cinematic-pilot-card .student-avatar-mini{width:min(76vw,270px)!important;height:min(76vw,270px)!important;border-radius:22px!important}
+  body.role-student .cinematic-lobby .cinematic-pilot-card .student-avatar-mini img{border-radius:17px!important}
+  body.role-student .student-control-zone{padding:14px 9px calc(16px + env(safe-area-inset-bottom,0px))!important}
+  body.role-student .student-actions.home-controls{gap:9px!important}
+  body.role-student .student-actions.home-controls button[data-class-action]{min-height:92px!important;padding:11px 10px!important;grid-template-columns:48px minmax(0,1fr)!important;gap:9px!important;border-radius:18px!important}
+  body.role-student .student-actions.home-controls .student-command-icon{width:47px!important;height:47px!important;font-size:25px!important}
+  body.role-student .student-actions.home-controls .student-command-copy b{font-size:14px!important}
+  body.role-student .student-actions.home-controls .student-command-copy small{font-size:9px!important}
+  body.role-student .student-control-label span{display:none!important}
+}
 </style>
 </head><body><div class="shared-screen second-window"><div class="mirror-top"><span>🚀 <b>SI Mothership · Explorers</b></span><strong>JOIN 7K3M</strong></div><div class="mirror-content" id="secondContent"></div><div class="mirror-footer"><span><span class="pulse"></span>&nbsp; <span id="secondLabel">LOBBY</span></span><span>Student login + classroom display</span></div></div></body></html>`);secondScreenWindow.document.close();
   try{
