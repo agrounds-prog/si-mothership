@@ -12485,6 +12485,81 @@ body.role-student .agenda-live-footer{
   }
 }
 </style>
+<style id="v72-teacher-roster-response-signals">
+#teacher .roster-response-strip{
+  width:100%!important;
+  max-width:190px!important;
+  margin:6px auto 0!important;
+  display:flex!important;
+  flex-wrap:wrap!important;
+  justify-content:center!important;
+  gap:4px!important;
+}
+#teacher .roster-response-chip{
+  min-height:18px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:3px 6px!important;
+  border:1px solid #344b5e!important;
+  border-radius:999px!important;
+  background:#0b1925!important;
+  color:#9eb3c5!important;
+  font-size:6.5px!important;
+  font-weight:950!important;
+  line-height:1!important;
+  letter-spacing:.055em!important;
+  white-space:nowrap!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important;
+}
+#teacher .roster-response-chip.ready-state{
+  border-color:#3f936d!important;
+  background:#0d2b22!important;
+  color:#8ff0bc!important;
+}
+#teacher .roster-response-chip.emotion-state{
+  border-color:#8060a6!important;
+  background:#21162f!important;
+  color:#d0a8f2!important;
+}
+#teacher .roster-response-chip.understanding-state{
+  border-color:#397995!important;
+  background:#0b2534!important;
+  color:#8eddf5!important;
+}
+#teacher .roster-response-chip.photo-state{
+  border-color:#3288a5!important;
+  background:#092937!important;
+  color:#75e3ff!important;
+}
+#teacher .roster-card.sparse-roster .roster-response-strip{
+  max-width:220px!important;
+  margin-top:7px!important;
+  gap:5px!important;
+}
+#teacher .roster-card.sparse-roster .roster-response-chip{
+  min-height:20px!important;
+  padding:4px 7px!important;
+  font-size:7px!important;
+}
+#teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))) .roster-response-strip{
+  grid-area:note!important;
+  justify-self:start!important;
+  justify-content:flex-start!important;
+  max-width:180px!important;
+  margin:4px 0 0!important;
+}
+#teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))) .roster-response-strip + .response-note{
+  margin-top:4px!important;
+}
+@media(max-width:900px){
+  #teacher .roster-card.sparse-roster .avatar-line:not(:has(.crew:nth-child(3))) .roster-response-strip{
+    justify-self:auto!important;
+    justify-content:center!important;
+    margin:6px auto 0!important;
+  }
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -15277,7 +15352,14 @@ function renderRoster(){
     const boardGlow=activity&&activeActivity()?.type==='board'&&boardState()?.controller===s.n&&!s.offline;
     const showResponseNote=!!resp&&!(state.promptActive&&['ready','emotion','understanding'].includes(state.screen));
     const signalMarkup=`${buzzed?`<em class="buzz-chip">ϟ BUZZ ${buzzIndex+1}</em>`:''}${hand?'<em class="hand-chip">✋ HAND</em>':''}${help?'<em class="help-chip">? HELP</em>':''}`;
-    return `<div class="crew ${s.offline?'offline':''} ${readyGlow?'ready-glow':''} ${boardGlow?'board-control-glow':''} ${hand?'hand-raised-glow':''} ${buzzed?'buzz-glow':''} ${buzzIndex===0?'buzz-first':''}" style="--c:${s.c}"><div class="crew-avatar-stage"><div class="stem"></div><div class="bot-card ${String(s.avatarKey||'').startsWith('custom_')?'custom-avatar-card':''}">${avatarRosterMarkup(s)}</div>${sparseSignals?'':signalMarkup}</div><b>${s.n}</b><small>${s.offline?'Reconnecting':'Connected'}</small>${pill}${showResponseNote?`<span class="response-note">${esc(resp)}</span>`:''}${sparseSignals?`<div class="crew-signal-dock ${signalMarkup?'active':'quiet'}">${signalMarkup||'<span class="crew-signal-clear">NO ACTIVE ALERTS</span>'}</div>`:''}</div>`;
+    const photoSent=state.photos.some(p=>p.name===s.n);
+    const responseSignals=[];
+    if(!activity&&s.readyResponse&&!(state.promptActive&&state.screen==='ready'))responseSignals.push(`<span class="roster-response-chip ready-state">${s.readyResponse==='Ready'?'✓ READY':'! NOT YET'}</span>`);
+    if(!activity&&s.emotion&&!(state.promptActive&&state.screen==='emotion'))responseSignals.push(`<span class="roster-response-chip emotion-state">♡ ${esc(s.emotion).toUpperCase()}</span>`);
+    if(!activity&&s.understanding&&!(state.promptActive&&state.screen==='understanding'))responseSignals.push(`<span class="roster-response-chip understanding-state">▥ ${esc(s.understanding).toUpperCase()}</span>`);
+    if(!activity&&photoSent&&!(state.screen==='picture'&&state.picturePromptSent))responseSignals.push('<span class="roster-response-chip photo-state">📷 PHOTO</span>');
+    const responseStrip=responseSignals.length?`<div class="roster-response-strip">${responseSignals.join('')}</div>`:'';
+    return `<div class="crew ${s.offline?'offline':''} ${readyGlow?'ready-glow':''} ${boardGlow?'board-control-glow':''} ${hand?'hand-raised-glow':''} ${buzzed?'buzz-glow':''} ${buzzIndex===0?'buzz-first':''}" style="--c:${s.c}"><div class="crew-avatar-stage"><div class="stem"></div><div class="bot-card ${String(s.avatarKey||'').startsWith('custom_')?'custom-avatar-card':''}">${avatarRosterMarkup(s)}</div>${sparseSignals?'':signalMarkup}</div><b>${s.n}</b><small>${s.offline?'Reconnecting':'Connected'}</small>${pill}${responseStrip}${showResponseNote?`<span class="response-note">${esc(resp)}</span>`:''}${sparseSignals?`<div class="crew-signal-dock ${signalMarkup?'active':'quiet'}">${signalMarkup||'<span class="crew-signal-clear">NO ACTIVE ALERTS</span>'}</div>`:''}</div>`;
   }).join('');
   $('#rosterRange').textContent=state.students.length?`${state.rosterPage*8+1}–${Math.min(state.rosterPage*8+8,state.students.length)} of ${state.students.length}`:'No students joined';
   $('#rosterPageLabel').textContent=`${state.rosterPage+1} / ${pageCount}`;
