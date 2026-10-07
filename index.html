@@ -11994,6 +11994,53 @@ body.role-student #helpComposerSend{
   body.role-student .help-composer-actions button{min-height:42px!important;padding:9px 12px!important}
 }
 </style>
+<style id="v69-student-hand-buzz-feedback">
+body.role-student .student-actions.home-controls button[data-class-action="hand"].on{
+  color:#ffe18b!important;
+  border-color:#ffc447!important;
+  background:
+    radial-gradient(circle at 18% 50%,rgba(255,196,71,.58),transparent 30%),
+    radial-gradient(circle at 86% 0%,rgba(255,231,151,.20),transparent 36%),
+    linear-gradient(145deg,#6c4b0e,#473519 58%,#292117)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 10px 24px rgba(0,0,0,.38),0 0 30px rgba(255,196,71,.48)!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action="hand"].on .student-command-icon{
+  color:#fff!important;
+  border-color:#ffe6a0!important;
+  background:rgba(104,72,12,.74)!important;
+  box-shadow:0 0 18px #ffd15f,0 0 36px rgba(255,196,71,.55)!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action="buzz"].on{
+  color:#ff9ee0!important;
+  border-color:#ff63c7!important;
+  background:
+    radial-gradient(circle at 18% 50%,rgba(255,99,199,.60),transparent 30%),
+    radial-gradient(circle at 86% 0%,rgba(255,168,223,.20),transparent 36%),
+    linear-gradient(145deg,#7b1d5d,#4d2243 58%,#2b1828)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 10px 24px rgba(0,0,0,.38),0 0 32px rgba(255,99,199,.50)!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action="buzz"].on .student-command-icon{
+  color:#fff!important;
+  border-color:#ffb6e7!important;
+  background:rgba(104,24,77,.76)!important;
+  box-shadow:0 0 18px #ff83d4,0 0 36px rgba(255,99,199,.58)!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action="hand"].on::before,
+body.role-student .student-actions.home-controls button[data-class-action="buzz"].on::before{
+  content:"ACTIVE"!important;
+  position:absolute!important;
+  top:7px!important;
+  right:8px!important;
+  padding:2px 5px!important;
+  border:1px solid currentColor!important;
+  border-radius:999px!important;
+  background:rgba(4,10,18,.54)!important;
+  color:currentColor!important;
+  font-size:6px!important;
+  font-weight:950!important;
+  letter-spacing:.12em!important;
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -15582,7 +15629,7 @@ function renderStudentControls(){
   }
   label.innerHTML=`<b>CLASSROOM CONTROLS</b><span>${state.activityRun?'Available while waiting / following along':'Your standard controls'}</span>`;
   const homeLocked=state.screen==='lobby'||state.screen==='brb'||state.ended;
-  zone.className='student-actions home-controls';zone.innerHTML=`<button data-class-action="ready" class="${s.readyResponse==='Ready'?'on':''}" ${!state.readyEnabled||homeLocked?'disabled':''}><span class="student-command-icon">✓</span><span class="student-command-copy"><b>${s.readyResponse==='Ready'?'Ready':'I’m Ready'}</b><small>Let your teacher know</small></span></button><button data-class-action="hand" class="${state.alerts.some(a=>a.type==='hand'&&a.name===s.n)?'on':''}" ${!state.handEnabled||homeLocked?'disabled':''}><span class="student-command-icon">✋</span><span class="student-command-copy"><b>Raise Hand</b><small>Get the teacher’s attention</small></span></button><button data-class-action="help" class="${(state.helpMessages||[]).some(m=>m.name===s.n&&!(state.helpDeletedIds||[]).includes(String(m.id)))?'on':''}" ${!state.helpEnabled||homeLocked?'disabled':''}><span class="student-command-icon">${(state.helpMessages||[]).some(m=>m.name===s.n&&!(state.helpDeletedIds||[]).includes(String(m.id)))?'✓':'?'}</span><span class="student-command-copy"><b>${(state.helpMessages||[]).some(m=>m.name===s.n&&!(state.helpDeletedIds||[]).includes(String(m.id)))?'Help Sent':'Ask for Help'}</b><small>${(state.helpMessages||[]).some(m=>m.name===s.n&&!(state.helpDeletedIds||[]).includes(String(m.id)))?'Teacher has your request':'Send a help request'}</small></span></button><button data-class-action="buzz" class="${state.buzz.includes(s.n)?'on':''}" ${!state.buzzEnabled||homeLocked?'disabled':''}><span class="student-command-icon">⚡</span><span class="student-command-copy"><b>Buzz In</b><small>Jump into the discussion</small></span></button><button data-class-action="picture" ${!state.pictureEnabled||homeLocked?'disabled':''}><span class="student-command-icon">📷</span><span class="student-command-copy"><b>Send Photo</b><small>Share a photo with your teacher</small></span></button>`;
+  zone.className='student-actions home-controls';zone.innerHTML=`<button data-class-action="ready" class="${s.readyResponse==='Ready'?'on':''}" ${!state.readyEnabled||homeLocked?'disabled':''}><span class="student-command-icon">✓</span><span class="student-command-copy"><b>${s.readyResponse==='Ready'?'Ready':'I’m Ready'}</b><small>Let your teacher know</small></span></button><button data-class-action="hand" class="${state.alerts.some(a=>a.type==='hand'&&a.name===s.n)?'on':''}" ${!state.handEnabled||homeLocked?'disabled':''}><span class="student-command-icon">${state.alerts.some(a=>a.type==='hand'&&a.name===s.n)?'✓':'✋'}</span><span class="student-command-copy"><b>${state.alerts.some(a=>a.type==='hand'&&a.name===s.n)?'Hand Raised':'Raise Hand'}</b><small>${state.alerts.some(a=>a.type==='hand'&&a.name===s.n)?'Teacher has your signal':'Get the teacher’s attention'}</small></span></button><button data-class-action="help" class="${(state.helpMessages||[]).some(m=>m.name===s.n&&!(state.helpDeletedIds||[]).includes(String(m.id)))?'on':''}" ${!state.helpEnabled||homeLocked?'disabled':''}><span class="student-command-icon">${(state.helpMessages||[]).some(m=>m.name===s.n&&!(state.helpDeletedIds||[]).includes(String(m.id)))?'✓':'?'}</span><span class="student-command-copy"><b>${(state.helpMessages||[]).some(m=>m.name===s.n&&!(state.helpDeletedIds||[]).includes(String(m.id)))?'Help Sent':'Ask for Help'}</b><small>${(state.helpMessages||[]).some(m=>m.name===s.n&&!(state.helpDeletedIds||[]).includes(String(m.id)))?'Teacher has your request':'Send a help request'}</small></span></button><button data-class-action="buzz" class="${state.buzz.includes(s.n)?'on':''}" ${!state.buzzEnabled||homeLocked?'disabled':''}><span class="student-command-icon">${state.buzz.includes(s.n)?'✓':'⚡'}</span><span class="student-command-copy"><b>${state.buzz.includes(s.n)?'Buzzed In':'Buzz In'}</b><small>${state.buzz.includes(s.n)?'You’re in the queue':'Jump into the discussion'}</small></span></button><button data-class-action="picture" ${!state.pictureEnabled||homeLocked?'disabled':''}><span class="student-command-icon">📷</span><span class="student-command-copy"><b>Send Photo</b><small>Share a photo with your teacher</small></span></button>`;
   wireStudentControlButtons();
 }
 
