@@ -11549,6 +11549,118 @@ body.role-student .student-actions.home-controls button[data-class-action].on{
   body.role-student .student-actions.home-controls .student-command-copy small{font-size:9px!important}
 }
 </style>
+<style id="v62-student-vibrant-controls">
+/* Buttons-only vibrancy pass. No layout or behavior changes. */
+body.role-student .student-actions.home-controls button[data-class-action]{
+  border-width:2px!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.24),
+    inset 0 -18px 34px rgba(0,0,0,.14),
+    0 10px 24px rgba(0,0,0,.38),
+    0 0 22px color-mix(in srgb,currentColor 28%,transparent)!important;
+}
+body.role-student .student-actions.home-controls .student-command-icon{
+  background:
+    radial-gradient(circle at 36% 28%,rgba(255,255,255,.20),transparent 34%),
+    rgba(2,10,18,.48)!important;
+  box-shadow:
+    inset 0 0 18px rgba(255,255,255,.13),
+    0 0 0 4px color-mix(in srgb,currentColor 12%,transparent),
+    0 0 22px currentColor,
+    0 0 38px color-mix(in srgb,currentColor 50%,transparent)!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action]::before{
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.20),transparent)!important;
+  opacity:.8!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action]::after{
+  height:5px!important;
+  width:38px!important;
+  opacity:.9!important;
+  box-shadow:0 0 16px currentColor,0 0 30px color-mix(in srgb,currentColor 55%,transparent)!important;
+}
+body.role-student .student-actions.home-controls .student-command-copy b{
+  text-shadow:0 0 12px rgba(255,255,255,.10)!important;
+}
+body.role-student .student-actions.home-controls .student-command-copy small{
+  color:#ecf7ff!important;
+  opacity:.92!important;
+}
+
+body.role-student .student-actions.home-controls button[data-class-action="ready"]{
+  color:#62ffd0!important;
+  border-color:#34f2aa!important;
+  background:
+    radial-gradient(circle at 20% 50%,rgba(62,255,187,.50),transparent 32%),
+    radial-gradient(circle at 85% 0%,rgba(87,255,215,.16),transparent 35%),
+    linear-gradient(145deg,#0a6149,#0b3a37 58%,#08242b)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.24),
+    inset 0 -18px 34px rgba(0,0,0,.12),
+    0 10px 24px rgba(0,0,0,.38),
+    0 0 24px rgba(52,242,170,.38)!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action="hand"]{
+  color:#ffd861!important;
+  border-color:#ffbd39!important;
+  background:
+    radial-gradient(circle at 20% 50%,rgba(255,194,63,.52),transparent 32%),
+    radial-gradient(circle at 85% 0%,rgba(255,224,116,.17),transparent 35%),
+    linear-gradient(145deg,#70460b,#493516 58%,#292119)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.24),
+    inset 0 -18px 34px rgba(0,0,0,.12),
+    0 10px 24px rgba(0,0,0,.38),
+    0 0 24px rgba(255,189,57,.36)!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action="help"]{
+  color:#cf8cff!important;
+  border-color:#b06cff!important;
+  background:
+    radial-gradient(circle at 20% 50%,rgba(194,103,255,.52),transparent 32%),
+    radial-gradient(circle at 85% 0%,rgba(221,159,255,.16),transparent 35%),
+    linear-gradient(145deg,#56237e,#36244d 58%,#22192d)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.24),
+    inset 0 -18px 34px rgba(0,0,0,.12),
+    0 10px 24px rgba(0,0,0,.38),
+    0 0 24px rgba(176,108,255,.38)!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action="buzz"]{
+  color:#ff78d4!important;
+  border-color:#ff4fba!important;
+  background:
+    radial-gradient(circle at 20% 50%,rgba(255,75,188,.52),transparent 32%),
+    radial-gradient(circle at 85% 0%,rgba(255,146,219,.16),transparent 35%),
+    linear-gradient(145deg,#6d174f,#45213f 58%,#281727)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.24),
+    inset 0 -18px 34px rgba(0,0,0,.12),
+    0 10px 24px rgba(0,0,0,.38),
+    0 0 24px rgba(255,79,186,.38)!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action="picture"]{
+  color:#72e8ff!important;
+  border-color:#43cfff!important;
+  background:
+    radial-gradient(circle at 12% 50%,rgba(66,207,255,.50),transparent 28%),
+    radial-gradient(circle at 86% 0%,rgba(125,231,255,.17),transparent 38%),
+    linear-gradient(145deg,#0a5878,#0c3956 58%,#082538)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.24),
+    inset 0 -18px 34px rgba(0,0,0,.12),
+    0 10px 24px rgba(0,0,0,.38),
+    0 0 26px rgba(67,207,255,.40)!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action]:disabled{
+  opacity:.94!important;
+  filter:saturate(1.06) brightness(.98)!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action].on{
+  filter:saturate(1.28) brightness(1.12)!important;
+  transform:translateY(-1px)!important;
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
