@@ -11328,6 +11328,227 @@ body.role-student .toast.show{transform:translate(-50%,0)!important}
   body.role-student .student-control-label span{display:none!important}
 }
 </style>
+<style id="v61-student-lobby-final">
+/* Final Student Device lobby + controls override. Must remain last in main document head. */
+body.role-student .cinematic-lobby>.cinematic-pilot-card{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:min(100%,380px)!important;
+  min-width:0!important;
+  margin:18px auto 0!important;
+  padding:14px 14px 16px!important;
+  gap:10px!important;
+  text-align:center!important;
+  border:2px solid #40c8ef!important;
+  border-radius:28px!important;
+  background:
+    radial-gradient(circle at 50% 12%,rgba(80,211,255,.18),transparent 36%),
+    linear-gradient(180deg,#0a2a42,#051522)!important;
+  box-shadow:
+    inset 0 0 0 5px #020b13,
+    inset 0 0 0 6px rgba(115,232,255,.14),
+    0 18px 44px rgba(0,0,0,.42),
+    0 0 36px rgba(51,204,255,.22)!important;
+}
+body.role-student .cinematic-lobby>.cinematic-pilot-card:before{
+  content:none!important;
+  display:none!important;
+}
+body.role-student .cinematic-lobby .cinematic-pilot-card .student-avatar-mini{
+  order:1!important;
+  display:grid!important;
+  place-items:center!important;
+  width:min(74vw,290px)!important;
+  height:min(74vw,290px)!important;
+  max-width:290px!important;
+  max-height:290px!important;
+  margin:0 auto!important;
+  border:3px solid #7be9ff!important;
+  border-radius:25px!important;
+  overflow:hidden!important;
+  background:#03101b!important;
+  box-shadow:
+    inset 0 0 0 5px #020a12,
+    0 0 0 1px rgba(255,255,255,.18),
+    0 0 32px rgba(74,215,255,.32)!important;
+}
+body.role-student .cinematic-lobby .cinematic-pilot-card .student-avatar-mini img{
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:cover!important;
+  border-radius:19px!important;
+}
+body.role-student .cinematic-lobby .cinematic-pilot-card>.student-avatar-mini+span{
+  order:2!important;
+  display:block!important;
+  width:100%!important;
+  margin:0!important;
+  padding:0!important;
+  color:#fff!important;
+  font-size:clamp(26px,7vw,36px)!important;
+  line-height:1.05!important;
+  font-weight:950!important;
+  letter-spacing:-.03em!important;
+  text-align:center!important;
+  text-shadow:0 0 18px rgba(83,218,255,.24)!important;
+}
+
+/* Brighter mission-control buttons, including waiting/disabled state. */
+body.role-student .student-actions.home-controls{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:11px!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action]{
+  position:relative!important;
+  min-height:104px!important;
+  display:grid!important;
+  grid-template-columns:58px minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:12px!important;
+  padding:13px!important;
+  border-width:2px!important;
+  border-style:solid!important;
+  border-radius:22px!important;
+  text-align:left!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  opacity:1!important;
+  filter:none!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    inset 0 -14px 28px rgba(0,0,0,.16),
+    0 9px 20px rgba(0,0,0,.34)!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action]::before{
+  content:""!important;
+  position:absolute!important;
+  left:-12%!important;
+  top:-70%!important;
+  width:70%!important;
+  height:190%!important;
+  transform:rotate(18deg)!important;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.11),transparent)!important;
+  pointer-events:none!important;
+  z-index:-1!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action]::after{
+  content:""!important;
+  position:absolute!important;
+  right:10px!important;
+  bottom:9px!important;
+  width:34px!important;
+  height:4px!important;
+  border-radius:999px!important;
+  background:currentColor!important;
+  opacity:.55!important;
+  box-shadow:0 0 12px currentColor!important;
+  pointer-events:none!important;
+}
+body.role-student .student-actions.home-controls .student-command-icon{
+  width:56px!important;
+  height:56px!important;
+  display:grid!important;
+  place-items:center!important;
+  border:2px solid currentColor!important;
+  border-radius:50%!important;
+  background:rgba(2,10,18,.48)!important;
+  font-size:29px!important;
+  line-height:1!important;
+  color:inherit!important;
+  box-shadow:
+    inset 0 0 16px rgba(255,255,255,.09),
+    0 0 0 4px rgba(255,255,255,.025),
+    0 0 20px currentColor!important;
+}
+body.role-student .student-actions.home-controls .student-command-copy{
+  min-width:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:4px!important;
+}
+body.role-student .student-actions.home-controls .student-command-copy b{
+  color:#fff!important;
+  font-size:17px!important;
+  line-height:1.05!important;
+  font-weight:950!important;
+  letter-spacing:-.01em!important;
+}
+body.role-student .student-actions.home-controls .student-command-copy small{
+  color:#d4e5ef!important;
+  font-size:10px!important;
+  line-height:1.25!important;
+  font-weight:750!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action="ready"]{
+  color:#5affc2!important;
+  border-color:#2ddc9c!important;
+  background:
+    radial-gradient(circle at 17% 50%,rgba(53,255,188,.30),transparent 32%),
+    linear-gradient(145deg,#0c4739,#09252d 62%,#06171f)!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action="hand"]{
+  color:#ffd15c!important;
+  border-color:#e6a936!important;
+  background:
+    radial-gradient(circle at 17% 50%,rgba(255,194,57,.31),transparent 32%),
+    linear-gradient(145deg,#5a390b,#2a2718 62%,#10181e)!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action="help"]{
+  color:#c17cff!important;
+  border-color:#a05cf0!important;
+  background:
+    radial-gradient(circle at 17% 50%,rgba(188,92,255,.31),transparent 32%),
+    linear-gradient(145deg,#3f1c5d,#241a3b 62%,#101522)!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action="buzz"]{
+  color:#ff66c9!important;
+  border-color:#f34cac!important;
+  background:
+    radial-gradient(circle at 17% 50%,rgba(255,80,190,.31),transparent 32%),
+    linear-gradient(145deg,#561541,#2f1735 62%,#111522)!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action="picture"]{
+  grid-column:1/-1!important;
+  color:#64dfff!important;
+  border-color:#3bb9ef!important;
+  background:
+    radial-gradient(circle at 10% 50%,rgba(61,198,255,.30),transparent 26%),
+    linear-gradient(145deg,#0b4262,#0a2942 62%,#071824)!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action]:disabled{
+  opacity:.82!important;
+  filter:saturate(.92) brightness(.92)!important;
+  cursor:default!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action].on{
+  opacity:1!important;
+  filter:saturate(1.18) brightness(1.08)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    inset 0 -14px 28px rgba(0,0,0,.12),
+    0 9px 20px rgba(0,0,0,.34),
+    0 0 28px color-mix(in srgb,currentColor 40%,transparent)!important;
+}
+@media(max-width:520px){
+  body.role-student .cinematic-lobby>.cinematic-pilot-card{width:min(100%,350px)!important;padding:12px 12px 14px!important}
+  body.role-student .cinematic-lobby .cinematic-pilot-card .student-avatar-mini{width:min(78vw,272px)!important;height:min(78vw,272px)!important}
+  body.role-student .student-actions.home-controls{gap:9px!important}
+  body.role-student .student-actions.home-controls button[data-class-action]{
+    min-height:98px!important;
+    grid-template-columns:50px minmax(0,1fr)!important;
+    gap:9px!important;
+    padding:11px 10px!important;
+    border-radius:19px!important;
+  }
+  body.role-student .student-actions.home-controls .student-command-icon{width:48px!important;height:48px!important;font-size:25px!important}
+  body.role-student .student-actions.home-controls .student-command-copy b{font-size:15px!important}
+  body.role-student .student-actions.home-controls .student-command-copy small{font-size:9px!important}
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
