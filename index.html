@@ -12237,6 +12237,254 @@ body.role-student .agenda-live-footer{
   }
 }
 </style>
+<style id="v71-teacher-response-rail">
+#teacher .right-rail{
+  gap:12px!important;
+}
+#teacher .attention-summary{
+  padding:12px!important;
+  border:1px solid #2a4b67!important;
+  border-radius:16px!important;
+  background:
+    radial-gradient(circle at 12% 0%,rgba(69,205,255,.12),transparent 34%),
+    linear-gradient(180deg,#0b1d2e,#081522)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 10px 24px rgba(0,0,0,.22)!important;
+}
+#teacher .attention-summary-copy b{
+  display:block!important;
+  margin-top:5px!important;
+  color:#eef8ff!important;
+  font-size:13px!important;
+}
+#teacher .attention-summary-chips{
+  gap:6px!important;
+}
+#teacher .attention-chip{
+  min-width:52px!important;
+  padding:6px 8px!important;
+  border-width:1px!important;
+  border-radius:999px!important;
+  font-weight:950!important;
+  opacity:.72!important;
+}
+#teacher .attention-chip.active{
+  opacity:1!important;
+  transform:translateY(-1px)!important;
+}
+#teacher .attention-chip.help.active{color:#d49aff!important;border-color:#a864d5!important;background:#2b173c!important;box-shadow:0 0 16px rgba(176,108,255,.28)!important}
+#teacher .attention-chip.buzz.active{color:#ff86d5!important;border-color:#c94a99!important;background:#351328!important;box-shadow:0 0 16px rgba(255,99,199,.28)!important}
+#teacher .attention-chip.photo.active{color:#78e9ff!important;border-color:#42bddd!important;background:#0a2b3b!important;box-shadow:0 0 16px rgba(67,207,255,.28)!important}
+
+#teacher .right-rail .attention-panel{
+  position:relative!important;
+  overflow:hidden!important;
+  padding:12px!important;
+  border-radius:16px!important;
+  background:linear-gradient(180deg,#0a1929,#071421)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 10px 24px rgba(0,0,0,.18)!important;
+}
+#teacher .right-rail .attention-panel::before{
+  content:""!important;
+  position:absolute!important;
+  left:0!important;
+  top:0!important;
+  bottom:0!important;
+  width:3px!important;
+  opacity:.28!important;
+}
+#teacher #buzzPanel{border:1px solid #64385c!important}
+#teacher #buzzPanel::before{background:#ff63c7!important}
+#teacher #helpInboxPanel{border:1px solid #4e3c68!important}
+#teacher #helpInboxPanel::before{background:#b06cff!important}
+#teacher #photoInboxPanel{border:1px solid #28536b!important}
+#teacher #photoInboxPanel::before{background:#43cfff!important}
+#teacher .attention-panel.has-attention{
+  filter:saturate(1.06)!important;
+}
+#teacher #buzzPanel.has-attention{box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 0 22px rgba(255,99,199,.16)!important}
+#teacher #helpInboxPanel.has-attention{box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 0 22px rgba(176,108,255,.16)!important}
+#teacher #photoInboxPanel.has-attention{box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 0 22px rgba(67,207,255,.16)!important}
+
+#teacher .attention-panel .section-heading{
+  margin-bottom:10px!important;
+  padding-bottom:8px!important;
+  border-bottom:1px solid rgba(120,160,190,.12)!important;
+}
+#teacher .attention-panel .section-heading>b{
+  min-width:28px!important;
+  height:28px!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:999px!important;
+  background:#101f2d!important;
+  color:#eaf7ff!important;
+  font-size:12px!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)!important;
+}
+#teacher #buzzPanel.has-attention .section-heading>b{color:#ff8bd8!important;background:#301427!important}
+#teacher #helpInboxPanel.has-attention .section-heading>b{color:#d8a3ff!important;background:#28183a!important}
+#teacher #photoInboxPanel.has-attention .section-heading>b{color:#8cefff!important;background:#0a2b3a!important}
+
+#teacher #buzzRows,
+#teacher #helpRows,
+#teacher #photoRows{
+  display:grid!important;
+  gap:7px!important;
+}
+#teacher .inbox-student-row{
+  min-height:58px!important;
+  padding:8px!important;
+  border:1px solid #283d51!important;
+  border-radius:12px!important;
+  background:#0a1725!important;
+}
+#teacher .inbox-student-row:first-child{
+  border-color:#a04480!important;
+  background:linear-gradient(145deg,#2d1226,#0b1825)!important;
+  box-shadow:0 0 16px rgba(255,99,199,.12)!important;
+}
+#teacher .queue-num{
+  width:24px!important;
+  height:24px!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:999px!important;
+  background:#172637!important;
+  color:#9fb6c8!important;
+  font-size:10px!important;
+  font-weight:950!important;
+}
+#teacher .inbox-student-row:first-child .queue-num{
+  background:#5b1d48!important;
+  color:#ffb7e6!important;
+}
+#teacher .inbox-copy b{
+  color:#f4f9ff!important;
+  font-size:12px!important;
+}
+#teacher .inbox-copy small{
+  color:#8198ad!important;
+  font-size:9px!important;
+  letter-spacing:.02em!important;
+}
+#teacher .inbox-student-row:first-child .inbox-copy small{
+  color:#ff9fdd!important;
+  font-weight:900!important;
+}
+#teacher .xbtn,
+#teacher .photo-delete,
+#teacher [data-help-delete]{
+  border-radius:9px!important;
+  background:#25131a!important;
+  color:#ff8eaa!important;
+  border:1px solid #5e2b3b!important;
+}
+
+#teacher .help-message-row{
+  min-height:62px!important;
+  padding:8px!important;
+  border:1px solid #2b3d51!important;
+  border-radius:12px!important;
+  background:#0a1725!important;
+}
+#teacher .help-message-row.unread{
+  border-color:#754da0!important;
+  background:linear-gradient(145deg,#251536,#0a1725)!important;
+  box-shadow:0 0 18px rgba(176,108,255,.14)!important;
+}
+#teacher .help-message-row.unread .preview b::after{
+  content:" NEW"!important;
+  display:inline-block!important;
+  margin-left:6px!important;
+  padding:2px 5px!important;
+  border:1px solid #9d68c6!important;
+  border-radius:999px!important;
+  color:#d9aaff!important;
+  font-size:6px!important;
+  font-weight:950!important;
+  letter-spacing:.10em!important;
+  vertical-align:middle!important;
+}
+#teacher .help-message-row .preview b{color:#f4f9ff!important;font-size:12px!important}
+#teacher .help-message-row .preview small{color:#9baec0!important;font-size:9px!important}
+#teacher [data-help-open]{
+  border:1px solid #6f4b91!important;
+  background:#251736!important;
+  color:#d8abff!important;
+  font-weight:900!important;
+}
+
+#teacher .photo-row{
+  min-height:66px!important;
+  display:grid!important;
+  grid-template-columns:54px minmax(0,1fr) auto auto!important;
+  gap:8px!important;
+  align-items:center!important;
+  padding:7px!important;
+  border:1px solid #29475c!important;
+  border-radius:12px!important;
+  background:#091725!important;
+}
+#teacher .photo-thumb{
+  width:54px!important;
+  height:48px!important;
+  object-fit:cover!important;
+  border:1px solid #3aaed1!important;
+  border-radius:9px!important;
+  cursor:pointer!important;
+}
+#teacher .photo-row span b{display:block!important;color:#f4f9ff!important;font-size:12px!important}
+#teacher .photo-row span small{display:block!important;margin-top:3px!important;color:#85a3b8!important;font-size:8px!important;font-weight:850!important}
+#teacher .photo-row span small:not(:empty){letter-spacing:.04em!important}
+#teacher .photo-row:has(span small:nth-child(2)){
+  transition:border-color .15s ease,box-shadow .15s ease!important;
+}
+#teacher .photo-row .checkbtn{
+  width:30px!important;
+  height:30px!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:9px!important;
+}
+#teacher [data-photo-view]{
+  border:1px solid #2e718a!important;
+  background:#0b2635!important;
+  color:#7be9ff!important;
+}
+#teacher .photo-inbox-actions{
+  display:grid!important;
+  grid-template-columns:1fr auto!important;
+  gap:7px!important;
+  margin-top:10px!important;
+}
+#teacher .photo-inbox-actions .clear{
+  min-height:34px!important;
+  border-radius:9px!important;
+}
+#teacher #clearBuzz{
+  min-height:34px!important;
+  border-radius:9px!important;
+  margin-top:10px!important;
+}
+#teacher .attention-panel .empty{
+  margin:4px 0!important;
+  padding:12px 8px!important;
+  border:1px dashed #284053!important;
+  border-radius:10px!important;
+  color:#6f879b!important;
+  background:#08131e!important;
+  text-align:center!important;
+  font-size:10px!important;
+}
+#teacher .attention-panel.is-empty{
+  opacity:.82!important;
+}
+@media(max-width:1150px){
+  #teacher .right-rail{
+    gap:10px!important;
+  }
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
