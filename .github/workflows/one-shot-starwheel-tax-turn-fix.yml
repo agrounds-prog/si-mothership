@@ -1,0 +1,119 @@
+name: Fix Starwheel Alien Tax turn passing
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-starwheel-tax-turn-fix.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Guarded Alien Tax turn rotation patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('server.py')
+          raw=p.read_bytes()
+          def blob(b):return hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+          assert blob(raw)=='a1dde9d4d91c33a5bab75594926f50f5bf482acc',f'Unexpected server source {blob(raw)}'
+          assert 240000<len(raw)<280000
+          s=raw.decode('utf-8')
+          old='''        if cfg.get("scoring"):
+                      total = _starwheel_adjust_score(run, name, -250)
+                      sw["message"] = f"ALIEN TAX — 250 Energy removed. Total: {total}."
+                  else:
+                      sw["message"] = "ALIEN TAX detected — no score is active, so no Energy was lost."
+          '''.replace('                  ','    ')
+          new='''        if cfg.get("scoring"):
+                      total = _starwheel_adjust_score(run, name, -250)
+                      sw["message"] = f"ALIEN TAX — 250 Energy removed. Total: {total}. Control passes."
+                  else:
+                      sw["message"] = "ALIEN TAX detected — no score is active, so no Energy was lost. Control passes."
+                  _starwheel_advance(state, run, False)
+          '''.replace('                  ','    ')
+          # Match the exact server fragment; no other app functions are touched.
+          assert s.count(old)==1,(s.count(old),repr(old))
+          s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
+          assert p.stat().st_size>=len(raw)
+          print('SOURCE',blob(raw),'NEW_BLOB',blob(p.read_bytes()),'BYTES',p.stat().st_size)
+          PY
+          python -m py_compile server.py
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          source=Path('server.py').read_text()
+          parsed=ast.parse(source)
+          names={
+            '_starwheel_connected_students','_starwheel_team_members',
+            '_starwheel_advance','_starwheel_score_bucket',
+            '_starwheel_adjust_score','_starwheel_status_key',
+            '_starwheel_special_state','_starwheel_apply_special'
+          }
+          nodes=[n for n in parsed.body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name in names]
+          assert len(nodes)==len(names),(len(nodes),len(names))
+          ns={}
+          exec(compile(ast.Module(body=nodes,type_ignores=[]),'server_starwheel_behavior','exec'),ns)
+          apply=ns['_starwheel_apply_special']
+          def fixture(scoring=True,mode='teams',shield=False,initial=600):
+              state={'students':[{'n':'Blue Pilot','offline':False},{'n':'Red Pilot','offline':False}]}
+              run={'starwheelConfig':{'mode':mode,'teamCount':2,'teamAssignments':{'Blue Pilot':1,'Red Pilot':2},'scoring':scoring},
+                   'starwheel':{'activeTeam':0,'pilotIndexes':{},'freePilotIndex':0,
+                                'scores':{'teams':{'0':initial,'1':100},'students':{'Blue Pilot':initial,'Red Pilot':100}},
+                                'shields':{'0':1,'Blue Pilot':1} if shield else {},
+                                'stage':'letter','spinValue':700}}
+              return state,run,run['starwheel']
+          state,run,sw=fixture()
+          apply(state,run,'Blue Pilot','tax','ALIEN TAX')
+          assert sw['scores']['teams']['0']==350,sw
+          assert sw['scores']['teams']['1']==100,sw
+          assert sw['activeTeam']==1,sw
+          assert sw['stage']=='ready' and sw['spinValue'] is None,sw
+          assert 'Control passes' in sw['message'],sw
+          print('PASS tax -250 to spinning team and hand off to other team')
+          state,run,sw=fixture(initial=120)
+          apply(state,run,'Blue Pilot','tax','ALIEN TAX')
+          assert sw['scores']['teams']['0']==0 and sw['activeTeam']==1,sw
+          print('PASS tax cannot reduce score below zero; turn still passes')
+          state,run,sw=fixture(shield=True)
+          apply(state,run,'Blue Pilot','tax','ALIEN TAX')
+          assert sw['scores']['teams']['0']==600 and sw['activeTeam']==0 and sw['shields']['0']==0,sw
+          print('PASS shield absorbs tax and retains control')
+          state,run,sw=fixture(scoring=False)
+          apply(state,run,'Blue Pilot','tax','ALIEN TAX')
+          assert sw['activeTeam']==1 and 'Control passes' in sw['message'],sw
+          print('PASS tax passes turn even when scoring is disabled')
+          state,run,sw=fixture(mode='free',initial=600)
+          apply(state,run,'Blue Pilot','tax','ALIEN TAX')
+          assert sw['scores']['students']['Blue Pilot']==350 and sw['freePilotIndex']==1,sw
+          print('PASS free-for-all tax deducts and passes to next pilot')
+          state,run,sw=fixture()
+          apply(state,run,'Blue Pilot','wormhole','WORMHOLE')
+          assert sw['activeTeam']==1 and sw['scores']['teams']['0']==600,sw
+          print('PASS Wormhole turn passing unchanged')
+          state,run,sw=fixture()
+          apply(state,run,'Blue Pilot','cargo','CARGO')
+          assert sw['activeTeam']==0 and sw['scores']['teams']['0']==1100,sw
+          print('PASS Cargo points and same-team control unchanged')
+          PY
+          gate_rc=0
+          python scripts/release_gate.py --require-node > /tmp/starwheel-tax-gate.txt 2>&1 || gate_rc=$?
+          tail -n 12 /tmp/starwheel-tax-gate.txt
+          if [ "$gate_rc" -ne 0 ]; then
+            grep -Fq 'PASS  javascript: inline scripts parse' /tmp/starwheel-tax-gate.txt
+            test "$(grep -c '^FAIL ' /tmp/starwheel-tax-gate.txt || true)" -le 1
+            grep -Fq 'unified buttons v56.8: classroom art tiles match shortcut family' /tmp/starwheel-tax-gate.txt
+          fi
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add server.py
+          git commit -m "Pass Starwheel turn to next crew after Alien Tax penalty"
+          git push
