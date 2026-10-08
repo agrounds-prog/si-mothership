@@ -18,67 +18,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat > HANDOFF.md <<'EOF'
-# SI Mothership Handoff
-
-Current source baseline: 63c500bb6f747e79b3adc823b09f0dc65780137f
-Latest verified Railway deployment: 287ccff7-da01-436f-86ea-3f4d7e191880 — SUCCESS
-Production: https://mothership-web-production.up.railway.app
-Repository: agrounds-prog/si-mothership
-Branch: main
-
-## Handoff paragraph
-Continue work on the SI Mothership classroom management app from commit 63c500bb6f747e79b3adc823b09f0dc65780137f. The Student Device has already been substantially polished: mobile lobby fit, vibrant home controls, Ready Check, Emotion Check, Understanding Check, Picture Prompt/Send Photo, Ask for Help feedback, Raise Hand/Buzz active feedback, and Classroom Live/Agenda. Teacher Mission Control has also begun its polish pass: the Help Inbox, Photo Inbox, Buzz Queue, Class Alerts summary, and live roster response signals have been upgraded. Preserve every existing workflow, ID, event handler, roster/session behavior, student join flow, activities, Shared Screen, and Railway configuration. For main-app CSS, always insert before the FIRST literal </head> using s.index("</head>"), never rfind, because later </head> strings live inside popup HTML templates. index.html is ~1.33 MB, so use the established one-shot GitHub Actions patch workflow with exact blob SHA checks rather than direct large-file writes. After every change, verify the marker exists once before the first </head>, verify source size/integrity, and do not consider deployment finished until the final Railway deployment reaches terminal SUCCESS.
-
-## Current project details
-- GitHub repo: agrounds-prog/si-mothership
-- Branch: main
-- Production URL: https://mothership-web-production.up.railway.app
-- Student direct: https://mothership-web-production.up.railway.app/?role=student
-- Railway project: 7c04a02a-edc4-404f-a8b0-46d679df4d99
-- Railway environment: f58660ac-4dd2-4469-a326-769c7e1a7297
-- Railway service mothership-web: 7c7fc1ba-7fc2-477b-8c21-fd06eef0b409
-- Railway volume mothership-data: 2accca57-a125-4eae-a5c4-2b64b180e2bb mounted at /data
-- Start command: python server.py
-- Healthcheck: /api/health
-- Do not modify Railway service, variables, commands, or /data volume unless explicitly asked.
-
-## Current UI progress
-Student Device completed/polished:
-- Join/avatar/name confirmation
-- Mobile lobby fit with smaller hero/avatar so controls fit
-- Vibrant color-coded home controls
-- Ready Check
-- Emotion Check
-- Understanding Check
-- Picture Prompt / Send Photo
-- Ask for Help composer + Help Sent state
-- Raise Hand active state
-- Buzz In active state
-- Classroom Live / Agenda text/image/video surfaces
-
-Teacher Mission Control completed/polished:
-- Class Alerts summary
-- Buzz Queue
-- Photo Inbox
-- Ask for Help Inbox
-- Live roster response signals for persistent Ready/Emotion/Understanding/Photo status
-- Existing Hand/Help/Buzz roster alert badges preserved
-
-## Important implementation rules
-1. SI+ standalone and SI Mothership are different projects. This repo is SI Mothership.
-2. User prefers direct implementation when they say "proceed."
-3. Never use rfind("</head>") for main document CSS.
-4. Preserve all IDs, handlers, workflows, join/session behavior, activities, and Shared Screen behavior.
-5. index.html is large; use safe one-shot GitHub Actions patches with exact blob checks.
-6. Final verification requires GitHub source integrity AND Railway terminal SUCCESS.
-7. Do not modify or recreate Railway resources or the /data volume.
-8. Disabled student controls in Lobby should remain behaviorally disabled; visual polish only unless explicitly requested.
-
-## Latest files
-This package contains the repository snapshot used for handoff, excluding .git and old nested ZIP archives.
-
-EOF
+          printf '%s' 'IyBTSSBNb3RoZXJzaGlwIEhhbmRvZmYKCkN1cnJlbnQgc291cmNlIGJhc2VsaW5lOiA2M2M1MDBiYjZmNzQ3ZTc5YjNhZGM4MjNiMDlmMGRjNjU3ODAxMzdmCkxhdGVzdCB2ZXJpZmllZCBSYWlsd2F5IGRlcGxveW1lbnQ6IDI4N2NjZmY3LWRhMDEtNDM2Zi04NmVhLTNmNGQ3ZTE5MTg4MCDigJQgU1VDQ0VTUwpQcm9kdWN0aW9uOiBodHRwczovL21vdGhlcnNoaXAtd2ViLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAKUmVwb3NpdG9yeTogYWdyb3VuZHMtcHJvZy9zaS1tb3RoZXJzaGlwCkJyYW5jaDogbWFpbgoKIyMgSGFuZG9mZiBwYXJhZ3JhcGgKQ29udGludWUgd29yayBvbiB0aGUgU0kgTW90aGVyc2hpcCBjbGFzc3Jvb20gbWFuYWdlbWVudCBhcHAgZnJvbSBjb21taXQgNjNjNTAwYmI2Zjc0N2U3OWIzYWRjODIzYjA5ZjBkYzY1NzgwMTM3Zi4gVGhlIFN0dWRlbnQgRGV2aWNlIGhhcyBhbHJlYWR5IGJlZW4gc3Vic3RhbnRpYWxseSBwb2xpc2hlZDogbW9iaWxlIGxvYmJ5IGZpdCwgdmlicmFudCBob21lIGNvbnRyb2xzLCBSZWFkeSBDaGVjaywgRW1vdGlvbiBDaGVjaywgVW5kZXJzdGFuZGluZyBDaGVjaywgUGljdHVyZSBQcm9tcHQvU2VuZCBQaG90bywgQXNrIGZvciBIZWxwIGZlZWRiYWNrLCBSYWlzZSBIYW5kL0J1enogYWN0aXZlIGZlZWRiYWNrLCBhbmQgQ2xhc3Nyb29tIExpdmUvQWdlbmRhLiBUZWFjaGVyIE1pc3Npb24gQ29udHJvbCBoYXMgYWxzbyBiZWd1biBpdHMgcG9saXNoIHBhc3M6IHRoZSBIZWxwIEluYm94LCBQaG90byBJbmJveCwgQnV6eiBRdWV1ZSwgQ2xhc3MgQWxlcnRzIHN1bW1hcnksIGFuZCBsaXZlIHJvc3RlciByZXNwb25zZSBzaWduYWxzIGhhdmUgYmVlbiB1cGdyYWRlZC4gUHJlc2VydmUgZXZlcnkgZXhpc3Rpbmcgd29ya2Zsb3csIElELCBldmVudCBoYW5kbGVyLCByb3N0ZXIvc2Vzc2lvbiBiZWhhdmlvciwgc3R1ZGVudCBqb2luIGZsb3csIGFjdGl2aXRpZXMsIFNoYXJlZCBTY3JlZW4sIGFuZCBSYWlsd2F5IGNvbmZpZ3VyYXRpb24uIEZvciBtYWluLWFwcCBDU1MsIGFsd2F5cyBpbnNlcnQgYmVmb3JlIHRoZSBGSVJTVCBsaXRlcmFsIDwvaGVhZD4gdXNpbmcgcy5pbmRleCgiPC9oZWFkPiIpLCBuZXZlciByZmluZCwgYmVjYXVzZSBsYXRlciA8L2hlYWQ+IHN0cmluZ3MgbGl2ZSBpbnNpZGUgcG9wdXAgSFRNTCB0ZW1wbGF0ZXMuIGluZGV4Lmh0bWwgaXMgfjEuMzMgTUIsIHNvIHVzZSB0aGUgZXN0YWJsaXNoZWQgb25lLXNob3QgR2l0SHViIEFjdGlvbnMgcGF0Y2ggd29ya2Zsb3cgd2l0aCBleGFjdCBibG9iIFNIQSBjaGVja3MgcmF0aGVyIHRoYW4gZGlyZWN0IGxhcmdlLWZpbGUgd3JpdGVzLiBBZnRlciBldmVyeSBjaGFuZ2UsIHZlcmlmeSB0aGUgbWFya2VyIGV4aXN0cyBvbmNlIGJlZm9yZSB0aGUgZmlyc3QgPC9oZWFkPiwgdmVyaWZ5IHNvdXJjZSBzaXplL2ludGVncml0eSwgYW5kIGRvIG5vdCBjb25zaWRlciBkZXBsb3ltZW50IGZpbmlzaGVkIHVudGlsIHRoZSBmaW5hbCBSYWlsd2F5IGRlcGxveW1lbnQgcmVhY2hlcyB0ZXJtaW5hbCBTVUNDRVNTLgoKIyMgUHJvamVjdCBkZXRhaWxzCi0gR2l0SHViIHJlcG86IGFncm91bmRzLXByb2cvc2ktbW90aGVyc2hpcAotIEJyYW5jaDogbWFpbgotIFByb2R1Y3Rpb24gVVJMOiBodHRwczovL21vdGhlcnNoaXAtd2ViLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAKLSBTdHVkZW50IGRpcmVjdDogaHR0cHM6Ly9tb3RoZXJzaGlwLXdlYi1wcm9kdWN0aW9uLnVwLnJhaWx3YXkuYXBwLz9yb2xlPXN0dWRlbnQKLSBSYWlsd2F5IHByb2plY3Q6IDdjMDRhMDJhLWVkYzQtNDA0Zi1hOGIwLTQ2ZDY3OWRmNGQ5OQotIFJhaWx3YXkgZW52aXJvbm1lbnQ6IGY1ODY2MGFjLTRkZDItNDQ2OS1hMzI2LTc2OWM3ZTFhNzI5NwotIFJhaWx3YXkgc2VydmljZTogN2M3ZmMxYmEtN2ZjMi00NzdiLThjMjEtZmQwNmVlZjBiNDA5Ci0gUmFpbHdheSB2b2x1bWU6IDJhY2NjYTU3LWExMjUtNGVhZS1hNWM0LTJiNjRiMTgwZTJiYiBtb3VudGVkIGF0IC9kYXRhCi0gU3RhcnQgY29tbWFuZDogcHl0aG9uIHNlcnZlci5weQotIEhlYWx0aGNoZWNrOiAvYXBpL2hlYWx0aAotIERvIG5vdCBtb2RpZnkgUmFpbHdheSBzZXJ2aWNlLCB2YXJpYWJsZXMsIGNvbW1hbmRzLCBvciAvZGF0YSB2b2x1bWUgdW5sZXNzIGV4cGxpY2l0bHkgYXNrZWQuCgojIyBDdXJyZW50IFVJIHByb2dyZXNzClN0dWRlbnQgRGV2aWNlIHBvbGlzaGVkOiBqb2luL2F2YXRhci9uYW1lIGNvbmZpcm1hdGlvbjsgbW9iaWxlIGxvYmJ5IGZpdDsgdmlicmFudCBob21lIGNvbnRyb2xzOyBSZWFkeSBDaGVjazsgRW1vdGlvbiBDaGVjazsgVW5kZXJzdGFuZGluZyBDaGVjazsgUGljdHVyZSBQcm9tcHQvU2VuZCBQaG90bzsgQXNrIGZvciBIZWxwIGZlZWRiYWNrOyBSYWlzZSBIYW5kIGFuZCBCdXp6IGFjdGl2ZSBzdGF0ZXM7IENsYXNzcm9vbSBMaXZlL0FnZW5kYSB0ZXh0L2ltYWdlL3ZpZGVvLgoKVGVhY2hlciBNaXNzaW9uIENvbnRyb2wgcG9saXNoZWQgc28gZmFyOiBDbGFzcyBBbGVydHMgc3VtbWFyeTsgQnV6eiBRdWV1ZTsgUGhvdG8gSW5ib3g7IEFzayBmb3IgSGVscCBJbmJveDsgbGl2ZSByb3N0ZXIgcmVzcG9uc2Ugc2lnbmFsczsgZXhpc3RpbmcgSGFuZC9IZWxwL0J1enogcm9zdGVyIGJhZGdlcyBwcmVzZXJ2ZWQuCgojIyBDcml0aWNhbCBpbXBsZW1lbnRhdGlvbiBydWxlcwoxLiBTSSsgc3RhbmRhbG9uZSBhbmQgU0kgTW90aGVyc2hpcCBhcmUgZGlmZmVyZW50IHByb2plY3RzLiBUaGlzIHJlcG8gaXMgU0kgTW90aGVyc2hpcC4KMi4gV2hlbiBBZGFtIHNheXMgInByb2NlZWQsIiBpbXBsZW1lbnQgdGhlIG5leHQgc2FmZSBjaGFuZ2UgZGlyZWN0bHkuCjMuIE5ldmVyIHVzZSByZmluZCgiPC9oZWFkPiIpIGZvciBtYWluLWFwcCBDU1MuIFVzZSBzLmluZGV4KCI8L2hlYWQ+IikuCjQuIFByZXNlcnZlIElEcywgZXZlbnQgaGFuZGxlcnMsIHNlc3Npb24vam9pbiBiZWhhdmlvciwgYWN0aXZpdGllcywgcm9zdGVyIGJlaGF2aW9yLCBhbmQgU2hhcmVkIFNjcmVlbi4KNS4gaW5kZXguaHRtbCBpcyBsYXJnZTsgdXNlIHRoZSBvbmUtc2hvdCBHaXRIdWIgQWN0aW9ucyBwYXRjaCBwYXR0ZXJuIHdpdGggZXhhY3QgYmxvYiBTSEEgY2hlY2tzLgo2LiBWZXJpZnkgc291cmNlIG1hcmtlciBwbGFjZW1lbnQgYW5kIGZpbGUgc2l6ZSBiZWZvcmUgZGVwbG95bWVudC4KNy4gQSBjaGFuZ2UgaXMgbm90IGZpbmlzaGVkIHVudGlsIHRoZSBmaW5hbCBSYWlsd2F5IGRlcGxveW1lbnQgcmVhY2hlcyB0ZXJtaW5hbCBTVUNDRVNTLgo4LiBEbyBub3QgbW9kaWZ5IFJhaWx3YXkgcmVzb3VyY2VzIG9yIHRoZSAvZGF0YSB2b2x1bWUuCjkuIFN0dWRlbnQgY29udHJvbHMgcmVtYWluIGJlaGF2aW9yYWxseSBkaXNhYmxlZCBpbiBMb2JieSB1bmxlc3MgZXhwbGljaXRseSByZXF1ZXN0ZWQgb3RoZXJ3aXNlLgo=' | base64 -d > HANDOFF.md
           find . -maxdepth 3 -type f | sort > PROJECT_TREE.txt
           zip -r SI_Mothership_Handoff_2026-10-07.zip . -x '.git/*' '*.zip' '__pycache__/*' '*.pyc'
       - uses: actions/upload-artifact@v4
