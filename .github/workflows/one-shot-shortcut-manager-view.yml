@@ -1,0 +1,85 @@
+name: One-shot dedicated Shortcut Manager view
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-shortcut-manager-view.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Guarded shortcut manager view patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html');raw=p.read_bytes()
+          def sha(d):return hashlib.sha1(b'blob '+str(len(d)).encode()+b'\0'+d).hexdigest()
+          assert sha(raw)=='f02bfd60f4847da04826fe5f410b62194d166ee8',f'Stale index: {sha(raw)}'
+          assert 1300000<len(raw)<1400000
+          s=raw.decode()
+          def once(a,b):
+            global s
+            assert s.count(a)==1,(s.count(a),a[:110])
+            s=s.replace(a,b,1)
+          once("  title.textContent='Activity Library';\n  subtitle.textContent='Browse every available app, reopen recent work, and load saved setups.';","  const shortcutAssigning=state.assigningSlot!==null;\n  const managerVisible=activityShortcutManagerOpen||shortcutAssigning;\n  $('#activitiesPanel').classList.toggle('shortcut-manager-view',managerVisible);\n  $('#activitiesPanel').classList.toggle('shortcut-assigning-view',shortcutAssigning);\n  title.textContent=shortcutAssigning?'Choose an App for Shortcut':managerVisible?'Shortcut Manager':'Activity Library';\n  subtitle.textContent=shortcutAssigning?'Select an activity below to replace the selected shortcut, or cancel to return.':managerVisible?'Customize the nine Mission Control launcher buttons. Choose Replace to assign any available app.':'Browse every available app, reopen recent work, and load saved setups.';")
+          once("wrap.classList.toggle('hidden',!activityShortcutManagerOpen && state.assigningSlot===null);","wrap.classList.toggle('hidden',!managerVisible);")
+          needle="  $('#activitiesPanel').classList.add('activity-library-view');"
+          once(needle,needle+"\n  grid.classList.toggle('hidden',managerVisible&&!shortcutAssigning);")
+          css='''<style id="v73-dedicated-shortcut-manager">
+          /* Pure view separation: same shortcut and app DOM, no duplicated registry. */
+          #teacher #activitiesPanel.shortcut-manager-view:not(.shortcut-assigning-view) #activityGrid{
+            display:none!important;
+          }
+          #teacher #activitiesPanel.shortcut-manager-view #favoriteAppsWrap{
+            display:block!important;
+            max-width:none!important;width:100%!important;
+          }
+          #teacher #activitiesPanel.shortcut-manager-view .favorite-title{
+            display:flex!important;justify-content:space-between!important;gap:12px!important;
+          }
+          #teacher #activitiesPanel.shortcut-manager-view #favoriteGrid{
+            display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+            gap:12px!important;
+          }
+          #teacher #activitiesPanel.shortcut-assigning-view #activityGrid{
+            display:block!important;
+          }
+          #teacher #activitiesPanel.shortcut-assigning-view #favoriteAppsWrap{
+            border-color:#69c9f3!important;
+          }
+          #teacher #activitiesPanel.shortcut-assigning-view #assignNote:not(.hidden){
+            position:sticky;top:44px;z-index:4;
+            border:1px solid #6bd4ff!important;
+            box-shadow:0 8px 22px rgba(0,0,0,.35);
+          }
+          @media(max-width:720px){
+            #teacher #activitiesPanel.shortcut-manager-view #favoriteGrid{
+              grid-template-columns:repeat(2,minmax(0,1fr))!important;
+            }
+          }
+          </style>'''
+          i=s.index('</head>');s=s[:i]+css+s[i:]
+          p.write_text(s,encoding='utf-8')
+          print('SOURCE_OK',sha(raw),'NEW_SHA',sha(p.read_bytes()),'BYTES',p.stat().st_size)
+          PY
+          git diff --check
+          gate_rc=0
+          python scripts/release_gate.py --require-node > /tmp/shortcut-view-gate.log 2>&1 || gate_rc=$?
+          tail -n 8 /tmp/shortcut-view-gate.log
+          if [ "$gate_rc" -ne 0 ]; then
+            grep -Fxq 'Release gate: 396 passed, 1 failed.' /tmp/shortcut-view-gate.log
+            grep -Fxq ' - unified buttons v56.8: classroom art tiles match shortcut family' /tmp/shortcut-view-gate.log
+            grep -Fxq 'PASS  javascript: inline scripts parse' /tmp/shortcut-view-gate.log
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Separate Shortcut Manager into dedicated Activities view"
+          git push
