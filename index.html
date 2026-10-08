@@ -13405,6 +13405,131 @@ body.role-student .agenda-live-footer{
     to{opacity:1;transform:scale(1)}
   }
 }
+</style><style id="v80-bingo-shared-real-layout">
+/* Target the ACTUAL Bingo shared renderer, not the v79 placeholder selectors. */
+.bingo-shared-wrap{
+  box-sizing:border-box!important;
+  width:min(96vw,1700px)!important;
+  max-width:none!important;
+  min-height:min(92dvh,930px)!important;
+  margin:0 auto!important;
+  padding:clamp(16px,2.3vw,42px)!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  text-align:center!important;
+  border-radius:28px!important;
+  border:2px solid rgba(51,186,255,.47)!important;
+  background:
+    radial-gradient(ellipse at 50% -8%,rgba(65,79,213,.4),transparent 45%),
+    radial-gradient(circle at 100% 75%,rgba(174,34,196,.16),transparent 40%),
+    linear-gradient(160deg,#091b41,#0c1131 58%,#050e27)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 0 40px rgba(17,112,246,.19)!important;
+}
+.bingo-shared-wrap>.eyebrow{
+  color:#8beaff!important;font-weight:900!important;
+  letter-spacing:.22em!important;font-size:clamp(12px,1.3vw,20px)!important;
+}
+.bingo-shared-wrap>h3{
+  margin:clamp(8px,1.1vh,14px) auto clamp(14px,2vh,28px)!important;
+  color:#ffd965!important;
+  font-size:clamp(45px,6vw,104px)!important;
+  line-height:1.04!important;
+  text-shadow:0 4px 0 #723b93,0 0 24px rgba(255,198,85,.48)!important;
+  font-weight:1000!important;
+}
+.bingo-shared-main{
+  display:grid!important;
+  grid-template-columns:minmax(0,1.7fr) minmax(270px,.65fr)!important;
+  gap:clamp(14px,1.8vw,30px)!important;
+  width:100%!important;
+  min-height:0!important;
+  margin:0!important;
+  align-items:stretch!important;
+}
+.bingo-shared-main>div:first-child{
+  min-width:0!important;
+  display:flex!important;flex-direction:column!important;
+}
+.bingo-shared-main .bingo-call-card{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-height:clamp(360px,58dvh,660px)!important;
+  flex:1 1 auto!important;
+  margin:0!important;padding:clamp(18px,3vw,52px)!important;
+  border-radius:26px!important;
+  border:4px solid #4be2ff!important;
+  background:
+    radial-gradient(ellipse at 50% 33%,rgba(87,111,255,.37),transparent 68%),
+    linear-gradient(155deg,#143770,#121449 70%,#1d1453)!important;
+  color:#fff!important;
+  font-size:clamp(55px,7.4vw,132px)!important;
+  line-height:1.06!important;font-weight:1000!important;
+  text-shadow:0 4px 0 #22347f,0 0 30px rgba(119,194,255,.6)!important;
+  box-shadow:inset 0 0 42px rgba(25,158,255,.27),0 0 26px rgba(43,180,255,.34)!important;
+  overflow-wrap:anywhere!important;
+}
+.bingo-call-card img{
+  max-width:100%!important;
+  max-height:min(52dvh,560px)!important;
+  object-fit:contain!important;
+}
+.bingo-shared-main>div:first-child>p{
+  margin:14px 0 0!important;
+  color:#d7e9ff!important;
+  font-size:clamp(20px,2.35vw,39px)!important;
+  line-height:1.2!important;font-weight:800!important;
+}
+.bingo-shared-main .bingo-history{
+  min-width:0!important;
+  padding:clamp(16px,1.8vw,30px)!important;
+  border:2px solid rgba(92,174,255,.6)!important;
+  border-radius:24px!important;
+  background:linear-gradient(158deg,#112e62,#0a1a41)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12)!important;
+  text-align:left!important;
+}
+.bingo-history h4{
+  margin:0 0 16px!important;
+  font-size:clamp(20px,2.1vw,33px)!important;
+  letter-spacing:.06em!important;
+  color:#9fe8ff!important;
+}
+.bingo-history-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:clamp(6px,.7vw,12px)!important;
+}
+.bingo-history-grid span{
+  min-width:0!important;
+  aspect-ratio:1!important;
+  padding:6px!important;
+  border-radius:13px!important;
+  border:1px solid #4389db!important;
+  background:linear-gradient(150deg,#234a8b,#182452)!important;
+  color:#fff!important;
+  font-size:clamp(12px,1.1vw,18px)!important;
+  font-weight:900!important;
+  overflow-wrap:anywhere!important;
+}
+.bingo-history p{
+  margin:20px 0 8px!important;
+  font-size:clamp(19px,2.1vw,32px)!important;
+  color:#e9f4ff!important;
+}
+.bingo-history small{font-size:clamp(13px,1.25vw,19px)!important;color:#b9dbff!important}
+@media(max-width:800px){
+  .bingo-shared-wrap{min-height:0!important;width:98vw!important;padding:12px!important}
+  .bingo-shared-main{grid-template-columns:1fr!important}
+  .bingo-shared-main .bingo-call-card{min-height:37dvh!important;font-size:clamp(40px,9vw,72px)!important}
+  .bingo-history-grid span{aspect-ratio:auto!important;min-height:52px!important}
+}
+@media(max-height:560px) and (min-width:801px){
+  .bingo-shared-wrap{min-height:0!important;padding:12px!important}
+  .bingo-shared-main .bingo-call-card{min-height:49dvh!important}
+}
 </style></head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
