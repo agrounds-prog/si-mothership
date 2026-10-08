@@ -78,12 +78,12 @@ function cosmicAdvance(g,steps=1){
 function cosmicApplyLocal(type,value='',color='',name=''){
   const g=cosmicActive();if(!g||g.status!=='playing')return false;
   if(!g.players.includes(name))return false;
-  if(cosmicPlayer()!==name)return false;
   const hand=g.hands[name]||[];
   if(type==='cosmic'){
     if(hand.length!==1||g.called[name])return false;
     g.called[name]=true;g.message=name+' called COSMIC! One card left!';return true;
   }
+  if(cosmicPlayer()!==name)return false;
   if(type==='pass'){
     if(!g.drawnId)return false;
     g.message=name+' kept the drawn card and passed.';
@@ -193,7 +193,7 @@ function cosmicTableMarkup(run=state.activityRun,big=false){
     '<div class="cc-live-card"><span>TOP CARD · '+COSMIC_COLOR_NAMES[g.color]+'</span>'+cosmicCardMarkup(top)+'</div></div>'+
     '<p class="cc-game-message">'+esc(g.message||'')+'</p>'+
     '<div class="cc-players">'+g.players.map(n=>'<div class="cc-player '+(n===current&&g.status==='playing'?'active':'')+(n===g.winner?' winner':'')+'">'+
-      '<b>'+esc(n)+'</b><span>'+((g.hands[n]||[]).length)+' CARDS</span>'+(g.called[n]?' <em>COSMIC!</em>':'')+
+      '<b>'+esc(n)+'</b><span>'+((g.counts&&g.counts[n]!==undefined)?g.counts[n]:(g.hands[n]||[]).length)+' CARDS</span>'+(g.called[n]?' <em>COSMIC!</em>':'')+
       (!cosmicNames().includes(n)?'<small>OFFLINE</small>':'')+'</div>').join('')+'</div>'+
     (audience.length?'<div class="cc-audience"><b>AUDIENCE · '+audience.length+'</b><span>'+audience.map(esc).join(' · ')+'</span></div>':'')+
   '</div>';
