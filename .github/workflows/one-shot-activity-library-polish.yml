@@ -1,0 +1,96 @@
+name: One-shot Activity Library polish
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-activity-library-polish.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Guarded library visual polish
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html');raw=p.read_bytes()
+          def sha(x):return hashlib.sha1(b'blob '+str(len(x)).encode()+b'\0'+x).hexdigest()
+          assert sha(raw)=='26f849407133c46fb35a15f099501f9e778546a3',f'Stale source {sha(raw)}'
+          assert 1300000<len(raw)<1400000
+          s=raw.decode('utf-8')
+          for marker in ('id="v74-unified-activities"','activity-library-toolbar','activity-library-shelves','recent-shelf','activity-catalog-grid','real-app-card','id="activitiesPanel"'):
+            assert marker in s,marker
+          assert 'id="v75-activity-library-polish"' not in s
+          css='''<style id="v75-activity-library-polish">
+          /* Activity browsing: teacher-local visual changes only. */
+          #teacher #activitiesPanel:not(.hidden) .activity-library-toolbar{
+            position:sticky!important;top:0!important;z-index:8!important;
+            padding:10px 12px!important;margin:0 0 12px!important;
+            border:1px solid #2e729d!important;border-radius:12px!important;
+            background:rgba(9,31,52,.97)!important;
+            box-shadow:0 8px 20px rgba(0,0,0,.25)!important;
+          }
+          #teacher #activitiesPanel .activity-library-shelves{
+            gap:10px!important;margin:8px 0 14px!important;
+            align-items:start!important;
+          }
+          #teacher #activitiesPanel .recent-shelf,
+          #teacher #activitiesPanel .saved-shelf{
+            min-height:0!important;max-height:225px!important;
+            overflow-y:auto!important;padding:10px!important;
+          }
+          #teacher #activitiesPanel .recent-shelf > *,
+          #teacher #activitiesPanel .saved-shelf > *{margin-top:5px!important;margin-bottom:5px!important}
+          #teacher #activitiesPanel .activity-catalog-grid{
+            grid-template-columns:repeat(auto-fit,minmax(220px,1fr))!important;
+            gap:12px!important;
+          }
+          #teacher #activitiesPanel .activity-catalog-grid .real-app-card{
+            min-height:165px!important;height:auto!important;
+            padding:14px!important;display:flex!important;
+            flex-direction:column!important;gap:8px!important;
+            justify-content:space-between!important;
+            overflow-wrap:anywhere!important;
+          }
+          #teacher #activitiesPanel .activity-catalog-grid .real-app-card button{
+            min-height:36px!important;font-weight:800!important;
+          }
+          #teacher #activitiesPanel .activity-catalog-grid .real-app-card p,
+          #teacher #activitiesPanel .activity-catalog-grid .real-app-card small{
+            line-height:1.4!important;
+          }
+          @media(max-width:720px){
+            #teacher #activitiesPanel .activity-catalog-grid{
+              grid-template-columns:repeat(auto-fit,minmax(155px,1fr))!important;
+            }
+            #teacher #activitiesPanel .activity-library-shelves{
+              grid-template-columns:1fr!important;
+            }
+            #teacher #activitiesPanel .recent-shelf,
+            #teacher #activitiesPanel .saved-shelf{max-height:180px!important}
+          }
+          </style>'''
+          i=s.index('</head>');s=s[:i]+css+s[i:]
+          p.write_text(s,encoding='utf-8')
+          print('INTEGRITY_OK',sha(raw),'NEW_SHA',sha(p.read_bytes()),'BYTES',p.stat().st_size)
+          PY
+          git diff --check
+          rc=0
+          python scripts/release_gate.py --require-node > /tmp/activity-polish-gate.log 2>&1 || rc=$?
+          tail -n 8 /tmp/activity-polish-gate.log
+          if [ "$rc" -ne 0 ]; then
+            grep -Fxq 'Release gate: 396 passed, 1 failed.' /tmp/activity-polish-gate.log
+            grep -Fxq ' - unified buttons v56.8: classroom art tiles match shortcut family' /tmp/activity-polish-gate.log
+            grep -Fxq 'PASS  javascript: inline scripts parse' /tmp/activity-polish-gate.log
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Polish activity library navigation and cards"
+          git push
