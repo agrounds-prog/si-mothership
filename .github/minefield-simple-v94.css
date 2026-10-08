@@ -1,0 +1,103 @@
+/* v94 Cooperative Minefield: simple tile outcomes and progress. */
+#shared .minefield-public .minefield-signal-legend.minefield-simple-legend{
+ display:flex!important;flex-wrap:wrap!important;gap:8px!important;justify-content:center!important;align-content:center!important}
+#shared .minefield-simple-legend>span{
+ display:inline-flex!important;align-items:center!important;gap:6px!important;
+ padding:9px 10px!important;white-space:nowrap!important;
+ border:1px solid #4f90b9!important;border-radius:10px!important;
+ background:#0d3454!important;color:#e9f9ff!important;
+ font-size:clamp(11px,1vw,15px)!important;font-weight:850!important}
+#shared .minefield-simple-legend .mf-progress-label{
+ color:#a9fbe3!important;border-color:#71e8bf!important}
+.minefield-public .minefield-board .minefield-cell.simple{
+ transition:background .17s,border-color .17s,box-shadow .17s!important;
+}
+.minefield-public .minefield-board .minefield-cell.simple.unknown{
+ color:transparent!important;
+}
+.minefield-public .minefield-board .minefield-cell.simple.revealed.empty{
+ background:linear-gradient(145deg,#133a48,#102b3a)!important;
+ border-color:#416b7c!important;
+ box-shadow:inset 0 0 13px #163344a0!important;
+}
+.minefield-public .minefield-board .minefield-cell.simple.revealed.empty::after{
+ content:"✓";position:absolute;inset:auto 3px 3px auto;
+ font-size:clamp(10px,1.1vw,15px);font-weight:900;
+ color:#92f2d2!important;opacity:.9;pointer-events:none;
+}
+.minefield-public .minefield-board .minefield-cell.simple.revealed.health{
+ background:radial-gradient(circle at 45% 34%,#c53874,#6b1846 79%)!important;
+ border-color:#ff8fbe!important;color:#fff!important;
+ box-shadow:inset 0 0 16px #ffadce66,0 0 14px #ff6ebc55!important;
+}
+.minefield-public .minefield-board .minefield-cell.simple.revealed.mine{
+ background:radial-gradient(circle at 47% 36%,#bb3f48,#681d35 79%)!important;
+ border-color:#ff7685!important;color:#fff!important;
+ box-shadow:inset 0 0 12px #fdb9bc55,0 0 16px #f4557299!important;
+}
+.minefield-public .minefield-board .minefield-cell.simple.revealed{
+ font-size:clamp(21px,2.5vw,39px)!important;
+}
+.minefield-public .minefield-board .minefield-cell.simple.unknown:not(.ship)::after{
+ content:"?"!important;
+}
+.minefield-public .minefield-board .minefield-cell.simple.revealed.empty::after{
+ content:"✓"!important;
+}
+.minefield-simple-status{
+ margin:10px 0 7px;display:grid;gap:7px;
+ color:#caecff;font-size:clamp(13px,1.2vw,17px);font-weight:900;
+}
+.minefield-simple-status .mf-progress-track{
+ width:100%;height:12px;border:1px solid #488eb3;border-radius:999px;
+ background:#071d31;overflow:hidden;box-shadow:inset 0 2px 7px #0007;
+}
+.minefield-simple-status .mf-progress-fill{
+ display:block;height:100%;border-radius:999px;
+ background:linear-gradient(90deg,#39b4ff,#46edba,#dbffc0);
+ box-shadow:0 0 13px #48f9cf66;transition:width .24s ease;
+}
+.minefield-simple-status strong{color:#99f8d4}
+.minefield-setup .minefield-objective.simple-objective{
+ border:1px solid #4190b6;border-radius:14px;
+ background:linear-gradient(140deg,#12365b,#0c233e);
+ padding:14px 18px;font-size:clamp(13px,1.15vw,16px);line-height:1.5;
+ color:#d7f3ff;max-width:900px;
+}
+.minefield-setup .simple-objective b{color:#8dffe6}
+.minefield-setup .simple-objective .mf-simple-icon{
+ font-size:clamp(19px,2vw,26px);vertical-align:middle;
+}
+.minefield-setup .minefield-modes{margin-top:8px}
+.minefield-setup .minefield-mode.active{
+ background:linear-gradient(135deg,#10506b,#134b56)!important;
+ border:2px solid #6ff2cd!important;
+ box-shadow:0 0 15px #54f8be2b!important;
+}
+.minefield-public .minefield-result.win{
+ border:2px solid #8affd3!important;
+ background:linear-gradient(135deg,#124b58,#0b2e50)!important;
+ box-shadow:0 0 28px #4bffc555!important;
+}
+.minefield-public .minefield-result.loss{
+ border:2px solid #ff758a!important;
+ background:linear-gradient(135deg,#58253e,#211f4b)!important;
+}
+.minefield-public .minefield-hull{
+ letter-spacing:.04em!important;
+}
+body.role-student .minefield-cell.simple.revealed.health{
+ border-color:#ff8fbe!important;background:#7a214d!important;color:#fff!important;
+}
+body.role-student .minefield-cell.simple.revealed.mine{
+ border-color:#ff7d8a!important;background:#72263d!important;color:#fff!important;
+}
+body.role-student .minefield-cell.simple.revealed.empty{
+ background:#1b3a4b!important;border-color:#557f8f!important;
+}
+body.role-student .minefield-cell.simple.revealed.empty::after{
+ content:"✓";position:absolute;right:3px;bottom:3px;font-size:12px;color:#81f4ca;
+}
+@media(prefers-reduced-motion:reduce){
+ .minefield-simple-status .mf-progress-fill{transition:none!important}
+}
