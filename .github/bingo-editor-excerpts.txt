@@ -1,0 +1,396 @@
+=== let bingoDraft= LOCATIONS [13884] ===
+13882: let bingoSets=loadGameStore(BINGO_SET_STORE,[]);
+13883: let matchDraft={name:'Animals',quick:'Dog | Dog\nCat | Cat\nElephant | Elephant\nGiraffe | Giraffe\nLion | Lion\nFrog | Frog',selectedImages:[]};
+13884: let matchLaunchSettings={mode:'teams',teamCount:3,turnRule:'one_each',crewConsult:true,scoring:'pairs',teamNonce:0};
+13885: let bingoDraft={name:'Animals',quick:'Dog | Dog\nCat | Cat\nElephant | Elephant\nGiraffe | Giraffe\nLion | Lion\nFrog | Frog\nZebra | Zebra\nPanda | Panda\nPenguin | Penguin\nButterfly | Butterfly\nTurtle | Turtle\nMonkey | Monkey\nStar | Star\nApple | Apple\nDuck | Duck\nFish | Fish',size:4,pattern:'line',free:false,selectedImages:[]};
+13886: function newGameAssetId(){return 'img_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)}
+13887: function gameImageName(file){return String(file?.name||'Image').replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim().slice(0,60)||'Image'}
+13888: function normalizeGameImage(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=()=>reject(new Error('read'));r.onload=()=>{const img=new Image();img.onerror=()=>reject(new Error('image'));img.onload=()=>{const size=640,canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');canvas.width=size;canvas.height=size;ctx.fillStyle='#f7f7ef';ctx.fillRect(0,0,size,size);const scale=Math.min((size-40)/img.width,(size-40)/img.height),w=img.width*scale,h=img.height*scale;ctx.drawImage(img,(size-w)/2,(size-h)/2,w,h);let data='';try{data=canvas.toDataURL('image/webp',.82)}catch(e){data=canvas.toDataURL('image/jpeg',.86)}resolve(data)};img.src=String(r.result)};r.readAsDataURL(file)})}
+13889: async function importGameImages(files){
+13890:   const list=Array.from(files||[]).filter(f=>String(f.type||'').startsWith('image/')).slice(0,36);if(!list.length)return;
+13891:   const added=[];
+13892:   for(const file of list){try{added.push({id:newGameAssetId(),name:gameImageName(file),image:await normalizeGameImage(file),collection:'Custom',createdAt:Date.now()})}catch(e){}}
+13893:   if(!added.length)return toast('Could not import those images');
+13894:   gameImageLibrary=[...gameImageLibrary,...added];persistGameStore(GAME_IMAGE_LIBRARY_STORE,gameImageLibrary);toast(added.length+' image'+(added.length===1?'':'s')+' added to Mothership Image Library');renderActivities();
+13895: }
+13896: function parsePairLines(text){
+13897:   return String(text||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map((line,i)=>{
+13898:     const p=line.split('|');const a=String(p[0]||'').trim(),b=String(p.slice(1).join('|')||p[0]||'').trim();
+13899:     return a&&b?{id:'pair_'+i+'_'+Date.now().toString(36),a:{type:'text',value:a},b:{type:'text',value:b}}:null;
+13900:   }).filter(Boolean).slice(0,24);
+13901: }
+13902: function parseBingoLines(text){
+13903:   return String(text||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map((line,i)=>{
+13904:     const p=line.split('|');const call=String(p[0]||'').trim(),card=String(p.slice(1).join('|')||p[0]||'').trim();
+13905:     return call&&card?{id:'item_'+i+'_'+Date.now().toString(36),call:{type:'text',value:call},card:{type:'text',value:card}}:null;
+13906:   }).filter(Boolean).slice(0,48);
+13907: }
+13908: function contentMarkup(side){
+13909:   if(!side)return '';
+13910:   if(side.type==='image')return '<img src="'+esc(side.value)+'" alt="'+esc(side.label||'Game image')+'">';
+13911:   return '<span>'+esc(side.value||'')+'</span>';
+13912: }
+13913: function removeGameLibraryImage(id){
+13914:   const asset=gameImageLibrary.find(a=>a.id===id);
+13915:   if(!asset||!confirm('Remove "'+asset.name+'" from the image library? Existing saved game sets keep their pictures.'))return;
+13916:   const next=gameImageLibrary.filter(a=>a.id!==id);
+13917:   if(!persistGameStore(GAME_IMAGE_LIBRARY_STORE,next))return;
+13918:   gameImageLibrary=next;
+13919:   matchDraft.selectedImages=(matchDraft.selectedImages||[]).filter(x=>x!==id);
+13920:   bingoDraft.selectedImages=(bingoDraft.selectedImages||[]).filter(x=>x!==id);
+=== function bingoSlotItems() LOCATIONS [13927] ===
+13925:     e.preventDefault();e.stopPropagation();removeGameLibraryImage(b.dataset.gameImageRemove);
+13926:   });
+13927: }
+13928: function bingoSlotItems(){
+13929:   return (bingoDraft.numberedSlots||[]).filter(a=>a&&a.call).map(a=>({
+13930:     id:'bingo_slot_'+a.slot,
+13931:     call:{type:'text',value:a.call},
+13932:     card:a.image?{type:'image',value:a.image,label:a.label||a.call}:{type:'text',value:a.text||a.call}
+13933:   }));
+13934: }
+13935: function bingoCardExtras(){
+13936:   return (bingoDraft.cardExtras||[]).map((a,i)=>({
+13937:     id:'custom_card_'+i,
+13938:     call:{type:'text',value:a.call},
+13939:     card:a.image?{type:'image',value:a.image,label:a.label||a.call}:{type:'text',value:a.text||a.call}
+13940:   }));
+13941: }
+13942: function gameImagePickerMarkup(selected=[]){
+13943:   const set=new Set(selected||[]);
+13944:   return '<div class="game-library-grid">'+(gameImageLibrary.length?gameImageLibrary.map(a=>'<div class="game-library-item"><button type="button" class="game-library-tile '+(set.has(a.id)?'selected':'')+'" data-game-image="'+esc(a.id)+'"><img src="'+a.image+'" alt="'+esc(a.name)+'"><b>'+esc(a.name)+'</b></button><button type="button" class="game-library-remove" data-game-image-remove="'+esc(a.id)+'" aria-label="Remove '+esc(a.name)+' from library" title="Remove from library">× Remove</button></div>').join(''):'<div class="game-library-empty">Your shared Mothership Image Library is empty. Upload images once, then reuse them here.</div>')+'</div>';
+13945: }
+13946: function pairsFromSelectedImages(ids){
+13947:   return (ids||[]).map((id,i)=>gameImageLibrary.find(a=>a.id===id)).filter(Boolean).map((a,i)=>({id:'pair_img_'+i+'_'+Date.now().toString(36),a:{type:'image',value:a.image,label:a.name},b:{type:'image',value:a.image,label:a.name}}));
+13948: }
+13949: function bingoItemsFromSelectedImages(ids){
+13950:   return (ids||[]).map(id=>gameImageLibrary.find(a=>a.id===id)).filter(Boolean).map((a,i)=>({id:'item_img_'+i+'_'+Date.now().toString(36),call:{type:'image',value:a.image,label:a.name},card:{type:'image',value:a.image,label:a.name}}));
+13951: }
+13952: function saveMatchDraft(){
+13953:   const pairs=[...parsePairLines(matchDraft.quick),...pairsFromSelectedImages(matchDraft.selectedImages)].slice(0,24);
+13954:   if(pairs.length<4)return toast('Add at least four MATCH pairs');
+13955:   const set={id:'matchset_'+Date.now().toString(36),name:String(matchDraft.name||'MATCH Set').trim().slice(0,80)||'MATCH Set',pairs,createdAt:Date.now()};
+13956:   matchSets=[set,...matchSets.filter(x=>x.id!==set.id)];persistGameStore(MATCH_SET_STORE,matchSets);toast('MATCH set saved');renderActivities();return set;
+13957: }
+13958: function saveBingoDraft(){
+13959:   const items=bingoDraft.numberedMode?bingoSlotItems().slice(0,48):[...parseBingoLines(bingoDraft.quick),...bingoCardExtras(),...bingoItemsFromSelectedImages(bingoDraft.selectedImages)].slice(0,48);
+13960:   const size=Math.max(3,Math.min(6,Number(bingoDraft.size||4))),need=size*size-(bingoDraft.free&&size%2===1?1:0);
+13961:   if(items.length<need)return toast('This card size needs at least '+need+' Bingo items');
+13962:   const set={id:'bingoset_'+Date.now().toString(36),name:String(bingoDraft.name||'Bingo Set').trim().slice(0,80)||'Bingo Set',items,size,pattern:bingoDraft.pattern||'line',free:!!bingoDraft.free,createdAt:Date.now()};
+13963:   bingoSets=[set,...bingoSets.filter(x=>x.id!==set.id)];persistGameStore(BINGO_SET_STORE,bingoSets);toast('Bingo set saved');renderActivities();return set;
+=== function bingoCardExtras() LOCATIONS [13934] ===
+13932:     card:a.image?{type:'image',value:a.image,label:a.label||a.call}:{type:'text',value:a.text||a.call}
+13933:   }));
+13934: }
+13935: function bingoCardExtras(){
+13936:   return (bingoDraft.cardExtras||[]).map((a,i)=>({
+13937:     id:'custom_card_'+i,
+13938:     call:{type:'text',value:a.call},
+13939:     card:a.image?{type:'image',value:a.image,label:a.label||a.call}:{type:'text',value:a.text||a.call}
+13940:   }));
+13941: }
+13942: function gameImagePickerMarkup(selected=[]){
+13943:   const set=new Set(selected||[]);
+13944:   return '<div class="game-library-grid">'+(gameImageLibrary.length?gameImageLibrary.map(a=>'<div class="game-library-item"><button type="button" class="game-library-tile '+(set.has(a.id)?'selected':'')+'" data-game-image="'+esc(a.id)+'"><img src="'+a.image+'" alt="'+esc(a.name)+'"><b>'+esc(a.name)+'</b></button><button type="button" class="game-library-remove" data-game-image-remove="'+esc(a.id)+'" aria-label="Remove '+esc(a.name)+' from library" title="Remove from library">× Remove</button></div>').join(''):'<div class="game-library-empty">Your shared Mothership Image Library is empty. Upload images once, then reuse them here.</div>')+'</div>';
+13945: }
+13946: function pairsFromSelectedImages(ids){
+13947:   return (ids||[]).map((id,i)=>gameImageLibrary.find(a=>a.id===id)).filter(Boolean).map((a,i)=>({id:'pair_img_'+i+'_'+Date.now().toString(36),a:{type:'image',value:a.image,label:a.name},b:{type:'image',value:a.image,label:a.name}}));
+13948: }
+13949: function bingoItemsFromSelectedImages(ids){
+13950:   return (ids||[]).map(id=>gameImageLibrary.find(a=>a.id===id)).filter(Boolean).map((a,i)=>({id:'item_img_'+i+'_'+Date.now().toString(36),call:{type:'image',value:a.image,label:a.name},card:{type:'image',value:a.image,label:a.name}}));
+13951: }
+13952: function saveMatchDraft(){
+13953:   const pairs=[...parsePairLines(matchDraft.quick),...pairsFromSelectedImages(matchDraft.selectedImages)].slice(0,24);
+13954:   if(pairs.length<4)return toast('Add at least four MATCH pairs');
+13955:   const set={id:'matchset_'+Date.now().toString(36),name:String(matchDraft.name||'MATCH Set').trim().slice(0,80)||'MATCH Set',pairs,createdAt:Date.now()};
+13956:   matchSets=[set,...matchSets.filter(x=>x.id!==set.id)];persistGameStore(MATCH_SET_STORE,matchSets);toast('MATCH set saved');renderActivities();return set;
+13957: }
+13958: function saveBingoDraft(){
+13959:   const items=bingoDraft.numberedMode?bingoSlotItems().slice(0,48):[...parseBingoLines(bingoDraft.quick),...bingoCardExtras(),...bingoItemsFromSelectedImages(bingoDraft.selectedImages)].slice(0,48);
+13960:   const size=Math.max(3,Math.min(6,Number(bingoDraft.size||4))),need=size*size-(bingoDraft.free&&size%2===1?1:0);
+13961:   if(items.length<need)return toast('This card size needs at least '+need+' Bingo items');
+13962:   const set={id:'bingoset_'+Date.now().toString(36),name:String(bingoDraft.name||'Bingo Set').trim().slice(0,80)||'Bingo Set',items,size,pattern:bingoDraft.pattern||'line',free:!!bingoDraft.free,createdAt:Date.now()};
+13963:   bingoSets=[set,...bingoSets.filter(x=>x.id!==set.id)];persistGameStore(BINGO_SET_STORE,bingoSets);toast('Bingo set saved');renderActivities();return set;
+13964: }
+13965: function shuffleCopy(items,seed=''){let a=items.map(x=>deepClone(x)),h=2166136261;for(const ch of String(seed))h=(h^ch.charCodeAt(0))*16777619>>>0;for(let i=a.length-1;i>0;i--){h=(h*1664525+1013904223)>>>0;const j=h%(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+13966: 
+13967: function matchTeamMeta(i){return [{name:'Blue Crew',icon:'🔵'},{name:'Red Crew',icon:'🔴'},{name:'Gold Crew',icon:'🟡'},{name:'Green Crew',icon:'🟢'}][Number(i)||0]||{name:'Crew '+(Number(i)+1),icon:'●'}}
+13968: function matchTeamAssignments(students,count){
+13969:   const n=Math.max(2,Math.min(4,Number(count||3))),out={},source=matchLaunchSettings.teamNonce?shuffleCopy(students||[],String(matchLaunchSettings.teamNonce)):(students||[]);
+13970:   source.forEach((st,i)=>out[st.n]=i%n);return out;
+=== function gameImagePickerMarkup( LOCATIONS [13941] ===
+13939:     card:a.image?{type:'image',value:a.image,label:a.label||a.call}:{type:'text',value:a.text||a.call}
+13940:   }));
+13941: }
+13942: function gameImagePickerMarkup(selected=[]){
+13943:   const set=new Set(selected||[]);
+13944:   return '<div class="game-library-grid">'+(gameImageLibrary.length?gameImageLibrary.map(a=>'<div class="game-library-item"><button type="button" class="game-library-tile '+(set.has(a.id)?'selected':'')+'" data-game-image="'+esc(a.id)+'"><img src="'+a.image+'" alt="'+esc(a.name)+'"><b>'+esc(a.name)+'</b></button><button type="button" class="game-library-remove" data-game-image-remove="'+esc(a.id)+'" aria-label="Remove '+esc(a.name)+' from library" title="Remove from library">× Remove</button></div>').join(''):'<div class="game-library-empty">Your shared Mothership Image Library is empty. Upload images once, then reuse them here.</div>')+'</div>';
+13945: }
+13946: function pairsFromSelectedImages(ids){
+13947:   return (ids||[]).map((id,i)=>gameImageLibrary.find(a=>a.id===id)).filter(Boolean).map((a,i)=>({id:'pair_img_'+i+'_'+Date.now().toString(36),a:{type:'image',value:a.image,label:a.name},b:{type:'image',value:a.image,label:a.name}}));
+13948: }
+13949: function bingoItemsFromSelectedImages(ids){
+13950:   return (ids||[]).map(id=>gameImageLibrary.find(a=>a.id===id)).filter(Boolean).map((a,i)=>({id:'item_img_'+i+'_'+Date.now().toString(36),call:{type:'image',value:a.image,label:a.name},card:{type:'image',value:a.image,label:a.name}}));
+13951: }
+13952: function saveMatchDraft(){
+13953:   const pairs=[...parsePairLines(matchDraft.quick),...pairsFromSelectedImages(matchDraft.selectedImages)].slice(0,24);
+13954:   if(pairs.length<4)return toast('Add at least four MATCH pairs');
+13955:   const set={id:'matchset_'+Date.now().toString(36),name:String(matchDraft.name||'MATCH Set').trim().slice(0,80)||'MATCH Set',pairs,createdAt:Date.now()};
+13956:   matchSets=[set,...matchSets.filter(x=>x.id!==set.id)];persistGameStore(MATCH_SET_STORE,matchSets);toast('MATCH set saved');renderActivities();return set;
+13957: }
+13958: function saveBingoDraft(){
+13959:   const items=bingoDraft.numberedMode?bingoSlotItems().slice(0,48):[...parseBingoLines(bingoDraft.quick),...bingoCardExtras(),...bingoItemsFromSelectedImages(bingoDraft.selectedImages)].slice(0,48);
+13960:   const size=Math.max(3,Math.min(6,Number(bingoDraft.size||4))),need=size*size-(bingoDraft.free&&size%2===1?1:0);
+13961:   if(items.length<need)return toast('This card size needs at least '+need+' Bingo items');
+13962:   const set={id:'bingoset_'+Date.now().toString(36),name:String(bingoDraft.name||'Bingo Set').trim().slice(0,80)||'Bingo Set',items,size,pattern:bingoDraft.pattern||'line',free:!!bingoDraft.free,createdAt:Date.now()};
+13963:   bingoSets=[set,...bingoSets.filter(x=>x.id!==set.id)];persistGameStore(BINGO_SET_STORE,bingoSets);toast('Bingo set saved');renderActivities();return set;
+13964: }
+13965: function shuffleCopy(items,seed=''){let a=items.map(x=>deepClone(x)),h=2166136261;for(const ch of String(seed))h=(h^ch.charCodeAt(0))*16777619>>>0;for(let i=a.length-1;i>0;i--){h=(h*1664525+1013904223)>>>0;const j=h%(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+13966: 
+13967: function matchTeamMeta(i){return [{name:'Blue Crew',icon:'🔵'},{name:'Red Crew',icon:'🔴'},{name:'Gold Crew',icon:'🟡'},{name:'Green Crew',icon:'🟢'}][Number(i)||0]||{name:'Crew '+(Number(i)+1),icon:'●'}}
+13968: function matchTeamAssignments(students,count){
+13969:   const n=Math.max(2,Math.min(4,Number(count||3))),out={},source=matchLaunchSettings.teamNonce?shuffleCopy(students||[],String(matchLaunchSettings.teamNonce)):(students||[]);
+13970:   source.forEach((st,i)=>out[st.n]=i%n);return out;
+13971: }
+13972: function matchTeamMembers(team,run=state.activityRun){
+13973:   const cfg=run?.matchConfig||{},assign=cfg.teamAssignments||{};return connectedStudents().filter(st=>Number(assign[st.n])===Number(team));
+13974: }
+13975: function matchActiveTeam(run=state.activityRun){const m=matchState(run),cfg=run?.matchConfig||{};return cfg.mode==='teams'?Math.max(0,Number(m?.activeTeam||0)):null}
+13976: function matchTeamIndexForStudent(name,run=state.activityRun){const cfg=run?.matchConfig||{};return cfg.mode==='teams'?Number(cfg.teamAssignments?.[name]??-1):-1}
+13977: function matchAdvanceTurn(run=state.activityRun,{forceTeam=false}={}){
+=== function saveBingoDraft() LOCATIONS [13957] ===
+13955:   const set={id:'matchset_'+Date.now().toString(36),name:String(matchDraft.name||'MATCH Set').trim().slice(0,80)||'MATCH Set',pairs,createdAt:Date.now()};
+13956:   matchSets=[set,...matchSets.filter(x=>x.id!==set.id)];persistGameStore(MATCH_SET_STORE,matchSets);toast('MATCH set saved');renderActivities();return set;
+13957: }
+13958: function saveBingoDraft(){
+13959:   const items=bingoDraft.numberedMode?bingoSlotItems().slice(0,48):[...parseBingoLines(bingoDraft.quick),...bingoCardExtras(),...bingoItemsFromSelectedImages(bingoDraft.selectedImages)].slice(0,48);
+13960:   const size=Math.max(3,Math.min(6,Number(bingoDraft.size||4))),need=size*size-(bingoDraft.free&&size%2===1?1:0);
+13961:   if(items.length<need)return toast('This card size needs at least '+need+' Bingo items');
+13962:   const set={id:'bingoset_'+Date.now().toString(36),name:String(bingoDraft.name||'Bingo Set').trim().slice(0,80)||'Bingo Set',items,size,pattern:bingoDraft.pattern||'line',free:!!bingoDraft.free,createdAt:Date.now()};
+13963:   bingoSets=[set,...bingoSets.filter(x=>x.id!==set.id)];persistGameStore(BINGO_SET_STORE,bingoSets);toast('Bingo set saved');renderActivities();return set;
+13964: }
+13965: function shuffleCopy(items,seed=''){let a=items.map(x=>deepClone(x)),h=2166136261;for(const ch of String(seed))h=(h^ch.charCodeAt(0))*16777619>>>0;for(let i=a.length-1;i>0;i--){h=(h*1664525+1013904223)>>>0;const j=h%(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+13966: 
+13967: function matchTeamMeta(i){return [{name:'Blue Crew',icon:'🔵'},{name:'Red Crew',icon:'🔴'},{name:'Gold Crew',icon:'🟡'},{name:'Green Crew',icon:'🟢'}][Number(i)||0]||{name:'Crew '+(Number(i)+1),icon:'●'}}
+13968: function matchTeamAssignments(students,count){
+13969:   const n=Math.max(2,Math.min(4,Number(count||3))),out={},source=matchLaunchSettings.teamNonce?shuffleCopy(students||[],String(matchLaunchSettings.teamNonce)):(students||[]);
+13970:   source.forEach((st,i)=>out[st.n]=i%n);return out;
+13971: }
+13972: function matchTeamMembers(team,run=state.activityRun){
+13973:   const cfg=run?.matchConfig||{},assign=cfg.teamAssignments||{};return connectedStudents().filter(st=>Number(assign[st.n])===Number(team));
+13974: }
+13975: function matchActiveTeam(run=state.activityRun){const m=matchState(run),cfg=run?.matchConfig||{};return cfg.mode==='teams'?Math.max(0,Number(m?.activeTeam||0)):null}
+13976: function matchTeamIndexForStudent(name,run=state.activityRun){const cfg=run?.matchConfig||{};return cfg.mode==='teams'?Number(cfg.teamAssignments?.[name]??-1):-1}
+13977: function matchAdvanceTurn(run=state.activityRun,{forceTeam=false}={}){
+13978:   const m=matchState(run),cfg=run?.matchConfig||{};if(!m)return;
+13979:   if(cfg.mode!=='teams'){m.activeStudentIndex=Number(m.activeStudentIndex||0)+1;return}
+13980:   const count=Math.max(2,Math.min(4,Number(cfg.teamCount||3))),current=Math.max(0,Number(m.activeTeam||0))%count;
+13981:   m.teamPlayerIndexes=m.teamPlayerIndexes||{};
+13982:   const members=matchTeamMembers(current,run);
+13983:   if(!forceTeam&&members.length)m.teamPlayerIndexes[current]=(Number(m.teamPlayerIndexes[current]||0)+1)%members.length;
+13984:   for(let step=1;step<=count;step++){const next=(current+step)%count;if(matchTeamMembers(next,run).length){m.activeTeam=next;break}}
+13985: }
+13986: function matchConsultAggregate(run=state.activityRun){
+13987:   const m=matchState(run),suggestions=m?.consult?.suggestions||{},counts={};Object.values(suggestions).forEach(id=>{if(id)counts[id]=Number(counts[id]||0)+1});
+13988:   return Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([id,count])=>({id,count,number:(m.cards||[]).findIndex(x=>x.id===id)+1})).filter(x=>x.number>0);
+13989: }
+13990: function launchMatchSet(set){
+13991:   const students=connectedStudents();if(!students.length)return toast('Have at least one student join before launching MATCH');
+13992:   const settings=deepClone(matchLaunchSettings),teamCount=Math.max(2,Math.min(4,Number(settings.teamCount||3))),assignments=settings.mode==='teams'?matchTeamAssignments(students,teamCount):{};
+13993:   const cards=shuffleCopy((set.pairs||[]).flatMap((p,i)=>[{id:p.id+'_a',pairId:p.id,content:p.a},{id:p.id+'_b',pairId:p.id,content:p.b}]),Date.now());
+13994:   state.activityRun={activityId:'match-game',runToken:newActivityRunToken(),phase:'lobby',responses:{},matchConfig:{setId:set.id,name:set.name,pairs:deepClone(set.pairs),mode:settings.mode,teamCount,teamAssignments:assignments,turnRule:settings.turnRule,crewConsult:!!settings.crewConsult,scoring:settings.scoring||'pairs'},match:{cards,matched:[],selected:[],activeStudentIndex:0,activeTeam:0,teamPlayerIndexes:{},attempts:0,scores:{},teamScores:{},locked:false,teacherLocked:false,pauseAfterReveal:false,pendingResolution:null,turnStart:null,history:[],lastResolved:null,consult:{open:false,promptCardId:null,suggestions:{}},complete:false,message:'Board ready. Start when your crew is ready.'}};
+13995:   state.screen='activity';state.promptActive=false;state.assigningSlot=null;recordActivityLaunch('match',set.name);render();toast('MATCH loaded — students moved to Activity Lobby');
+13996: }
+13997: function launchBingoSet(set){
+13998:   const runToken=newActivityRunToken(),order=shuffleCopy(set.items||[],Date.now()).map(x=>x.id),cards={};
+13999:   connectedStudents().forEach(st=>{const size=Number(set.size||4),count=size*size,ids=shuffleCopy(set.items||[],runToken+'|'+st.n).slice(0,count).map(x=>x.id);if(set.free&&size%2===1)ids[Math.floor(count/2)]='free';cards[st.n]=ids});
+14000:   state.activityRun={activityId:'bingo-game',runToken,phase:'lobby',responses:{},bingoConfig:{setId:set.id,name:set.name,items:deepClone(set.items),size:set.size,pattern:set.pattern,free:!!set.free},bingo:{callOrder:order,called:[],current:null,cards,marks:{},claimResults:{},claims:[],reveal:null,callNonce:0,message:'Cards generated. Start when the class is ready.'}};
+14001:   state.screen='activity';state.promptActive=false;state.assigningSlot=null;recordActivityLaunch('bingo',set.name);render();toast('BINGO loaded — private cards are ready');
+14002: }
+14003: 
+14004: function matchState(run=state.activityRun){return run?.match||null}
+14005: function matchActiveStudent(run=state.activityRun){
+14006:   const m=matchState(run),cfg=run?.matchConfig||{},crew=connectedStudents();if(!m||!crew.length)return null;
+14007:   if(cfg.mode==='teams'){
+=== function launchBingoSet( LOCATIONS [13996] ===
+13994:   state.activityRun={activityId:'match-game',runToken:newActivityRunToken(),phase:'lobby',responses:{},matchConfig:{setId:set.id,name:set.name,pairs:deepClone(set.pairs),mode:settings.mode,teamCount,teamAssignments:assignments,turnRule:settings.turnRule,crewConsult:!!settings.crewConsult,scoring:settings.scoring||'pairs'},match:{cards,matched:[],selected:[],activeStudentIndex:0,activeTeam:0,teamPlayerIndexes:{},attempts:0,scores:{},teamScores:{},locked:false,teacherLocked:false,pauseAfterReveal:false,pendingResolution:null,turnStart:null,history:[],lastResolved:null,consult:{open:false,promptCardId:null,suggestions:{}},complete:false,message:'Board ready. Start when your crew is ready.'}};
+13995:   state.screen='activity';state.promptActive=false;state.assigningSlot=null;recordActivityLaunch('match',set.name);render();toast('MATCH loaded — students moved to Activity Lobby');
+13996: }
+13997: function launchBingoSet(set){
+13998:   const runToken=newActivityRunToken(),order=shuffleCopy(set.items||[],Date.now()).map(x=>x.id),cards={};
+13999:   connectedStudents().forEach(st=>{const size=Number(set.size||4),count=size*size,ids=shuffleCopy(set.items||[],runToken+'|'+st.n).slice(0,count).map(x=>x.id);if(set.free&&size%2===1)ids[Math.floor(count/2)]='free';cards[st.n]=ids});
+14000:   state.activityRun={activityId:'bingo-game',runToken,phase:'lobby',responses:{},bingoConfig:{setId:set.id,name:set.name,items:deepClone(set.items),size:set.size,pattern:set.pattern,free:!!set.free},bingo:{callOrder:order,called:[],current:null,cards,marks:{},claimResults:{},claims:[],reveal:null,callNonce:0,message:'Cards generated. Start when the class is ready.'}};
+14001:   state.screen='activity';state.promptActive=false;state.assigningSlot=null;recordActivityLaunch('bingo',set.name);render();toast('BINGO loaded — private cards are ready');
+14002: }
+14003: 
+14004: function matchState(run=state.activityRun){return run?.match||null}
+14005: function matchActiveStudent(run=state.activityRun){
+14006:   const m=matchState(run),cfg=run?.matchConfig||{},crew=connectedStudents();if(!m||!crew.length)return null;
+14007:   if(cfg.mode==='teams'){
+14008:     const team=Math.max(0,Number(m.activeTeam||0)),members=matchTeamMembers(team,run);if(!members.length)return crew[0]||null;
+14009:     const idx=Math.max(0,Number(m.teamPlayerIndexes?.[team]||0))%members.length;return members[idx]||null;
+14010:   }
+14011:   return crew[((Number(m.activeStudentIndex||0)%crew.length)+crew.length)%crew.length]||null;
+14012: }
+14013: function matchSnapshot(m){
+14014:   return {matched:deepClone(m.matched||[]),selected:deepClone(m.selected||[]),activeStudentIndex:Number(m.activeStudentIndex||0),activeTeam:Number(m.activeTeam||0),teamPlayerIndexes:deepClone(m.teamPlayerIndexes||{}),attempts:Number(m.attempts||0),scores:deepClone(m.scores||{}),teamScores:deepClone(m.teamScores||{}),locked:!!m.locked,teacherLocked:!!m.teacherLocked,pendingResolution:deepClone(m.pendingResolution),lastResolved:deepClone(m.lastResolved),consult:deepClone(m.consult||{open:false,promptCardId:null,suggestions:{}}),complete:!!m.complete,message:String(m.message||'')};
+14015: }
+14016: function applyMatchLocalAction(type,value,name){
+14017:   const run=state.activityRun,m=matchState(run);if(!run||run.activityId!=='match-game'||!m)return;
+14018:   if(type==='select'){
+14019:     const active=matchActiveStudent(run);if(!active||active.n!==name||m.locked||m.complete||m.pendingResolution)return;
+14020:     const card=(m.cards||[]).find(x=>x.id===value);if(!card||(m.matched||[]).includes(card.id)||(m.selected||[]).includes(card.id))return;
+14021:     if(!(m.selected||[]).length)m.turnStart=matchSnapshot(m);
+14022:     m.selected=[...(m.selected||[]),card.id];m.message=name+' revealed card '+((m.cards||[]).findIndex(x=>x.id===card.id)+1)+'.';
+14023:     if(m.selected.length===2){
+14024:       const picked=m.selected.map(id=>(m.cards||[]).find(x=>x.id===id)).filter(Boolean),isMatch=picked.length===2&&picked[0].pairId===picked[1].pairId;
+14025:       m.attempts=Number(m.attempts||0)+1;m.locked=true;
+14026:       m.pendingResolution={result:isMatch?'match':'miss',cards:m.selected.slice(),player:name,nonce:'mr_'+Date.now().toString(36),resolveAt:Date.now()+1300};
+14027:       if(isMatch){
+14028:         m.matched=[...new Set([...(m.matched||[]),...m.selected])];m.scores=m.scores||{};m.teamScores=m.teamScores||{};
+14029:         if(run.matchConfig?.scoring!=='no_score'){m.scores[name]=Number(m.scores[name]||0)+1;const team=matchTeamIndexForStudent(name,run);if(team>=0)m.teamScores[team]=Number(m.teamScores[team]||0)+1}
+14030:         m.message='MATCH! '+name+' found a pair.';
+14031:       }
+14032:       else m.message='No match — remember those cards.';
+=== if(state.activeApp==='bingo'){ LOCATIONS [16794] ===
+16792:     return;
+16793:   }
+16794: 
+16795:   if(state.activeApp==='bingo'){
+16796:     note.classList.add('hidden');picker.classList.add('hidden');grid.classList.remove('hidden');
+16797:     title.textContent='BINGO';subtitle.textContent='LOAD THE SET → GENERATE CARDS → CALL → MARK → VERIFY → BINGO!';header.innerHTML=`<button id="backToAppsBtn">← Activity Library</button>`;$('#backToAppsBtn').onclick=backToAppLibrary;
+16798:     const items=bingoDraft.numberedMode?bingoSlotItems():[...parseBingoLines(bingoDraft.quick),...bingoCardExtras(),...bingoItemsFromSelectedImages(bingoDraft.selectedImages)],size=Number(bingoDraft.size||4);
+16799:     const slotCount=size*size,slots=bingoDraft.numberedSlots||[],slotIndex=Math.max(0,Math.min(slotCount-1,Number(bingoDraft.editSlot||0))),slot=slots[slotIndex]||{};
+16800:     grid.innerHTML=`<div class="game-builder-shell"><div class="game-builder-card"><span class="app-status">REWARDS ARCADE</span><h3>Create Bingo Set</h3><label>SET NAME</label><input id="bingoSetName" value="${esc(bingoDraft.name)}"><label>QUICK ITEMS · call side | card side (legacy list)</label><textarea id="bingoQuickItems">${esc(bingoDraft.quick)}</textarea><div class="bingo-slot-editor"><div class="bingo-slot-heading"><h4>NUMBERED CARD ITEMS</h4><label><input type="checkbox" id="bingoNumberedMode" ${bingoDraft.numberedMode?'checked':''}> Use numbered slots</label></div><p>Click a numbered slot to assign text or a picture. A ${size}×${size} card needs ${slotCount-(bingoDraft.free&&size%2===1?1:0)} items. Student cards shuffle the items when generated.</p><div class="bingo-slot-picker" style="grid-template-columns:repeat(${size},minmax(0,1fr))">${Array.from({length:slotCount},(_,i)=>{const a=slots[i],active=i===slotIndex;return `<button type="button" class="bingo-slot-tile ${active?'active':''}" data-bingo-slot="${i}"><span>${i+1}</span>${a?.image?`<img src="${a.image}" alt="">`:a?.call?`<b>${esc(a.text||a.call)}</b>`:'<small>Empty</small>'}</button>`}).join('')}</div><div class="bingo-slot-fields"><b>Editing item ${slotIndex+1}</b><label>Called word<input id="bingoSlotCall" value="${esc(slot.call||'')}" placeholder="e.g. Penguin"></label><label>Card content<select id="bingoSlotType"><option value="text" ${!slot.image?'selected':''}>Text</option><option value="image" ${slot.image?'selected':''}>Image from library</option></select></label><label id="bingoSlotTextWrap" class="${slot.image?'hidden':''}">Text on card<input id="bingoSlotText" value="${esc(slot.text||'')}" placeholder="e.g. Penguin"></label><label id="bingoSlotImageWrap" class="${slot.image?'':'hidden'}">Picture<select id="bingoSlotImage"><option value="">Choose a picture</option>${gameImageLibrary.map(a=>`<option value="${esc(a.id)}" ${a.image===slot.image?'selected':''}>${esc(a.name)}</option>`).join('')}</select></label><div class="game-builder-actions"><button type="button" id="bingoSlotApply" class="primary">Save Item ${slotIndex+1}</button><button type="button" id="bingoSlotClear">Clear Slot</button></div></div></div><div class="bingo-card-maker"><h4>ADD A CARD ITEM</h4><p>Choose what students see on a physical Bingo square. Each call has its own text label.</p><div class="bingo-card-maker-row"><label>CALLED WORD<input id="bingoNewCall" placeholder="e.g. Penguin"></label><label>CARD CONTENT<select id="bingoNewCardType"><option value="text">Text</option><option value="image">Image from library</option></select></label></div><div id="bingoNewTextWrap"><label>TEXT ON CARD<input id="bingoNewText" placeholder="e.g. Penguin"></label></div><div id="bingoNewImageWrap" class="hidden"><label>IMAGE<select id="bingoNewImage"><option value="">Choose a saved image</option>${gameImageLibrary.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('')}</select></label></div><button id="bingoAddCardItem" type="button">＋ Add Item to Card</button><div class="bingo-added-items">${(bingoDraft.cardExtras||[]).map((a,i)=>`<div class="bingo-added-item">${a.image?`<img src="${a.image}" alt="">`:'<span>TEXT</span>'}<b>${esc(a.call)}</b><small>${esc(a.label||a.text||a.call)}</small><button type="button" data-bingo-extra-remove="${i}" aria-label="Remove card item">×</button></div>`).join('')}</div></div><div class="game-builder-row"><label>CARD SIZE<select id="bingoCardSize"><option value="3" ${size===3?'selected':''}>3 × 3</option><option value="4" ${size===4?'selected':''}>4 × 4</option><option value="5" ${size===5?'selected':''}>5 × 5</option><option value="6" ${size===6?'selected':''}>6 × 6</option></select></label><label>WIN PATTERN<select id="bingoPattern"><option value="line" ${bingoDraft.pattern==='line'?'selected':''}>Line</option><option value="corners" ${bingoDraft.pattern==='corners'?'selected':''}>Four Corners</option><option value="x" ${bingoDraft.pattern==='x'?'selected':''}>X</option><option value="blackout" ${bingoDraft.pattern==='blackout'?'selected':''}>Blackout</option></select></label></div><label><input id="bingoFreeSpace" type="checkbox" ${bingoDraft.free?'checked':''}> Free center space when card size allows</label><div class="game-builder-actions"><button id="bingoUploadBtn">＋ Upload Images</button><input id="bingoUploadInput" type="file" accept="image/*" multiple hidden><button id="bingoSelectAllImages">Use All Library Images</button><button id="bingoClearImages">Clear Image Selection</button></div><label>MOTHERSHIP IMAGE LIBRARY · ${gameImageLibrary.length} saved</label>${gameImagePickerMarkup(bingoDraft.selectedImages)}<div class="game-builder-actions"><button id="bingoSaveBtn">Save Set</button><button class="primary" id="bingoLaunchDraftBtn">▶ Save & Generate Cards</button></div></div><div><div class="foundation-preview"><span class="eyebrow">SAMPLE STUDENT CARD</span><h3>${esc(bingoDraft.name||'BINGO')}</h3><div class="foundation-preview-bingo" style="grid-template-columns:repeat(${Math.min(6,size)},1fr)">${Array.from({length:size*size},(_,i)=>`<div class="bingo-numbered-preview"><span>${i+1}</span>${contentMarkup((bingoDraft.numberedMode?(slots[i]&&slots[i].call?{type:slots[i].image?'image':'text',value:slots[i].image||slots[i].text||slots[i].call}:null):items[i]?.card))||'<small>Empty</small>'}</div>`).join('')}</div></div><div class="game-builder-card" style="margin-top:14px"><h4>Saved Bingo Sets</h4><div class="game-set-list">${bingoSets.length?bingoSets.map(s=>`<div class="game-set-item"><div><b>${esc(s.name)}</b><small>${s.size}×${s.size} · ${s.items?.length||0} items · ${esc(s.pattern||'line')}</small></div><button data-bingo-launch="${s.id}">Launch</button><button data-bingo-delete="${s.id}">×</button></div>`).join(''):'<div class="game-library-empty">No saved Bingo sets yet.</div>'}</div></div></div></div>`;
+16801:     $('#bingoSetName').oninput=e=>bingoDraft.name=e.target.value;$('#bingoQuickItems').oninput=e=>bingoDraft.quick=e.target.value;$('#bingoCardSize').onchange=e=>{bingoDraft.size=Number(e.target.value);renderActivities()};$('#bingoPattern').onchange=e=>bingoDraft.pattern=e.target.value;$('#bingoFreeSpace').onchange=e=>bingoDraft.free=e.target.checked;
+16802:     $('#bingoUploadBtn').onclick=()=>$('#bingoUploadInput').click();$('#bingoUploadInput').onchange=e=>importGameImages(e.target.files);
+16803:     $$('[data-game-image]').forEach(b=>b.onclick=()=>{const id=b.dataset.gameImage,arr=new Set(bingoDraft.selectedImages||[]);arr.has(id)?arr.delete(id):arr.add(id);bingoDraft.selectedImages=[...arr];renderActivities()});
+16804:     wireGameLibraryRemoveButtons();
+16805:     $('#bingoNumberedMode').onchange=e=>{bingoDraft.numberedMode=e.target.checked;renderActivities()};
+16806:     $$('[data-bingo-slot]').forEach(b=>b.onclick=()=>{bingoDraft.editSlot=Number(b.dataset.bingoSlot);bingoDraft.numberedMode=true;renderActivities()});
+16807:     $('#bingoSlotType').onchange=e=>{
+16808:       $('#bingoSlotTextWrap').classList.toggle('hidden',e.target.value==='image');
+16809:       $('#bingoSlotImageWrap').classList.toggle('hidden',e.target.value!=='image');
+16810:     };
+16811:     $('#bingoSlotApply').onclick=()=>{
+16812:       const call=$('#bingoSlotCall').value.trim().slice(0,100);
+16813:       if(!call)return toast('Enter a called word first');
+16814:       const isImage=$('#bingoSlotType').value==='image';
+16815:       const asset=isImage?gameImageLibrary.find(a=>a.id===$('#bingoSlotImage').value):null;
+16816:       if(isImage&&!asset)return toast('Select a picture first');
+16817:       const textValue=$('#bingoSlotText').value.trim().slice(0,100)||call;
+16818:       const index=Number(bingoDraft.editSlot||0),arr=[...(bingoDraft.numberedSlots||[])];
+16819:       arr[index]={slot:index+1,call,text:isImage?'':textValue,image:asset?asset.image:'',label:asset?asset.name:''};
+16820:       bingoDraft.numberedSlots=arr;bingoDraft.numberedMode=true;
+16821:       bingoDraft.editSlot=Math.min(size*size-1,index+1);renderActivities();
+16822:     };
+16823:     $('#bingoSlotClear').onclick=()=>{
+16824:       const arr=[...(bingoDraft.numberedSlots||[])];
+16825:       delete arr[Number(bingoDraft.editSlot||0)];bingoDraft.numberedSlots=arr;renderActivities();
+16826:     };
+16827:     $('#bingoNewCardType').onchange=e=>{
+16828:       $('#bingoNewImageWrap').classList.toggle('hidden',e.target.value!=='image');
+16829:       $('#bingoNewTextWrap').classList.toggle('hidden',e.target.value==='image');
+16830:     };
+16831:     $('#bingoAddCardItem').onclick=()=>{
+16832:       const call=$('#bingoNewCall').value.trim().slice(0,100);
+16833:       if(!call)return toast('Enter a called word first');
+16834:       const isImage=$('#bingoNewCardType').value==='image';
+16835:       const asset=isImage?gameImageLibrary.find(a=>a.id===$('#bingoNewImage').value):null;
+16836:       if(isImage&&!asset)return toast('Choose an image from the library');
+16837:       const textValue=$('#bingoNewText').value.trim().slice(0,100)||call;
+16838:       const entry={call,text:isImage?'':textValue,image:isImage?asset.image:'',label:isImage?asset.name:''};
+16839:       bingoDraft.cardExtras=[...(bingoDraft.cardExtras||[]),entry].slice(0,48);
+16840:       renderActivities();
+16841:     };
+16842:     $$('[data-bingo-extra-remove]').forEach(b=>b.onclick=()=>{
+16843:       bingoDraft.cardExtras=(bingoDraft.cardExtras||[]).filter((_,i)=>i!==Number(b.dataset.bingoExtraRemove));
+16844:       renderActivities();
+16845:     });
+16846:     $('#bingoSelectAllImages').onclick=()=>{bingoDraft.selectedImages=gameImageLibrary.map(x=>x.id);renderActivities()};$('#bingoClearImages').onclick=()=>{bingoDraft.selectedImages=[];renderActivities()};
+16847:     $('#bingoSaveBtn').onclick=saveBingoDraft;$('#bingoLaunchDraftBtn').onclick=()=>{const s=saveBingoDraft();if(s)launchBingoSet(s)};
+16848:     $$('[data-bingo-launch]').forEach(b=>b.onclick=()=>{const s=bingoSets.find(x=>x.id===b.dataset.bingoLaunch);if(s)launchBingoSet(s)});
+16849:     $$('[data-bingo-delete]').forEach(b=>b.onclick=()=>{bingoSets=bingoSets.filter(x=>x.id!==b.dataset.bingoDelete);persistGameStore(BINGO_SET_STORE,bingoSets);renderActivities()});
+16850:     return;
+16851:   }
+16852: 
+=== function importGameImages( LOCATIONS [13888] ===
+13886: function newGameAssetId(){return 'img_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)}
+13887: function gameImageName(file){return String(file?.name||'Image').replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim().slice(0,60)||'Image'}
+13888: function normalizeGameImage(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=()=>reject(new Error('read'));r.onload=()=>{const img=new Image();img.onerror=()=>reject(new Error('image'));img.onload=()=>{const size=640,canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');canvas.width=size;canvas.height=size;ctx.fillStyle='#f7f7ef';ctx.fillRect(0,0,size,size);const scale=Math.min((size-40)/img.width,(size-40)/img.height),w=img.width*scale,h=img.height*scale;ctx.drawImage(img,(size-w)/2,(size-h)/2,w,h);let data='';try{data=canvas.toDataURL('image/webp',.82)}catch(e){data=canvas.toDataURL('image/jpeg',.86)}resolve(data)};img.src=String(r.result)};r.readAsDataURL(file)})}
+13889: async function importGameImages(files){
+13890:   const list=Array.from(files||[]).filter(f=>String(f.type||'').startsWith('image/')).slice(0,36);if(!list.length)return;
+13891:   const added=[];
+13892:   for(const file of list){try{added.push({id:newGameAssetId(),name:gameImageName(file),image:await normalizeGameImage(file),collection:'Custom',createdAt:Date.now()})}catch(e){}}
+13893:   if(!added.length)return toast('Could not import those images');
+13894:   gameImageLibrary=[...gameImageLibrary,...added];persistGameStore(GAME_IMAGE_LIBRARY_STORE,gameImageLibrary);toast(added.length+' image'+(added.length===1?'':'s')+' added to Mothership Image Library');renderActivities();
+13895: }
+13896: function parsePairLines(text){
+13897:   return String(text||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map((line,i)=>{
+13898:     const p=line.split('|');const a=String(p[0]||'').trim(),b=String(p.slice(1).join('|')||p[0]||'').trim();
+13899:     return a&&b?{id:'pair_'+i+'_'+Date.now().toString(36),a:{type:'text',value:a},b:{type:'text',value:b}}:null;
+13900:   }).filter(Boolean).slice(0,24);
+13901: }
+13902: function parseBingoLines(text){
+13903:   return String(text||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map((line,i)=>{
+13904:     const p=line.split('|');const call=String(p[0]||'').trim(),card=String(p.slice(1).join('|')||p[0]||'').trim();
+13905:     return call&&card?{id:'item_'+i+'_'+Date.now().toString(36),call:{type:'text',value:call},card:{type:'text',value:card}}:null;
+13906:   }).filter(Boolean).slice(0,48);
+13907: }
+13908: function contentMarkup(side){
+13909:   if(!side)return '';
+13910:   if(side.type==='image')return '<img src="'+esc(side.value)+'" alt="'+esc(side.label||'Game image')+'">';
+13911:   return '<span>'+esc(side.value||'')+'</span>';
+13912: }
+13913: function removeGameLibraryImage(id){
+13914:   const asset=gameImageLibrary.find(a=>a.id===id);
+13915:   if(!asset||!confirm('Remove "'+asset.name+'" from the image library? Existing saved game sets keep their pictures.'))return;
+13916:   const next=gameImageLibrary.filter(a=>a.id!==id);
+13917:   if(!persistGameStore(GAME_IMAGE_LIBRARY_STORE,next))return;
+13918:   gameImageLibrary=next;
+13919:   matchDraft.selectedImages=(matchDraft.selectedImages||[]).filter(x=>x!==id);
+13920:   bingoDraft.selectedImages=(bingoDraft.selectedImages||[]).filter(x=>x!==id);
+13921:   renderActivities();
+13922: }
+13923: function wireGameLibraryRemoveButtons(){
+13924:   $$('[data-game-image-remove]').forEach(b=>b.onclick=e=>{
+=== function parseBingoLines( LOCATIONS [13901] ===
+13899:     return a&&b?{id:'pair_'+i+'_'+Date.now().toString(36),a:{type:'text',value:a},b:{type:'text',value:b}}:null;
+13900:   }).filter(Boolean).slice(0,24);
+13901: }
+13902: function parseBingoLines(text){
+13903:   return String(text||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map((line,i)=>{
+13904:     const p=line.split('|');const call=String(p[0]||'').trim(),card=String(p.slice(1).join('|')||p[0]||'').trim();
+13905:     return call&&card?{id:'item_'+i+'_'+Date.now().toString(36),call:{type:'text',value:call},card:{type:'text',value:card}}:null;
+13906:   }).filter(Boolean).slice(0,48);
+13907: }
+13908: function contentMarkup(side){
+13909:   if(!side)return '';
+13910:   if(side.type==='image')return '<img src="'+esc(side.value)+'" alt="'+esc(side.label||'Game image')+'">';
+13911:   return '<span>'+esc(side.value||'')+'</span>';
+13912: }
+13913: function removeGameLibraryImage(id){
+13914:   const asset=gameImageLibrary.find(a=>a.id===id);
+13915:   if(!asset||!confirm('Remove "'+asset.name+'" from the image library? Existing saved game sets keep their pictures.'))return;
+13916:   const next=gameImageLibrary.filter(a=>a.id!==id);
+13917:   if(!persistGameStore(GAME_IMAGE_LIBRARY_STORE,next))return;
+13918:   gameImageLibrary=next;
+13919:   matchDraft.selectedImages=(matchDraft.selectedImages||[]).filter(x=>x!==id);
+13920:   bingoDraft.selectedImages=(bingoDraft.selectedImages||[]).filter(x=>x!==id);
+13921:   renderActivities();
+13922: }
+13923: function wireGameLibraryRemoveButtons(){
+13924:   $$('[data-game-image-remove]').forEach(b=>b.onclick=e=>{
+13925:     e.preventDefault();e.stopPropagation();removeGameLibraryImage(b.dataset.gameImageRemove);
+13926:   });
+13927: }
+13928: function bingoSlotItems(){
+13929:   return (bingoDraft.numberedSlots||[]).filter(a=>a&&a.call).map(a=>({
+13930:     id:'bingo_slot_'+a.slot,
+13931:     call:{type:'text',value:a.call},
+13932:     card:a.image?{type:'image',value:a.image,label:a.label||a.call}:{type:'text',value:a.text||a.call}
+13933:   }));
+13934: }
+13935: function bingoCardExtras(){
+13936:   return (bingoDraft.cardExtras||[]).map((a,i)=>({
+13937:     id:'custom_card_'+i,
