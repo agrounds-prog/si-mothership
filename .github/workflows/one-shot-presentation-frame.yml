@@ -1,0 +1,57 @@
+name: One-shot cinematic presentation frame
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-presentation-frame.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Guarded presentation CSS patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html')
+          raw=p.read_bytes()
+          digest=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+          assert digest=='d93a7e33a13473724f45df35b26f422ca08ec80d',f'Stale source {digest}'
+          assert 1300000<len(raw)<1400000
+          s=raw.decode('utf-8')
+          marker='id="v61-cinematic-presentation-frame"'
+          assert marker not in s
+          assert 'id="v60-cinematic-mission-shell"' in s
+          for selector in ('.screen-dock','.screen-dock-head','.mirror-screen','.launch-screen-btn'):
+            assert selector in s,selector
+          css='''<style id="v61-cinematic-presentation-frame">
+          /* Presentation console enhancement: decorative only; preserve shared-screen sizing rules and interactions. */
+          #teacher .screen-dock{position:relative!important;isolation:isolate!important;border-color:rgba(67,194,255,.8)!important;box-shadow:0 0 0 1px rgba(32,127,209,.24),0 18px 39px rgba(0,0,0,.39),0 0 30px rgba(0,125,231,.11),inset 0 1px rgba(198,241,255,.15)!important}
+          #teacher .screen-dock::before{content:"";pointer-events:none;position:absolute;inset:0 0 auto;height:3px;z-index:1;background:linear-gradient(90deg,transparent,#2bc8ff 29%,#bbf4ff 50%,#2bc8ff 71%,transparent);opacity:.75}
+          #teacher .screen-dock .screen-dock-head{min-height:52px!important;padding:12px 16px!important;background:linear-gradient(95deg,rgba(13,63,110,.76),rgba(3,18,38,.82))!important}
+          #teacher .screen-dock .screen-dock-title{color:#e9f7ff!important;font-size:14px!important;font-weight:800!important;letter-spacing:.025em!important;text-shadow:0 0 12px rgba(78,186,255,.24)}
+          #teacher .screen-dock .mirror-screen{position:relative!important;border:2px solid rgba(65,178,252,.64)!important;border-radius:15px!important;box-shadow:0 0 0 4px rgba(9,53,91,.68),0 0 22px rgba(32,148,236,.19),inset 0 0 32px rgba(7,59,106,.21)!important;overflow:hidden!important}
+          #teacher .screen-dock .launch-screen-btn{min-height:38px!important;border:1px solid rgba(83,199,255,.45)!important;border-radius:10px!important;box-shadow:inset 0 1px rgba(231,249,255,.13),0 0 12px rgba(15,131,227,.12)!important}
+          #teacher .screen-dock .launch-screen-btn:hover{filter:brightness(1.13)}
+          @media(max-width:760px){#teacher .screen-dock .screen-dock-head{padding:10px 12px!important}#teacher .screen-dock .screen-dock-title{font-size:12px!important}#teacher .screen-dock .mirror-screen{border-width:1px!important;box-shadow:0 0 0 2px rgba(9,53,91,.7)!important}}
+          </style>
+          '''
+          pos=s.index('</head>')
+          s=s[:pos]+css+s[pos:]
+          assert s.count(marker)==1 and s.index(marker)<s.index('</head>')
+          p.write_text(s,encoding='utf-8')
+          new=p.read_bytes()
+          print('INTEGRITY_OK',digest,'NEW_BLOB',hashlib.sha1(b'blob '+str(len(new)).encode()+b'\0'+new).hexdigest(),'BYTES',len(new))
+          PY
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Enhance cinematic Shared Screen presentation frame"
+          git push
