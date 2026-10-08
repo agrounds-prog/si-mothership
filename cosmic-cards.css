@@ -735,7 +735,7 @@
   width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;
   border-radius:0!important;margin:0!important;padding:clamp(8px,1.3vw,21px)!important;
   display:grid!important;align-items:stretch;justify-items:stretch;
-  grid-template-rows:auto auto auto minmax(0,1fr) auto auto;
+  grid-template-rows:auto auto auto minmax(0,1fr) auto minmax(88px,max-content) auto;
   gap:clamp(2px,.55vh,8px);
 }
 #shared .cc-presentation .cc-scene-shared{height:81%;opacity:.94}
