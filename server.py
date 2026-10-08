@@ -4920,7 +4920,7 @@ async def cosmic_cards_style(request: web.Request) -> web.Response:
 
 async def cosmic_cards_artwork(request: web.Request) -> web.Response:
     """Only serve the two bundled Cosmic Cards illustration assets."""
-    name = request.match_info.get("asset", "")
+    name = request.path.lstrip("/")
     if name not in ("cosmic-cc-emblem.svg", "cosmic-cards-app.svg"):
         raise web.HTTPNotFound()
     return web.FileResponse(ROOT / name, headers={"Cache-Control": "public, max-age=86400"})
@@ -5806,7 +5806,8 @@ def create_app() -> web.Application:
     app.router.add_get("/index.html", index)
     app.router.add_get("/cosmic-cards.js", cosmic_cards_script)
     app.router.add_get("/cosmic-cards.css", cosmic_cards_style)
-    app.router.add_get("/{asset:cosmic-cc-emblem\\.svg|cosmic-cards-app\\.svg}", cosmic_cards_artwork)
+    app.router.add_get("/cosmic-cc-emblem.svg", cosmic_cards_artwork)
+    app.router.add_get("/cosmic-cards-app.svg", cosmic_cards_artwork)
     app.router.add_get("/tools/scientific-calculator", scientific_calculator)
     app.router.add_get("/tools/scientific-calculator/", scientific_calculator)
     app.router.add_get("/tools/scientific-calculator/engine.js", scientific_calculator_engine)
