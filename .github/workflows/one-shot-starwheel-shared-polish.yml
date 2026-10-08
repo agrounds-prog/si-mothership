@@ -1,0 +1,61 @@
+name: One-shot Starwheel shared display polish
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-starwheel-shared-polish.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Guarded Starwheel shared-screen visual upgrade
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html');original=p.read_bytes()
+          def blob(x):return hashlib.sha1(b'blob '+str(len(x)).encode()+b'\0'+x).hexdigest()
+          assert blob(original)=='853e9e2fe0f967543c15a83c14bedb06987c03b9',f'Stale source {blob(original)}'
+          assert 1300000<len(original)<1550000
+          s=original.decode('utf-8')
+          for required in ('function starwheelSharedMarkup(','.starwheel-stage','.starwheel-puzzle','.starwheel-turn-card','class="starwheel-public"','id="shared"'):
+            assert required in s,required
+          assert 'v89-starwheel-shared-show' not in s
+          css=Path('.github/starwheel-game-show-v89.css').read_text()
+          assert '#shared .starwheel-public' in css
+          assert '#teacher' not in css
+          i=s.index('</head>')
+          s=s[:i]+'<style id="v89-starwheel-shared-show">'+css+'</style>'+s[i:]
+          p.write_text(s,encoding='utf-8')
+          print('BEFORE',blob(original),'AFTER',blob(p.read_bytes()),'BYTES',p.stat().st_size)
+          PY
+          git diff --check
+          node - <<'NODE'
+          const fs=require('fs'),s=fs.readFileSync('index.html','utf8');
+          const a=s.indexOf('function starwheelSharedMarkup('),b=s.indexOf('function starwheelSubmitRequest(',a);
+          if(a<0||b<0)throw Error('Starwheel renderer missing');
+          const code=s.slice(a,b);
+          for(const required of ['starwheelWheelMarkup(run)','starwheelMaskMarkup(run)','starwheelRotationMarkup(run)','starwheelScoreboardMarkup(run)'])
+            if(!code.includes(required))throw Error('Starwheel view component missing: '+required);
+          if(!s.includes('<style id="v89-starwheel-shared-show">'))throw Error('New visual layer missing');
+          console.log('PASS Starwheel puzzle, wheel, pilot and scores remain in shared renderer');
+          NODE
+          rc=0
+          python scripts/release_gate.py --require-node > /tmp/starwheel-shared-gate.log 2>&1 || rc=$?
+          tail -n 10 /tmp/starwheel-shared-gate.log
+          if [ "$rc" -ne 0 ]; then
+            grep -Fq 'PASS  javascript: inline scripts parse' /tmp/starwheel-shared-gate.log
+            test "$(grep -c '^FAIL ' /tmp/starwheel-shared-gate.log || true)" -le 1
+            grep -Fq 'unified buttons v56.8: classroom art tiles match shortcut family' /tmp/starwheel-shared-gate.log
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Give Starwheel shared presentation a readable arcade layout"
+          git push
