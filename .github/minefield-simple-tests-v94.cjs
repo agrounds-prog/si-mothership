@@ -39,7 +39,7 @@ function fixture(run,silent=false){
     'minefieldOverallStatus','connectedStudents','minefieldEvent','render','toast','resolveMinefieldMoveLegacy',
     core+';return resolveMinefieldMove');
   const fn=get(state,()=>run.mf,()=>run.minefieldMode||'crew',(r,teamIndex)=>{
-      return r.minefieldMode==='teams'?r.mfTeams[Number(teamIndex??r.activeTeam||0)]:r.mf;
+      return r.minefieldMode==='teams'?r.mfTeams[Number(teamIndex??r.activeTeam??0)]:r.mf;
     },(run,r,c,mf)=>mf.board[r]?.[c],(r,c)=>String.fromCharCode(65+c)+(r+1),
     ()=>people[run.mf.navigatorIndex%people.length],(mf)=>{
       const safe=mf.board.flat().filter(t=>t.type!=='mine');
