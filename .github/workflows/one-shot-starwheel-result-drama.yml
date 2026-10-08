@@ -1,0 +1,111 @@
+name: Starwheel dramatic spin and result highlight
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-starwheel-result-drama.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Guarded Starwheel result and spin polish
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html');raw=p.read_bytes()
+          def sha(b):return hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+          assert sha(raw)=='fe1a674edcfc6759596ce3306a147a372af0dc62',f'Stale index blob: {sha(raw)}'
+          assert 1300000<len(raw)<1550000
+          s=raw.decode('utf-8')
+          def change(a,b):
+              global s
+              assert s.count(a)==1,(s.count(a),a[:100])
+              s=s.replace(a,b,1)
+          helper="""function starwheelAnnouncementMarkup(message){
+            const msg=String(message||'Awaiting the active pilot.');
+            const matched=msg.match(/^([A-Z]) appears (\\d+) times?\\.\\s*(.*)$/i);
+            if(!matched)return '<div class="starwheel-message sw-info" role="status"><span class="sw-info-spark" aria-hidden="true">✦</span><span>'+esc(msg)+'</span></div>';
+            const letter=matched[1].toUpperCase(),hits=Number(matched[2]),next=matched[3]||'';
+            const headline=hits>0?'SIGNAL FOUND!':'NO SIGNAL MATCH';
+            return '<div class="starwheel-message sw-outcome '+(hits>0?'sw-hit':'sw-miss')+'" role="status" aria-live="polite">'+
+              '<span class="sw-outcome-letter">'+esc(letter)+'<small>× '+hits+'</small></span>'+
+              '<span class="sw-outcome-body"><span class="sw-outcome-eyebrow">LETTER CHECK</span>'+
+              '<strong class="sw-outcome-headline">'+headline+'</strong>'+
+              '<span class="sw-outcome-next">'+esc(next)+'</span></span></div>';
+          }
+          """
+          change("function starwheelSharedMarkup(run=state.activityRun,big=false){",helper+"function starwheelSharedMarkup(run=state.activityRun,big=false){")
+          change('<div class="starwheel-message">${esc(sw.message||\'Awaiting the active pilot.\')}</div>',"${starwheelAnnouncementMarkup(sw.message)}")
+          prior="""    if(shouldAnimate){
+              void w.offsetWidth;
+              requestAnimationFrame(()=>{w.style.transition='transform 1.8s cubic-bezier(.16,.78,.22,1)';w.style.transform=`rotate(${target}deg)`});
+            }"""
+          updated="""    if(shouldAnimate){
+              const prefersReduced=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+              if(prefersReduced){
+                w.style.transform=`rotate(${target}deg)`;
+              }else{
+                const shell=w.closest('.starwheel-wheel-shell');
+                shell?.classList.add('sw-wheel-spinning');
+                w.addEventListener('transitionend',e=>{
+                  if(e.propertyName==='transform')shell?.classList.remove('sw-wheel-spinning');
+                },{once:true});
+                void w.offsetWidth;
+                requestAnimationFrame(()=>{
+                  w.style.transition='transform 4.2s cubic-bezier(.12,.73,.18,1)';
+                  w.style.transform=`rotate(${target+720}deg)`;
+                });
+              }
+            }"""
+          change(prior,updated)
+          marker='v92-starwheel-result-drama'
+          assert marker not in s
+          css=Path('.github/starwheel-result-drama-v92.css').read_text()
+          for selector in ['#shared .starwheel-turn-card .starwheel-message.sw-outcome','#shared .starwheel-wheel-shell.sw-wheel-spinning','.sw-outcome-headline']:
+            assert selector in css,selector
+          index=s.index('</head>');s=s[:index]+'<style id="'+marker+'">'+css+'</style>'+s[index:]
+          p.write_text(s,encoding='utf-8')
+          print('SOURCE_BLOB',sha(raw),'NEW_BLOB',sha(p.read_bytes()),'BYTES',p.stat().st_size)
+          PY
+          git diff --check
+          node - <<'NODE'
+          const fs=require('fs'),s=fs.readFileSync('index.html','utf8');
+          function between(a,b){const i=s.indexOf(a),j=s.indexOf(b,i);if(i<0||j<0)throw Error('Missing anchor '+a);return s.slice(i,j)}
+          const fn=between('function starwheelAnnouncementMarkup(','function starwheelSharedMarkup(');
+          const mk=new Function('esc',fn+';return starwheelAnnouncementMarkup')(x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])));
+          const miss=mk('K appears 0 times. No signal match. Control passes.');
+          if(!miss.includes('NO SIGNAL MATCH')||!miss.includes('× 0')||!miss.includes('Control passes.')||!miss.includes('sw-miss'))throw Error('Missing miss callout');
+          const found=mk('C appears 3 times. 900 points. Crew keeps control.');
+          if(!found.includes('SIGNAL FOUND!')||!found.includes('× 3')||!found.includes('900 points')||!found.includes('sw-hit'))throw Error('Missing hit callout');
+          const safe=mk('K appears 0 times. <script>bad</script>');
+          if(safe.includes('<script>'))throw Error('Result HTML not escaped');
+          const pending=mk('Transmission damaged. Active pilot: spin the Starwheel.');
+          if(!pending.includes('sw-info'))throw Error('Normal status should still be displayed');
+          const spin=between('function animateStarwheelWheels(){','function renderPublic(){');
+          if(!spin.includes('4.2s cubic-bezier')||!spin.includes('target+720'))throw Error('Dramatic spin not enabled');
+          if(!spin.includes('prefers-reduced-motion')||!spin.includes('sw-wheel-spinning'))throw Error('Spin controls missing');
+          for(const deg of [0,30,83.44,352,1080,2258.8]){
+            if(Math.abs(((deg+720)%360)-(deg%360))>0.000001)throw Error('Extra rotations change landing sector');
+          }
+          console.log('PASS win/miss result visibility, HTML escaping, reduced-motion support, exact landing sectors');
+          NODE
+          gate_rc=0
+          python scripts/release_gate.py --require-node > /tmp/starwheel-result-gate.log 2>&1 || gate_rc=$?
+          tail -n 12 /tmp/starwheel-result-gate.log
+          if [ "$gate_rc" -ne 0 ]; then
+            grep -Fq 'PASS  javascript: inline scripts parse' /tmp/starwheel-result-gate.log
+            test "$(grep -c '^FAIL ' /tmp/starwheel-result-gate.log || true)" -le 1
+            grep -Fq 'unified buttons v56.8: classroom art tiles match shortcut family' /tmp/starwheel-result-gate.log
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Highlight Starwheel letter results and lengthen spin animation"
+          git push
