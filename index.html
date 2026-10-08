@@ -12901,6 +12901,42 @@ body.role-student .agenda-live-footer{
   #teacher #activitiesPanel .favorite-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
   #teacher #activitiesPanel .activity-grid{grid-template-columns:repeat(auto-fit,minmax(155px,1fr))!important}
 }
+</style><style id="v72-activities-separation">
+/* Single activity library; shortcut editor appears only when requested. */
+#teacher #activitiesPanel.activity-library-view #activityGrid{
+  display:block!important;width:100%!important;max-width:none!important;min-width:0!important;
+  overflow:visible!important;
+}
+#teacher #activitiesPanel.activity-library-view .activity-library-toolbar,
+#teacher #activitiesPanel.activity-library-view .activity-library-shelves,
+#teacher #activitiesPanel.activity-library-view .activity-catalog{
+  width:100%!important;max-width:none!important;min-width:0!important;
+  grid-column:1/-1!important;
+}
+#teacher #activitiesPanel.activity-library-view .activity-library-shelves{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  align-items:start!important;gap:12px!important;margin:12px 0!important;
+}
+#teacher #activitiesPanel.activity-library-view .recent-shelf,
+#teacher #activitiesPanel.activity-library-view .saved-shelf{
+  min-width:0!important;max-width:none!important;width:auto!important;
+}
+#teacher #activitiesPanel.activity-library-view .activity-catalog-grid{
+  display:grid!important;grid-template-columns:repeat(auto-fit,minmax(205px,1fr))!important;
+  gap:12px!important;width:100%!important;min-width:0!important;max-width:none!important;
+}
+#teacher #activitiesPanel.activity-library-view .activity-catalog-grid .real-app-card{
+  min-width:0!important;max-width:none!important;width:auto!important;
+}
+#teacher #activitiesPanel.activity-library-view #favoriteAppsWrap.hidden{display:none!important}
+#teacher #activitiesPanel #toggleShortcutManagerBtn{
+  padding:10px 15px;border:1px solid #4ca9d8;border-radius:9px;
+  background:#173e5b;color:#e7f6ff;cursor:pointer;font-weight:800;
+}
+@media(max-width:750px){
+  #teacher #activitiesPanel.activity-library-view .activity-library-shelves{grid-template-columns:1fr!important}
+  #teacher #activitiesPanel.activity-library-view .activity-catalog-grid{grid-template-columns:repeat(auto-fit,minmax(155px,1fr))!important}
+}
 </style></head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -16046,6 +16082,7 @@ function renderHomeAppShortcuts(){
   });
 }
 
+let activityShortcutManagerOpen=false;
 function renderActivities(){
   const grid=$('#activityGrid'),fav=$('#favoriteGrid'),note=$('#assignNote'),picker=$('#savedPresentationPicker'),wrap=$('#favoriteAppsWrap'),title=$('#activitiesTitle'),subtitle=$('#activitiesSubtitle'),header=$('#activitiesHeaderActions');
   if(!grid||!fav||!picker||!wrap||!title||!subtitle||!header)return;
@@ -16259,13 +16296,14 @@ function renderActivities(){
 
   picker.classList.add('hidden');grid.classList.remove('hidden');
   title.textContent='Activity Library';
-  subtitle.textContent='Find what you need quickly, reopen recent work, or customize the nine Mission Control shortcuts.';
-  header.innerHTML=state.assigningSlot!==null?`<button id="cancelAssignBtn">Cancel shortcut assignment</button>`:'';
+  subtitle.textContent='Browse every available app, reopen recent work, and load saved setups.';
+  header.innerHTML=state.assigningSlot!==null?`<button id="cancelAssignBtn">Cancel shortcut assignment</button>`:`<button type="button" id="toggleShortcutManagerBtn">${activityShortcutManagerOpen?'← Back to Library':'⚙ Manage Shortcuts'}</button>`;
+  const shortcutToggle=$('#toggleShortcutManagerBtn');if(shortcutToggle)shortcutToggle.onclick=()=>{activityShortcutManagerOpen=!activityShortcutManagerOpen;renderActivities()};
   const cancel=$('#cancelAssignBtn');if(cancel)cancel.onclick=()=>{state.assigningSlot=null;render()};
 
   while(state.favoriteSlots.length<9)state.favoriteSlots.push(null);
   if(state.favoriteSlots.length>9)state.favoriteSlots=state.favoriteSlots.slice(0,9);
-  wrap.classList.remove('hidden');
+  wrap.classList.toggle('hidden',!activityShortcutManagerOpen && state.assigningSlot===null);
   wrap.classList.add('shortcut-manager');
   fav.innerHTML=state.favoriteSlots.map((id,i)=>{
     const app=appById(id),active=state.assigningSlot===i;
@@ -16318,6 +16356,7 @@ function renderActivities(){
   const catalog=`<section class="activity-catalog"><div class="activity-catalog-head"><div><span class="library-kicker">FULL LIBRARY</span><h3>Activities</h3></div><span>Showing ${visibleApps.length} of ${APP_REGISTRY.length}</span></div><div class="activity-catalog-grid">${catalogCards||`<div class="activity-library-empty"><b>No activities found</b><span>Try another search or choose a different category.</span><button id="resetActivityLibraryFilters" type="button">Show all activities</button></div>`}</div></section>`;
 
   grid.innerHTML=toolbar+`<div class="activity-library-shelves">${recentSection}${presetSection}</div>`+catalog;
+  $('#activitiesPanel').classList.add('activity-library-view');
 
   const search=$('#activityLibrarySearch');
   if(search)search.oninput=e=>{
