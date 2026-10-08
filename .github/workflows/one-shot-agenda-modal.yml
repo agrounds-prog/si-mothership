@@ -19,6 +19,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          exec > >(tee agenda-modal-diagnostic.log) 2>&1
           python - <<'PY'
           from pathlib import Path
           import hashlib
@@ -87,3 +88,16 @@ jobs:
           git add index.html
           git commit -m "Open Agenda as compact modal over Mission Control"
           git push
+      - name: Record failure
+        if: failure()
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -f agenda-modal-diagnostic.log ]; then
+            mkdir -p .github/diagnostics
+            cp agenda-modal-diagnostic.log .github/diagnostics/agenda-modal-check.log
+            git add .github/diagnostics/agenda-modal-check.log
+            git commit -m "Record Agenda modal validation failure" || true
+            git push || true
+          fi
