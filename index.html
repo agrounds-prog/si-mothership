@@ -12643,6 +12643,34 @@ body.role-student .agenda-live-footer{
 #teacher .screen-dock .launch-screen-btn:hover{filter:brightness(1.13)}
 @media(max-width:760px){#teacher .screen-dock .screen-dock-head{padding:10px 12px!important}#teacher .screen-dock .screen-dock-title{font-size:12px!important}#teacher .screen-dock .mirror-screen{border-width:1px!important;box-shadow:0 0 0 2px rgba(9,53,91,.7)!important}}
 </style>
+<style id="v62-expanded-teacher-display">
+/* Expand the teacher preview without cropping slide content or altering mirrored interactions. */
+#teacher .screen-dock .mirror-screen{
+  width:min(100%,620px)!important;
+  max-width:100%!important;
+  height:auto!important;
+  aspect-ratio:4/3!important;
+  margin:0 auto!important;
+}
+#teacher .screen-dock .mirror-content{
+  min-width:0!important;
+  min-height:0!important;
+}
+#teacher .screen-dock .mirror-content img,
+#teacher .screen-dock .presentation-media-stack img,
+#teacher .screen-dock .question-visual{
+  object-fit:contain!important;
+}
+#teacher .screen-dock .launch-screen-btn{
+  max-width:620px!important;
+  display:block!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+@media(max-width:760px){
+  #teacher .screen-dock .mirror-screen{width:100%!important;max-width:460px!important}
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
