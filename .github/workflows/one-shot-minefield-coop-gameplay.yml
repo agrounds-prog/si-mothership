@@ -1,4 +1,4 @@
-name: One-shot cooperative Minefield gameplay
+name: One-shot cooperative Minefield gameplay corrected
 on:
   push:
     branches: [main]
