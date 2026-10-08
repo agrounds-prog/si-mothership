@@ -203,7 +203,7 @@ function cosmicStudentMarkup(s){
   if(!g)return '';
   if(!g.players.includes(name)){
     return '<div class="cc-device cc-spectator"><span class="eyebrow">COSMIC CARDS · AUDIENCE</span>'+
-      '<h2>You're in the audience!</h2><p>Watch the game on the shared screen. Your classmates are playing this round.</p>'+
+      '<h2>You are in the audience!</h2><p>Watch the game on the shared screen. Your classmates are playing this round.</p>'+
       '<div class="cc-spectator-info">'+esc(cosmicPlayer()||'—')+' is playing · '+g.players.length+' players</div></div>';
   }
   const hand=g.hands[name]||[],mine=cosmicPlayer()===name&&g.status==='playing';
