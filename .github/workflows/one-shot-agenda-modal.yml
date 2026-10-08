@@ -1,0 +1,89 @@
+name: One-shot Agenda modal layout
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-agenda-modal.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Guarded Agenda overlay update
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html');raw=p.read_bytes()
+          sha=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+          assert sha=='6db3e8565ecfb3bfab8581cf987ff3808721d4f8',f'Stale source: {sha}'
+          assert 1300000<len(raw)<1400000
+          s=raw.decode('utf-8')
+          assert 'id="v66-agenda-modal"' not in s
+          assert s.count('<section class="main-card mode-card hidden" id="agendaPanel">')==1
+          css='''<style id="v66-agenda-modal">
+          /* Agenda is an independent floating editor, not an extra page-height panel. */
+          #teacher #agendaPanel:not(.hidden){
+            position:fixed!important;
+            z-index:10080!important;
+            left:50%!important;
+            top:50%!important;
+            transform:translate(-50%,-50%)!important;
+            width:min(860px,calc(100vw - 36px))!important;
+            max-width:860px!important;
+            max-height:min(780px,calc(100dvh - 34px))!important;
+            min-height:0!important;
+            overflow-y:auto!important;
+            overscroll-behavior:contain!important;
+            margin:0!important;
+            padding:18px 22px 24px!important;
+            background:linear-gradient(150deg,#0b2744,#061528 70%)!important;
+            border:1px solid #49b8ed!important;
+            border-radius:18px!important;
+            box-shadow:0 0 0 150vmax rgba(0,5,16,.76),0 28px 90px rgba(0,0,0,.65),0 0 30px rgba(38,156,247,.24)!important;
+          }
+          #teacher #agendaPanel .mode-title{padding-right:90px!important;margin-bottom:12px!important}
+          #teacher #agendaPanel .agenda-choice{margin:0 auto!important;padding:4px 0 12px!important}
+          #teacher #agendaPanel .agenda-choice-grid button{min-height:92px!important}
+          #teacher #agendaPanel .agenda-grid{max-width:100%!important;gap:14px!important}
+          #teacher #agendaPanel .agenda-editor-actions{margin-bottom:12px!important}
+          #teacher #agendaModalClose{position:sticky;float:right;top:0;z-index:5;min-height:38px;padding:8px 13px;background:#173f60;border:1px solid #4baad9;border-radius:10px;color:#f1f9ff;font-weight:800;cursor:pointer}
+          #teacher #agendaModalClose:hover{background:#24608b}
+          #teacher #agendaModalClose:focus-visible{outline:3px solid #a9e8ff;outline-offset:2px}
+          @media(max-width:650px){
+            #teacher #agendaPanel:not(.hidden){width:calc(100vw - 18px)!important;max-height:calc(100dvh - 18px)!important;padding:12px!important}
+            #teacher #agendaPanel .mode-title{padding-right:0!important}
+            #teacher #agendaPanel .agenda-choice-grid{grid-template-columns:1fr!important}
+          }
+          </style>'''
+          i=s.index('</head>');s=s[:i]+css+s[i:]
+          old='<section class="main-card mode-card hidden" id="agendaPanel"><div class="mode-title">'
+          new='<section class="main-card mode-card hidden" id="agendaPanel" role="dialog" aria-label="Agenda editor" aria-modal="true"><button type="button" id="agendaModalClose" aria-label="Close agenda">✕ Close</button><div class="mode-title">'
+          assert s.count(old)==1
+          s=s.replace(old,new,1)
+          needle="$('#agendaReturn').onclick=()=>agendaChoose(true);"
+          assert s.count(needle)==1
+          s=s.replace(needle,needle+"\n          $('#agendaModalClose').onclick=()=>{state.screen='classroom';render()};",1)
+          p.write_text(s,encoding='utf-8')
+          data=p.read_bytes()
+          print('INTEGRITY_OK',sha,'NEW_SHA',hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest(),'BYTES',len(data))
+          PY
+          git diff --check
+          node - <<'JS'
+          const fs=require('fs'),s=fs.readFileSync('index.html','utf8');
+          for(const js of [...s.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/g)]) if(js[1].trim())new Function(js[1]);
+          console.log('INLINE_JAVASCRIPT_PARSE_OK')
+          JS
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Open Agenda as compact modal over Mission Control"
+          git push
