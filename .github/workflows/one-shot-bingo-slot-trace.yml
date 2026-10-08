@@ -1,0 +1,33 @@
+name: Trace numbered Bingo slot patch
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-bingo-slot-trace.yml']
+permissions:
+  contents: write
+jobs:
+  trace:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Evaluate patch safely and save report
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import pathlib,subprocess,textwrap
+          wf=pathlib.Path('.github/workflows/one-shot-bingo-numbered-slots-retry.yml').read_text()
+          a=wf.index("          from pathlib import Path")
+          b=wf.index("\n          PY",a)
+          src=textwrap.dedent(wf[a:b])
+          before=pathlib.Path('index.html').read_bytes()
+          result=subprocess.run(['python','-c',src],capture_output=True,text=True)
+          pathlib.Path('index.html').write_bytes(before)
+          report='RETURN '+str(result.returncode)+'\nSTDOUT\n'+result.stdout+'\nSTDERR\n'+result.stderr
+          pathlib.Path('.github/bingo-slot-trace.txt').write_text(report)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/bingo-slot-trace.txt
+          git commit -m "Trace numbered Bingo editor patch failure"
+          git push
