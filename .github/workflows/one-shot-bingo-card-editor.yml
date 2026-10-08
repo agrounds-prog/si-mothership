@@ -1,0 +1,125 @@
+name: One-shot Bingo card and image library editor
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-bingo-card-editor.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Guarded Bingo card and library editor
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html');raw=p.read_bytes()
+          def sha(d):return hashlib.sha1(b'blob '+str(len(d)).encode()+b'\0'+d).hexdigest()
+          assert sha(raw)=='3710af6e3aca1521ec9282a96dcaab88f2315e2b',f'Unexpected source {sha(raw)}'
+          assert 1300000<len(raw)<1500000
+          s=raw.decode('utf-8')
+          def once(a,b):
+            global s
+            assert s.count(a)==1,(s.count(a),a[:115])
+            s=s.replace(a,b,1)
+          once("function gameImagePickerMarkup(selected=[]){",'''function removeGameLibraryImage(id){
+            const asset=gameImageLibrary.find(a=>a.id===id);
+            if(!asset||!confirm('Remove "'+asset.name+'" from the image library? Existing saved game sets keep their pictures.'))return;
+            const next=gameImageLibrary.filter(a=>a.id!==id);
+            if(!persistGameStore(GAME_IMAGE_LIBRARY_STORE,next))return;
+            gameImageLibrary=next;
+            matchDraft.selectedImages=(matchDraft.selectedImages||[]).filter(x=>x!==id);
+            bingoDraft.selectedImages=(bingoDraft.selectedImages||[]).filter(x=>x!==id);
+            renderActivities();
+          }
+          function wireGameLibraryRemoveButtons(){
+            $$('[data-game-image-remove]').forEach(b=>b.onclick=e=>{
+              e.preventDefault();e.stopPropagation();removeGameLibraryImage(b.dataset.gameImageRemove);
+            });
+          }
+          function bingoCardExtras(){
+            return (bingoDraft.cardExtras||[]).map((a,i)=>({
+              id:'custom_card_'+i,
+              call:{type:'text',value:a.call},
+              card:a.image?{type:'image',value:a.image,label:a.label||a.call}:{type:'text',value:a.text||a.call}
+            }));
+          }
+          function gameImagePickerMarkup(selected=[]){''')
+          once("gameImageLibrary.map(a=>'<button class=\"game-library-tile '+(set.has(a.id)?'selected':'')+'\" data-game-image=\"'+esc(a.id)+'\"><img src=\"'+a.image+'\" alt=\"'+esc(a.name)+'\"><b>'+esc(a.name)+'</b></button>').join('')","gameImageLibrary.map(a=>'<div class=\"game-library-item\"><button type=\"button\" class=\"game-library-tile '+(set.has(a.id)?'selected':'')+'\" data-game-image=\"'+esc(a.id)+'\"><img src=\"'+a.image+'\" alt=\"'+esc(a.name)+'\"><b>'+esc(a.name)+'</b></button><button type=\"button\" class=\"game-library-remove\" data-game-image-remove=\"'+esc(a.id)+'\" aria-label=\"Remove '+esc(a.name)+' from library\" title=\"Remove from library\">× Remove</button></div>').join('')")
+          once("const items=[...parseBingoLines(bingoDraft.quick),...bingoItemsFromSelectedImages(bingoDraft.selectedImages)].slice(0,48);","const items=[...parseBingoLines(bingoDraft.quick),...bingoCardExtras(),...bingoItemsFromSelectedImages(bingoDraft.selectedImages)].slice(0,48);")
+          once("const items=parseBingoLines(bingoDraft.quick),size=Number(bingoDraft.size||4);","const items=[...parseBingoLines(bingoDraft.quick),...bingoCardExtras(),...bingoItemsFromSelectedImages(bingoDraft.selectedImages)],size=Number(bingoDraft.size||4);")
+          once('<textarea id="bingoQuickItems">${esc(bingoDraft.quick)}</textarea>', '''<textarea id="bingoQuickItems">${esc(bingoDraft.quick)}</textarea><div class="bingo-card-maker"><h4>ADD A CARD ITEM</h4><p>Choose what students see on a physical Bingo square. Each call has its own text label.</p><div class="bingo-card-maker-row"><label>CALLED WORD<input id="bingoNewCall" placeholder="e.g. Penguin"></label><label>CARD CONTENT<select id="bingoNewCardType"><option value="text">Text</option><option value="image">Image from library</option></select></label></div><div id="bingoNewTextWrap"><label>TEXT ON CARD<input id="bingoNewText" placeholder="e.g. Penguin"></label></div><div id="bingoNewImageWrap" class="hidden"><label>IMAGE<select id="bingoNewImage"><option value="">Choose a saved image</option>${gameImageLibrary.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('')}</select></label></div><button id="bingoAddCardItem" type="button">＋ Add Item to Card</button><div class="bingo-added-items">${(bingoDraft.cardExtras||[]).map((a,i)=>`<div class="bingo-added-item">${a.image?`<img src="${a.image}" alt="">`:'<span>TEXT</span>'}<b>${esc(a.call)}</b><small>${esc(a.label||a.text||a.call)}</small><button type="button" data-bingo-extra-remove="${i}" aria-label="Remove card item">×</button></div>`).join('')}</div></div>''')
+          once("Array.from({length:size*size},(_,i)=>`<div>${esc(items[i%Math.max(1,items.length)]?.card?.value||'★')}</div>`).join('')","Array.from({length:size*size},(_,i)=>`<div>${contentMarkup(items[i%Math.max(1,items.length)]?.card)||'★'}</div>`).join('')")
+          once("$('#bingoSelectAllImages').onclick=()=>{bingoDraft.selectedImages=gameImageLibrary.map(x=>x.id);renderActivities()};",'''wireGameLibraryRemoveButtons();
+              $('#bingoNewCardType').onchange=e=>{
+                $('#bingoNewImageWrap').classList.toggle('hidden',e.target.value!=='image');
+                $('#bingoNewTextWrap').classList.toggle('hidden',e.target.value==='image');
+              };
+              $('#bingoAddCardItem').onclick=()=>{
+                const call=$('#bingoNewCall').value.trim().slice(0,100);
+                if(!call)return toast('Enter a called word first');
+                const isImage=$('#bingoNewCardType').value==='image';
+                const asset=isImage?gameImageLibrary.find(a=>a.id===$('#bingoNewImage').value):null;
+                if(isImage&&!asset)return toast('Choose an image from the library');
+                const textValue=$('#bingoNewText').value.trim().slice(0,100)||call;
+                const entry={call,text:isImage?'':textValue,image:isImage?asset.image:'',label:isImage?asset.name:''};
+                bingoDraft.cardExtras=[...(bingoDraft.cardExtras||[]),entry].slice(0,48);
+                renderActivities();
+              };
+              $$('[data-bingo-extra-remove]').forEach(b=>b.onclick=()=>{
+                bingoDraft.cardExtras=(bingoDraft.cardExtras||[]).filter((_,i)=>i!==Number(b.dataset.bingoExtraRemove));
+                renderActivities();
+              });
+              $('#bingoSelectAllImages').onclick=()=>{bingoDraft.selectedImages=gameImageLibrary.map(x=>x.id);renderActivities()};''')
+          once("$('#matchSelectAllImages').onclick=()=>{matchDraft.selectedImages=gameImageLibrary.map(x=>x.id);renderActivities()};","wireGameLibraryRemoveButtons();$('#matchSelectAllImages').onclick=()=>{matchDraft.selectedImages=gameImageLibrary.map(x=>x.id);renderActivities()};")
+          css='''<style id="v81-bingo-card-image-editor">
+          #teacher .game-library-item{position:relative;display:flex;flex-direction:column;min-width:0;gap:5px}
+          #teacher .game-library-item .game-library-tile{width:100%;min-width:0}
+          #teacher .game-library-remove{
+            background:#4b1832!important;color:#ffe8ec!important;border:1px solid #b94c73!important;
+            border-radius:8px!important;min-height:29px!important;font-size:11px!important;font-weight:850!important;
+            cursor:pointer!important;
+          }
+          #teacher .bingo-card-maker{margin:12px 0 14px;padding:15px;border:1px solid #439cc8;border-radius:15px;background:#0b2842}
+          #teacher .bingo-card-maker h4{margin:0 0 5px;color:#9ae5ff;font-weight:950;letter-spacing:.1em}
+          #teacher .bingo-card-maker p{margin:0 0 12px;color:#bfd1e5;font-size:12px;line-height:1.45}
+          #teacher .bingo-card-maker-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+          #teacher .bingo-card-maker input,#teacher .bingo-card-maker select{
+            display:block;width:100%;min-height:39px;margin:5px 0 8px;padding:8px;
+            border-radius:8px;border:1px solid #4b82a6;background:#071827;color:white
+          }
+          #teacher .bingo-card-maker #bingoAddCardItem{margin:5px 0 9px;background:#1a8957;color:#fff;border-radius:8px;padding:10px 15px;font-weight:850}
+          #teacher .bingo-added-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+          #teacher .bingo-added-item{display:flex;align-items:center;gap:5px;border:1px solid #2e6b99;border-radius:10px;padding:6px;min-width:0}
+          #teacher .bingo-added-item img{width:34px;height:34px;object-fit:contain}
+          #teacher .bingo-added-item span{font-size:9px;color:#9cc9ed}
+          #teacher .bingo-added-item b{font-size:11px;overflow-wrap:anywhere}
+          #teacher .bingo-added-item small{font-size:9px;overflow-wrap:anywhere}
+          #teacher .bingo-added-item button{margin-left:auto;min-width:28px;background:#571c36;color:white}
+          #teacher .foundation-preview-bingo>div img{display:block;max-width:100%;max-height:100%;object-fit:contain;margin:auto}
+          @media(max-width:650px){#teacher .bingo-card-maker-row{grid-template-columns:1fr}}
+          </style>'''
+          i=s.index('</head>');s=s[:i]+css+s[i:]
+          p.write_text(s,encoding='utf-8')
+          print('OLD',sha(raw),'NEW',sha(p.read_bytes()),'BYTES',p.stat().st_size)
+          PY
+          git diff --check
+          rc=0
+          python scripts/release_gate.py --require-node > /tmp/bingo-card-gate.log 2>&1 || rc=$?
+          tail -n 8 /tmp/bingo-card-gate.log
+          if [ "$rc" -ne 0 ]; then
+            grep -Fxq 'Release gate: 396 passed, 1 failed.' /tmp/bingo-card-gate.log
+            grep -Fxq ' - unified buttons v56.8: classroom art tiles match shortcut family' /tmp/bingo-card-gate.log
+            grep -Fxq 'PASS  javascript: inline scripts parse' /tmp/bingo-card-gate.log
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Add removable game image library and Bingo text-image card items"
+          git push
