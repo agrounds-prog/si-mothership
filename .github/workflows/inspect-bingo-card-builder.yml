@@ -1,0 +1,39 @@
+name: Inspect current Bingo editing workflow
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-bingo-card-builder.yml']
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Capture current Bingo editor and helpers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          s=Path('index.html').read_text()
+          lines=s.splitlines()
+          needlelist=["let bingoDraft=", "function bingoSlotItems()", "function bingoCardExtras()", "function gameImagePickerMarkup(", "function saveBingoDraft()", "function launchBingoSet(", "if(state.activeApp==='bingo'){", "function importGameImages(", "function parseBingoLines("]
+          sections=[]
+          for needle in needlelist:
+              locations=[i for i,x in enumerate(lines) if needle in x]
+              sections.append('=== '+needle+' LOCATIONS '+str(locations)+' ===')
+              if locations:
+                  i=locations[0];before=3;after=58 if "state.activeApp" in needle else (50 if "saveBingoDraft" in needle else 36)
+                  for j in range(max(i-before,0),min(i+after,len(lines))):
+                      row=lines[j]
+                      if len(row)>18500: row=row[:18500]+' ...TRUNCATED...'
+                      sections.append(f'{j+1}: {row}')
+          Path('.github/bingo-editor-excerpts.txt').write_text('\n'.join(sections))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/bingo-editor-excerpts.txt
+          git commit -m "Capture Bingo builder code for targeted redesign"
+          git push
