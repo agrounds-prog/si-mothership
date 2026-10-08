@@ -1,0 +1,86 @@
+name: One-shot fix Activities popup grid
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-fix-activities-grid.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Guarded library layout fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html');b=p.read_bytes()
+          def sha(d):return hashlib.sha1(b'blob '+str(len(d)).encode()+b'\0'+d).hexdigest()
+          assert sha(b)=='da7d0dcee1cb739f50c7b13ffe6880507bf3155d',f'Stale source {sha(b)}'
+          s=b.decode()
+          for x in ('id="v70-activities-workspace"','id="activitiesPanel"','id="activityGrid"','id="favoriteGrid"'):
+            assert x in s,x
+          assert 'id="v71-fix-activities-grid"' not in s
+          css='''<style id="v71-fix-activities-grid">
+          /* Restore horizontal space inside the floating Activities library. */
+          #teacher #activitiesPanel:not(.hidden){
+            display:block!important;
+            width:min(1260px,calc(100vw - 36px))!important;
+            max-width:1260px!important;
+            max-height:calc(100dvh - 32px)!important;
+            overflow-x:hidden!important;
+            overflow-y:auto!important;
+          }
+          #teacher #activitiesPanel .activity-grid,
+          #teacher #activitiesPanel #activityGrid{
+            width:100%!important;max-width:none!important;min-width:0!important;
+            display:grid!important;
+            grid-template-columns:repeat(auto-fit,minmax(210px,1fr))!important;
+            gap:12px!important;
+          }
+          #teacher #activitiesPanel .activity-card{
+            width:auto!important;min-width:0!important;max-width:none!important;
+            min-height:190px!important;height:auto!important;
+            overflow-wrap:anywhere!important;
+          }
+          #teacher #activitiesPanel #favoriteAppsWrap,
+          #teacher #activitiesPanel .favorite-wrap,
+          #teacher #activitiesPanel #favoriteGrid{
+            width:100%!important;max-width:none!important;min-width:0!important;
+          }
+          #teacher #activitiesPanel .favorite-grid{
+            display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+            gap:10px!important;
+          }
+          #teacher #activitiesPanel .mode-title,
+          #teacher #activitiesPanel .library-header-actions{max-width:none!important}
+          #teacher #activitiesPanel .saved-presentation-picker{max-width:100%!important}
+          @media(max-width:720px){
+            #teacher #activitiesPanel:not(.hidden){width:calc(100vw - 12px)!important}
+            #teacher #activitiesPanel .favorite-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+            #teacher #activitiesPanel .activity-grid{grid-template-columns:repeat(auto-fit,minmax(155px,1fr))!important}
+          }
+          </style>'''
+          pos=s.index('</head>');s=s[:pos]+css+s[pos:]
+          p.write_text(s,encoding='utf-8')
+          print('SOURCE_OK',sha(b),'NEW_SHA',sha(p.read_bytes()),'BYTES',p.stat().st_size)
+          PY
+          git diff --check
+          gate_rc=0
+          python scripts/release_gate.py --require-node > /tmp/activities-fix-gate.log 2>&1 || gate_rc=$?
+          tail -n 8 /tmp/activities-fix-gate.log
+          if [ "$gate_rc" -ne 0 ]; then
+            grep -Fxq 'Release gate: 396 passed, 1 failed.' /tmp/activities-fix-gate.log
+            grep -Fxq ' - unified buttons v56.8: classroom art tiles match shortcut family' /tmp/activities-fix-gate.log
+            grep -Fxq 'PASS  javascript: inline scripts parse' /tmp/activities-fix-gate.log
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Fix Activities overlay cards and grid width"
+          git push
