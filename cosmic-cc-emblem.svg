@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Cosmic Cards CC orbit emblem">
+<defs>
+ <radialGradient id="night"><stop stop-color="#153978"/><stop offset=".65" stop-color="#071939"/><stop offset="1" stop-color="#020d23"/></radialGradient>
+ <linearGradient id="ice" x1="0" y1="0" x2=".3" y2="1"><stop stop-color="#fbffff"/><stop offset=".18" stop-color="#83e9ff"/><stop offset=".53" stop-color="#0e92ef"/><stop offset=".78" stop-color="#8defff"/><stop offset="1" stop-color="#0560cb"/></linearGradient>
+ <linearGradient id="orbit" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#ffe29b"/><stop offset=".28" stop-color="#49cfff"/><stop offset=".62" stop-color="#9bfaff"/><stop offset="1" stop-color="#ffcb72"/></linearGradient>
+ <radialGradient id="gold"><stop stop-color="#fffef2"/><stop offset=".25" stop-color="#fff5b4"/><stop offset=".65" stop-color="#ffc766"/><stop offset="1" stop-color="#e38d2d"/></radialGradient>
+ <filter id="shine" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <filter id="soft"><feGaussianBlur stdDeviation="8"/></filter>
+</defs>
+<circle cx="256" cy="256" r="195" fill="url(#night)" stroke="#3dbbff" stroke-width="6"/>
+<circle cx="256" cy="256" r="208" fill="none" stroke="#21d0ff" stroke-opacity=".31" stroke-width="3"/>
+<circle cx="256" cy="256" r="177" fill="none" stroke="#b4ebff" stroke-opacity=".27" stroke-width="2"/>
+<g fill="#a3e9ff"><circle cx="137" cy="118" r="2"/><circle cx="204" cy="109" r="2.5"/><circle cx="349" cy="145" r="2"/><circle cx="164" cy="331" r="2"/><circle cx="374" cy="314" r="2"/><circle cx="258" cy="385" r="2.4"/><circle cx="368" cy="221" r="1.4"/><circle cx="219" cy="166" r="1.5"/></g>
+<ellipse cx="256" cy="254" rx="243" ry="80" transform="rotate(-21 256 254)" fill="none" stroke="#2accff" stroke-width="27" stroke-opacity=".16" filter="url(#soft)"/>
+<ellipse cx="256" cy="254" rx="243" ry="80" transform="rotate(-21 256 254)" fill="none" stroke="url(#orbit)" stroke-width="9" opacity=".96"/>
+<ellipse cx="256" cy="254" rx="224" ry="67" transform="rotate(-21 256 254)" fill="none" stroke="#a0faff" stroke-opacity=".75" stroke-width="2.5"/>
+<g stroke="#001d40" stroke-width="6" paint-order="stroke fill" fill="url(#ice)" filter="url(#shine)" font-family="Arial,Helvetica,sans-serif" font-size="212" font-weight="1000" letter-spacing="-17">
+ <text x="59" y="330">CC</text>
+</g>
+<g fill="none" stroke="#c5fcff" stroke-width="3" opacity=".85">
+ <path d="M86 245q-8-59 48-91"/><path d="M316 164q62 11 72 64"/>
+</g>
+<path d="M256 151L267 239 324 256 267 270 256 350 244 270 190 256 244 241Z" fill="url(#gold)" filter="url(#shine)" stroke="#fff1a8" stroke-width="2"/>
+<circle cx="398" cy="184" r="15" fill="url(#gold)" filter="url(#shine)"/>
+<circle cx="106" cy="330" r="12" fill="url(#gold)" filter="url(#shine)"/>
+<circle cx="359" cy="363" r="6" fill="#c4faff" filter="url(#shine)"/>
+<path d="M256 10L262 45 256 83 250 45ZM256 431L262 474 256 503 250 474Z" fill="#67e9ff" filter="url(#shine)"/>
+<path d="M104 128l3 12 12 3-12 3-3 12-3-12-12-3 12-3ZM389 355l4 13 13 4-13 4-4 13-4-13-13-4 13-4Z" fill="#b9f8ff" filter="url(#shine)"/>
+</svg>
