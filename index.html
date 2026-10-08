@@ -13333,6 +13333,78 @@ body.role-student .agenda-live-footer{
     grid-column:1/-1!important;
   }
 }
+</style><style id="v79-bingo-shared-game-show">
+/* Bingo shared viewer only. Presentation-first at 16:9, responsive elsewhere. */
+#shared:has(.bingo-shared) {
+  background:radial-gradient(ellipse at 50% 2%,#253c8c 0%,#0d1943 42%,#030b1c 100%)!important;
+}
+#shared .bingo-shared,
+.shared-screen:has(.bingo-shared) .bingo-shared{
+  width:min(98vw,1700px)!important;max-width:none!important;
+  min-height:min(90dvh,900px)!important;margin:auto!important;
+  padding:clamp(18px,3vw,48px)!important;
+  background:radial-gradient(circle at 50% -5%,rgba(78,72,225,.28),transparent 54%),
+    linear-gradient(160deg,rgba(12,26,66,.95),rgba(4,12,32,.97))!important;
+  border:2px solid rgba(47,184,255,.45)!important;border-radius:30px!important;
+  box-shadow:0 0 50px rgba(29,151,255,.14),inset 0 1px 0 rgba(255,255,255,.15)!important;
+}
+#shared .bingo-shared h1,#shared .bingo-shared h2,
+.shared-screen .bingo-shared h1,.shared-screen .bingo-shared h2{
+  color:#ffdf76!important;font-weight:1000!important;
+  font-size:clamp(44px,6vw,100px)!important;line-height:1.05!important;
+  text-shadow:0 4px 0 #794299,0 0 26px rgba(255,177,78,.45)!important;
+}
+#shared .bingo-shared .bingo-shared-grid,
+.shared-screen .bingo-shared .bingo-shared-grid{
+  display:grid!important;grid-template-columns:minmax(0,1.6fr) minmax(260px,.65fr)!important;
+  align-items:stretch!important;gap:clamp(18px,2.2vw,34px)!important;width:100%!important;
+}
+#shared .bingo-shared .bingo-shared-call,
+.shared-screen .bingo-shared .bingo-shared-call{
+  min-height:clamp(390px,57vh,660px)!important;display:flex!important;
+  flex-direction:column!important;justify-content:center!important;align-items:center!important;
+  padding:clamp(18px,3vw,44px)!important;border-radius:28px!important;
+  border:4px solid #4fd8ff!important;
+  background:radial-gradient(ellipse at 50% 30%,rgba(79,111,255,.38),transparent 65%),
+    linear-gradient(150deg,#132d6d,#121442 75%)!important;
+  box-shadow:0 0 37px rgba(28,174,255,.34),inset 0 0 45px rgba(38,126,255,.25)!important;
+}
+#shared .bingo-shared .bingo-shared-call strong,
+.shared-screen .bingo-shared .bingo-shared-call strong{
+  font-size:clamp(45px,6.8vw,116px)!important;line-height:1.07!important;
+  color:#fff!important;text-align:center!important;overflow-wrap:anywhere!important;
+  text-shadow:0 4px 0 #213477,0 0 27px rgba(125,202,255,.72)!important;
+}
+#shared .bingo-shared .bingo-shared-history,
+.shared-screen .bingo-shared .bingo-shared-history{
+  padding:clamp(18px,2vw,30px)!important;border-radius:24px!important;
+  background:linear-gradient(165deg,rgba(10,37,83,.98),rgba(7,17,46,.98))!important;
+  border:2px solid rgba(76,164,244,.57)!important;
+}
+#shared .bingo-shared .bingo-shared-history span,
+.shared-screen .bingo-shared .bingo-shared-history span{
+  font-size:clamp(15px,1.6vw,25px)!important;line-height:1.2!important;
+  padding:clamp(9px,1vw,17px)!important;border-radius:12px!important;
+  color:#f2f8ff!important;background:linear-gradient(135deg,#22538a,#172b69)!important;
+}
+@media(max-width:800px){
+  #shared .bingo-shared .bingo-shared-grid,.shared-screen .bingo-shared .bingo-shared-grid{
+    grid-template-columns:1fr!important;
+  }
+  #shared .bingo-shared .bingo-shared-call,.shared-screen .bingo-shared .bingo-shared-call{
+    min-height:40vh!important;
+  }
+}
+@media(prefers-reduced-motion:no-preference){
+  #shared .bingo-shared .bingo-shared-call,
+  .shared-screen .bingo-shared .bingo-shared-call{
+    animation:bingo-shared-entrance .38s ease-out both;
+  }
+  @keyframes bingo-shared-entrance {
+    from{opacity:.78;transform:scale(.985)}
+    to{opacity:1;transform:scale(1)}
+  }
+}
 </style></head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
