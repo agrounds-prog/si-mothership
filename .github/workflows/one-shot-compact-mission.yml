@@ -1,0 +1,70 @@
+name: One-shot compact teacher header and empty roster
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-compact-mission.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Guarded compact mission styling
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html');original=p.read_bytes()
+          def sha(x):return hashlib.sha1(b'blob '+str(len(x)).encode()+b'\0'+x).hexdigest()
+          assert sha(original)=='14fdf63fb4f1504543b91d085babe9451addc884',f'Unexpected source {sha(original)}'
+          assert 1300000<len(original)<1400000
+          s=original.decode('utf-8')
+          assert 'id="v67-compact-command-deck"' not in s
+          for key in ('.single-mission-status','.roster-card','.empty-roster-message','.mission-context-title'):
+            assert key in s,key
+          css='''<style id="v67-compact-command-deck">
+          /* Phase 4: reclaim vertical space without altering roster, control, or Agenda handlers. */
+          #teacher .command-deck{gap:8px!important}
+          #teacher .single-mission-status{min-height:0!important;padding-top:8px!important;padding-bottom:8px!important}
+          #teacher .single-mission-status .mission-context-title{line-height:1.15!important}
+          #teacher .single-mission-status .mission-context-title>b{font-size:clamp(15px,1.35vw,21px)!important;line-height:1.15!important}
+          #teacher .mission-context-kicker{line-height:1.15!important}
+          #teacher .roster-card:has(.empty-roster-message){min-height:0!important;padding-top:10px!important;padding-bottom:10px!important}
+          #teacher .roster-card:has(.empty-roster-message) .roster-inner{padding:10px 14px!important}
+          #teacher .roster-card:has(.empty-roster-message) .roster-head{margin-bottom:8px!important}
+          #teacher .roster-card:has(.empty-roster-message) .avatar-line{min-height:0!important}
+          #teacher .roster-card:has(.empty-roster-message) .empty-roster-message{min-height:88px!important;padding:10px!important;display:flex!important;gap:14px!important;align-items:center!important;justify-content:center!important;text-align:left!important}
+          #teacher .roster-card:has(.empty-roster-message) .v564-empty-roster-art{width:62px!important;height:62px!important;flex:0 0 62px!important}
+          #teacher .roster-card:has(.empty-roster-message) .empty-roster-message b{font-size:14px!important}
+          #teacher .roster-card:has(.empty-roster-message) .empty-roster-message span{font-size:11px!important;line-height:1.35!important}
+          #teacher .roster-card:has(.empty-roster-message) .page-dots{margin-top:5px!important}
+          @media(max-width:700px){#teacher .roster-card:has(.empty-roster-message) .empty-roster-message{min-height:105px!important}}
+          </style>'''
+          i=s.index('</head>')
+          s=s[:i]+css+s[i:]
+          assert s.count('id="v67-compact-command-deck"')==1 and s.index('id="v67-compact-command-deck"')<s.index('</head>')
+          p.write_text(s,encoding='utf-8')
+          print('INTEGRITY_OK',sha(original),'NEW_BLOB',sha(p.read_bytes()),'BYTES',p.stat().st_size)
+          PY
+          git diff --check
+          gate_rc=0
+          python scripts/release_gate.py --require-node > /tmp/compact-gate.log 2>&1 || gate_rc=$?
+          tail -n 8 /tmp/compact-gate.log
+          if [ "$gate_rc" -ne 0 ]; then
+            grep -Fxq 'Release gate: 396 passed, 1 failed.' /tmp/compact-gate.log
+            grep -Fxq ' - unified buttons v56.8: classroom art tiles match shortcut family' /tmp/compact-gate.log
+            grep -Fxq 'PASS  javascript: inline scripts parse' /tmp/compact-gate.log
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Compact teacher command header and empty roster"
+          git push
