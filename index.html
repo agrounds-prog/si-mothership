@@ -12717,6 +12717,40 @@ body.role-student .agenda-live-footer{
 #teacher #agendaPanel.agenda-choose-open .agenda-grid,#teacher #agendaPanel.agenda-choose-open .agenda-editor-actions{display:none!important}
 #teacher #agendaPanel:not(.agenda-choose-open) .agenda-choice{display:none!important}
 @media(max-width:620px){#teacher #agendaPanel .agenda-choice-grid{grid-template-columns:1fr}}
+</style><style id="v66-agenda-modal">
+/* Agenda is an independent floating editor, not an extra page-height panel. */
+#teacher #agendaPanel:not(.hidden){
+  position:fixed!important;
+  z-index:10080!important;
+  left:50%!important;
+  top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  width:min(860px,calc(100vw - 36px))!important;
+  max-width:860px!important;
+  max-height:min(780px,calc(100dvh - 34px))!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  margin:0!important;
+  padding:18px 22px 24px!important;
+  background:linear-gradient(150deg,#0b2744,#061528 70%)!important;
+  border:1px solid #49b8ed!important;
+  border-radius:18px!important;
+  box-shadow:0 0 0 150vmax rgba(0,5,16,.76),0 28px 90px rgba(0,0,0,.65),0 0 30px rgba(38,156,247,.24)!important;
+}
+#teacher #agendaPanel .mode-title{padding-right:90px!important;margin-bottom:12px!important}
+#teacher #agendaPanel .agenda-choice{margin:0 auto!important;padding:4px 0 12px!important}
+#teacher #agendaPanel .agenda-choice-grid button{min-height:92px!important}
+#teacher #agendaPanel .agenda-grid{max-width:100%!important;gap:14px!important}
+#teacher #agendaPanel .agenda-editor-actions{margin-bottom:12px!important}
+#teacher #agendaModalClose{position:sticky;float:right;top:0;z-index:5;min-height:38px;padding:8px 13px;background:#173f60;border:1px solid #4baad9;border-radius:10px;color:#f1f9ff;font-weight:800;cursor:pointer}
+#teacher #agendaModalClose:hover{background:#24608b}
+#teacher #agendaModalClose:focus-visible{outline:3px solid #a9e8ff;outline-offset:2px}
+@media(max-width:650px){
+  #teacher #agendaPanel:not(.hidden){width:calc(100vw - 18px)!important;max-height:calc(100dvh - 18px)!important;padding:12px!important}
+  #teacher #agendaPanel .mode-title{padding-right:0!important}
+  #teacher #agendaPanel .agenda-choice-grid{grid-template-columns:1fr!important}
+}
 </style></head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -12780,7 +12814,7 @@ body.role-student .agenda-live-footer{
   <iframe class="board-calculator-frame" id="boardCalculatorFrame" title="SI Scientific Calculator for Whiteboard" loading="lazy"></iframe>
 </div>
 
-<section class="main-card mode-card hidden" id="agendaPanel"><div class="mode-title"><div><span class="eyebrow">AGENDA</span><h2>Send something to the class</h2><p>No agenda title — choose text, an image, or YouTube.</p></div></div><div class="agenda-choice" id="agendaChoice"><h3>Choose an agenda</h3><p>Open a saved agenda or make a new one.</p><div class="agenda-choice-grid"><button type="button" id="agendaOpenSaved">📂 Load Agenda<span>Open an agenda saved on this browser</span></button><button type="button" id="agendaCreateNew">✦ New Agenda<span>Name it, then add text, an image, or YouTube</span></button></div><div id="agendaSavedList" class="agenda-saved"></div></div><div class="agenda-editor-actions"><button type="button" id="agendaReturn">← All agendas</button><label>Agenda label<input id="agendaDraftName" maxlength="100" placeholder="e.g. Morning Meeting"></label><button type="button" id="agendaSave">Save Agenda</button></div><div class="agenda-grid"><div class="agenda-stage" id="agendaPreview"></div><div class="agenda-editor"><span class="eyebrow">SEND TO CLASS</span><div class="agenda-tabs"><button class="active" data-agenda-mode="text">▤ Text</button><button data-agenda-mode="image">▧ Image</button><button data-agenda-mode="youtube">▶ YouTube</button></div><div id="agendaTextPane"><textarea id="agendaText">1. Warm-up\n2. Ready check\n3. Class activity</textarea></div><div id="agendaImagePane" class="hidden"><input id="agendaImageFile" type="file" accept="image/*"><small style="color:#8192ab">Choose an image from this device.</small><div class="image-picker-preview" id="agendaImageThumb">No image selected</div></div><div id="agendaYoutubePane" class="hidden"><input id="agendaYoutube" placeholder="Paste a YouTube link"><div class="youtube-preview hidden" id="youtubePreview"></div></div><button class="send-btn" id="sendAgenda">▶ Launch Agenda</button></div></div></section>
+<section class="main-card mode-card hidden" id="agendaPanel" role="dialog" aria-label="Agenda editor" aria-modal="true"><button type="button" id="agendaModalClose" aria-label="Close agenda">✕ Close</button><div class="mode-title"><div><span class="eyebrow">AGENDA</span><h2>Send something to the class</h2><p>No agenda title — choose text, an image, or YouTube.</p></div></div><div class="agenda-choice" id="agendaChoice"><h3>Choose an agenda</h3><p>Open a saved agenda or make a new one.</p><div class="agenda-choice-grid"><button type="button" id="agendaOpenSaved">📂 Load Agenda<span>Open an agenda saved on this browser</span></button><button type="button" id="agendaCreateNew">✦ New Agenda<span>Name it, then add text, an image, or YouTube</span></button></div><div id="agendaSavedList" class="agenda-saved"></div></div><div class="agenda-editor-actions"><button type="button" id="agendaReturn">← All agendas</button><label>Agenda label<input id="agendaDraftName" maxlength="100" placeholder="e.g. Morning Meeting"></label><button type="button" id="agendaSave">Save Agenda</button></div><div class="agenda-grid"><div class="agenda-stage" id="agendaPreview"></div><div class="agenda-editor"><span class="eyebrow">SEND TO CLASS</span><div class="agenda-tabs"><button class="active" data-agenda-mode="text">▤ Text</button><button data-agenda-mode="image">▧ Image</button><button data-agenda-mode="youtube">▶ YouTube</button></div><div id="agendaTextPane"><textarea id="agendaText">1. Warm-up\n2. Ready check\n3. Class activity</textarea></div><div id="agendaImagePane" class="hidden"><input id="agendaImageFile" type="file" accept="image/*"><small style="color:#8192ab">Choose an image from this device.</small><div class="image-picker-preview" id="agendaImageThumb">No image selected</div></div><div id="agendaYoutubePane" class="hidden"><input id="agendaYoutube" placeholder="Paste a YouTube link"><div class="youtube-preview hidden" id="youtubePreview"></div></div><button class="send-btn" id="sendAgenda">▶ Launch Agenda</button></div></div></section>
 
 <section class="main-card activities-panel hidden" id="activitiesPanel"><div class="mode-title"><div><span class="eyebrow">ACTIVITIES</span><h2 id="activitiesTitle">Apps in Progress</h2><p id="activitiesSubtitle">Browse every available Mothership app and add apps to your 3×3 shortcut grid.</p></div><div class="library-header-actions" id="activitiesHeaderActions"></div></div><div class="favorite-wrap" id="favoriteAppsWrap"><div class="favorite-title"><span class="eyebrow">ACTIVITY SHORTCUTS</span><small style="color:#7f93af">Add, replace, or remove any of the 9 slots</small></div><div class="favorite-grid" id="favoriteGrid"></div></div><div id="assignNote" class="assign-note hidden"></div><div class="activity-grid" id="activityGrid"></div><div class="saved-presentation-picker hidden" id="savedPresentationPicker"></div></section>
 <section class="main-card presentation-builder hidden" id="presentationBuilderPanel"></section>
@@ -16731,6 +16765,7 @@ $('#agendaCreateNew').onclick=()=>{state.agendaSavedId='';state.agendaImage='';s
   $('#agendaImageFile').value='';$('#agendaImageThumb').textContent='No image selected';
   agendaSetMode('text');agendaChoose(false);updateAgendaDraftPreview()};
 $('#agendaReturn').onclick=()=>agendaChoose(true);
+          $('#agendaModalClose').onclick=()=>{state.screen='classroom';render()};
 $('#agendaSave').onclick=()=>{const name=$('#agendaDraftName').value.trim();
   if(!name){toast('Please label the agenda');return}
   const mode=state.agendaMode;
