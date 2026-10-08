@@ -1,0 +1,8 @@
+source length 1392309
+MATCH 1 'function bingoCardExtras(){'
+MATCH 1 'const items=[...parseBingoLines(bingoDraft.quick),...bingoCardExtras(),...bingoItemsFromSelectedImages(bingoDraft.selectedImages)].slice(0,48);'
+MATCH 1 'const items=[...parseBingoLines(bingoDraft.quick),...bingoCardExtras(),...bingoItemsFromSelectedImages(bingoDraft.selectedImages)],size=Number(bingoDraft.size||4);'
+MATCH 1 '<label>QUICK ITEMS · call side | card side</label><textarea id="bingoQuickItems">'
+MATCH 1 '<div class="bingo-card-maker"><h4>ADD A CARD ITEM</h4>'
+MATCH 1 "Array.from({length:size*size},(_,i)=>`<div>${contentMarkup(items[i%Math.max(1,items.length)]?.card)||'★'}</div>`).join('')"
+MATCH 1 "    wireGameLibraryRemoveButtons();\n    $('#bingoNewCardType')"
