@@ -1,0 +1,188 @@
+name: Bingo batch photo upload
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-bingo-bulk-image-upload.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Guarded Bingo bulk photo editor
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          src=Path('index.html')
+          raw=src.read_bytes()
+          def blob(b):return hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+          assert blob(raw)=='48cc5aa762783bf748805deeb3f15839e3a5e380',f'Unexpected index blob {blob(raw)}'
+          assert 1300000<len(raw)<1500000
+          s=raw.decode('utf-8')
+          def one(old,new):
+              global s
+              assert s.count(old)==1,('ambiguous anchor',s.count(old),old[:130])
+              s=s.replace(old,new,1)
+          js=r"""
+          let bingoBulkStage=null;
+          function bingoBulkTargetSquares(mode){
+            const size=Math.max(3,Math.min(6,Number(bingoDraft.size||4)));
+            const center=bingoDraft.free&&size%2===1?Math.floor(size*size/2):-1;
+            const slots=bingoDraft.numberedSlots||[];
+            return Array.from({length:size*size},(_,i)=>i).filter(i=>
+              i!==center&&(mode==='replace'||!(slots[i]?.call&&(slots[i]?.image||slots[i]?.text))));
+          }
+          function bingoBulkUploadMarkup(){
+            const mode=bingoDraft.bulkMode==='replace'?'replace':'empty';
+            const size=Math.max(3,Math.min(6,Number(bingoDraft.size||4)));
+            const targets=bingoBulkTargetSquares(mode);
+            if(bingoBulkStage&&(bingoBulkStage.mode!==mode||bingoBulkStage.size!==size||
+                bingoBulkStage.squares.some((n,i)=>n!==targets[i])))bingoBulkStage=null;
+            const stage=bingoBulkStage;
+            const preview=stage?'<div class="bingo-bulk-preview-heading"><b>Preview '+stage.entries.length+
+              ' pictures</b><span>Check each square before applying</span></div><div class="bingo-bulk-preview">'+
+              stage.entries.map((a,i)=>'<div class="bingo-bulk-preview-item"><span>Square '+(stage.squares[i]+1)+
+                '</span><img src="'+a.image+'" alt="'+esc(a.name)+'"><b>'+esc(a.name)+'</b></div>').join('')+
+              '</div><div class="bingo-bulk-confirm"><button type="button" id="bingoBulkApply">'+
+              (mode==='replace'?'Replace Card With Pictures':'Fill These Squares')+
+              '</button><button type="button" id="bingoBulkCancel">Cancel Batch</button></div>':'';
+            return '<section class="bingo-bulk-panel"><div class="bingo-bulk-head"><b>⚡ Bulk Upload Pictures</b>'+
+              '<span>'+targets.length+' '+(mode==='replace'?'card squares':'empty squares')+' available</span></div>'+
+              '<p>Choose several pictures at once. File names become the called words. You can edit any square afterward.</p>'+
+              '<div class="bingo-bulk-controls"><label>UPLOAD MODE<select id="bingoBulkMode">'+
+              '<option value="empty"'+(mode==='empty'?' selected':'')+'>Fill Empty Squares</option>'+
+              '<option value="replace"'+(mode==='replace'?' selected':'')+'>Replace Entire Card</option></select></label>'+
+              '<button type="button" id="bingoBulkChoose"'+(!targets.length?' disabled':'')+'>'+
+              (mode==='replace'?'Choose '+targets.length+' Images':'Choose Up to '+targets.length+' Images')+
+              '</button><input type="file" id="bingoBulkFiles" accept="image/*" multiple hidden></div>'+
+              '<div class="bingo-bulk-message" id="bingoBulkMessage">'+
+              (mode==='replace'?'Requires exactly '+targets.length+' pictures. Previous card entries will be replaced.':
+                'Adds pictures to empty squares in selection order, without replacing filled ones.')+
+              '</div>'+preview+'</section>';
+          }
+          function wireBingoBulkUploader(){
+            const $bulk=id=>document.querySelector(id);
+            const $mode=$bulk('#bingoBulkMode'),$pick=$bulk('#bingoBulkChoose');
+            if(!$mode||!$pick)return;
+            $mode.onchange=e=>{bingoDraft.bulkMode=e.target.value;bingoBulkStage=null;renderActivities()};
+            $pick.onclick=()=>$bulk('#bingoBulkFiles').click();
+            $bulk('#bingoBulkFiles').onchange=async e=>{
+              const mode=bingoDraft.bulkMode==='replace'?'replace':'empty';
+              const targets=bingoBulkTargetSquares(mode);
+              const files=Array.from(e.target.files||[]);
+              e.target.value='';
+              if(!files.length)return;
+              if(files.some(f=>!String(f.type||'').startsWith('image/')))
+                return toast('Select picture files only');
+              if(files.length>targets.length)
+                return toast('This card has only '+targets.length+' available squares. Choose fewer images.');
+              if(mode==='replace'&&files.length!==targets.length)
+                return toast('To replace the full card, choose exactly '+targets.length+' images');
+              const status=$bulk('#bingoBulkMessage');
+              $pick.disabled=true;$mode.disabled=true;
+              if(status)status.textContent='Preparing '+files.length+' pictures…';
+              try{
+                const entries=[];
+                for(let i=0;i<files.length;i++){
+                  if(status)status.textContent='Preparing picture '+(i+1)+' of '+files.length+'…';
+                  entries.push({name:gameImageName(files[i]),image:await normalizeGameImage(files[i])});
+                }
+                bingoBulkStage={mode,size:Number(bingoDraft.size||4),
+                  squares:targets.slice(0,entries.length),entries};
+                renderActivities();
+              }catch(error){
+                bingoBulkStage=null;renderActivities();toast('One or more pictures could not be processed. No squares were changed.');
+              }
+            };
+            if($bulk('#bingoBulkCancel'))$bulk('#bingoBulkCancel').onclick=()=>{
+              bingoBulkStage=null;renderActivities();
+            };
+            if($bulk('#bingoBulkApply'))$bulk('#bingoBulkApply').onclick=()=>{
+              const stage=bingoBulkStage;if(!stage)return;
+              const mode=bingoDraft.bulkMode==='replace'?'replace':'empty';
+              const size=Number(bingoDraft.size||4),targets=bingoBulkTargetSquares(mode);
+              if(stage.mode!==mode||stage.size!==size||
+                  stage.squares.some((v,i)=>v!==targets[i])){
+                bingoBulkStage=null;renderActivities();return toast('Card changed. Please choose your pictures again.');
+              }
+              if(mode==='replace'&&(bingoDraft.numberedSlots||[]).some(s=>s?.call)&&
+                  !confirm('Replace all card items with this picture set? Unsaved card changes will be replaced.'))return;
+              const created=stage.entries.map(a=>({
+                id:newGameAssetId(),name:a.name,image:a.image,collection:'Custom',createdAt:Date.now()
+              }));
+              if(!persistGameStore(GAME_IMAGE_LIBRARY_STORE,[...gameImageLibrary,...created]))
+                return toast('Could not save the new pictures. Card has not been changed.');
+              const slots=mode==='replace'?[]:[...(bingoDraft.numberedSlots||[])];
+              created.forEach((a,i)=>{
+                const index=stage.squares[i];
+                slots[index]={slot:index+1,call:a.name,text:'',image:a.image,label:a.name};
+              });
+              gameImageLibrary=[...gameImageLibrary,...created];
+              bingoDraft.numberedSlots=slots;bingoDraft.numberedMode=true;bingoDraft.editSlot=-1;
+              bingoBulkStage=null;renderActivities();
+              toast(created.length+' pictures added! Save your Bingo set when it is complete.');
+            };
+          }
+          """
+          one("function newGameAssetId(){",js+"\nfunction newGameAssetId(){")
+          hook="""    const bingoBulkSlotGrid=grid.querySelector('.bingo-slot-picker');
+              if(bingoBulkSlotGrid){
+                bingoBulkSlotGrid.insertAdjacentHTML('beforebegin',bingoBulkUploadMarkup());
+                wireBingoBulkUploader();
+              }
+          """
+          one("    $('#bingoSetName').oninput=e=>bingoDraft.name=e.target.value;",hook+"    $('#bingoSetName').oninput=e=>bingoDraft.name=e.target.value;")
+          css=r"""<style id="v85-bingo-bulk-upload">
+          #teacher .bingo-bulk-panel{padding:14px;margin:8px 0 16px;border:1px solid #379fc4;border-radius:14px;background:linear-gradient(145deg,#0b3553,#101d40);text-align:left}
+          #teacher .bingo-bulk-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+          #teacher .bingo-bulk-head b{color:#9beaff;font-size:17px;letter-spacing:.02em}
+          #teacher .bingo-bulk-head span{color:#c0e1ff;font-size:12px}
+          #teacher .bingo-bulk-panel p{color:#c5dcf0;font-size:12px;line-height:1.5;margin:9px 0}
+          #teacher .bingo-bulk-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end}
+          #teacher .bingo-bulk-controls label{color:#b5e3ff;font-size:11px;font-weight:900;letter-spacing:.06em}
+          #teacher .bingo-bulk-controls select{width:100%;min-width:0;min-height:41px;display:block;margin-top:5px;border:1px solid #3d89b9;border-radius:9px;background:#071a31;color:#fff;padding:8px}
+          #teacher #bingoBulkChoose{min-height:42px;padding:9px 16px;border:1px solid #78e7b8;border-radius:10px;background:linear-gradient(180deg,#1aab79,#08744c);color:white;font-size:13px;font-weight:900}
+          #teacher #bingoBulkChoose:disabled{opacity:.4;cursor:not-allowed}
+          #teacher .bingo-bulk-message{font-size:12px;color:#a8d8f9;line-height:1.45;margin-top:10px}
+          #teacher .bingo-bulk-preview-heading{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;margin:15px 0 7px;color:#fff}
+          #teacher .bingo-bulk-preview-heading span{color:#a7cce8;font-size:11px}
+          #teacher .bingo-bulk-preview{max-height:350px;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;padding:9px;border-radius:10px;background:#06172f}
+          #teacher .bingo-bulk-preview-item{min-width:0;display:flex;flex-direction:column;gap:5px;padding:6px;background:#153757;border:1px solid #387bb0;border-radius:9px;text-align:center}
+          #teacher .bingo-bulk-preview-item>span{font-size:10px;font-weight:900;color:#b8edff}
+          #teacher .bingo-bulk-preview-item img{height:76px;width:100%;object-fit:contain;background:#f1f3f1;border-radius:6px}
+          #teacher .bingo-bulk-preview-item b{font-size:11px;color:#fff;overflow-wrap:anywhere}
+          #teacher .bingo-bulk-confirm{display:flex;flex-wrap:wrap;gap:9px;margin-top:11px}
+          #teacher .bingo-bulk-confirm button{min-height:39px;padding:8px 13px;border:1px solid #5b94bf;border-radius:9px;background:#1c486e;color:#fff;font-weight:800}
+          #teacher #bingoBulkApply{background:#198856;border-color:#79dfb5}
+          @media(max-width:610px){#teacher .bingo-bulk-controls{grid-template-columns:1fr}#teacher #bingoBulkChoose{width:100%}}
+          </style>"""
+          assert 'id="v85-bingo-bulk-upload"' not in s
+          idx=s.index("</head>")
+          s=s[:idx]+css+s[idx:]
+          src.write_text(s,encoding='utf-8')
+          new=src.read_bytes()
+          print('PATCH_OK original='+blob(raw)+' new='+blob(new)+' bytes='+str(len(new)))
+          assert len(new)<1550000
+          assert s.count('id="v85-bingo-bulk-upload"')==1
+          assert s.count("wireBingoBulkUploader();")==1
+          PY
+          git diff --check
+          gate_rc=0
+          python scripts/release_gate.py --require-node > /tmp/bingo-bulk-gate.txt 2>&1 || gate_rc=$?
+          tail -n 12 /tmp/bingo-bulk-gate.txt
+          if [ "$gate_rc" -ne 0 ]; then
+            grep -Fq 'PASS  javascript: inline scripts parse' /tmp/bingo-bulk-gate.txt
+            test "$(grep -c '^FAIL ' /tmp/bingo-bulk-gate.txt || true)" -le 1
+            grep -Fq 'unified buttons v56.8: classroom art tiles match shortcut family' /tmp/bingo-bulk-gate.txt
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Add Bingo bulk photo upload with preview and fill or replace modes"
+          git push
