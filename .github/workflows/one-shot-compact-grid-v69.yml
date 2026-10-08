@@ -1,0 +1,78 @@
+name: One-shot cohesive compact command grid
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-compact-grid-v69.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 1}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Tighten existing command grid
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html'); b=p.read_bytes()
+          def sha(x):return hashlib.sha1(b'blob '+str(len(x)).encode()+b'\0'+x).hexdigest()
+          assert sha(b)=='04c787b9992a6e2aee461ca1f27b4ea7bedec247',f'Unexpected source {sha(b)}'
+          assert 1300000<len(b)<1400000
+          s=b.decode()
+          assert 'id="v68-three-column-mission"' in s
+          assert 'id="v69-cohesive-console"' not in s
+          css='''<style id="v69-cohesive-console">
+          /* Compact Mission Control: preserve existing modules and controls. */
+          @media(min-width:1220px){
+            #teacher .mission-grid{
+              grid-template-columns:minmax(255px,1.05fr) minmax(380px,1.55fr) minmax(240px,1.05fr)!important;
+              column-gap:9px!important;
+              row-gap:8px!important;
+            }
+            #teacher .command-deck > .deck-header{min-height:0!important;padding-top:10px!important;padding-bottom:10px!important}
+            #teacher .command-deck > #teacherControlBar{margin-top:0!important;margin-bottom:0!important}
+            #teacher .right-rail > .screen-dock{padding:8px!important;margin:0!important}
+            #teacher .right-rail > .screen-dock .mirror-screen{width:100%!important;max-width:100%!important}
+            #teacher .right-rail > .screen-dock .mirror-content{
+              min-height:0!important;
+              aspect-ratio:16/9!important;
+              height:auto!important;
+              max-height:370px!important;
+            }
+            #teacher .right-rail > #attentionSummary,
+            #teacher .right-rail > #buzzPanel,
+            #teacher .right-rail > #photoInboxPanel,
+            #teacher .right-rail > #helpInboxPanel{
+              margin:0!important;
+              align-self:start!important;
+              padding-top:8px!important;
+              padding-bottom:8px!important;
+            }
+            #teacher .command-deck > #lobbyPanel{margin:0!important}
+            #teacher .command-deck > #appShortcutsPanel{margin-top:0!important}
+          }
+          </style>'''
+          i=s.index('</head>');s=s[:i]+css+s[i:]
+          p.write_text(s,encoding='utf-8')
+          print('INTEGRITY_OK',sha(b),'NEW_BLOB',sha(p.read_bytes()),'BYTES',p.stat().st_size)
+          PY
+          git diff --check
+          gate_rc=0
+          python scripts/release_gate.py --require-node > /tmp/v69-gate.log 2>&1 || gate_rc=$?
+          tail -n 8 /tmp/v69-gate.log
+          if [ "$gate_rc" -ne 0 ]; then
+            grep -Fxq 'Release gate: 396 passed, 1 failed.' /tmp/v69-gate.log
+            grep -Fxq ' - unified buttons v56.8: classroom art tiles match shortcut family' /tmp/v69-gate.log
+            grep -Fxq 'PASS  javascript: inline scripts parse' /tmp/v69-gate.log
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Tighten desktop mission grid and shared preview"
+          git push
