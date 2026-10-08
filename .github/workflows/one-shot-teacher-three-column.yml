@@ -1,0 +1,81 @@
+name: One-shot three-column teacher layout
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-teacher-three-column.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 1}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Guarded three-column CSS pass
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html');b=p.read_bytes()
+          def sha(x):return hashlib.sha1(b'blob '+str(len(x)).encode()+b'\0'+x).hexdigest()
+          assert sha(b)=='af2ae96df8523ac077314d8ca796bc814cf9a049',f'Unexpected source: {sha(b)}'
+          assert 1300000<len(b)<1400000
+          s=b.decode('utf-8')
+          for x in ('<div class="mission-grid">','<main class="command-deck">','<aside class="right-rail">','id="lobbyPanel"','class="panel screen-dock"','id="attentionSummary"','id="buzzPanel"','id="photoInboxPanel"','id="helpInboxPanel"','id="appShortcutsPanel"'):
+            assert x in s,x
+          assert 'id="v68-three-column-mission"' not in s
+          css='''<style id="v68-three-column-mission">
+          /* Desktop command center: only placement changes. Original nodes and events remain intact. */
+          @media (min-width:1220px){
+            #teacher .mission-grid{
+              display:grid!important;
+              grid-template-columns:minmax(230px,1fr) minmax(380px,1.8fr) minmax(225px,.95fr)!important;
+              gap:12px!important;
+              align-items:start!important;
+              width:100%!important;
+            }
+            #teacher .mission-grid > .command-deck,
+            #teacher .mission-grid > .right-rail{display:contents!important}
+            #teacher .command-deck > .deck-header{grid-column:1/-1;grid-row:1;min-width:0}
+            #teacher .command-deck > #teacherControlBar{grid-column:1/-1;grid-row:2;min-width:0}
+            #teacher .command-deck > #lobbyPanel{grid-column:1;grid-row:3 / span 4;min-width:0;align-self:start;max-width:none!important}
+            #teacher .right-rail > .screen-dock{
+              grid-column:2;grid-row:3 / span 4;min-width:0;align-self:start;
+              width:100%!important;max-width:none!important;
+              padding:12px!important;
+            }
+            #teacher .right-rail > .screen-dock .mirror-screen{width:100%!important;max-width:none!important}
+            #teacher .right-rail > .screen-dock .mirror-content{min-height:260px!important}
+            #teacher .right-rail > #attentionSummary{grid-column:3;grid-row:3;min-width:0}
+            #teacher .right-rail > #buzzPanel{grid-column:3;grid-row:4;min-width:0}
+            #teacher .right-rail > #photoInboxPanel{grid-column:3;grid-row:5;min-width:0}
+            #teacher .right-rail > #helpInboxPanel{grid-column:3;grid-row:6;min-width:0}
+            #teacher .command-deck > :not(.deck-header):not(#teacherControlBar):not(#lobbyPanel){
+              grid-column:1/3;min-width:0
+            }
+            #teacher .command-deck > #dashboardToolsRow{grid-row:7;grid-column:1/3}
+            #teacher .right-rail > .attention-panel{max-height:260px;overflow:auto}
+          }
+          </style>'''
+          i=s.index('</head>');s=s[:i]+css+s[i:]
+          p.write_text(s,encoding='utf-8')
+          print('INTEGRITY_OK',sha(b),'NEW_BLOB',sha(p.read_bytes()),'BYTES',p.stat().st_size)
+          PY
+          git diff --check
+          gate_rc=0
+          python scripts/release_gate.py --require-node > /tmp/three-column-gate.log 2>&1 || gate_rc=$?
+          tail -n 8 /tmp/three-column-gate.log
+          if [ "$gate_rc" -ne 0 ]; then
+            grep -Fxq 'Release gate: 396 passed, 1 failed.' /tmp/three-column-gate.log
+            grep -Fxq ' - unified buttons v56.8: classroom art tiles match shortcut family' /tmp/three-column-gate.log
+            grep -Fxq 'PASS  javascript: inline scripts parse' /tmp/three-column-gate.log
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Arrange desktop Mission Control in three columns"
+          git push
