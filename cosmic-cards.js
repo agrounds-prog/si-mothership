@@ -207,10 +207,46 @@ function cosmicWireSetup(){
   document.querySelectorAll('[data-cosmic-rule]').forEach(b=>b.onclick=()=>cosmicSetTurnRule(b.dataset.cosmicRule));
   const launch=document.querySelector('#cosmicLaunchBtn');if(launch)launch.onclick=cosmicLaunch;
 }
+function cosmicSceneMarkup(mode='shared'){
+  let seed=22443;const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+  const stars=Array.from({length:115},(_,i)=>'<circle cx="'+Math.round(rand()*1440)+'" cy="'+Math.round(rand()*540)+'" r="'+(0.5+rand()*1.8).toFixed(1)+'" fill="'+(i%8?'#bde6ff':'#ffdfaf')+'" opacity="'+(.3+rand()*.7).toFixed(2)+'"/>').join('');
+  return '<div class="cc-scene cc-scene-'+mode+'" aria-hidden="true"><svg viewBox="0 0 1440 540" preserveAspectRatio="xMidYMid slice" focusable="false">'+
+    '<defs><radialGradient id="cc-sky"><stop stop-color="#244db0"/><stop offset=".55" stop-color="#122860"/><stop offset="1" stop-color="#030b1c"/></radialGradient>'+
+    '<radialGradient id="cc-planet"><stop stop-color="#58c6ff"/><stop offset=".49" stop-color="#286fb8"/><stop offset="1" stop-color="#11204d"/></radialGradient>'+
+    '<radialGradient id="cc-gas"><stop stop-color="#eac68f"/><stop offset=".64" stop-color="#ad8391"/><stop offset="1" stop-color="#3c4872"/></radialGradient>'+
+    '<linearGradient id="cc-metal" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#2b557a"/><stop offset=".5" stop-color="#061024"/><stop offset="1" stop-color="#253c67"/></linearGradient></defs>'+
+    '<rect width="1440" height="540" fill="url(#cc-sky)"/>'+stars+
+    '<circle cx="1320" cy="43" r="196" fill="url(#cc-planet)"/>'+
+    '<path d="M-120 518Q68 185 520 460L640 620H-100Z" fill="url(#cc-planet)"/>'+
+    '<path d="M-55 481Q98 280 401 422" fill="none" stroke="#a4eaff" stroke-width="7" opacity=".8"/>'+
+    '<g transform="translate(1125 274) rotate(-18)"><ellipse rx="172" ry="60" stroke="#cfbee3" stroke-width="17" fill="none" opacity=".45"/>'+
+    '<circle r="96" fill="url(#cc-gas)"/><path d="M-90 -25Q0 -49 90 -25M-91 8Q0 -10 91 8" stroke="#ffe3b7" stroke-opacity=".28" stroke-width="12" fill="none"/>'+
+    '<path d="M-171 10Q0 98 171 10" stroke="#d4c4d9" stroke-width="13" fill="none" opacity=".8"/></g>'+
+    '<g transform="translate(305 185) rotate(-15)" stroke="#84c0e9" stroke-width="2" fill="#05172d">'+
+    '<path d="M-98 4L-10 -12 60 -10 100 -20 113 -8 35 10 -42 13Z"/><path d="M-12 -10L-49 -43 -17 -36 34 -8Z"/>'+
+    '<path d="M-10 9L-42 28 -18 24 32 7Z"/><circle cx="23" cy="-7" r="3" fill="#8cffff" stroke="none"/></g>'+
+    '<path d="M0 0H1440L1380 23H60Z" fill="url(#cc-metal)" stroke="#4a9ccc" stroke-width="4"/>'+
+    '<path d="M0 0H68L112 352 0 415Z" fill="url(#cc-metal)" stroke="#5982b0" stroke-width="5"/>'+
+    '<path d="M1440 0H1372L1328 352 1440 415Z" fill="url(#cc-metal)" stroke="#5982b0" stroke-width="5"/>'+
+    '<path d="M0 463L136 402 503 430H937L1304 402 1440 463V540H0Z" fill="#08132a" stroke="#4c88af" stroke-width="6"/>'+
+    '<path d="M15 460L144 428 507 451H933L1294 428 1425 460" fill="none" stroke="#67dfff" stroke-width="6"/>'+
+    '<path d="M92 16H306M1138 16H1344" stroke="#ffcc73" stroke-width="8"/></svg></div>';
+}
+function cosmicRobotAvatarMarkup(index){
+  const hue=['#7cdeff','#8cffe1','#d5aaff','#ffe098','#ffa5b6','#9cafff','#d4ffaa','#8bf6fa'][index%8];
+  return '<span class="cc-avatar-orbit" aria-hidden="true"><svg viewBox="0 0 76 76" focusable="false">'+
+    '<circle cx="38" cy="38" r="35" fill="#092440" stroke="'+hue+'" stroke-width="2.4"/>'+
+    '<path d="M23 18Q38 9 53 18L59 28V50Q50 63 38 63Q26 63 17 50V28Z" fill="#b9deff" stroke="#e9faff" stroke-width="2"/>'+
+    '<rect x="20" y="27" width="36" height="25" rx="11" fill="#071831" stroke="'+hue+'" stroke-width="2.5"/>'+
+    '<ellipse cx="29" cy="40" rx="5" ry="6" fill="'+hue+'"/><ellipse cx="47" cy="40" rx="5" ry="6" fill="'+hue+'"/>'+
+    '<path d="M38 17V10" stroke="#c3f7ff" stroke-width="3"/><circle cx="38" cy="9" r="4" fill="'+hue+'"/></svg></span>';
+}
+
 function cosmicCardMarkup(c,{disabled=false,small=false,back=false,selected=false}={}){
-  if(back)return '<span class="cc-card cc-back'+(small?' small':'')+'"><i>✦</i><b>CC</b></span>';
+  if(back)return '<span class="cc-card cc-back'+(small?' small':'')+'"><span class="cc-card-stars" aria-hidden="true"></span><i>✦</i><b>CC</b></span>';
   if(!c)return '<span class="cc-card cc-back">✦</span>';
   return '<span class="cc-card cc-'+c.color+(small?' small':'')+(disabled?' dim':'')+(selected?' selected':'')+'">'+
+    '<span class="cc-card-stars" aria-hidden="true"></span><span class="cc-card-planet" aria-hidden="true"></span>'+ 
     '<small>'+cosmicCardLabel(c)+'</small><b>'+cosmicCardLabel(c)+'</b><small>'+cosmicCardLabel(c)+'</small></span>';
 }
 function cosmicTableMarkup(run=state.activityRun,big=false){
@@ -218,7 +254,7 @@ function cosmicTableMarkup(run=state.activityRun,big=false){
   const top=g.discard[g.discard.length-1],current=cosmicPlayer(run);
   const audience=cosmicNames().filter(n=>!g.players.includes(n));
   const rule=cosmicRuleTitle(g.turnRule);
-  return '<div class="cc-public">'+
+  return '<div class="cc-public cc-cinematic">'+cosmicSceneMarkup('shared')+
     '<div class="cc-table-head"><span class="cc-brand"><span class="cc-brand-symbol">✦</span> COSMIC CARDS</span><span class="cc-round">ROUND '+Number(g.round||1)+'</span></div>'+
     '<div class="cc-game-flags"><span class="cc-flag">◉ '+rule+' RULE</span><span class="cc-flag">'+(g.direction===-1?'↶ COUNTERCLOCKWISE':'↷ CLOCKWISE')+'</span></div>'+
     (g.status==='won'?'<div class="cc-victory">🏆 '+esc(g.winner)+' WINS!</div>':
@@ -226,9 +262,9 @@ function cosmicTableMarkup(run=state.activityRun,big=false){
     '<div class="cc-table-center cc-arena cc-arena-'+g.color+'"><div class="cc-deck"><span>DRAW PILE · '+g.deck.length+'</span>'+cosmicCardMarkup(null,{back:true})+'</div>'+
     '<div class="cc-reactor cc-reactor-'+g.color+'"><small>ACTIVE COLOR</small><b>'+COSMIC_COLOR_NAMES[g.color]+'</b></div>'+
     '<div class="cc-live-card"><span>DISCARD PILE</span>'+cosmicCardMarkup(top)+'</div></div>'+
-    '<div class="cc-game-message"><span>TRANSMISSION</span><p>'+esc(g.message||'')+'</p></div>'+
-    '<div class="cc-players">'+g.players.map(n=>'<div class="cc-player '+(n===current&&g.status==='playing'?'active':'')+(n===g.winner?' winner':'')+'">'+
-      '<span class="cc-player-avatar">'+esc(String(n).slice(0,1).toUpperCase())+'</span><b>'+esc(n)+'</b><span>'+((g.counts&&g.counts[n]!==undefined)?g.counts[n]:(g.hands[n]||[]).length)+' CARDS</span>'+(g.called[n]?' <em>COSMIC!</em>':'')+
+    '<div class="cc-game-message"><span class="cc-transmit-icon" aria-hidden="true">◉</span><span>TRANSMISSION</span><p>'+esc(g.message||'')+'</p></div>'+
+    '<div class="cc-players">'+g.players.map((n,i)=>'<div class="cc-player '+(n===current&&g.status==='playing'?'active':'')+(n===g.winner?' winner':'')+'">'+
+      cosmicRobotAvatarMarkup(i)+'<span class="cc-player-name"><b>'+esc(n)+'</b><small class="cc-player-badge">'+esc(String(n).slice(0,1).toUpperCase())+'</small></span><span class="cc-player-count">'+((g.counts&&g.counts[n]!==undefined)?g.counts[n]:(g.hands[n]||[]).length)+' CARDS</span>'+(g.called[n]?' <em>COSMIC!</em>':'')+
       (!cosmicNames().includes(n)?'<small>OFFLINE</small>':'')+'</div>').join('')+'</div>'+
     (audience.length?'<div class="cc-audience"><b>AUDIENCE · '+audience.length+'</b><span>'+audience.map(esc).join(' · ')+'</span></div>':'')+
   '</div>';
@@ -237,21 +273,21 @@ function cosmicStudentMarkup(s){
   const g=cosmicActive(),name=s?.n||'';
   if(!g)return '';
   if(!g.players.includes(name)){
-    return '<div class="cc-device cc-spectator"><span class="eyebrow">COSMIC CARDS · AUDIENCE</span>'+
+    return '<div class="cc-device cc-cinematic cc-spectator">'+cosmicSceneMarkup('mobile')+'<span class="eyebrow">COSMIC CARDS · AUDIENCE</span>'+
       '<div class="cc-spectator-mark">✦</div><h2>MISSION OBSERVER</h2><p>You are in the audience for this round. Watch the table and cheer your classmates on!</p>'+
       '<div class="cc-spectator-info">'+esc(cosmicPlayer()||'—')+' is playing · '+g.players.length+' players</div></div>';
   }
   const hand=g.hands[name]||[],mine=cosmicPlayer()===name&&g.status==='playing';
   const top=g.discard[g.discard.length-1];
-  return '<div class="cc-device"><span class="eyebrow">COSMIC CARDS · PRIVATE HAND</span>'+
+  return '<div class="cc-device cc-cinematic">'+cosmicSceneMarkup('mobile')+'<span class="eyebrow">COSMIC CARDS · PRIVATE HAND</span>'+
     '<h2>'+(g.status==='won'?(g.winner===name?'🏆 YOU WIN!':esc(g.winner)+' WINS!'):
       mine?'YOUR TURN, '+esc(name)+'!':'WAITING FOR '+esc(cosmicPlayer()||'—'))+'</h2>'+
     '<div class="cc-device-rule">'+(g.turnRule==='continue'?'↻ KEEP PLAYING AFTER A MATCH':'➜ NEXT PLAYER AFTER A MATCH')+'</div>'+
     (mine&&g.chainOpen?'<div class="cc-chain-banner">✦ KEEP GOING! PLAY ANOTHER CARD OR END YOUR TURN</div>':'')+
-    '<div class="cc-device-status"><span class="cc-device-color cc-device-color-'+g.color+'">COLOR <b>'+COSMIC_COLOR_NAMES[g.color]+'</b></span>'+
-      '<span>TOP '+cosmicCardLabel(top)+'</span><span>'+hand.length+' CARDS</span></div>'+
+    '<div class="cc-device-status"><span class="cc-device-color cc-device-color-'+g.color+'"><i class="cc-color-lamp"></i><span>COLOR <b>'+COSMIC_COLOR_NAMES[g.color]+'</b></span></span>'+
+      '<span><i class="cc-stat-icon">▣</i><span>TOP <b>'+cosmicCardLabel(top)+'</b></span></span><span><i class="cc-stat-icon">▱</i><span><b>'+hand.length+'</b> CARDS</span></span></div>'+
     '<div class="cc-hand-heading"><strong>YOUR HAND</strong><span>'+hand.length+' CARDS</span></div>'+ 
-    '<div class="cc-hand">'+hand.map(c=>{
+    '<div class="cc-hand cc-hand-dock">'+hand.map(c=>{
       const playable=mine&&cosmicCanPlay(g,name,c);
       return '<button type="button" class="cc-hand-button" data-cosmic-card="'+esc(c.id)+'" '+(playable?'':'disabled')+' aria-label="'+esc(COSMIC_COLOR_NAMES[c.color]+' '+cosmicCardLabel(c))+'">'+
         cosmicCardMarkup(c,{disabled:!playable})+'</button>';
@@ -265,7 +301,7 @@ function cosmicStudentMarkup(s){
         (g.drawnId||g.chainOpen?'<button id="cosmicPassBtn">'+(g.chainOpen?'✓ END TURN':'PASS')+'</button>':''):'<span>Watch the shared screen while others take their turns.</span>')+
       (hand.length===1&&!g.called[name]?'<button class="cc-call-btn" id="cosmicCallBtn">✦ COSMIC!</button>':'')+
       '</div>':'')+
-    '<p class="cc-help">Match the current color or top card symbol. Wild cards change the color. '+(mine?'Only your highlighted cards can be played.':'Your cards remain private on this device.')+'</p></div>';
+    '<p class="cc-help"><span class="cc-info-mark" aria-hidden="true">i</span><span>Match the current color or top card symbol. Wild cards change the color. '+(mine?'Only your highlighted cards can be played.':'Your cards remain private on this device.')+'</span></p><div class="cc-device-bottom" aria-hidden="true">◌ &nbsp; COSMIC CARDS</div></div>';
 }
 function cosmicTeacherMarkup(){
   const g=cosmicActive(),run=state.activityRun;if(!g)return '';
