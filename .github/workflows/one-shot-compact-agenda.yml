@@ -1,0 +1,75 @@
+name: One-shot compact Agenda Activities
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-compact-agenda.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Apply guarded compact layout
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          path=Path('index.html')
+          raw=path.read_bytes()
+          old=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+          assert old=='8473d2ef74710d0f147ab73b3a1924467112f92e',f'Stale source: {old}'
+          assert 1300000<len(raw)<1400000
+          s=raw.decode('utf-8')
+          assert 'id="v63-compact-agenda-activities"' not in s
+          for match in ('id="agendaPanel"','id="activitiesPanel"','class="agenda-grid"','id="favoriteGrid"','id="activityGrid"'):
+            assert match in s,match
+          css='''<style id="v63-compact-agenda-activities">
+          /* Compact authoring surfaces. Keep existing elements and click handlers intact. */
+          #teacher #agendaPanel,#teacher #activitiesPanel{min-height:0!important;height:auto!important;align-self:start!important;padding:18px!important}
+          #teacher #agendaPanel .mode-title,#teacher #activitiesPanel .mode-title{margin-bottom:14px!important;gap:12px!important}
+          #teacher #agendaPanel .mode-title h2,#teacher #activitiesPanel .mode-title h2{font-size:21px!important;line-height:1.25!important}
+          #teacher #agendaPanel .agenda-grid{display:grid!important;grid-template-columns:minmax(0,1.35fr) minmax(260px,.85fr)!important;align-items:start!important;gap:14px!important;width:100%!important;max-width:1120px!important;margin:0 auto!important}
+          #teacher #agendaPanel .agenda-stage{min-height:0!important;height:auto!important;aspect-ratio:16/10!important;padding:15px!important;overflow:hidden!important}
+          #teacher #agendaPanel .agenda-stage img{max-height:100%!important;object-fit:contain!important}
+          #teacher #agendaPanel .agenda-stage iframe{max-height:100%!important}
+          #teacher #agendaPanel .agenda-editor{padding:14px!important;gap:9px!important;align-self:start!important}
+          #teacher #agendaPanel .agenda-editor textarea{min-height:85px!important;max-height:210px!important}
+          #teacher #activitiesPanel .favorite-wrap{margin:0 0 12px!important;padding:12px!important}
+          #teacher #activitiesPanel .favorite-grid{gap:8px!important}
+          #teacher #activitiesPanel .favorite-slot{min-height:65px!important}
+          #teacher #activitiesPanel .activity-grid{gap:10px!important;align-items:stretch!important}
+          #teacher #activitiesPanel .activity-card{min-height:0!important;padding:12px!important}
+          #teacher #activitiesPanel .activity-card h3{font-size:15px!important}
+          #teacher #activitiesPanel .activity-card p{font-size:12px!important;margin-bottom:8px!important}
+          @media(min-width:1400px){
+            #teacher #activitiesPanel .activity-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+          }
+          @media(max-width:1000px){
+            #teacher #agendaPanel .agenda-grid{grid-template-columns:1fr!important;max-width:700px!important}
+            #teacher #agendaPanel .agenda-stage{aspect-ratio:16/9!important}
+          }
+          @media(max-width:620px){
+            #teacher #agendaPanel,#teacher #activitiesPanel{padding:12px!important}
+            #teacher #activitiesPanel .activity-grid{grid-template-columns:1fr!important}
+            #teacher #activitiesPanel .favorite-title{flex-wrap:wrap!important;gap:6px!important}
+          }
+          </style>
+          '''
+          i=s.index('</head>')
+          s=s[:i]+css+s[i:]
+          assert s.index('id="v63-compact-agenda-activities"')<s.index('</head>')
+          assert s.count('id="v63-compact-agenda-activities"')==1
+          path.write_text(s,encoding='utf-8')
+          updated=path.read_bytes()
+          print('SOURCE_OK',old,'NEW_SHA',hashlib.sha1(b'blob '+str(len(updated)).encode()+b'\0'+updated).hexdigest(),'BYTES',len(updated))
+          PY
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Compact Agenda and Activities workspace"
+          git push
