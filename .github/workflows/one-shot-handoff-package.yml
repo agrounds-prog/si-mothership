@@ -1,0 +1,88 @@
+name: One-shot handoff package
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-shot-handoff-package.yml'
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 63c500bb6f747e79b3adc823b09f0dc65780137f
+          fetch-depth: 1
+      - name: Build handoff package
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > HANDOFF.md <<'EOF'
+# SI Mothership Handoff
+
+Current source baseline: 63c500bb6f747e79b3adc823b09f0dc65780137f
+Latest verified Railway deployment: 287ccff7-da01-436f-86ea-3f4d7e191880 — SUCCESS
+Production: https://mothership-web-production.up.railway.app
+Repository: agrounds-prog/si-mothership
+Branch: main
+
+## Handoff paragraph
+Continue work on the SI Mothership classroom management app from commit 63c500bb6f747e79b3adc823b09f0dc65780137f. The Student Device has already been substantially polished: mobile lobby fit, vibrant home controls, Ready Check, Emotion Check, Understanding Check, Picture Prompt/Send Photo, Ask for Help feedback, Raise Hand/Buzz active feedback, and Classroom Live/Agenda. Teacher Mission Control has also begun its polish pass: the Help Inbox, Photo Inbox, Buzz Queue, Class Alerts summary, and live roster response signals have been upgraded. Preserve every existing workflow, ID, event handler, roster/session behavior, student join flow, activities, Shared Screen, and Railway configuration. For main-app CSS, always insert before the FIRST literal </head> using s.index("</head>"), never rfind, because later </head> strings live inside popup HTML templates. index.html is ~1.33 MB, so use the established one-shot GitHub Actions patch workflow with exact blob SHA checks rather than direct large-file writes. After every change, verify the marker exists once before the first </head>, verify source size/integrity, and do not consider deployment finished until the final Railway deployment reaches terminal SUCCESS.
+
+## Current project details
+- GitHub repo: agrounds-prog/si-mothership
+- Branch: main
+- Production URL: https://mothership-web-production.up.railway.app
+- Student direct: https://mothership-web-production.up.railway.app/?role=student
+- Railway project: 7c04a02a-edc4-404f-a8b0-46d679df4d99
+- Railway environment: f58660ac-4dd2-4469-a326-769c7e1a7297
+- Railway service mothership-web: 7c7fc1ba-7fc2-477b-8c21-fd06eef0b409
+- Railway volume mothership-data: 2accca57-a125-4eae-a5c4-2b64b180e2bb mounted at /data
+- Start command: python server.py
+- Healthcheck: /api/health
+- Do not modify Railway service, variables, commands, or /data volume unless explicitly asked.
+
+## Current UI progress
+Student Device completed/polished:
+- Join/avatar/name confirmation
+- Mobile lobby fit with smaller hero/avatar so controls fit
+- Vibrant color-coded home controls
+- Ready Check
+- Emotion Check
+- Understanding Check
+- Picture Prompt / Send Photo
+- Ask for Help composer + Help Sent state
+- Raise Hand active state
+- Buzz In active state
+- Classroom Live / Agenda text/image/video surfaces
+
+Teacher Mission Control completed/polished:
+- Class Alerts summary
+- Buzz Queue
+- Photo Inbox
+- Ask for Help Inbox
+- Live roster response signals for persistent Ready/Emotion/Understanding/Photo status
+- Existing Hand/Help/Buzz roster alert badges preserved
+
+## Important implementation rules
+1. SI+ standalone and SI Mothership are different projects. This repo is SI Mothership.
+2. User prefers direct implementation when they say "proceed."
+3. Never use rfind("</head>") for main document CSS.
+4. Preserve all IDs, handlers, workflows, join/session behavior, activities, and Shared Screen behavior.
+5. index.html is large; use safe one-shot GitHub Actions patches with exact blob checks.
+6. Final verification requires GitHub source integrity AND Railway terminal SUCCESS.
+7. Do not modify or recreate Railway resources or the /data volume.
+8. Disabled student controls in Lobby should remain behaviorally disabled; visual polish only unless explicitly requested.
+
+## Latest files
+This package contains the repository snapshot used for handoff, excluding .git and old nested ZIP archives.
+
+EOF
+          find . -maxdepth 3 -type f | sort > PROJECT_TREE.txt
+          zip -r SI_Mothership_Handoff_2026-10-07.zip . -x '.git/*' '*.zip' '__pycache__/*' '*.pyc'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SI_Mothership_Handoff_2026-10-07
+          path: SI_Mothership_Handoff_2026-10-07.zip
+          retention-days: 7
