@@ -1,0 +1,104 @@
+/* Starwheel v92: prominent result announcements and dramatic wheel suspense. */
+#shared .starwheel-turn-card .starwheel-message.sw-outcome{
+  display:flex!important;align-items:center!important;gap:clamp(12px,1.4vw,21px)!important;
+  min-height:112px!important;margin:17px 0 14px!important;
+  padding:clamp(13px,1.5vw,21px)!important;
+  border:2px solid #f7b35e!important;border-radius:17px!important;
+  color:#fff!important;
+  background:linear-gradient(135deg,#553044,#241b54)!important;
+  box-shadow:0 0 21px #fb985139,inset 0 1px 0 #ffffff31!important;
+  text-align:left!important;
+}
+#shared .starwheel-turn-card .starwheel-message.sw-outcome.sw-hit{
+  border-color:#77f2bf!important;
+  background:linear-gradient(130deg,#084c55,#102b56)!important;
+  box-shadow:0 0 20px #25e8b140,inset 0 1px 0 #ffffff25!important;
+}
+#shared .starwheel-turn-card .starwheel-message .sw-outcome-letter{
+  display:flex!important;flex:none!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;
+  width:clamp(72px,8vw,112px)!important;
+  min-height:clamp(78px,8vw,113px)!important;
+  border:2px solid #ffd387!important;border-radius:16px!important;
+  background:linear-gradient(150deg,#bc6146,#72264d)!important;
+  color:white!important;font-size:clamp(38px,4.1vw,56px)!important;
+  font-weight:1000!important;line-height:1!important;
+  text-shadow:0 2px 4px #0009!important;
+  box-shadow:0 4px 12px #0005,inset 0 1px 0 #ffffff64!important;
+}
+#shared .starwheel-turn-card .starwheel-message.sw-hit .sw-outcome-letter{
+  border-color:#9af7ce!important;background:linear-gradient(150deg,#18a795,#11578c)!important;
+}
+#shared .starwheel-turn-card .starwheel-message .sw-outcome-letter small{
+  font-size:clamp(11px,1.15vw,16px)!important;
+  font-weight:1000!important;line-height:1.15!important;margin-top:5px!important;
+  color:#fff1bd!important;white-space:nowrap;
+}
+#shared .starwheel-turn-card .starwheel-message .sw-outcome-body{
+  display:flex!important;flex-direction:column!important;min-width:0!important;gap:5px!important;
+}
+#shared .starwheel-turn-card .starwheel-message .sw-outcome-eyebrow{
+  color:#ffe5bb!important;font-size:clamp(11px,1.05vw,15px)!important;
+  font-weight:950!important;letter-spacing:.16em!important;line-height:1.2!important;
+}
+#shared .starwheel-turn-card .starwheel-message.sw-hit .sw-outcome-eyebrow{color:#b8ffe1!important}
+#shared .starwheel-turn-card .starwheel-message .sw-outcome-headline{
+  display:block!important;font-size:clamp(22px,2.45vw,34px)!important;
+  line-height:1.08!important;font-weight:1000!important;
+  color:#fff!important;text-shadow:0 3px 8px #0007!important;
+}
+#shared .starwheel-turn-card .starwheel-message .sw-outcome-next{
+  display:block!important;font-size:clamp(15px,1.45vw,20px)!important;
+  font-weight:850!important;line-height:1.28!important;color:#ffdfb2!important;
+}
+#shared .starwheel-turn-card .starwheel-message.sw-hit .sw-outcome-next{color:#c7ffe7!important}
+#shared .starwheel-turn-card .starwheel-message.sw-info{
+  display:flex!important;align-items:center!important;gap:12px!important;
+  min-height:74px!important;padding:15px 19px!important;
+  font-size:clamp(17px,1.55vw,23px)!important;font-weight:800!important;
+  line-height:1.3!important;color:#fff!important;
+  background:linear-gradient(130deg,#103b70,#0b224a)!important;
+  border:2px solid #5caeeb!important;border-radius:15px!important;
+  box-shadow:0 0 13px #2ca8f12c!important;
+}
+#shared .starwheel-turn-card .starwheel-message.sw-info .sw-info-spark{
+  flex:none;color:#ffe37b;font-size:clamp(27px,2.5vw,34px);
+  text-shadow:0 0 14px #ffc66388;
+}
+#shared .starwheel-wheel-shell.sw-wheel-spinning{
+  filter:drop-shadow(0 9px 22px #031c49) drop-shadow(0 0 15px #66ddff98)!important;
+}
+#shared .starwheel-wheel-shell.sw-wheel-spinning .starwheel-pointer{
+  animation:sw-v92-pointer-tick .16s ease-in-out infinite alternate;
+}
+#shared .starwheel-wheel-shell.sw-wheel-spinning + .starwheel-spin-value{
+  color:#fff3aa!important;border-color:#ffdb72!important;
+  box-shadow:0 0 20px #ffdc719c!important;
+}
+@keyframes sw-v92-pointer-tick{
+  from{transform:translateX(-50%) rotate(-5deg)}
+  to{transform:translateX(-50%) rotate(5deg)}
+}
+@media(max-width:800px){
+  #shared .starwheel-turn-card .starwheel-message.sw-outcome{
+    min-height:100px!important;padding:12px!important;gap:11px!important;
+  }
+  #shared .starwheel-turn-card .starwheel-message .sw-outcome-letter{
+    width:75px!important;min-height:78px!important;font-size:38px!important;
+  }
+  #shared .starwheel-turn-card .starwheel-message .sw-outcome-headline{
+    font-size:clamp(21px,5vw,30px)!important;
+  }
+}
+@media(max-height:650px) and (min-width:801px){
+  #shared .starwheel-turn-card .starwheel-message.sw-outcome{
+    min-height:75px!important;padding:9px 12px!important;margin:9px 0!important;
+  }
+  #shared .starwheel-turn-card .starwheel-message .sw-outcome-letter{
+    width:61px!important;min-height:65px!important;font-size:33px!important;
+  }
+  #shared .starwheel-turn-card .starwheel-message .sw-outcome-headline{font-size:24px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #shared .starwheel-wheel-shell.sw-wheel-spinning .starwheel-pointer{animation:none!important}
+}
