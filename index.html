@@ -13739,7 +13739,161 @@ body.role-student .agenda-live-footer{
 .bingo-shared-wrap .bingo-history-grid .bingo-call-mini b{font-size:clamp(10px,1.05vw,15px)!important;line-height:1.1!important;overflow-wrap:break-word!important;word-break:normal!important;white-space:normal!important}
 .bingo-shared-wrap .bingo-history>p{margin:12px 0 5px!important}
 @media(max-width:800px){.bingo-shared-wrap .bingo-shared-main{grid-template-columns:1fr!important}.bingo-shared-wrap .bingo-call-card{height:auto!important;min-height:275px!important}.bingo-shared-wrap .bingo-history-grid{grid-template-columns:repeat(var(--bingo-hist-mobile-cols,3),minmax(0,1fr))!important;grid-template-rows:none!important;grid-auto-rows:minmax(86px,auto)!important;height:auto!important;max-height:none!important;overflow:visible!important}.bingo-shared-wrap .bingo-history-grid>span{min-height:86px!important}.bingo-shared-wrap .bingo-history-grid .bingo-call-mini img{height:52px!important}}
-@media(max-height:650px) and (min-width:801px){.bingo-shared-wrap .bingo-history-grid{height:clamp(230px,48dvh,370px)!important}.bingo-shared-wrap .bingo-call-card{height:clamp(230px,43dvh,350px)!important}.bingo-shared-wrap .bingo-call-card .bingo-call-display img{max-height:22dvh!important}}</style></head>
+@media(max-height:650px) and (min-width:801px){.bingo-shared-wrap .bingo-history-grid{height:clamp(230px,48dvh,370px)!important}.bingo-shared-wrap .bingo-call-card{height:clamp(230px,43dvh,350px)!important}.bingo-shared-wrap .bingo-call-card .bingo-call-display img{max-height:22dvh!important}}</style><style id="v89-starwheel-shared-show">/* Starwheel Phase 1: readable shared-screen arcade presentation.
+   Do not change game state, spin outcomes, pilot rotation, or student controls. */
+#shared .starwheel-public {
+  width:min(1570px,98%)!important;
+  max-width:none!important;
+  padding:clamp(10px,1.3vw,24px)!important;
+  margin:auto!important;
+  border-radius:24px!important;
+  background:radial-gradient(circle at 48% -18%,rgba(88,111,239,.23),transparent 48%),
+    linear-gradient(155deg,rgba(7,21,57,.82),rgba(13,14,45,.9))!important;
+  border:1px solid rgba(74,167,246,.38)!important;
+  box-shadow:0 0 32px rgba(21,103,235,.14),inset 0 1px 0 rgba(255,255,255,.1)!important;
+}
+#shared .starwheel-title {margin-bottom:10px!important}
+#shared .starwheel-title b {
+  font-size:clamp(40px,5.2vw,76px)!important;
+  font-weight:1000!important;letter-spacing:.05em!important;
+  line-height:1.05!important;
+  filter:drop-shadow(0 5px 9px rgba(17,41,101,.35));
+}
+#shared .starwheel-title span {
+  font-size:clamp(11px,1.15vw,17px)!important;
+  font-weight:900!important;
+  letter-spacing:.13em!important;
+  color:#c6ddff!important;
+}
+#shared .starwheel-category {
+  font-size:clamp(13px,1.25vw,18px)!important;
+  color:#d0f5ff!important;
+  padding:9px 19px!important;
+  border-radius:99px!important;
+  border:2px solid #4bbbe8!important;
+  background:#103663!important;
+  box-shadow:0 0 14px #42a5ee23!important;
+}
+#shared .starwheel-puzzle {
+  max-width:1350px!important;
+  margin:clamp(12px,1.9dvh,20px) auto!important;
+  gap:clamp(6px,1vw,15px) clamp(8px,1.2vw,17px)!important;
+}
+#shared .starwheel-word {gap:clamp(3px,.5vw,8px)!important}
+#shared .starwheel-letter {
+  width:clamp(29px,3.6vw,56px)!important;
+  height:clamp(42px,4.7vw,75px)!important;
+  border:3px solid #64d6ff!important;
+  border-radius:9px!important;
+  background:linear-gradient(145deg,#1358b6,#081f58)!important;
+  color:white!important;
+  font-size:clamp(21px,2.8vw,41px)!important;
+  font-weight:1000!important;
+  box-shadow:inset 0 2px 2px #ffffff24,0 4px 0 #082452,0 0 12px #3dbafa35!important;
+}
+#shared .starwheel-letter.punct {
+  border-color:transparent!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#shared .starwheel-stage {
+  grid-template-columns:minmax(290px,.9fr) minmax(380px,1.1fr)!important;
+  gap:clamp(14px,1.7vw,27px)!important;
+  max-width:1300px!important;
+  margin:auto!important;
+  align-items:center!important;
+}
+#shared .starwheel-wheel-shell {
+  width:min(360px,30vw)!important;
+  min-width:290px!important;
+}
+#shared .starwheel-wheel {
+  border-width:8px!important;
+  box-shadow:0 0 0 5px #244f95,0 0 28px #65deff66,inset 0 0 33px #061529!important;
+}
+#shared .starwheel-spin-value {
+  margin-top:11px!important;
+  color:#ffdf76!important;
+  font-size:clamp(22px,2.3vw,33px)!important;
+  font-weight:1000!important;
+  letter-spacing:.04em!important;
+  text-shadow:0 0 11px #ffc54d44;
+}
+#shared .starwheel-turn-card {
+  padding:clamp(17px,2vw,29px)!important;
+  border:2px solid #4f9bd9!important;
+  border-radius:23px!important;
+  background:linear-gradient(155deg,#103869,#0b1940 68%,#161041)!important;
+  box-shadow:inset 0 1px 0 #ffffff20,0 12px 30px #0004!important;
+}
+#shared .starwheel-turn-card>.eyebrow {
+  color:#80eaff!important;
+  font-size:clamp(12px,1.2vw,16px)!important;
+  font-weight:950!important;
+  letter-spacing:.16em!important;
+}
+#shared .starwheel-turn-card .pilot {margin-top:13px!important}
+#shared .starwheel-turn-card .pilot-art {
+  width:clamp(76px,7vw,106px)!important;
+  height:clamp(76px,7vw,106px)!important;
+  border:3px solid #74ecff!important;
+  box-shadow:0 0 18px #46d6ff40!important;
+}
+#shared .starwheel-turn-card .pilot small {
+  font-size:clamp(11px,1vw,15px)!important;
+  color:#b6d8fa!important;
+  font-weight:900!important;
+}
+#shared .starwheel-turn-card h3 {
+  margin:5px 0!important;
+  font-size:clamp(24px,2.9vw,43px)!important;
+  line-height:1.1!important;
+  color:#fff!important;
+}
+#shared .starwheel-turn-card .starwheel-message {
+  margin-top:14px!important;
+  padding:13px 16px!important;
+  border:1px solid #4286c8!important;
+  border-radius:13px!important;
+  background:rgba(7,23,56,.75)!important;
+  color:#e6f6ff!important;
+  font-size:clamp(14px,1.4vw,20px)!important;
+  line-height:1.4!important;
+}
+#shared .starwheel-turn-card .starwheel-rotation {gap:9px!important}
+#shared .starwheel-turn-card .starwheel-rotation .member {
+  padding:6px 9px!important;
+  font-size:clamp(11px,1vw,14px)!important;
+  background:#0c2850!important;
+  border:1px solid #447eb6!important;
+}
+#shared .starwheel-turn-card .starwheel-scoreboard {gap:8px!important;margin-top:14px!important}
+#shared .starwheel-turn-card .starwheel-score {
+  min-height:49px!important;
+  padding:8px 12px!important;
+  border:1px solid #4679af!important;
+  background:#0d2851!important;
+  border-radius:11px!important;
+}
+#shared .starwheel-turn-card .starwheel-score b {font-size:clamp(12px,1.25vw,17px)!important}
+#shared .starwheel-turn-card .starwheel-score strong {font-size:clamp(23px,2.1vw,32px)!important;color:#ffe07e!important}
+@media(max-width:930px){
+  #shared .starwheel-stage {grid-template-columns:1fr!important}
+  #shared .starwheel-wheel-shell{width:min(360px,66vw)!important;min-width:0!important}
+  #shared .starwheel-turn-card{max-width:650px;width:100%;margin:auto}
+}
+@media(max-height:690px) and (min-width:931px){
+  #shared .starwheel-public{padding:9px!important}
+  #shared .starwheel-title b{font-size:clamp(35px,4vw,56px)!important}
+  #shared .starwheel-puzzle{margin:7px auto!important}
+  #shared .starwheel-wheel-shell{width:min(300px,25vw)!important;min-width:0!important}
+  #shared .starwheel-turn-card{padding:12px!important}
+  #shared .starwheel-turn-card .pilot-art{width:58px!important;height:58px!important}
+  #shared .starwheel-turn-card .starwheel-message{margin-top:7px!important;padding:8px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #shared .starwheel-wheel{animation:none!important}
+}</style></head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
 
