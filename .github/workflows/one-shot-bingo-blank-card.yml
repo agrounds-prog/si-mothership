@@ -1,0 +1,110 @@
+name: One-shot Bingo blank numbered card repair
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-bingo-blank-card.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Replace cluttered Bingo setup with blank card and square uploads
+        shell: bash
+        run: |
+          set -euo pipefail
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html'); original=p.read_bytes()
+          def sha(b):return hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+          assert sha(original)=='800a66402d3a13ed43648018dddf341cefc306e2', 'index changed '+sha(original)
+          assert 1300000<len(original)<1500000
+          s=original.decode('utf-8')
+          def once(a,b):
+              global s
+              assert s.count(a)==1,(s.count(a),a[:140])
+              s=s.replace(a,b,1)
+          once("function newGameAssetId(){","bingoDraft.name='';bingoDraft.numberedMode=true;bingoDraft.numberedSlots=[];bingoDraft.editSlot=-1;\nfunction newGameAssetId(){")
+          once("slotIndex=Math.max(0,Math.min(slotCount-1,Number(bingoDraft.editSlot||0)))","slotIndex=Math.max(-1,Math.min(slotCount-1,Number(bingoDraft.editSlot??-1)))")
+          once(":'<small>Empty</small>'"," :'<span class=\"bingo-slot-plus\">+</span>'")
+          once('<div class="bingo-slot-fields"><b>Editing item','<div class="bingo-slot-fields \${slotIndex<0?"hidden":""}"><b>Editing item')
+          once('<h4>NUMBERED CARD ITEMS</h4>','<h4>YOUR BINGO CARD</h4>')
+          once('Click a numbered slot to assign text or a picture.','Click the + in any numbered square to add text or upload a picture.')
+          once('> Use numbered slots</label>','> Use numbered slots</label>')
+          once('<div class="game-builder-actions"><button type="button" id="bingoSlotApply"','<div class="bingo-slot-upload"><button type="button" id="bingoSlotUploadBtn">＋ Upload picture to this square</button><input id="bingoSlotUploadFile" type="file" accept="image/*" hidden></div><div class="game-builder-actions"><button type="button" id="bingoSlotApply"')
+          once("const call=$('#bingoSlotCall').value.trim().slice(0,100);\n      if(!call)return toast('Enter a called word first');\n      const isImage", "const enteredCall=$('#bingoSlotCall').value.trim().slice(0,100);\n      const isImage")
+          once("const textValue=$('#bingoSlotText').value.trim().slice(0,100)||call;\n      const index=", "const textValue=$('#bingoSlotText').value.trim().slice(0,100);\n      const call=enteredCall||(isImage?asset?.name:textValue);\n      if(!call)return toast('Enter text or select an image first');\n      const index=")
+          once("bingoDraft.editSlot=Math.min(size*size-1,index+1);renderActivities();","bingoDraft.editSlot=-1;renderActivities();")
+          once("delete arr[Number(bingoDraft.editSlot||0)];bingoDraft.numberedSlots=arr;renderActivities();","delete arr[Number(bingoDraft.editSlot||0)];bingoDraft.numberedSlots=arr;bingoDraft.editSlot=-1;renderActivities();")
+          once("    $('#bingoSlotApply').onclick=()=>{",'''    $('#bingoSlotUploadBtn').onclick=()=>$('#bingoSlotUploadFile').click();
+              $('#bingoSlotUploadFile').onchange=async e=>{
+                const file=e.target.files?.[0];if(!file)return;
+                const index=Number(bingoDraft.editSlot||0);
+                try{
+                  const data=await normalizeGameImage(file);
+                  const asset={id:newGameAssetId(),name:gameImageName(file),image:data,collection:'Custom',createdAt:Date.now()};
+                  if(!persistGameStore(GAME_IMAGE_LIBRARY_STORE,[...gameImageLibrary,asset]))return toast('Could not save this picture');
+                  gameImageLibrary=[...gameImageLibrary,asset];
+                  const enteredCall=$('#bingoSlotCall')?.value.trim().slice(0,100)||asset.name;
+                  const arr=[...(bingoDraft.numberedSlots||[])];
+                  arr[index]={slot:index+1,call:enteredCall,text:'',image:data,label:asset.name};
+                  bingoDraft.numberedSlots=arr;bingoDraft.numberedMode=true;bingoDraft.editSlot=-1;
+                  renderActivities();toast('Picture added to square '+(index+1));
+                }catch(err){toast('Could not upload that picture')}
+              };
+              $('#bingoSlotApply').onclick=()=>{''')
+          once("if(items.length<need)return toast('This card size needs at least '+need+' Bingo items');",'''if(bingoDraft.numberedMode){
+              const slots=bingoDraft.numberedSlots||[],center=bingoDraft.free&&size%2===1?Math.floor(size*size/2):-1;
+              const missing=[];
+              for(let i=0;i<size*size;i++)if(i!==center&&(!slots[i]?.call||(!slots[i]?.image&&!slots[i]?.text)))missing.push(i+1);
+              if(missing.length)return toast('Fill square'+(missing.length===1?' ':'s ')+missing.slice(0,8).join(', ')+(missing.length>8?' and more':'')+' before saving');
+            }
+            if(items.length<need)return toast('This card size needs at least '+need+' Bingo items');''')
+          once('<label>MOTHERSHIP IMAGE LIBRARY · \${gameImageLibrary.length} saved</label>\${gameImagePickerMarkup(bingoDraft.selectedImages)}', '<details class="bingo-photo-library"><summary>Manage Picture Library · \${gameImageLibrary.length} photos</summary>\${gameImagePickerMarkup(bingoDraft.selectedImages)}</details>')
+          once(">Save & Generate Cards</button>",">Save & Launch Bingo</button>")
+          css='''<style id="v84-bingo-card-first-repair">
+          #teacher #activitiesPanel:has(.bingo-slot-picker){width:min(1260px,calc(100vw - 28px))!important}
+          #teacher #activitiesPanel:has(.bingo-slot-picker) label:has(+ #bingoQuickItems),
+          #teacher #activitiesPanel:has(.bingo-slot-picker) #bingoQuickItems,
+          #teacher #activitiesPanel:has(.bingo-slot-picker) .bingo-card-maker,
+          #teacher #activitiesPanel:has(.bingo-slot-picker) .bingo-slot-heading label,
+          #teacher #activitiesPanel:has(.bingo-slot-picker) .foundation-preview:has(.foundation-preview-bingo),
+          #teacher #activitiesPanel:has(.bingo-slot-picker) #bingoSelectAllImages,
+          #teacher #activitiesPanel:has(.bingo-slot-picker) #bingoClearImages,
+          #teacher #activitiesPanel:has(.bingo-slot-picker) #bingoUploadBtn{display:none!important}
+          #teacher #activitiesPanel:has(.bingo-slot-picker) .bingo-slot-editor{padding:18px!important;border:2px solid #40bbf5!important;background:linear-gradient(165deg,#082954,#071831)!important}
+          #teacher #activitiesPanel .bingo-slot-picker{max-width:570px!important;width:100%!important;gap:9px!important;padding:12px!important;border:2px solid #4f94dc;border-radius:17px;background:linear-gradient(145deg,#173e79,#16154f);box-sizing:border-box}
+          #teacher #activitiesPanel .bingo-slot-tile{background:linear-gradient(160deg,#fff,#e5f1ff)!important;border:2px solid #99c2e6!important;border-radius:12px!important;box-shadow:0 4px 0 #234c91!important;min-height:0;aspect-ratio:1}
+          #teacher #activitiesPanel .bingo-slot-tile.active{border-color:#ffdc55!important;box-shadow:0 0 15px #f3cd55!important}
+          #teacher #activitiesPanel .bingo-slot-tile>span:first-child{font-size:clamp(11px,1vw,16px)!important;top:4px;left:6px}
+          #teacher #activitiesPanel .bingo-slot-plus{font-size:clamp(26px,4vw,58px)!important;line-height:1;color:#328acb;font-weight:700}
+          #teacher #activitiesPanel .bingo-slot-tile b{font-size:clamp(11px,1.3vw,18px)!important}
+          #teacher #activitiesPanel .bingo-slot-fields:not(.hidden){margin-top:14px!important;background:#0d355c!important;border:2px solid #3db4ec!important}
+          #teacher #activitiesPanel .bingo-slot-upload>button{width:100%;min-height:44px;margin:10px 0;padding:10px 15px;background:#2869a5;border:1px solid #76d1fa;border-radius:9px;color:#fff;font-weight:900}
+          #teacher #activitiesPanel .bingo-photo-library{margin:14px 0;padding:12px;border:1px solid #477ca3;border-radius:12px}
+          #teacher #activitiesPanel .bingo-photo-library summary{cursor:pointer;font-weight:900;color:#9ce6ff}
+          #teacher #activitiesPanel .bingo-photo-library:not([open]) .game-library-grid{display:none!important}
+          #teacher #activitiesPanel .bingo-photo-library[open] .game-library-grid{margin-top:12px}
+          </style>'''
+          assert 'id="v84-bingo-card-first-repair"' not in s
+          idx=s.index('</head>');s=s[:idx]+css+s[idx:]
+          p.write_text(s,encoding='utf-8')
+          print('PATCH_OK',sha(original),sha(p.read_bytes()),'BYTES',p.stat().st_size)
+          
+          git diff --check
+          rc=0
+          python scripts/release_gate.py --require-node > /tmp/bingo-blank-gate.log 2>&1 || rc=$?
+          tail -n 12 /tmp/bingo-blank-gate.log
+          if [ "$rc" -ne 0 ]; then
+            grep -Fq 'PASS  javascript: inline scripts parse' /tmp/bingo-blank-gate.log
+            grep -Fq 'unified buttons v56.8: classroom art tiles match shortcut family' /tmp/bingo-blank-gate.log
+            test "$(grep -c '^FAIL ' /tmp/bingo-blank-gate.log || true)" -le 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Make Bingo a blank numbered card with per-square text and picture editing"
+          git push
