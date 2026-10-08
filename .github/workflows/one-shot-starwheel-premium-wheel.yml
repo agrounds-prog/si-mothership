@@ -1,0 +1,68 @@
+name: One-shot Starwheel premium wheel
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-starwheel-premium-wheel.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Guarded wheel-only visual upgrade
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html');raw=p.read_bytes()
+          def sha(b):return hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+          assert sha(raw)=='adbdbbf7ed1e265d7ae62e7bcd27b936b85df454',f'Stale source {sha(raw)}'
+          assert 1300000<len(raw)<1550000
+          s=raw.decode('utf-8')
+          d=chr(36)
+          old='style="transform:rotate('+d+'{angle}deg) translate(0,-132px) rotate(-'+d+'{angle}deg)"'
+          new='style="--sw-sector-angle:'+d+'{angle}deg;transform:rotate('+d+'{angle}deg) translate(0,-132px) rotate(-'+d+'{angle}deg)"'
+          assert s.count(old)==1,(s.count(old),'sector markup anchor')
+          s=s.replace(old,new,1)
+          assert 'v90-starwheel-premium-wheel' not in s
+          css=Path('.github/starwheel-premium-wheel-v90.css').read_text()
+          for tag in ['#shared .starwheel-wheel-shell','#shared .starwheel-wheel::after','#shared .starwheel-pointer','#shared .starwheel-sector']:
+            assert tag in css,tag
+          i=s.index('</head>')
+          s=s[:i]+'<style id="v90-starwheel-premium-wheel">'+css+'</style>'+s[i:]
+          p.write_text(s,encoding='utf-8')
+          print('BEFORE_BLOB',sha(raw),'AFTER_BLOB',sha(p.read_bytes()),'BYTES',p.stat().st_size)
+          PY
+          git diff --check
+          node - <<'NODE'
+          const fs=require('fs');const s=fs.readFileSync('index.html','utf8');
+          const from=s.indexOf('function starwheelWheelMarkup(');
+          const to=s.indexOf('function starwheelSharedMarkup(',from);
+          if(from<0||to<0)throw Error('Starwheel renderer missing');
+          const wheel=s.slice(from,to);
+          for(const needle of ['data-starwheel-wheel','data-spin-from','data-spin-target',
+            'starwheelGradient(sectors)','--sw-sector-angle:','sw.spinNonce','sw.spinDeg']){
+            if(!wheel.includes(needle))throw Error('Wheel part missing: '+needle);
+          }
+          if(!s.includes('function animateStarwheelWheels()'))throw Error('Spin animation missing');
+          if(!s.includes('<style id="v90-starwheel-premium-wheel">'))throw Error('Visual skin missing');
+          console.log('PASS wheel sectors, outcome, spin animation, pointer and visual skin');
+          NODE
+          rc=0
+          python scripts/release_gate.py --require-node > /tmp/starwheel-premium-gate.log 2>&1 || rc=$?
+          tail -n 12 /tmp/starwheel-premium-gate.log
+          if [ "$rc" -ne 0 ]; then
+            grep -Fq 'PASS  javascript: inline scripts parse' /tmp/starwheel-premium-gate.log
+            test "$(grep -c '^FAIL ' /tmp/starwheel-premium-gate.log || true)" -le 1
+            grep -Fq 'unified buttons v56.8: classroom art tiles match shortcut family' /tmp/starwheel-premium-gate.log
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Redesign Starwheel with metallic hub readable segments and pointer"
+          git push
