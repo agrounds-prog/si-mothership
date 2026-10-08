@@ -16,7 +16,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
+          mkdir -p .github/diagnostics
+          trap 'cp /tmp/slots-patch.log .github/diagnostics/slots-patch.log; git config user.name debug-bot; git config user.email debug@example.invalid; git add .github/diagnostics/slots-patch.log; git commit -m "Bingo slot patch diagnostic"; git push' ERR
+          python - <<'PY' > /tmp/slots-patch.log 2>&1
           from pathlib import Path
           import hashlib
           p=Path('index.html');raw=p.read_bytes()
