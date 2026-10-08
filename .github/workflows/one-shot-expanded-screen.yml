@@ -1,0 +1,72 @@
+name: One-shot expanded teacher screen
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-expanded-screen.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Guarded display enlargement
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html')
+          raw=p.read_bytes()
+          digest=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+          assert digest=='dbbe273e03d9f8b5b2fe96265a989cc9bc830a35',f'Stale source {digest}'
+          assert 1300000<len(raw)<1400000
+          s=raw.decode('utf-8')
+          marker='id="v62-expanded-teacher-display"'
+          assert marker not in s
+          assert '.screen-dock .mirror-screen{width:min(280px,100%);aspect-ratio:4/3' in s
+          css='''<style id="v62-expanded-teacher-display">
+          /* Expand the teacher preview without cropping slide content or altering mirrored interactions. */
+          #teacher .screen-dock .mirror-screen{
+            width:min(100%,620px)!important;
+            max-width:100%!important;
+            height:auto!important;
+            aspect-ratio:4/3!important;
+            margin:0 auto!important;
+          }
+          #teacher .screen-dock .mirror-content{
+            min-width:0!important;
+            min-height:0!important;
+          }
+          #teacher .screen-dock .mirror-content img,
+          #teacher .screen-dock .presentation-media-stack img,
+          #teacher .screen-dock .question-visual{
+            object-fit:contain!important;
+          }
+          #teacher .screen-dock .launch-screen-btn{
+            max-width:620px!important;
+            display:block!important;
+            margin-left:auto!important;
+            margin-right:auto!important;
+          }
+          @media(max-width:760px){
+            #teacher .screen-dock .mirror-screen{width:100%!important;max-width:460px!important}
+          }
+          </style>
+          '''
+          pos=s.index('</head>')
+          s=s[:pos]+css+s[pos:]
+          assert s.count(marker)==1 and s.index(marker)<s.index('</head>')
+          p.write_text(s,encoding='utf-8')
+          new=p.read_bytes()
+          print('SOURCE_OK',digest,'NEW_BLOB',hashlib.sha1(b'blob '+str(len(new)).encode()+b'\0'+new).hexdigest(),'NEW_BYTES',len(new))
+          PY
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Expand cinematic teacher Shared Screen preview"
+          git push
