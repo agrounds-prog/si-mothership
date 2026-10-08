@@ -1,0 +1,41 @@
+name: Diagnose cooperative Minefield patch
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/diagnose-minefield-coop.yml']
+permissions:
+  contents: write
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Dry run patch and tests, restore original
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import subprocess
+          from pathlib import Path
+          index=Path('index.html')
+          old=index.read_bytes()
+          diagnostics=[]
+          for cmd in [
+              ['python','-m','py_compile','.github/minefield-simple-v94.py'],
+              ['node','--check','.github/minefield-simple-tests-v94.cjs'],
+              ['python','.github/minefield-simple-v94.py'],
+              ['node','.github/minefield-simple-tests-v94.cjs'],
+          ]:
+              res=subprocess.run(cmd,capture_output=True,text=True)
+              diagnostics.append('COMMAND: '+' '.join(cmd)+'\nEXIT: '+str(res.returncode)+'\nSTDOUT:\n'+res.stdout[:4000]+'\nSTDERR:\n'+res.stderr[:7000]+'\n')
+              if res.returncode:break
+          index.write_bytes(old)
+          Path('.github/minefield-coop-diagnostic.txt').write_text('\n'.join(diagnostics))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/minefield-coop-diagnostic.txt
+          git commit -m "Record Minefield cooperative patch diagnostics"
+          git push
