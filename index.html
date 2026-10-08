@@ -12702,26 +12702,6 @@ body.role-student .agenda-live-footer{
   #teacher #activitiesPanel .favorite-title{flex-wrap:wrap!important;gap:6px!important}
 }
 </style>
-<style id="v64-agenda-chooser">
-#teacher #agendaPanel .agenda-choice-view{max-width:920px;margin:0 auto;padding:12px 0 26px}
-#teacher #agendaPanel .agenda-choice-title{font-size:24px;font-weight:900;margin:0 0 6px;color:#eaf7ff}
-#teacher #agendaPanel .agenda-choice-copy{color:#a9c3df;margin:0 0 20px;font-size:13px}
-#teacher #agendaPanel .agenda-choice-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:22px}
-#teacher #agendaPanel .agenda-choice-action{min-height:100px;text-align:left;padding:18px;border:1px solid #3274a9;border-radius:15px;background:linear-gradient(135deg,#12395c,#091a32);color:#ecf8ff;cursor:pointer;font-size:18px;font-weight:800}
-#teacher #agendaPanel .agenda-choice-action small{display:block;font-size:12px;font-weight:500;color:#a4c8e6;margin-top:9px;line-height:1.4}
-#teacher #agendaPanel .agenda-saved-list{display:grid;gap:8px}
-#teacher #agendaPanel .agenda-saved-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #244f76;border-radius:11px;background:#0b2138;padding:10px 12px}
-#teacher #agendaPanel .agenda-saved-item strong{font-size:14px;color:#ebf7ff}
-#teacher #agendaPanel .agenda-saved-item small{font-size:11px;color:#99b9d8}
-#teacher #agendaPanel .agenda-saved-item button,#teacher #agendaPanel .agenda-return-button,#teacher #agendaPanel #saveAgendaDraft{border:1px solid #3380b2;background:#123b5b;color:#e3f7ff;border-radius:9px;padding:9px 12px;font-size:12px;font-weight:800;cursor:pointer}
-#teacher #agendaPanel .agenda-edit-header{max-width:1120px;margin:0 auto 12px;display:flex;gap:12px;align-items:end;justify-content:space-between;flex-wrap:wrap}
-#teacher #agendaPanel .agenda-name-field{display:grid;gap:5px;flex:1;min-width:190px;color:#add6f3;font-size:12px;font-weight:800}
-#teacher #agendaPanel #agendaTitleInput{width:100%;border:1px solid #3780ac;background:#07192e;color:#fff;border-radius:9px;padding:11px;font:inherit;font-size:14px}
-#teacher #agendaPanel .agenda-edit-actions{display:flex;gap:8px;flex-wrap:wrap}
-#teacher #agendaPanel.agenda-choosing .agenda-grid,#teacher #agendaPanel.agenda-choosing .agenda-edit-header{display:none!important}
-#teacher #agendaPanel:not(.agenda-choosing) .agenda-choice-view{display:none!important}
-@media(max-width:620px){#teacher #agendaPanel .agenda-choice-actions{grid-template-columns:1fr}#teacher #agendaPanel .agenda-choice-action{min-height:78px}}
-</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -12785,7 +12765,7 @@ body.role-student .agenda-live-footer{
   <iframe class="board-calculator-frame" id="boardCalculatorFrame" title="SI Scientific Calculator for Whiteboard" loading="lazy"></iframe>
 </div>
 
-<section class="main-card mode-card hidden" id="agendaPanel"><div class="mode-title"><div><span class="eyebrow">AGENDA</span><h2>Send something to the class</h2><p>No agenda title — choose text, an image, or YouTube.</p></div></div><div class="agenda-choice-view" id="agendaChoiceView"><h3 class="agenda-choice-title">Choose your agenda</h3><p class="agenda-choice-copy">Open a saved agenda or build a new one.</p><div class="agenda-choice-actions"><button type="button" class="agenda-choice-action" id="agendaLoadChoice">📂 Load agenda<small>Find an agenda saved on this teacher device</small></button><button type="button" class="agenda-choice-action" id="agendaNewChoice">✦ New agenda<small>Create a labeled text, image, or YouTube agenda</small></button></div><div id="agendaSavedLibrary" class="agenda-saved-list" aria-live="polite"></div></div><div class="agenda-edit-header"><label class="agenda-name-field">Agenda label<input id="agendaTitleInput" maxlength="100" placeholder="e.g. Morning Meeting"></label><div class="agenda-edit-actions"><button type="button" class="agenda-return-button" id="agendaBackChoice">← Agendas</button><button type="button" id="saveAgendaDraft">Save agenda</button></div></div><div class="agenda-grid"><div class="agenda-stage" id="agendaPreview"></div><div class="agenda-editor"><span class="eyebrow">SEND TO CLASS</span><div class="agenda-tabs"><button class="active" data-agenda-mode="text">▤ Text</button><button data-agenda-mode="image">▧ Image</button><button data-agenda-mode="youtube">▶ YouTube</button></div><div id="agendaTextPane"><textarea id="agendaText">1. Warm-up\n2. Ready check\n3. Class activity</textarea></div><div id="agendaImagePane" class="hidden"><input id="agendaImageFile" type="file" accept="image/*"><small style="color:#8192ab">Choose an image from this device.</small><div class="image-picker-preview" id="agendaImageThumb">No image selected</div></div><div id="agendaYoutubePane" class="hidden"><input id="agendaYoutube" placeholder="Paste a YouTube link"><div class="youtube-preview hidden" id="youtubePreview"></div></div><button class="send-btn" id="sendAgenda">▶ Launch Agenda</button></div></div></section>
+<section class="main-card mode-card hidden" id="agendaPanel"><div class="mode-title"><div><span class="eyebrow">AGENDA</span><h2>Send something to the class</h2><p>No agenda title — choose text, an image, or YouTube.</p></div></div><div class="agenda-grid"><div class="agenda-stage" id="agendaPreview"></div><div class="agenda-editor"><span class="eyebrow">SEND TO CLASS</span><div class="agenda-tabs"><button class="active" data-agenda-mode="text">▤ Text</button><button data-agenda-mode="image">▧ Image</button><button data-agenda-mode="youtube">▶ YouTube</button></div><div id="agendaTextPane"><textarea id="agendaText">1. Warm-up\n2. Ready check\n3. Class activity</textarea></div><div id="agendaImagePane" class="hidden"><input id="agendaImageFile" type="file" accept="image/*"><small style="color:#8192ab">Choose an image from this device.</small><div class="image-picker-preview" id="agendaImageThumb">No image selected</div></div><div id="agendaYoutubePane" class="hidden"><input id="agendaYoutube" placeholder="Paste a YouTube link"><div class="youtube-preview hidden" id="youtubePreview"></div></div><button class="send-btn" id="sendAgenda">▶ Launch Agenda</button></div></div></section>
 
 <section class="main-card activities-panel hidden" id="activitiesPanel"><div class="mode-title"><div><span class="eyebrow">ACTIVITIES</span><h2 id="activitiesTitle">Apps in Progress</h2><p id="activitiesSubtitle">Browse every available Mothership app and add apps to your 3×3 shortcut grid.</p></div><div class="library-header-actions" id="activitiesHeaderActions"></div></div><div class="favorite-wrap" id="favoriteAppsWrap"><div class="favorite-title"><span class="eyebrow">ACTIVITY SHORTCUTS</span><small style="color:#7f93af">Add, replace, or remove any of the 9 slots</small></div><div class="favorite-grid" id="favoriteGrid"></div></div><div id="assignNote" class="assign-note hidden"></div><div class="activity-grid" id="activityGrid"></div><div class="saved-presentation-picker hidden" id="savedPresentationPicker"></div></section>
 <section class="main-card presentation-builder hidden" id="presentationBuilderPanel"></section>
@@ -14254,7 +14234,7 @@ function pixelSharedMarkup(run=state.activityRun,big=false){const done=pixelSubm
 const initial=()=>({
  view:'teacher',screen:'lobby',rosterPage:0,readyEnabled:false,handEnabled:false,buzzEnabled:false,helpEnabled:false,pictureEnabled:false,
  buzz:[],help:[],helpMessages:[],helpDeletedIds:[],alerts:[],photos:[],
- agendaChooserOpen:true,agendaTitle:'',agendaSavedId:'',agendaMode:'text',agendaText:'1. Warm-up\n2. Ready check\n3. Class activity',agendaImage:'',youtube:'',agendaLive:false,
+ agendaMode:'text',agendaText:'1. Warm-up\n2. Ready check\n3. Class activity',agendaImage:'',youtube:'',agendaLive:false,
  published:{mode:'text',text:'1. Warm-up\n2. Ready check\n3. Class activity',image:'',youtube:''},
  activities:hydratedActivities(),
  favoriteSlots:loadAppShortcuts(),assigningSlot:null,activeApp:null,presentationLibraryOpen:false,
@@ -15604,7 +15584,6 @@ function setMissionPanel(){
   $('#lobbyPanel').classList.remove('hidden');
   $('#customRosterPanel').classList.toggle('hidden',!state.customRosterOpen||state.ended);
   $('#agendaPanel').classList.toggle('hidden',state.screen!=='agenda'||state.ended||!!state.activityRun||state.customRosterOpen);
-  $('#agendaPanel').classList.toggle('agenda-choosing',state.agendaChooserOpen!==false);
   $('#activitiesPanel').classList.toggle('hidden',state.screen!=='activities'||state.ended||!!state.activityRun||!!state.presentationEditor||state.customRosterOpen);
   $('#presentationBuilderPanel').classList.toggle('hidden',state.screen!=='activities'||state.ended||!!state.activityRun||!state.presentationEditor||state.customRosterOpen);
   $('#activityControllerPanel').classList.toggle('hidden',!state.activityRun||state.ended);
@@ -16700,7 +16679,7 @@ $$('[data-control]').forEach(b=>b.onclick=()=>{
   if(b.dataset.control==='lobby'){enterLobby();return}
   if(b.dataset.control==='classroom'){state.calculatorLaunch=null;state.screen='classroom';state.promptActive=false;state.presentationEditor=null;state.presentationLibraryOpen=false;state.activeApp=null;render();return}
   state.screen=b.dataset.control;
-  if(state.screen==='agenda'){state.agendaLive=false;state.agendaChooserOpen=true;}
+  if(state.screen==='agenda')state.agendaLive=false;
   if(state.screen==='ready'){state.calculatorLaunch=null;teacherSummaryBeginReadyCheck();state.readyEnabled=true;state.students.forEach(s=>s.readyResponse='');state.promptActive=true;render();toast('Ready check sent — Ready button enabled');return}
   state.promptActive=false;render();
 });
@@ -16709,67 +16688,10 @@ $$('[data-send]').forEach(b=>b.onclick=()=>{if(state.ended)return;if(state.activ
 $('#prevRoster').onclick=()=>{const pages=Math.max(1,Math.ceil(state.students.length/8));state.rosterPage=(state.rosterPage-1+pages)%pages;renderRoster()};$('#nextRoster').onclick=()=>{const pages=Math.max(1,Math.ceil(state.students.length/8));state.rosterPage=(state.rosterPage+1)%pages;renderRoster()};
 $('#clearBuzz').onclick=()=>{state.buzz=[];render();toast('Buzz queue cleared')};
 $('#sendPicturePrompt').onclick=()=>{if(!state.pictureEnabled)return;state.calculatorLaunch=null;state.picturePrompt=$('#picturePromptText').value.trim()||'Take a picture of your completed work.';state.picturePromptSent=true;state.promptActive=true;state.screen='picture';render();toast('Picture prompt sent to students')};
-// Teacher-local labeled Agenda library; class publishing still uses the existing handler.
-const SI_AGENDA_LIBRARY_KEY='si.mothership.teacher.agendas.v1';
-function getSavedAgendas(){try{const a=JSON.parse(localStorage.getItem(SI_AGENDA_LIBRARY_KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
-function showAgendaChoices(show=true){state.agendaChooserOpen=show;$('#agendaPanel').classList.toggle('agenda-choosing',show);if(show)renderSavedAgendaChoices()}
-function agendaEditingMode(mode){
-  state.agendaMode=mode;
-  $$('[data-agenda-mode]').forEach(b=>b.classList.toggle('active',b.dataset.agendaMode===mode));
-  $('#agendaTextPane').classList.toggle('hidden',mode!=='text');
-  $('#agendaImagePane').classList.toggle('hidden',mode!=='image');
-  $('#agendaYoutubePane').classList.toggle('hidden',mode!=='youtube');
-  updateAgendaDraftPreview();
-}
-function renderSavedAgendaChoices(){
-  const host=$('#agendaSavedLibrary');host.textContent='';
-  const saved=getSavedAgendas();
-  if(!saved.length){const info=document.createElement('p');info.className='agenda-choice-copy';info.textContent='No saved agendas on this device yet.';host.append(info);return}
-  const heading=document.createElement('h4');heading.textContent='Saved agendas';host.append(heading);
-  saved.forEach(a=>{
-    const item=document.createElement('div');item.className='agenda-saved-item';
-    const meta=document.createElement('div'),name=document.createElement('strong'),type=document.createElement('small');
-    name.textContent=a.title||'Untitled agenda';type.textContent=' · '+(a.mode||'text');
-    meta.append(name,type);
-    const load=document.createElement('button');load.type='button';load.textContent='Load';load.onclick=()=>loadSavedAgenda(a.id);
-    const del=document.createElement('button');del.type='button';del.textContent='Delete';del.onclick=()=>{if(!confirm('Delete this saved agenda?'))return;try{localStorage.setItem(SI_AGENDA_LIBRARY_KEY,JSON.stringify(getSavedAgendas().filter(x=>x.id!==a.id)));renderSavedAgendaChoices()}catch(e){toast('Could not delete agenda')}};
-    const actions=document.createElement('div');actions.className='agenda-edit-actions';actions.append(load,del);
-    item.append(meta,actions);host.append(item);
-  });
-}
-function loadSavedAgenda(id){
-  const a=getSavedAgendas().find(x=>x.id===id);if(!a)return;
-  state.agendaSavedId=a.id;state.agendaTitle=a.title||'';
-  state.agendaText=a.text||'';state.agendaImage=a.image||'';state.youtube=a.youtube||'';
-  $('#agendaTitleInput').value=state.agendaTitle;
-  $('#agendaText').value=state.agendaText;
-  $('#agendaYoutube').value=state.youtube;
-  $('#agendaImageThumb').textContent=state.agendaImage?'Saved image ready':'No image selected';
-  agendaEditingMode(a.mode||'text');showAgendaChoices(false);toast('Agenda loaded');
-}
-$('#agendaLoadChoice').onclick=()=>renderSavedAgendaChoices();
-$('#agendaNewChoice').onclick=()=>{
-  state.agendaSavedId='';state.agendaTitle='';state.agendaImage='';state.youtube='';state.agendaText='';
-  $('#agendaTitleInput').value='';$('#agendaText').value='';$('#agendaYoutube').value='';
-  $('#agendaImageFile').value='';$('#agendaImageThumb').textContent='No image selected';
-  agendaEditingMode('text');showAgendaChoices(false);
-};
-$('#agendaBackChoice').onclick=()=>showAgendaChoices(true);
-$('#saveAgendaDraft').onclick=()=>{
-  const title=$('#agendaTitleInput').value.trim();if(!title)return toast('Give this agenda a label first');
-  const mode=state.agendaMode,youtube=$('#agendaYoutube').value.trim(),text=$('#agendaText').value;
-  if(mode==='youtube'&&!ytId(youtube))return toast('Enter a valid YouTube link');
-  if(mode==='image'&&!state.agendaImage)return toast('Choose an image first');
-  const id=state.agendaSavedId||'agenda_'+Date.now().toString(36);
-  const item={id,title,mode,text,image:mode==='image'?state.agendaImage:'',youtube,updated:Date.now()};
-  const all=getSavedAgendas().filter(x=>x.id!==id);all.unshift(item);
-  try{localStorage.setItem(SI_AGENDA_LIBRARY_KEY,JSON.stringify(all));state.agendaSavedId=id;state.agendaTitle=title;toast('Agenda saved on this device')}
-  catch(e){toast('Storage full. Try a smaller image or a text agenda')}
-};
 $$('[data-agenda-mode]').forEach(b=>b.onclick=()=>{state.agendaMode=b.dataset.agendaMode;$$('[data-agenda-mode]').forEach(x=>x.classList.toggle('active',x===b));$('#agendaTextPane').classList.toggle('hidden',state.agendaMode!=='text');$('#agendaImagePane').classList.toggle('hidden',state.agendaMode!=='image');$('#agendaYoutubePane').classList.toggle('hidden',state.agendaMode!=='youtube');updateAgendaDraftPreview()});
 $('#agendaImageFile').onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{state.agendaImage=String(r.result);updateAgendaDraftPreview();toast('Image ready to send')};r.readAsDataURL(f)};
 $('#agendaYoutube').oninput=updateAgendaDraftPreview;
-$('#sendAgenda').onclick=()=>{state.agendaTitle=$('#agendaTitleInput').value.trim();if(state.activityRun){toast('Return to Classroom before sending Agenda content');return}state.calculatorLaunch=null;state.screen='agenda';state.promptActive=false;state.agendaText=$('#agendaText').value.trim()||' ';state.youtube=$('#agendaYoutube').value.trim();if(state.agendaMode==='youtube'&&!ytId(state.youtube)){toast('Enter a valid YouTube link');return}if(state.agendaMode==='image'&&!state.agendaImage){toast('Choose an image first');return}state.published={mode:state.agendaMode,title:state.agendaTitle,text:state.agendaText,image:state.agendaImage,youtube:state.youtube};state.agendaLive=true;render();toast('Agenda launched to student + shared screens')};
+$('#sendAgenda').onclick=()=>{if(state.activityRun){toast('Return to Classroom before sending Agenda content');return}state.calculatorLaunch=null;state.screen='agenda';state.promptActive=false;state.agendaText=$('#agendaText').value.trim()||' ';state.youtube=$('#agendaYoutube').value.trim();if(state.agendaMode==='youtube'&&!ytId(state.youtube)){toast('Enter a valid YouTube link');return}if(state.agendaMode==='image'&&!state.agendaImage){toast('Choose an image first');return}state.published={mode:state.agendaMode,text:state.agendaText,image:state.agendaImage,youtube:state.youtube};state.agendaLive=true;render();toast('Agenda launched to student + shared screens')};
 $('#studentSelect').onchange=e=>{if(!e.target.value)return;state.selectedStudent=e.target.value;render();toast(`Now simulating ${state.selectedStudent}`)};
 let photoViewerId=null;
 function photoDownloadName(p){const safe=(p?.name||'student').replace(/[^a-z0-9_-]+/gi,'_').replace(/^_+|_+$/g,'')||'student';const ext=String(p?.data||'').startsWith('data:image/png')?'png':String(p?.data||'').startsWith('data:image/webp')?'webp':'jpg';return `mothership_${safe}_${p?.id||Date.now()}.${ext}`}
