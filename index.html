@@ -12570,6 +12570,30 @@ body.role-student .agenda-live-footer{
 #teacher .teacher-controlbar .control:focus-visible,#teacher .session-group button:focus-visible{outline:2px solid #9fe4f4!important;outline-offset:2px!important}
 @media(max-width:1050px){#teacher .teacher-controlbar .control b{font-size:10px!important}}
 </style>
+<style id="v58-mission-responsive-readability">
+/* Responsive teacher command layout only; no controls, IDs or handlers altered. */
+#teacher .teacher-control-groups{min-width:0!important}
+#teacher .teacher-control-group{min-width:0!important}
+#teacher .teacher-control-group .control-group-buttons{min-width:0!important}
+#teacher .teacher-controlbar .control{min-width:0!important}
+#teacher .mission-context-kicker{font-size:9px!important;line-height:1.25!important}
+#teacher .teacher-live-strip .students-see,#teacher .teacher-live-strip .students-see b{font-size:10px!important;line-height:1.35!important}
+#teacher .mission-state-pill{font-size:10px!important;min-height:25px!important}
+#teacher .session-group .mission-workflow-btn{min-height:56px!important;font-size:11px!important;line-height:1.25!important}
+@media(min-width:1181px) and (max-width:1600px){
+  #teacher .teacher-control-groups{grid-template-columns:minmax(245px,.72fr) minmax(0,1.45fr)!important}
+}
+@media(min-width:761px) and (max-width:1180px){
+  #teacher .nav-group .control-group-buttons{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  #teacher .response-group .control-group-buttons{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+}
+@media(max-width:760px){
+  #teacher .teacher-live-strip{flex-wrap:wrap!important}
+  #teacher .teacher-live-hint{max-width:100%!important}
+  #teacher .mission-context-title>b{max-width:min(66vw,360px)!important}
+  #teacher .control-group-label{font-size:10px!important}
+}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
