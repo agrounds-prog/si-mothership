@@ -19,6 +19,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          exec > >(tee agenda-chooser-diagnostic.log) 2>&1
           python - <<'PY'
           from pathlib import Path
           import hashlib
@@ -107,3 +108,16 @@ jobs:
           git add index.html
           git commit -m "Add tested compact Agenda chooser"
           git push
+      - name: Publish failed-check diagnostic
+        if: failure()
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -f agenda-chooser-diagnostic.log ]; then
+            mkdir -p .github/diagnostics
+            cp agenda-chooser-diagnostic.log .github/diagnostics/agenda-chooser-check.log
+            git add .github/diagnostics/agenda-chooser-check.log
+            git commit -m "Record Agenda chooser validation failure" || true
+            git push || true
+          fi
