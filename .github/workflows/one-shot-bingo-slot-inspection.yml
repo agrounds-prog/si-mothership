@@ -1,0 +1,31 @@
+name: Inspect Bingo slot source
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-bingo-slot-inspection.yml']
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract exact Bingo source markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text()
+          needles=["function bingoCardExtras(){","const items=[...parseBingoLines(bingoDraft.quick),...bingoCardExtras(),...bingoItemsFromSelectedImages(bingoDraft.selectedImages)].slice(0,48);","const items=[...parseBingoLines(bingoDraft.quick),...bingoCardExtras(),...bingoItemsFromSelectedImages(bingoDraft.selectedImages)],size=Number(bingoDraft.size||4);","<label>QUICK ITEMS · call side | card side</label><textarea id=\"bingoQuickItems\">","<div class=\"bingo-card-maker\"><h4>ADD A CARD ITEM</h4>","Array.from({length:size*size},(_,i)=>\x60<div>\u0024{contentMarkup(items[i%Math.max(1,items.length)]?.card)||'★'}</div>\x60).join('')","    wireGameLibraryRemoveButtons();\n    \u0024('#bingoNewCardType')"]
+          out=['source length '+str(len(s))]
+          for n in needles:
+            out.append('MATCH '+str(s.count(n))+' '+repr(n))
+          Path('.github').mkdir(exist_ok=True)
+          Path('.github/bingo-slot-inspection.txt').write_text('\n'.join(out)+'\n')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/bingo-slot-inspection.txt
+          git commit -m "Capture Bingo editor selector diagnostics"
+          git push
