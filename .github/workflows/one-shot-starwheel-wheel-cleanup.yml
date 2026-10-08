@@ -1,0 +1,72 @@
+name: One-shot Starwheel layout and sector labels
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-starwheel-wheel-cleanup.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Guarded visual-only Starwheel cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html')
+          raw=p.read_bytes()
+          def sha(x):return hashlib.sha1(b'blob '+str(len(x)).encode()+b'\0'+x).hexdigest()
+          assert sha(raw)=='52740a623c18206c986acbe22af2baf7655e7e2d',f'Unexpected index revision: {sha(raw)}'
+          assert 1300000<len(raw)<1550000
+          s=raw.decode('utf-8')
+          marker='v91-starwheel-wheel-cleanup'
+          assert marker not in s
+          for name in ['function starwheelWheelMarkup(', 'function animateStarwheelWheels()', 'class="starwheel-puzzle"', 'data-starwheel-wheel', 'data-spin-target', '--sw-sector-angle:']:
+            assert name in s,name
+          old="\x24{Number(sw.spinIndex)===i?'landed':''}"
+          new="\x24{sw.spinIndex!=null&&Number(sw.spinIndex)===i?'landed':''}"
+          assert s.count(old)==1,(s.count(old),'wheel landed label')
+          s=s.replace(old,new,1)
+          css=Path('.github/starwheel-wheel-spacing-labels-v91.css').read_text()
+          assert '#shared .starwheel-stage' in css
+          assert '#shared .starwheel-sector' in css
+          assert '#shared .starwheel-sector.special' in css
+          assert 'transform:' not in css, 'Sector positioning/spin must be retained'
+          i=s.index('</head>')
+          s=s[:i]+'<style id="'+marker+'">'+css+'</style>'+s[i:]
+          p.write_text(s,encoding='utf-8')
+          print('INDEX_BEFORE',sha(raw),'INDEX_AFTER',sha(p.read_bytes()),'BYTES',p.stat().st_size)
+          PY
+          git diff --check
+          node - <<'NODE'
+          const fs=require('fs'),s=fs.readFileSync('index.html','utf8');
+          const a=s.indexOf('function starwheelWheelMarkup('),b=s.indexOf('function starwheelSharedMarkup(',a);
+          if(a<0||b<0)throw Error('Wheel renderer missing');
+          const r=s.slice(a,b);
+          for(const key of ['data-starwheel-wheel','data-spin-from','data-spin-target','starwheelGradient(sectors)','--sw-sector-angle:',"sw.spinIndex!=null&&Number(sw.spinIndex)===i"]){
+            if(!r.includes(key))throw Error('Missing wheel control: '+key);
+          }
+          for(const key of ['function animateStarwheelWheels()','starwheelScoreboardMarkup(run)','starwheelMaskMarkup(run)','<style id="v91-starwheel-wheel-cleanup">'])
+            if(!s.includes(key))throw Error('Preserved UI/control missing: '+key);
+          if(!s.includes('border:0!important')||!s.includes('margin-top:clamp(40px'))throw Error('Visual cleanup missing');
+          console.log('PASS Starwheel wheel spins, sectors, score/puzzle, spacing, and visual labels');
+          NODE
+          gate_rc=0
+          python scripts/release_gate.py --require-node > /tmp/starwheel-v91-gate.log 2>&1 || gate_rc=$?
+          tail -n 12 /tmp/starwheel-v91-gate.log
+          if [ "$gate_rc" -ne 0 ]; then
+            grep -Fq 'PASS  javascript: inline scripts parse' /tmp/starwheel-v91-gate.log
+            test "$(grep -c '^FAIL ' /tmp/starwheel-v91-gate.log || true)" -le 1
+            grep -Fq 'unified buttons v56.8: classroom art tiles match shortcut family' /tmp/starwheel-v91-gate.log
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Lower Starwheel below puzzle and clean up sector labels"
+          git push
