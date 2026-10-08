@@ -5,6 +5,7 @@ let cosmicSelection = [];
 let cosmicRosterKey = '';
 let cosmicPendingWild = '';
 let cosmicTeacherReveal = false;
+let cosmicTurnRule = 'next'; // teacher-set rule: next player or same player keeps playing
 const COSMIC_COLORS = ['red','blue','green','yellow'];
 const COSMIC_COLOR_NAMES = {red:'RED',blue:'BLUE',green:'GREEN',yellow:'YELLOW',wild:'WILD'};
 function cosmicNames(){return connectedStudents().map(s=>s.n).filter(Boolean)}
@@ -24,6 +25,19 @@ function cosmicSetSelected(name){
   else if(chosen.length<8)cosmicSelection=chosen.concat([name]);
   else return toast('Eight players maximum. Deselect a seat first.');
   renderActivities();
+}
+function cosmicSetTurnRule(rule,live=false){
+  if(rule!=='next'&&rule!=='continue')return;
+  cosmicTurnRule=rule;
+  const g=live?cosmicActive():null;
+  if(g)g.turnRule=rule;
+  if(live)render();else renderActivities();
+}
+function cosmicRuleTitle(rule){
+  return rule==='continue'?'PLAY AGAIN':'NEXT PLAYER';
+}
+function cosmicHasPlayable(g,name){
+  return (g.hands[name]||[]).some(c=>cosmicCanPlay(g,name,c));
 }
 function cosmicDeck(){
   const cards=[];
@@ -74,6 +88,7 @@ function cosmicAdvance(g,steps=1){
   const size=g.players.length;
   g.turn=(g.turn+(g.direction===-1?-1:1)*steps%size+size*8)%size;
   g.drawnId='';
+  g.chainOpen=false;
 }
 function cosmicApplyLocal(type,value='',color='',name=''){
   const g=cosmicActive();if(!g||g.status!=='playing')return false;
@@ -85,8 +100,8 @@ function cosmicApplyLocal(type,value='',color='',name=''){
   }
   if(cosmicPlayer()!==name)return false;
   if(type==='pass'){
-    if(!g.drawnId)return false;
-    g.message=name+' kept the drawn card and passed.';
+    if(!g.drawnId&&!g.chainOpen)return false;
+    g.message=g.drawnId?name+' kept the drawn card and passed.':name+' ended their turn.';
     cosmicAdvance(g);return true;
   }
   if(type==='draw'){
@@ -104,7 +119,8 @@ function cosmicApplyLocal(type,value='',color='',name=''){
   const card=hand[idx];if(!cosmicCanPlay(g,name,card))return false;
   if(card.color==='wild'&&!COSMIC_COLORS.includes(color))return false;
   hand.splice(idx,1);g.discard.push(card);g.color=card.color==='wild'?color:card.color;
-  g.called[name]=false;g.drawnId='';
+  g.called[name]=false;g.drawnId='';g.chainOpen=false;
+  g.lastPlay={name,color:card.color==='wild'?color:card.color,value:card.value};
   g.message=name+' played '+COSMIC_COLOR_NAMES[card.color]+' '+cosmicCardLabel(card)+'.';
   if(!hand.length){g.status='won';g.winner=name;g.message=name+' wins COSMIC CARDS!';return true}
   if(card.value==='reverse'){
@@ -116,6 +132,9 @@ function cosmicApplyLocal(type,value='',color='',name=''){
     g.hands[target].push(...cosmicDrawFromDeck(g,card.value==='draw2'?2:4));
     g.message+=' '+target+' draws '+(card.value==='draw2'?'2':'4')+' and misses a turn.';
     cosmicAdvance(g,1);
+  }else if(g.turnRule==='continue'&&cosmicHasPlayable(g,name)){
+    g.chainOpen=true;
+    g.message+=' Play another matching card or END TURN.';
   }else cosmicAdvance(g);
   return true;
 }
@@ -134,7 +153,7 @@ function cosmicLaunch(){
     activityId:'cosmic-cards-game',runToken:newActivityRunToken(),
     phase:'lobby',responses:{},cosmic:{
       players:names,hands,deck,discard:[initial],color:initial.color,
-      turn:0,direction:1,drawnId:'',called:{},winner:null,status:'playing',
+      turn:0,direction:1,drawnId:'',chainOpen:false,turnRule:cosmicTurnRule,called:{},winner:null,status:'playing',
       round:1,message:'Players assigned. Start when the class is ready.'
     }
   };
@@ -147,6 +166,7 @@ function cosmicNewRound(){
   const names=(run.cosmic.players||[]).filter(n=>cosmicNames().includes(n));
   if(names.length<2)return toast('At least two assigned players must be connected.');
   cosmicSelection=names.slice();cosmicRosterKey=cosmicNames().join('\u0001');
+  cosmicTurnRule=run.cosmic.turnRule==='continue'?'continue':'next';
   cosmicLaunch();
 }
 function cosmicReturnToSelection(){
@@ -160,10 +180,13 @@ function cosmicSetupMarkup(){
   const seats=selected.length;
   return '<div class="cc-setup">'+
     '<div class="cc-banner"><span class="app-status">REWARDS ARCADE · INDIVIDUAL MULTIPLAYER</span>'+
-    '<h3>✦ COSMIC CARDS</h3><p>Match a color or number. Use action cards to change the game. Be the first to empty your hand!</p></div>'+
+    '<div class="cc-banner-art" aria-hidden="true">'+cosmicCardMarkup({color:'red',value:'7'})+cosmicCardMarkup({color:'blue',value:'reverse'})+cosmicCardMarkup({color:'green',value:'4'})+'</div>'+
+    '<h3>✦ COSMIC CARDS</h3><p>Match the color or symbol to play. Be the first to empty your hand!</p>'+
+    '<div class="cc-banner-caption">FOUR COLORS · SPECIAL CARDS · YOUR CREW</div></div>'+
     '<div class="cc-setup-summary"><b>'+seats+' / 8 PLAYERS</b><span>'+audience.length+' audience · '+names.length+' connected</span></div>'+
     (names.length>8?'<div class="cc-note">More than eight students are connected. Select 2–8 players below; everyone else watches as the audience.</div>':
       '<div class="cc-note">Everyone can play when eight or fewer students are connected. Select at least two players.</div>')+
+    '<div class="cc-rule-setup"><div class="cc-rule-heading"><b>AFTER A PLAYER PUTS DOWN A CARD</b><span>Choose how turns work</span></div>'+cosmicTurnRuleMarkup(cosmicTurnRule,false)+'</div>'+ 
     '<div class="cc-roster">'+names.map(n=>
       '<button type="button" class="cc-seat '+(selected.includes(n)?'chosen':'')+'" data-cosmic-seat="'+esc(n)+'">'+
       '<span>'+(selected.includes(n)?'✓':'◉')+'</span><strong>'+esc(n)+'</strong><small>'+(selected.includes(n)?'PLAYER':'AUDIENCE')+'</small></button>'
@@ -171,8 +194,17 @@ function cosmicSetupMarkup(){
     '<div class="cc-launch-row"><button class="primary-action" id="cosmicLaunchBtn" '+(seats<2?'disabled':'')+'>▶ LAUNCH '+seats+' PLAYER GAME</button>'+
     '<p>Seven cards per player · Private hands · Teacher can change players between rounds.</p></div></div>';
 }
+function cosmicTurnRuleMarkup(rule,live=false){
+  const group=live?'data-cosmic-live-rule':'data-cosmic-rule';
+  return '<div class="cc-rule-choices" role="group" aria-label="After a player plays a card">'+
+    [['next','NEXT PLAYER','One card, then the turn moves on','➜'],['continue','CONTINUE PLAYING','Keep the turn while a matching card is available','↻']]
+    .map(item=>'<button type="button" class="cc-rule-choice '+(rule===item[0]?'active':'')+'" '+group+'="'+item[0]+'" aria-pressed="'+(rule===item[0])+'">'+
+    '<span class="cc-rule-symbol">'+item[3]+'</span><span><b>'+item[1]+'</b><small>'+item[2]+'</small></span></button>').join('')+
+    '</div><p class="cc-rule-note">Skip, Reverse, +2 and +4 still apply their normal turn effects. Students can tap End Turn when playing continuously.</p>';
+}
 function cosmicWireSetup(){
   document.querySelectorAll('[data-cosmic-seat]').forEach(b=>b.onclick=()=>cosmicSetSelected(b.dataset.cosmicSeat));
+  document.querySelectorAll('[data-cosmic-rule]').forEach(b=>b.onclick=()=>cosmicSetTurnRule(b.dataset.cosmicRule));
   const launch=document.querySelector('#cosmicLaunchBtn');if(launch)launch.onclick=cosmicLaunch;
 }
 function cosmicCardMarkup(c,{disabled=false,small=false,back=false,selected=false}={}){
@@ -185,15 +217,18 @@ function cosmicTableMarkup(run=state.activityRun,big=false){
   const g=cosmicActive(run);if(!g)return '';
   const top=g.discard[g.discard.length-1],current=cosmicPlayer(run);
   const audience=cosmicNames().filter(n=>!g.players.includes(n));
+  const rule=cosmicRuleTitle(g.turnRule);
   return '<div class="cc-public">'+
-    '<div class="cc-table-head"><span>✦ COSMIC CARDS</span><span>ROUND '+Number(g.round||1)+'</span></div>'+
+    '<div class="cc-table-head"><span class="cc-brand"><span class="cc-brand-symbol">✦</span> COSMIC CARDS</span><span class="cc-round">ROUND '+Number(g.round||1)+'</span></div>'+
+    '<div class="cc-game-flags"><span class="cc-flag">◉ '+rule+' RULE</span><span class="cc-flag">'+(g.direction===-1?'↶ COUNTERCLOCKWISE':'↷ CLOCKWISE')+'</span></div>'+
     (g.status==='won'?'<div class="cc-victory">🏆 '+esc(g.winner)+' WINS!</div>':
       '<div class="cc-turn">IT IS <b>'+esc(current||'—')+'</b>’S TURN</div>')+
-    '<div class="cc-table-center"><div class="cc-deck"><span>DRAW PILE · '+g.deck.length+'</span>'+cosmicCardMarkup(null,{back:true})+'</div>'+
-    '<div class="cc-live-card"><span>TOP CARD · '+COSMIC_COLOR_NAMES[g.color]+'</span>'+cosmicCardMarkup(top)+'</div></div>'+
-    '<p class="cc-game-message">'+esc(g.message||'')+'</p>'+
+    '<div class="cc-table-center cc-arena cc-arena-'+g.color+'"><div class="cc-deck"><span>DRAW PILE · '+g.deck.length+'</span>'+cosmicCardMarkup(null,{back:true})+'</div>'+
+    '<div class="cc-reactor cc-reactor-'+g.color+'"><small>ACTIVE COLOR</small><b>'+COSMIC_COLOR_NAMES[g.color]+'</b></div>'+
+    '<div class="cc-live-card"><span>DISCARD PILE</span>'+cosmicCardMarkup(top)+'</div></div>'+
+    '<div class="cc-game-message"><span>TRANSMISSION</span><p>'+esc(g.message||'')+'</p></div>'+
     '<div class="cc-players">'+g.players.map(n=>'<div class="cc-player '+(n===current&&g.status==='playing'?'active':'')+(n===g.winner?' winner':'')+'">'+
-      '<b>'+esc(n)+'</b><span>'+((g.counts&&g.counts[n]!==undefined)?g.counts[n]:(g.hands[n]||[]).length)+' CARDS</span>'+(g.called[n]?' <em>COSMIC!</em>':'')+
+      '<span class="cc-player-avatar">'+esc(String(n).slice(0,1).toUpperCase())+'</span><b>'+esc(n)+'</b><span>'+((g.counts&&g.counts[n]!==undefined)?g.counts[n]:(g.hands[n]||[]).length)+' CARDS</span>'+(g.called[n]?' <em>COSMIC!</em>':'')+
       (!cosmicNames().includes(n)?'<small>OFFLINE</small>':'')+'</div>').join('')+'</div>'+
     (audience.length?'<div class="cc-audience"><b>AUDIENCE · '+audience.length+'</b><span>'+audience.map(esc).join(' · ')+'</span></div>':'')+
   '</div>';
@@ -203,7 +238,7 @@ function cosmicStudentMarkup(s){
   if(!g)return '';
   if(!g.players.includes(name)){
     return '<div class="cc-device cc-spectator"><span class="eyebrow">COSMIC CARDS · AUDIENCE</span>'+
-      '<h2>You are in the audience!</h2><p>Watch the game on the shared screen. Your classmates are playing this round.</p>'+
+      '<div class="cc-spectator-mark">✦</div><h2>MISSION OBSERVER</h2><p>You are in the audience for this round. Watch the table and cheer your classmates on!</p>'+
       '<div class="cc-spectator-info">'+esc(cosmicPlayer()||'—')+' is playing · '+g.players.length+' players</div></div>';
   }
   const hand=g.hands[name]||[],mine=cosmicPlayer()===name&&g.status==='playing';
@@ -211,8 +246,11 @@ function cosmicStudentMarkup(s){
   return '<div class="cc-device"><span class="eyebrow">COSMIC CARDS · PRIVATE HAND</span>'+
     '<h2>'+(g.status==='won'?(g.winner===name?'🏆 YOU WIN!':esc(g.winner)+' WINS!'):
       mine?'YOUR TURN, '+esc(name)+'!':'WAITING FOR '+esc(cosmicPlayer()||'—'))+'</h2>'+
-    '<div class="cc-device-status"><span>COLOR <b>'+COSMIC_COLOR_NAMES[g.color]+'</b></span>'+
+    '<div class="cc-device-rule">'+(g.turnRule==='continue'?'↻ KEEP PLAYING AFTER A MATCH':'➜ NEXT PLAYER AFTER A MATCH')+'</div>'+
+    (mine&&g.chainOpen?'<div class="cc-chain-banner">✦ KEEP GOING! PLAY ANOTHER CARD OR END YOUR TURN</div>':'')+
+    '<div class="cc-device-status"><span class="cc-device-color cc-device-color-'+g.color+'">COLOR <b>'+COSMIC_COLOR_NAMES[g.color]+'</b></span>'+
       '<span>TOP '+cosmicCardLabel(top)+'</span><span>'+hand.length+' CARDS</span></div>'+
+    '<div class="cc-hand-heading"><strong>YOUR HAND</strong><span>'+hand.length+' CARDS</span></div>'+ 
     '<div class="cc-hand">'+hand.map(c=>{
       const playable=mine&&cosmicCanPlay(g,name,c);
       return '<button type="button" class="cc-hand-button" data-cosmic-card="'+esc(c.id)+'" '+(playable?'':'disabled')+' aria-label="'+esc(COSMIC_COLOR_NAMES[c.color]+' '+cosmicCardLabel(c))+'">'+
@@ -224,7 +262,7 @@ function cosmicStudentMarkup(s){
       '</div><button id="cosmicCancelWild">Cancel</button></div>':'')+
     (g.status==='playing'?'<div class="cc-device-actions">'+
       (mine?'<button id="cosmicDrawBtn" '+(g.drawnId?'disabled':'')+'>＋ DRAW ONE</button>'+
-        (g.drawnId?'<button id="cosmicPassBtn">PASS</button>':''):'<span>Watch the shared screen while others take their turns.</span>')+
+        (g.drawnId||g.chainOpen?'<button id="cosmicPassBtn">'+(g.chainOpen?'✓ END TURN':'PASS')+'</button>':''):'<span>Watch the shared screen while others take their turns.</span>')+
       (hand.length===1&&!g.called[name]?'<button class="cc-call-btn" id="cosmicCallBtn">✦ COSMIC!</button>':'')+
       '</div>':'')+
     '<p class="cc-help">Match the current color or top card symbol. Wild cards change the color. '+(mine?'Only your highlighted cards can be played.':'Your cards remain private on this device.')+'</p></div>';
@@ -236,6 +274,7 @@ function cosmicTeacherMarkup(){
     '<p>'+esc(g.message||'')+'</p></div><div class="controller-stats"><b>'+g.players.length+'</b> players</div></div>'+
     '<div class="cc-teacher-content"><div>'+cosmicTableMarkup(run,false)+'</div><div class="cc-teacher-actions">'+
     '<h3>PLAYER CONTROL</h3><p>Active: <strong>'+esc(cosmicPlayer(run)||'—')+'</strong></p>'+
+    '<div class="cc-rule-live"><span>AFTER PLAYING A CARD</span>'+cosmicTurnRuleMarkup(g.turnRule,true)+'</div>'+
     '<button id="cosmicSkipBtn" '+(g.status!=='playing'?'disabled':'')+'>⏭ Skip Current Turn</button>'+
     '<button id="cosmicShowHandsBtn">'+(cosmicTeacherReveal?'Hide':'Show')+' Hands (Teacher Only)</button>'+
     (cosmicTeacherReveal?'<div class="cc-teacher-hands">'+g.players.map(n=>'<div><b>'+esc(n)+'</b><span>'+g.hands[n].map(c=>cosmicCardMarkup(c,{small:true})).join('')+'</span></div>').join('')+'</div>':'')+
@@ -271,6 +310,7 @@ function cosmicWireStudent(){
   const call=document.querySelector('#cosmicCallBtn');if(call)call.onclick=()=>cosmicSend('cosmic');
 }
 function cosmicWireTeacher(){
+  document.querySelectorAll('[data-cosmic-live-rule]').forEach(b=>b.onclick=()=>cosmicSetTurnRule(b.dataset.cosmicLiveRule,true));
   const rematch=document.querySelector('#cosmicRematchBtn');if(rematch)rematch.onclick=cosmicNewRound;
   const reselect=document.querySelector('#cosmicReselectBtn');if(reselect)reselect.onclick=cosmicReturnToSelection;
   const hands=document.querySelector('#cosmicShowHandsBtn');if(hands)hands.onclick=()=>{cosmicTeacherReveal=!cosmicTeacherReveal;render()};
