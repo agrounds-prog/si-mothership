@@ -1,0 +1,87 @@
+name: One-shot Activities floating workspace
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-activities-workspace.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 1}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Guarded Activities workspace update
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html'); b=p.read_bytes()
+          def sha(x): return hashlib.sha1(b'blob '+str(len(x)).encode()+b'\0'+x).hexdigest()
+          assert sha(b)=='b148071f31b2fddc843847a24be8682e4599f6e2',f'Stale source: {sha(b)}'
+          assert 1300000<len(b)<1400000
+          s=b.decode('utf-8')
+          assert 'id="v70-activities-workspace"' not in s
+          def once(old,new):
+            global s
+            assert s.count(old)==1,(s.count(old),old[:100])
+            s=s.replace(old,new,1)
+          css='''<style id="v70-activities-workspace">
+          /* Activity library is a teacher-local overlay; original cards/actions unchanged. */
+          #teacher #activitiesPanel:not(.hidden),#teacher #presentationBuilderPanel:not(.hidden){
+            position:fixed!important;z-index:10075!important;
+            left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;
+            width:min(1120px,calc(100vw - 34px))!important;max-width:1120px!important;
+            max-height:calc(100dvh - 32px)!important;min-height:0!important;
+            overflow-y:auto!important;overscroll-behavior:contain!important;
+            margin:0!important;padding:18px 22px 24px!important;
+            background:linear-gradient(155deg,#102944,#071626 76%)!important;
+            border:1px solid #46a9dc!important;border-radius:18px!important;
+            box-shadow:0 0 0 150vmax rgba(0,5,16,.75),0 24px 80px rgba(0,0,0,.6)!important;
+          }
+          #teacher #activitiesPanel .mode-title{padding-right:110px!important;margin-bottom:10px!important}
+          #teacher #activitiesPanel .favorite-wrap{margin-top:8px!important;margin-bottom:12px!important}
+          #teacher #activitiesPanel .activity-grid{gap:10px!important}
+          #teacher #activitiesPanel .activity-card{min-height:112px!important}
+          #teacher .activity-workspace-close{
+            position:sticky!important;top:0!important;float:right!important;z-index:15!important;
+            padding:8px 12px!important;border:1px solid #4cb2dd!important;
+            border-radius:10px!important;background:#154467!important;color:#fff!important;
+            font-size:12px!important;font-weight:800!important;cursor:pointer!important;
+          }
+          #teacher .activity-workspace-close:hover{background:#26618b!important}
+          #teacher .activity-workspace-close:focus-visible{outline:3px solid #a5eaff}
+          @media(max-width:650px){
+            #teacher #activitiesPanel:not(.hidden),#teacher #presentationBuilderPanel:not(.hidden){
+              width:calc(100vw - 12px)!important;max-height:calc(100dvh - 14px)!important;
+              padding:12px!important;
+            }
+            #teacher #activitiesPanel .mode-title{padding-right:0!important}
+          }
+          </style>'''
+          i=s.index('</head>');s=s[:i]+css+s[i:]
+          once('<section class="main-card activities-panel hidden" id="activitiesPanel">','<section class="main-card activities-panel hidden" id="activitiesPanel" role="dialog" aria-label="Activities library" aria-modal="true"><button type="button" class="activity-workspace-close" id="activitiesWorkspaceClose">✕ Close</button>')
+          once('<section class="main-card presentation-builder hidden" id="presentationBuilderPanel"></section>','<section class="main-card presentation-builder hidden" id="presentationBuilderPanel" role="dialog" aria-label="Activity presentation editor" aria-modal="true"></section>')
+          needle="$('#agendaModalClose').onclick=()=>{state.screen='classroom';render()};"
+          once(needle,needle+"\n          $('#activitiesWorkspaceClose').onclick=()=>{state.screen='classroom';state.presentationEditor=null;state.presentationLibraryOpen=false;render()};")
+          p.write_text(s,encoding='utf-8')
+          print('SOURCE_OK',sha(b),'NEW_SHA',sha(p.read_bytes()),'BYTES',p.stat().st_size)
+          PY
+          git diff --check
+          gate_rc=0
+          python scripts/release_gate.py --require-node > /tmp/activities-gate.log 2>&1 || gate_rc=$?
+          tail -n 8 /tmp/activities-gate.log
+          if [ "$gate_rc" -ne 0 ]; then
+            grep -Fxq 'Release gate: 396 passed, 1 failed.' /tmp/activities-gate.log
+            grep -Fxq ' - unified buttons v56.8: classroom art tiles match shortcut family' /tmp/activities-gate.log
+            grep -Fxq 'PASS  javascript: inline scripts parse' /tmp/activities-gate.log
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Open Activities as compact teacher workspace"
+          git push
