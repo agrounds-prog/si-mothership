@@ -38,8 +38,8 @@ create = r"""function createMinefield(length){
 }
 """
 section('function createMinefield(length){','function initializeMinefieldRun(',create)
-once("Choose any unrevealed sector and use the beacon signal.","Work together: reveal every safe square before health reaches zero.")
-once("Choose any unrevealed sector and use the beacon signal.","Work together: reveal every safe square before health reaches zero.")
+assert s.count("Choose any unrevealed sector and use the beacon signal.")==2
+s=s.replace("Choose any unrevealed sector and use the beacon signal.","Work together: reveal every safe square before health reaches zero.",2)
 once("run.mfClass.message='Class turn — the Navigator may choose any unrevealed sector.';","run.mfClass.message='Class turn — choose a closed square to reveal.';")
 once("run.mfTeacher.message='Teacher turn will follow the class move.';","run.mfTeacher.message='Teacher turn will follow the class move.';")
 # Fix two more turn messages when playing the advanced teacher-versus-class mode.
@@ -72,7 +72,7 @@ once('function minefieldSymbol(tile,current,showHidden=false){',helpers+"""funct
 """)
 once('const current=mf.current.r===t.r&&mf.current.c===t.c,selected=',"const current=!mf.simple&&mf.current.r===t.r&&mf.current.c===t.c,selected=")
 once("const cls=[current?'ship':'',t.revealed?'revealed':'unknown',", "const cls=[mf.simple?'simple':'',t.revealed&&mf.simple&&t.type==='clear'?'empty':'',t.revealed&&mf.simple&&t.type==='repair'?'health':'',current?'ship':'',t.revealed?'revealed':'unknown',")
-once("function minefieldHullMarkup(mf){return \`HULL", "function minefieldHullMarkup(mf){if(mf?.simple)return \`HEALTH \${'♥'.repeat(Math.max(0,mf.hull))}\${'♡'.repeat(Math.max(0,mf.maxHull-mf.hull))}\`;return \`HULL")
+once("function minefieldHullMarkup(mf){return `HULL", "function minefieldHullMarkup(mf){if(mf?.simple)return `HEALTH ${'♥'.repeat(Math.max(0,mf.hull))}${'♡'.repeat(Math.max(0,mf.maxHull-mf.hull))}`;return `HULL")
 # Preserve existing games already under way. Rename original resolver and invoke it for legacy maps.
 once("function resolveMinefieldMove(opts={}){","function resolveMinefieldMoveLegacy(opts={}){")
 newResolver=r"""function resolveMinefieldMove(opts={}){
@@ -160,7 +160,7 @@ once("['teacher','Teacher vs Class','Class and teacher alternate turns on separa
 # Screen legend appears once per active teacher-vs mode and once for normal teams/crew.
 legend='<div class="minefield-signal-legend"><span><b>NUMBER</b> nearby mines</span><span><b>ARROW + #</b> beacon signal</span></div>'
 assert s.count(legend)==2,s.count(legend)
-s=s.replace(legend,'\${minefieldQuickRulesMarkup(mf)}')
+s=s.replace(legend,'${minefieldQuickRulesMarkup(mf)}')
 # Retire old directions on student devices.
 old='Use the revealed mine counts and beacon arrows, then tap any unrevealed square.'
 assert s.count(old)==2,s.count(old)
