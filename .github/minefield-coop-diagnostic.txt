@@ -1,0 +1,25 @@
+COMMAND: python -m py_compile .github/minefield-simple-v94.py
+EXIT: 0
+STDOUT:
+
+STDERR:
+
+
+COMMAND: node --check .github/minefield-simple-tests-v94.cjs
+EXIT: 0
+STDOUT:
+
+STDERR:
+
+
+COMMAND: python .github/minefield-simple-v94.py
+EXIT: 1
+STDOUT:
+
+STDERR:
+Traceback (most recent call last):
+  File "/home/runner/work/si-mothership/si-mothership/.github/minefield-simple-v94.py", line 162, in <module>
+    assert s.count(legend)==2,s.count(legend)
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: 3
+
