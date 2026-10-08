@@ -1,0 +1,17 @@
+INTEGRITY_OK 6db3e8565ecfb3bfab8581cf987ff3808721d4f8 NEW_SHA 14fdf63fb4f1504543b91d085babe9451addc884 BYTES 1348830
+[stdin]:2
+for(const js of [...s.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/g)]) if(js[1].trim())new Function(js[1]);
+                               ^
+Unterminated regexp literal
+
+SyntaxError: Invalid regular expression flags
+    at makeContextifyScript (node:internal/vm:185:14)
+    at compileScript (node:internal/process/execution:383:10)
+    at evalTypeScript (node:internal/process/execution:256:22)
+    at node:internal/main/eval_stdin:53:5
+    at Socket.<anonymous> (node:internal/process/execution:201:5)
+    at Socket.emit (node:events:531:35)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+
+Node.js v22.23.3
