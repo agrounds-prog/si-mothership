@@ -1,0 +1,88 @@
+name: One-shot compact Mission Control
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-compact-mission-control.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Guarded compact dashboard styling
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html');raw=p.read_bytes()
+          def sha(b):return hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+          assert sha(raw)=='60100a13d6168e7047954ddc76018ed66e0910e3',f'Unexpected index {sha(raw)}'
+          assert 1300000<len(raw)<1400000
+          s=raw.decode('utf-8')
+          for selector in ('single-mission-controls','app-shortcuts-panel','right-rail','roster-card','attention-summary','buzz-panel','photoInboxPanel','helpInboxPanel','screen-dock'):
+            assert selector in s,selector
+          assert 'v76-mission-control-tightening' not in s
+          css='''<style id="v76-mission-control-tightening">
+          /* Classroom dashboard: tighten presentation without touching controls or handlers. */
+          @media(min-width:1181px){
+            #teacher .single-mission-controls{
+              align-items:start!important;gap:9px!important;padding:3px 0!important;
+            }
+            #teacher .single-mission-controls .control{
+              height:auto!important;min-height:78px!important;
+              display:flex!important;flex-direction:column!important;align-items:center!important;
+              justify-content:flex-start!important;
+              overflow:visible!important;
+            }
+            #teacher .single-mission-controls .control .copy,
+            #teacher .single-mission-controls .control b,
+            #teacher .single-mission-controls .control small{
+              white-space:normal!important;overflow:visible!important;
+              text-overflow:clip!important;overflow-wrap:normal!important;
+              word-break:normal!important;line-height:1.2!important;
+              min-height:22px!important;text-align:center!important;
+            }
+            #teacher .right-rail{
+              align-content:start!important;align-items:start!important;
+              row-gap:10px!important;gap:10px!important;
+            }
+            #teacher .right-rail>.attention-summary,
+            #teacher .right-rail>.attention-panel{
+              min-height:60px!important;height:auto!important;
+              margin:0!important;align-self:start!important;
+            }
+            #teacher .roster-card{min-height:0!important;height:auto!important}
+            #teacher #appShortcutsPanel{
+              min-height:0!important;margin-top:0!important;
+              padding:10px 14px!important;
+            }
+            #teacher #appShortcutsPanel .app-shortcuts-head{margin-bottom:6px!important}
+          }
+          #teacher #appShortcutsPanel .app-shortcut-label{
+            overflow:visible!important;text-overflow:clip!important;
+            white-space:normal!important;line-height:1.25!important;
+          }
+          </style>'''
+          i=s.index('</head>');s=s[:i]+css+s[i:]
+          p.write_text(s,encoding='utf-8')
+          print('INTEGRITY_OK',sha(raw),'NEW_BLOB',sha(p.read_bytes()),'BYTES',p.stat().st_size)
+          PY
+          git diff --check
+          rc=0
+          python scripts/release_gate.py --require-node > /tmp/compact-mission-gate.log 2>&1 || rc=$?
+          tail -n 8 /tmp/compact-mission-gate.log
+          if [ "$rc" -ne 0 ]; then
+            grep -Fxq 'Release gate: 396 passed, 1 failed.' /tmp/compact-mission-gate.log
+            grep -Fxq ' - unified buttons v56.8: classroom art tiles match shortcut family' /tmp/compact-mission-gate.log
+            grep -Fxq 'PASS  javascript: inline scripts parse' /tmp/compact-mission-gate.log
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Tighten Mission Control panels and toolbar labels"
+          git push
