@@ -12937,6 +12937,38 @@ body.role-student .agenda-live-footer{
   #teacher #activitiesPanel.activity-library-view .activity-library-shelves{grid-template-columns:1fr!important}
   #teacher #activitiesPanel.activity-library-view .activity-catalog-grid{grid-template-columns:repeat(auto-fit,minmax(155px,1fr))!important}
 }
+</style><style id="v73-dedicated-shortcut-manager">
+/* Pure view separation: same shortcut and app DOM, no duplicated registry. */
+#teacher #activitiesPanel.shortcut-manager-view:not(.shortcut-assigning-view) #activityGrid{
+  display:none!important;
+}
+#teacher #activitiesPanel.shortcut-manager-view #favoriteAppsWrap{
+  display:block!important;
+  max-width:none!important;width:100%!important;
+}
+#teacher #activitiesPanel.shortcut-manager-view .favorite-title{
+  display:flex!important;justify-content:space-between!important;gap:12px!important;
+}
+#teacher #activitiesPanel.shortcut-manager-view #favoriteGrid{
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:12px!important;
+}
+#teacher #activitiesPanel.shortcut-assigning-view #activityGrid{
+  display:block!important;
+}
+#teacher #activitiesPanel.shortcut-assigning-view #favoriteAppsWrap{
+  border-color:#69c9f3!important;
+}
+#teacher #activitiesPanel.shortcut-assigning-view #assignNote:not(.hidden){
+  position:sticky;top:44px;z-index:4;
+  border:1px solid #6bd4ff!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.35);
+}
+@media(max-width:720px){
+  #teacher #activitiesPanel.shortcut-manager-view #favoriteGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
 </style></head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -16295,15 +16327,19 @@ function renderActivities(){
   }
 
   picker.classList.add('hidden');grid.classList.remove('hidden');
-  title.textContent='Activity Library';
-  subtitle.textContent='Browse every available app, reopen recent work, and load saved setups.';
+  const shortcutAssigning=state.assigningSlot!==null;
+  const managerVisible=activityShortcutManagerOpen||shortcutAssigning;
+  $('#activitiesPanel').classList.toggle('shortcut-manager-view',managerVisible);
+  $('#activitiesPanel').classList.toggle('shortcut-assigning-view',shortcutAssigning);
+  title.textContent=shortcutAssigning?'Choose an App for Shortcut':managerVisible?'Shortcut Manager':'Activity Library';
+  subtitle.textContent=shortcutAssigning?'Select an activity below to replace the selected shortcut, or cancel to return.':managerVisible?'Customize the nine Mission Control launcher buttons. Choose Replace to assign any available app.':'Browse every available app, reopen recent work, and load saved setups.';
   header.innerHTML=state.assigningSlot!==null?`<button id="cancelAssignBtn">Cancel shortcut assignment</button>`:`<button type="button" id="toggleShortcutManagerBtn">${activityShortcutManagerOpen?'← Back to Library':'⚙ Manage Shortcuts'}</button>`;
   const shortcutToggle=$('#toggleShortcutManagerBtn');if(shortcutToggle)shortcutToggle.onclick=()=>{activityShortcutManagerOpen=!activityShortcutManagerOpen;renderActivities()};
   const cancel=$('#cancelAssignBtn');if(cancel)cancel.onclick=()=>{state.assigningSlot=null;render()};
 
   while(state.favoriteSlots.length<9)state.favoriteSlots.push(null);
   if(state.favoriteSlots.length>9)state.favoriteSlots=state.favoriteSlots.slice(0,9);
-  wrap.classList.toggle('hidden',!activityShortcutManagerOpen && state.assigningSlot===null);
+  wrap.classList.toggle('hidden',!managerVisible);
   wrap.classList.add('shortcut-manager');
   fav.innerHTML=state.favoriteSlots.map((id,i)=>{
     const app=appById(id),active=state.assigningSlot===i;
@@ -16357,6 +16393,7 @@ function renderActivities(){
 
   grid.innerHTML=toolbar+`<div class="activity-library-shelves">${recentSection}${presetSection}</div>`+catalog;
   $('#activitiesPanel').classList.add('activity-library-view');
+  grid.classList.toggle('hidden',managerVisible&&!shortcutAssigning);
 
   const search=$('#activityLibrarySearch');
   if(search)search.oninput=e=>{
