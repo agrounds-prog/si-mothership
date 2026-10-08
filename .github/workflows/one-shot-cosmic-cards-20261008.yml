@@ -1,4 +1,4 @@
-name: Guarded Cosmic Cards integration
+name: Guarded Cosmic Cards integration and validation
 on:
   push:
     paths: ['.github/workflows/one-shot-cosmic-cards-20261008.yml']
