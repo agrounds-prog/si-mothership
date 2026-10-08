@@ -1,0 +1,44 @@
+name: One-shot restore working Agenda
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-restore-agenda.yml']
+permissions:
+  contents: write
+jobs:
+  restore:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+      - name: Restore verified pre-chooser Agenda
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,subprocess
+          p=Path('index.html')
+          current=p.read_bytes()
+          def blob_sha(data):
+            return hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
+          actual=blob_sha(current)
+          assert actual=='1e902fce4da29f6639d2806784af90604053a77b',f'Unexpected HEAD index blob: {actual}'
+          base=subprocess.check_output(['git','show','683d66500a08ffcf0800468cff21efba70a910ab:index.html'])
+          original=blob_sha(base)
+          assert original=='7edffe50ab2ad5640c6b0ca9227760295bb3b7d2',f'Unexpected previous working blob: {original}'
+          assert 1300000<len(base)<1400000
+          assert b'id="v64-agenda-chooser"' in current
+          assert b'id="v64-agenda-chooser"' not in base
+          assert b'id="v63-compact-agenda-activities"' in base
+          p.write_bytes(base)
+          assert blob_sha(p.read_bytes())==original
+          print('RESTORE_OK',actual,'->',original,'SIZE',len(base))
+          PY
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Restore working Agenda after chooser regression"
+          git push
