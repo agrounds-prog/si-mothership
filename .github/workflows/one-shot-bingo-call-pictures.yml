@@ -1,0 +1,93 @@
+name: Fix Bingo image presentation
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-bingo-call-pictures.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Guarded Bingo teacher and shared screen pictures
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html');raw=p.read_bytes()
+          def sha(b):return hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+          assert sha(raw)=='c9591752be2104101e5a3e5734bcc4ed19896379',f'Unexpected source {sha(raw)}'
+          assert 1300000<len(raw)<1550000
+          s=raw.decode('utf-8')
+          def one(old,new):
+              global s
+              assert s.count(old)==1,(s.count(old),old[:130])
+              s=s.replace(old,new,1)
+          helper="""function bingoCallDisplayMarkup(item,compact=false){
+            if(!item)return '';
+            const call=item.call||{},card=item.card||{};
+            const visual=card.type==='image'&&card.value?card:call.type==='image'&&call.value?call:null;
+            if(!visual)return contentMarkup(call);
+            const label=String(call.type==='text'?call.value:(call.label||visual.label||'Picture'));
+            if(compact)return '<span class="bingo-call-mini">'+contentMarkup(visual)+'<b>'+esc(label)+'</b></span>';
+            return '<div class="bingo-call-display">'+contentMarkup(visual)+'<strong class="bingo-call-label">'+esc(label)+'</strong></div>';
+          }
+          """
+          one("function bingoSlotItems(){",helper+"function bingoSlotItems(){")
+          one("<div class=\"foundation-call\">${current?contentMarkup(current.call):'READY TO CALL'}</div>","<div class=\"foundation-call\">${current?bingoCallDisplayMarkup(current):'READY TO CALL'}</div>")
+          one("<div class=\"bingo-call-card\">${current?contentMarkup(current.call):'READY TO CALL'}</div>","<div class=\"bingo-call-card\">${current?bingoCallDisplayMarkup(current):'READY TO CALL'}</div>")
+          assert s.count("${item?contentMarkup(item.call):''}")==2
+          s=s.replace("${item?contentMarkup(item.call):''}","${item?bingoCallDisplayMarkup(item,true):''}")
+          css="""<style id="v86-bingo-images-in-caller">
+          /* Image-based Bingo: show the uploaded card photo along with the call label. */
+          .bingo-call-display{width:100%;height:100%;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+          .bingo-call-display img{display:block;max-width:94%;width:auto;height:auto;max-height:min(38dvh,370px);object-fit:contain;background:#f5f7f8;border-radius:12px;box-shadow:0 7px 17px #0006}
+          .bingo-call-label{display:block;color:white;font-size:clamp(19px,2.4vw,38px)!important;line-height:1.15!important;text-align:center;overflow-wrap:anywhere;text-shadow:0 3px 12px #101a55;font-weight:950}
+          #teacher .foundation-call .bingo-call-display img{max-height:clamp(125px,17vw,245px)!important;border:2px solid #77c3ffa6}
+          #teacher .foundation-call .bingo-call-label{font-size:clamp(21px,2.2vw,34px)!important}
+          .bingo-call-card:has(.bingo-call-display){padding:20px!important}
+          .bingo-call-card .bingo-call-display img{max-height:clamp(230px,46dvh,550px)!important}
+          .bingo-history-grid .bingo-call-mini{width:100%;min-width:0;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+          .bingo-history-grid .bingo-call-mini img{display:block;max-width:100%;max-height:68%;width:auto;height:auto;object-fit:contain;background:#f4f5f6;border-radius:6px}
+          .bingo-history-grid .bingo-call-mini b{display:block;text-align:center;line-height:1.15;font-size:clamp(10px,.9vw,14px);overflow-wrap:anywhere;color:white;font-weight:900}
+          #teacher .bingo-history-grid .bingo-call-mini img{max-height:43px}
+          #teacher .bingo-history-grid .bingo-call-mini b{font-size:11px}
+          @media(max-width:700px){.bingo-call-card .bingo-call-display img{max-height:35dvh!important}.bingo-call-label{font-size:clamp(18px,5vw,28px)!important}}
+          </style>"""
+          assert 'v86-bingo-images-in-caller' not in s
+          i=s.index('</head>');s=s[:i]+css+s[i:]
+          p.write_text(s,encoding='utf-8')
+          print('PATCH_OK old='+sha(raw)+' new='+sha(p.read_bytes())+' bytes='+str(p.stat().st_size))
+          PY
+          git diff --check
+          node - <<'NODE'
+          const fs=require('fs'),s=fs.readFileSync('index.html','utf8');
+          function cut(a,b){const i=s.indexOf(a),j=s.indexOf(b,i);if(i<0||j<0)throw Error('Missing '+a);return s.slice(i,j)}
+          const src=cut('function contentMarkup(side){','function removeGameLibraryImage(')+cut('function bingoCallDisplayMarkup(','function bingoCardExtras(){');
+          const f=new Function('bingoDraft','esc',src+';return {bingoSlotItems,bingoCallDisplayMarkup,contentMarkup}');
+          const o=f({numberedSlots:[{slot:1,call:'cutting board',image:'data:image/webp;base64,TEST',label:'cutting board'}]},x=>String(x));
+          const item=o.bingoSlotItems()[0];
+          if(item.call.type!=='text'||item.card.type!=='image'||item.card.value!=='data:image/webp;base64,TEST')throw Error('Saved card picture lost');
+          if(!o.bingoCallDisplayMarkup(item).includes('<img')||!o.bingoCallDisplayMarkup(item).includes('cutting board'))throw Error('Teacher caller picture missing');
+          if(!o.bingoCallDisplayMarkup(item,true).includes('<img'))throw Error('History picture missing');
+          if(!s.includes('data-bingo-mark')||!s.includes('contentMarkup(item.card)'))throw Error('Student card changed');
+          console.log('PASS Bingo saved images render in teacher caller and history, student card retains image rendering');
+          NODE
+          rc=0
+          python scripts/release_gate.py --require-node > /tmp/bingo-image-gate.log 2>&1 || rc=$?
+          tail -n 12 /tmp/bingo-image-gate.log
+          if [ "$rc" -ne 0 ]; then
+            grep -Fq 'PASS  javascript: inline scripts parse' /tmp/bingo-image-gate.log
+            test "$(grep -c '^FAIL ' /tmp/bingo-image-gate.log || true)" -le 1
+            grep -Fq 'unified buttons v56.8: classroom art tiles match shortcut family' /tmp/bingo-image-gate.log
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Show Bingo card pictures in caller and shared presentation"
+          git push
