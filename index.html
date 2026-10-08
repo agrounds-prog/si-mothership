@@ -12751,6 +12751,23 @@ body.role-student .agenda-live-footer{
   #teacher #agendaPanel .mode-title{padding-right:0!important}
   #teacher #agendaPanel .agenda-choice-grid{grid-template-columns:1fr!important}
 }
+</style><style id="v67-compact-command-deck">
+/* Phase 4: reclaim vertical space without altering roster, control, or Agenda handlers. */
+#teacher .command-deck{gap:8px!important}
+#teacher .single-mission-status{min-height:0!important;padding-top:8px!important;padding-bottom:8px!important}
+#teacher .single-mission-status .mission-context-title{line-height:1.15!important}
+#teacher .single-mission-status .mission-context-title>b{font-size:clamp(15px,1.35vw,21px)!important;line-height:1.15!important}
+#teacher .mission-context-kicker{line-height:1.15!important}
+#teacher .roster-card:has(.empty-roster-message){min-height:0!important;padding-top:10px!important;padding-bottom:10px!important}
+#teacher .roster-card:has(.empty-roster-message) .roster-inner{padding:10px 14px!important}
+#teacher .roster-card:has(.empty-roster-message) .roster-head{margin-bottom:8px!important}
+#teacher .roster-card:has(.empty-roster-message) .avatar-line{min-height:0!important}
+#teacher .roster-card:has(.empty-roster-message) .empty-roster-message{min-height:88px!important;padding:10px!important;display:flex!important;gap:14px!important;align-items:center!important;justify-content:center!important;text-align:left!important}
+#teacher .roster-card:has(.empty-roster-message) .v564-empty-roster-art{width:62px!important;height:62px!important;flex:0 0 62px!important}
+#teacher .roster-card:has(.empty-roster-message) .empty-roster-message b{font-size:14px!important}
+#teacher .roster-card:has(.empty-roster-message) .empty-roster-message span{font-size:11px!important;line-height:1.35!important}
+#teacher .roster-card:has(.empty-roster-message) .page-dots{margin-top:5px!important}
+@media(max-width:700px){#teacher .roster-card:has(.empty-roster-message) .empty-roster-message{min-height:105px!important}}
 </style></head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
