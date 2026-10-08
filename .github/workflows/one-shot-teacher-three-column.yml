@@ -17,6 +17,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          exec > >(tee three-column-check.log) 2>&1
           python - <<'PY'
           from pathlib import Path
           import hashlib
@@ -79,3 +80,16 @@ jobs:
           git add index.html
           git commit -m "Arrange desktop Mission Control in three columns"
           git push
+      - name: Record layout validation failure
+        if: failure()
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -f three-column-check.log ]; then
+            mkdir -p .github/diagnostics
+            cp three-column-check.log .github/diagnostics/three-column-check.log
+            git add .github/diagnostics/three-column-check.log
+            git commit -m "Record three-column layout validation failure" || true
+            git push || true
+          fi
