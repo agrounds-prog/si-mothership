@@ -13,13 +13,22 @@ STDERR:
 
 
 COMMAND: python .github/minefield-simple-v94.py
-EXIT: 1
+EXIT: 0
 STDOUT:
+MINEFIELD_COOP_PATCH_OK 522072a7a227e0b26e0ad5b456b4b0ffb98d1524 0cd8426a612118238432b5dae3d280b3d2b97d9a bytes 1463729
 
 STDERR:
-Traceback (most recent call last):
-  File "/home/runner/work/si-mothership/si-mothership/.github/minefield-simple-v94.py", line 162, in <module>
-    assert s.count(legend)==2,s.count(legend)
-           ^^^^^^^^^^^^^^^^^^
-AssertionError: 3
+
+
+COMMAND: node .github/minefield-simple-tests-v94.cjs
+EXIT: 0
+STDOUT:
+PASS quick, standard, epic boards contain only empty, health, mine; start hidden
+PASS blank tile and health/mine markers, hidden mine privacy, legacy symbol
+PASS empty, +1 heart, mine -1 heart, navigator rotation, repeat-click prevention
+PASS hitting a mine with last heart ends game
+PASS all non-mine squares cleared wins without revealing mines
+PASS simple classroom-facing rules, progress and layout installed
+
+STDERR:
 
