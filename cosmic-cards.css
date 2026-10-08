@@ -680,3 +680,148 @@
   .cc-cinematic .cc-card.cc-back{background-size:90% auto!important}
   .cc-app-icon{max-width:86px;max-height:86px}
 }
+
+
+/* COSMIC CARDS v5 — cinematic full-viewport board + true roster avatars.
+   Only the separately launched shared screen goes edge-to-edge. */
+.cc-cinematic .cc-real-avatar{
+  --cc-avatar-accent:#69deff;
+  position:relative;display:flex!important;align-items:center;justify-content:center;
+  overflow:hidden;flex-shrink:0;border:3px solid var(--cc-avatar-accent)!important;
+  border-radius:50%;background:radial-gradient(circle at 42% 32%,#26466e,#071d37 78%)!important;
+  box-shadow:0 0 0 3px #071831,0 0 15px var(--cc-avatar-accent)!important;
+}
+.cc-cinematic .cc-player-avatar-img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}
+.cc-cinematic .cc-player-avatar-glyph{font-size:clamp(23px,3.4vw,53px);line-height:1;filter:drop-shadow(0 0 5px var(--cc-avatar-accent))}
+.cc-cinematic .cc-card-fan{position:relative;display:flex;justify-content:center;align-items:flex-end;min-height:37px;
+  padding:4px 8px 0;transform:translateX(-6px)}
+.cc-cinematic .cc-card-fan-item{display:block;flex:0 0 auto;width:27px;height:36px;margin-right:-11px;
+  border:2px solid #8cd9ff;border-radius:5px;
+  background:linear-gradient(145deg,#174877 0%,#071a3c 70%);
+  box-shadow:inset 0 0 0 2px #071c38,0 2px 5px #0008;
+  transform:rotate(calc((var(--cc-fan-index) - (var(--cc-fan-count) - 1)/2)*5deg));
+}
+.cc-cinematic .cc-player-count{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.cc-cinematic .cc-player-count strong{display:block;font:950 clamp(11px,1vw,17px)/1.15 system-ui,sans-serif;
+  color:#b5edff;letter-spacing:.09em;white-space:nowrap}
+.cc-cinematic .cc-deck-stack{position:relative;display:grid;place-items:center;padding:0 12px 0 22px;isolation:isolate}
+.cc-cinematic .cc-deck-stack:before,.cc-cinematic .cc-deck-stack:after{
+  content:"";position:absolute;width:65%;height:85%;border-radius:14px;
+  background:linear-gradient(135deg,#0e4d84,#041735);
+  border:3px solid #64d9ff;box-shadow:0 0 11px #30c8ff66;
+  pointer-events:none;z-index:-1;
+}
+.cc-cinematic .cc-deck-stack:before{transform:rotate(-10deg) translate(-14px,5px)}
+.cc-cinematic .cc-deck-stack:after{transform:rotate(-7deg) translate(-9px,2px)}
+.cc-cinematic .cc-reactor-color-dot{display:inline-block;width:18px;height:18px;border-radius:50%;
+  flex-shrink:0;border:2px solid #fff9;background:#63dca6;box-shadow:0 0 12px currentColor}
+.cc-cinematic .cc-reactor-red .cc-reactor-color-dot{background:#ff5d76}
+.cc-cinematic .cc-reactor-blue .cc-reactor-color-dot{background:#4ab9ff}
+.cc-cinematic .cc-reactor-green .cc-reactor-color-dot{background:#3be2a3}
+.cc-cinematic .cc-reactor-yellow .cc-reactor-color-dot{background:#ffce54}
+
+/* Shared screen fills the entire projector: no centered preview-card or sidebars. */
+#shared .shared-shell:has(.cc-presentation){position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;
+  max-width:none!important;max-height:none!important;padding:0!important;margin:0!important;overflow:hidden!important;z-index:16}
+#shared .shared-screen:has(.cc-presentation){position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  min-height:0!important;max-width:none!important;max-height:none!important;display:block!important;
+  padding:0!important;margin:0!important;border:0!important;border-radius:0!important;background:#040d20!important;box-shadow:none!important}
+#shared .shared-screen:has(.cc-presentation) > .mirror-top,
+#shared .shared-screen:has(.cc-presentation) > .mirror-footer{display:none!important}
+#shared .shared-screen:has(.cc-presentation) > .mirror-content{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  display:flex!important;justify-content:center!important;align-items:stretch!important;
+  max-width:none!important;max-height:none!important;padding:0!important;margin:0!important;overflow:hidden!important}
+#shared .cc-presentation.cc-public{
+  width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;
+  border-radius:0!important;margin:0!important;padding:clamp(8px,1.3vw,21px)!important;
+  display:grid!important;align-items:stretch;justify-items:stretch;
+  grid-template-rows:auto auto auto minmax(0,1fr) auto auto;
+  gap:clamp(2px,.55vh,8px);
+}
+#shared .cc-presentation .cc-scene-shared{height:81%;opacity:.94}
+#shared .cc-presentation .cc-table-head{margin:0!important;padding:clamp(7px,1.1vh,14px) clamp(10px,2vw,30px)!important;
+  min-height:50px;align-self:start}
+#shared .cc-presentation .cc-brand{font-size:clamp(17px,2vw,34px)}
+#shared .cc-presentation .cc-round{font-size:clamp(15px,1.6vw,26px)}
+#shared .cc-presentation .cc-game-flags{margin:0!important;align-self:center}
+#shared .cc-presentation .cc-flag{font-size:clamp(11px,1.06vw,17px);padding:7px 15px}
+#shared .cc-presentation .cc-turn{align-self:stretch;margin:0!important;padding:clamp(7px,1.3vh,17px) 4px!important;
+  font-size:clamp(29px,3.5vw,63px)!important;line-height:1.08}
+#shared .cc-presentation .cc-victory{margin:0!important;padding:clamp(6px,1.2vh,14px) 4px!important}
+#shared .cc-presentation .cc-arena{align-self:stretch;width:min(100%,1320px)!important;max-width:none!important;
+  height:100%!important;min-height:0!important;margin:0 auto!important;padding:clamp(10px,1.5vw,24px) clamp(8px,4vw,80px)!important;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;
+  gap:clamp(8px,2vw,50px)!important;border-radius:43% / 42%}
+#shared .cc-presentation .cc-deck,
+#shared .cc-presentation .cc-live-card{align-self:center;justify-self:center;gap:clamp(5px,1.1vh,15px);width:100%}
+#shared .cc-presentation .cc-deck>span,
+#shared .cc-presentation .cc-live-card>span{display:inline-flex!important;justify-self:center;
+  padding:clamp(4px,.9vh,10px) clamp(8px,1vw,18px)!important;
+  font-size:clamp(13px,1.35vw,21px)!important;letter-spacing:.055em}
+#shared .cc-presentation .cc-arena .cc-card{width:clamp(97px,13.1vw,220px)!important;
+  height:clamp(139px,35vh,326px)!important;border-width:clamp(4px,.35vw,7px)}
+#shared .cc-presentation .cc-arena .cc-card b{font-size:clamp(53px,7.3vw,111px)!important}
+#shared .cc-presentation .cc-arena .cc-card small{font-size:clamp(18px,2.1vw,34px)!important}
+#shared .cc-presentation .cc-deck-stack{padding:0 5px 0 22px}
+#shared .cc-presentation .cc-reactor{position:relative;align-self:center;justify-self:center;
+  display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;
+  width:auto!important;min-width:clamp(112px,12vw,182px)!important;
+  height:auto!important;min-height:60px!important;aspect-ratio:auto!important;
+  border:2px solid #5edaff!important;border-radius:999px!important;padding:11px 15px!important;
+  background:linear-gradient(155deg,#14416bbb,#06192fee)!important;color:#90eaff!important;
+  box-shadow:0 0 12px #55dfff44,inset 0 0 12px #0b60835a!important;gap:7px!important;flex-wrap:wrap}
+#shared .cc-presentation .cc-reactor:before,
+#shared .cc-presentation .cc-reactor:after{display:none!important}
+#shared .cc-presentation .cc-reactor small{flex:0 0 100%;font-size:clamp(9px,.85vw,13px);line-height:1;margin-bottom:3px}
+#shared .cc-presentation .cc-reactor b{font-size:clamp(12px,1.4vw,20px)!important;letter-spacing:.05em}
+#shared .cc-presentation .cc-reactor-color-dot{width:clamp(15px,1.8vw,25px);height:clamp(15px,1.8vw,25px)}
+#shared .cc-presentation .cc-game-message{min-height:38px!important;max-width:none!important;width:min(98%,1400px);
+  margin:0 auto!important;padding:clamp(5px,.6vh,10px) 10px!important;border-width:1px;
+  background:#081b32cc}
+#shared .cc-presentation .cc-game-message p{font-size:clamp(12px,1.3vw,19px)!important}
+#shared .cc-presentation .cc-players{width:100%;max-width:none;margin:0!important;align-self:stretch;
+  grid-template-columns:repeat(auto-fit,minmax(min(165px,100%),1fr));gap:clamp(6px,.9vw,17px)}
+#shared .cc-presentation .cc-player{min-height:0!important;padding:clamp(7px,1vw,14px);
+  grid-template-columns:auto minmax(0,1fr);column-gap:clamp(5px,1vw,15px);
+  background:#082347ee;border-width:2px}
+#shared .cc-presentation .cc-avatar-orbit{width:clamp(43px,6.3vw,102px)!important}
+#shared .cc-presentation .cc-player-name{align-items:center;flex-wrap:wrap}
+#shared .cc-presentation .cc-player-name b{font-size:clamp(12px,1.5vw,23px)}
+#shared .cc-presentation .cc-player-count{display:flex;flex-wrap:wrap;align-items:center;gap:clamp(3px,.6vw,11px)}
+#shared .cc-presentation .cc-player-count strong{font-size:clamp(12px,1.1vw,18px)}
+#shared .cc-presentation .cc-card-fan-item{width:clamp(16px,2vw,31px);height:clamp(22px,2.8vw,43px);
+  margin-right:clamp(-11px,-.7vw,-6px)}
+#shared .cc-presentation .cc-audience{margin-top:0!important;padding:4px 10px!important;min-height:0}
+
+/* Teacher's embedded mirror is intentionally a compact preview. */
+.cc-preview .cc-avatar-orbit{width:35px!important}
+.cc-preview .cc-card-fan{min-height:22px}
+.cc-preview .cc-card-fan-item{height:25px;width:19px;margin-right:-8px}
+.cc-preview .cc-player-count{gap:4px}
+
+/* Extremely small displays: retain deck focus, reduce decorative spacing. */
+@media(max-width:850px){
+ #shared .cc-presentation.cc-public{padding:6px!important;gap:2px!important}
+ #shared .cc-presentation .cc-arena{gap:4px!important;padding:7px!important}
+ #shared .cc-presentation .cc-arena .cc-card{height:clamp(97px,27vh,200px)!important;
+   width:clamp(69px,16vw,129px)!important}
+ #shared .cc-presentation .cc-arena .cc-card b{font-size:clamp(30px,6vw,61px)!important}
+ #shared .cc-presentation .cc-deck>span,
+ #shared .cc-presentation .cc-live-card>span{font-size:10px!important;padding:4px!important}
+ #shared .cc-presentation .cc-reactor{min-width:82px!important;min-height:49px!important;padding:6px!important}
+ #shared .cc-presentation .cc-reactor small{font-size:8px}
+ #shared .cc-presentation .cc-reactor b{font-size:11px!important}
+ #shared .cc-presentation .cc-players{grid-template-columns:repeat(auto-fit,minmax(125px,1fr))}
+ #shared .cc-presentation .cc-avatar-orbit{width:43px!important}
+ #shared .cc-presentation .cc-player-count .cc-card-fan{display:none}
+}
+@media(max-height:680px){
+ #shared .cc-presentation .cc-game-message{display:none!important}
+ #shared .cc-presentation.cc-public{grid-template-rows:auto auto auto minmax(0,1fr) auto}
+ #shared .cc-presentation .cc-arena .cc-card{height:clamp(105px,31vh,210px)!important}
+ #shared .cc-presentation .cc-player{padding:6px!important}
+ #shared .cc-presentation .cc-avatar-orbit{width:clamp(36px,4.7vw,69px)!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #shared .cc-presentation .cc-reactor{animation:none!important}
+}
