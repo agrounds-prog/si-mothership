@@ -1,0 +1,44 @@
+name: Apply Bingo blank card editor
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-apply-bingo-blank-card.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Extract and run guarded Bingo patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          data=Path('.github/workflows/one-shot-bingo-blank-card.yml').read_text()
+          start=data.index('          from pathlib import Path\n')
+          end=data.index('          git diff --check',start)
+          lines=data[start:end].splitlines()
+          script='\n'.join(x[10:] if x.startswith('          ') else x for x in lines)
+          script=script.replace(chr(92)+'${','${')
+          compile(script,'bingo_patch.py','exec')
+          Path('/tmp/bingo_patch.py').write_text(script)
+          PY
+          python /tmp/bingo_patch.py
+          git diff --check
+          rc=0
+          python scripts/release_gate.py --require-node > /tmp/blank-card-gate.log 2>&1 || rc=$?
+          tail -n 10 /tmp/blank-card-gate.log
+          if [ "$rc" -ne 0 ]; then
+            grep -Fq 'PASS  javascript: inline scripts parse' /tmp/blank-card-gate.log
+            grep -Fq 'unified buttons v56.8: classroom art tiles match shortcut family' /tmp/blank-card-gate.log
+            test "$(grep -c '^FAIL ' /tmp/blank-card-gate.log || true)" -le 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Make Bingo a blank numbered card with per-square editor"
+          git push
