@@ -14017,6 +14017,85 @@ body.role-student .agenda-live-footer{
 }
 @media(prefers-reduced-motion:reduce){
   #shared .starwheel-wheel{animation:none!important}
+}</style><style id="v91-starwheel-wheel-cleanup">/* Starwheel v91: integrated slice lettering and safe spacing below the puzzle */
+#shared .starwheel-stage{
+  margin-top:clamp(40px,4.5dvh,54px)!important;
+  align-items:center!important;
+}
+#shared .starwheel-wheel-shell{
+  width:min(386px,32vw)!important;
+  min-width:0!important;
+  --sw-orbit:clamp(102px,11.3vw,137px);
+  margin:8px auto 0!important;
+}
+#shared .starwheel-pointer{
+  top:-19px!important;
+}
+#shared .starwheel-sector{
+  min-width:0!important;
+  width:auto!important;
+  max-width:none!important;
+  padding:2px 1px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#ffffff!important;
+  font-size:clamp(14px,1.35vw,19px)!important;
+  line-height:1!important;
+  letter-spacing:.01em!important;
+  font-weight:1000!important;
+  white-space:nowrap!important;
+  -webkit-text-stroke:.35px rgba(7,20,49,.72);
+  text-shadow:0 2px 2px #071025,0 3px 7px #071025e8,0 0 6px #071025!important;
+  filter:drop-shadow(0 2px 1px #020a18a6);
+  pointer-events:none;
+}
+#shared .starwheel-sector.special{
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#fff2ac!important;
+  font-weight:1000!important;
+  font-size:clamp(15px,1.45vw,20px)!important;
+  -webkit-text-stroke:.35px #41254f;
+  text-shadow:0 2px 3px #1c123d,0 0 9px #ffe4799c!important;
+}
+#shared .starwheel-sector.landed{
+  color:#fff7b5!important;
+  text-shadow:0 1px 2px #150c30,0 0 8px #ffe17a,0 0 17px #ffd959!important;
+}
+#shared .starwheel-sector.special.landed{
+  color:#fffac4!important;
+  text-shadow:0 1px 2px #2c1444,0 0 11px #ffdd62,0 0 19px #fff3a5!important;
+}
+@media(max-width:930px){
+  #shared .starwheel-stage{margin-top:clamp(34px,4dvh,48px)!important}
+  #shared .starwheel-wheel-shell{
+    width:min(350px,70vw)!important;
+    --sw-orbit:clamp(99px,20vw,128px);
+  }
+}
+@media(max-width:560px){
+  #shared .starwheel-stage{margin-top:32px!important}
+  #shared .starwheel-wheel-shell{
+    width:min(315px,78vw)!important;
+    --sw-orbit:clamp(85px,23vw,113px);
+  }
+  #shared .starwheel-sector{font-size:clamp(11px,2.8vw,14px)!important}
+  #shared .starwheel-sector.special{font-size:clamp(12px,3vw,15px)!important}
+  #shared .starwheel-pointer{top:-18px!important}
+}
+@media(max-height:690px) and (min-width:931px){
+  #shared .starwheel-stage{margin-top:clamp(24px,3dvh,33px)!important}
+  #shared .starwheel-wheel-shell{
+    width:min(304px,27vw)!important;
+    --sw-orbit:clamp(90px,9.7vw,110px);
+  }
+  #shared .starwheel-sector{font-size:clamp(11px,1.1vw,15px)!important}
+  #shared .starwheel-sector.special{font-size:clamp(12px,1.15vw,16px)!important}
+  #shared .starwheel-pointer{top:-17px!important}
 }</style></head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -15487,7 +15566,7 @@ function starwheelRotationMarkup(run=state.activityRun){
 }
 function starwheelWheelMarkup(run=state.activityRun){
   const sw=starwheelState(run)||{},deg=Number(sw.spinDeg||0),sectors=starwheelWheelSectors(run),step=360/sectors.length,spinLabel=sw.spinLabel||(sw.spinValue?Number(sw.spinValue).toLocaleString():'');
-  return `<div class="starwheel-wheel-shell" data-spin-nonce="${Number(sw.spinNonce||0)}" data-spin-index="${sw.spinIndex==null?'':Number(sw.spinIndex)}"><div class="starwheel-pointer">▼</div><div class="starwheel-wheel" data-starwheel-wheel data-spin-from="${Number(sw.spinFromDeg||0)}" data-spin-target="${deg}" style="--sw-spin:${deg}deg;background:${starwheelGradient(sectors)}">${sectors.map((sector,i)=>{const angle=i*step+step/2;return `<span class="starwheel-sector ${sector.kind!=='number'?'special':''} ${Number(sw.spinIndex)===i?'landed':''}" data-sector-index="${i}" title="${esc(sector.label)}" style="--sw-sector-angle:${angle}deg;transform:rotate(${angle}deg) translate(0,-132px) rotate(-${angle}deg)">${esc(sector.short)}</span>`}).join('')}</div></div><div class="starwheel-spin-value">${spinLabel?`CORE · ${esc(spinLabel)}`:'SPIN THE CORE'}</div>`;
+  return `<div class="starwheel-wheel-shell" data-spin-nonce="${Number(sw.spinNonce||0)}" data-spin-index="${sw.spinIndex==null?'':Number(sw.spinIndex)}"><div class="starwheel-pointer">▼</div><div class="starwheel-wheel" data-starwheel-wheel data-spin-from="${Number(sw.spinFromDeg||0)}" data-spin-target="${deg}" style="--sw-spin:${deg}deg;background:${starwheelGradient(sectors)}">${sectors.map((sector,i)=>{const angle=i*step+step/2;return `<span class="starwheel-sector ${sector.kind!=='number'?'special':''} ${sw.spinIndex!=null&&Number(sw.spinIndex)===i?'landed':''}" data-sector-index="${i}" title="${esc(sector.label)}" style="--sw-sector-angle:${angle}deg;transform:rotate(${angle}deg) translate(0,-132px) rotate(-${angle}deg)">${esc(sector.short)}</span>`}).join('')}</div></div><div class="starwheel-spin-value">${spinLabel?`CORE · ${esc(spinLabel)}`:'SPIN THE CORE'}</div>`;
 }
 function starwheelSharedMarkup(run=state.activityRun,big=false){
   const cfg=run?.starwheelConfig||{},sw=starwheelState(run),pilot=starwheelActivePilot(run);if(!sw)return'';
