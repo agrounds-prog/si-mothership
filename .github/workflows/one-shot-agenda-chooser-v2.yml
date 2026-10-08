@@ -1,0 +1,109 @@
+name: One-shot stable Agenda chooser
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-agenda-chooser-v2.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Guard and patch Agenda
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html')
+          b=p.read_bytes()
+          digest=hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+          assert digest=='7edffe50ab2ad5640c6b0ca9227760295bb3b7d2',f'Source mismatch {digest}'
+          s=b.decode()
+          def once(a,b):
+            global s
+            assert s.count(a)==1,(s.count(a),a[:90])
+            s=s.replace(a,b,1)
+          css='''<style id="v65-agenda-chooser">
+          #teacher #agendaPanel{max-width:1080px!important;width:min(100%,1080px)!important;margin-left:auto!important;margin-right:auto!important}
+          #teacher #agendaPanel .agenda-choice{max-width:780px;margin:12px auto;padding:12px 0 22px}
+          #teacher #agendaPanel .agenda-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+          #teacher #agendaPanel .agenda-choice-grid button{border:1px solid #3898d3;background:linear-gradient(145deg,#123c65,#071b35);color:#eaf8ff;text-align:left;border-radius:14px;min-height:105px;padding:20px;font-weight:800;font-size:19px;cursor:pointer}
+          #teacher #agendaPanel .agenda-choice-grid button span{display:block;font-size:12px;color:#aed2ec;font-weight:400;margin-top:9px}
+          #teacher #agendaPanel .agenda-saved{display:grid;gap:8px;margin-top:18px}
+          #teacher #agendaPanel .agenda-saved-row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;background:#0a223d;border:1px solid #285e8c;border-radius:10px}
+          #teacher #agendaPanel .agenda-saved-row button,#teacher #agendaPanel .agenda-editor-actions button{color:#eefaff;background:#16466c;border:1px solid #378dbf;border-radius:9px;padding:9px 12px;cursor:pointer}
+          #teacher #agendaPanel .agenda-editor-actions{display:flex;align-items:end;justify-content:space-between;gap:10px;flex-wrap:wrap;max-width:900px;margin:0 auto 13px}
+          #teacher #agendaPanel .agenda-editor-actions label{flex:1;min-width:200px;display:grid;gap:5px;font-size:12px;color:#bcdaf4}
+          #teacher #agendaPanel #agendaDraftName{padding:10px;border-radius:9px;background:#081c32;border:1px solid #427ca3;color:white;width:100%;font:inherit}
+          #teacher #agendaPanel.agenda-choose-open .agenda-grid,#teacher #agendaPanel.agenda-choose-open .agenda-editor-actions{display:none!important}
+          #teacher #agendaPanel:not(.agenda-choose-open) .agenda-choice{display:none!important}
+          @media(max-width:620px){#teacher #agendaPanel .agenda-choice-grid{grid-template-columns:1fr}}
+          </style>'''
+          s=s[:s.index('</head>')]+css+s[s.index('</head>'):]
+          once('<div class="agenda-grid"><div class="agenda-stage" id="agendaPreview">','''<div class="agenda-choice" id="agendaChoice"><h3>Choose an agenda</h3><p>Open a saved agenda or make a new one.</p><div class="agenda-choice-grid"><button type="button" id="agendaOpenSaved">📂 Load Agenda<span>Open an agenda saved on this browser</span></button><button type="button" id="agendaCreateNew">✦ New Agenda<span>Name it, then add text, an image, or YouTube</span></button></div><div id="agendaSavedList" class="agenda-saved"></div></div><div class="agenda-editor-actions"><button type="button" id="agendaReturn">← All agendas</button><label>Agenda label<input id="agendaDraftName" maxlength="100" placeholder="e.g. Morning Meeting"></label><button type="button" id="agendaSave">Save Agenda</button></div><div class="agenda-grid"><div class="agenda-stage" id="agendaPreview">''')
+          once("agendaMode:'text',agendaText:","agendaChooserOpen:true,agendaSavedId:'',agendaMode:'text',agendaText:")
+          once("if(state.screen==='agenda')state.agendaLive=false;","if(state.screen==='agenda'){state.agendaLive=false;state.agendaChooserOpen=true;}")
+          once("$('#agendaPanel').classList.toggle('hidden',state.screen!=='agenda'||state.ended||!!state.activityRun||state.customRosterOpen);","$('#agendaPanel').classList.toggle('hidden',state.screen!=='agenda'||state.ended||!!state.activityRun||state.customRosterOpen);\n  $('#agendaPanel').classList.toggle('agenda-choose-open',state.agendaChooserOpen!==false);")
+          needle="$$('[data-agenda-mode]').forEach(b=>b.onclick="
+          assert s.count(needle)==1
+          js='''// Agenda chooser uses existing preview and launch handlers unchanged.
+          const SI_AGENDAS_V2='si.mothership.teacher.agendas.v2';
+          function agendaRecords(){try{let a=JSON.parse(localStorage.getItem(SI_AGENDAS_V2)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
+          function agendaChoose(open){state.agendaChooserOpen=open;$('#agendaPanel').classList.toggle('agenda-choose-open',open);if(open)agendaList()}
+          function agendaList(){
+            const host=$('#agendaSavedList');host.replaceChildren();const arr=agendaRecords();
+            if(!arr.length){const p=document.createElement('p');p.textContent='No saved agendas yet.';host.append(p)}
+            arr.forEach(a=>{const row=document.createElement('div');row.className='agenda-saved-row';
+              const name=document.createElement('strong');name.textContent=a.name||'Untitled';
+              const buttons=document.createElement('div');buttons.style.display='flex';buttons.style.gap='8px';
+              const load=document.createElement('button');load.textContent='Load';load.onclick=()=>agendaLoad(a);
+              const del=document.createElement('button');del.textContent='Delete';del.onclick=()=>{if(!confirm('Delete this agenda?'))return;localStorage.setItem(SI_AGENDAS_V2,JSON.stringify(agendaRecords().filter(x=>x.id!==a.id)));agendaList()};
+              buttons.append(load,del);row.append(name,buttons);host.append(row)
+            })
+          }
+          function agendaSetMode(mode){const b=$$('[data-agenda-mode]').find(x=>x.dataset.agendaMode===mode);if(b)b.click()}
+          function agendaLoad(a){state.agendaSavedId=a.id;$('#agendaDraftName').value=a.name||'';
+            state.agendaText=a.text||'';state.agendaImage=a.image||'';state.youtube=a.youtube||'';
+            $('#agendaText').value=state.agendaText;$('#agendaYoutube').value=state.youtube;
+            $('#agendaImageThumb').textContent=state.agendaImage?'Image loaded':'No image selected';
+            agendaSetMode(a.mode||'text');agendaChoose(false);updateAgendaDraftPreview()}
+          $('#agendaOpenSaved').onclick=agendaList;
+          $('#agendaCreateNew').onclick=()=>{state.agendaSavedId='';state.agendaImage='';state.youtube='';state.agendaText='';
+            $('#agendaDraftName').value='';$('#agendaText').value='';$('#agendaYoutube').value='';
+            $('#agendaImageFile').value='';$('#agendaImageThumb').textContent='No image selected';
+            agendaSetMode('text');agendaChoose(false);updateAgendaDraftPreview()};
+          $('#agendaReturn').onclick=()=>agendaChoose(true);
+          $('#agendaSave').onclick=()=>{const name=$('#agendaDraftName').value.trim();
+            if(!name){toast('Please label the agenda');return}
+            const mode=state.agendaMode;
+            const youtube=$('#agendaYoutube').value.trim();
+            if(mode==='image'&&!state.agendaImage){toast('Choose an image first');return}
+            if(mode==='youtube'&&!ytId(youtube)){toast('Enter a valid YouTube link');return}
+            const id=state.agendaSavedId||'agenda-'+Date.now();
+            const a={id,name,mode,text:$('#agendaText').value,image:mode==='image'?state.agendaImage:'',youtube};
+            const list=agendaRecords().filter(x=>x.id!==id);list.unshift(a);
+            try{localStorage.setItem(SI_AGENDAS_V2,JSON.stringify(list));state.agendaSavedId=id;toast('Agenda saved')}
+            catch(e){toast('Unable to save agenda — browser storage may be full')}
+          };
+          '''
+          s=s.replace(needle,js+needle,1)
+          assert s.count('id="v65-agenda-chooser"')==1
+          p.write_text(s)
+          new=p.read_bytes()
+          print('SOURCE_CHECK_PASSED',digest,'NEW_BLOB',hashlib.sha1(b'blob '+str(len(new)).encode()+b'\0'+new).hexdigest(),'BYTES',len(new))
+          PY
+          git diff --check
+          python scripts/release_gate.py --require-node
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Add tested compact Agenda chooser"
+          git push
