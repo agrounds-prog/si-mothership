@@ -13598,6 +13598,29 @@ body.role-student .agenda-live-footer{
 #teacher #activitiesPanel .bingo-photo-library summary{cursor:pointer;font-weight:900;color:#9ce6ff}
 #teacher #activitiesPanel .bingo-photo-library:not([open]) .game-library-grid{display:none!important}
 #teacher #activitiesPanel .bingo-photo-library[open] .game-library-grid{margin-top:12px}
+</style><style id="v85-bingo-bulk-upload">
+#teacher .bingo-bulk-panel{padding:14px;margin:8px 0 16px;border:1px solid #379fc4;border-radius:14px;background:linear-gradient(145deg,#0b3553,#101d40);text-align:left}
+#teacher .bingo-bulk-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#teacher .bingo-bulk-head b{color:#9beaff;font-size:17px;letter-spacing:.02em}
+#teacher .bingo-bulk-head span{color:#c0e1ff;font-size:12px}
+#teacher .bingo-bulk-panel p{color:#c5dcf0;font-size:12px;line-height:1.5;margin:9px 0}
+#teacher .bingo-bulk-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end}
+#teacher .bingo-bulk-controls label{color:#b5e3ff;font-size:11px;font-weight:900;letter-spacing:.06em}
+#teacher .bingo-bulk-controls select{width:100%;min-width:0;min-height:41px;display:block;margin-top:5px;border:1px solid #3d89b9;border-radius:9px;background:#071a31;color:#fff;padding:8px}
+#teacher #bingoBulkChoose{min-height:42px;padding:9px 16px;border:1px solid #78e7b8;border-radius:10px;background:linear-gradient(180deg,#1aab79,#08744c);color:white;font-size:13px;font-weight:900}
+#teacher #bingoBulkChoose:disabled{opacity:.4;cursor:not-allowed}
+#teacher .bingo-bulk-message{font-size:12px;color:#a8d8f9;line-height:1.45;margin-top:10px}
+#teacher .bingo-bulk-preview-heading{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;margin:15px 0 7px;color:#fff}
+#teacher .bingo-bulk-preview-heading span{color:#a7cce8;font-size:11px}
+#teacher .bingo-bulk-preview{max-height:350px;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;padding:9px;border-radius:10px;background:#06172f}
+#teacher .bingo-bulk-preview-item{min-width:0;display:flex;flex-direction:column;gap:5px;padding:6px;background:#153757;border:1px solid #387bb0;border-radius:9px;text-align:center}
+#teacher .bingo-bulk-preview-item>span{font-size:10px;font-weight:900;color:#b8edff}
+#teacher .bingo-bulk-preview-item img{height:76px;width:100%;object-fit:contain;background:#f1f3f1;border-radius:6px}
+#teacher .bingo-bulk-preview-item b{font-size:11px;color:#fff;overflow-wrap:anywhere}
+#teacher .bingo-bulk-confirm{display:flex;flex-wrap:wrap;gap:9px;margin-top:11px}
+#teacher .bingo-bulk-confirm button{min-height:39px;padding:8px 13px;border:1px solid #5b94bf;border-radius:9px;background:#1c486e;color:#fff;font-weight:800}
+#teacher #bingoBulkApply{background:#198856;border-color:#79dfb5}
+@media(max-width:610px){#teacher .bingo-bulk-controls{grid-template-columns:1fr}#teacher #bingoBulkChoose{width:100%}}
 </style></head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -13907,6 +13930,107 @@ let matchDraft={name:'Animals',quick:'Dog | Dog\nCat | Cat\nElephant | Elephant\
 let matchLaunchSettings={mode:'teams',teamCount:3,turnRule:'one_each',crewConsult:true,scoring:'pairs',teamNonce:0};
 let bingoDraft={name:'Animals',quick:'Dog | Dog\nCat | Cat\nElephant | Elephant\nGiraffe | Giraffe\nLion | Lion\nFrog | Frog\nZebra | Zebra\nPanda | Panda\nPenguin | Penguin\nButterfly | Butterfly\nTurtle | Turtle\nMonkey | Monkey\nStar | Star\nApple | Apple\nDuck | Duck\nFish | Fish',size:4,pattern:'line',free:false,selectedImages:[]};
 bingoDraft.name='';bingoDraft.numberedMode=true;bingoDraft.numberedSlots=[];bingoDraft.editSlot=-1;
+
+let bingoBulkStage=null;
+function bingoBulkTargetSquares(mode){
+  const size=Math.max(3,Math.min(6,Number(bingoDraft.size||4)));
+  const center=bingoDraft.free&&size%2===1?Math.floor(size*size/2):-1;
+  const slots=bingoDraft.numberedSlots||[];
+  return Array.from({length:size*size},(_,i)=>i).filter(i=>
+    i!==center&&(mode==='replace'||!(slots[i]?.call&&(slots[i]?.image||slots[i]?.text))));
+}
+function bingoBulkUploadMarkup(){
+  const mode=bingoDraft.bulkMode==='replace'?'replace':'empty';
+  const size=Math.max(3,Math.min(6,Number(bingoDraft.size||4)));
+  const targets=bingoBulkTargetSquares(mode);
+  if(bingoBulkStage&&(bingoBulkStage.mode!==mode||bingoBulkStage.size!==size||
+      bingoBulkStage.squares.some((n,i)=>n!==targets[i])))bingoBulkStage=null;
+  const stage=bingoBulkStage;
+  const preview=stage?'<div class="bingo-bulk-preview-heading"><b>Preview '+stage.entries.length+
+    ' pictures</b><span>Check each square before applying</span></div><div class="bingo-bulk-preview">'+
+    stage.entries.map((a,i)=>'<div class="bingo-bulk-preview-item"><span>Square '+(stage.squares[i]+1)+
+      '</span><img src="'+a.image+'" alt="'+esc(a.name)+'"><b>'+esc(a.name)+'</b></div>').join('')+
+    '</div><div class="bingo-bulk-confirm"><button type="button" id="bingoBulkApply">'+
+    (mode==='replace'?'Replace Card With Pictures':'Fill These Squares')+
+    '</button><button type="button" id="bingoBulkCancel">Cancel Batch</button></div>':'';
+  return '<section class="bingo-bulk-panel"><div class="bingo-bulk-head"><b>⚡ Bulk Upload Pictures</b>'+
+    '<span>'+targets.length+' '+(mode==='replace'?'card squares':'empty squares')+' available</span></div>'+
+    '<p>Choose several pictures at once. File names become the called words. You can edit any square afterward.</p>'+
+    '<div class="bingo-bulk-controls"><label>UPLOAD MODE<select id="bingoBulkMode">'+
+    '<option value="empty"'+(mode==='empty'?' selected':'')+'>Fill Empty Squares</option>'+
+    '<option value="replace"'+(mode==='replace'?' selected':'')+'>Replace Entire Card</option></select></label>'+
+    '<button type="button" id="bingoBulkChoose"'+(!targets.length?' disabled':'')+'>'+
+    (mode==='replace'?'Choose '+targets.length+' Images':'Choose Up to '+targets.length+' Images')+
+    '</button><input type="file" id="bingoBulkFiles" accept="image/*" multiple hidden></div>'+
+    '<div class="bingo-bulk-message" id="bingoBulkMessage">'+
+    (mode==='replace'?'Requires exactly '+targets.length+' pictures. Previous card entries will be replaced.':
+      'Adds pictures to empty squares in selection order, without replacing filled ones.')+
+    '</div>'+preview+'</section>';
+}
+function wireBingoBulkUploader(){
+  const $bulk=id=>document.querySelector(id);
+  const $mode=$bulk('#bingoBulkMode'),$pick=$bulk('#bingoBulkChoose');
+  if(!$mode||!$pick)return;
+  $mode.onchange=e=>{bingoDraft.bulkMode=e.target.value;bingoBulkStage=null;renderActivities()};
+  $pick.onclick=()=>$bulk('#bingoBulkFiles').click();
+  $bulk('#bingoBulkFiles').onchange=async e=>{
+    const mode=bingoDraft.bulkMode==='replace'?'replace':'empty';
+    const targets=bingoBulkTargetSquares(mode);
+    const files=Array.from(e.target.files||[]);
+    e.target.value='';
+    if(!files.length)return;
+    if(files.some(f=>!String(f.type||'').startsWith('image/')))
+      return toast('Select picture files only');
+    if(files.length>targets.length)
+      return toast('This card has only '+targets.length+' available squares. Choose fewer images.');
+    if(mode==='replace'&&files.length!==targets.length)
+      return toast('To replace the full card, choose exactly '+targets.length+' images');
+    const status=$bulk('#bingoBulkMessage');
+    $pick.disabled=true;$mode.disabled=true;
+    if(status)status.textContent='Preparing '+files.length+' pictures…';
+    try{
+      const entries=[];
+      for(let i=0;i<files.length;i++){
+        if(status)status.textContent='Preparing picture '+(i+1)+' of '+files.length+'…';
+        entries.push({name:gameImageName(files[i]),image:await normalizeGameImage(files[i])});
+      }
+      bingoBulkStage={mode,size:Number(bingoDraft.size||4),
+        squares:targets.slice(0,entries.length),entries};
+      renderActivities();
+    }catch(error){
+      bingoBulkStage=null;renderActivities();toast('One or more pictures could not be processed. No squares were changed.');
+    }
+  };
+  if($bulk('#bingoBulkCancel'))$bulk('#bingoBulkCancel').onclick=()=>{
+    bingoBulkStage=null;renderActivities();
+  };
+  if($bulk('#bingoBulkApply'))$bulk('#bingoBulkApply').onclick=()=>{
+    const stage=bingoBulkStage;if(!stage)return;
+    const mode=bingoDraft.bulkMode==='replace'?'replace':'empty';
+    const size=Number(bingoDraft.size||4),targets=bingoBulkTargetSquares(mode);
+    if(stage.mode!==mode||stage.size!==size||
+        stage.squares.some((v,i)=>v!==targets[i])){
+      bingoBulkStage=null;renderActivities();return toast('Card changed. Please choose your pictures again.');
+    }
+    if(mode==='replace'&&(bingoDraft.numberedSlots||[]).some(s=>s?.call)&&
+        !confirm('Replace all card items with this picture set? Unsaved card changes will be replaced.'))return;
+    const created=stage.entries.map(a=>({
+      id:newGameAssetId(),name:a.name,image:a.image,collection:'Custom',createdAt:Date.now()
+    }));
+    if(!persistGameStore(GAME_IMAGE_LIBRARY_STORE,[...gameImageLibrary,...created]))
+      return toast('Could not save the new pictures. Card has not been changed.');
+    const slots=mode==='replace'?[]:[...(bingoDraft.numberedSlots||[])];
+    created.forEach((a,i)=>{
+      const index=stage.squares[i];
+      slots[index]={slot:index+1,call:a.name,text:'',image:a.image,label:a.name};
+    });
+    gameImageLibrary=[...gameImageLibrary,...created];
+    bingoDraft.numberedSlots=slots;bingoDraft.numberedMode=true;bingoDraft.editSlot=-1;
+    bingoBulkStage=null;renderActivities();
+    toast(created.length+' pictures added! Save your Bingo set when it is complete.');
+  };
+}
+
 function newGameAssetId(){return 'img_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)}
 function gameImageName(file){return String(file?.name||'Image').replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim().slice(0,60)||'Image'}
 function normalizeGameImage(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=()=>reject(new Error('read'));r.onload=()=>{const img=new Image();img.onerror=()=>reject(new Error('image'));img.onload=()=>{const size=640,canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');canvas.width=size;canvas.height=size;ctx.fillStyle='#f7f7ef';ctx.fillRect(0,0,size,size);const scale=Math.min((size-40)/img.width,(size-40)/img.height),w=img.width*scale,h=img.height*scale;ctx.drawImage(img,(size-w)/2,(size-h)/2,w,h);let data='';try{data=canvas.toDataURL('image/webp',.82)}catch(e){data=canvas.toDataURL('image/jpeg',.86)}resolve(data)};img.src=String(r.result)};r.readAsDataURL(file)})}
@@ -16828,6 +16952,11 @@ function renderActivities(){
     const items=bingoDraft.numberedMode?bingoSlotItems():[...parseBingoLines(bingoDraft.quick),...bingoCardExtras(),...bingoItemsFromSelectedImages(bingoDraft.selectedImages)],size=Number(bingoDraft.size||4);
     const slotCount=size*size,slots=bingoDraft.numberedSlots||[],slotIndex=Math.max(-1,Math.min(slotCount-1,Number(bingoDraft.editSlot??-1))),slot=slots[slotIndex]||{};
     grid.innerHTML=`<div class="game-builder-shell"><div class="game-builder-card"><span class="app-status">REWARDS ARCADE</span><h3>Create Bingo Set</h3><label>SET NAME</label><input id="bingoSetName" value="${esc(bingoDraft.name)}"><label>QUICK ITEMS · call side | card side (legacy list)</label><textarea id="bingoQuickItems">${esc(bingoDraft.quick)}</textarea><div class="bingo-slot-editor"><div class="bingo-slot-heading"><h4>YOUR BINGO CARD</h4><label><input type="checkbox" id="bingoNumberedMode" ${bingoDraft.numberedMode?'checked':''}> Use numbered slots</label></div><p>Click the + in any numbered square to add text or upload a picture. A ${size}×${size} card needs ${slotCount-(bingoDraft.free&&size%2===1?1:0)} items. Student cards shuffle the items when generated.</p><div class="bingo-slot-picker" style="grid-template-columns:repeat(${size},minmax(0,1fr))">${Array.from({length:slotCount},(_,i)=>{const a=slots[i],active=i===slotIndex;return `<button type="button" class="bingo-slot-tile ${active?'active':''}" data-bingo-slot="${i}"><span>${i+1}</span>${a?.image?`<img src="${a.image}" alt="">`:a?.call?`<b>${esc(a.text||a.call)}</b>` :'<span class="bingo-slot-plus">+</span>'}</button>`}).join('')}</div><div class="bingo-slot-fields ${slotIndex<0?"hidden":""}"><b>Editing item ${slotIndex+1}</b><label>Called word<input id="bingoSlotCall" value="${esc(slot.call||'')}" placeholder="e.g. Penguin"></label><label>Card content<select id="bingoSlotType"><option value="text" ${!slot.image?'selected':''}>Text</option><option value="image" ${slot.image?'selected':''}>Image from library</option></select></label><label id="bingoSlotTextWrap" class="${slot.image?'hidden':''}">Text on card<input id="bingoSlotText" value="${esc(slot.text||'')}" placeholder="e.g. Penguin"></label><label id="bingoSlotImageWrap" class="${slot.image?'':'hidden'}">Picture<select id="bingoSlotImage"><option value="">Choose a picture</option>${gameImageLibrary.map(a=>`<option value="${esc(a.id)}" ${a.image===slot.image?'selected':''}>${esc(a.name)}</option>`).join('')}</select></label><div class="bingo-slot-upload"><button type="button" id="bingoSlotUploadBtn">＋ Upload picture to this square</button><input id="bingoSlotUploadFile" type="file" accept="image/*" hidden></div><div class="game-builder-actions"><button type="button" id="bingoSlotApply" class="primary">Save Item ${slotIndex+1}</button><button type="button" id="bingoSlotClear">Clear Slot</button></div></div></div><div class="bingo-card-maker"><h4>ADD A CARD ITEM</h4><p>Choose what students see on a physical Bingo square. Each call has its own text label.</p><div class="bingo-card-maker-row"><label>CALLED WORD<input id="bingoNewCall" placeholder="e.g. Penguin"></label><label>CARD CONTENT<select id="bingoNewCardType"><option value="text">Text</option><option value="image">Image from library</option></select></label></div><div id="bingoNewTextWrap"><label>TEXT ON CARD<input id="bingoNewText" placeholder="e.g. Penguin"></label></div><div id="bingoNewImageWrap" class="hidden"><label>IMAGE<select id="bingoNewImage"><option value="">Choose a saved image</option>${gameImageLibrary.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('')}</select></label></div><button id="bingoAddCardItem" type="button">＋ Add Item to Card</button><div class="bingo-added-items">${(bingoDraft.cardExtras||[]).map((a,i)=>`<div class="bingo-added-item">${a.image?`<img src="${a.image}" alt="">`:'<span>TEXT</span>'}<b>${esc(a.call)}</b><small>${esc(a.label||a.text||a.call)}</small><button type="button" data-bingo-extra-remove="${i}" aria-label="Remove card item">×</button></div>`).join('')}</div></div><div class="game-builder-row"><label>CARD SIZE<select id="bingoCardSize"><option value="3" ${size===3?'selected':''}>3 × 3</option><option value="4" ${size===4?'selected':''}>4 × 4</option><option value="5" ${size===5?'selected':''}>5 × 5</option><option value="6" ${size===6?'selected':''}>6 × 6</option></select></label><label>WIN PATTERN<select id="bingoPattern"><option value="line" ${bingoDraft.pattern==='line'?'selected':''}>Line</option><option value="corners" ${bingoDraft.pattern==='corners'?'selected':''}>Four Corners</option><option value="x" ${bingoDraft.pattern==='x'?'selected':''}>X</option><option value="blackout" ${bingoDraft.pattern==='blackout'?'selected':''}>Blackout</option></select></label></div><label><input id="bingoFreeSpace" type="checkbox" ${bingoDraft.free?'checked':''}> Free center space when card size allows</label><div class="game-builder-actions"><button id="bingoUploadBtn">＋ Upload Images</button><input id="bingoUploadInput" type="file" accept="image/*" multiple hidden><button id="bingoSelectAllImages">Use All Library Images</button><button id="bingoClearImages">Clear Image Selection</button></div><details class="bingo-photo-library"><summary>Manage Picture Library · ${gameImageLibrary.length} photos</summary>${gameImagePickerMarkup(bingoDraft.selectedImages)}</details><div class="game-builder-actions"><button id="bingoSaveBtn">Save Set</button><button class="primary" id="bingoLaunchDraftBtn">▶ Save & Launch Bingo</button></div></div><div><div class="foundation-preview"><span class="eyebrow">SAMPLE STUDENT CARD</span><h3>${esc(bingoDraft.name||'BINGO')}</h3><div class="foundation-preview-bingo" style="grid-template-columns:repeat(${Math.min(6,size)},1fr)">${Array.from({length:size*size},(_,i)=>`<div class="bingo-numbered-preview"><span>${i+1}</span>${contentMarkup((bingoDraft.numberedMode?(slots[i]&&slots[i].call?{type:slots[i].image?'image':'text',value:slots[i].image||slots[i].text||slots[i].call}:null):items[i]?.card))||'<small>Empty</small>'}</div>`).join('')}</div></div><div class="game-builder-card" style="margin-top:14px"><h4>Saved Bingo Sets</h4><div class="game-set-list">${bingoSets.length?bingoSets.map(s=>`<div class="game-set-item"><div><b>${esc(s.name)}</b><small>${s.size}×${s.size} · ${s.items?.length||0} items · ${esc(s.pattern||'line')}</small></div><button data-bingo-launch="${s.id}">Launch</button><button data-bingo-delete="${s.id}">×</button></div>`).join(''):'<div class="game-library-empty">No saved Bingo sets yet.</div>'}</div></div></div></div>`;
+    const bingoBulkSlotGrid=grid.querySelector('.bingo-slot-picker');
+    if(bingoBulkSlotGrid){
+      bingoBulkSlotGrid.insertAdjacentHTML('beforebegin',bingoBulkUploadMarkup());
+      wireBingoBulkUploader();
+    }
     $('#bingoSetName').oninput=e=>bingoDraft.name=e.target.value;$('#bingoQuickItems').oninput=e=>bingoDraft.quick=e.target.value;$('#bingoCardSize').onchange=e=>{bingoDraft.size=Number(e.target.value);renderActivities()};$('#bingoPattern').onchange=e=>bingoDraft.pattern=e.target.value;$('#bingoFreeSpace').onchange=e=>bingoDraft.free=e.target.checked;
     $('#bingoUploadBtn').onclick=()=>$('#bingoUploadInput').click();$('#bingoUploadInput').onchange=e=>importGameImages(e.target.files);
     $$('[data-game-image]').forEach(b=>b.onclick=()=>{const id=b.dataset.gameImage,arr=new Set(bingoDraft.selectedImages||[]);arr.has(id)?arr.delete(id):arr.add(id);bingoDraft.selectedImages=[...arr];renderActivities()});
