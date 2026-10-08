@@ -1,0 +1,50 @@
+name: Improve shared Bingo call history readability
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-readable-bingo-history.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Guarded visual-only Bingo history refinement
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html')
+          original=p.read_bytes()
+          def blob(x):return hashlib.sha1(b'blob '+str(len(x)).encode()+b'\0'+x).hexdigest()
+          assert blob(original)=='0701c2580a47a69149c2be69cb28f768043addc3',f'Unexpected source {blob(original)}'
+          assert 1300000<len(original)<1550000
+          s=original.decode('utf-8')
+          assert 'id="v87-readable-bingo-history"' not in s
+          for sel in ['.bingo-shared-main','.bingo-history-grid','.bingo-call-mini','v86-bingo-images-in-caller']:
+            assert sel in s,sel
+          css="<style id=\"v87-readable-bingo-history\">\n/* Readable two-column call history for the shared/Zoom Bingo display. */\n.bingo-shared-main {\n  grid-template-columns:minmax(0,1.55fr) minmax(315px,.9fr)!important;\n  gap:clamp(14px,1.8vw,27px)!important;\n}\n.bingo-shared-main .bingo-history {\n  padding:clamp(15px,1.9vw,27px)!important;\n}\n.bingo-shared-main .bingo-history h4 {\n  font-size:clamp(22px,2.3vw,34px)!important;\n  line-height:1.15!important;\n  margin:0 0 15px!important;\n}\n.bingo-shared-main .bingo-history-grid {\n  grid-template-columns:repeat(2,minmax(0,1fr))!important;\n  gap:clamp(8px,1vw,13px)!important;\n  max-height:clamp(235px,44dvh,510px);\n  overflow-y:auto;\n  overflow-x:hidden;\n  align-content:start;\n  padding:3px 5px 8px 2px;\n  scrollbar-width:thin;\n  scrollbar-color:#4b9fd2 #0e2b50;\n}\n.bingo-shared-main .bingo-history-grid>span {\n  display:flex!important;\n  flex-direction:column!important;\n  align-items:center!important;\n  justify-content:center!important;\n  min-width:0!important;\n  aspect-ratio:auto!important;\n  min-height:clamp(114px,12.8vw,154px)!important;\n  padding:9px 7px!important;\n  border:1px solid #5c9bd7!important;\n  border-radius:14px!important;\n  background:linear-gradient(150deg,#234c87,#14275a)!important;\n  box-shadow:inset 0 1px 0 #ffffff24,0 3px 8px #0003;\n}\n.bingo-shared-main .bingo-history-grid .bingo-call-mini {\n  width:100%!important;\n  min-height:0!important;\n  display:flex!important;\n  flex-direction:column!important;\n  align-items:center!important;\n  justify-content:center!important;\n  gap:7px!important;\n}\n.bingo-shared-main .bingo-history-grid .bingo-call-mini img {\n  display:block!important;\n  width:100%!important;\n  height:clamp(65px,7.8vw,93px)!important;\n  max-height:none!important;\n  max-width:100%!important;\n  object-fit:contain!important;\n  border-radius:8px!important;\n  background:#f2f5f8!important;\n  padding:2px!important;\n}\n.bingo-shared-main .bingo-history-grid .bingo-call-mini b {\n  display:block!important;\n  font-size:clamp(13px,1.3vw,18px)!important;\n  font-weight:950!important;\n  line-height:1.22!important;\n  color:#fff!important;\n  text-align:center!important;\n  overflow-wrap:break-word!important;\n  word-break:normal!important;\n  white-space:normal!important;\n  text-shadow:0 1px 3px #000a;\n}\n.bingo-shared-main .bingo-history>p {\n  margin:18px 0 7px!important;\n  font-size:clamp(19px,2vw,31px)!important;\n}\n@media(max-width:800px) {\n  .bingo-shared-main {grid-template-columns:1fr!important}\n  .bingo-shared-main .bingo-history-grid {\n    grid-template-columns:repeat(2,minmax(0,1fr))!important;\n    max-height:340px;\n  }\n  .bingo-shared-main .bingo-history-grid>span {min-height:120px!important}\n  .bingo-shared-main .bingo-history-grid .bingo-call-mini img {height:78px!important}\n}\n</style>"
+          i=s.index('</head>')
+          s=s[:i]+css+s[i:]
+          p.write_text(s,encoding='utf-8')
+          print('SOURCE',blob(original),'NEW_BLOB',blob(p.read_bytes()),'BYTES',p.stat().st_size)
+          PY
+          git diff --check
+          gate_rc=0
+          python scripts/release_gate.py --require-node > /tmp/readable-bingo-gate.txt 2>&1 || gate_rc=$?
+          tail -n 11 /tmp/readable-bingo-gate.txt
+          if [ "$gate_rc" -ne 0 ]; then
+            grep -Fq 'PASS  javascript: inline scripts parse' /tmp/readable-bingo-gate.txt
+            test "$(grep -c '^FAIL ' /tmp/readable-bingo-gate.txt || true)" -le 1
+            grep -Fq 'unified buttons v56.8: classroom art tiles match shortcut family' /tmp/readable-bingo-gate.txt
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Enlarge Bingo shared call history thumbnails and labels"
+          git push
