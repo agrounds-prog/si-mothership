@@ -12998,6 +12998,54 @@ body.role-student .agenda-live-footer{
   #teacher #activitiesPanel #favoriteGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
   #teacher #activitiesPanel .activity-library-shelves{grid-template-columns:1fr!important}
 }
+</style><style id="v75-activity-library-polish">
+/* Activity browsing: teacher-local visual changes only. */
+#teacher #activitiesPanel:not(.hidden) .activity-library-toolbar{
+  position:sticky!important;top:0!important;z-index:8!important;
+  padding:10px 12px!important;margin:0 0 12px!important;
+  border:1px solid #2e729d!important;border-radius:12px!important;
+  background:rgba(9,31,52,.97)!important;
+  box-shadow:0 8px 20px rgba(0,0,0,.25)!important;
+}
+#teacher #activitiesPanel .activity-library-shelves{
+  gap:10px!important;margin:8px 0 14px!important;
+  align-items:start!important;
+}
+#teacher #activitiesPanel .recent-shelf,
+#teacher #activitiesPanel .saved-shelf{
+  min-height:0!important;max-height:225px!important;
+  overflow-y:auto!important;padding:10px!important;
+}
+#teacher #activitiesPanel .recent-shelf > *,
+#teacher #activitiesPanel .saved-shelf > *{margin-top:5px!important;margin-bottom:5px!important}
+#teacher #activitiesPanel .activity-catalog-grid{
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr))!important;
+  gap:12px!important;
+}
+#teacher #activitiesPanel .activity-catalog-grid .real-app-card{
+  min-height:165px!important;height:auto!important;
+  padding:14px!important;display:flex!important;
+  flex-direction:column!important;gap:8px!important;
+  justify-content:space-between!important;
+  overflow-wrap:anywhere!important;
+}
+#teacher #activitiesPanel .activity-catalog-grid .real-app-card button{
+  min-height:36px!important;font-weight:800!important;
+}
+#teacher #activitiesPanel .activity-catalog-grid .real-app-card p,
+#teacher #activitiesPanel .activity-catalog-grid .real-app-card small{
+  line-height:1.4!important;
+}
+@media(max-width:720px){
+  #teacher #activitiesPanel .activity-catalog-grid{
+    grid-template-columns:repeat(auto-fit,minmax(155px,1fr))!important;
+  }
+  #teacher #activitiesPanel .activity-library-shelves{
+    grid-template-columns:1fr!important;
+  }
+  #teacher #activitiesPanel .recent-shelf,
+  #teacher #activitiesPanel .saved-shelf{max-height:180px!important}
+}
 </style></head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
