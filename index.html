@@ -13046,6 +13046,46 @@ body.role-student .agenda-live-footer{
   #teacher #activitiesPanel .recent-shelf,
   #teacher #activitiesPanel .saved-shelf{max-height:180px!important}
 }
+</style><style id="v76-mission-control-tightening">
+/* Classroom dashboard: tighten presentation without touching controls or handlers. */
+@media(min-width:1181px){
+  #teacher .single-mission-controls{
+    align-items:start!important;gap:9px!important;padding:3px 0!important;
+  }
+  #teacher .single-mission-controls .control{
+    height:auto!important;min-height:78px!important;
+    display:flex!important;flex-direction:column!important;align-items:center!important;
+    justify-content:flex-start!important;
+    overflow:visible!important;
+  }
+  #teacher .single-mission-controls .control .copy,
+  #teacher .single-mission-controls .control b,
+  #teacher .single-mission-controls .control small{
+    white-space:normal!important;overflow:visible!important;
+    text-overflow:clip!important;overflow-wrap:normal!important;
+    word-break:normal!important;line-height:1.2!important;
+    min-height:22px!important;text-align:center!important;
+  }
+  #teacher .right-rail{
+    align-content:start!important;align-items:start!important;
+    row-gap:10px!important;gap:10px!important;
+  }
+  #teacher .right-rail>.attention-summary,
+  #teacher .right-rail>.attention-panel{
+    min-height:60px!important;height:auto!important;
+    margin:0!important;align-self:start!important;
+  }
+  #teacher .roster-card{min-height:0!important;height:auto!important}
+  #teacher #appShortcutsPanel{
+    min-height:0!important;margin-top:0!important;
+    padding:10px 14px!important;
+  }
+  #teacher #appShortcutsPanel .app-shortcuts-head{margin-bottom:6px!important}
+}
+#teacher #appShortcutsPanel .app-shortcut-label{
+  overflow:visible!important;text-overflow:clip!important;
+  white-space:normal!important;line-height:1.25!important;
+}
 </style></head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
