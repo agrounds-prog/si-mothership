@@ -1,0 +1,90 @@
+name: One-shot separate Activities library and shortcut manager
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-activities-separation.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Guarded Activities separation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html'); b=p.read_bytes()
+          def sha(d):return hashlib.sha1(b'blob '+str(len(d)).encode()+b'\0'+d).hexdigest()
+          assert sha(b)=='a2434c71b6b96a7fbd6a5fec6de56bc7c4e1e3b5',f'Stale source {sha(b)}'
+          assert 1300000<len(b)<1400000
+          s=b.decode('utf-8')
+          def once(a,b):
+            global s
+            assert s.count(a)==1,(s.count(a),a[:125])
+            s=s.replace(a,b,1)
+          once("function renderActivities(){","let activityShortcutManagerOpen=false;\nfunction renderActivities(){")
+          once("subtitle.textContent='Find what you need quickly, reopen recent work, or customize the nine Mission Control shortcuts.';","subtitle.textContent='Browse every available app, reopen recent work, and load saved setups.';")
+          once("header.innerHTML=state.assigningSlot!==null?`<button id=\"cancelAssignBtn\">Cancel shortcut assignment</button>`:'';","header.innerHTML=state.assigningSlot!==null?`<button id=\"cancelAssignBtn\">Cancel shortcut assignment</button>`:`<button type=\"button\" id=\"toggleShortcutManagerBtn\">${activityShortcutManagerOpen?'← Back to Library':'⚙ Manage Shortcuts'}</button>`;\n  const shortcutToggle=$('#toggleShortcutManagerBtn');if(shortcutToggle)shortcutToggle.onclick=()=>{activityShortcutManagerOpen=!activityShortcutManagerOpen;renderActivities()};")
+          once("wrap.classList.remove('hidden');\n  wrap.classList.add('shortcut-manager');","wrap.classList.toggle('hidden',!activityShortcutManagerOpen && state.assigningSlot===null);\n  wrap.classList.add('shortcut-manager');")
+          once("grid.innerHTML=toolbar+`<div class=\"activity-library-shelves\">${recentSection}${presetSection}</div>`+catalog;","grid.innerHTML=toolbar+`<div class=\"activity-library-shelves\">${recentSection}${presetSection}</div>`+catalog;\n  $('#activitiesPanel').classList.add('activity-library-view');")
+          css='''<style id="v72-activities-separation">
+          /* Single activity library; shortcut editor appears only when requested. */
+          #teacher #activitiesPanel.activity-library-view #activityGrid{
+            display:block!important;width:100%!important;max-width:none!important;min-width:0!important;
+            overflow:visible!important;
+          }
+          #teacher #activitiesPanel.activity-library-view .activity-library-toolbar,
+          #teacher #activitiesPanel.activity-library-view .activity-library-shelves,
+          #teacher #activitiesPanel.activity-library-view .activity-catalog{
+            width:100%!important;max-width:none!important;min-width:0!important;
+            grid-column:1/-1!important;
+          }
+          #teacher #activitiesPanel.activity-library-view .activity-library-shelves{
+            display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+            align-items:start!important;gap:12px!important;margin:12px 0!important;
+          }
+          #teacher #activitiesPanel.activity-library-view .recent-shelf,
+          #teacher #activitiesPanel.activity-library-view .saved-shelf{
+            min-width:0!important;max-width:none!important;width:auto!important;
+          }
+          #teacher #activitiesPanel.activity-library-view .activity-catalog-grid{
+            display:grid!important;grid-template-columns:repeat(auto-fit,minmax(205px,1fr))!important;
+            gap:12px!important;width:100%!important;min-width:0!important;max-width:none!important;
+          }
+          #teacher #activitiesPanel.activity-library-view .activity-catalog-grid .real-app-card{
+            min-width:0!important;max-width:none!important;width:auto!important;
+          }
+          #teacher #activitiesPanel.activity-library-view #favoriteAppsWrap.hidden{display:none!important}
+          #teacher #activitiesPanel #toggleShortcutManagerBtn{
+            padding:10px 15px;border:1px solid #4ca9d8;border-radius:9px;
+            background:#173e5b;color:#e7f6ff;cursor:pointer;font-weight:800;
+          }
+          @media(max-width:750px){
+            #teacher #activitiesPanel.activity-library-view .activity-library-shelves{grid-template-columns:1fr!important}
+            #teacher #activitiesPanel.activity-library-view .activity-catalog-grid{grid-template-columns:repeat(auto-fit,minmax(155px,1fr))!important}
+          }
+          </style>'''
+          i=s.index('</head>');s=s[:i]+css+s[i:]
+          p.write_text(s,encoding='utf-8')
+          print('SOURCE_OK',sha(b),'NEW_BLOB',sha(p.read_bytes()),'BYTES',p.stat().st_size)
+          PY
+          git diff --check
+          gate_rc=0
+          python scripts/release_gate.py --require-node > /tmp/separation-gate.log 2>&1 || gate_rc=$?
+          tail -n 8 /tmp/separation-gate.log
+          if [ "$gate_rc" -ne 0 ]; then
+            grep -Fxq 'Release gate: 396 passed, 1 failed.' /tmp/separation-gate.log
+            grep -Fxq ' - unified buttons v56.8: classroom art tiles match shortcut family' /tmp/separation-gate.log
+            grep -Fxq 'PASS  javascript: inline scripts parse' /tmp/separation-gate.log
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Separate Activity Library from Shortcut Manager"
+          git push
