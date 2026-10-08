@@ -1,0 +1,34 @@
+name: Diagnose Bingo blank card patch
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-bingo-blank-card-patch.yml']
+permissions:
+  contents: write
+jobs:
+  trace:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dry-run guarded patch and record exception
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import pathlib,subprocess
+          wf=pathlib.Path('.github/workflows/one-shot-bingo-blank-card.yml').read_text()
+          start=wf.index('          from pathlib import Path\n')
+          end=wf.index('          git diff --check',start)
+          script='\n'.join(x[10:] if x.startswith('          ') else x for x in wf[start:end].splitlines())
+          script=script.replace(chr(92)+'${','${')
+          p=pathlib.Path('index.html')
+          old=p.read_bytes()
+          result=subprocess.run(['python','-c',script],capture_output=True,text=True)
+          p.write_bytes(old)
+          pathlib.Path('.github/bingo-blank-patch-trace.txt').write_text('Exit '+str(result.returncode)+'\nOUT:\n'+result.stdout+'\nERR:\n'+result.stderr)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/bingo-blank-patch-trace.txt
+          git commit -m "Record Bingo blank card patch diagnostic"
+          git push
