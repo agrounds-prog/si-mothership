@@ -290,8 +290,14 @@ function cosmicSend(type,value='',color=''){
   const request={id:'cosmic_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),
     runToken:run.runToken,type,value,color,at:Date.now()};
   cosmicPendingWild='';
-  if(NETWORK_SYNC&&networkHydrated&&networkSocket&&networkSocket.readyState===WebSocket.OPEN){
-    try{networkSocket.send(JSON.stringify({type:'cosmic_action',request,student_name:name,student_token:currentStudentIdentity()?.student_token||''}));return}catch(e){}
+  if(NETWORK_SYNC){
+    // In hosted classrooms the server owns the deck and all turns.
+    // Never mutate a redacted student snapshot while disconnected.
+    if(networkHydrated&&networkSocket&&networkSocket.readyState===WebSocket.OPEN){
+      try{networkSocket.send(JSON.stringify({type:'cosmic_action',request,student_name:name,student_token:currentStudentIdentity()?.student_token||''}));return}catch(e){}
+    }
+    toast('Reconnecting to Mothership — your cards are safe.');
+    return;
   }
   if(cosmicApplyLocal(type,value,color,name))render();
 }
