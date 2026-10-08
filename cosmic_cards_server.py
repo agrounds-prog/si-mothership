@@ -34,6 +34,7 @@ def _advance(game: dict, steps: int = 1) -> None:
     direction = -1 if game.get("direction") == -1 else 1
     game["turn"] = (int(game.get("turn") or 0) + direction * steps) % len(players)
     game["drawnId"] = ""
+    game["chainOpen"] = False
 
 
 def _valid_card(game: dict, name: str, card: dict) -> bool:
@@ -45,6 +46,14 @@ def _valid_card(game: dict, name: str, card: dict) -> bool:
         return not any(x.get("color") == game.get("color") for x in game["hands"].get(name, []))
     last = game.get("discard", [])[-1]
     return card.get("color") == game.get("color") or card.get("value") == last.get("value")
+
+
+def _has_playable_card(game: dict, name: str) -> bool:
+    # Called only after resetting drawnId, so every remaining card is eligible.
+    return any(
+        isinstance(card, dict) and _valid_card(game, name, card)
+        for card in game.get("hands", {}).get(name, [])
+    )
 
 
 def apply_cosmic_action(state: dict, run: dict, name: str, request: dict) -> bool:
@@ -83,9 +92,12 @@ def apply_cosmic_action(state: dict, run: dict, name: str, request: dict) -> boo
     if active != name:
         return False
     if kind == "pass":
-        if not game.get("drawnId"):
+        if not game.get("drawnId") and not game.get("chainOpen"):
             return False
-        game["message"] = name + " kept the drawn card and passed."
+        game["message"] = (
+            name + " kept the drawn card and passed." if game.get("drawnId")
+            else name + " ended their turn."
+        )
         _advance(game)
     elif kind == "draw":
         if game.get("drawnId"):
@@ -118,6 +130,12 @@ def apply_cosmic_action(state: dict, run: dict, name: str, request: dict) -> boo
         game["color"] = color if card.get("color") == "wild" else card["color"]
         game.setdefault("called", {})[name] = False
         game["drawnId"] = ""
+        game["chainOpen"] = False
+        game["lastPlay"] = {
+            "name": name,
+            "color": game["color"],
+            "value": str(card.get("value") or ""),
+        }
         value = str(card.get("value") or "")
         game["message"] = name + " played " + str(card.get("color")).upper() + " " + value + "."
         if not own:
@@ -135,6 +153,11 @@ def apply_cosmic_action(state: dict, run: dict, name: str, request: dict) -> boo
             hands[target].extend(_draw(game, 2 if value == "draw2" else 4))
             game["message"] += " " + target + " draws " + ("2" if value == "draw2" else "4") + " and misses a turn."
             _advance(game)
+        elif game.get("turnRule") == "continue" and _has_playable_card(game, name):
+            # Normal number/color cards and Wild may chain; action cards
+            # retain their Skip, Reverse and draw-penalty turn behavior.
+            game["chainOpen"] = True
+            game["message"] += " Play another matching card or END TURN."
         else:
             _advance(game)
     else:
