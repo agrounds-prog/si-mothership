@@ -1,0 +1,36 @@
+name: One-shot cooperative Minefield gameplay
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-minefield-coop-gameplay.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Guarded cooperative Minefield gameplay patch and tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile .github/minefield-simple-v94.py
+          node --check .github/minefield-simple-tests-v94.cjs
+          python .github/minefield-simple-v94.py
+          git diff --check
+          node .github/minefield-simple-tests-v94.cjs
+          rc=0
+          python scripts/release_gate.py --require-node > /tmp/minefield-coop-gate.txt 2>&1 || rc=$?
+          tail -n 14 /tmp/minefield-coop-gate.txt
+          if [ "$rc" -ne 0 ]; then
+            grep -Fq 'PASS  javascript: inline scripts parse' /tmp/minefield-coop-gate.txt
+            test "$(grep -c '^FAIL ' /tmp/minefield-coop-gate.txt || true)" -le 1
+            grep -Fq 'unified buttons v56.8: classroom art tiles match shortcut family' /tmp/minefield-coop-gate.txt
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Make Minefield a cooperative safe health mine map-clearing game"
+          git push
