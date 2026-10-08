@@ -318,3 +318,310 @@
  .cc-seat,.cc-rule-choice,.cc-hand-button .cc-card,.cc-player{transition:none!important}
  .cc-hand-button:not(:disabled):hover .cc-card,.cc-seat:hover,.cc-player.active{transform:none!important}
 }
+
+
+/* COSMIC CINEMATIC v3 — dedicated shared + student facelift.
+   Purely visual; normal Mothership activity layout is unaffected. */
+.cc-cinematic{
+  --cc-electric:#49ccff;--cc-ice:#d7f6ff;--cc-mint:#83ffe6;--cc-gold:#ffd46b;
+  --cc-hud:#071a32;--cc-hud-border:#347fad;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+.cc-cinematic *{box-sizing:border-box}
+.cc-cinematic.cc-public{position:relative;isolation:isolate;overflow:hidden;
+  width:100%;max-width:1400px;border:2px solid #2d8dc5;border-radius:30px;
+  padding:clamp(14px,2.1vw,29px);background:
+  radial-gradient(ellipse at 50% 65%,#123d69 0%,#081931 70%,#040b1b 100%);
+  box-shadow:inset 0 1px 0 #e2faff5c,inset 0 0 0 5px #06152c,inset 0 0 0 7px #43c6ff24,
+    0 20px 52px #0009,0 0 30px #198cfb22;
+}
+.cc-cinematic.cc-public:before{content:"";position:absolute;inset:6px;pointer-events:none;z-index:2;
+  border:1px solid #8adfff50;border-radius:24px;opacity:.9;background:none}
+.cc-cinematic.cc-public:after{content:"";position:absolute;inset:auto 7% 0 7%;height:10px;border:0;border-radius:0;z-index:2;
+  background:linear-gradient(90deg,transparent,#47dfff88,#ffe09a88,#47dfff88,transparent);filter:blur(7px);pointer-events:none}
+.cc-scene{display:block;overflow:hidden;pointer-events:none}
+.cc-scene svg{display:block;width:100%;height:100%;pointer-events:none}
+.cc-scene-shared{position:absolute;inset:0 0 auto 0;height:61%;z-index:-1;opacity:.94;
+  -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 33%,#0009 68%,transparent 100%);
+  mask-image:linear-gradient(to bottom,#000 0%,#000 33%,#0009 68%,transparent 100%)}
+.cc-cinematic.cc-public>*:not(.cc-scene){position:relative;z-index:1}
+.cc-cinematic .cc-table-head{padding:12px 13px 15px;margin:0 -2px 6px;
+  border:1px solid #338cca8e;border-radius:13px 13px 8px 8px;
+  background:linear-gradient(180deg,#0c2240f5,#061329eb);
+  box-shadow:0 0 0 4px #07162970,0 0 20px #31baff1c,inset 0 1px 0 #bcf7ff4d}
+.cc-cinematic .cc-brand{font-size:clamp(15px,1.45vw,24px);letter-spacing:.1em;color:#effaff;
+  text-shadow:0 0 13px #33d9ff87;gap:14px}
+.cc-cinematic .cc-brand-symbol{flex:0 0 auto;background:radial-gradient(circle at 40% 25%,#ffffff,#a1ffec 45%,#42a9c8);
+  width:38px;height:38px;color:#082c45;font-size:27px;box-shadow:0 0 17px #65ffd38c}
+.cc-cinematic .cc-round{color:#aedfff;font-size:clamp(12px,1.45vw,23px);font-weight:1000}
+.cc-cinematic .cc-game-flags{margin:16px auto 12px;gap:10px}
+.cc-cinematic .cc-flag{padding:9px 17px;border:1px solid #00dcf2b8;
+  border-radius:999px;background:linear-gradient(180deg,#10334be0,#061629ed);
+  box-shadow:inset 0 1px 0 #66ffff4b,0 0 14px #1bdfff2e;
+  color:#e9ffff;font-weight:950;font-size:clamp(12px,1.2vw,18px);letter-spacing:.04em}
+.cc-cinematic .cc-turn{max-width:none;margin:8px auto 14px;line-height:1.18;
+  background:linear-gradient(90deg,transparent,#051b36c9 15%,#102b50e3 50%,#051b36c9 85%,transparent);
+  border-top:1px solid #43cafe3b;border-bottom:1px solid #50bcff35;
+  padding:13px 5px;text-align:center;font-size:clamp(22px,3.15vw,50px);font-weight:1000;
+  letter-spacing:.006em;color:#f8fbff;text-shadow:0 1px 10px #54adff72}
+.cc-cinematic .cc-turn b{color:#a4ffe5;text-shadow:0 0 17px #79ffce93,0 0 40px #63eaff4f}
+.cc-cinematic .cc-victory{font-size:clamp(29px,3.8vw,65px);padding:14px;border-radius:12px;
+  background:#101c32d9;box-shadow:0 0 35px #ffe9a434;color:#fff2a2}
+.cc-cinematic .cc-arena{width:min(100%,960px);min-height:clamp(230px,25vw,350px);margin:12px auto 16px;
+  border:2px solid #48bcf4af;border-radius:48% / 40%;overflow:visible;
+  background:
+  radial-gradient(ellipse at center,#286c9bba 0,#0e315ac7 38%,#071a33e8 68%,#050e22 90%);
+  box-shadow:inset 0 0 0 7px #123150,inset 0 0 0 10px #48cbff6a,
+    inset 0 0 0 25px #0a254999,0 0 0 2px #11527c,0 14px 48px #000b,0 0 32px #33caff55}
+.cc-cinematic .cc-arena:before{inset:17px;border:2px solid #65d2ff55;border-radius:48% / 40%}
+.cc-cinematic .cc-arena:after{inset:39px;border:2px dashed #59deff38;border-radius:48% / 40%}
+.cc-cinematic .cc-deck,.cc-cinematic .cc-live-card{position:relative;z-index:2;gap:13px}
+.cc-cinematic .cc-deck>span,.cc-cinematic .cc-live-card>span{
+  display:flex;justify-content:center;min-height:28px;align-items:center;padding:5px 9px;
+  color:#f2faff;background:linear-gradient(110deg,#06172fbf,#133154e8,#06172fbf);
+  border:1px solid #579ac282;border-radius:9px;font-size:clamp(12px,1.35vw,18px);
+  letter-spacing:.06em;text-shadow:0 0 5px #c1eaff;white-space:nowrap}
+.cc-cinematic .cc-arena .cc-card{width:clamp(96px,11.3vw,154px);height:clamp(145px,16.6vw,222px);
+  border-width:5px;border-radius:17px;box-shadow:0 17px 25px #000e,0 0 0 3px #d8faff48,0 0 24px #36bfff4f}
+.cc-cinematic .cc-arena .cc-live-card .cc-card{box-shadow:0 17px 24px #000d,0 0 0 3px #fff7d3a8,0 0 24px #ffca6580}
+.cc-cinematic .cc-reactor{z-index:3;min-width:clamp(106px,13vw,175px);aspect-ratio:1;
+  border:3px solid #a6d8ff;border-radius:50%;
+  box-shadow:inset 0 0 34px #296ba6,0 0 21px #52bdff6a,0 0 0 9px #73dbff22}
+.cc-cinematic .cc-reactor:before{inset:10px;border:2px dashed #ecfaff9c}
+.cc-cinematic .cc-reactor:after{content:"";position:absolute;left:-26%;top:35%;width:150%;height:30%;
+  border:3px solid currentColor;border-radius:50%;transform:rotate(-19deg);
+  opacity:.43;pointer-events:none;filter:drop-shadow(0 0 7px currentColor)}
+.cc-cinematic .cc-reactor b{font-size:clamp(15px,2vw,27px);color:#fff!important;font-weight:1000}
+.cc-cinematic .cc-reactor small{font-size:clamp(9px,1.06vw,14px);line-height:1.2;color:#fff}
+.cc-cinematic .cc-reactor-red{color:#ff8891;background:radial-gradient(circle at 36% 28%,#ffb0b3,#db3e5a 37%,#7f182e 82%)}
+.cc-cinematic .cc-reactor-blue{color:#86ddff;background:radial-gradient(circle at 36% 28%,#99e9ff,#268ceb 37%,#163c88 82%)}
+.cc-cinematic .cc-reactor-green{color:#95ffd3;background:radial-gradient(circle at 36% 28%,#c2ffdf,#25cda2 37%,#165d56 82%)}
+.cc-cinematic .cc-reactor-yellow{color:#ffe387;background:radial-gradient(circle at 36% 28%,#fff4b5,#f2b72f 37%,#745021 82%)}
+.cc-cinematic .cc-reactor-red,.cc-cinematic .cc-reactor-blue,.cc-cinematic .cc-reactor-green,.cc-cinematic .cc-reactor-yellow{box-shadow:inset 0 0 20px #fff5,0 0 32px currentColor,0 0 0 9px #7ad6ff20}
+.cc-cinematic .cc-game-message{max-width:1050px;min-height:62px;padding:12px 20px;
+  border:2px solid #40c1f6b0;box-shadow:inset 0 1px 0 #82e9ff60,0 0 16px #32bbff29;
+  background:linear-gradient(100deg,#061b32e9,#12416bdc,#061b32e9);border-radius:12px;gap:14px}
+.cc-cinematic .cc-transmit-icon{display:grid;place-items:center;flex:0 0 39px;width:39px;height:39px;
+  border-radius:12px;border:1px solid #50c8ff9e;color:#87f2ff;
+  font-size:24px;text-shadow:0 0 14px #69fdff}
+.cc-cinematic .cc-game-message>span:not(.cc-transmit-icon){font-size:clamp(10px,.95vw,14px);color:#74eafa}
+.cc-cinematic .cc-game-message p{flex:1;text-align:center;font-size:clamp(15px,1.75vw,24px);color:#f1faff;
+  font-weight:850;line-height:1.3}
+.cc-cinematic .cc-players{grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin:17px auto 14px}
+.cc-cinematic .cc-player{position:relative;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;
+  align-items:center;justify-content:start;column-gap:12px;text-align:left;
+  border:2px solid #3586bf;border-radius:16px;padding:13px 15px;min-height:100px;
+  background:linear-gradient(160deg,#093056ed,#07172fe9);box-shadow:0 6px 21px #0007,inset 0 1px 0 #a7dfff33}
+.cc-cinematic .cc-avatar-orbit{grid-column:1;grid-row:1/3;display:grid;place-items:center;width:clamp(51px,5.5vw,75px);aspect-ratio:1;
+  border-radius:50%;padding:2px;border:1px solid #66cbff66;background:radial-gradient(circle,#285f8c,#091a34)}
+.cc-cinematic .cc-avatar-orbit svg{width:100%;height:100%;filter:drop-shadow(0 0 6px #6bbdff55)}
+.cc-cinematic .cc-player-name{grid-column:2;grid-row:1;display:flex;align-items:center;gap:10px;min-width:0}
+.cc-cinematic .cc-player-name b{font-size:clamp(13px,1.4vw,20px);color:white;overflow-wrap:anywhere}
+.cc-cinematic .cc-player-badge{display:grid;place-items:center;flex:0 0 24px;width:24px;height:24px;border:1px solid #8de2ff;
+  border-radius:50%;background:linear-gradient(145deg,#25679b,#104069);
+  font-weight:950;font-size:12px;color:#d1f5ff}
+.cc-cinematic .cc-player-count{grid-column:2;grid-row:2;font-weight:1000;letter-spacing:.14em;color:#98e5ff!important;
+  font-size:clamp(12px,1.3vw,17px)!important}
+.cc-cinematic .cc-player.active{border-color:#8cffe0;background:linear-gradient(150deg,#0c5164ed,#092d42f2);
+  box-shadow:0 0 22px #46f4bb78,inset 0 0 0 1px #adffe867}
+.cc-cinematic .cc-player.active:before{content:"YOUR TURN";top:-13px;left:50%;background:#8cffdf;color:#052c2d;
+  font-size:11px;letter-spacing:.07em;padding:5px 13px}
+.cc-cinematic .cc-player.active .cc-avatar-orbit{border-color:#86ffe4;background:radial-gradient(circle,#146555,#0c3847);
+  box-shadow:0 0 17px #89ffe36c}
+.cc-cinematic .cc-player.winner{border-color:#ffe078;background:linear-gradient(145deg,#615020,#222b3c)}
+.cc-cinematic .cc-audience{background:#071b31ad;border:1px solid #3c6e9b67;border-radius:8px;padding:10px 15px}
+
+/* Cards — animated orbital artwork stays behind actual readable values. */
+.cc-cinematic .cc-card{isolation:isolate;overflow:hidden;border-color:#fff9e9;
+  box-shadow:0 10px 18px #0009,inset 0 0 0 2px #ffffff56,0 0 12px #fff3}
+.cc-cinematic .cc-card:before{content:"";position:absolute;inset:16% 9%;border:3px solid #fff8;border-radius:50%;
+  transform:rotate(-25deg);z-index:1;background:transparent}
+.cc-cinematic .cc-card:after{content:"";position:absolute;inset:5px;border:1px solid #fff7;border-radius:11px;z-index:2;pointer-events:none}
+.cc-cinematic .cc-card-stars{display:block;position:absolute;inset:0;z-index:0;
+  background-image:radial-gradient(circle at 24% 18%,#fff,transparent 3px),
+    radial-gradient(circle at 78% 23%,#fff,transparent 2px),
+    radial-gradient(circle at 19% 74%,#fff,transparent 1.5px),
+    radial-gradient(circle at 85% 83%,#fff,transparent 2.2px),
+    radial-gradient(circle at 52% 7%,#fff,transparent 1.3px);
+  opacity:.57;pointer-events:none}
+.cc-cinematic .cc-card-planet{position:absolute;left:21%;top:26%;width:58%;aspect-ratio:1;z-index:0;
+  border-radius:50%;box-shadow:inset -8px -10px 16px #0002,0 0 17px #fff3;
+  background:radial-gradient(circle at 32% 22%,#fff7 0%,#ffffff30 24%,#0000001d 76%);pointer-events:none}
+.cc-cinematic .cc-card.cc-red{background:linear-gradient(138deg,#ff8d83,#d72a45 42%,#8d1738)}
+.cc-cinematic .cc-card.cc-blue{background:linear-gradient(138deg,#85dfff,#288ce3 42%,#173d94)}
+.cc-cinematic .cc-card.cc-green{background:linear-gradient(138deg,#a6ffe0,#20ba93 42%,#126b68)}
+.cc-cinematic .cc-card.cc-yellow{background:linear-gradient(138deg,#fff6b5,#ffcc51 42%,#e79a19);color:#211c10}
+.cc-cinematic .cc-card.cc-wild{background:conic-gradient(from 30deg,#f0db7b,#50b5ff,#55d8af,#ff677d,#ffd463);color:#fff}
+.cc-cinematic .cc-card.cc-wild b{font-size:clamp(22px,3.1vw,44px);width:64px;height:64px;max-width:75%;aspect-ratio:1;
+  background:#06172fcf;box-shadow:0 0 10px #fff9}
+.cc-cinematic .cc-card b{font-weight:1000;text-shadow:0 2px 4px #0008;z-index:3;filter:drop-shadow(0 2px 3px #0003)}
+.cc-cinematic .cc-card.cc-yellow b{text-shadow:0 1px 5px #7b4a1055}
+.cc-cinematic .cc-card small{z-index:3;font-weight:1000;filter:drop-shadow(0 1px 2px #0003)}
+.cc-cinematic .cc-card small:last-child{transform:none}
+.cc-cinematic .cc-card.cc-back{background:
+  radial-gradient(ellipse at 48% 39%,#447fdc,#113267 45%,#06112a 88%);border-color:#b1eaff}
+.cc-cinematic .cc-card.cc-back:before{inset:12%;border:2px solid #52ccffb8;background:none;border-radius:12px;transform:none}
+.cc-cinematic .cc-card.cc-back i{text-shadow:0 0 19px #70eaff;color:#9ef2ff}
+.cc-cinematic .cc-card.cc-back .cc-card-stars{opacity:.75}
+
+/* Student phone viewport and tactile controls. CSS selects only Cosmic Cards views. */
+#student .device:has(.cc-device.cc-cinematic){background:radial-gradient(circle at 50% 20%,#143867,#040b1a 74%);
+  border-color:#226eb2;box-shadow:0 12px 50px #0009,inset 0 0 0 1px #55c6fd50}
+#student .device:has(.cc-device.cc-cinematic) .device-head{
+  background:linear-gradient(180deg,#091a32,#081e39);border-bottom:2px solid #34c7fb;
+  box-shadow:0 4px 17px #36b3ff27,inset 0 1px 0 #a1dbff59;min-height:63px;
+  color:#eaf7ff;font-weight:950;letter-spacing:.02em}
+#student .device:has(.cc-device.cc-cinematic) .device-head b{text-transform:uppercase}
+#student .device-main:has(.cc-device.cc-cinematic){display:block!important;text-align:initial!important;
+  padding:0!important;background:#051328!important;overflow-x:hidden}
+#student .device-main:has(.cc-device.cc-cinematic) .cc-device{
+  width:100%!important;max-width:none!important;min-width:0;margin:0;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;gap:clamp(11px,2.3vw,18px);align-items:stretch;
+  border:0;border-radius:0;padding:0 clamp(12px,3vw,23px) clamp(15px,3vw,24px);
+  background:radial-gradient(ellipse at 50% 32%,#123557 0%,#071a30 66%,#06101f 100%);
+  box-shadow:none}
+#student .cc-scene-mobile{position:relative;flex:0 0 auto;width:calc(100% + clamp(24px,6vw,46px));
+  height:clamp(145px,26vw,210px);margin:0 calc(-1 * clamp(12px,3vw,23px)) 3px;
+  border-bottom:4px solid #309af7;background:#081a38;box-shadow:0 9px 18px #0007,0 0 18px #38bafc45}
+#student .cc-scene-mobile:after{content:"";position:absolute;inset:auto 0 0;height:27px;
+  background:linear-gradient(180deg,transparent,#071c32)}
+#student .cc-scene-mobile svg{object-fit:cover;min-height:100%}
+#student .cc-device>.eyebrow{display:block;align-self:stretch;text-align:center;
+  font-size:clamp(11px,2.5vw,17px);letter-spacing:.21em;font-weight:1000;color:#9aeaf7;
+  margin:clamp(3px,1vw,9px) auto 0}
+#student .cc-device h2{width:100%;max-width:none;text-align:center;line-height:1.05;
+  margin:0 auto!important;font-size:clamp(24px,6.4vw,48px)!important;
+  font-weight:1000;color:#f5fcff;text-shadow:0 2px 12px #168df997,0 0 24px #6bbfff3d}
+#student .cc-device-rule{order:3;max-width:100%;border:1px solid #338fbd;
+  background:#08283cca;box-shadow:inset 0 1px 0 #a9fcff36;
+  color:#b5edff;font-size:clamp(10px,2.4vw,13px);padding:8px 13px}
+#student .cc-chain-banner{order:4;font-size:clamp(13px,3vw,18px)}
+#student .cc-device-status{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;margin:5px auto 2px}
+#student .cc-device-status>span{display:flex;justify-content:center;align-items:center;gap:7px;
+  min-width:0;min-height:62px;padding:9px 6px;line-height:1.17;text-align:left;
+  border:2px solid #4bb5ee;border-radius:11px;background:linear-gradient(160deg,#15436c,#091b36);
+  box-shadow:inset 0 1px 0 #beeaff57,0 7px 15px #0007,0 0 12px #1ab7ff33;
+  font-weight:900;font-size:clamp(11px,2.6vw,16px);color:#f3faff;white-space:normal}
+#student .cc-device-status>span>span{display:inline-block;min-width:0}
+#student .cc-device-status>span b{font-size:clamp(14px,3.1vw,19px);color:#fff;white-space:nowrap}
+#student .cc-device-status .cc-device-color{border-color:#ffdb77}
+#student .cc-color-lamp{display:inline-block;flex:0 0 22px;width:22px;height:22px;border:2px solid #fff8;border-radius:50%;
+  background:#ffd15d;box-shadow:inset -2px -3px 5px #0004,0 0 12px #ffd15d}
+#student .cc-device-color-red .cc-color-lamp{background:#ff627a;box-shadow:0 0 12px #ff627a}
+#student .cc-device-color-blue .cc-color-lamp{background:#64beff;box-shadow:0 0 12px #64beff}
+#student .cc-device-color-green .cc-color-lamp{background:#5cddb2;box-shadow:0 0 12px #5cddb2}
+#student .cc-stat-icon{color:#82d8ff;font-size:clamp(18px,4vw,27px);font-style:normal;filter:drop-shadow(0 0 7px #4ac1fc)}
+#student .cc-hand-heading{width:100%;padding:8px 14px 0;margin-top:2px;
+  font-size:clamp(11px,2.3vw,15px);color:#b5f4ff;letter-spacing:.13em}
+#student .cc-hand-heading span{color:#a7ffe4}
+#student .cc-hand.cc-hand-dock{position:relative;isolation:isolate;display:flex;justify-content:center;align-items:center;
+  align-content:center;width:100%;min-height:clamp(175px,32vw,270px);padding:clamp(18px,4vw,29px) 6px;
+  border-radius:42% / 24%;border:2px solid #4acbff;
+  background:radial-gradient(ellipse at center,#28537bbc,#0b2d50 60%,#041123 100%);
+  box-shadow:inset 0 0 0 7px #0d2847,inset 0 0 0 10px #4ad3ff66,0 9px 30px #0008,0 0 19px #3dbbff3a;
+  gap:clamp(4px,1.15vw,10px);overflow:visible}
+#student .cc-hand.cc-hand-dock:before{content:"";position:absolute;inset:12px;border:2px dashed #5ebefa69;border-radius:45% / 23%;z-index:-1}
+#student .cc-hand.cc-hand-dock:after{content:"";position:absolute;inset:auto 8% -3px;height:11px;border-radius:50%;
+  background:#50ceff;filter:blur(9px);opacity:.6;z-index:-1}
+#student .cc-hand-button{position:relative;z-index:1;transition:transform .18s ease}
+#student .cc-hand-button:not(:disabled):hover,
+#student .cc-hand-button:not(:disabled):focus-visible{z-index:2;transform:translateY(-7px)}
+#student .cc-hand-button .cc-card{width:clamp(49px,13vw,88px);height:clamp(77px,20vw,140px);
+  border-width:clamp(2px,.7vw,4px);border-radius:11px;box-shadow:0 9px 16px #000a}
+#student .cc-hand-button .cc-card small{font-size:clamp(11px,3.1vw,17px);margin:3px 5px}
+#student .cc-hand-button .cc-card b{font-size:clamp(19px,5.5vw,47px)}
+#student .cc-hand-button:not(:disabled) .cc-card{
+  box-shadow:0 10px 17px #000d,0 0 0 3px #fff7,0 0 18px currentColor}
+#student .cc-hand-button:disabled .cc-card{opacity:.57;filter:grayscale(.65) saturate(.55) brightness(.72)}
+#student .cc-device-actions{width:100%;display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:7px auto 0}
+#student .cc-device-actions button{flex:1 1 190px;min-height:clamp(65px,10vw,91px);padding:12px 16px;
+  border:3px solid #78d9ff;border-radius:13px;
+  background:linear-gradient(145deg,#175a99,#0c396d 54%,#082950);
+  box-shadow:inset 0 3px 0 #b4f0ff77,inset 0 -4px 0 #052245,0 0 20px #31b6ff56,0 8px 12px #0008;
+  font-size:clamp(17px,4.2vw,27px);letter-spacing:.045em;color:#f9fcff;font-weight:1000}
+#student .cc-device-actions button:disabled{opacity:.4;filter:grayscale(.5)}
+#student .cc-device-actions #cosmicPassBtn{background:linear-gradient(145deg,#168a79,#0a4f4a);
+  border-color:#99ffe4}
+#student .cc-device-actions .cc-call-btn{background:linear-gradient(145deg,#ae4d9f,#611c56);
+  border-color:#ffb8ee}
+#student .cc-help{width:100%;display:flex;align-items:center;gap:13px;margin:4px auto 0!important;
+  border:1px solid #4bb8fb;border-radius:13px;padding:14px 16px;
+  background:linear-gradient(110deg,#061931e8,#103158e9,#061931e8);
+  box-shadow:inset 0 1px 0 #6ddfff5a,0 7px 17px #0005;
+  font-size:clamp(12px,2.9vw,17px)!important;line-height:1.5!important;
+  font-weight:550;text-align:left;color:#eaf7ff!important}
+#student .cc-info-mark{display:grid;place-items:center;flex:0 0 37px;width:37px;height:37px;
+  border:2px solid #75e2ff;border-radius:50%;color:#e9faff;font-size:24px;
+  font-weight:950;box-shadow:0 0 13px #45c5ff55}
+#student .cc-device-bottom{width:100%;margin-top:7px;padding:16px;border:1px solid #4bbffc;
+  border-radius:10px;background:linear-gradient(90deg,#061930,#0c3050,#061930);
+  color:#b4f4ff;letter-spacing:.23em;font-size:13px;font-weight:950;
+  box-shadow:0 0 16px #3caaff3a}
+#student .cc-device.cc-spectator{min-height:480px}
+#student .cc-spectator .cc-spectator-mark{text-align:center;color:#b8eaff}
+#student .cc-spectator h2{text-align:center}
+#student .cc-spectator p{text-align:center!important;font-size:clamp(14px,3vw,19px)!important;color:#d8f2ff!important}
+#student .cc-spectator-info{padding:13px;text-align:center}
+#student .device:has(.cc-device.cc-cinematic) .student-control-zone{background:#051222;border-top:1px solid #2aa4de}
+#student .device:has(.cc-device.cc-cinematic) .student-control-label{color:#b9efff}
+#student .device:has(.cc-device.cc-cinematic) .student-control-label b{color:#98eaff;letter-spacing:.15em}
+/* Teacher's smaller preview retains the glow, with tighter dimensions. */
+.cc-controller .cc-cinematic .cc-scene-shared{height:51%;opacity:.7}
+.cc-controller .cc-cinematic .cc-table-head{padding:7px;font-size:12px}
+.cc-controller .cc-cinematic .cc-game-flags{margin:9px auto 6px}
+.cc-controller .cc-cinematic .cc-turn{font-size:clamp(17px,1.6vw,27px);padding:9px}
+.cc-controller .cc-cinematic .cc-arena{min-height:206px;gap:7px;padding:12px 10px}
+.cc-controller .cc-cinematic .cc-arena .cc-card{width:clamp(58px,5.2vw,85px);height:clamp(90px,7.8vw,123px)}
+.cc-controller .cc-cinematic .cc-arena .cc-card b{font-size:clamp(22px,2.4vw,36px)}
+.cc-controller .cc-cinematic .cc-reactor{min-width:83px}
+.cc-controller .cc-cinematic .cc-reactor b{font-size:13px}
+.cc-controller .cc-cinematic .cc-reactor small{font-size:9px}
+.cc-controller .cc-cinematic .cc-players{grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:7px}
+.cc-controller .cc-cinematic .cc-player{min-height:80px;padding:8px 6px;column-gap:6px}
+.cc-controller .cc-cinematic .cc-avatar-orbit{width:33px}
+.cc-controller .cc-cinematic .cc-player-name b{font-size:11px}
+.cc-controller .cc-cinematic .cc-player-badge{display:none}
+.cc-controller .cc-cinematic .cc-player-count{font-size:10px!important}
+.cc-controller .cc-cinematic .cc-game-message{min-height:45px;padding:6px 10px;gap:6px}
+.cc-controller .cc-cinematic .cc-game-message p{font-size:12px}
+/* Student phones: keep playable controls completely above browser bar without horizontal overflow. */
+@media(max-width:700px){
+ #student .device-main:has(.cc-device.cc-cinematic){overflow:visible}
+ #student .cc-scene-mobile{height:clamp(116px,33vw,180px)}
+ #student .cc-device h2{font-size:clamp(21px,5.7vw,37px)!important}
+ #student .cc-device-status{gap:5px}
+ #student .cc-device-status>span{min-height:53px;font-size:clamp(9px,2.5vw,13px);padding:6px 4px}
+ #student .cc-device-status>span b{font-size:clamp(12px,3vw,15px)}
+ #student .cc-color-lamp{flex-basis:15px;width:15px;height:15px}
+ #student .cc-stat-icon{font-size:17px}
+ #student .cc-hand.cc-hand-dock{min-height:175px;border-radius:31% / 18%;padding:16px 5px;gap:5px}
+ #student .cc-hand-button .cc-card{width:clamp(47px,12vw,68px);height:clamp(74px,18vw,104px)}
+ #student .cc-hand-button .cc-card b{font-size:clamp(18px,5.3vw,33px)}
+ #student .cc-device-actions button{min-height:70px}
+ #student .cc-help{padding:10px;font-size:13px!important;gap:9px}
+ #student .cc-info-mark{width:31px;height:31px;flex-basis:31px;font-size:19px}
+ .cc-cinematic .cc-table-head{padding:7px!important}
+ .cc-cinematic .cc-flag{font-size:10px;padding:7px 9px}
+ .cc-cinematic .cc-turn{font-size:clamp(19px,4.3vw,27px)}
+ .cc-cinematic .cc-arena{width:100%;min-height:190px;grid-template-columns:minmax(0,1fr) 77px minmax(0,1fr);gap:3px;
+   padding:12px 4px;border-radius:32% / 23%}
+ .cc-cinematic .cc-deck>span,.cc-cinematic .cc-live-card>span{font-size:9px;padding:4px 2px;white-space:normal}
+ .cc-cinematic .cc-reactor{min-width:70px}
+ .cc-cinematic .cc-reactor b{font-size:11px}
+ .cc-cinematic .cc-reactor small{font-size:8px}
+ .cc-cinematic .cc-arena .cc-card{width:clamp(58px,17vw,82px);height:clamp(91px,26vw,124px);border-width:3px}
+ .cc-cinematic .cc-arena .cc-card b{font-size:25px}
+ .cc-cinematic .cc-game-message{padding:8px;min-height:54px;gap:5px}
+ .cc-cinematic .cc-game-message p{font-size:13px}
+ .cc-cinematic .cc-transmit-icon{width:27px;height:27px;flex-basis:27px;font-size:17px}
+ .cc-cinematic .cc-players{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .cc-cinematic .cc-player{min-height:78px;padding:7px;column-gap:6px}
+ .cc-cinematic .cc-avatar-orbit{width:39px}
+ .cc-cinematic .cc-player-name b{font-size:12px}
+ .cc-cinematic .cc-player-badge{display:none}
+ .cc-cinematic .cc-player-count{font-size:11px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .cc-cinematic .cc-hand-button,.cc-cinematic .cc-card,.cc-cinematic .cc-player{transition:none!important;animation:none!important}
+ .cc-cinematic .cc-hand-button:not(:disabled):hover{transform:none!important}
+}
