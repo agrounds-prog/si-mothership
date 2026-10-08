@@ -1,0 +1,7 @@
+RETURN 1
+STDOUT
+
+STDERR
+  File "<string>", line 1
+    from pathlib import Path
+IndentationError: unexpected indent
