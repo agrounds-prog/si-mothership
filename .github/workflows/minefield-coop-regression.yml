@@ -1,0 +1,90 @@
+name: Minefield cooperative regression tests
+on:
+  push:
+    paths:
+      - 'index.html'
+      - '.github/workflows/minefield-coop-regression.yml'
+  workflow_dispatch:
+jobs:
+  minefield:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test cooperative Minefield game logic
+        shell: bash
+        run: |
+          cat > /tmp/minefield-test.cjs <<'JS'
+          const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
+          const html=fs.readFileSync('index.html','utf8');
+          function extract(name){
+            const start=html.indexOf('function '+name+'(');
+            assert(start>=0,'missing '+name);
+            const end=html.indexOf('\nfunction ',start+10);
+            assert(end>start,'missing function boundary '+name);
+            return html.slice(start,end);
+          }
+          const source=['createMinefield','minefieldClearProgress','resolveMinefieldMove','minefieldNarrationMarkup'].map(extract).join('\n');
+          const students=[{n:'Student A'},{n:'Student B'}];
+          const ctx={
+           Math,console,
+           minefieldConfig:l=>({size:l==='quick'?5:l==='epic'?7:6,key:l}),
+           state:{activityRun:null},
+           minefieldMode:r=>r.minefieldMode||'crew',
+           ensureMinefield:r=>r.mf,
+           activeMinefield:r=>r.mf,
+           minefieldTile:(r,row,col,mf)=>mf.board[row]?.[col],
+           minefieldNavigator:r=>students[(r.mf.navigatorIndex||0)%students.length],
+           connectedStudents:()=>students,
+           minefieldEvent:(r,m,k)=>{r.latestNarration=m;r.narrationLog=(r.narrationLog||[]).concat([{text:m,kind:k}])},
+           minefieldOverallStatus:r=>r.mf.status,
+           minefieldTeamStudents:()=>students,
+           minefieldTeamCount:()=>2,
+           minefieldTeamName:x=>'Crew '+x,
+           nextMinefieldTeam:()=>0,
+           mfCoord:(r,c)=>String.fromCharCode(65+c)+(r+1),
+           render:()=>{},toast:()=>{},
+           esc:x=>String(x).replaceAll('<','&lt;')
+          };
+          vm.createContext(ctx);
+          vm.runInContext(source,ctx);
+          for(const [key,size,mines,hearts] of [['quick',5,4,2],['standard',6,7,3],['epic',7,10,4]]){
+            const mf=ctx.createMinefield(key),tiles=mf.board.flat();
+            assert.equal(mf.size,size);assert.equal(mf.hull,3);assert.equal(mf.maxHull,5);
+            assert.equal(tiles.filter(t=>t.type==='mine').length,mines);
+            assert.equal(tiles.filter(t=>t.type==='repair').length,hearts);
+            assert(tiles.every(t=>!t.revealed));
+            assert.equal(ctx.minefieldClearProgress(mf).total,size*size-mines);
+            assert.equal(ctx.minefieldClearProgress(mf).cleared,0);
+          }
+          const mf=ctx.createMinefield('quick');
+          const at=kind=>mf.board.flat().find(t=>t.type===kind&&!t.revealed);
+          const move=t=>{mf.pending={r:t.r,c:t.c};ctx.resolveMinefieldMove()};
+          ctx.state.activityRun={mf,minefieldMode:'crew',narrationLog:[]};
+          const safe=at('clear');move(safe);
+          assert.equal(safe.revealed,true);assert.equal(mf.hull,3);assert.equal(mf.turn,2);
+          assert.equal(ctx.minefieldClearProgress(mf).cleared,1);assert.equal(mf.navigatorIndex,1);
+          mf.hull=2;const heart=at('repair');move(heart);
+          assert.equal(mf.hull,3);assert.equal(mf.turn,3);
+          mf.hull=1;const mine=at('mine');move(mine);
+          assert.equal(mf.hull,0);assert.equal(mf.status,'lost');
+          const lastTurn=mf.turn,other=at('clear');move(other);
+          assert.equal(other.revealed,false);assert.equal(mf.turn,lastTurn);
+          const victory=ctx.createMinefield('quick');
+          ctx.state.activityRun={mf:victory,minefieldMode:'crew',narrationLog:[]};
+          const finalSafe=victory.board.flat().find(t=>t.type==='clear');
+          for(const tile of victory.board.flat()){if(tile.type!=='mine'&&tile!==finalSafe)tile.revealed=true}
+          victory.pending={r:finalSafe.r,c:finalSafe.c};ctx.resolveMinefieldMove();
+          assert.equal(victory.status,'won');assert.equal(ctx.minefieldClearProgress(victory).cleared,21);
+          assert(victory.board.flat().filter(t=>t.type==='mine').every(t=>!t.revealed));
+          const narration=ctx.minefieldNarrationMarkup(ctx.state.activityRun,true,false);
+          assert(narration.includes('MAP CLEARED'),'outcome badge should render');
+          assert(html.includes("t.revealed&&t.type==='mine'"),'mine CSS must not leak hidden type');
+          assert(html.includes("if(!tile.revealed&&!showHidden)return '·';"),'covered tile content must be hidden');
+          console.log('PASS Minefield: sizes, distribution, safe, health, mine, navigator turn, loss, win, no hidden mine display, outcome banner');
+          JS
+          cp /tmp/minefield-test.cjs ./minefield-temporary-test.cjs
+          node minefield-temporary-test.cjs
+          rm minefield-temporary-test.cjs
