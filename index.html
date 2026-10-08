@@ -13621,6 +13621,21 @@ body.role-student .agenda-live-footer{
 #teacher .bingo-bulk-confirm button{min-height:39px;padding:8px 13px;border:1px solid #5b94bf;border-radius:9px;background:#1c486e;color:#fff;font-weight:800}
 #teacher #bingoBulkApply{background:#198856;border-color:#79dfb5}
 @media(max-width:610px){#teacher .bingo-bulk-controls{grid-template-columns:1fr}#teacher #bingoBulkChoose{width:100%}}
+</style><style id="v86-bingo-images-in-caller">
+/* Image-based Bingo: show the uploaded card photo along with the call label. */
+.bingo-call-display{width:100%;height:100%;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.bingo-call-display img{display:block;max-width:94%;width:auto;height:auto;max-height:min(38dvh,370px);object-fit:contain;background:#f5f7f8;border-radius:12px;box-shadow:0 7px 17px #0006}
+.bingo-call-label{display:block;color:white;font-size:clamp(19px,2.4vw,38px)!important;line-height:1.15!important;text-align:center;overflow-wrap:anywhere;text-shadow:0 3px 12px #101a55;font-weight:950}
+#teacher .foundation-call .bingo-call-display img{max-height:clamp(125px,17vw,245px)!important;border:2px solid #77c3ffa6}
+#teacher .foundation-call .bingo-call-label{font-size:clamp(21px,2.2vw,34px)!important}
+.bingo-call-card:has(.bingo-call-display){padding:20px!important}
+.bingo-call-card .bingo-call-display img{max-height:clamp(230px,46dvh,550px)!important}
+.bingo-history-grid .bingo-call-mini{width:100%;min-width:0;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.bingo-history-grid .bingo-call-mini img{display:block;max-width:100%;max-height:68%;width:auto;height:auto;object-fit:contain;background:#f4f5f6;border-radius:6px}
+.bingo-history-grid .bingo-call-mini b{display:block;text-align:center;line-height:1.15;font-size:clamp(10px,.9vw,14px);overflow-wrap:anywhere;color:white;font-weight:900}
+#teacher .bingo-history-grid .bingo-call-mini img{max-height:43px}
+#teacher .bingo-history-grid .bingo-call-mini b{font-size:11px}
+@media(max-width:700px){.bingo-call-card .bingo-call-display img{max-height:35dvh!important}.bingo-call-label{font-size:clamp(18px,5vw,28px)!important}}
 </style></head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -14072,6 +14087,15 @@ function wireGameLibraryRemoveButtons(){
   $$('[data-game-image-remove]').forEach(b=>b.onclick=e=>{
     e.preventDefault();e.stopPropagation();removeGameLibraryImage(b.dataset.gameImageRemove);
   });
+}
+function bingoCallDisplayMarkup(item,compact=false){
+  if(!item)return '';
+  const call=item.call||{},card=item.card||{};
+  const visual=card.type==='image'&&card.value?card:call.type==='image'&&call.value?call:null;
+  if(!visual)return contentMarkup(call);
+  const label=String(call.type==='text'?call.value:(call.label||visual.label||'Picture'));
+  if(compact)return '<span class="bingo-call-mini">'+contentMarkup(visual)+'<b>'+esc(label)+'</b></span>';
+  return '<div class="bingo-call-display">'+contentMarkup(visual)+'<strong class="bingo-call-label">'+esc(label)+'</strong></div>';
 }
 function bingoSlotItems(){
   return (bingoDraft.numberedSlots||[]).filter(a=>a&&a.call).map(a=>({
@@ -16178,7 +16202,7 @@ function activitySharedMarkup(big=false){
   if(a.type==='bingo'){
     const b=run.bingo||{},cfg=run.bingoConfig||{},current=(cfg.items||[]).find(x=>x.id===b.current),history=(b.called||[]).slice(-9).reverse();
     if(b.reveal){const r=b.reveal,card=(r.card||[]).map(id=>id==='free'?{id:'free',card:{type:'text',value:'FREE'}}:(cfg.items||[]).find(x=>x.id===id)).filter(Boolean),marks=new Set([...(r.marks||[]),'free']);return `<div class="bingo-reveal"><span class="eyebrow">MOTHERSHIP · BINGO</span><h3>BINGO!</h3><h2>${esc(r.name||'Winner')}</h2><div class="bingo-reveal-board" style="grid-template-columns:repeat(${Number(cfg.size||4)},1fr)">${card.map(item=>`<span class="${marks.has(item.id)?'win':''}">${contentMarkup(item.card)}</span>`).join('')}</div></div>`}
-    return `<div class="bingo-shared-wrap"><span class="eyebrow">MOTHERSHIP · BINGO</span><h3 style="font-size:${big?52:34}px">${esc(cfg.name||'BINGO')}</h3><div class="bingo-shared-main"><div><div class="bingo-call-card">${current?contentMarkup(current.call):'READY TO CALL'}</div><p>${esc(b.message||'')}</p></div><div class="bingo-history"><h4>CALL HISTORY</h4><div class="bingo-history-grid">${history.map(id=>{const item=bingoItem(id,run);return `<span>${item?contentMarkup(item.call):''}</span>`}).join('')||'<span>—</span>'}</div><p>${(b.called||[]).length} / ${(cfg.items||[]).length} called</p><small>Win pattern: ${esc(cfg.pattern||'line')}</small></div></div></div>`;
+    return `<div class="bingo-shared-wrap"><span class="eyebrow">MOTHERSHIP · BINGO</span><h3 style="font-size:${big?52:34}px">${esc(cfg.name||'BINGO')}</h3><div class="bingo-shared-main"><div><div class="bingo-call-card">${current?bingoCallDisplayMarkup(current):'READY TO CALL'}</div><p>${esc(b.message||'')}</p></div><div class="bingo-history"><h4>CALL HISTORY</h4><div class="bingo-history-grid">${history.map(id=>{const item=bingoItem(id,run);return `<span>${item?bingoCallDisplayMarkup(item,true):''}</span>`}).join('')||'<span>—</span>'}</div><p>${(b.called||[]).length} / ${(cfg.items||[]).length} called</p><small>Win pattern: ${esc(cfg.pattern||'line')}</small></div></div></div>`;
   }
   if(a.type==='crew-survey'){return crewSurveySharedMarkup(run,big);}
   if(a.type==='million'){return millionSharedMarkup(run,big);}
@@ -16667,7 +16691,7 @@ function renderActivityController(){
   } else if(a.type==='bingo'){
     const b=bingoState(run)||{},cfg=run.bingoConfig||{},current=bingoItem(b.current,run),claims=(b.claims||[]).filter(x=>x.status!=='dismissed'),history=(b.called||[]).slice(-12).reverse();
     box.innerHTML=`<div class="activity-controller-head"><div><span class="slide-badge instruction">BINGO · MISSION CONTROL</span><h2>${esc(cfg.name||'BINGO')}</h2><p>${esc(b.message||'')}</p></div><div class="controller-stats"><b>${(b.called||[]).length}</b> / ${(cfg.items||[]).length} called · <b>${claims.length}</b> claims</div></div>
-    <div class="bingo-teacher-grid"><div class="bingo-teacher-card"><h4>CALLER</h4><div class="foundation-call">${current?contentMarkup(current.call):'READY TO CALL'}</div><div class="bingo-teacher-actions"><button class="primary-action" id="bingoCallNextBtn">📣 CALL NEXT</button><button id="bingoRepeatBtn" ${current?'':'disabled'}>↻ REPEAT LAST CALL</button><button id="bingoClearRevealBtn" ${b.reveal?'':'disabled'}>Return to Caller</button></div><h4 style="margin-top:14px">CALL HISTORY</h4><div class="bingo-history-grid">${history.map(id=>{const item=bingoItem(id,run);return `<span>${item?contentMarkup(item.call):''}</span>`}).join('')||'<span>—</span>'}</div></div>
+    <div class="bingo-teacher-grid"><div class="bingo-teacher-card"><h4>CALLER</h4><div class="foundation-call">${current?bingoCallDisplayMarkup(current):'READY TO CALL'}</div><div class="bingo-teacher-actions"><button class="primary-action" id="bingoCallNextBtn">📣 CALL NEXT</button><button id="bingoRepeatBtn" ${current?'':'disabled'}>↻ REPEAT LAST CALL</button><button id="bingoClearRevealBtn" ${b.reveal?'':'disabled'}>Return to Caller</button></div><h4 style="margin-top:14px">CALL HISTORY</h4><div class="bingo-history-grid">${history.map(id=>{const item=bingoItem(id,run);return `<span>${item?bingoCallDisplayMarkup(item,true):''}</span>`}).join('')||'<span>—</span>'}</div></div>
     <div class="bingo-teacher-card"><h4>BINGO CLAIMS</h4><div class="bingo-claims-list">${claims.length?claims.map(cl=>`<div class="bingo-claim-row ${cl.valid?'valid':'invalid'}"><div><b>${esc(cl.name)}</b><small>${cl.valid?'✓ Valid '+esc(cfg.pattern||'line'):'Not yet — no valid '+esc(cfg.pattern||'line')}</small></div><div class="bingo-claim-row-actions">${cl.valid?`<button data-bingo-reveal-claim="${cl.id}">Reveal on Zoom</button>`:''}<button data-bingo-dismiss-claim="${cl.id}">Dismiss</button></div></div>`).join(''):'<div class="empty">No Bingo claims yet.</div>'}</div></div></div>
     <div class="controller-safety"><button id="returnClassBtn">✓ Finish & Return</button><button class="minefield-send-lobby" id="sendActivityLobbyBtn">Ⅱ Pause & Keep Progress</button><button class="danger-action" id="emergencyActivityBtn">⚠ Emergency Return</button></div>`;
   } else if(a.type==='match'){
