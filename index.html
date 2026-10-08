@@ -13086,6 +13086,134 @@ body.role-student .agenda-live-footer{
   overflow:visible!important;text-overflow:clip!important;
   white-space:normal!important;line-height:1.25!important;
 }
+</style><style id="v77-bingo-mobile-game">
+/* Bingo Phase 1: presentation only. No state, selection, or handler changes. */
+#student .student-game-foundation:has(.bingo-student-board),
+.student-game-foundation:has(.bingo-student-board){
+  width:100%;max-width:100%;min-height:min(92dvh,940px);
+  padding:clamp(12px,2.6vw,28px);
+  background:
+    radial-gradient(ellipse at 50% -12%,rgba(101,75,255,.55),transparent 49%),
+    radial-gradient(circle at 100% 65%,rgba(6,167,247,.19),transparent 38%),
+    radial-gradient(circle at 0% 78%,rgba(234,57,174,.12),transparent 36%),
+    linear-gradient(160deg,#07112c,#11103c 49%,#031725);
+  border-radius:24px;
+}
+.student-game-foundation:has(.bingo-student-board) .student-game-card{
+  position:relative;isolation:isolate;width:min(100%,610px);max-width:610px;
+  margin:0 auto;padding:clamp(16px,3vw,26px)!important;
+  border:2px solid rgba(77,191,255,.77)!important;border-radius:26px!important;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(25,104,228,.28),transparent 46%),
+    linear-gradient(170deg,#091a4c,#081330 62%,#101044)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.19),0 15px 38px rgba(0,0,0,.42),0 0 27px rgba(30,142,255,.16)!important;
+  text-align:center;
+}
+.student-game-foundation:has(.bingo-student-board) .student-game-card:before{
+  content:"B I N G O";display:block;
+  width:max-content;max-width:100%;margin:0 auto 9px;
+  font-size:clamp(29px,7.6vw,52px);font-weight:1000;letter-spacing:.07em;line-height:1.13;
+  color:#ffcf58;-webkit-text-stroke:1px #ff8e41;
+  text-shadow:0 3px 0 #ae4276,0 6px 0 #3e287b,0 8px 20px rgba(246,127,255,.55),0 0 28px rgba(60,175,255,.46);
+  pointer-events:none;
+}
+.student-game-foundation:has(.bingo-student-board) .student-game-card>.eyebrow{
+  display:block;color:#81dfff!important;letter-spacing:.22em!important;font-weight:900!important;
+  font-size:clamp(9px,1.65vw,12px)!important;
+}
+.student-game-foundation:has(.bingo-student-board) .student-game-card>h2{
+  margin:5px auto!important;color:#fff!important;
+  font-size:clamp(16px,3vw,24px)!important;line-height:1.2!important;
+  text-shadow:0 2px 12px rgba(67,181,255,.45);
+}
+.student-game-foundation:has(.bingo-student-board) .student-game-card>p{
+  color:#c8d9ff!important;font-size:clamp(12px,2vw,15px)!important;
+  line-height:1.4!important;margin:6px auto 12px!important;
+}
+.student-game-foundation .bingo-student-board{
+  width:100%!important;max-width:540px!important;
+  gap:clamp(4px,1.1vw,8px)!important;
+  padding:clamp(6px,1.2vw,10px)!important;margin:12px auto 9px!important;
+  border:1px solid rgba(75,145,249,.45)!important;border-radius:18px!important;
+  background:linear-gradient(150deg,rgba(20,57,129,.95),rgba(17,19,81,.95))!important;
+  box-shadow:inset 0 2px 14px rgba(0,0,0,.42),0 0 22px rgba(25,154,255,.14)!important;
+}
+.student-game-foundation .bingo-student-cell{
+  position:relative!important;min-width:0!important;min-height:0!important;
+  aspect-ratio:1!important;border-radius:clamp(8px,1.8vw,14px)!important;
+  padding:clamp(2px,.85vw,7px)!important;
+  font-size:clamp(9px,1.65vw,14px)!important;line-height:1.15!important;
+  font-weight:900!important;color:#172448!important;
+  border:2px solid #9ccaff!important;
+  background:linear-gradient(155deg,#fff 0%,#eaf4ff 58%,#cedbf5 100%)!important;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.95),0 4px 0 #1d4785,0 7px 9px rgba(0,0,0,.32)!important;
+  transition:transform .16s ease,box-shadow .16s ease,filter .16s ease!important;
+  overflow:hidden!important;
+}
+.student-game-foundation .bingo-student-cell img{
+  max-width:100%;max-height:100%;object-fit:contain!important;border-radius:7px;
+}
+.student-game-foundation .bingo-student-cell.uncalled{
+  opacity:.84!important;filter:saturate(.7)!important;
+}
+.student-game-foundation .bingo-student-cell:not(:disabled):active{
+  transform:translateY(3px) scale(.97)!important;box-shadow:inset 0 1px 4px rgba(0,0,0,.22),0 1px 0 #1d4785!important;
+}
+.student-game-foundation .bingo-student-cell.marked{
+  opacity:1!important;filter:none!important;
+  border:2px solid #ffe978!important;
+  background:linear-gradient(155deg,#fff4b1,#ffc84b 64%,#ff9c4a)!important;
+  box-shadow:inset 0 1px 0 #fff,0 3px 0 #b06416,0 0 14px rgba(255,201,38,.75),0 0 2px 2px rgba(255,229,92,.65)!important;
+}
+.student-game-foundation .bingo-student-cell.marked:not(.free):after{
+  content:"★";position:absolute;right:1px;top:-2px;
+  font-size:clamp(15px,3.8vw,27px);line-height:1;color:#fff4ac;
+  -webkit-text-stroke:1px #e88819;
+  text-shadow:0 2px 4px #784108,0 0 8px #ffdb47;
+  pointer-events:none;
+}
+.student-game-foundation .bingo-student-cell.free{
+  color:#fff!important;border-color:#8ee3ff!important;
+  background:radial-gradient(circle at 50% 36%,#466ce8,#272379 78%)!important;
+  text-shadow:0 1px 4px #070a40;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.24),0 3px 0 #10144d,0 0 13px rgba(96,109,255,.55)!important;
+}
+.student-game-foundation:has(.bingo-student-board) .prompt-caption{
+  color:#9fdafe!important;font-weight:800!important;letter-spacing:.05em;
+  font-size:clamp(11px,1.75vw,14px)!important;
+}
+.student-game-foundation .bingo-claim-button{
+  display:block!important;width:min(100%,460px)!important;
+  margin:14px auto 4px!important;min-height:clamp(58px,9vw,72px)!important;
+  border:2px solid #ffbaff!important;border-radius:999px!important;
+  background:linear-gradient(180deg,#ff79fd,#e630d6 45%,#9f0fae)!important;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.42),0 5px 0 #580e7c,0 10px 24px rgba(0,0,0,.42),0 0 23px rgba(255,39,234,.44)!important;
+  color:#fff!important;font-weight:1000!important;
+  font-size:clamp(21px,5vw,29px)!important;letter-spacing:.08em!important;
+  text-shadow:0 2px 2px rgba(60,5,75,.7)!important;
+}
+.student-game-foundation .bingo-claim-button:active{
+  transform:translateY(3px)!important;box-shadow:inset 0 2px 5px #6e0d8f,0 1px 0 #580e7c!important;
+}
+.student-game-foundation .bingo-claim-status{
+  border-radius:16px!important;padding:13px!important;
+  border:1px solid #7cc8f7!important;background:#091e48!important;
+  color:#eff7ff!important;
+}
+.student-game-foundation .bingo-claim-status.valid{
+  border-color:#ffda68!important;background:linear-gradient(145deg,#183f3b,#1b2761)!important;
+  box-shadow:0 0 18px rgba(255,212,63,.24);
+}
+@media(max-width:480px){
+  .student-game-foundation:has(.bingo-student-board){padding:8px!important;border-radius:14px!important}
+  .student-game-foundation:has(.bingo-student-board) .student-game-card{padding:11px!important;border-radius:18px!important}
+  .student-game-foundation .bingo-student-board{padding:5px!important;gap:4px!important;border-radius:12px!important}
+  .student-game-foundation .bingo-student-cell{border-width:1px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .student-game-foundation .bingo-student-cell,
+  .student-game-foundation .bingo-claim-button{transition:none!important}
+}
 </style></head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
