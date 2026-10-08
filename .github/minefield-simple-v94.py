@@ -159,8 +159,9 @@ once("['teacher','Teacher vs Class','Class and teacher alternate turns on separa
 
 # Screen legend appears once per active teacher-vs mode and once for normal teams/crew.
 legend='<div class="minefield-signal-legend"><span><b>NUMBER</b> nearby mines</span><span><b>ARROW + #</b> beacon signal</span></div>'
-assert s.count(legend)==2,s.count(legend)
-s=s.replace(legend,'${minefieldQuickRulesMarkup(mf)}')
+assert s.count(legend)==3,s.count(legend)
+legacy_pos=s.index(legend)
+s=s[:legacy_pos+len(legend)]+s[legacy_pos+len(legend):].replace(legend,'${minefieldQuickRulesMarkup(mf)}',2)
 # Retire old directions on student devices.
 old='Use the revealed mine counts and beacon arrows, then tap any unrevealed square.'
 assert s.count(old)==2,s.count(old)
