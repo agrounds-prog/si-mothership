@@ -154,6 +154,7 @@ function cosmicLaunch(){
     phase:'lobby',responses:{},cosmic:{
       players:names,hands,deck,discard:[initial],color:initial.color,
       turn:0,direction:1,drawnId:'',chainOpen:false,turnRule:cosmicTurnRule,called:{},winner:null,status:'playing',
+      avatarImages:cosmicSnapshotPlayerAvatars(names),
       round:1,message:'Players assigned. Start when the class is ready.'
     }
   };
@@ -232,6 +233,29 @@ function cosmicSceneMarkup(mode='shared'){
     '<path d="M15 460L144 428 507 451H933L1294 428 1425 460" fill="none" stroke="#67dfff" stroke-width="6"/>'+
     '<path d="M92 16H306M1138 16H1344" stroke="#ffcc73" stroke-width="8"/></svg></div>';
 }
+function cosmicSnapshotPlayerAvatars(names){
+  const images={};
+  names.forEach(name=>{
+    const st=studentByName(name);
+    if(!String(st?.avatarKey||'').startsWith('custom_'))return;
+    const src=customAvatarAssets.find(a=>a.key===st.avatarKey)?.image||'';
+    if(/^data:image\/(?:webp|png|jpeg);base64,/.test(src)&&src.length<420000)images[name]=src;
+  });
+  return images;
+}
+function cosmicPlayerAvatarMarkup(name,index,run=state.activityRun){
+  const st=studentByName(name),key=String(st?.avatarKey||''),a=avatarAsset(key);
+  const raw=run?.cosmic?.avatarImages?.[name]||((a?.source==='custom'||key.startsWith('custom_'))?a?.image:'');
+  const src=typeof raw==='string'&&/^data:image\/(?:webp|png|jpeg);base64,/.test(raw)&&raw.length<420000?raw:'';
+  const art=src?'<img class="cc-player-avatar-img" src="'+esc(src)+'" alt="">':
+    '<span class="cc-player-avatar-glyph">'+esc(a?.glyph||'🤖')+'</span>';
+  return '<span class="cc-avatar-orbit cc-real-avatar" style="--cc-avatar-accent:'+esc(a?.color||st?.c||'#69deff')+'" aria-hidden="true">'+art+'</span>';
+}
+function cosmicCardFanMarkup(count){
+  const n=Math.min(6,Math.max(0,Number(count)||0));
+  return '<span class="cc-card-fan" aria-hidden="true">'+
+    Array.from({length:n},(_,i)=>'<i class="cc-card-fan-item" style="--cc-fan-index:'+i+';--cc-fan-count:'+n+'"></i>').join('')+'</span>';
+}
 function cosmicRobotAvatarMarkup(index){
   const hue=['#7cdeff','#8cffe1','#d5aaff','#ffe098','#ffa5b6','#9cafff','#d4ffaa','#8bf6fa'][index%8];
   return '<span class="cc-avatar-orbit" aria-hidden="true"><svg viewBox="0 0 76 76" focusable="false">'+
@@ -254,17 +278,17 @@ function cosmicTableMarkup(run=state.activityRun,big=false){
   const top=g.discard[g.discard.length-1],current=cosmicPlayer(run);
   const audience=cosmicNames().filter(n=>!g.players.includes(n));
   const rule=cosmicRuleTitle(g.turnRule);
-  return '<div class="cc-public cc-cinematic">'+cosmicSceneMarkup('shared')+
+  return '<div class="cc-public cc-cinematic '+(big?'cc-presentation':'cc-preview')+'">'+cosmicSceneMarkup('shared')+
     '<div class="cc-table-head"><span class="cc-brand"><span class="cc-brand-symbol">✦</span> COSMIC CARDS</span><span class="cc-round">ROUND '+Number(g.round||1)+'</span></div>'+
     '<div class="cc-game-flags"><span class="cc-flag">◉ '+rule+' RULE</span><span class="cc-flag">'+(g.direction===-1?'↶ COUNTERCLOCKWISE':'↷ CLOCKWISE')+'</span></div>'+
     (g.status==='won'?'<div class="cc-victory">🏆 '+esc(g.winner)+' WINS!</div>':
       '<div class="cc-turn">IT IS <b>'+esc(current||'—')+'</b>’S TURN</div>')+
-    '<div class="cc-table-center cc-arena cc-arena-'+g.color+'"><div class="cc-deck"><span>DRAW PILE · '+g.deck.length+'</span>'+cosmicCardMarkup(null,{back:true})+'</div>'+
-    '<div class="cc-reactor cc-reactor-'+g.color+'"><small>ACTIVE COLOR</small><b>'+COSMIC_COLOR_NAMES[g.color]+'</b></div>'+
+    '<div class="cc-table-center cc-arena cc-arena-'+g.color+'"><div class="cc-deck"><span>DRAW PILE · '+g.deck.length+'</span><div class="cc-deck-stack">'+cosmicCardMarkup(null,{back:true})+'</div></div>'+
+    '<div class="cc-reactor cc-reactor-'+g.color+'"><small>ACTIVE COLOR</small><span class="cc-reactor-color-dot" aria-hidden="true"></span><b>'+COSMIC_COLOR_NAMES[g.color]+'</b></div>'+
     '<div class="cc-live-card"><span>DISCARD PILE</span>'+cosmicCardMarkup(top)+'</div></div>'+
     '<div class="cc-game-message"><span class="cc-transmit-icon" aria-hidden="true">◉</span><span>TRANSMISSION</span><p>'+esc(g.message||'')+'</p></div>'+
     '<div class="cc-players">'+g.players.map((n,i)=>'<div class="cc-player '+(n===current&&g.status==='playing'?'active':'')+(n===g.winner?' winner':'')+'">'+
-      cosmicRobotAvatarMarkup(i)+'<span class="cc-player-name"><b>'+esc(n)+'</b><small class="cc-player-badge">'+esc(String(n).slice(0,1).toUpperCase())+'</small></span><span class="cc-player-count">'+((g.counts&&g.counts[n]!==undefined)?g.counts[n]:(g.hands[n]||[]).length)+' CARDS</span>'+(g.called[n]?' <em>COSMIC!</em>':'')+
+      cosmicPlayerAvatarMarkup(n,i,run)+'<span class="cc-player-name"><b>'+esc(n)+'</b><small class="cc-player-badge">'+esc(String(n).slice(0,1).toUpperCase())+'</small></span><span class="cc-player-count">'+cosmicCardFanMarkup((g.counts&&g.counts[n]!==undefined)?g.counts[n]:(g.hands[n]||[]).length)+'<strong>'+((g.counts&&g.counts[n]!==undefined)?g.counts[n]:(g.hands[n]||[]).length)+' CARDS</strong></span>'+(g.called[n]?' <em>COSMIC!</em>':'')+
       (!cosmicNames().includes(n)?'<small>OFFLINE</small>':'')+'</div>').join('')+'</div>'+
     (audience.length?'<div class="cc-audience"><b>AUDIENCE · '+audience.length+'</b><span>'+audience.map(esc).join(' · ')+'</span></div>':'')+
   '</div>';
