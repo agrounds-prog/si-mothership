@@ -12830,6 +12830,38 @@ body.role-student .agenda-live-footer{
   #teacher .command-deck > #lobbyPanel{margin:0!important}
   #teacher .command-deck > #appShortcutsPanel{margin-top:0!important}
 }
+</style><style id="v70-activities-workspace">
+/* Activity library is a teacher-local overlay; original cards/actions unchanged. */
+#teacher #activitiesPanel:not(.hidden),#teacher #presentationBuilderPanel:not(.hidden){
+  position:fixed!important;z-index:10075!important;
+  left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;
+  width:min(1120px,calc(100vw - 34px))!important;max-width:1120px!important;
+  max-height:calc(100dvh - 32px)!important;min-height:0!important;
+  overflow-y:auto!important;overscroll-behavior:contain!important;
+  margin:0!important;padding:18px 22px 24px!important;
+  background:linear-gradient(155deg,#102944,#071626 76%)!important;
+  border:1px solid #46a9dc!important;border-radius:18px!important;
+  box-shadow:0 0 0 150vmax rgba(0,5,16,.75),0 24px 80px rgba(0,0,0,.6)!important;
+}
+#teacher #activitiesPanel .mode-title{padding-right:110px!important;margin-bottom:10px!important}
+#teacher #activitiesPanel .favorite-wrap{margin-top:8px!important;margin-bottom:12px!important}
+#teacher #activitiesPanel .activity-grid{gap:10px!important}
+#teacher #activitiesPanel .activity-card{min-height:112px!important}
+#teacher .activity-workspace-close{
+  position:sticky!important;top:0!important;float:right!important;z-index:15!important;
+  padding:8px 12px!important;border:1px solid #4cb2dd!important;
+  border-radius:10px!important;background:#154467!important;color:#fff!important;
+  font-size:12px!important;font-weight:800!important;cursor:pointer!important;
+}
+#teacher .activity-workspace-close:hover{background:#26618b!important}
+#teacher .activity-workspace-close:focus-visible{outline:3px solid #a5eaff}
+@media(max-width:650px){
+  #teacher #activitiesPanel:not(.hidden),#teacher #presentationBuilderPanel:not(.hidden){
+    width:calc(100vw - 12px)!important;max-height:calc(100dvh - 14px)!important;
+    padding:12px!important;
+  }
+  #teacher #activitiesPanel .mode-title{padding-right:0!important}
+}
 </style></head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -12895,8 +12927,8 @@ body.role-student .agenda-live-footer{
 
 <section class="main-card mode-card hidden" id="agendaPanel" role="dialog" aria-label="Agenda editor" aria-modal="true"><button type="button" id="agendaModalClose" aria-label="Close agenda">✕ Close</button><div class="mode-title"><div><span class="eyebrow">AGENDA</span><h2>Send something to the class</h2><p>No agenda title — choose text, an image, or YouTube.</p></div></div><div class="agenda-choice" id="agendaChoice"><h3>Choose an agenda</h3><p>Open a saved agenda or make a new one.</p><div class="agenda-choice-grid"><button type="button" id="agendaOpenSaved">📂 Load Agenda<span>Open an agenda saved on this browser</span></button><button type="button" id="agendaCreateNew">✦ New Agenda<span>Name it, then add text, an image, or YouTube</span></button></div><div id="agendaSavedList" class="agenda-saved"></div></div><div class="agenda-editor-actions"><button type="button" id="agendaReturn">← All agendas</button><label>Agenda label<input id="agendaDraftName" maxlength="100" placeholder="e.g. Morning Meeting"></label><button type="button" id="agendaSave">Save Agenda</button></div><div class="agenda-grid"><div class="agenda-stage" id="agendaPreview"></div><div class="agenda-editor"><span class="eyebrow">SEND TO CLASS</span><div class="agenda-tabs"><button class="active" data-agenda-mode="text">▤ Text</button><button data-agenda-mode="image">▧ Image</button><button data-agenda-mode="youtube">▶ YouTube</button></div><div id="agendaTextPane"><textarea id="agendaText">1. Warm-up\n2. Ready check\n3. Class activity</textarea></div><div id="agendaImagePane" class="hidden"><input id="agendaImageFile" type="file" accept="image/*"><small style="color:#8192ab">Choose an image from this device.</small><div class="image-picker-preview" id="agendaImageThumb">No image selected</div></div><div id="agendaYoutubePane" class="hidden"><input id="agendaYoutube" placeholder="Paste a YouTube link"><div class="youtube-preview hidden" id="youtubePreview"></div></div><button class="send-btn" id="sendAgenda">▶ Launch Agenda</button></div></div></section>
 
-<section class="main-card activities-panel hidden" id="activitiesPanel"><div class="mode-title"><div><span class="eyebrow">ACTIVITIES</span><h2 id="activitiesTitle">Apps in Progress</h2><p id="activitiesSubtitle">Browse every available Mothership app and add apps to your 3×3 shortcut grid.</p></div><div class="library-header-actions" id="activitiesHeaderActions"></div></div><div class="favorite-wrap" id="favoriteAppsWrap"><div class="favorite-title"><span class="eyebrow">ACTIVITY SHORTCUTS</span><small style="color:#7f93af">Add, replace, or remove any of the 9 slots</small></div><div class="favorite-grid" id="favoriteGrid"></div></div><div id="assignNote" class="assign-note hidden"></div><div class="activity-grid" id="activityGrid"></div><div class="saved-presentation-picker hidden" id="savedPresentationPicker"></div></section>
-<section class="main-card presentation-builder hidden" id="presentationBuilderPanel"></section>
+<section class="main-card activities-panel hidden" id="activitiesPanel" role="dialog" aria-label="Activities library" aria-modal="true"><button type="button" class="activity-workspace-close" id="activitiesWorkspaceClose">✕ Close</button><div class="mode-title"><div><span class="eyebrow">ACTIVITIES</span><h2 id="activitiesTitle">Apps in Progress</h2><p id="activitiesSubtitle">Browse every available Mothership app and add apps to your 3×3 shortcut grid.</p></div><div class="library-header-actions" id="activitiesHeaderActions"></div></div><div class="favorite-wrap" id="favoriteAppsWrap"><div class="favorite-title"><span class="eyebrow">ACTIVITY SHORTCUTS</span><small style="color:#7f93af">Add, replace, or remove any of the 9 slots</small></div><div class="favorite-grid" id="favoriteGrid"></div></div><div id="assignNote" class="assign-note hidden"></div><div class="activity-grid" id="activityGrid"></div><div class="saved-presentation-picker hidden" id="savedPresentationPicker"></div></section>
+<section class="main-card presentation-builder hidden" id="presentationBuilderPanel" role="dialog" aria-label="Activity presentation editor" aria-modal="true"></section>
 
 <section class="main-card mode-card hidden" id="genericPanel"><div class="generic-box"><span class="eyebrow" id="genericEyebrow">READY CHECK</span><h2 id="genericTitle">Are you ready?</h2><p id="genericCopy">Send a ready check to every student device.</p><div class="choice-row" id="genericActions"><button id="genericAction">Send to class</button></div></div></section>
 
@@ -16845,6 +16877,7 @@ $('#agendaCreateNew').onclick=()=>{state.agendaSavedId='';state.agendaImage='';s
   agendaSetMode('text');agendaChoose(false);updateAgendaDraftPreview()};
 $('#agendaReturn').onclick=()=>agendaChoose(true);
           $('#agendaModalClose').onclick=()=>{state.screen='classroom';render()};
+          $('#activitiesWorkspaceClose').onclick=()=>{state.screen='classroom';state.presentationEditor=null;state.presentationLibraryOpen=false;render()};
 $('#agendaSave').onclick=()=>{const name=$('#agendaDraftName').value.trim();
   if(!name){toast('Please label the agenda');return}
   const mode=state.agendaMode;
