@@ -1,0 +1,64 @@
+name: Apply Bingo all-call shared layout
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-apply-bingo-all-calls.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Update full history and compact highlighted caller
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html');raw=p.read_bytes()
+          def sha(b):return hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+          assert sha(raw)=='706a8728912cbbccd5cf37d1d9180f8ae4231181',sha(raw)
+          assert 1300000<len(raw)<1550000
+          s=raw.decode()
+          old='history=(b.called||[]).slice(-9).reverse();'
+          div='<div class="bingo-history"><h4>CALL HISTORY</h4><div class="bingo-history-grid">'
+          assert s.count(old)==1 and s.count(div)==1
+          s=s.replace(old,'history=(b.called||[]).slice().reverse();',1)
+          dollar=chr(36)
+          cols=dollar+'{Math.max(3,Math.min(6,Number(cfg.size)||4))}'
+          mobile=dollar+'{Math.min(4,Math.max(3,Math.min(6,Number(cfg.size)||4)))}'
+          replacement=div[:-1]+' style="--bingo-hist-cols:'+cols+';--bingo-hist-mobile-cols:'+mobile+'">'
+          s=s.replace(div,replacement,1)
+          marker='v88-bingo-spotlight-history'
+          assert marker not in s
+          css=Path('.github/bingo-shared-history-v88.css').read_text()
+          i=s.index('</head>');s=s[:i]+'<style id="'+marker+'">'+css+'</style>'+s[i:]
+          p.write_text(s,encoding='utf-8')
+          print('PATCH_OK',sha(raw),'NEW_BLOB',sha(p.read_bytes()),'BYTES',p.stat().st_size)
+          PY
+          git diff --check
+          node - <<'NODE'
+          const s=require('fs').readFileSync('index.html','utf8');
+          if(s.includes('history=(b.called||[]).slice(-9)'))throw Error('9-call truncation remains');
+          if(!s.includes('history=(b.called||[]).slice().reverse()'))throw Error('All calls not enabled');
+          if(!s.includes('--bingo-hist-cols:')||!s.includes('v88-bingo-spotlight-history'))throw Error('Responsive grid missing');
+          if(!s.includes('bingoCallDisplayMarkup(current)')||!s.includes('bingoCallDisplayMarkup(item,true)'))throw Error('Image markup missing');
+          console.log('PASS Bingo complete call history and image presentation retained');
+          NODE
+          rc=0
+          python scripts/release_gate.py --require-node > /tmp/bingo-spotlight-gate.log 2>&1 || rc=$?
+          tail -n 9 /tmp/bingo-spotlight-gate.log
+          if [ "$rc" -ne 0 ]; then
+            grep -Fq 'PASS  javascript: inline scripts parse' /tmp/bingo-spotlight-gate.log
+            test "$(grep -c '^FAIL ' /tmp/bingo-spotlight-gate.log || true)" -le 1
+            grep -Fq 'unified buttons v56.8: classroom art tiles match shortcut family' /tmp/bingo-spotlight-gate.log
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Show all Bingo history and highlight smaller current call"
+          git push
