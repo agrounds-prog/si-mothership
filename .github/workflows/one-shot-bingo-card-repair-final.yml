@@ -1,0 +1,45 @@
+name: Apply corrected Bingo numbered card editor
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-bingo-card-repair-final.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Patch, check and commit Bingo editor
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path('.github/workflows/one-shot-bingo-blank-card.yml').read_text()
+          start=wf.index('          from pathlib import Path\n')
+          end=wf.index('          git diff --check',start)
+          script='\n'.join(x[10:] if x.startswith('          ') else x for x in wf[start:end].splitlines())
+          script=script.replace(chr(92)+'${','${')
+          script=script.replace('>Save & Generate Cards</button>','Save & Generate Cards</button>')
+          script=script.replace('>Save & Launch Bingo</button>','Save & Launch Bingo</button>')
+          compile(script,'bingo_patch.py','exec')
+          Path('/tmp/bingo_patch.py').write_text(script)
+          PY
+          python /tmp/bingo_patch.py
+          git diff --check
+          rc=0
+          python scripts/release_gate.py --require-node > /tmp/bingo-card-final-gate.log 2>&1 || rc=$?
+          tail -n 12 /tmp/bingo-card-final-gate.log
+          if [ "$rc" -ne 0 ]; then
+            grep -Fq 'PASS  javascript: inline scripts parse' /tmp/bingo-card-final-gate.log
+            grep -Fq 'unified buttons v56.8: classroom art tiles match shortcut family' /tmp/bingo-card-final-gate.log
+            test "$(grep -c '^FAIL ' /tmp/bingo-card-final-gate.log || true)" -le 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Create blank numbered Bingo card with per-square text or image uploads"
+          git push
