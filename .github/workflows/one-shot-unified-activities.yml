@@ -1,0 +1,82 @@
+name: One-shot unified Activities page
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-unified-activities.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Restore unified activity browsing
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html');raw=p.read_bytes()
+          def sha(d):return hashlib.sha1(b'blob '+str(len(d)).encode()+b'\0'+d).hexdigest()
+          assert sha(raw)=='bcedafdb05cb3092628879a19e065064569d4b1b',f'Unexpected source {sha(raw)}'
+          assert 1300000<len(raw)<1400000
+          s=raw.decode('utf-8')
+          def once(old,new):
+            global s
+            assert s.count(old)==1,(s.count(old),old[:100])
+            s=s.replace(old,new,1)
+          once("title.textContent=shortcutAssigning?'Choose an App for Shortcut':managerVisible?'Shortcut Manager':'Activity Library';","title.textContent='Activity Library';")
+          once("subtitle.textContent=shortcutAssigning?'Select an activity below to replace the selected shortcut, or cancel to return.':managerVisible?'Customize the nine Mission Control launcher buttons. Choose Replace to assign any available app.':'Browse every available app, reopen recent work, and load saved setups.';","subtitle.textContent=shortcutAssigning?'Choose an app below for the selected shortcut, or cancel.':'Browse all apps, reopen recent work, and manage shortcuts from this page.';")
+          once("grid.classList.toggle('hidden',managerVisible&&!shortcutAssigning);","grid.classList.remove('hidden');")
+          once("activityShortcutManagerOpen?'← Back to Library':'⚙ Manage Shortcuts'","activityShortcutManagerOpen?'✕ Hide Shortcuts':'⚙ Manage Shortcuts'")
+          css='''<style id="v74-unified-activities">
+          /* One activity library with optional compact shortcut editor. */
+          #teacher #activitiesPanel.shortcut-manager-view:not(.shortcut-assigning-view) #activityGrid{
+            display:block!important;
+          }
+          #teacher #activitiesPanel #favoriteAppsWrap:not(.hidden){
+            padding:10px 12px!important;margin:4px 0 12px!important;
+          }
+          #teacher #activitiesPanel #favoriteAppsWrap:not(.hidden) .favorite-title{
+            margin:0 0 8px!important;
+          }
+          #teacher #activitiesPanel #favoriteGrid{
+            display:grid!important;
+            grid-template-columns:repeat(3,minmax(0,1fr))!important;
+            gap:8px!important;
+          }
+          #teacher #activitiesPanel #favoriteGrid > *{
+            min-height:0!important;padding:8px!important;
+          }
+          #teacher #activitiesPanel .activity-library-shelves{
+            grid-template-columns:repeat(2,minmax(0,1fr))!important;
+          }
+          #teacher #activitiesPanel #toggleShortcutManagerBtn{
+            font-size:12px!important;padding:8px 12px!important;
+          }
+          @media(max-width:720px){
+            #teacher #activitiesPanel #favoriteGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+            #teacher #activitiesPanel .activity-library-shelves{grid-template-columns:1fr!important}
+          }
+          </style>'''
+          i=s.index('</head>');s=s[:i]+css+s[i:]
+          p.write_text(s,encoding='utf-8')
+          print('INTEGRITY_OK',sha(raw),'NEW_BLOB',sha(p.read_bytes()),'BYTES',p.stat().st_size)
+          PY
+          git diff --check
+          rc=0
+          python scripts/release_gate.py --require-node > /tmp/unified-gate.log 2>&1 || rc=$?
+          tail -n 8 /tmp/unified-gate.log
+          if [ "$rc" -ne 0 ]; then
+            grep -Fxq 'Release gate: 396 passed, 1 failed.' /tmp/unified-gate.log
+            grep -Fxq ' - unified buttons v56.8: classroom art tiles match shortcut family' /tmp/unified-gate.log
+            grep -Fxq 'PASS  javascript: inline scripts parse' /tmp/unified-gate.log
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Keep all Activities visible with compact shortcut editor"
+          git push
