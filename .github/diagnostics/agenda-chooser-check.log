@@ -1,0 +1,402 @@
+SOURCE_CHECK_PASSED 7edffe50ab2ad5640c6b0ca9227760295bb3b7d2 NEW_BLOB 6db3e8565ecfb3bfab8581cf987ff3808721d4f8 BYTES 1346689
+PASS  version: title and server match
+PASS  canonical controls v56.9.3: source style remains
+PASS  canonical controls v56.9.3: runtime patch injection is gone
+PASS  canonical controls v56.9.3: End Session is in the standard control row
+PASS  canonical controls v56.9.3: End Session no longer uses legacy end classes
+PASS  canonical controls v56.9.3: standard launcher footprint is 72x86
+PASS  canonical controls v56.9.3: standard art footprint is 64px
+PASS  canonical controls v56.9.3: End Session inherits standard control geometry
+PASS  canonical controls v56.9.3: legacy danger slot collapses when unused
+PASS  canonical controls v56.9.3: Activity Shortcut inner frame padding is removed
+PASS  html shell: head closes before body opens
+PASS  html shell: release styles are inside head
+PASS  html shell: no split structural tag corruption
+PASS  board calculator: toolbar launch remains
+PASS  board calculator: floating overlay remains
+PASS  board calculator: reuses SI calculator route
+PASS  board calculator: teacher-local open state
+PASS  board calculator: render preserves overlay lifecycle
+PASS  board calculator: whiteboard drawing flow remains
+PASS  board calculator mirror: shared markup remains
+PASS  board calculator mirror: compact read-only shell remains
+PASS  board calculator mirror: teacher iframe snapshot bridge remains
+PASS  board calculator mirror: only public display snapshot is synced
+PASS  board calculator mirror: student BOARD stays controls-only
+PASS  board calculator mirror: close removes shared mirror
+PASS  shared projector: release style remains
+PASS  shared projector: widescreen side HUD remains
+PASS  shared projector: BOARD uses full public height
+PASS  shared projector: BOARD metadata floats over canvas
+PASS  shared projector: narrow-screen fallback remains
+PASS  calculator modeling: server decompresses packaged calculator for visual skin
+PASS  calculator modeling: dedicated SI visual skin remains
+PASS  calculator modeling: key grouping script remains
+PASS  calculator modeling: physical key hierarchy remains
+PASS  calculator modeling: SI branding boundary remains
+PASS  calculator modeling: shared BOARD mirror matches visual family
+PASS  calculator modeling: calculator engine asset remains separate
+PASS  calculator modeling: BOARD mirror privacy boundary remains
+PASS  calculator hifi: dedicated reference-inspired skin remains
+PASS  calculator hifi: light outer rails and teal faceplate remain
+PASS  calculator hifi: compact LCD treatment remains
+PASS  calculator hifi: oval navigation cluster remains
+PASS  calculator hifi: physical key hierarchy remains
+PASS  calculator hifi: SI-only branding remains
+PASS  calculator hifi: shared mirror visual family remains
+PASS  calculator hifi: shared mirror stays read-only
+PASS  calculator hifi: engine and privacy boundaries remain
+PASS  roster detail: avatar-stage wrapper remains
+PASS  roster detail: live chips stay inside avatar stage
+PASS  roster detail: duplicate prompt response suppression remains
+PASS  roster detail: sparse pod layout remains
+PASS  game shows: app registry contains both games
+PASS  game shows: activity seeds contain both runtimes
+PASS  game shows: teacher setup flows remain
+PASS  game shows: shared stages remain
+PASS  game shows: student controllers remain
+PASS  game shows: dedicated action transport is server-authoritative
+PASS  crew survey: buzzer validates armed and eligible
+PASS  crew survey: first buzz atomically closes buzzer
+PASS  crew survey: private answers require winner/current player
+PASS  crew survey: private response is sanitized
+PASS  million: server validates pilot-only command actions
+PASS  million: play-along predictions are server merged
+PASS  million: server owns student lifeline mutations
+PASS  million: reduce signal never exposes answer key through client request
+PASS  crew survey privacy: hidden answer text and values are masked
+PASS  crew survey privacy: private answers do not reach shared screen
+PASS  crew survey privacy: student sees only own private response
+PASS  million privacy: current question strips answer key and clue source
+PASS  million privacy: future questions are hidden
+PASS  million privacy: play-along predictions are role-filtered
+PASS  million privacy: shared/nonpilot selected answer is hidden
+PASS  million privacy: shared poll exposes aggregates without identities
+PASS  server: Python source parses
+PASS  roster refinement: release style remains
+PASS  roster refinement: one/two student hero layout remains
+PASS  roster refinement: active alert rails remain
+PASS  roster refinement: connected-state dot remains
+PASS  game show visual refinement: release style remains
+PASS  crew survey refinement: stage framing remains
+PASS  crew survey refinement: tactile student buzzer remains
+PASS  million refinement: stage framing remains
+PASS  million refinement: command seat emphasis remains
+PASS  shortcut manager: release style remains
+PASS  shortcut manager: remove and replace helpers remain
+PASS  shortcut manager: activities surface exposes all slot controls
+PASS  shortcut manager: assignment replaces occupied slot
+PASS  shortcut manager: changes persist locally
+PASS  classroom QA: roster derives help, hand, and buzz independently
+PASS  classroom QA: first-buzzer ordering remains visible
+PASS  classroom QA: sparse roster uses integrated signal dock
+PASS  classroom QA: shortcut removal only clears the shortcut slot
+PASS  classroom QA: shortcut replacement keeps duplicate-slot cleanup
+PASS  classroom polish: release style remains
+PASS  classroom polish: integrated buzz hand help styles remain
+PASS  activity library: release style remains
+PASS  activity library: search remains teacher-local
+PASS  activity library: category filters remain
+PASS  activity library: every registered app category is represented
+PASS  activity library: recent shelf precedes saved presets
+PASS  activity library: catalog filters before rendering
+PASS  activity library: shortcut management remains available
+PASS  javascript: inline scripts parse
+PASS  calculator: packaged source assets exist
+PASS  calculator: packaged source assets decompress
+PASS  calculator: standalone route remains configured
+PASS  calculator: four-line familiar UI remains
+PASS  calculator: SI branding/IP boundary remains
+PASS  calculator: expression engine does not use eval
+PASS  calculator: inline app script parses
+PASS  calculator: engine acceptance tests pass
+PASS  calculator classroom: tool registered in Activity Library
+PASS  calculator classroom: teacher actions remain present
+PASS  calculator classroom: launch payload is settings-only
+PASS  calculator classroom: student panel and return control remain
+PASS  calculator classroom: calculator runs in existing standalone route
+PASS  calculator classroom: normal activity launch closes calculator
+PASS  calculator popup: teacher launcher requests stationary popup
+PASS  calculator popup: class launch also opens teacher modeling window
+PASS  calculator popup: route injects popup skin only when requested
+PASS  calculator popup: calculator is pinned to browser content origin
+PASS  calculator popup: normal physical calculator proportions remain
+PASS  calculator bare popup: release style remains
+PASS  calculator bare popup: tool-page chrome is removed from popup body
+PASS  calculator stable popup: window never resizes itself
+PASS  calculator stable popup: no layout observer feedback loop
+PASS  calculator stable popup: preferred device scale is compact
+PASS  calculator stable popup: full visible descendants determine fit
+PASS  calculator stable popup: calculator scales to current viewport
+PASS  calculator stable popup: manual teacher resize only rescales content
+PASS  calculator stable popup: launch stays near screen origin
+PASS  calculator readable popup: compact overlay window remains
+PASS  calculator readable popup: preferred scale remains whole-device bounded
+PASS  calculator readable popup: LCD text gets slight popup-only boost
+PASS  calculator reference layout: release style remains
+PASS  calculator reference layout: top deck is three controls plus nav
+PASS  calculator reference layout: clear is secondary legend not a fourth top key
+PASS  calculator reference layout: remaining keypad is five columns
+PASS  calculator reference layout: silver rails and teal center remain
+PASS  calculator reference layout: solar panel and SI maker line remain
+PASS  calculator reference layout: number and operator hierarchy remain
+PASS  calculator physical layout: release style remains
+PASS  calculator physical layout: explicit seven-by-five key map remains
+PASS  calculator physical layout: number block is pinned to reference rows
+PASS  calculator physical layout: arithmetic column is explicit
+PASS  calculator physical layout: function rows are identity-mapped
+PASS  calculator physical layout: green second key and circular nav remain
+PASS  calculator physical layout: matrix placement is explicit
+PASS  calculator visual fidelity: release style remains
+PASS  calculator visual fidelity: tapered shell and silver rails remain
+PASS  calculator visual fidelity: physical LCD height tracks final reference
+PASS  calculator visual fidelity: popup does not inflate mapped key height
+PASS  calculator visual fidelity: nav has bright reference bezel
+PASS  calculator visual fidelity: function and numeric key shapes differ
+PASS  calculator visual fidelity: secondary legends float above keys
+PASS  calculator reference accurate: release style and script remain
+PASS  calculator reference accurate: upper face is three rows by five columns
+PASS  calculator reference accurate: nav spans upper two rows
+PASS  calculator reference accurate: physical log-prb-data positions remain
+PASS  calculator reference accurate: lower keypad is six by five
+PASS  calculator polish: release style remains
+PASS  calculator polish: shell keeps stronger silver rails
+PASS  calculator polish: shell silhouette remains tapered
+PASS  calculator polish: LCD uses darker physical bezel
+PASS  calculator polish: nav remains on silver island
+PASS  calculator polish: green second key remains
+PASS  calculator polish: white numeric block remains
+PASS  calculator polish: secondary legends remain lime
+PASS  calculator fidelity v55.19: release style remains
+PASS  calculator fidelity v55.19: shell rails and taper remain
+PASS  calculator fidelity v55.19: compact LCD bezel remains
+PASS  calculator fidelity v55.19: physical control deck geometry remains
+PASS  calculator fidelity v55.19: oval nav remains on silver island
+PASS  calculator fidelity v55.19: keypad rhythm remains
+PASS  calculator fidelity v55.19: numeric labels stay prominent
+PASS  calculator fidelity v55.19: popup remains stationary
+PASS  calculator screenshot correction v55.21: release style remains
+PASS  calculator screenshot correction v55.21: duplicate decorative nav is hidden
+PASS  calculator screenshot correction v55.21: compact LCD restored
+PASS  calculator screenshot correction v55.21: compact control rows restored
+PASS  calculator screenshot correction v55.21: popup window contract unchanged
+PASS  calculator popup fit v55.22: release style remains
+PASS  calculator popup fit v55.22: number rows have non-overlap height
+PASS  calculator popup fit v55.22: preferred scale reduced
+PASS  calculator popup fit v55.22: smaller emergency floor allowed
+PASS  calculator popup fit v55.22: finite post-layout checks remain
+PASS  calculator popup fit v55.22: no automatic window resize introduced
+PASS  shared screen preview v55.38: release style remains
+PASS  shared screen preview v55.38: desktop rail expands substantially
+PASS  shared screen preview v55.38: responsive rail fallbacks remain
+PASS  shared screen preview v55.38: mirror stays responsive 16:9
+PASS  shared screen preview v55.38: lobby details scale with monitor
+PASS  shared screen preview v55.38: compact-width mirror can span wider
+PASS  shared screen preview v55.37: release style remains
+PASS  shared screen preview v55.37: desktop rail widens
+PASS  shared screen preview v55.37: medium rail remains responsive
+PASS  shared screen preview v55.37: mirror remains 16:9
+PASS  shared screen preview v55.36: release style remains
+PASS  shared screen preview v55.36: 16:9 frame restored
+PASS  shared screen preview v55.36: mirror content is flexible
+PASS  shared screen preview v55.36: lobby qr fits preview
+PASS  dashboard fit v55.35: release style remains
+PASS  dashboard fit v55.35: long roster labels are constrained
+PASS  dashboard fit v55.35: large rosters stay bounded
+PASS  dashboard fit v55.35: mission controls wrap at laptop widths
+PASS  dashboard fit v55.35: active inboxes are bounded
+PASS  dashboard fit v55.35: student keyboard safe area remains protected
+PASS  right rail v55.34: release style remains
+PASS  right rail v55.34: inbox panels get empty-state class
+PASS  right rail v55.34: empty panels collapse
+PASS  right rail v55.34: shared screen preview is compact
+PASS  student join v55.33: release style remains
+PASS  student join v55.33: avatar tap advances directly
+PASS  student join v55.33: avatar footer is removed
+PASS  student join v55.33: dedicated name nickname screen remains
+PASS  student join v55.33: mobile join action stays viewport-safe
+PASS  snug roster cards v55.32: release style remains
+PASS  snug roster cards v55.32: one-two student cards hug content
+PASS  snug roster cards v55.32: avatar and text gap reduced
+PASS  snug roster cards v55.32: three-four student cards hug content
+PASS  compact roster pods v55.31: release style remains
+PASS  compact roster pods v55.31: one-two student pods tighten
+PASS  compact roster pods v55.31: three-four student pods tighten
+PASS  compact roster pods v55.31: roster state remains presentation-only
+PASS  single mission control v55.30: release style remains
+PASS  single mission control v55.30: visible control order is simplified
+PASS  single mission control v55.30: redundant controls are hidden compatibility hooks
+PASS  single mission control v55.30: emergency and end remain visible
+PASS  single mission control v55.30: legacy group frames removed from visible bar
+PASS  mission control header v55.29: release style remains
+PASS  mission control header v55.29: activity context moved into header
+PASS  mission control header v55.29: workflow actions live in session group
+PASS  mission control header v55.29: legacy activity strip is visually suppressed
+PASS  mission control header v55.29: workflow handlers remain wired
+PASS  live roster compact v55.28: release style remains
+PASS  live roster compact v55.28: one-two student hero pods reduced
+PASS  live roster compact v55.28: three-four student pods reduced
+PASS  live roster compact v55.28: roster behavior remains presentation-only
+PASS  match completion v55.27: release style remains
+PASS  match completion v55.27: launch settings remain separate from saved sets
+PASS  match completion v55.27: recommended team defaults remain
+PASS  match completion v55.27: authoritative team rotation remains
+PASS  match completion v55.27: match-go-again rule remains
+PASS  match completion v55.27: team scoring remains
+PASS  match completion v55.27: crew consult request path remains private
+PASS  match completion v55.27: consult privacy filter remains
+PASS  match completion v55.27: end-game options remain
+PASS  match completion v55.27: new teams reshuffles assignments
+PASS  match completion v55.27: session summary captures scores
+PASS  bingo gameplay v55.26: release style remains
+PASS  bingo gameplay v55.26: server-authoritative transport remains
+PASS  bingo gameplay v55.26: marks require called card item
+PASS  bingo gameplay v55.26: claim verification supports configured patterns
+PASS  bingo gameplay v55.26: private card state is role filtered
+PASS  bingo gameplay v55.26: teacher caller controls remain
+PASS  bingo gameplay v55.26: private student mark and claim controls remain
+PASS  bingo gameplay v55.26: valid and not-yet feedback remains
+PASS  bingo gameplay v55.26: claim queue and reveal controls remain
+PASS  bingo gameplay v55.26: shared reveal contains only winning card snapshot
+PASS  match gameplay v55.25: release style remains
+PASS  match gameplay v55.25: server-authoritative action transport remains
+PASS  match gameplay v55.25: active-player validation remains
+PASS  match gameplay v55.25: automatic pair detection remains
+PASS  match gameplay v55.25: match and miss resolution remains
+PASS  match gameplay v55.25: bounded undo history remains
+PASS  match gameplay v55.25: mission control recovery actions remain
+PASS  match gameplay v55.25: student tile controls remain private to active turn
+PASS  match gameplay v55.25: finite reveal timer remains teacher-only
+PASS  match gameplay v55.25: scoring and completion remain
+PASS  match+bingo foundation v55.24: release style remains
+PASS  match+bingo foundation v55.24: both apps are registered
+PASS  match+bingo foundation v55.24: activity seeds remain
+PASS  match+bingo foundation v55.24: shared image library persists
+PASS  match+bingo foundation v55.24: saved set stores persist
+PASS  match+bingo foundation v55.24: MATCH builder and launch state remain
+PASS  match+bingo foundation v55.24: BINGO builder and private-card generator remain
+PASS  match+bingo foundation v55.24: shared and student render branches remain
+PASS  calculator key alignment v55.23: release style remains
+PASS  calculator key alignment v55.23: digit matcher uses action and label fallbacks
+PASS  calculator key alignment v55.23: extras cannot overwrite row six
+PASS  calculator key alignment v55.23: five columns remain explicit
+PASS  calculator key alignment v55.23: operation column is muted
+PASS  calculator key alignment v55.23: popup gets bottom safety margin
+PASS  calculator reference accurate: arithmetic column remains physical
+PASS  calculator reference accurate: number block remains pinned
+PASS  calculator reference accurate: physical white nav surround remains
+PASS  calculator reference accurate: SI-30XS face branding remains
+PASS  calculator reference accurate: popup remains stable
+PASS  space station v56.0: dedicated visual system remains
+PASS  space station v56.0: legacy device testing tabs removed
+PASS  space station v56.0: join code remains in unified header
+PASS  space station v56.0: teacher control behavior hooks remain
+PASS  space station v56.0: avatar-forward neon controls remain
+PASS  space station v56.0: command viewport remains
+PASS  space station v56.0: activity modules remain dimensional
+PASS  space station v56.0: shared screen monitor styling remains
+PASS  command deck v56.1: dedicated polish layer remains
+PASS  command deck v56.1: console modules remain avatar-inspired
+PASS  command deck v56.1: cockpit framing remains
+PASS  command deck v56.1: roster pod polish remains
+PASS  command deck v56.1: activity modules remain dimensional
+PASS  command deck v56.1: right rail monitor polish remains
+PASS  illustrated controls v56.2: dedicated artwork layer remains
+PASS  illustrated controls v56.2: embedded WebP sprite remains
+PASS  illustrated controls v56.2: all primary control art classes remain
+PASS  illustrated controls v56.2: shortcut image mapping remains
+PASS  illustrated controls v56.2: image tiles stay interactive through original hooks
+PASS  illustrated controls v56.2: sprite positions cover shortcut row
+PASS  activity library v56.3: dedicated integration layer remains
+PASS  activity library v56.3: shortcut manager uses illustrated assets
+PASS  activity library v56.3: recent shelf uses illustrated assets
+PASS  activity library v56.3: presets carry artwork identity
+PASS  activity library v56.3: catalog cards use illustrated assets
+PASS  activity library v56.3: top illustrated controls remain crisp
+PASS  activity library v56.3: shortcut actions remain functional
+PASS  station modules v56.4: dedicated integration layer remains
+PASS  station modules v56.4: roster header uses illustrated badge
+PASS  station modules v56.4: right rail modules use illustrated badges
+PASS  station modules v56.4: shared screen module keeps illustrated badge
+PASS  station modules v56.4: empty roster gets illustrated scanner state
+PASS  station modules v56.4: ended panel keeps illustrated mission-complete art
+PASS  station modules v56.4: shared screen functionality hooks remain
+PASS  illustrated assets v56.5: dedicated refinement layer remains
+PASS  illustrated assets v56.5: artwork gets per-module accent framing
+PASS  illustrated assets v56.5: primary control art remains prominent
+PASS  illustrated assets v56.5: state styling stays on hardware frame
+PASS  illustrated assets v56.5: shortcut art remains enlarged and crisp
+PASS  illustrated assets v56.5: activity library art refinement remains
+PASS  illustrated assets v56.5: original behavior hooks remain
+PASS  command header v56.6: dedicated polish layer remains
+PASS  command header v56.6: illustrated brand module remains
+PASS  command header v56.6: live status block remains
+PASS  command header v56.6: class and join-code modules remain
+PASS  command header v56.6: cinematic viewport remains
+PASS  command header v56.6: mission metrics remain dynamic
+PASS  command header v56.6: reset behavior hook remains
+PASS  command header v56.6: teacher mission title remains dynamic
+PASS  button system v56.7: dedicated cleanup layer remains
+PASS  button system v56.7: mission-control module geometry is normalized
+PASS  button system v56.7: recognizable top control overlays remain
+PASS  button system v56.7: activity launcher tiles remain normalized
+PASS  button system v56.7: one-student crew pod polish remains
+PASS  button system v56.7: literal escaped header gap is removed
+PASS  button system v56.7: classroom behavior hooks remain
+PASS  unified buttons v56.8: dedicated layer remains
+PASS  unified buttons v56.8: activity shortcuts are centered fixed modules
+PASS  unified buttons v56.8: classroom controls use launcher geometry
+FAIL  unified buttons v56.8: classroom art tiles match shortcut family
+PASS  unified buttons v56.8: state styling stays on art tiles
+PASS  unified buttons v56.8: end session joins unified family
+PASS  unified buttons v56.8: behavior hooks remain
+PASS  shortcut centering v56.8.1: dedicated fix layer remains
+PASS  shortcut centering v56.8.1: shortcut cluster uses intrinsic width
+PASS  shortcut centering v56.8.1: desktop nine-slot geometry remains
+PASS  shortcut centering v56.8.1: responsive groups remain centered
+PASS  selectors: no $().forEach misuse
+PASS  summary: all major launch paths call recordActivityLaunch
+PASS  privacy: teacher keys are server-persisted
+PASS  privacy: teacher keys are not public storage
+PASS  privacy: teacher bookkeeping remains outside synchronized state
+PASS  privacy: shared snapshot has no teacher-history key references
+PASS  workflow: pause preserves activityRun
+PASS  workflow: finish routes through normal classroom return
+PASS  workflow: normal return clears activityRun
+PASS  workflow: emergency return remains distinct
+PASS  workflow: explicit Pause & Keep Progress UI remains
+PASS  workflow: explicit Finish & Return UI remains
+PASS  history: completed session persisted from End Session
+PASS  history: normalized records omit raw photo/help payload fields
+PASS  sketch: board surface remains 4:3
+PASS  sketch: shared live-ink patch path remains
+PASS  sketch: live patch targets shared sketch SVG
+PASS  sketch: scoring hooks remain
+PASS  starwheel: server validates active pilot
+PASS  starwheel: server owns random spin
+PASS  starwheel: dedicated action transport remains
+PASS  starwheel: active pilot main card exposes spin
+PASS  starwheel: consonant grid remains student-selectable
+PASS  starwheel: numeric spin enters consonant stage
+PASS  starwheel: consonant selection returns to ready
+PASS  starwheel: consonants exclude vowels and repeats
+PASS  starwheel: vowels are accepted only from ready
+PASS  starwheel: correct letters preserve control and misses rotate
+PASS  starwheel: wheel landing uses relative delta
+PASS  starwheel: server preserves previous wheel angle
+PASS  starwheel: browser animates once per spin nonce
+PASS  starwheel: browser animates previous to final angle
+PASS  starwheel: selected sector is explicitly marked
+PASS  starwheel: student stage instructions remain explicit
+PASS  starwheel: server owns scoring updates
+PASS  starwheel: private solve review remains
+PASS  starwheel: answer hidden from student role
+PASS  starwheel: pending solve hidden from non-teacher state
+PASS  starwheel: puzzle-pack persistence remains
+PASS  starwheel: special sectors and Final Signal remain
+PASS  persistence: presets and recents remain present
+PASS  server: /api/health remains configured
+
+Release gate: 396 passed, 1 failed.
+Failed checks:
+ - unified buttons v56.8: classroom art tiles match shortcut family
