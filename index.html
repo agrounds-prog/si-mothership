@@ -13893,6 +13893,130 @@ body.role-student .agenda-live-footer{
 }
 @media(prefers-reduced-motion:reduce){
   #shared .starwheel-wheel{animation:none!important}
+}</style><style id="v90-starwheel-premium-wheel">/* STARWHEEL premium wheel v90 — cosmetic only; spin target/animation unchanged. */
+#shared .starwheel-wheel-shell{
+  --sw-orbit:clamp(112px,12.8vw,151px);
+  width:min(420px,35vw)!important;
+  max-width:100%!important;
+  filter:drop-shadow(0 11px 24px rgba(2,8,29,.62));
+  isolation:isolate;
+}
+#shared .starwheel-wheel-shell::before{
+  content:"";position:absolute;inset:-1.1%;
+  border-radius:50%;pointer-events:none;z-index:0;
+  background:radial-gradient(circle at 30% 24%,rgba(255,255,255,.32),transparent 35%),
+    linear-gradient(140deg,#fff6d1 0%,#ffc24d 13%,#784221 27%,#ffe49a 48%,#ad6d3a 68%,#fef1cb 90%);
+  box-shadow:0 0 0 4px #0c3063,0 0 0 7px #50a7e6,0 0 24px 6px #24aaff55,
+    inset 0 0 10px 4px #432211;
+}
+#shared .starwheel-wheel-shell::after{
+  content:"";position:absolute;inset:-1.5%;z-index:3;border-radius:50%;
+  background:repeating-conic-gradient(from 0deg,#fffcd3 0deg 2.2deg,#e5a545 2.2deg 3.1deg,transparent 3.2deg 15deg);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 13px),#000 calc(100% - 12px) calc(100% - 5px),transparent calc(100% - 4px));
+  mask:radial-gradient(farthest-side,transparent calc(100% - 13px),#000 calc(100% - 12px) calc(100% - 5px),transparent calc(100% - 4px));
+  filter:drop-shadow(0 0 5px #ffdd79);
+  pointer-events:none;
+}
+#shared .starwheel-wheel{
+  z-index:1;
+  width:91%!important;height:91%!important;
+  border:7px solid #ffe8a2!important;
+  background-clip:padding-box!important;
+  box-shadow:0 0 0 3px #70451d,0 0 0 5px #fbe5a5,
+    inset 0 0 0 2px #ffffffa3,inset 0 0 35px 9px #03183b7a,
+    0 4px 18px #0008!important;
+}
+#shared .starwheel-wheel::before{
+  content:"";position:absolute;inset:0;z-index:0;
+  border-radius:50%;pointer-events:none;
+  background:radial-gradient(ellipse at 32% 22%,#fff9 0%,transparent 42%),
+    radial-gradient(circle at 50% 50%,transparent 28%,#07102b24 57%,#0310269e 100%);
+  box-shadow:inset 0 0 0 3px #ffffff44,inset 0 0 28px #0005;
+}
+#shared .starwheel-wheel::after{
+  content:"✦"!important;
+  z-index:4;width:27%!important;height:27%!important;
+  border:6px solid #ffe6a4!important;
+  border-radius:50%!important;
+  color:#fff5bf!important;
+  font-size:clamp(38px,4vw,58px)!important;
+  background:radial-gradient(circle at 30% 22%,#55d4ff,#164f94 45%,#070f42 84%)!important;
+  text-shadow:0 2px 2px #000a,0 0 19px #7cdaff!important;
+  box-shadow:0 0 0 4px #724e2b,0 0 0 7px #ffe7ab,
+    0 0 15px 3px #ffcc7180,inset 0 2px 7px #ffffff88!important;
+}
+#shared .starwheel-sector{
+  z-index:2;
+  transform:rotate(var(--sw-sector-angle)) translateY(calc(-1 * var(--sw-orbit))) rotate(calc(-1 * var(--sw-sector-angle))) translate(-50%,-50%)!important;
+  min-width:clamp(45px,4.35vw,65px)!important;
+  padding:5px 4px!important;
+  text-align:center!important;
+  border:1px solid #ffffffbd!important;
+  border-radius:7px!important;
+  background:linear-gradient(170deg,#071836d6,#09163dcc)!important;
+  box-shadow:inset 0 1px 0 #ffffff45,0 3px 5px #0008!important;
+  color:#fff!important;
+  font-size:clamp(13px,1.27vw,19px)!important;
+  font-weight:1000!important;
+  line-height:1.12!important;
+  letter-spacing:.005em!important;
+  text-shadow:0 2px 3px #000!important;
+  white-space:nowrap!important;
+}
+#shared .starwheel-sector.special{
+  border-color:#ffe5a1!important;
+  color:#fff5ad!important;
+  background:linear-gradient(170deg,#3e1a5be0,#161444ed)!important;
+  box-shadow:inset 0 1px 0 #ffffff55,0 0 10px #ffe37e4b,0 3px 5px #0009!important;
+}
+#shared .starwheel-pointer{
+  top:-29px!important;
+  left:50%!important;transform:translateX(-50%);
+  z-index:8!important;
+  width:60px;height:61px;
+  display:flex;justify-content:center;align-items:flex-start;
+  font-size:0!important;color:transparent!important;
+  filter:drop-shadow(0 5px 3px #0009);
+}
+#shared .starwheel-pointer::before{
+  content:"";width:0;height:0;position:absolute;top:12px;
+  border-left:22px solid transparent;border-right:22px solid transparent;
+  border-top:39px solid #ffcf60;
+  filter:drop-shadow(0 0 4px #ffe56b);
+}
+#shared .starwheel-pointer::after{
+  content:"";position:absolute;top:0;width:42px;height:19px;
+  border:3px solid #ffebb7;border-radius:13px;
+  background:linear-gradient(180deg,#fff3b8,#b67b2a);
+  box-shadow:0 0 11px #ffce6d91;
+}
+#shared .starwheel-spin-value{
+  width:max-content;max-width:100%;
+  margin:15px auto 0!important;
+  padding:9px 20px!important;
+  border:2px solid #e7ac4a!important;
+  border-radius:999px!important;
+  background:linear-gradient(180deg,#422856,#1c2149)!important;
+  color:#ffe49a!important;
+  box-shadow:0 0 15px #ffc55933!important;
+  font-size:clamp(21px,2.35vw,31px)!important;
+}
+@media(max-width:930px){
+  #shared .starwheel-wheel-shell{width:min(395px,65vw)!important;--sw-orbit:clamp(113px,22vw,140px)}
+}
+@media(max-width:560px){
+  #shared .starwheel-wheel-shell{width:min(330px,78vw)!important;--sw-orbit:clamp(87px,25vw,122px)}
+  #shared .starwheel-sector{font-size:clamp(10px,2.6vw,14px)!important;min-width:40px!important;padding:3px!important}
+  #shared .starwheel-pointer{top:-25px!important;transform:translateX(-50%) scale(.8)!important}
+  #shared .starwheel-wheel::after{font-size:32px!important;border-width:4px!important}
+}
+@media(max-height:690px) and (min-width:931px){
+  #shared .starwheel-wheel-shell{width:min(320px,27vw)!important;--sw-orbit:clamp(95px,10.2vw,114px)}
+  #shared .starwheel-sector{font-size:clamp(11px,1vw,15px)!important;min-width:42px!important}
+  #shared .starwheel-pointer{transform:translateX(-50%) scale(.75)!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #shared .starwheel-wheel{animation:none!important}
 }</style></head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -15363,7 +15487,7 @@ function starwheelRotationMarkup(run=state.activityRun){
 }
 function starwheelWheelMarkup(run=state.activityRun){
   const sw=starwheelState(run)||{},deg=Number(sw.spinDeg||0),sectors=starwheelWheelSectors(run),step=360/sectors.length,spinLabel=sw.spinLabel||(sw.spinValue?Number(sw.spinValue).toLocaleString():'');
-  return `<div class="starwheel-wheel-shell" data-spin-nonce="${Number(sw.spinNonce||0)}" data-spin-index="${sw.spinIndex==null?'':Number(sw.spinIndex)}"><div class="starwheel-pointer">▼</div><div class="starwheel-wheel" data-starwheel-wheel data-spin-from="${Number(sw.spinFromDeg||0)}" data-spin-target="${deg}" style="--sw-spin:${deg}deg;background:${starwheelGradient(sectors)}">${sectors.map((sector,i)=>{const angle=i*step+step/2;return `<span class="starwheel-sector ${sector.kind!=='number'?'special':''} ${Number(sw.spinIndex)===i?'landed':''}" data-sector-index="${i}" title="${esc(sector.label)}" style="transform:rotate(${angle}deg) translate(0,-132px) rotate(-${angle}deg)">${esc(sector.short)}</span>`}).join('')}</div></div><div class="starwheel-spin-value">${spinLabel?`CORE · ${esc(spinLabel)}`:'SPIN THE CORE'}</div>`;
+  return `<div class="starwheel-wheel-shell" data-spin-nonce="${Number(sw.spinNonce||0)}" data-spin-index="${sw.spinIndex==null?'':Number(sw.spinIndex)}"><div class="starwheel-pointer">▼</div><div class="starwheel-wheel" data-starwheel-wheel data-spin-from="${Number(sw.spinFromDeg||0)}" data-spin-target="${deg}" style="--sw-spin:${deg}deg;background:${starwheelGradient(sectors)}">${sectors.map((sector,i)=>{const angle=i*step+step/2;return `<span class="starwheel-sector ${sector.kind!=='number'?'special':''} ${Number(sw.spinIndex)===i?'landed':''}" data-sector-index="${i}" title="${esc(sector.label)}" style="--sw-sector-angle:${angle}deg;transform:rotate(${angle}deg) translate(0,-132px) rotate(-${angle}deg)">${esc(sector.short)}</span>`}).join('')}</div></div><div class="starwheel-spin-value">${spinLabel?`CORE · ${esc(spinLabel)}`:'SPIN THE CORE'}</div>`;
 }
 function starwheelSharedMarkup(run=state.activityRun,big=false){
   const cfg=run?.starwheelConfig||{},sw=starwheelState(run),pilot=starwheelActivePilot(run);if(!sw)return'';
