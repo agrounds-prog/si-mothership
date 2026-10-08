@@ -1,0 +1,59 @@
+name: One-shot cinematic teacher shell
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-cinematic-shell.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Guarded cinematic shell CSS
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html')
+          raw=p.read_bytes()
+          digest=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+          assert digest=='3312467ef628fa39fe9047831820fdbe51b5c205',f'Stale blob {digest}'
+          assert 1300000<len(raw)<1400000
+          s=raw.decode('utf-8')
+          marker='id="v60-cinematic-mission-shell"'
+          assert marker not in s
+          for selector in ('.teacher-controlbar','.roster-card','.attention-panel','.screen-dock','.teacher-live-strip'):
+            assert selector in s,selector
+          css='''<style id="v60-cinematic-mission-shell">
+          /* Cinematic mission-control skin, CSS-only; no student or teacher handlers altered. */
+          #teacher{background-color:#06101f!important;background-image:radial-gradient(ellipse at 52% -20%,rgba(29,104,178,.27),transparent 58%),radial-gradient(ellipse at 100% 30%,rgba(17,93,161,.14),transparent 38%),linear-gradient(180deg,#07172c 0%,#040a16 100%)!important}
+          #teacher .teacher-controlbar{border:1px solid rgba(60,189,255,.48)!important;border-radius:18px!important;background:linear-gradient(155deg,rgba(11,35,65,.96),rgba(5,15,32,.97))!important;box-shadow:0 0 0 1px rgba(0,107,206,.12),0 15px 34px rgba(0,0,0,.33),inset 0 1px rgba(190,229,255,.12)!important}
+          #teacher .roster-card,#teacher .attention-panel,#teacher .screen-dock{border:1px solid rgba(41,172,248,.58)!important;border-radius:18px!important;background:linear-gradient(158deg,rgba(12,35,65,.97),rgba(4,15,31,.98))!important;box-shadow:0 0 0 1px rgba(2,100,194,.12),0 13px 29px rgba(0,0,0,.3),inset 0 1px rgba(144,216,255,.12)!important;overflow:hidden}
+          #teacher .roster-card .roster-head,#teacher .attention-panel .section-heading,#teacher .screen-dock .screen-dock-head{background:linear-gradient(90deg,rgba(20,69,114,.43),rgba(6,24,48,.18))!important;border-bottom:1px solid rgba(70,180,255,.2)!important;padding-top:10px!important;padding-bottom:10px!important}
+          #teacher .teacher-controlbar .control{border-radius:12px!important;box-shadow:inset 0 1px rgba(255,255,255,.09),0 3px 12px rgba(0,0,0,.2)!important;transition:filter .16s ease,box-shadow .16s ease,transform .16s ease!important}
+          #teacher .teacher-controlbar .control:hover{filter:brightness(1.17);box-shadow:0 0 0 1px rgba(88,204,255,.45),0 0 17px rgba(20,135,250,.18)!important}
+          #teacher .teacher-controlbar .control:active{transform:translateY(1px)}
+          #teacher .teacher-live-strip{border:1px solid rgba(60,171,244,.3)!important;border-radius:13px!important;background:linear-gradient(90deg,rgba(12,43,75,.75),rgba(7,24,44,.55))!important}
+          #teacher .attention-summary{border-radius:12px!important}
+          #teacher .screen-dock .mirror-screen{border:1px solid rgba(65,181,247,.34)!important;border-radius:13px!important;background:#040d1d!important;box-shadow:inset 0 0 24px rgba(12,90,154,.12)!important}
+          @media(prefers-reduced-motion:reduce){#teacher .teacher-controlbar .control{transition:none!important}}
+          </style>
+          '''
+          i=s.index('</head>')
+          s=s[:i]+css+s[i:]
+          assert s.count(marker)==1 and s.index(marker)<s.index('</head>')
+          p.write_text(s,encoding='utf-8')
+          new=p.read_bytes()
+          print('SOURCE_OK',digest,'NEW_BLOB',hashlib.sha1(b'blob '+str(len(new)).encode()+b'\0'+new).hexdigest(),'NEW_BYTES',len(new))
+          PY
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Begin cinematic Mission Control shell"
+          git push
