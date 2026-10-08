@@ -1,0 +1,66 @@
+name: One-shot Minefield shared arcade visual
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-minefield-shared-arcade.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Guarded shared-only Minefield reskin
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('index.html');raw=p.read_bytes()
+          def blob(b):return hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+          assert blob(raw)=='d7036756778f2164187268693195d9c1883364ff',f'Unexpected index revision {blob(raw)}'
+          assert 1300000<len(raw)<1550000
+          s=raw.decode('utf-8')
+          for required in ['function minefieldBoardMarkup(', 'function minefieldNarrationMarkup(', 'function resolveMinefieldMove(', 'minefield-public', 'minefield-cell', 'minefield-narrator', 'minefield-student-board']:
+            assert required in s,required
+          assert 'v93-minefield-shared-arcade' not in s
+          css=Path('.github/minefield-shared-arcade-v93.css').read_text()
+          assert '#shared .minefield-public:has(> .minefield-narrator)' in css
+          assert '#shared .minefield-board .minefield-cell' in css
+          assert 'body.role-student' not in css and '#teacher' not in css
+          assert len(css)>9000 and len(css)<13000
+          head=s.index('</head>')
+          s=s[:head]+'<style id="v93-minefield-shared-arcade">'+css+'</style>'+s[head:]
+          p.write_text(s,encoding='utf-8')
+          print('ORIGINAL_BLOB',blob(raw),'PATCHED_BLOB',blob(p.read_bytes()),'BYTES',p.stat().st_size)
+          PY
+          git diff --check
+          node - <<'NODE'
+          const fs=require('fs'),s=fs.readFileSync('index.html','utf8');
+          function range(a,b){const i=s.indexOf(a),j=s.indexOf(b,i);if(i<0||j<0)throw Error('Missing '+a);return s.slice(i,j);}
+          const board=range('function minefieldBoardMarkup(','function minefieldHullMarkup(');
+          for(const text of ['data-mf-cell','data-mf-teacher-cell','title="Sector','minefieldSymbol(t,current,showHidden)','grid-template-columns:22px repeat(']){
+            if(!board.includes(text))throw Error('Minefield game board hook removed: '+text);
+          }
+          const narration=range('function minefieldNarrationMarkup(','function minefieldOutcomeNarration(');
+          for(const text of ['minefield-narrator','minefield-narrator-latest','minefield-event-log'])if(!narration.includes(text))throw Error('Narrator hook removed: '+text);
+          if(!s.includes('<style id="v93-minefield-shared-arcade">'))throw Error('Shared visual layer missing');
+          if(!s.includes('minefieldBoardMarkup(run,{big,teamIndex})'))throw Error('Shared board rendering changed');
+          console.log('PASS Minefield tile handling, narration, and shared board unchanged');
+          NODE
+          rc=0
+          python scripts/release_gate.py --require-node > /tmp/minefield-shared-gate.log 2>&1 || rc=$?
+          tail -n 12 /tmp/minefield-shared-gate.log
+          if [ "$rc" -ne 0 ]; then
+            grep -Fq 'PASS  javascript: inline scripts parse' /tmp/minefield-shared-gate.log
+            test "$(grep -c '^FAIL ' /tmp/minefield-shared-gate.log || true)" -le 1
+            grep -Fq 'unified buttons v56.8: classroom art tiles match shortcut family' /tmp/minefield-shared-gate.log
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Give Minefield shared screen a tactical arcade layout"
+          git push
