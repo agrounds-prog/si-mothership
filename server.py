@@ -3997,9 +3997,10 @@ def _starwheel_apply_special(state: dict, run: dict, name: str, kind: str, label
             return
         if cfg.get("scoring"):
             total = _starwheel_adjust_score(run, name, -250)
-            sw["message"] = f"ALIEN TAX — 250 Energy removed. Total: {total}."
+            sw["message"] = f"ALIEN TAX — 250 Energy removed. Total: {total}. Control passes."
         else:
-            sw["message"] = "ALIEN TAX detected — no score is active, so no Energy was lost."
+            sw["message"] = "ALIEN TAX detected — no score is active, so no Energy was lost. Control passes."
+        _starwheel_advance(state, run, False)
 
 
 def _starwheel_advance(state: dict, run: dict, keep_team: bool) -> None:
