@@ -14620,7 +14620,8 @@ body.role-student .minefield-cell.simple.revealed.empty::after{
 #teacher .mf-teacher-progress span{font-size:11px;font-weight:900;color:#c9edfb;letter-spacing:.075em}
 #teacher .mf-teacher-progress strong{color:#b7ffe3;font-size:20px;white-space:nowrap}
 @media(max-width:700px){.minefield-narrator .mf-coop-signal{font-size:22px;padding:8px 10px}}
-</style></head>
+</style><link rel="stylesheet" href="/cosmic-cards.css?v=1">
+</head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
 
@@ -14797,6 +14798,7 @@ body.role-student .minefield-cell.simple.revealed.empty::after{
   </form>
 </div>
 
+<script src="/cosmic-cards.js?v=1"></script>
 <script>
 window.addEventListener('error',function(e){
   const box=document.getElementById('bootError'),out=document.getElementById('bootErrorText');
@@ -15345,6 +15347,7 @@ const presentationSlides=[
 
 const activitySeed=[
  {id:1,name:'Social Skills Check-In',icon:'▣',type:'presentation',text:'Interactive presentation',deckTitle:'Social Skills Check-In',slides:presentationSlides,userCreated:false},
+ {id:'cosmic-cards-game',name:'COSMIC CARDS',icon:'✦',type:'cosmic-cards',text:'Individual color-and-number card game with up to eight players'},
  {id:'minefield-game',name:'MINEFIELD',icon:'✦',type:'minefield',text:'Whole-class crew navigation reward game'},
  {id:'vector-game',name:'VECTOR',icon:'⊕',type:'vector',text:'Visual pin interaction activity'},
  {id:'board-game',name:'BOARD',icon:'▣',type:'board',text:'Shared whiteboard and document annotation'},
@@ -15360,6 +15363,7 @@ const activitySeed=[
 
 const APP_REGISTRY=[
  {id:'si-plus',name:'SI+',icon:'SI+',subtitle:'Interactive Presentation',status:'APP IN PROGRESS',description:'Build and run interactive presentations with instruction, question, and poll slides.'},
+ {id:'cosmic-cards',name:'COSMIC CARDS',icon:'✦',subtitle:'2–8 Players · Private Hands · Audience',status:'REWARDS ARCADE',description:'Individual multiplayer color-and-number matching card game. Teacher assigns players from the connected roster; everyone else watches.'},
  {id:'minefield',name:'MINEFIELD',icon:'✦',subtitle:'Crew · Teams · Teacher vs Class',status:'APP IN PROGRESS',description:'Navigate hidden sectors as one crew, competing teams, or Teacher vs Class with alternating turns. One Navigator controls each class move.'},
  {id:'vector',name:'VECTOR',icon:'⊕',subtitle:'Look · Pin · Lock · Reveal',status:'APP IN PROGRESS',description:'Put an image on screen, ask a visual question, and collect student pins directly on the image.'},
  {id:'board',name:'BOARD',icon:'▣',subtitle:'Shared Whiteboard · Give Student Control',status:'APP IN PROGRESS',description:'Open one shared whiteboard or image on the second screen, annotate it, and temporarily hand the marker to one student.'},
@@ -15389,7 +15393,7 @@ function activityLibraryCategoryFor(appId){
   const id=String(appId||'');
   if(id==='si-plus')return 'presentation';
   if(['vector','board','orbit'].includes(id))return 'collaboration';
-  if(['minefield','sketch','pixel','starwheel','crew-survey','million','match','bingo'].includes(id))return 'games';
+  if(['minefield','sketch','pixel','starwheel','crew-survey','million','match','bingo','cosmic-cards'].includes(id))return 'games';
   if(id==='scientific-calculator')return 'tools';
   return 'all';
 }
@@ -16472,7 +16476,7 @@ function teacherSummaryActivityParticipant(t,name){
 }
 function teacherSummaryAppIdForActivity(a){
   if(!a)return'activity';
-  if(a.type==='presentation')return'si-plus';
+  if(a.type==='presentation')return'si-plus';if(a.type==='cosmic-cards')return'cosmic-cards';
   if(a.type==='minefield')return'minefield';if(a.type==='vector')return'vector';if(a.type==='board')return'board';if(a.type==='orbit')return'orbit';if(a.type==='pixel')return'pixel';if(a.type==='sketch')return'sketch';if(a.type==='starwheel')return'starwheel';if(a.type==='match')return'match';if(a.type==='bingo')return'bingo';
   return String(a.id||a.type||'activity');
 }
@@ -16717,7 +16721,7 @@ function activityPhaseLabel(){if(!state.activityRun)return '';if(state.activityR
 
 function activityWorkflowAppLabel(a=activeActivity()){
   if(!a)return'Activity';
-  return a.type==='presentation'?'SI+ Presentation':a.type==='crew-survey'?'CREW SURVEY':a.type==='million'?'MILLION':a.type==='minefield'?'MINEFIELD':a.type==='vector'?'VECTOR':a.type==='board'?'BOARD':a.type==='orbit'?'ORBIT':a.type==='pixel'?'PIXEL REVEAL':a.type==='sketch'?'SKETCH SIGNAL':a.type==='starwheel'?'STARWHEEL':a.type==='match'?'MATCH':a.type==='bingo'?'BINGO':(a.name||'Activity');
+  return a.type==='presentation'?'SI+ Presentation':a.type==='crew-survey'?'CREW SURVEY':a.type==='million'?'MILLION':a.type==='minefield'?'MINEFIELD':a.type==='vector'?'VECTOR':a.type==='board'?'BOARD':a.type==='orbit'?'ORBIT':a.type==='pixel'?'PIXEL REVEAL':a.type==='sketch'?'SKETCH SIGNAL':a.type==='starwheel'?'STARWHEEL':a.type==='match'?'MATCH':a.type==='bingo'?'BINGO':a.type==='cosmic-cards'?'COSMIC CARDS':(a.name||'Activity');
 }
 function startOrResumeActivityRun(){
   const a=activeActivity(),run=state.activityRun;if(!run)return;
@@ -17297,6 +17301,7 @@ function activitySharedMarkup(big=false){
   const a=activeActivity(),run=state.activityRun;if(!a||!run)return '';
   const h=big?60:34, p=big?28:18;
   if(run.phase==='lobby')return `<div class="activity-lobby-public"><span class="eyebrow">ACTIVITY LOBBY</span><div class="activity-app-icon">${appIconMarkup(activityIconId(a))}</div><h3 style="font-size:${h}px">${esc(a.name)}</h3><p style="font-size:${p}px">Waiting for your teacher to begin…</p><div class="lobby-status-pill">${connectedStudents().length} students connected</div></div>`;
+  if(a.type==='cosmic-cards')return cosmicTableMarkup(run,big);
   if(a.type==='match'){
     const m=run.match||{},cards=m.cards||[],matched=new Set(m.matched||[]),selected=new Set(m.selected||[]),active=matchActiveStudent(run);
     return `<div class="foundation-public"><span class="eyebrow">MOTHERSHIP · MATCH</span><h3 style="font-size:${big?52:34}px">${m.complete?'BOARD CLEARED!':esc(run.matchConfig?.name||'MATCH')}</h3><div class="match-public-status"><span>${run.matchConfig?.mode==='teams'?(matchTeamMeta(m.activeTeam).icon+' '+matchTeamMeta(m.activeTeam).name+' · '):''}${esc(active?.n||'—')} · CURRENT PLAYER</span><span>${matched.size/2} PAIRS FOUND</span><span>${Number(m.attempts||0)} ATTEMPTS</span></div>${m.complete?`<div class="match-end-results"><h4>FINAL RESULTS</h4>${run.matchConfig?.mode==='teams'?Array.from({length:Number(run.matchConfig.teamCount||3)},(_,i)=>`<span>${matchTeamMeta(i).icon} ${matchTeamMeta(i).name} · <b>${Number(m.teamScores?.[i]||0)} pairs</b></span>`).join(''):connectedStudents().map(st=>`<span>${esc(st.n)} · <b>${Number(m.scores?.[st.n]||0)} pairs</b></span>`).join('')}</div>`:''}<p>${esc(m.message||'Remember where every signal is hiding.')}</p><div class="foundation-board" style="grid-template-columns:repeat(${cards.length<=16?4:cards.length<=20?5:6},minmax(0,1fr))">${cards.map((card,i)=>{const open=matched.has(card.id)||selected.has(card.id);return `<div class="card ${matched.has(card.id)?'matched':''} ${selected.has(card.id)?'revealed pending':''}">${open?contentMarkup(card.content):i+1}</div>`}).join('')}</div></div>`;
@@ -17449,6 +17454,7 @@ function studentMarkup(){
   if(state.activityRun){
     const a=activeActivity(),run=state.activityRun;
     if(run.phase==='lobby')return `<div class="student-prompt activity-wait"><span class="eyebrow">ACTIVITY LOBBY</span><div class="activity-app-icon">${appIconMarkup(activityIconId(a))}</div><h2>${esc(a.name)}</h2><p>You're in. Waiting for your teacher to begin…</p><div class="student-lobby-avatar">${studentAvatarBadgeMarkup(s)}</div></div>`;
+    if(a.type==='cosmic-cards')return cosmicStudentMarkup(s);
     if(a.type==='match'){
       const m=run.match||{},cards=m.cards||[],active=matchActiveStudent(run),mine=active?.n===s?.n,matched=new Set(m.matched||[]),selected=new Set(m.selected||[]),cols=cards.length<=16?4:cards.length<=20?5:6;
       return `<div class="student-game-foundation"><div class="student-game-card"><span class="eyebrow">MOTHERSHIP · MATCH</span><h2>${m.complete?'BOARD CLEARED!':mine?'YOUR TURN':'WATCH & REMEMBER'}</h2><p>${run.matchConfig?.mode==='teams'?matchTeamMeta(matchTeamIndexForStudent(s?.n,run)).icon+' '+esc(matchTeamMeta(matchTeamIndexForStudent(s?.n,run)).name)+' · ':''}${m.complete?'Every pair has been found.':mine?(m.locked?'Wait for the reveal to resolve.':'Pick two cards.'):(esc(active?.n||'A classmate')+' is choosing. Watch the shared board.')}</p><div class="match-student-grid" style="grid-template-columns:repeat(${cols},1fr)">${cards.map((card,i)=>{const open=matched.has(card.id)||selected.has(card.id),disabled=!mine||m.locked||m.complete||open;return `<button class="${open?'open':''}" data-match-pick="${esc(card.id)}" ${disabled?'disabled':''}>${open?contentMarkup(card.content):i+1}</button>`}).join('')}</div>${run.matchConfig?.crewConsult&&mine&&m.selected?.length===1&&!m.consult?.open?`<button class="bingo-claim-button" id="matchAskCrewBtn">ASK MY CREW</button>`:''}${m.consult?.open&&run.matchConfig?.mode==='teams'&&matchTeamIndexForStudent(s?.n,run)===Number(m.activeTeam)&&!mine?`<div class="bingo-claim-status"><b>CREW CONSULT</b><p>Where should ${esc(active?.n||'your teammate')} look next?</p><div class="match-consult-grid">${cards.map((card,i)=>`<button data-match-consult-pick="${esc(card.id)}" ${matched.has(card.id)||selected.has(card.id)?'disabled':''}>${i+1}</button>`).join('')}</div></div>`:''}${m.consult?.open&&mine?`<div class="bingo-claim-status valid"><b>CREW SUGGESTIONS</b><p>${matchConsultAggregate(run).map(x=>'Card '+x.number+' ×'+x.count).join(' · ')||'Waiting for suggestions…'}</p><button id="matchCloseConsultBtn">Close Consult</button></div>`:''}<div class="prompt-caption">${run.matchConfig?.scoring==='no_score'?'Crew Memory · no score':Number(m.scores?.[s?.n]||0)+' pairs found by you'} · ${(m.matched||[]).length/2} total</div></div></div>`;
@@ -17788,8 +17794,10 @@ function renderActivityController(){
   const box=$('#activityControllerPanel');if(!box||!state.activityRun)return;
   const a=activeActivity(),run=state.activityRun,connected=connectedStudents();
   if(run.phase==='lobby'){
-    const resuming=!!run.resumePending,label=a.type==='presentation'?'Presentation':a.type==='crew-survey'?'CREW SURVEY':a.type==='million'?'MILLION':a.type==='minefield'?'MINEFIELD':a.type==='vector'?'VECTOR':a.type==='board'?'BOARD':a.type==='orbit'?'ORBIT':a.type==='pixel'?'PIXEL REVEAL':a.type==='sketch'?'SKETCH SIGNAL':a.type==='starwheel'?'STARWHEEL':a.type==='match'?'MATCH':a.type==='bingo'?'BINGO':'Activity';
+    const resuming=!!run.resumePending,label=a.type==='presentation'?'Presentation':a.type==='crew-survey'?'CREW SURVEY':a.type==='million'?'MILLION':a.type==='minefield'?'MINEFIELD':a.type==='vector'?'VECTOR':a.type==='board'?'BOARD':a.type==='orbit'?'ORBIT':a.type==='pixel'?'PIXEL REVEAL':a.type==='sketch'?'SKETCH SIGNAL':a.type==='starwheel'?'STARWHEEL':a.type==='match'?'MATCH':a.type==='bingo'?'BINGO':a.type==='cosmic-cards'?'COSMIC CARDS':'Activity';
     box.innerHTML=`<div class="activity-controller-head"><div><span class="eyebrow">${resuming?'ACTIVITY PAUSED':'ACTIVITY LOADED'}</span><h2>${esc(a.name)}</h2><p>${resuming?'Progress is saved. Resume when the class is ready.':'Students are in the Activity Lobby. Start when you\'re ready.'}</p></div><span class="controller-chip">${connected.length} students</span></div><div class="controller-grid lobby-controller"><button class="primary-action" id="startActivityBtn">▶ ${resuming?'Resume':'Start'} ${label}</button><button id="returnClassBtn">✓ Finish & Return</button><button class="minefield-send-lobby" id="sendActivityLobbyBtn" disabled>Ⅱ Progress Paused</button><button class="danger-action" id="emergencyActivityBtn">⚠ Emergency Return</button></div>`;
+  } else if(a.type==='cosmic-cards'){
+    box.innerHTML=cosmicTeacherMarkup();
   } else if(a.type==='bingo'){
     const b=bingoState(run)||{},cfg=run.bingoConfig||{},current=bingoItem(b.current,run),claims=(b.claims||[]).filter(x=>x.status!=='dismissed'),history=(b.called||[]).slice(-12).reverse();
     box.innerHTML=`<div class="activity-controller-head"><div><span class="slide-badge instruction">BINGO · MISSION CONTROL</span><h2>${esc(cfg.name||'BINGO')}</h2><p>${esc(b.message||'')}</p></div><div class="controller-stats"><b>${(b.called||[]).length}</b> / ${(cfg.items||[]).length} called · <b>${claims.length}</b> claims</div></div>
@@ -17870,6 +17878,7 @@ function teacherResultsMarkup(slide){
 }
 
 function wireActivityController(){
+  cosmicWireTeacher();
   const start=$('#startActivityBtn');if(start)start.onclick=startOrResumeActivityRun;
   const prev=$('#prevSlideBtn');if(prev)prev.onclick=()=>changeSlide(-1);
   const next=$('#nextSlideBtn');if(next)next.onclick=()=>changeSlide(1);
@@ -18185,6 +18194,15 @@ function renderActivities(){
     $('#launchMillionBtn').onclick=launchMillion;return;
   }
 
+  if(state.activeApp==='cosmic-cards'){
+    note.classList.add('hidden');picker.classList.add('hidden');grid.classList.remove('hidden');
+    title.textContent='COSMIC CARDS';
+    subtitle.textContent='Choose up to 8 players from the live classroom roster. Everyone else is the audience.';
+    header.innerHTML='<button id="backToAppsBtn">← Activity Library</button>';
+    $('#backToAppsBtn').onclick=backToAppLibrary;
+    grid.innerHTML=cosmicSetupMarkup();cosmicWireSetup();return;
+  }
+
   if(state.activeApp==='minefield'){
     note.classList.add('hidden');picker.classList.add('hidden');grid.classList.remove('hidden');
     title.textContent='MINEFIELD';subtitle.textContent='Work together to clear the map · Empty, health, or mine.';
@@ -18484,6 +18502,10 @@ function renderStudentControls(){
   if(state.calculatorLaunch&&String(state.calculatorLaunch.id||'')!==String(studentCalculatorDismissedLaunchId||'')){if(zoneWrap)zoneWrap.dataset.app='scientific-calculator';label.innerHTML='<b>SCIENTIFIC CALCULATOR</b><span>Independent session · Back to Classroom is above</span>';zone.className='student-actions';zone.innerHTML='';return}
   if(state.activityRun&&state.activityRun.phase==='running'){
     const a=activeActivity(),slide=currentSlide();if(zoneWrap)zoneWrap.dataset.app=a?.type||'activity';
+    if(a.type==='cosmic-cards'){
+      label.innerHTML='<b>COSMIC CARDS</b><span>Play from your hand above</span>';
+      zone.className='student-actions';zone.innerHTML='';return;
+    }
     if(a.type==='bingo'){
       const b=bingoState(),r=b?.claimResults?.[s?.n];label.innerHTML='<b>BINGO CONTROLS</b><span>'+esc(r?.valid?'Verified Bingo':r?'Keep playing':'Private card above')+'</span>';zone.className='student-actions';zone.innerHTML='<button disabled>▦<br>'+((b?.marks?.[s?.n]||[]).length)+' Marked</button>';return;
     }
@@ -18922,7 +18944,7 @@ function animateStarwheelWheels(){
   starwheelLastAnimatedNonce=nonce;
 }
 function renderPublic(){
-  $('#mirrorContent').innerHTML=sharedMarkup('normal');$('#sharedContent').innerHTML=sharedMarkup('big');$('#studentContent').innerHTML=studentMarkup();wireStudentJoin();wireStudentCalculator();wireStudentResponses();wireMinefieldStudent();wireVectorStudent();wireBoardStudent();wireSketchStudent();wireOrbitStudent();wireStarwheelStudent();wireCrewSurveyStudent();wireMillionStudent();wireMatchStudent();wireBingoStudent();renderStudentControls();animateStarwheelWheels();scheduleMatchResolution();requestAnimationFrame(paintPixelFocusCanvases);
+  $('#mirrorContent').innerHTML=sharedMarkup('normal');$('#sharedContent').innerHTML=sharedMarkup('big');$('#studentContent').innerHTML=studentMarkup();wireStudentJoin();wireStudentCalculator();wireStudentResponses();wireMinefieldStudent();wireVectorStudent();wireBoardStudent();wireSketchStudent();wireOrbitStudent();wireStarwheelStudent();wireCrewSurveyStudent();wireMillionStudent();wireMatchStudent();wireBingoStudent();cosmicWireStudent();renderStudentControls();animateStarwheelWheels();scheduleMatchResolution();requestAnimationFrame(paintPixelFocusCanvases);
   const conn=$('#studentConnectionLabel');if(conn)conn.innerHTML=studentNeedsJoin()?'<span style="width:9px;height:9px;border-radius:50%;display:inline-block;background:#ffc35d;box-shadow:0 0 12px #ffc35d88"></span>&nbsp; Join Class':'<span class="pulse"></span>&nbsp; Connected';
   const label=state.ended?'ENDED':state.activityRun?(activeActivity()?.type==='board'?'BOARD LIVE':state.activityRun.phase==='lobby'?'ACTIVITY LOBBY':'ACTIVITY LIVE'):state.screen==='brb'?'WE’LL BE RIGHT BACK':state.screen.toUpperCase();$('#mirrorLabel').textContent=label;$('#sharedLabel').textContent=label;updateSecondScreen();
 }
