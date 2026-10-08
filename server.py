@@ -23,6 +23,8 @@ from urllib.parse import urlsplit
 from aiohttp import WSMsgType, web
 import qrcode
 
+from cosmic_cards_server import apply_cosmic_action, redact_cosmic_state
+
 ROOT = Path(__file__).resolve().parent
 INDEX_PATH = ROOT / "index.html"
 CALCULATOR_DIR = ROOT / "scientific-calculator"
@@ -3608,6 +3610,8 @@ def _state_for_role(state: dict, role: str, token: str = "", name: str = "") -> 
                 st.pop("understanding", None)
 
     run = out.get("activityRun")
+    if isinstance(run, dict) and str(run.get("activityId") or "") == "cosmic-cards-game":
+        redact_cosmic_state(out, role, own_name)
     if isinstance(run, dict) and str(run.get("activityId") or "") == "starwheel-game":
         sw = run.get("starwheel")
         if isinstance(sw, dict):
@@ -4907,6 +4911,13 @@ async def scientific_calculator_engine(request: web.Request) -> web.Response:
     )
 
 
+async def cosmic_cards_script(request: web.Request) -> web.Response:
+    return web.FileResponse(ROOT / "cosmic-cards.js", headers={"Cache-Control": "no-store"})
+
+async def cosmic_cards_style(request: web.Request) -> web.Response:
+    return web.FileResponse(ROOT / "cosmic-cards.css", headers={"Cache-Control": "no-store"})
+
+
 async def health(request: web.Request) -> web.Response:
     role_counts = {"teacher": 0, "student": 0, "shared": 0, "other": 0}
     for ws in list(CLIENTS):
@@ -5692,6 +5703,24 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                         continue
                     save_runtime_state(current)
                     await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
+                elif mtype == "cosmic_action" and isinstance(data.get("request"), dict):
+                    if role != "student":
+                        continue
+                    meta = CLIENT_META.get(ws, {})
+                    token = str(meta.get("student_token") or data.get("student_token") or "")
+                    name = str(meta.get("student_name") or data.get("student_name") or "")
+                    current = copy.deepcopy(LATEST_STATE) if isinstance(LATEST_STATE, dict) else None
+                    if not isinstance(current, dict) or not token or not name:
+                        continue
+                    identity = _student_by_identity(current, token, "")
+                    if not isinstance(identity, dict) or str(identity.get("n") or "") != name:
+                        continue
+                    run = current.get("activityRun")
+                    if not isinstance(run, dict):
+                        continue
+                    if apply_cosmic_action(current, run, name, data["request"]):
+                        save_runtime_state(current)
+                        await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
                 elif mtype == "game_show_action" and isinstance(data.get("request"), dict):
                     if role != "student":
                         continue
@@ -5767,6 +5796,8 @@ def create_app() -> web.Application:
     app = web.Application(client_max_size=32 * 1024 * 1024)
     app.router.add_get("/", index)
     app.router.add_get("/index.html", index)
+    app.router.add_get("/cosmic-cards.js", cosmic_cards_script)
+    app.router.add_get("/cosmic-cards.css", cosmic_cards_style)
     app.router.add_get("/tools/scientific-calculator", scientific_calculator)
     app.router.add_get("/tools/scientific-calculator/", scientific_calculator)
     app.router.add_get("/tools/scientific-calculator/engine.js", scientific_calculator_engine)
