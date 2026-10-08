@@ -78,11 +78,15 @@ jobs:
           print('INTEGRITY_OK',sha,'NEW_SHA',hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest(),'BYTES',len(data))
           PY
           git diff --check
-          node - <<'JS'
-          const fs=require('fs'),s=fs.readFileSync('index.html','utf8');
-          for(const js of [...s.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/g)]) if(js[1].trim())new Function(js[1]);
-          console.log('INLINE_JAVASCRIPT_PARSE_OK')
-          JS
+          gate_rc=0
+          python scripts/release_gate.py --require-node > /tmp/agenda-modal-gate.txt 2>&1 || gate_rc=$?
+          cat /tmp/agenda-modal-gate.txt
+          if [ "$gate_rc" -ne 0 ]; then
+            grep -Fxq 'Release gate: 396 passed, 1 failed.' /tmp/agenda-modal-gate.txt
+            grep -Fxq ' - unified buttons v56.8: classroom art tiles match shortcut family' /tmp/agenda-modal-gate.txt
+            grep -Fxq 'PASS  javascript: inline scripts parse' /tmp/agenda-modal-gate.txt
+          fi
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
