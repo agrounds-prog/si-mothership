@@ -1,0 +1,155 @@
+name: Guarded Cosmic Cards integration
+on:
+  push:
+    paths: ['.github/workflows/one-shot-cosmic-cards-20261008.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check standalone game files
+        run: |
+          node --check cosmic-cards.js
+          python -m py_compile cosmic_cards_server.py server.py
+      - name: Record existing release checks
+        run: python scripts/release_gate.py --require-node > /tmp/cosmic_before.log || true
+      - name: Apply exact-source guarded integration
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          html_path=Path('index.html')
+          server_path=Path('server.py')
+          raw=html_path.read_bytes()
+          raw_server=server_path.read_bytes()
+          blob=lambda b:hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+          print('BEFORE index:',len(raw),blob(raw))
+          print('BEFORE server:',len(raw_server),blob(raw_server))
+          assert blob(raw)=='655dfe47170b2d94545f3b5b1c055cdff0aae9d5'
+          assert blob(raw_server)=='b85d6b062291a9522f0ce4c219890423d914dd1f'
+          assert len(raw)>1400000 and len(raw_server)>250000
+          s=raw.decode('utf-8')
+          p=raw_server.decode('utf-8')
+          def one(before,after,n=1,server=False):
+           global s,p
+           target=p if server else s
+           count=target.count(before)
+           assert count==n,(before[:100],count,n)
+           target=target.replace(before,after)
+           if server:p=target
+           else:s=target
+          def insert_inside(function,needle,new):
+           global s
+           i=s.index('function '+function+'(')
+           end=s.find('\nfunction ',i+10)
+           assert end>i
+           section=s[i:end]
+           assert section.count(needle)==1,(function,needle[:80],section.count(needle))
+           s=s[:i]+section.replace(needle,new,1)+s[end:]
+          
+          one('<script>\nwindow.addEventListener', '<script src="/cosmic-cards.js?v=1"></script>\n<script>\nwindow.addEventListener')
+          one('</head>','<link rel="stylesheet" href="/cosmic-cards.css?v=1">\n</head>')
+          one(" {id:'minefield-game',name:'MINEFIELD'", " {id:'cosmic-cards-game',name:'COSMIC CARDS',icon:'✦',type:'cosmic-cards',text:'Individual color-and-number card game with up to eight players'},\n {id:'minefield-game',name:'MINEFIELD'")
+          one(" {id:'minefield',name:'MINEFIELD',", " {id:'cosmic-cards',name:'COSMIC CARDS',icon:'✦',subtitle:'2–8 Players · Private Hands · Audience',status:'REWARDS ARCADE',description:'Individual multiplayer color-and-number matching card game. Teacher assigns players from the connected roster; everyone else watches.'},\n {id:'minefield',name:'MINEFIELD',")
+          one("['minefield','sketch','pixel','starwheel','crew-survey','million','match','bingo']","['minefield','sketch','pixel','starwheel','crew-survey','million','match','bingo','cosmic-cards']")
+          setup="""if(state.activeApp==='cosmic-cards'){
+              note.classList.add('hidden');picker.classList.add('hidden');grid.classList.remove('hidden');
+              title.textContent='COSMIC CARDS';
+              subtitle.textContent='Choose up to 8 players from the live classroom roster. Everyone else is the audience.';
+              header.innerHTML='<button id="backToAppsBtn">← Activity Library</button>';
+              $('#backToAppsBtn').onclick=backToAppLibrary;
+              grid.innerHTML=cosmicSetupMarkup();cosmicWireSetup();return;
+            }
+          
+            """
+          one("if(state.activeApp==='minefield'){",setup+"if(state.activeApp==='minefield'){")
+          insert_inside('activitySharedMarkup',"  if(a.type==='match'){","  if(a.type==='cosmic-cards')return cosmicTableMarkup(run,big);\n  if(a.type==='match'){")
+          insert_inside('studentMarkup',"    if(a.type==='match'){","    if(a.type==='cosmic-cards')return cosmicStudentMarkup(s);\n    if(a.type==='match'){")
+          insert_inside('renderStudentControls',"    if(a.type==='bingo'){","    if(a.type==='cosmic-cards'){\n      label.innerHTML='<b>COSMIC CARDS</b><span>Play from your hand above</span>';\n      zone.className='student-actions';zone.innerHTML='';return;\n    }\n    if(a.type==='bingo'){")
+          insert_inside('renderActivityController',"  } else if(a.type==='bingo'){",
+                        "  } else if(a.type==='cosmic-cards'){\n    box.innerHTML=cosmicTeacherMarkup();\n  } else if(a.type==='bingo'){")
+          insert_inside('renderActivityController',"a.type==='bingo'?'BINGO':'Activity'", "a.type==='bingo'?'BINGO':a.type==='cosmic-cards'?'COSMIC CARDS':'Activity'")
+          insert_inside('wireActivityController',"  const start=$('#startActivityBtn');","  cosmicWireTeacher();\n  const start=$('#startActivityBtn');")
+          insert_inside('renderPublic',"wireBingoStudent();renderStudentControls();","wireBingoStudent();cosmicWireStudent();renderStudentControls();")
+          insert_inside('activityWorkflowAppLabel',"a.type==='bingo'?'BINGO':(a.name||'Activity')","a.type==='bingo'?'BINGO':a.type==='cosmic-cards'?'COSMIC CARDS':(a.name||'Activity')")
+          insert_inside('teacherSummaryAppIdForActivity',"if(a.type==='presentation')return'si-plus';","if(a.type==='presentation')return'si-plus';if(a.type==='cosmic-cards')return'cosmic-cards';")
+          
+          # Server: private role-filtered cards and an authenticated authoritative websocket move.
+          one("ROOT = Path(__file__).resolve().parent","from cosmic_cards_server import apply_cosmic_action, redact_cosmic_state\n\nROOT = Path(__file__).resolve().parent",server=True)
+          one("    run = out.get(\"activityRun\")\n    if isinstance(run, dict) and str(run.get(\"activityId\") or \"\") == \"starwheel-game\":",
+              "    run = out.get(\"activityRun\")\n    if isinstance(run, dict) and str(run.get(\"activityId\") or \"\") == \"cosmic-cards-game\":\n        redact_cosmic_state(out, role, own_name)\n    if isinstance(run, dict) and str(run.get(\"activityId\") or \"\") == \"starwheel-game\":",server=True)
+          assets="""async def cosmic_cards_script(request: web.Request) -> web.Response:
+              return web.FileResponse(ROOT / "cosmic-cards.js", headers={"Cache-Control": "no-store"})
+          
+          async def cosmic_cards_style(request: web.Request) -> web.Response:
+              return web.FileResponse(ROOT / "cosmic-cards.css", headers={"Cache-Control": "no-store"})
+          
+          
+          """
+          one("async def health(request: web.Request)",assets+"async def health(request: web.Request)",server=True)
+          one('    app.router.add_get("/index.html", index)',
+              '    app.router.add_get("/index.html", index)\n    app.router.add_get("/cosmic-cards.js", cosmic_cards_script)\n    app.router.add_get("/cosmic-cards.css", cosmic_cards_style)',server=True)
+          action="""elif mtype == "cosmic_action" and isinstance(data.get("request"), dict):
+                              if role != "student":
+                                  continue
+                              meta = CLIENT_META.get(ws, {})
+                              token = str(meta.get("student_token") or data.get("student_token") or "")
+                              name = str(meta.get("student_name") or data.get("student_name") or "")
+                              current = copy.deepcopy(LATEST_STATE) if isinstance(LATEST_STATE, dict) else None
+                              if not isinstance(current, dict) or not token or not name:
+                                  continue
+                              identity = _student_by_identity(current, token, "")
+                              if not isinstance(identity, dict) or str(identity.get("n") or "") != name:
+                                  continue
+                              run = current.get("activityRun")
+                              if not isinstance(run, dict):
+                                  continue
+                              if apply_cosmic_action(current, run, name, data["request"]):
+                                  save_runtime_state(current)
+                                  await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
+                          """
+          one('elif mtype == "game_show_action" and isinstance(data.get("request"), dict):',
+              action+'elif mtype == "game_show_action" and isinstance(data.get("request"), dict):',server=True)
+          
+          h=s.encode('utf-8');sv=p.encode('utf-8')
+          assert 1400000<len(h)<len(raw)+7000
+          assert 250000<len(sv)<len(raw_server)+3500
+          assert s.count("cosmic-cards.js?v=1")==1 and s.count("cosmic-cards.css?v=1")==1
+          assert 'cosmic-cards-game' in s and 'cosmic_action' in p
+          html_path.write_bytes(h);server_path.write_bytes(sv)
+          print('AFTER index:',len(h),blob(h),'delta',len(h)-len(raw))
+          print('AFTER server:',len(sv),blob(sv),'delta',len(sv)-len(raw_server))
+          print('PASS exact-source guarded integration; only index.html and server.py patched')
+          PY
+      - name: Validate and compare release gates
+        run: |
+          node --check cosmic-cards.js
+          python -m py_compile server.py cosmic_cards_server.py
+          python scripts/release_gate.py --require-node > /tmp/cosmic_after.log || true
+          python - <<'PY'
+          from pathlib import Path
+          before=Path('/tmp/cosmic_before.log').read_text().splitlines()
+          after=Path('/tmp/cosmic_after.log').read_text().splitlines()
+          failures=lambda lines:sorted(x for x in lines if x.startswith('FAIL'))
+          print('BEFORE failures:',failures(before))
+          print('AFTER failures:',failures(after))
+          assert failures(before)==failures(after),'Regression gate introduced failures'
+          assert any('inline scripts parse' in x and x.startswith('PASS') for x in after)
+          print('PASS release gate baseline preserved')
+          PY
+          git diff --check
+          test "$(git diff --name-only | sort)" = "$(printf 'index.html\nserver.py')"
+      - name: Commit verified integration
+        run: |
+          git config user.name "SI Mothership Guarded CI"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html server.py
+          git commit -m "Integrate Cosmic Cards live roster and server validated multiplayer"
+          git push origin HEAD:main
