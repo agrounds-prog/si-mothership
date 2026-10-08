@@ -12800,6 +12800,36 @@ body.role-student .agenda-live-footer{
   #teacher .command-deck > #dashboardToolsRow{grid-row:7;grid-column:1/3}
   #teacher .right-rail > .attention-panel{max-height:260px;overflow:auto}
 }
+</style><style id="v69-cohesive-console">
+/* Compact Mission Control: preserve existing modules and controls. */
+@media(min-width:1220px){
+  #teacher .mission-grid{
+    grid-template-columns:minmax(255px,1.05fr) minmax(380px,1.55fr) minmax(240px,1.05fr)!important;
+    column-gap:9px!important;
+    row-gap:8px!important;
+  }
+  #teacher .command-deck > .deck-header{min-height:0!important;padding-top:10px!important;padding-bottom:10px!important}
+  #teacher .command-deck > #teacherControlBar{margin-top:0!important;margin-bottom:0!important}
+  #teacher .right-rail > .screen-dock{padding:8px!important;margin:0!important}
+  #teacher .right-rail > .screen-dock .mirror-screen{width:100%!important;max-width:100%!important}
+  #teacher .right-rail > .screen-dock .mirror-content{
+    min-height:0!important;
+    aspect-ratio:16/9!important;
+    height:auto!important;
+    max-height:370px!important;
+  }
+  #teacher .right-rail > #attentionSummary,
+  #teacher .right-rail > #buzzPanel,
+  #teacher .right-rail > #photoInboxPanel,
+  #teacher .right-rail > #helpInboxPanel{
+    margin:0!important;
+    align-self:start!important;
+    padding-top:8px!important;
+    padding-bottom:8px!important;
+  }
+  #teacher .command-deck > #lobbyPanel{margin:0!important}
+  #teacher .command-deck > #appShortcutsPanel{margin-top:0!important}
+}
 </style></head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
