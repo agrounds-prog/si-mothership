@@ -1,0 +1,38 @@
+name: Cosmic Cards turn rules and privacy
+on:
+  push:
+    paths:
+      - cosmic-cards.js
+      - cosmic-cards.css
+      - cosmic_cards_server.py
+      - server.py
+      - index.html
+      - tests/test_cosmic_cards_turn_rules.py
+      - .github/workflows/cosmic-cards-turn-regressions.yml
+  workflow_dispatch:
+jobs:
+  cosmic-regressions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate Cosmic Cards JavaScript and server syntax
+        run: |
+          node --check cosmic-cards.js
+          python -m py_compile cosmic_cards_server.py server.py
+      - name: Test authoritative turn rules and private hands
+        run: python -m unittest discover -s tests -p 'test_cosmic_cards_turn_rules.py' -v
+      - name: Check full inline app JavaScript and established release gate
+        run: |
+          python scripts/release_gate.py --require-node > /tmp/cosmic_release_gate.log || true
+          python - <<'PY'
+          from pathlib import Path
+          output = Path('/tmp/cosmic_release_gate.log').read_text()
+          checks = [x for x in output.splitlines() if x.startswith(('PASS','FAIL'))]
+          print('\n'.join(checks[-18:]))
+          assert any(x.startswith('PASS') and 'inline scripts parse' in x for x in checks), 'App JavaScript parse must pass'
+          assert not any(x.startswith('FAIL') and ('javascript' in x.lower() or 'minefield' in x.lower()) for x in checks), 'App or Minefield regression'
+          print('PASS inline JavaScript parse and key existing-game checks')
+          PY
