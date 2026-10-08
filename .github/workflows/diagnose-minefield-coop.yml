@@ -1,4 +1,4 @@
-name: Diagnose cooperative Minefield patch
+name: Diagnose cooperative Minefield patch v2
 on:
   push:
     branches: [main]
