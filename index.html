@@ -12768,6 +12768,38 @@ body.role-student .agenda-live-footer{
 #teacher .roster-card:has(.empty-roster-message) .empty-roster-message span{font-size:11px!important;line-height:1.35!important}
 #teacher .roster-card:has(.empty-roster-message) .page-dots{margin-top:5px!important}
 @media(max-width:700px){#teacher .roster-card:has(.empty-roster-message) .empty-roster-message{min-height:105px!important}}
+</style><style id="v68-three-column-mission">
+/* Desktop command center: only placement changes. Original nodes and events remain intact. */
+@media (min-width:1220px){
+  #teacher .mission-grid{
+    display:grid!important;
+    grid-template-columns:minmax(230px,1fr) minmax(380px,1.8fr) minmax(225px,.95fr)!important;
+    gap:12px!important;
+    align-items:start!important;
+    width:100%!important;
+  }
+  #teacher .mission-grid > .command-deck,
+  #teacher .mission-grid > .right-rail{display:contents!important}
+  #teacher .command-deck > .deck-header{grid-column:1/-1;grid-row:1;min-width:0}
+  #teacher .command-deck > #teacherControlBar{grid-column:1/-1;grid-row:2;min-width:0}
+  #teacher .command-deck > #lobbyPanel{grid-column:1;grid-row:3 / span 4;min-width:0;align-self:start;max-width:none!important}
+  #teacher .right-rail > .screen-dock{
+    grid-column:2;grid-row:3 / span 4;min-width:0;align-self:start;
+    width:100%!important;max-width:none!important;
+    padding:12px!important;
+  }
+  #teacher .right-rail > .screen-dock .mirror-screen{width:100%!important;max-width:none!important}
+  #teacher .right-rail > .screen-dock .mirror-content{min-height:260px!important}
+  #teacher .right-rail > #attentionSummary{grid-column:3;grid-row:3;min-width:0}
+  #teacher .right-rail > #buzzPanel{grid-column:3;grid-row:4;min-width:0}
+  #teacher .right-rail > #photoInboxPanel{grid-column:3;grid-row:5;min-width:0}
+  #teacher .right-rail > #helpInboxPanel{grid-column:3;grid-row:6;min-width:0}
+  #teacher .command-deck > :not(.deck-header):not(#teacherControlBar):not(#lobbyPanel){
+    grid-column:1/3;min-width:0
+  }
+  #teacher .command-deck > #dashboardToolsRow{grid-row:7;grid-column:1/3}
+  #teacher .right-rail > .attention-panel{max-height:260px;overflow:auto}
+}
 </style></head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
