@@ -1,0 +1,96 @@
+/* Bingo Board Studio: visual board first, library checked once, reusable saved boards. */
+#teacher #activitiesPanel:has(.bbs-studio){width:min(1570px,calc(100vw - 26px))!important;max-width:none!important}
+#teacher .bbs-studio{color:#f0fcff;font-family:Inter,ui-sans-serif,system-ui,"Segoe UI",sans-serif;--bbs-cyan:#90e7ff;--bbs-mint:#a3ffe2}
+#teacher .bbs-studio *{box-sizing:border-box}
+#teacher .bbs-studio button{cursor:pointer;transition:background .16s,border-color .16s,transform .16s}
+#teacher .bbs-studio button:disabled{cursor:not-allowed;opacity:.47}
+#teacher .bbs-studio button:focus-visible,#teacher .bbs-studio input:focus-visible,#teacher .bbs-studio select:focus-visible{outline:3px solid #ffe99d;outline-offset:2px}
+#teacher .bbs-hero{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px;padding:clamp(14px,1.5vw,24px);background:radial-gradient(ellipse at 90% 10%,#3686bd5c,transparent 55%),linear-gradient(120deg,#124876,#061b39);border:2px solid #67bfea;border-radius:20px;box-shadow:inset 0 2px 0 #efffff2a,0 12px 25px #0006}
+#teacher .bbs-logo{width:75px;height:75px;flex:0 0 75px;display:grid;place-items:center;border:3px solid #9cf1ff;border-radius:18px;background:linear-gradient(145deg,#2f93d4,#092a63);box-shadow:0 0 19px #6de7ff75;color:#f0ffff;font-size:54px}
+#teacher .bbs-title{min-width:0;flex:1 1 320px}
+#teacher .bbs-title small{font-size:11px;color:#9cefff;font-weight:1000;letter-spacing:.14em}
+#teacher .bbs-title h2{margin:4px 0 6px;font-size:clamp(26px,2.9vw,40px);color:#fff;line-height:1.1;font-weight:1000;text-shadow:0 0 15px #81e7ff5f}
+#teacher .bbs-title p{margin:0;color:#bde4f7;font-size:12px;line-height:1.45}
+#teacher .bbs-progress{min-width:145px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 14px;border:1px solid #68ccb7;border-radius:13px;background:#0a2e49}
+#teacher .bbs-progress strong{font-size:36px;font-weight:1000;line-height:1;color:#b1ffe9}
+#teacher .bbs-progress em{font-size:22px;color:#7bc4d9;font-style:normal}
+#teacher .bbs-progress span{font-size:9px;letter-spacing:.13em;color:#ace7df;font-weight:900}
+#teacher .bbs-progress>div{width:100%;height:9px;border-radius:20px;background:#031c32;overflow:hidden;margin-top:6px}
+#teacher .bbs-progress i{display:block;height:100%;background:linear-gradient(90deg,#308ef0,#80f7d3);border-radius:20px}
+#teacher .bbs-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(335px,.85fr);gap:16px;align-items:start}
+#teacher .bbs-panel{min-width:0;border:1px solid #4f93c4;border-radius:20px;padding:clamp(14px,1.4vw,23px);background:radial-gradient(ellipse at 60% -25%,#1d4f80,#0b2849 56%,#071a31);box-shadow:inset 0 2px 0 #ffffff1b,0 9px 22px #0006}
+#teacher .bbs-aside{display:grid;gap:16px}
+#teacher .bbs-name-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#teacher .bbs-name-row>label{flex:1 1 240px;font-size:11px;letter-spacing:.12em;color:#abe8ff;font-weight:950}
+#teacher .bbs-name-row input{display:block;width:100%;margin-top:7px;min-height:46px;padding:10px 14px;font-weight:900;font-size:16px;color:#fff;background:#06172d;border:1px solid #579fc7;border-radius:10px}
+#teacher .bbs-loaded{padding:8px 10px;border:1px solid #ffdf8b;border-radius:9px;background:#604a1c;color:#fff1ad;font-size:10px;letter-spacing:.08em;font-weight:950}
+#teacher .bbs-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:end;margin:15px 0 20px}
+#teacher .bbs-options>label{min-width:0;color:#badff6;font-size:11px;letter-spacing:.07em;font-weight:950}
+#teacher .bbs-options select{display:block;width:100%;min-height:45px;margin-top:5px;padding:9px;background:#051c36;border:1px solid #5797c2;border-radius:10px;color:#fff;font-size:13px}
+#teacher .bbs-options .bbs-check{grid-column:1/-1;display:flex;align-items:center;gap:8px;letter-spacing:0;font-size:12px}
+#teacher .bbs-check input{accent-color:#67eec3;width:19px;height:19px}
+#teacher .bbs-board-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:11px}
+#teacher .bbs-board-heading small,#teacher .bbs-head small{font-size:10px;font-weight:1000;letter-spacing:.15em;color:#96edff}
+#teacher .bbs-board-heading h3,#teacher .bbs-head h3{margin:4px 0 5px;color:#e5f9ff;font-size:18px;font-weight:1000;letter-spacing:.05em}
+#teacher .bbs-board-heading p,#teacher .bbs-head p{font-size:12px;line-height:1.5;color:#bad8ea;margin:0}
+#teacher #bbsNewBoard{padding:9px 11px;color:#e3faff;background:#12517c;border:1px solid #6bb6df;border-radius:9px;font-size:12px;font-weight:850}
+#teacher .bbs-board-frame{padding:clamp(9px,1.35vw,20px);border:3px solid #65bde8;border-radius:24px;background:radial-gradient(ellipse at 50% 0%,#2571a0,#143c70 63%,#0a2b54);box-shadow:inset 0 0 0 5px #0b3560,inset 0 0 23px #041a4180,0 12px 25px #0008}
+#teacher .bbs-grid{display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:clamp(5px,.78vw,12px);width:100%}
+#teacher .bbs-tile{position:relative;min-width:0;width:100%;aspect-ratio:1.06;display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid #bee1ff;border-radius:clamp(7px,.9vw,14px);background:linear-gradient(140deg,#ffffff,#eaf5ff);color:#18365c;box-shadow:0 5px 0 #122e5c,0 10px 13px #0006;padding:6px}
+#teacher .bbs-tile:before{content:"";position:absolute;inset:4px;border:1px solid #2c7cb31c;border-radius:8px;pointer-events:none}
+#teacher .bbs-tile.bbs-empty{border:3px dashed #9ac9fa;background:linear-gradient(140deg,#e4f5ff,#c7e3fa);color:#3982ad}
+#teacher .bbs-tile.bbs-filled{border-color:#82ebc5}
+#teacher button.bbs-tile:hover{transform:translateY(-2px);border-color:#ffdb81;box-shadow:0 7px 0 #112c52,0 10px 17px #0006}
+#teacher .bbs-tile img{display:block;width:96%;height:87%;object-fit:contain;mix-blend-mode:multiply}
+#teacher .bbs-tile b{font-size:clamp(12px,1.36vw,22px);overflow-wrap:anywhere;line-height:1.13;text-align:center;font-weight:1000;max-height:88%;overflow:hidden}
+#teacher .bbs-tile-num{position:absolute;top:3px;left:5px;background:#163a68;color:#fff;font-size:9px;padding:3px 5px;border-radius:6px;font-weight:900;z-index:1}
+#teacher .bbs-plus{display:grid;place-items:center;font-size:clamp(24px,3vw,43px);font-weight:1000;line-height:1}
+#teacher .bbs-plus small{display:block;font-size:9px;letter-spacing:.12em;margin-top:4px}
+#teacher .bbs-tile.bbs-free{background:radial-gradient(circle at 45% 25%,#ffe29c,#e6ac4d);border-color:#fff1b1;color:#5d3b15;display:grid;place-content:center;gap:3px}
+#teacher .bbs-free strong{font-size:clamp(14px,1.6vw,25px)}
+#teacher .bbs-tile.bbs-edit{display:flex;flex-direction:column;justify-content:center;gap:4px;padding:10px 4px;background:#13395f;border-color:#ffe197;aspect-ratio:1.06;box-shadow:0 0 19px #e2cf8680}
+#teacher .bbs-tile.bbs-edit label{display:block;width:100%;font-size:9px;line-height:1.1;color:#eaffff;font-weight:950;text-align:center;white-space:normal}
+#teacher .bbs-tile.bbs-edit input{display:block;width:100%;height:27px;margin-top:4px;padding:3px 4px;border:1px solid #95e7ff;border-radius:5px;background:#f3ffff;color:#102741;font-size:12px}
+#teacher .bbs-tile.bbs-edit>div{display:flex;width:100%;gap:4px}
+#teacher .bbs-tile.bbs-edit>div button{flex:1;min-width:0;border:1px solid #b0f7de;border-radius:4px;background:#1d9d78;color:#fff;padding:4px 2px;font-size:10px;font-weight:950}
+#teacher .bbs-tile.bbs-edit>div button:last-child{border-color:#8dbbd9;background:#315b85}
+#teacher .bbs-under-board{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:15px 0;color:#a6d7e6;font-size:12px}
+#teacher #bbsClearBoard{border:1px solid #aa5976;border-radius:9px;background:#5a2940;color:#ffe2ea;padding:8px 10px;font-size:12px;font-weight:850}
+#teacher .bbs-save{display:flex;flex-wrap:wrap;gap:10px;margin-top:15px;padding-top:16px;border-top:1px solid #3c83b5}
+#teacher .bbs-save button{min-height:50px;padding:11px 20px;border:1px solid #81c6ea;border-radius:11px;background:#185782;color:#e9faff;font-size:13px;font-weight:950}
+#teacher #bbsSaveLaunch{border-color:#a8ffdb;background:linear-gradient(135deg,#29d49a,#088363);color:#052d21;box-shadow:0 4px 0 #08674d}
+#teacher .bbs-head{margin-bottom:13px}
+#teacher .bbs-library .bbs-upload{width:100%;min-height:47px;padding:10px;background:linear-gradient(135deg,#267cbb,#11588d);border:1px solid #81d9fa;border-radius:11px;color:#fff;font-size:13px;font-weight:950}
+#teacher .bbs-library-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0}
+#teacher .bbs-library-tools>div{display:flex;gap:5px}
+#teacher .bbs-library-tools button{padding:8px 11px;background:#0a2b4a;border:1px solid #447ca8;border-radius:8px;color:#b6dced;font-size:11px;font-weight:950}
+#teacher .bbs-library-tools button.active{background:#135f63;border-color:#8bf5d9;color:#fff}
+#teacher .bbs-library-tools input{flex:1 1 130px;min-width:0;padding:9px;background:#061b33;color:#fff;border:1px solid #588db5;border-radius:9px;font-size:12px}
+#teacher .bbs-library-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;padding:10px;max-height:clamp(320px,40vh,540px);overflow-y:auto;border:2px solid #417fa8;border-radius:13px;background:#071e38;scrollbar-color:#4e91b5 #0b2444}
+#teacher .bbs-library-image{position:relative;display:flex;flex-direction:column;gap:4px;min-width:0;padding:5px;border:2px solid #467ba9;border-radius:10px;background:#113456;color:#e8f9ff}
+#teacher .bbs-library-image[hidden]{display:none!important}
+#teacher .bbs-library-image img{display:block;width:100%;height:clamp(63px,7.3vw,105px);object-fit:contain;border-radius:6px;background:#e9f6ff}
+#teacher .bbs-library-image span{font-size:10px;font-weight:850;line-height:1.25;text-align:center;overflow-wrap:anywhere}
+#teacher .bbs-library-image.checked{border-color:#9affdb;background:#14675f;box-shadow:0 0 13px #48ffbc67}
+#teacher .bbs-library-image b{position:absolute;right:8px;top:8px;width:22px;height:22px;display:grid;place-items:center;border:1px solid #c3ffe0;border-radius:50%;background:#00856a;color:#fff;font-size:15px;box-shadow:0 2px 5px #0008}
+#teacher .bbs-picked{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0 10px}
+#teacher .bbs-picked strong{font-size:14px;color:#b6ffe7}
+#teacher .bbs-picked button{padding:7px 11px;background:#4c2843;color:#ffe4ed;border:1px solid #ae5d89;border-radius:8px;font-size:11px;font-weight:850}
+#teacher .bbs-create{width:100%;min-height:52px;padding:11px;background:linear-gradient(110deg,#22bf92,#0f765d);border:1px solid #b2ffdc;color:#022e22;border-radius:12px;font-size:14px;font-weight:1000;letter-spacing:.04em}
+#teacher .bbs-hint{margin:10px 2px;color:#bad9e9;font-size:12px;line-height:1.5}
+#teacher .bbs-saved-list{display:grid;gap:10px;max-height:420px;overflow:auto}
+#teacher .bbs-saved-board{display:grid;grid-template-columns:82px minmax(0,1fr);align-items:center;gap:10px;padding:10px;border:1px solid #4c87b8;border-radius:12px;background:#0c2d4d}
+#teacher .bbs-saved-art{display:grid;grid-template-columns:repeat(2,1fr);gap:3px;width:82px;height:82px;padding:5px;border-radius:9px;background:#d5eff8;color:#1a6da5}
+#teacher .bbs-saved-art img{width:100%;height:100%;min-height:0;object-fit:contain}
+#teacher .bbs-saved-art>span{grid-column:1/-1;display:grid;place-items:center;font-size:45px}
+#teacher .bbs-saved-info{min-width:0}
+#teacher .bbs-saved-info b{display:block;font-size:14px;color:#fff;overflow-wrap:anywhere}
+#teacher .bbs-saved-info small{display:block;margin-top:5px;color:#b9dce9;font-size:11px}
+#teacher .bbs-saved-actions{grid-column:1/-1;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#teacher .bbs-saved-actions button{min-height:37px;padding:8px 12px;border:1px solid #74bacf;border-radius:9px;background:#155579;color:#fff;font-size:11px;font-weight:900}
+#teacher .bbs-saved-actions [data-bbs-launch]{background:#107c60;border-color:#96ffcf}
+#teacher .bbs-saved-actions .bbs-remove{margin-left:auto;background:#51263b;border-color:#bb6989}
+@media(max-width:1180px){#teacher .bbs-layout{grid-template-columns:1fr}#teacher .bbs-aside{grid-template-columns:minmax(0,1fr) minmax(260px,.75fr)}}
+@media(max-width:850px){#teacher .bbs-aside{grid-template-columns:1fr}#teacher .bbs-library-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:570px){#teacher .bbs-logo{width:49px;height:49px;flex-basis:49px;font-size:35px}#teacher .bbs-progress{width:100%}#teacher .bbs-panel{padding:11px}#teacher .bbs-options{grid-template-columns:1fr}#teacher .bbs-grid{gap:5px}#teacher .bbs-board-frame{padding:8px}#teacher .bbs-tile{border-width:2px;padding:2px}#teacher .bbs-tile.bbs-edit{padding:3px}#teacher .bbs-tile.bbs-edit label{font-size:7px}#teacher .bbs-tile.bbs-edit input{font-size:9px}#teacher .bbs-tile.bbs-edit>div button{font-size:8px}#teacher .bbs-library-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){#teacher .bbs-studio button{transition:none}}

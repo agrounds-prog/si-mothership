@@ -14633,6 +14633,7 @@ body.role-student .minefield-cell.simple.revealed.empty::after{
 </style><link rel="stylesheet" href="/cosmic-cards.css?v=1">
 <link rel="stylesheet" href="/match-arcade.css?v=1">
 <link rel="stylesheet" href="/match-builder.css?v=2">
+<link rel="stylesheet" href="/bingo-board-studio.css?v=3">
 <style id="v96-bingo-studio-restoration">
 /* Scoped, board-first teacher Bingo editor. Does not affect Bingo runtime, student or shared views. */
 #teacher #activitiesPanel:has(.bingo-studio-shell){width:min(1550px,calc(100vw - 32px))!important;max-width:none!important}
@@ -14879,6 +14880,7 @@ body.role-student .minefield-cell.simple.revealed.empty::after{
 <script src="/cosmic-cards.js?v=1"></script>
 <script src="/match-arcade.js?v=1"></script>
 <script src="/match-builder.js?v=2"></script>
+<script src="/bingo-board-studio.js?v=3"></script>
 <script>
 window.addEventListener('error',function(e){
   const box=document.getElementById('bootError'),out=document.getElementById('bootErrorText');
@@ -15191,7 +15193,9 @@ function bingoCallDisplayMarkup(item,compact=false){
   return '<div class="bingo-call-display">'+contentMarkup(visual)+'<strong class="bingo-call-label">'+esc(label)+'</strong></div>';
 }
 function bingoSlotItems(){
-  return (bingoDraft.numberedSlots||[]).filter(a=>a&&a.call).map(a=>({
+  const size=Math.max(3,Math.min(6,Number(bingoDraft.size||4)));
+  const center=bingoDraft.free&&size%2===1?Math.floor(size*size/2):-1;
+  return (bingoDraft.numberedSlots||[]).slice(0,size*size).filter((a,i)=>i!==center&&a&&a.call).map(a=>({
     id:'bingo_slot_'+a.slot,
     call:{type:'text',value:a.call},
     card:a.image?{type:'image',value:a.image,label:a.label||a.call}:{type:'text',value:a.text||a.call}
@@ -15239,10 +15243,14 @@ function saveBingoDraft(){
     if(missing.length)return toast('Fill square'+(missing.length===1?' ':'s ')+missing.slice(0,8).join(', ')+(missing.length>8?' and more':'')+' before saving');
   }
   if(items.length<need)return toast('This card size needs at least '+need+' Bingo items');
-  const set={id:'bingoset_'+Date.now().toString(36),name:String(bingoDraft.name||'Bingo Set').trim().slice(0,80)||'Bingo Set',items,size,pattern:bingoDraft.pattern||'line',free:!!bingoDraft.free,createdAt:Date.now()};
+  const existing=bingoSets.find(s=>s.id===bingoDraft.editingSetId);
+  const set={id:existing?.id||'bingoset_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,6),
+    name:String(bingoDraft.name||'Bingo Board').trim().slice(0,80)||'Bingo Board',items,size,
+    pattern:bingoDraft.pattern||'line',free:!!bingoDraft.free,createdAt:existing?.createdAt||Date.now()};
   const next=[set,...bingoSets.filter(x=>x.id!==set.id)];
   if(!persistGameStore(BINGO_SET_STORE,next))return null;
-  bingoSets=next;toast('Bingo set saved');renderActivities();return set;
+  bingoSets=next;bingoDraft.editingSetId=set.id;
+  toast(existing?'Bingo board changes saved':'Bingo board saved');renderActivities();return set;
 }
 function shuffleCopy(items,seed=''){let a=items.map(x=>deepClone(x)),h=2166136261;for(const ch of String(seed))h=(h^ch.charCodeAt(0))*16777619>>>0;for(let i=a.length-1;i>0;i--){h=(h*1664525+1013904223)>>>0;const j=h%(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
 
@@ -15301,7 +15309,12 @@ function loadBingoSetIntoBuilder(set){
 }
 function launchBingoSet(set){
   const runToken=newActivityRunToken(),order=shuffleCopy(set.items||[],Date.now()).map(x=>x.id),cards={};
-  connectedStudents().forEach(st=>{const size=Number(set.size||4),count=size*size,ids=shuffleCopy(set.items||[],runToken+'|'+st.n).slice(0,count).map(x=>x.id);if(set.free&&size%2===1)ids[Math.floor(count/2)]='free';cards[st.n]=ids});
+  connectedStudents().forEach(st=>{
+    const size=Number(set.size||4),count=size*size,center=set.free&&size%2===1?Math.floor(count/2):-1;
+    const shuffled=shuffleCopy(set.items||[],runToken+'|'+st.n).slice(0,count-(center>=0?1:0)).map(x=>x.id);
+    const card=[];for(let i=0,j=0;i<count;i++)card.push(i===center?'free':shuffled[j++]);
+    cards[st.n]=card;
+  });
   state.activityRun={activityId:'bingo-game',runToken,phase:'lobby',responses:{},bingoConfig:{setId:set.id,name:set.name,items:deepClone(set.items),size:set.size,pattern:set.pattern,free:!!set.free},bingo:{callOrder:order,called:[],current:null,cards,marks:{},claimResults:{},claims:[],reveal:null,callNonce:0,message:'Cards generated. Start when the class is ready.'}};
   state.screen='activity';state.promptActive=false;state.assigningSlot=null;recordActivityLaunch('bingo',set.name);render();toast('BINGO loaded — private cards are ready');
 }
@@ -18280,107 +18293,12 @@ function renderActivities(){
 
   if(state.activeApp==='bingo'){
     note.classList.add('hidden');picker.classList.add('hidden');grid.classList.remove('hidden');
-    title.textContent='BINGO';subtitle.textContent='LOAD THE SET → GENERATE CARDS → CALL → MARK → VERIFY → BINGO!';header.innerHTML=`<button id="backToAppsBtn">← Activity Library</button>`;$('#backToAppsBtn').onclick=backToAppLibrary;
-    const items=bingoDraft.numberedMode?bingoSlotItems():[...parseBingoLines(bingoDraft.quick),...bingoCardExtras(),...bingoItemsFromSelectedImages(bingoDraft.selectedImages)],size=Number(bingoDraft.size||4);
-    const slotCount=size*size,slots=bingoDraft.numberedSlots||[],slotIndex=Math.max(-1,Math.min(slotCount-1,Number(bingoDraft.editSlot??-1))),slot=slots[slotIndex]||{};
-    grid.innerHTML=`<div class="game-builder-shell"><div class="game-builder-card"><span class="app-status">REWARDS ARCADE</span><h3>Create Bingo Set</h3><label>SET NAME</label><input id="bingoSetName" value="${esc(bingoDraft.name)}"><label>QUICK ITEMS · call side | card side (legacy list)</label><textarea id="bingoQuickItems">${esc(bingoDraft.quick)}</textarea><div class="bingo-slot-editor"><div class="bingo-slot-heading"><h4>YOUR BINGO CARD</h4><label><input type="checkbox" id="bingoNumberedMode" ${bingoDraft.numberedMode?'checked':''}> Use numbered slots</label></div><p>Click the + in any numbered square to add text or upload a picture. A ${size}×${size} card needs ${slotCount-(bingoDraft.free&&size%2===1?1:0)} items. Student cards shuffle the items when generated.</p><div class="bingo-slot-picker" style="grid-template-columns:repeat(${size},minmax(0,1fr))">${Array.from({length:slotCount},(_,i)=>{const a=slots[i],active=i===slotIndex;return `<button type="button" class="bingo-slot-tile ${active?'active':''}" data-bingo-slot="${i}"><span>${i+1}</span>${a?.image?`<img src="${a.image}" alt="">`:a?.call?`<b>${esc(a.text||a.call)}</b>` :'<span class="bingo-slot-plus">+</span>'}</button>`}).join('')}</div><div class="bingo-slot-fields ${slotIndex<0?"hidden":""}"><b>Editing item ${slotIndex+1}</b><label>Called word<input id="bingoSlotCall" value="${esc(slot.call||'')}" placeholder="e.g. Penguin"></label><label>Card content<select id="bingoSlotType"><option value="text" ${!slot.image?'selected':''}>Text</option><option value="image" ${slot.image?'selected':''}>Image from library</option></select></label><label id="bingoSlotTextWrap" class="${slot.image?'hidden':''}">Text on card<input id="bingoSlotText" value="${esc(slot.text||'')}" placeholder="e.g. Penguin"></label><label id="bingoSlotImageWrap" class="${slot.image?'':'hidden'}">Picture<select id="bingoSlotImage"><option value="">Choose a picture</option>${gameImageLibrary.map(a=>`<option value="${esc(a.id)}" ${a.image===slot.image?'selected':''}>${esc(a.name)}</option>`).join('')}</select></label><div class="bingo-slot-upload"><button type="button" id="bingoSlotUploadBtn">＋ Upload picture to this square</button><input id="bingoSlotUploadFile" type="file" accept="image/*" hidden></div><div class="game-builder-actions"><button type="button" id="bingoSlotApply" class="primary">Save Item ${slotIndex+1}</button><button type="button" id="bingoSlotClear">Clear Slot</button></div></div></div><div class="bingo-card-maker"><h4>ADD A CARD ITEM</h4><p>Choose what students see on a physical Bingo square. Each call has its own text label.</p><div class="bingo-card-maker-row"><label>CALLED WORD<input id="bingoNewCall" placeholder="e.g. Penguin"></label><label>CARD CONTENT<select id="bingoNewCardType"><option value="text">Text</option><option value="image">Image from library</option></select></label></div><div id="bingoNewTextWrap"><label>TEXT ON CARD<input id="bingoNewText" placeholder="e.g. Penguin"></label></div><div id="bingoNewImageWrap" class="hidden"><label>IMAGE<select id="bingoNewImage"><option value="">Choose a saved image</option>${gameImageLibrary.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('')}</select></label></div><button id="bingoAddCardItem" type="button">＋ Add Item to Card</button><div class="bingo-added-items">${(bingoDraft.cardExtras||[]).map((a,i)=>`<div class="bingo-added-item">${a.image?`<img src="${a.image}" alt="">`:'<span>TEXT</span>'}<b>${esc(a.call)}</b><small>${esc(a.label||a.text||a.call)}</small><button type="button" data-bingo-extra-remove="${i}" aria-label="Remove card item">×</button></div>`).join('')}</div></div><div class="game-builder-row"><label>CARD SIZE<select id="bingoCardSize"><option value="3" ${size===3?'selected':''}>3 × 3</option><option value="4" ${size===4?'selected':''}>4 × 4</option><option value="5" ${size===5?'selected':''}>5 × 5</option><option value="6" ${size===6?'selected':''}>6 × 6</option></select></label><label>WIN PATTERN<select id="bingoPattern"><option value="line" ${bingoDraft.pattern==='line'?'selected':''}>Line</option><option value="corners" ${bingoDraft.pattern==='corners'?'selected':''}>Four Corners</option><option value="x" ${bingoDraft.pattern==='x'?'selected':''}>X</option><option value="blackout" ${bingoDraft.pattern==='blackout'?'selected':''}>Blackout</option></select></label></div><label><input id="bingoFreeSpace" type="checkbox" ${bingoDraft.free?'checked':''}> Free center space when card size allows</label><div class="game-builder-actions"><button id="bingoUploadBtn">＋ Upload Images</button><input id="bingoUploadInput" type="file" accept="image/*" multiple hidden><button id="bingoSelectAllImages">Use All Library Images</button><button id="bingoClearImages">Clear Image Selection</button></div><details class="bingo-photo-library"><summary>Manage Picture Library · ${gameImageLibrary.length} photos</summary>${gameImagePickerMarkup(bingoDraft.selectedImages)}</details><div class="game-builder-actions"><button id="bingoSaveBtn">Save Set</button><button class="primary" id="bingoLaunchDraftBtn">▶ Save & Launch Bingo</button></div></div><div><div class="foundation-preview"><span class="eyebrow">SAMPLE STUDENT CARD</span><h3>${esc(bingoDraft.name||'BINGO')}</h3><div class="foundation-preview-bingo" style="grid-template-columns:repeat(${Math.min(6,size)},1fr)">${Array.from({length:size*size},(_,i)=>`<div class="bingo-numbered-preview"><span>${i+1}</span>${contentMarkup((bingoDraft.numberedMode?(slots[i]&&slots[i].call?{type:slots[i].image?'image':'text',value:slots[i].image||slots[i].text||slots[i].call}:null):items[i]?.card))||'<small>Empty</small>'}</div>`).join('')}</div></div><div class="game-builder-card" style="margin-top:14px"><h4>Saved Bingo Sets</h4><div class="game-set-list">${bingoSets.length?bingoSets.map(s=>`<div class="game-set-item"><div><b>${esc(s.name)}</b><small>${s.size}×${s.size} · ${s.items?.length||0} items · ${esc(s.pattern||'line')}</small></div><button type="button" data-bingo-load="${s.id}">Load Board</button><button type="button" data-bingo-launch="${s.id}">Launch</button><button data-bingo-delete="${s.id}">×</button></div>`).join(''):'<div class="game-library-empty">No saved Bingo sets yet.</div>'}</div></div></div></div>`;
-    // Card-first Bingo Studio: keep the visual board prominent, with importer beside it.
-    const bingoStudioBoard=grid.querySelector('.bingo-slot-editor');
-    if(bingoStudioBoard){
-      grid.querySelector('.game-builder-shell')?.classList.add('bingo-studio-shell');
-      bingoStudioBoard.closest('.game-builder-card')?.classList.add('bingo-studio-main');
-      const freeCenter=bingoDraft.free&&size%2===1?Math.floor(slotCount/2):-1;
-      const ready=Array.from({length:slotCount},(_,i)=>i).filter(i=>
-        i===freeCenter||!!(slots[i]?.call&&(slots[i]?.image||slots[i]?.text))).length;
-      const required=slotCount-(freeCenter>=0?1:0);
-      const placed=ready-(freeCenter>=0?1:0);
-      const pct=Math.round(ready/Math.max(1,slotCount)*100);
-      bingoStudioBoard.insertAdjacentHTML('beforebegin',
-        '<div class="bingo-studio-hero"><div class="bingo-studio-logo" aria-hidden="true">▦</div>'+
-        '<div class="bingo-studio-intro"><small>SI MOTHERSHIP · CLASSROOM ARCADE</small>'+
-        '<h3>BINGO BOARD STUDIO</h3><p>Build your visual board · Load pictures · Play together</p></div>'+
-        '<div class="bingo-studio-status"><strong>'+placed+' <em>/ '+required+'</em></strong>'+
-        '<span>PICTURES PLACED</span><div class="bingo-studio-meter" role="progressbar" aria-label="Bingo card completion" aria-valuenow="'+ready+'" aria-valuemin="0" aria-valuemax="'+slotCount+'"><i style="width:'+pct+'%"></i></div></div></div>');
-      bingoStudioBoard.querySelectorAll('[data-bingo-slot]').forEach(tile=>{
-        const i=Number(tile.dataset.bingoSlot);
-        const filled=!!(slots[i]?.call&&(slots[i]?.image||slots[i]?.text));
-        tile.classList.toggle('is-filled',filled);
-        tile.classList.toggle('is-empty',!filled);
-        tile.setAttribute('aria-label','Square '+(i+1)+': '+(filled?String(slots[i].call)+'; edit picture':'empty; add picture'));
-      });
-    }
-    const bingoBulkSlotGrid=grid.querySelector('.bingo-slot-picker');
-    if(bingoBulkSlotGrid){
-      bingoBulkSlotGrid.insertAdjacentHTML('beforebegin',bingoBulkUploadMarkup());
-      wireBingoBulkUploader();
-    }
-    $('#bingoSetName').oninput=e=>bingoDraft.name=e.target.value;$('#bingoQuickItems').oninput=e=>bingoDraft.quick=e.target.value;$('#bingoCardSize').onchange=e=>{bingoDraft.size=Number(e.target.value);renderActivities()};$('#bingoPattern').onchange=e=>bingoDraft.pattern=e.target.value;$('#bingoFreeSpace').onchange=e=>bingoDraft.free=e.target.checked;
-    $('#bingoUploadBtn').onclick=()=>$('#bingoUploadInput').click();$('#bingoUploadInput').onchange=e=>importGameImages(e.target.files);
-    $$('[data-game-image]').forEach(b=>b.onclick=()=>{const id=b.dataset.gameImage,arr=new Set(bingoDraft.selectedImages||[]);arr.has(id)?arr.delete(id):arr.add(id);bingoDraft.selectedImages=[...arr];renderActivities()});
-    wireGameLibraryRemoveButtons();
-    $('#bingoNumberedMode').onchange=e=>{bingoDraft.numberedMode=e.target.checked;renderActivities()};
-    $$('[data-bingo-slot]').forEach(b=>b.onclick=()=>{bingoDraft.editSlot=Number(b.dataset.bingoSlot);bingoDraft.numberedMode=true;renderActivities()});
-    $('#bingoSlotType').onchange=e=>{
-      $('#bingoSlotTextWrap').classList.toggle('hidden',e.target.value==='image');
-      $('#bingoSlotImageWrap').classList.toggle('hidden',e.target.value!=='image');
-    };
-    $('#bingoSlotUploadBtn').onclick=()=>$('#bingoSlotUploadFile').click();
-    $('#bingoSlotUploadFile').onchange=async e=>{
-      const file=e.target.files?.[0];if(!file)return;
-      const index=Number(bingoDraft.editSlot||0);
-      try{
-        const data=await normalizeGameImage(file);
-        const asset={id:newGameAssetId(),name:gameImageName(file),image:data,collection:'Custom',createdAt:Date.now()};
-        if(!persistGameStore(GAME_IMAGE_LIBRARY_STORE,[...gameImageLibrary,asset]))return toast('Could not save this picture');
-        gameImageLibrary=[...gameImageLibrary,asset];
-        const enteredCall=$('#bingoSlotCall')?.value.trim().slice(0,100)||asset.name;
-        const arr=[...(bingoDraft.numberedSlots||[])];
-        arr[index]={slot:index+1,call:enteredCall,text:'',image:data,label:asset.name};
-        bingoDraft.numberedSlots=arr;bingoDraft.numberedMode=true;bingoDraft.editSlot=-1;
-        renderActivities();toast('Picture added to square '+(index+1));
-      }catch(err){toast('Could not upload that picture')}
-    };
-    $('#bingoSlotApply').onclick=()=>{
-      const enteredCall=$('#bingoSlotCall').value.trim().slice(0,100);
-      const isImage=$('#bingoSlotType').value==='image';
-      const asset=isImage?gameImageLibrary.find(a=>a.id===$('#bingoSlotImage').value):null;
-      if(isImage&&!asset)return toast('Select a picture first');
-      const textValue=$('#bingoSlotText').value.trim().slice(0,100);
-      const call=enteredCall||(isImage?asset?.name:textValue);
-      if(!call)return toast('Enter text or select an image first');
-      const index=Number(bingoDraft.editSlot||0),arr=[...(bingoDraft.numberedSlots||[])];
-      arr[index]={slot:index+1,call,text:isImage?'':textValue,image:asset?asset.image:'',label:asset?asset.name:''};
-      bingoDraft.numberedSlots=arr;bingoDraft.numberedMode=true;
-      bingoDraft.editSlot=-1;renderActivities();
-    };
-    $('#bingoSlotClear').onclick=()=>{
-      const arr=[...(bingoDraft.numberedSlots||[])];
-      delete arr[Number(bingoDraft.editSlot||0)];bingoDraft.numberedSlots=arr;bingoDraft.editSlot=-1;renderActivities();
-    };
-    $('#bingoNewCardType').onchange=e=>{
-      $('#bingoNewImageWrap').classList.toggle('hidden',e.target.value!=='image');
-      $('#bingoNewTextWrap').classList.toggle('hidden',e.target.value==='image');
-    };
-    $('#bingoAddCardItem').onclick=()=>{
-      const call=$('#bingoNewCall').value.trim().slice(0,100);
-      if(!call)return toast('Enter a called word first');
-      const isImage=$('#bingoNewCardType').value==='image';
-      const asset=isImage?gameImageLibrary.find(a=>a.id===$('#bingoNewImage').value):null;
-      if(isImage&&!asset)return toast('Choose an image from the library');
-      const textValue=$('#bingoNewText').value.trim().slice(0,100)||call;
-      const entry={call,text:isImage?'':textValue,image:isImage?asset.image:'',label:isImage?asset.name:''};
-      bingoDraft.cardExtras=[...(bingoDraft.cardExtras||[]),entry].slice(0,48);
-      renderActivities();
-    };
-    $$('[data-bingo-extra-remove]').forEach(b=>b.onclick=()=>{
-      bingoDraft.cardExtras=(bingoDraft.cardExtras||[]).filter((_,i)=>i!==Number(b.dataset.bingoExtraRemove));
-      renderActivities();
-    });
-    $('#bingoSelectAllImages').onclick=()=>{bingoDraft.selectedImages=gameImageLibrary.map(x=>x.id);renderActivities()};$('#bingoClearImages').onclick=()=>{bingoDraft.selectedImages=[];renderActivities()};
-    $('#bingoSaveBtn').onclick=saveBingoDraft;$('#bingoLaunchDraftBtn').onclick=()=>{const s=saveBingoDraft();if(s)launchBingoSet(s)};
-    $$('[data-bingo-load]').forEach(b=>b.onclick=()=>{const s=bingoSets.find(x=>x.id===b.dataset.bingoLoad);if(s)loadBingoSetIntoBuilder(s)});
-    $$('[data-bingo-launch]').forEach(b=>b.onclick=()=>{const s=bingoSets.find(x=>x.id===b.dataset.bingoLaunch);if(s)launchBingoSet(s)});
-    $$('[data-bingo-delete]').forEach(b=>b.onclick=()=>{bingoSets=bingoSets.filter(x=>x.id!==b.dataset.bingoDelete);persistGameStore(BINGO_SET_STORE,bingoSets);renderActivities()});
+    title.textContent='BINGO';
+    subtitle.textContent='UPLOAD LIBRARY → CHECK PICTURES → CREATE BOARD → SAVE → LAUNCH';
+    header.innerHTML='<button id="backToAppsBtn">← Activity Library</button>';
+    $('#backToAppsBtn').onclick=backToAppLibrary;
+    grid.innerHTML=bbsMarkup();
+    bbsWire();
     return;
   }
 

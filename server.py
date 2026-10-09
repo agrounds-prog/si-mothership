@@ -4928,6 +4928,14 @@ async def match_builder_style(request: web.Request) -> web.Response:
     return web.FileResponse(ROOT / "match-builder.css", headers={"Cache-Control": "no-store"})
 
 
+async def bingo_board_studio_script(request: web.Request) -> web.Response:
+    return web.FileResponse(ROOT / "bingo-board-studio.js", headers={"Cache-Control": "no-store"})
+
+
+async def bingo_board_studio_style(request: web.Request) -> web.Response:
+    return web.FileResponse(ROOT / "bingo-board-studio.css", headers={"Cache-Control": "no-store"})
+
+
 async def cosmic_cards_script(request: web.Request) -> web.Response:
     return web.FileResponse(ROOT / "cosmic-cards.js", headers={"Cache-Control": "no-store"})
 
@@ -5848,6 +5856,8 @@ def create_app() -> web.Application:
     app.router.add_get("/match-arcade.css", match_arcade_style)
     app.router.add_get("/match-builder.js", match_builder_script)
     app.router.add_get("/match-builder.css", match_builder_style)
+    app.router.add_get("/bingo-board-studio.js", bingo_board_studio_script)
+    app.router.add_get("/bingo-board-studio.css", bingo_board_studio_style)
     app.router.add_get("/cosmic-cards.js", cosmic_cards_script)
     app.router.add_get("/cosmic-cards.css", cosmic_cards_style)
     app.router.add_get("/cosmic-cc-emblem.svg", cosmic_cards_artwork)
