@@ -132,3 +132,144 @@
  #teacher .bbs-progress{min-width:94px}
  #teacher .bbs-library-entry .bbs-library-remove{opacity:1}
 }
+
+/* Shared Bingo caller: balanced spotlight and true square picture history.
+   This affects presentation geometry only, not Bingo rounds, marks or saved sets. */
+.bingo-shared-wrap{
+  justify-content:flex-start!important;
+}
+.bingo-shared-wrap .bingo-shared-main{
+  grid-template-columns:minmax(0,1.06fr) minmax(0,1fr)!important;
+  gap:clamp(14px,1.7vw,28px)!important;
+  align-items:stretch!important;
+}
+.bingo-shared-wrap .bingo-call-card{
+  min-height:0!important;
+  height:clamp(410px,62dvh,590px)!important;
+  padding:clamp(46px,4vw,66px) clamp(14px,1.6vw,26px) 20px!important;
+}
+.bingo-shared-wrap .bingo-call-card .bingo-call-display{
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  gap:clamp(9px,1.3vh,16px)!important;
+}
+.bingo-shared-wrap .bingo-call-card .bingo-call-display img{
+  display:block!important;
+  width:auto!important;
+  height:auto!important;
+  max-width:min(92%,470px)!important;
+  max-height:min(46dvh,440px)!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  flex:0 1 auto!important;
+}
+.bingo-shared-wrap .bingo-call-card .bingo-call-label{
+  font-size:clamp(25px,2.8vw,41px)!important;
+  line-height:1.12!important;
+}
+.bingo-shared-wrap .bingo-history{
+  min-width:0!important;
+  min-height:0!important;
+  justify-content:flex-start!important;
+}
+.bingo-shared-wrap .bingo-history-grid{
+  display:grid!important;
+  grid-template-columns:repeat(var(--bingo-hist-cols,4),minmax(0,1fr))!important;
+  grid-template-rows:none!important;
+  grid-auto-rows:auto!important;
+  height:auto!important;
+  max-height:clamp(335px,58dvh,600px)!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  align-content:start!important;
+  gap:clamp(7px,.65vw,12px)!important;
+  padding:4px 5px 8px 2px!important;
+  scrollbar-width:thin;
+  scrollbar-color:#529fc9 #0b2349;
+}
+.bingo-shared-wrap .bingo-history-grid>span{
+  box-sizing:border-box!important;
+  min-width:0!important;
+  min-height:0!important;
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:1 / 1!important;
+  padding:clamp(5px,.6vw,9px)!important;
+  border-radius:clamp(9px,.85vw,13px)!important;
+  overflow:hidden!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+.bingo-shared-wrap .bingo-history-grid .bingo-call-mini{
+  box-sizing:border-box!important;
+  display:grid!important;
+  grid-template-rows:minmax(0,1fr) auto!important;
+  justify-items:center!important;
+  align-items:center!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  aspect-ratio:auto!important;
+  gap:clamp(3px,.45vw,6px)!important;
+  border:0!important;
+  border-radius:0!important;
+  padding:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.bingo-shared-wrap .bingo-history-grid .bingo-call-mini img{
+  display:block!important;
+  width:auto!important;
+  height:auto!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  align-self:center!important;
+  justify-self:center!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  background:transparent!important;
+  border-radius:6px!important;
+  padding:0!important;
+  flex:none!important;
+}
+.bingo-shared-wrap .bingo-history-grid .bingo-call-mini b{
+  display:-webkit-box!important;
+  -webkit-box-orient:vertical!important;
+  -webkit-line-clamp:2!important;
+  line-clamp:2!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  font-size:clamp(11px,1.05vw,16px)!important;
+  line-height:1.14!important;
+  text-align:center!important;
+}
+.bingo-shared-wrap .bingo-history>p{
+  margin:clamp(9px,1.4vh,16px) 0 5px!important;
+}
+/* Compact and portrait second screens: stack caller above an equally square gallery. */
+@media(max-width:800px){
+  .bingo-shared-wrap .bingo-shared-main{grid-template-columns:1fr!important}
+  .bingo-shared-wrap .bingo-call-card{height:clamp(340px,48dvh,490px)!important;min-height:0!important}
+  .bingo-shared-wrap .bingo-call-card .bingo-call-display img{max-height:34dvh!important}
+  .bingo-shared-wrap .bingo-history-grid{
+    grid-template-columns:repeat(var(--bingo-hist-mobile-cols,3),minmax(0,1fr))!important;
+    height:auto!important;max-height:min(54dvh,520px)!important;
+    grid-auto-rows:auto!important;overflow-y:auto!important;
+  }
+  .bingo-shared-wrap .bingo-history-grid>span{height:auto!important;min-height:0!important;aspect-ratio:1 / 1!important}
+  .bingo-shared-wrap .bingo-history-grid .bingo-call-mini img{height:auto!important}
+}
+@media(max-width:450px){
+  .bingo-shared-wrap .bingo-history-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-height:650px) and (min-width:801px){
+  .bingo-shared-wrap .bingo-call-card{height:clamp(290px,49dvh,450px)!important;min-height:0!important}
+  .bingo-shared-wrap .bingo-call-card .bingo-call-display img{max-height:31dvh!important}
+  .bingo-shared-wrap .bingo-history-grid{height:auto!important;max-height:clamp(235px,48dvh,420px)!important}
+  .bingo-shared-wrap .bingo-history-grid>span{aspect-ratio:1 / 1!important;height:auto!important}
+}
