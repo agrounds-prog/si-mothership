@@ -5864,6 +5864,16 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                     run = current.get("activityRun") if isinstance(current, dict) else None
                     if not isinstance(run, dict) or str(run.get("phase") or "") != "running" or not name:
                         continue
+                    # Bind Survey/Million requests to an enrolled student, just like
+                    # Bingo. A socket cannot submit a buzzer or answer for an
+                    # arbitrary name supplied in a message.
+                    identity = _student_by_identity(current, token, "") if token else None
+                    if identity is None and not token and name:
+                        legacy = _student_by_identity(current, "", name)
+                        if isinstance(legacy, dict) and not legacy.get("studentToken"):
+                            identity = legacy
+                    if not isinstance(identity, dict) or str(identity.get("n") or "") != name:
+                        continue
                     request_data["name"] = name
                     game = str(request_data.get("game") or "")
                     activity_id = str(run.get("activityId") or "")
