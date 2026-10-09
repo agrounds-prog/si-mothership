@@ -15540,6 +15540,7 @@ function appIllustratedIconMarkup(idOrType){
 }
 function appIconMarkup(idOrType){
   const id=String(idOrType||'').toLowerCase();
+  if(id==='minefield'||id==='minefield-game')return '<img class="cc-app-icon mf-app-icon" src="/minefield-app-icon.webp?v=1" alt="" aria-hidden="true" loading="lazy">';
   if(id==='cosmic-cards'||id==='cosmic-cards-game')return '<img class="cc-app-icon" src="/cosmic-cards-app.svg?v=1" alt="" aria-hidden="true" loading="lazy">';
   const common='viewBox="0 0 64 64" aria-hidden="true" focusable="false"';
   if(id==='si-plus'||id==='presentation')return `<svg ${common}><rect x="10" y="10" width="44" height="44" rx="13" fill="none" stroke="currentColor" stroke-width="3"/><path d="M19 23h26M19 31h15" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="23" cy="43" r="4" fill="currentColor"/><circle cx="33" cy="43" r="4" fill="currentColor" opacity=".72"/><circle cx="43" cy="43" r="4" fill="currentColor" opacity=".45"/></svg>`;
