@@ -418,6 +418,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   window.__siSurveyBoardLibraryInstalled=true;
   const KEY='siMothership.crewSurveyBoards.v1';
   let boards=[],editingId='',draftName='',busy=false,installed=false;
+  let gameLength=1,roundIds=[];
   const byId=id=>document.getElementById(id);
   const safe=value=>typeof esc==='function'?esc(value):String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const message=s=>{if(typeof toast==='function')toast(s)};
@@ -538,8 +539,154 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     if(!entry||!confirm('Delete saved survey board "'+entry.name+'"? This cannot be undone.'))return;
     if(!(await commit(boards.filter(x=>x.id!==id))))return;
     if(editingId===id)editingId='';
+    roundIds=roundIds.map(x=>x===id?'':x);
     renderActivities();
     message('Deleted survey board '+entry.name);
+  }
+
+  /* Round 1 uses the board currently open in the editor. Later rounds load
+     only opaque saved-board IDs into the class state: no future answer text
+     is distributed to student or shared devices ahead of its face-off. */
+  function roundsUI(){
+    const options=boards.filter(b=>b.id!==editingId);
+    const slots=Array.from({length:gameLength-1},(_,i)=>{
+      const id=roundIds[i]||'';
+      const usable=options.some(b=>b.id===id);
+      return '<label class="survey-round-select">ROUND '+(i+2)+
+        '<select data-survey-round="'+i+'"><option value="">Choose a saved board…</option>'+
+        options.map(b=>'<option value="'+safe(b.id)+'" '+(b.id===id?'selected':'')+'>'+
+        safe(b.name)+' · '+safe(b.prompt)+'</option>').join('')+'</select>'+
+        (!usable&&id?'<span class="survey-round-warning">This board is missing; choose another.</span>':'')+
+        '</label>';
+    }).join('');
+    return '<section class="survey-rounds-panel" aria-label="Survey game length and board order">'+
+      '<div class="survey-rounds-heading"><div><span class="survey-library-eyebrow">GAME SETUP</span>'+
+      '<h4>How many survey boards?</h4><p>Each board gets a new face-off. Crew scores carry through all rounds.</p></div>'+
+      '<span class="survey-round-count">'+gameLength+' BOARD'+(gameLength===1?'':'S')+'</span></div>'+
+      '<div class="survey-round-count-buttons">'+[1,3,5].map(n=>
+        '<button type="button" data-survey-length="'+n+'" aria-pressed="'+(gameLength===n)+'" class="'+(gameLength===n?'selected':'')+'">'+
+        n+' BOARD'+(n===1?'':'S')+'</button>').join('')+'</div>'+
+      '<div class="survey-round-order"><div class="survey-round-first"><b>ROUND 1 · CURRENT BOARD</b><span>'+
+      safe(draftName||crewSurveyDraft.prompt||'Board being edited above')+'</span></div>'+
+      slots+'</div>'+
+      (gameLength>1?'<p class="survey-round-note">Select '+(gameLength-1)+' different saved boards for the remaining rounds. Save any new boards first.</p>':
+      '<p class="survey-round-note">Play a single board, with a new face-off whenever you replay.</p>')+
+      '</section>';
+  }
+  function validRoundSequence(){
+    if(gameLength===1)return [];
+    const picked=roundIds.slice(0,gameLength-1);
+    if(picked.length!==gameLength-1||picked.some(x=>!x)){
+      message('Choose a saved board for each of the '+gameLength+' rounds.');return null;
+    }
+    if(new Set(picked).size!==picked.length||picked.includes(editingId)){
+      message('Select a different board for each round.');return null;
+    }
+    for(const id of picked){
+      const board=boards.find(x=>x.id===id);
+      if(!board||!board.prompt.trim()||board.answers.filter(a=>a.text.trim()).length<4){
+        message('One selected board is missing or needs at least four answers.');return null;
+      }
+    }
+    return picked;
+  }
+  function roundRun(){
+    const run=typeof state!=='undefined'?state.activityRun:null;
+    return run?.activityId==='crew-survey-game'&&run.crewSurveyTotal?run:null;
+  }
+  function winnerLine(cs){
+    const scores=cs.scores||[0,0];
+    const blue=Number(scores[0]||0),red=Number(scores[1]||0);
+    return blue===red?'TIE GAME':blue>red?'BLUE CREW WINS':'RED CREW WINS';
+  }
+  function advanceSurvey(original){
+    const run=roundRun();
+    if(!run)return original();
+    const cs=run.crewSurvey,total=Number(run.crewSurveyTotal||1),index=Number(run.crewSurveyRoundIndex||0);
+    if(index>=total-1){
+      if(cs?.stage==='roundwon'){message('All '+total+' survey boards are complete. '+winnerLine(cs)+'.');return}
+      if(!confirm('Replay this final board and reset its reveals and strikes?'))return;
+      original();
+      cs.message='Replay face-off · Board '+total+' of '+total+'.';
+      render();return;
+    }
+    if(cs?.stage!=='roundwon'&&!confirm('Move to the next board without awarding this round? Current round points will not be added.'))return;
+    const id=(run.crewSurveyPlaylistIds||[])[index]||'';
+    const board=boards.find(x=>x.id===id);
+    if(!board){message('Next survey board not found in the teacher library. Return to Survey setup to check saved boards.');return}
+    const previous=run.crewSurveyConfig||{},members=cs?.teams||[[],[]],next=index+1;
+    run.crewSurveyConfig={
+      prompt:board.prompt,
+      answers:board.answers.filter(a=>a.text.trim()).map((a,i)=>({id:i+1,text:a.text.trim(),value:Number(a.value||0)})),
+      scoring:board.scoring,
+      aacVocab:[...board.aacVocab],
+      aacStudents:[...(previous.aacStudents||[])]
+    };
+    run.crewSurveyRoundIndex=next;
+    original(); // existing reset keeps scores, teams and creates a fresh face-off
+    const now=run.crewSurvey;
+    if(now){
+      now.activeIndexes=[next%Math.max(1,members[0]?.length||1),next%Math.max(1,members[1]?.length||1)];
+      now.buzzer.eligible=[members[0]?.[now.activeIndexes[0]],members[1]?.[now.activeIndexes[1]]].filter(Boolean);
+      now.message='Board '+(next+1)+' of '+total+' · New face-off. Arm the buzzers!';
+    }
+    render(); // synchronize fresh question and rotating contestants to students and shared screen
+    message('Round '+(next+1)+' of '+total+': '+board.name);
+  }
+  function drawHostRounds(){
+    const run=roundRun();if(!run||run.phase!=='running')return;
+    const box=byId('activityControllerPanel'),cs=run.crewSurvey;
+    if(!box||!cs)return;
+    const n=Number(run.crewSurveyRoundIndex||0)+1,total=Number(run.crewSurveyTotal||1);
+    const finished=n===total&&cs.stage==='roundwon';
+    const head=box.querySelector('.activity-controller-head');
+    if(head&&!box.querySelector('.survey-host-rounds')){
+      const info=document.createElement('div');
+      info.className='survey-host-rounds';
+      info.innerHTML='<b>BOARD '+n+' / '+total+'</b><span>'+
+        (finished?'GAME COMPLETE · '+safe(winnerLine(cs)):safe(run.crewSurveyConfig?.prompt||''))+
+        '</span><strong>BLUE '+Number(cs.scores?.[0]||0)+' · RED '+Number(cs.scores?.[1]||0)+'</strong>';
+      head.after(info);
+    }
+    const next=byId('crewSurveyNewRoundBtn');
+    if(next){
+      next.textContent=finished?'✓ Game Complete':n<total?'→ Next Board & Face-Off':'↻ Replay This Board';
+      next.disabled=finished;
+      next.title=finished?'Finish & Return when you are ready':n<total?'Advance to board '+(n+1)+' of '+total:'Replay this last board';
+    }
+  }
+  function wrapGameplay(){
+    if(typeof launchCrewSurvey!=='function'||typeof crewSurveyNewRound!=='function'||typeof renderActivityController!=='function')return;
+    const origLaunch=launchCrewSurvey,origNewRound=crewSurveyNewRound,origControl=renderActivityController;
+    launchCrewSurvey=function(...args){
+      const queue=validRoundSequence();
+      if(queue===null)return;
+      const previous=state.activityRun;
+      const result=origLaunch.apply(this,args);
+      const run=state.activityRun;
+      if(run&&run!==previous&&run.activityId==='crew-survey-game'){
+        run.crewSurveyTotal=gameLength;
+        run.crewSurveyRoundIndex=0;
+        run.crewSurveyPlaylistIds=queue;
+        render();
+      }
+      return result;
+    };
+    crewSurveyNewRound=function(...args){return advanceSurvey(()=>origNewRound.apply(this,args))};
+    renderActivityController=function(...args){const result=origControl.apply(this,args);drawHostRounds();return result};
+    if(typeof crewSurveySharedMarkup==='function'){
+      const origPublic=crewSurveySharedMarkup;
+      crewSurveySharedMarkup=function(...args){
+        const html=origPublic.apply(this,args),run=roundRun();
+        if(!run||!html)return html;
+        const cs=run.crewSurvey,n=Number(run.crewSurveyRoundIndex||0)+1,total=Number(run.crewSurveyTotal||1);
+        const done=n===total&&cs?.stage==='roundwon';
+        const banner='<div class="survey-shared-rounds"><b>ROUND '+n+' OF '+total+'</b>'+
+          (done?'<strong>★ '+safe(winnerLine(cs))+' · FINAL SCORE ★</strong>':
+            '<span>Next face-off begins on a new board</span>')+'</div>';
+        return html.replace(/(<div class="crew-survey-public[^>]*>)/, '$1'+banner);
+      };
+    }
   }
   function draw(){
     if(!editorActive())return;
@@ -574,7 +721,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         '<button type="button" data-survey-delete="'+safe(b.id)+'" class="survey-delete" aria-label="Delete '+safe(b.name)+'">×</button>'+
         '</div></article>').join('')+'</div>':
         '<p class="survey-library-empty">No saved boards yet. Enter a question and answers below, name your board, then press Save Board.</p>')+
-      '</div>';
+      '</div>'+roundsUI();
     setup.querySelector('.game-show-setup-grid')?.before(panel);
     const nameField=byId('surveyBoardName');
     if(nameField)nameField.oninput=e=>draftName=e.target.value;
@@ -585,11 +732,22 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     panel.querySelectorAll('[data-survey-load]').forEach(el=>el.onclick=()=>openBoard(el.dataset.surveyLoad));
     panel.querySelectorAll('[data-survey-play]').forEach(el=>el.onclick=()=>playBoard(el.dataset.surveyPlay));
     panel.querySelectorAll('[data-survey-delete]').forEach(el=>el.onclick=()=>deleteBoard(el.dataset.surveyDelete));
+    panel.querySelectorAll('[data-survey-length]').forEach(el=>el.onclick=()=>{
+      gameLength=Number(el.dataset.surveyLength);
+      roundIds=roundIds.slice(0,gameLength-1);
+      renderActivities();
+    });
+    panel.querySelectorAll('[data-survey-round]').forEach(el=>el.onchange=()=>{
+      roundIds[Number(el.dataset.surveyRound)]=el.value;
+      renderActivities();
+    });
+    const launch=byId('launchCrewSurveyBtn');
+    if(launch)launch.onclick=launchCrewSurvey;
   }
   function install(){
     if(installed||typeof renderActivities!=='function'||typeof loadGameStore!=='function')return;
     if(typeof SESSION_ROLE==='undefined'||SESSION_ROLE!=='teacher')return;
-    installed=true;load();
+    installed=true;load();wrapGameplay();
     const originalRender=renderActivities;
     renderActivities=function(...args){const result=originalRender.apply(this,args);draw();return result};
     draw();
