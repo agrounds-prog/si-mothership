@@ -420,7 +420,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   const GAME_KEY='siMothership.crewSurveyGames.v1';
   const byId=id=>document.getElementById(id);
   const safe=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const tell=v=>{if(typeof toast==='function')toast(v)};
+  let lastLaunchStatus='';
+  const tell=v=>{
+    lastLaunchStatus=String(v||'');
+    const box=byId('surveyLaunchStatus');
+    if(box){box.textContent=lastLaunchStatus;box.hidden=false;
+      box.style.color=/could not|failed|error|assign|needs|different|before|first|at least|no board|missing|finish the current|not found/i.test(lastLaunchStatus)?'#ffd1c9':'#c1ffed'}
+    if(typeof toast==='function')toast(lastLaunchStatus);
+  };
   let boards=[],games=[],editingBoardId='',editingGameId='',boardName='',gameName='';
   let gameLength=1,roundIds=[''],roundCopies=[null],activeCopies=[],busy=false,installed=false;
   const id=kind=>kind+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9);
@@ -542,10 +549,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   }
   function compileRounds(){
     const rounds=Array.from({length:gameLength},(_,i)=>boardForRound(i));
-    if(rounds.some((b,i)=>!b||!boardValid(b))){
-      tell('Assign a saved board with at least four answers to every round.');return null;
+    const missing=rounds.findIndex(b=>!b||!boardValid(b));
+    if(missing!==-1){
+      const current=rounds[missing];
+      tell(!current?'Round '+(missing+1)+' has no saved board. Select one in Game Builder.':
+        'Round '+(missing+1)+' needs a question and at least four nonblank answers.');
+      return null;
     }
-    const ids=rounds.map(b=>b.sourceBoardId);
+    const ids=rounds.map((b,i)=>b.sourceBoardId||'saved-round-'+i);
     if(new Set(ids).size!==ids.length){
       tell('Choose a different saved board for each round.');return null;
     }
@@ -660,7 +671,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const eligible=[teams[0]?.[0],teams[1]?.[0]].filter(Boolean);
     const snapshots=chosen.map(b=>freezeBoard(b));
     const next={
-      activityId:'crew-survey-game',runToken:newActivityRunToken(),phase:'lobby',responses:{},
+      activityId:'crew-survey-game',runToken:newActivityRunToken(),phase:'running',responses:{},
       crewSurveyConfig:{
         prompt:first.prompt.slice(0,240),answers,scoring:!!first.scoring,
         aacStudents:(crewSurveyDraft.aacStudents||[]).filter(n=>students.some(s=>s.n===n)),
@@ -688,10 +699,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     recordActivityLaunch('crew-survey','CREW SURVEY');
     render();
     tell(students.length===0
-      ?'CREW SURVEY loaded in teacher preview · no students connected'
+      ?'CREW SURVEY is LIVE in teacher preview · no students connected'
       :students.length===1
-        ?'CREW SURVEY loaded for one student · connect another for two-crew faceoffs'
-        :'CREW SURVEY loaded — students moved to Activity Lobby');
+        ?'CREW SURVEY is LIVE for one student · connect another for two-crew faceoffs'
+        :'CREW SURVEY is LIVE · faceoff ready for students');
     return true;
   }
   function wrapGameplay(){
@@ -774,6 +785,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       '<button id="surveyCopyGame" type="button">Save Game Copy</button>'+
       '<button id="surveyNewGame" type="button">＋ New Game</button>'+
       '<span id="surveyLaunchSlot"></span></div>'+
+      '<div id="surveyLaunchStatus" role="status" aria-live="polite" '+(lastLaunchStatus?'':'hidden')+' style="margin:9px 0;padding:10px 12px;border:1px solid #5485a1;border-radius:9px;background:#0a2840;color:#c1ffed;font-weight:750;">'+safe(lastLaunchStatus)+'</div>'+
       '<div class="survey-library-bottom survey-game-library"><h5>Saved Games <small>Load / Edit or play a complete game.</small></h5>'+
       (games.length?'<div class="survey-library-list">'+games.map(g=>
         '<article class="survey-library-item'+(g.id===editingGameId?' selected':'')+'">'+
@@ -812,20 +824,35 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     studio.querySelectorAll('[data-survey-load-game]').forEach(b=>b.onclick=()=>loadGame(b.dataset.surveyLoadGame));
     studio.querySelectorAll('[data-survey-play-game]').forEach(b=>b.onclick=()=>playGame(b.dataset.surveyPlayGame));
     studio.querySelectorAll('[data-survey-delete-game]').forEach(b=>b.onclick=()=>deleteGame(b.dataset.surveyDeleteGame));
-    if(launch)launch.onclick=()=>{
-      try{
-        launchCrewSurvey();
-        if(state.activityRun?.activityId!=='crew-survey-game')
-          tell('Survey did not load. Select a Board Library item for each game round.');
-      }catch(error){
-        tell('Survey launch error: '+String(error?.message||error));
+    if(launch)launch.onclick=launchSelected;
+  }
+  function launchSelected(){
+    try{
+      const result=launchCrewSurvey();
+      if(!result||state.activityRun?.activityId!=='crew-survey-game'){
+        if(!lastLaunchStatus)tell('Survey did not start. Select a saved board for every round.');
+        return false;
       }
-    };
+      return true;
+    }catch(error){tell('CREW SURVEY launch error: '+String(error?.message||error));return false}
+  }
+  function captureLaunchClick(event){
+    if(SESSION_ROLE!=='teacher'||state.activeApp!=='crew-survey')return;
+    const target=event.target;
+    if(!(target instanceof Element))return;
+    const play=target.closest('[data-survey-play-game]');
+    const launch=target.closest('#launchCrewSurveyBtn');
+    if(!play&&!launch)return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if(play)playGame(play.dataset.surveyPlayGame);
+    else launchSelected();
   }
   function install(){
     if(installed||typeof renderActivities!=='function'||typeof loadGameStore!=='function')return;
     if(SESSION_ROLE!=='teacher')return;
     installed=true;load();wrapGameplay();
+    document.addEventListener('click',captureLaunchClick,true);
     const prior=renderActivities;
     renderActivities=function(...args){const result=prior.apply(this,args);draw();return result};
     draw();
