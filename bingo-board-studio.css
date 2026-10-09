@@ -837,3 +837,37 @@
   #teacher .si-live-control-dock .si-control-body{padding:7px}
   #teacher .si-control-restore{right:10px;bottom:10px}
 }
+
+/* Loaded/paused game controls: a compact floating launcher instead of the
+   huge live gameplay dashboard. It grows when the game starts. */
+#teacher .si-live-control-dock.prelaunch{
+  width:min(880px,calc(100vw - 32px));
+  height:clamp(300px,42dvh,435px);
+  min-height:255px;
+}
+#teacher .si-live-control-dock.prelaunch .si-control-body{
+  padding:clamp(9px,1.2vw,15px);
+}
+#teacher .si-live-control-dock.prelaunch .si-control-body>#activityControllerPanel{
+  padding:clamp(12px,1.4vw,20px)!important;
+}
+#teacher .si-live-control-dock.prelaunch .activity-controller-head{
+  margin-bottom:clamp(9px,1.3vw,16px)!important;
+}
+#teacher .si-live-control-dock.prelaunch .controller-grid.lobby-controller{
+  gap:clamp(7px,.9vw,13px)!important;
+}
+#teacher .si-live-control-dock.prelaunch .controller-grid.lobby-controller button{
+  min-height:43px;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+@media(max-width:650px){
+  #teacher .si-live-control-dock.prelaunch{
+    top:62px;
+    right:8px;
+    width:calc(100vw - 16px);
+    height:min(65dvh,455px);
+    min-height:250px;
+  }
+}
