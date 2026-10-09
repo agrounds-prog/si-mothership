@@ -233,9 +233,36 @@ background:#0f5a5b;color:#eafff4;font-size:16px;font-weight:950;min-height:51px}
  #shared .ma-present .ma-scoreboard{display:none}
 }
 @media(max-height:650px){
- #shared .ma-present{grid-template-rows:auto auto minmax(0,1fr) auto;gap:3px}
- #shared .ma-present .ma-signal,#shared .ma-present .ma-scoreboard{display:none}
+ #shared .ma-present{grid-template-rows:auto auto auto minmax(0,1fr) auto;gap:3px}
+ #shared .ma-present .ma-scoreboard{display:none}
+ #shared .ma-present .ma-signal{min-height:42px;padding:3px 9px}
+ #shared .ma-present .ma-signal-icon{width:30px;height:30px;font-size:18px}
+ #shared .ma-present .ma-signal strong{font-size:clamp(13px,2.8vh,20px)}
+ #shared .ma-present .ma-signal>div>span{font-size:clamp(10px,2vh,14px)}
  #shared .ma-present .ma-tile-back b{font-size:clamp(14px,3.1vh,32px)}
+}
+@media(max-height:430px){
+ #shared .ma-present{grid-template-rows:auto auto minmax(0,1fr) auto}
+ #shared .ma-present .ma-signal{display:none}
+}
+
+/* MATCH v1.1 — readable student identification and accessible card sizes. */
+.ma-student-pilot{display:flex;align-items:center;justify-content:center;gap:10px;
+color:#c4edff;font-size:clamp(11px,2.6vw,15px);font-weight:950;letter-spacing:.12em}
+.ma-student-pilot .ma-avatar{width:clamp(40px,10vw,56px);height:clamp(40px,10vw,56px);
+font-size:clamp(21px,5vw,30px);border-width:2px;box-shadow:0 0 12px var(--ma-avatar-color,#79eaff)}
+.ma-tile.is-selected:not(.is-matched):not(.is-preview){
+border-color:#fff0a0;box-shadow:inset 0 0 0 2px #fff7c066,0 0 18px #ffe28da6,0 8px 18px #0008}
+.ma-student .ma-tile:not(:disabled){touch-action:manipulation}
+.ma-student .ma-tile.is-hidden:disabled{opacity:.92;filter:none}
+.ma-tile.is-matched .ma-tile-found{background:#075d43;color:#fff}
+@media(max-width:580px){
+ #student .ma-student .ma-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+ #student .ma-student{gap:11px}
+ #student .ma-student-heading{gap:7px;padding:6px 4px 0}
+ #student .ma-student .ma-tile{min-height:60px}
+ #student .ma-student .ma-tile-back b{font-size:clamp(21px,6vw,35px)}
+ #student .ma-student .ma-tile-front{font-size:clamp(13px,3.6vw,21px)}
 }
 @media(prefers-reduced-motion:reduce){
  .ma-tile.is-selected{animation:none}
