@@ -263,3 +263,145 @@ function bbsWire(){
     renderActivities()
   });
 }
+
+
+/* Universal teacher controls: live floating dock + detachable browser window.
+   Only relocates the existing activity-controller DOM, never duplicates game state. */
+(()=>{
+if(typeof window==='undefined'||window.__siGameDock)return;
+window.__siGameDock=true;
+let node=null,parent=null,next=null,dock=null,box=null,restore=null,heading=null,win=null,mirror=null,mirrorDoc=null,prevHTML='',key='',hidden=false,drag=null,queued=false;
+const controls='button,a,[role="button"]',fields='input,select,textarea';
+function active(){
+ if(typeof SESSION_ROLE==='undefined'||SESSION_ROLE!=='teacher'||typeof state==='undefined')return null;
+ const run=state.activityRun;
+ return run&&run.phase==='running'&&!state.ended?run:null;
+}
+function caption(a){const x=typeof activeActivity==='function'?activeActivity():null;return String(x?.name||a.activityId||'Game').toUpperCase()}
+function init(){
+ if(dock)return true;
+ node=document.getElementById('activityControllerPanel');
+ const teacher=document.getElementById('teacher');
+ if(!node||!teacher)return false;
+ parent=node.parentNode;next=node.nextSibling;
+ dock=document.createElement('aside');dock.id='siLiveControlDock';dock.className='si-live-control-dock';
+ dock.setAttribute('aria-label','Live teacher game controls');
+ dock.innerHTML='<div id="siControlDrag" class="si-control-titlebar"><span class="si-control-handle">⠿</span><div class="si-control-caption"><small>MISSION CONTROL · LIVE</small><b id="siControlName">GAME CONTROLS</b></div><div class="si-control-buttons"><button type="button" id="siControlPopout">↗ Separate Window</button><button type="button" id="siControlFold" title="Minimize">−</button><button type="button" id="siControlHide" title="Return controls to page">✕</button></div></div><div class="si-control-body" id="siControlBody"></div>';
+ restore=document.createElement('button');restore.type='button';restore.className='si-control-restore';restore.textContent='🎮 Open Game Controls';
+ teacher.appendChild(dock);teacher.appendChild(restore);
+ box=dock.querySelector('#siControlBody');heading=dock.querySelector('#siControlName');
+ dock.querySelector('#siControlFold').onclick=()=>{
+   dock.classList.toggle('folded');
+   dock.querySelector('#siControlFold').textContent=dock.classList.contains('folded')?'+':'−';
+ };
+ dock.querySelector('#siControlHide').onclick=()=>{hidden=true;putBack();dock.classList.add('off');restore.classList.add('on')};
+ restore.onclick=()=>{
+  hidden=false;
+  if(win&&!win.closed){win.focus();return}
+  float();restore.classList.remove('on');
+ };
+ dock.querySelector('#siControlPopout').onclick=detach;
+ const bar=dock.querySelector('#siControlDrag');
+ bar.addEventListener('pointerdown',e=>{
+  if(e.button!==0||e.target.closest('button'))return;
+  const r=dock.getBoundingClientRect();
+  drag={id:e.pointerId,x:e.clientX,y:e.clientY,left:r.left,top:r.top};
+  try{bar.setPointerCapture(e.pointerId)}catch(_){}
+  e.preventDefault();
+ });
+ bar.addEventListener('pointermove',e=>{
+  if(!drag||drag.id!==e.pointerId)return;
+  const maxX=Math.max(4,innerWidth-dock.offsetWidth-4),maxY=Math.max(4,innerHeight-54);
+  dock.style.left=Math.max(4,Math.min(maxX,drag.left+e.clientX-drag.x))+'px';
+  dock.style.top=Math.max(4,Math.min(maxY,drag.top+e.clientY-drag.y))+'px';
+  dock.style.right='auto';
+ });
+ ['pointerup','pointercancel','lostpointercapture'].forEach(t=>bar.addEventListener(t,()=>drag=null));
+ new MutationObserver(queueMirror).observe(node,{subtree:true,childList:true,attributes:true,characterData:true});
+ return true;
+}
+function float(){
+ if(!node||!box)return;
+ if(node.parentNode!==box)box.appendChild(node);
+ node.classList.remove('hidden');dock.classList.remove('off','detached');restore.classList.remove('on');
+}
+function putBack(){if(!node||!parent)return;if(node.parentNode!==parent){if(next&&next.parentNode===parent)parent.insertBefore(node,next);else parent.appendChild(node)}}
+function popClose(){
+ const old=win;win=null;mirror=null;mirrorDoc=null;prevHTML='';
+ if(old&&!old.closed)try{old.close()}catch(_){}
+}
+function reset(){popClose();putBack();if(dock)dock.classList.add('off');if(restore)restore.classList.remove('on');key='';hidden=false}
+function queueMirror(){
+ if(queued||!win||win.closed)return;
+ queued=true;setTimeout(()=>{queued=false;updateMirror()},70);
+}
+function updateMirror(force=false){
+ if(!win||win.closed||!mirror||!node||!active())return;
+ try{
+  const html=node.innerHTML;
+  if(force||html!==prevHTML){
+   const scroll=mirror.scrollTop,originalFields=node.querySelectorAll(fields),focus=mirrorDoc.activeElement;
+   const focusId=focus&&mirror.contains(focus)?Array.from(mirror.querySelectorAll(fields)).indexOf(focus):-1;
+   mirror.innerHTML=html;prevHTML=html;
+   const cloneFields=mirror.querySelectorAll(fields);
+   cloneFields.forEach((a,i)=>{const b=originalFields[i];if(!b)return;a.value=b.value;if('checked' in a)a.checked=b.checked});
+   const originalCanvases=node.querySelectorAll('canvas'),copied=mirror.querySelectorAll('canvas');
+   copied.forEach((a,i)=>{try{const b=originalCanvases[i];a.width=b.width;a.height=b.height;a.getContext('2d')?.drawImage(b,0,0)}catch(_){}});
+   mirror.scrollTop=scroll;
+   if(focusId>=0)try{cloneFields[focusId]?.focus({preventScroll:true})}catch(_){}
+  }
+  const h=mirrorDoc.getElementById('siPopupName');if(h)h.textContent=caption(active());
+ }catch(_){}
+}
+function proxyField(e){
+ const a=e.target.closest?.(fields);if(!a||!mirror?.contains(a))return;
+ const i=Array.from(mirror.querySelectorAll(fields)).indexOf(a),b=node.querySelectorAll(fields)[i];
+ if(!b||b.disabled)return;
+ b.value=a.value;if('checked' in b)b.checked=a.checked;
+ try{b.dispatchEvent(new Event(e.type,{bubbles:true}))}catch(_){}
+ queueMirror();
+}
+function proxyClick(e){
+ const a=e.target.closest?.(controls);if(!a||!mirror?.contains(a))return;
+ const i=Array.from(mirror.querySelectorAll(controls)).indexOf(a),b=node.querySelectorAll(controls)[i];
+ if(!b||b.disabled)return;
+ e.preventDefault();try{b.click()}catch(_){}queueMirror();
+}
+function detach(){
+ if(!active())return;
+ if(win&&!win.closed){win.focus();updateMirror(true);return}
+ let popup=null;
+ try{popup=window.open('about:blank','siMothershipLiveGameControls','popup=yes,width=1100,height=860,left=70,top=60,resizable=yes,scrollbars=yes')}catch(_){}
+ if(!popup){if(typeof toast==='function')toast('Popup blocked. Allow popups for a separate controls window.');return}
+ try{
+  const styles=Array.from(document.head.querySelectorAll('style,link[rel="stylesheet"]')).map(n=>n.outerHTML).join('\n');
+  popup.document.open();
+  popup.document.write('<!doctype html><html><head><meta charset="utf-8"><title>SI Mothership · Game Controls</title>'+styles+
+  '<style>html,body{margin:0!important;min-height:100%;background:#051323!important;color:#edf9ff!important;overflow-x:hidden!important}#teacher{display:block!important;padding:0 15px 18px!important;min-height:100vh!important}.si-popup-bar{position:sticky;top:0;z-index:90;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 15px;border-bottom:2px solid #54d4f8;background:#09243b;color:#fff;font:900 16px system-ui;box-shadow:0 5px 18px #0008}.si-popup-bar small{display:block;font:900 10px system-ui;color:#8ce9ff;letter-spacing:.1em}.si-popup-bar button{padding:10px 13px;background:#145377;color:#fff;border:1px solid #7bdcff;border-radius:9px;cursor:pointer;font:800 12px system-ui}#activityControllerPanel{display:block!important;width:100%!important;max-width:1400px!important;margin:14px auto 0!important;box-sizing:border-box!important}</style></head><body><section id="teacher" class="view active"><header class="si-popup-bar"><div><small>SI MOTHERSHIP · TEACHER ONLY</small><strong id="siPopupName">LIVE GAME CONTROLS</strong></div><button type="button" id="siPopupDock">↙ Dock Back</button></header><section id="activityControllerPanel" class="activity-controller main-card"></section></section></body></html>');
+  popup.document.close();
+  win=popup;mirrorDoc=popup.document;mirror=mirrorDoc.getElementById('activityControllerPanel');
+  mirrorDoc.getElementById('siPopupDock').onclick=()=>{popClose();float()};
+  mirror.addEventListener('click',proxyClick);
+  mirror.addEventListener('input',proxyField);
+  mirror.addEventListener('change',proxyField);
+  popup.addEventListener('beforeunload',()=>{win=null;mirror=null;mirrorDoc=null;prevHTML='';if(active())float()});
+  dock.classList.add('detached');restore.classList.add('on');restore.textContent='↗ Game Window Open';
+  updateMirror(true);popup.focus();
+ }catch(_){try{popup.close()}catch(_){}win=null;mirror=null;mirrorDoc=null;float();if(typeof toast==='function')toast('Unable to open separate controls window.')}
+}
+function tick(){
+ const a=active();if(!a){if(key)reset();return}
+ if(!init())return;
+ const k=String(a.runToken||a.activityId)+'|'+String(a.activityId);
+ if(k!==key){reset();key=k;hidden=false;heading.textContent=caption(a);dock.classList.remove('folded');float()}
+ if(win&&win.closed){win=null;mirror=null;mirrorDoc=null;prevHTML='';float()}
+ if(!hidden&&(!win||win.closed)&&node.parentNode!==box)float();
+ if(heading.textContent!==caption(a))heading.textContent=caption(a);
+}
+function start(){
+ if(typeof SESSION_ROLE==='undefined'||SESSION_ROLE!=='teacher')return;
+ setInterval(tick,320);
+ window.addEventListener('beforeunload',popClose);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
