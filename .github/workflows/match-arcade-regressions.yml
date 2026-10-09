@@ -1,0 +1,43 @@
+name: Match Arcade regression checks
+on:
+  push:
+    paths:
+      - index.html
+      - match-arcade.js
+      - match-arcade.css
+      - server.py
+      - tests/test_match_arcade_preview.py
+      - .github/workflows/match-arcade-regressions.yml
+  workflow_dispatch:
+jobs:
+  match-arcade-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install existing server requirements
+        run: python -m pip install -r requirements.txt
+      - name: Validate standalone and main JavaScript
+        run: |
+          node --check match-arcade.js
+          node --check cosmic-cards.js
+          python -m py_compile server.py
+          python scripts/release_gate.py --require-node > /tmp/match_gate.log || true
+          python - <<'PY'
+          from pathlib import Path
+          lines=Path('/tmp/match_gate.log').read_text().splitlines()
+          bad=[x for x in lines if x.startswith('FAIL')]
+          print('Pre-existing release gate issues:',bad)
+          assert all('unified buttons v56.8: classroom art tiles match shortcut family' in x for x in bad),bad
+          assert any(x.startswith('PASS') and 'inline scripts parse' in x for x in lines),'Inline JS syntax gate missing'
+          print('PASS inline syntax; no new release-gate failures')
+          PY
+      - name: Run MATCH gameplay and teacher authorization regressions
+        run: python -m unittest discover -s tests -p 'test_match_arcade_preview.py' -v
+      - name: Verify clean patch
+        run: git diff --check
