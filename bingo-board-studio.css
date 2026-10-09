@@ -708,3 +708,30 @@
     to{opacity:1}
   }
 }
+
+/* v103 — Shared Activities workspace: keep the modal ABOVE the teacher header.
+   The workspace has isolation:isolate in the main theme, which otherwise traps
+   fixed-position dialogs below the sticky .topbar's z-index:20 stacking layer.
+   Lift its existing stacking context only while an editor is open.
+   No changes to the teacher header in normal classroom mode. */
+#teacher:has(> .workspace #activitiesPanel:not(.hidden)) > .workspace,
+#teacher:has(> .workspace #presentationBuilderPanel:not(.hidden)) > .workspace{
+  position:relative!important;
+  z-index:120!important;
+}
+/* An Activities editor needs its own reliable visible Close action, even
+   when the teacher scrolls through long saved sets or word packs. */
+#teacher #activitiesPanel:not(.hidden) > .activity-workspace-close{
+  position:sticky!important;
+  top:8px!important;
+  z-index:55!important;
+  margin:0 0 8px 8px!important;
+  border:1px solid #7cdaff!important;
+  background:#1a567d!important;
+  color:#fff!important;
+  box-shadow:0 4px 14px #0008!important;
+}
+#teacher #activitiesPanel:not(.hidden) > .activity-workspace-close:focus-visible{
+  outline:3px solid #ffe78e!important;
+  outline-offset:3px!important;
+}
