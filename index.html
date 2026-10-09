@@ -13621,6 +13621,16 @@ body.role-student .agenda-live-footer{
 #teacher .bingo-bulk-confirm button{min-height:39px;padding:8px 13px;border:1px solid #5b94bf;border-radius:9px;background:#1c486e;color:#fff;font-weight:800}
 #teacher #bingoBulkApply{background:#198856;border-color:#79dfb5}
 @media(max-width:610px){#teacher .bingo-bulk-controls{grid-template-columns:1fr}#teacher #bingoBulkChoose{width:100%}}
+</style><style id="v87-bingo-picture-load-methods">
+#teacher .bingo-bulk-panel{border:2px solid #48b9e7}
+#teacher .bingo-bulk-presets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}
+#teacher .bingo-bulk-presets button{min-height:55px;padding:10px;border:2px solid #478db9;border-radius:11px;background:#092340;color:#d6f3ff;font-weight:900;font-size:12px}
+#teacher .bingo-bulk-presets button.active{border-color:#80fad6;background:#155756;color:#fff;box-shadow:0 0 14px #54f6cb44}
+#teacher .bingo-bulk-config{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px;margin-bottom:12px}
+#teacher .bingo-bulk-config label{font-weight:900;font-size:11px;color:#bce8ff}
+#teacher .bingo-bulk-config select{display:block;width:100%;min-height:40px;min-width:0;padding:7px;margin-top:5px;border:1px solid #52a1d8;border-radius:8px;background:#061a31;color:#fff}
+#teacher .bingo-bulk-instructions{font-size:12px;line-height:1.4;color:#e3f6ff}
+@media(max-width:610px){#teacher .bingo-bulk-presets,#teacher .bingo-bulk-controls{grid-template-columns:1fr}}
 </style><style id="v86-bingo-images-in-caller">
 /* Image-based Bingo: show the uploaded card photo along with the call label. */
 .bingo-call-display{width:100%;height:100%;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
@@ -14956,96 +14966,107 @@ function bingoBulkTargetSquares(mode){
   return Array.from({length:size*size},(_,i)=>i).filter(i=>
     i!==center&&(mode==='replace'||!(slots[i]?.call&&(slots[i]?.image||slots[i]?.text))));
 }
+/* Picture import: add slide images individually or an exact-count board set. */
 function bingoBulkUploadMarkup(){
-  const mode=bingoDraft.bulkMode==='replace'?'replace':'empty';
+  const workflow=bingoDraft.bulkWorkflow==='one'?'one':'batch';
+  const mode=workflow==='one'?'empty':bingoDraft.bulkMode==='replace'?'replace':'empty';
   const size=Math.max(3,Math.min(6,Number(bingoDraft.size||4)));
-  const targets=bingoBulkTargetSquares(mode);
+  const targets=bingoBulkTargetSquares(mode),available=targets.length;
+  const wanted=workflow==='one'?1:mode==='replace'?available:Math.max(1,Math.min(available,Number(bingoDraft.bulkQuantity||available)));
   if(bingoBulkStage&&(bingoBulkStage.mode!==mode||bingoBulkStage.size!==size||
-      bingoBulkStage.squares.some((n,i)=>n!==targets[i])))bingoBulkStage=null;
+    bingoBulkStage.squares.some((n,i)=>n!==targets[i])))bingoBulkStage=null;
   const stage=bingoBulkStage;
-  const preview=stage?'<div class="bingo-bulk-preview-heading"><b>Preview '+stage.entries.length+
-    ' pictures</b><span>Check each square before applying</span></div><div class="bingo-bulk-preview">'+
-    stage.entries.map((a,i)=>'<div class="bingo-bulk-preview-item"><span>Square '+(stage.squares[i]+1)+
-      '</span><img src="'+a.image+'" alt="'+esc(a.name)+'"><b>'+esc(a.name)+'</b></div>').join('')+
+  const preview=stage?'<div class="bingo-bulk-preview-heading"><b>Review '+stage.entries.length+' pictures</b><span>Check their numbered locations before applying.</span></div><div class="bingo-bulk-preview">'+
+    stage.entries.map((x,i)=>'<div class="bingo-bulk-preview-item"><span>Square '+(stage.squares[i]+1)+
+    '</span><img src="'+x.image+'" alt="'+esc(x.name)+'"><b>'+esc(x.name)+'</b></div>').join('')+
     '</div><div class="bingo-bulk-confirm"><button type="button" id="bingoBulkApply">'+
-    (mode==='replace'?'Replace Card With Pictures':'Fill These Squares')+
-    '</button><button type="button" id="bingoBulkCancel">Cancel Batch</button></div>':'';
-  return '<section class="bingo-bulk-panel"><div class="bingo-bulk-head"><b>⚡ Bulk Upload Pictures</b>'+
-    '<span>'+targets.length+' '+(mode==='replace'?'card squares':'empty squares')+' available</span></div>'+
-    '<p>Choose several pictures at once. File names become the called words. You can edit any square afterward.</p>'+
-    '<div class="bingo-bulk-controls"><label>UPLOAD MODE<select id="bingoBulkMode">'+
-    '<option value="empty"'+(mode==='empty'?' selected':'')+'>Fill Empty Squares</option>'+
-    '<option value="replace"'+(mode==='replace'?' selected':'')+'>Replace Entire Card</option></select></label>'+
-    '<button type="button" id="bingoBulkChoose"'+(!targets.length?' disabled':'')+'>'+
-    (mode==='replace'?'Choose '+targets.length+' Images':'Choose Up to '+targets.length+' Images')+
-    '</button><input type="file" id="bingoBulkFiles" accept="image/*" multiple hidden></div>'+
+    (mode==='replace'?'Replace Board With Pictures':'Place These Pictures')+
+    '</button><button type="button" id="bingoBulkCancel">Cancel</button></div>':'';
+  return '<section class="bingo-bulk-panel" aria-label="Import Bingo pictures"><div class="bingo-bulk-head">'+
+    '<b>🖼 LOAD SLIDE PICTURES</b><span>'+available+' '+(mode==='replace'?'card':'empty')+' squares available</span></div>'+
+    '<p>Import PNG, JPG or WebP slide images. Each file becomes a Bingo picture; its filename becomes the called word.</p>'+
+    '<div class="bingo-bulk-presets"><button type="button" id="bingoBulkOne" class="'+(workflow==='one'?'active':'')+'">1 · ONE AT A TIME</button>'+
+    '<button type="button" id="bingoBulkBatch" class="'+(workflow==='batch'?'active':'')+'">2 · SET NUMBER / FULL BOARD</button></div>'+
+    '<div class="bingo-bulk-config"><label>BOARD SIZE<select id="bingoBulkBoardSize">'+
+    [3,4,5,6].map(n=>'<option value="'+n+'"'+(n===size?' selected':'')+'>'+n+' × '+n+' ('+(n*n)+' squares)</option>').join('')+'</select></label>'+
+    (workflow==='batch'?'<label>PUT PICTURES<select id="bingoBulkMode">'+
+    '<option value="empty"'+(mode==='empty'?' selected':'')+'>In Empty Squares</option>'+
+    '<option value="replace"'+(mode==='replace'?' selected':'')+'>Replace Entire Board</option></select></label>':'')+
+    (workflow==='batch'&&mode==='empty'?'<label>PICTURES TO ADD<select id="bingoBulkQuantity">'+
+    Array.from({length:available},(_,i)=>i+1).map(n=>'<option value="'+n+'"'+(n===wanted?' selected':'')+'>'+n+(n===available?' (all remaining)':'')+'</option>').join('')+'</select></label>':'')+
+    '</div><div class="bingo-bulk-controls"><span class="bingo-bulk-instructions">'+
+    (workflow==='one'?'Upload a single picture to the next empty numbered square, then repeat.':
+    mode==='replace'?'Choose '+available+' pictures to replace the current board. You can review them before applying.':
+    'Choose exactly '+wanted+' pictures. They fill the next empty squares in selection order.')+
+    '</span><button type="button" id="bingoBulkChoose"'+(!available?' disabled':'')+'>'+
+    (workflow==='one'?'＋ ADD NEXT PICTURE':'＋ CHOOSE '+wanted+' PICTURE'+(wanted===1?'':'S'))+
+    '</button><input type="file" id="bingoBulkFiles" accept="image/*"'+(workflow==='batch'?' multiple':'')+' hidden></div>'+
     '<div class="bingo-bulk-message" id="bingoBulkMessage">'+
-    (mode==='replace'?'Requires exactly '+targets.length+' pictures. Previous card entries will be replaced.':
-      'Adds pictures to empty squares in selection order, without replacing filled ones.')+
-    '</div>'+preview+'</section>';
+    (available?'After importing, review the board and select Save Set or Save & Launch Bingo.':
+    'Board full. Use Replace Entire Board to start over.')+'</div>'+preview+'</section>';
+}
+function bingoApplyStagedPictures(){
+  const stage=bingoBulkStage;if(!stage)return;
+  const mode=bingoDraft.bulkWorkflow==='one'?'empty':bingoDraft.bulkMode==='replace'?'replace':'empty';
+  const size=Number(bingoDraft.size||4),targets=bingoBulkTargetSquares(mode);
+  if(stage.mode!==mode||stage.size!==size||stage.squares.some((x,i)=>x!==targets[i])){
+    bingoBulkStage=null;renderActivities();return toast('Card changed. Choose the pictures again.');
+  }
+  if(mode==='replace'&&(bingoDraft.numberedSlots||[]).some(x=>x?.call)&&
+    !confirm('Replace pictures on this card? Previously saved sets will be kept.'))return;
+  const created=stage.entries.map(x=>({id:newGameAssetId(),name:x.name,image:x.image,collection:'Custom',createdAt:Date.now()}));
+  if(!persistGameStore(GAME_IMAGE_LIBRARY_STORE,[...gameImageLibrary,...created]))
+    return toast('Could not save pictures. Card was not changed.');
+  const slots=mode==='replace'?[]:[...(bingoDraft.numberedSlots||[])];
+  created.forEach((x,i)=>{const n=stage.squares[i];slots[n]={slot:n+1,call:x.name,text:'',image:x.image,label:x.name}});
+  gameImageLibrary=[...gameImageLibrary,...created];
+  bingoDraft.numberedSlots=slots;bingoDraft.numberedMode=true;bingoDraft.editSlot=-1;
+  bingoBulkStage=null;renderActivities();
+  toast(created.length+' picture'+(created.length===1?'':'s')+' added. Save your Bingo set when ready.');
 }
 function wireBingoBulkUploader(){
-  const $bulk=id=>document.querySelector(id);
-  const $mode=$bulk('#bingoBulkMode'),$pick=$bulk('#bingoBulkChoose');
-  if(!$mode||!$pick)return;
-  $mode.onchange=e=>{bingoDraft.bulkMode=e.target.value;bingoBulkStage=null;renderActivities()};
-  $pick.onclick=()=>$bulk('#bingoBulkFiles').click();
-  $bulk('#bingoBulkFiles').onchange=async e=>{
-    const mode=bingoDraft.bulkMode==='replace'?'replace':'empty';
-    const targets=bingoBulkTargetSquares(mode);
-    const files=Array.from(e.target.files||[]);
-    e.target.value='';
+  const get=x=>document.querySelector(x),one=get('#bingoBulkOne'),batch=get('#bingoBulkBatch');
+  const pick=get('#bingoBulkChoose'),input=get('#bingoBulkFiles');
+  if(!one||!batch||!pick||!input)return;
+  one.onclick=()=>{bingoDraft.bulkWorkflow='one';bingoDraft.bulkMode='empty';bingoBulkStage=null;renderActivities()};
+  batch.onclick=()=>{bingoDraft.bulkWorkflow='batch';bingoBulkStage=null;renderActivities()};
+  const mode=get('#bingoBulkMode'),size=get('#bingoBulkBoardSize'),quantity=get('#bingoBulkQuantity');
+  if(mode)mode.onchange=e=>{bingoDraft.bulkMode=e.target.value;bingoDraft.bulkQuantity=0;bingoBulkStage=null;renderActivities()};
+  if(quantity)quantity.onchange=e=>{bingoDraft.bulkQuantity=Number(e.target.value);bingoBulkStage=null;renderActivities()};
+  if(size)size.onchange=e=>{
+    const n=Number(e.target.value),old=Number(bingoDraft.size||4);
+    if(n<old&&(bingoDraft.numberedSlots||[]).slice(n*n).some(x=>x?.call)&&
+      !confirm('This smaller board will hide filled squares beyond '+(n*n)+'. Continue?')){
+      e.target.value=String(old);return;
+    }
+    bingoDraft.size=n;bingoDraft.bulkQuantity=0;bingoBulkStage=null;renderActivities();
+  };
+  pick.onclick=()=>input.click();
+  input.onchange=async e=>{
+    const workflow=bingoDraft.bulkWorkflow==='one'?'one':'batch';
+    const currentMode=workflow==='one'?'empty':bingoDraft.bulkMode==='replace'?'replace':'empty';
+    const targets=bingoBulkTargetSquares(currentMode);
+    const requested=workflow==='one'?1:currentMode==='replace'?targets.length:
+      Math.max(1,Math.min(targets.length,Number(bingoDraft.bulkQuantity||targets.length)));
+    const files=Array.from(e.target.files||[]);e.target.value='';
     if(!files.length)return;
-    if(files.some(f=>!String(f.type||'').startsWith('image/')))
-      return toast('Select picture files only');
-    if(files.length>targets.length)
-      return toast('This card has only '+targets.length+' available squares. Choose fewer images.');
-    if(mode==='replace'&&files.length!==targets.length)
-      return toast('To replace the full card, choose exactly '+targets.length+' images');
-    const status=$bulk('#bingoBulkMessage');
-    $pick.disabled=true;$mode.disabled=true;
-    if(status)status.textContent='Preparing '+files.length+' pictures…';
+    if(files.length!==requested)return toast('Select exactly '+requested+' picture'+(requested===1?'':'s')+'. You selected '+files.length+'.');
+    if(files.some(f=>!String(f.type||'').startsWith('image/')))return toast('Select PNG, JPG or WebP pictures only.');
+    const status=get('#bingoBulkMessage');pick.disabled=true;
+    if(status)status.textContent='Preparing '+files.length+' picture'+(files.length===1?'':'s')+'…';
     try{
       const entries=[];
       for(let i=0;i<files.length;i++){
         if(status)status.textContent='Preparing picture '+(i+1)+' of '+files.length+'…';
         entries.push({name:gameImageName(files[i]),image:await normalizeGameImage(files[i])});
       }
-      bingoBulkStage={mode,size:Number(bingoDraft.size||4),
-        squares:targets.slice(0,entries.length),entries};
-      renderActivities();
-    }catch(error){
-      bingoBulkStage=null;renderActivities();toast('One or more pictures could not be processed. No squares were changed.');
-    }
+      bingoBulkStage={mode:currentMode,size:Number(bingoDraft.size||4),squares:targets.slice(0,entries.length),entries};
+      if(workflow==='one')bingoApplyStagedPictures();
+      else renderActivities();
+    }catch(err){bingoBulkStage=null;renderActivities();toast('Could not process pictures. No squares changed.')}
   };
-  if($bulk('#bingoBulkCancel'))$bulk('#bingoBulkCancel').onclick=()=>{
-    bingoBulkStage=null;renderActivities();
-  };
-  if($bulk('#bingoBulkApply'))$bulk('#bingoBulkApply').onclick=()=>{
-    const stage=bingoBulkStage;if(!stage)return;
-    const mode=bingoDraft.bulkMode==='replace'?'replace':'empty';
-    const size=Number(bingoDraft.size||4),targets=bingoBulkTargetSquares(mode);
-    if(stage.mode!==mode||stage.size!==size||
-        stage.squares.some((v,i)=>v!==targets[i])){
-      bingoBulkStage=null;renderActivities();return toast('Card changed. Please choose your pictures again.');
-    }
-    if(mode==='replace'&&(bingoDraft.numberedSlots||[]).some(s=>s?.call)&&
-        !confirm('Replace all card items with this picture set? Unsaved card changes will be replaced.'))return;
-    const created=stage.entries.map(a=>({
-      id:newGameAssetId(),name:a.name,image:a.image,collection:'Custom',createdAt:Date.now()
-    }));
-    if(!persistGameStore(GAME_IMAGE_LIBRARY_STORE,[...gameImageLibrary,...created]))
-      return toast('Could not save the new pictures. Card has not been changed.');
-    const slots=mode==='replace'?[]:[...(bingoDraft.numberedSlots||[])];
-    created.forEach((a,i)=>{
-      const index=stage.squares[i];
-      slots[index]={slot:index+1,call:a.name,text:'',image:a.image,label:a.name};
-    });
-    gameImageLibrary=[...gameImageLibrary,...created];
-    bingoDraft.numberedSlots=slots;bingoDraft.numberedMode=true;bingoDraft.editSlot=-1;
-    bingoBulkStage=null;renderActivities();
-    toast(created.length+' pictures added! Save your Bingo set when it is complete.');
-  };
+  const apply=get('#bingoBulkApply');if(apply)apply.onclick=bingoApplyStagedPictures;
+  const cancel=get('#bingoBulkCancel');if(cancel)cancel.onclick=()=>{bingoBulkStage=null;renderActivities()};
 }
 
 function newGameAssetId(){return 'img_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)}
