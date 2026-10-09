@@ -24,7 +24,7 @@ function bbsGrid(){
 }
 function bbsLibrary(){
   const selected=new Set(bbsSelected()),need=bbsNeed(),arr=gameImageLibrary.slice().sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
-  const assets=(bbsRecent?arr.slice(0,24):arr).filter(a=>String(a.name||'').toLowerCase().includes(bbsQuery.trim().toLowerCase()));
+  const assets=(bbsRecent?arr.slice(0,48):arr).filter(a=>String(a.name||'').toLowerCase().includes(bbsQuery.trim().toLowerCase()));
   return '<section class="bbs-panel bbs-library"><div class="bbs-head"><small>STEP 1 · PICTURE LIBRARY</small><h3>SELECT YOUR PICTURES</h3>'+
     '<p>Upload to the library, check exactly '+need+' pictures, then create the full board.</p></div>'+
     '<button type="button" id="bbsUpload" class="bbs-upload">＋ Upload Pictures to Library</button>'+
@@ -44,6 +44,22 @@ function bbsLibrary(){
     (selected.size===need?'Ready to populate all '+need+' board squares.':
       'Check '+Math.max(0,need-selected.size)+' more picture'+(need-selected.size===1?'':'s')+' to create a board.')+
     '</p></section>';
+}
+/* Do not report server-backed saves as complete until Railway acknowledges them. */
+async function bbsConfirmRemote(key,value){
+  if(typeof NETWORK_SYNC==='undefined'||!NETWORK_SYNC||SESSION_ROLE!=='teacher')return true;
+  try{
+    const response=await fetch('/api/storage',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({key,value:JSON.stringify(value)})});
+    if(!response.ok)return false;
+    const data=await response.json();return data?.ok===true;
+  }catch(error){return false}
+}
+async function bbsSaveBoard(launch=false){
+  const set=saveBingoDraft();if(!set)return;
+  const confirmed=await bbsConfirmRemote(BINGO_SET_STORE,bingoSets);
+  if(!confirmed){toast('Server save could not be confirmed. Your board is still available here; retry Save before refreshing.');return}
+  if(launch)launchBingoSet(set);
 }
 function bbsSavedBoards(){
   return '<section class="bbs-panel bbs-saved"><div class="bbs-head"><small>STEP 3 · REUSABLE BOARDS</small><h3>SAVED BINGO BOARDS</h3></div>'+
@@ -125,9 +141,13 @@ async function bbsImport(files){
       collection:'Custom',createdAt:Date.now()+i})}catch(err){}
   }
   if(!add.length)return toast('Those pictures could not be processed.');
-  if(!persistGameStore(GAME_IMAGE_LIBRARY_STORE,[...gameImageLibrary,...add]))return toast('Picture library could not be saved.');
-  gameImageLibrary=[...gameImageLibrary,...add];bbsRecent=true;bbsQuery='';
-  renderActivities();toast(add.length+' pictures saved to library. Check the pictures you want to use.');
+  const updated=[...gameImageLibrary,...add];
+  if(!persistGameStore(GAME_IMAGE_LIBRARY_STORE,updated))return toast('Picture library could not be saved.');
+  gameImageLibrary=updated;bbsRecent=true;bbsQuery='';
+  renderActivities();
+  const confirmed=await bbsConfirmRemote(GAME_IMAGE_LIBRARY_STORE,updated);
+  toast(confirmed?add.length+' pictures saved to library. Check the pictures you want to use.':
+    'Pictures are available here, but server save could not be confirmed. Retry before refreshing.');
 }
 function bbsUpdateSelections(){
   const selected=new Set(bbsSelected()),need=bbsNeed();
@@ -192,8 +212,8 @@ function bbsWire(){
   });
   const clear=$('#bbsUncheck');if(clear)clear.onclick=()=>{bingoDraft.selectedImages=[];bbsUpdateSelections()};
   const create=$('#bbsCreate');if(create)create.onclick=bbsPopulate;
-  const save=$('#bbsSave'),launch=$('#bbsSaveLaunch');if(save)save.onclick=saveBingoDraft;
-  if(launch)launch.onclick=()=>{const set=saveBingoDraft();if(set)launchBingoSet(set)};
+  const save=$('#bbsSave'),launch=$('#bbsSaveLaunch');if(save)save.onclick=()=>bbsSaveBoard(false);
+  if(launch)launch.onclick=()=>bbsSaveBoard(true);
   $$('[data-bbs-load]').forEach(b=>b.onclick=()=>bbsLoad(b.dataset.bbsLoad));
   $$('[data-bbs-launch]').forEach(b=>b.onclick=()=>{const set=bingoSets.find(s=>s.id===b.dataset.bbsLaunch);if(set)launchBingoSet(set)});
   $$('[data-bbs-delete]').forEach(b=>b.onclick=()=>{
