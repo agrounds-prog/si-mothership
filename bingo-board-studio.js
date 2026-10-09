@@ -817,8 +817,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 /* Crew Survey Showtime v1
    Keeps original Survey game state, answer authority and saved board/game format.
-   Adds protected teacher faceoff actions, a robust waiting-student view, and
-   display-only current-stage decorations and one-time reveal/strike effects. */
+   Adds protected teacher faceoff actions, and display-only current-stage
+   decorations and one-time reveal/strike effects. */
 (()=>{
   if(typeof window==='undefined'||window.__siCrewSurveyShowtime)return;
   window.__siCrewSurveyShowtime=true;
@@ -863,7 +863,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       if(stage==='roundwon'&&round===total){
         const left=Number(cs.scores?.[0]||0),right=Number(cs.scores?.[1]||0);
         const who=left===right?'IT\'S A TIE!':left>right?'BLUE CREW WINS!':'RED CREW WINS!';
-        output=output.replace('</div>', '</div>'); // kept for predictable legacy markup
         const finale='<div class="cs-show-finale" role="status"><span>★ FINAL ROUND COMPLETE ★</span>'+
           '<strong>'+escText(who)+'</strong><em>BLUE '+left+' · RED '+right+'</em></div>';
         const pos=output.lastIndexOf('</div>');
@@ -871,31 +870,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       }
       return output;
     };
-    // Some waiting players hit a legacy ReferenceError (undefined "active").
-    // Preserve all established buzzer and answer paths; supply a safe waiting
-    // screen only for that exact failure rather than changing main index.html.
-    if(typeof crewSurveyStudentMarkup==='function'){
-      const priorStudent=crewSurveyStudentMarkup;
-      crewSurveyStudentMarkup=function(run,student){
-        try{return priorStudent.apply(this,arguments)}
-        catch(error){
-          if(!(error instanceof ReferenceError)||!/\bactive is not defined\b/.test(String(error.message||'')))throw error;
-          if(!run?.crewSurvey||!student)return '';
-          const cs=run.crewSurvey,team=crewSurveyTeamFor(student.n,run);
-          const teamLabel=team===0?'BLUE CREW':team===1?'RED CREW':'YOUR CREW';
-          const controlling=cs.controlTeam===0||cs.controlTeam===1?crewSurveyActiveName(cs.controlTeam,run):'';
-          const winner=cs.buzzer?.winner||'';
-          const waiting=cs.stage==='roundwon'?'Round complete! Get ready for the next face-off.':
-            controlling?controlling+' is answering now.':
-            winner?winner+' buzzed first. Watch the board.':
-            cs.buzzer?.armed?'Face-off buzzers are armed. Watch for your turn.':
-            'Watch the shared board and talk strategy with your crew.';
-          return '<div class="student-prompt activity-wait crew-survey-waiting">'+
-            '<span class="eyebrow">CREW SURVEY · '+escText(teamLabel)+'</span>'+
-            '<h2>Watch the Board</h2><p>'+escText(waiting)+'</p></div>';
-        }
-      };
-    }
     if(role==='teacher'){
       // A fourth X should not flip possession after steal is already available.
       if(typeof crewSurveyStrike==='function'){
