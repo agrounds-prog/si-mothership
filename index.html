@@ -18228,8 +18228,8 @@ function renderActivities(){
     });
     $('#bingoSelectAllImages').onclick=()=>{bingoDraft.selectedImages=gameImageLibrary.map(x=>x.id);renderActivities()};$('#bingoClearImages').onclick=()=>{bingoDraft.selectedImages=[];renderActivities()};
     $('#bingoSaveBtn').onclick=saveBingoDraft;$('#bingoLaunchDraftBtn').onclick=()=>{const s=saveBingoDraft();if(s)launchBingoSet(s)};
-    $('[data-bingo-load]').forEach(b=>b.onclick=()=>{const s=bingoSets.find(x=>x.id===b.dataset.bingoLoad);if(s)loadBingoSetIntoBuilder(s)});
-    $('[data-bingo-launch]').forEach(b=>b.onclick=()=>{const s=bingoSets.find(x=>x.id===b.dataset.bingoLaunch);if(s)launchBingoSet(s)});
+    $$('[data-bingo-load]').forEach(b=>b.onclick=()=>{const s=bingoSets.find(x=>x.id===b.dataset.bingoLoad);if(s)loadBingoSetIntoBuilder(s)});
+    $$('[data-bingo-launch]').forEach(b=>b.onclick=()=>{const s=bingoSets.find(x=>x.id===b.dataset.bingoLaunch);if(s)launchBingoSet(s)});
     $$('[data-bingo-delete]').forEach(b=>b.onclick=()=>{bingoSets=bingoSets.filter(x=>x.id!==b.dataset.bingoDelete);persistGameStore(BINGO_SET_STORE,bingoSets);renderActivities()});
     return;
   }
