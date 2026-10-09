@@ -871,3 +871,146 @@
     min-height:250px;
   }
 }
+
+/* Crew Survey reusable board library. Only Survey authoring UI is styled. */
+#teacher .crew-survey-setup .survey-board-library{
+  display:flex;flex-direction:column;gap:13px;
+  margin:15px 0 17px;padding:clamp(14px,1.5vw,22px);
+  border:2px solid #4b9dde;border-radius:18px;
+  background:radial-gradient(ellipse at 98% 0%,#315ab144,transparent 50%),
+    linear-gradient(145deg,#102f54,#081b33 74%);
+  box-shadow:inset 0 1px 0 #d8f9ff24,0 14px 28px #0005;
+  color:#f1faff;
+}
+#teacher .survey-board-library .survey-library-top{
+  display:flex;align-items:center;justify-content:space-between;gap:15px;
+  padding-bottom:12px;border-bottom:1px solid #386691;
+}
+#teacher .survey-board-library .survey-library-eyebrow{
+  display:block;margin-bottom:5px;font-size:9px;font-weight:950;
+  letter-spacing:.16em;color:#92e9ff;
+}
+#teacher .survey-board-library h4{
+  margin:0;color:#fff;font-size:clamp(18px,1.8vw,25px);
+  font-weight:1000;letter-spacing:-.025em;
+}
+#teacher .survey-board-library .survey-library-top p{
+  margin:5px 0 0!important;color:#abcce2!important;
+  font-size:12px!important;line-height:1.4;
+}
+#teacher .survey-board-library .survey-library-count{
+  flex:0 0 auto;padding:8px 12px;border:1px solid #5fe0d3;border-radius:11px;
+  background:#0a3a4b;color:#aafbe9;font-size:11px;font-weight:950;white-space:nowrap;
+}
+#teacher .survey-board-library .survey-library-editor{
+  display:grid;grid-template-columns:minmax(190px,1fr) auto;
+  align-items:end;gap:8px 16px;
+}
+#teacher .survey-board-library .survey-library-editor>label{
+  grid-column:1/-1;margin:0;color:#a5dfff;font-size:11px;
+  font-weight:950;letter-spacing:.13em;
+}
+#teacher .survey-board-library #surveyBoardName{
+  display:block;box-sizing:border-box;width:100%;min-width:0;
+  min-height:45px;margin:0;padding:10px 13px;
+  border:1px solid #5189b0;border-radius:10px;background:#071c31;
+  color:#fff;font:750 15px system-ui;
+}
+#teacher .survey-board-library #surveyBoardName:focus-visible{
+  outline:3px solid #fff0a2;outline-offset:2px;
+}
+#teacher .survey-board-library .survey-library-actions{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+}
+#teacher .survey-board-library .survey-library-actions button,
+#teacher .survey-board-library .survey-library-item-buttons button{
+  min-height:40px;padding:8px 12px;border:1px solid #4a82af;
+  border-radius:9px;background:#153c60;color:#e7f6ff;
+  font-weight:900;font-size:12px;cursor:pointer;white-space:nowrap;
+}
+#teacher .survey-board-library .survey-library-actions .survey-save-primary{
+  border-color:#a7ffe3;color:#eafff7;
+  background:linear-gradient(155deg,#159277,#095c5c);
+  box-shadow:0 3px 0 #064c4d,0 0 12px #36ddbe50;
+}
+#teacher .survey-board-library .survey-library-actions button:hover,
+#teacher .survey-board-library .survey-library-item-buttons button:hover{
+  filter:brightness(1.2);border-color:#c1f4ff;
+}
+#teacher .survey-board-library button:focus-visible{
+  outline:3px solid #ffe98d;outline-offset:3px;
+}
+#teacher .survey-board-library .survey-library-bottom{
+  padding-top:12px;border-top:1px solid #38618a;
+}
+#teacher .survey-board-library .survey-library-bottom>h5{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;
+  margin:0 0 11px;color:#e8f8ff;font-size:14px;letter-spacing:.02em;
+}
+#teacher .survey-board-library .survey-library-bottom>h5 small{
+  color:#9fbace;font-size:11px;font-weight:600;
+}
+#teacher .survey-board-library .survey-library-list{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));
+  align-items:stretch;gap:9px;max-height:245px;overflow:auto;
+  padding:2px 5px 5px 1px;scrollbar-width:thin;
+}
+#teacher .survey-board-library .survey-library-item{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  min-width:0;padding:11px 12px;
+  border:1px solid #376995;border-radius:12px;
+  background:linear-gradient(150deg,#0b2946,#091b34);
+}
+#teacher .survey-board-library .survey-library-item.selected{
+  border-color:#8fffe1;box-shadow:inset 0 0 0 1px #45cdb445,0 0 13px #55e8dc2c;
+}
+#teacher .survey-board-library .survey-library-item-text{
+  display:flex;flex:1 1 auto;flex-direction:column;gap:4px;
+  min-width:0;overflow-wrap:anywhere;
+}
+#teacher .survey-board-library .survey-library-item-text strong{
+  color:#fff;font-size:13px;line-height:1.25;
+}
+#teacher .survey-board-library .survey-library-item-text span{
+  color:#b6d5ec;font-size:11px;line-height:1.3;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+#teacher .survey-board-library .survey-library-item-text small{
+  color:#84c8d8;font-size:10px;
+}
+#teacher .survey-board-library .survey-library-item-buttons{
+  display:flex;flex:0 0 auto;flex-wrap:wrap;justify-content:flex-end;
+  align-items:center;gap:5px;
+}
+#teacher .survey-board-library .survey-library-item-buttons button{
+  min-height:35px;padding:7px 9px;font-size:11px;
+}
+#teacher .survey-board-library .survey-library-item-buttons .survey-play{
+  border-color:#75e9bf;color:#dcffec;background:#145e53;
+}
+#teacher .survey-board-library .survey-library-item-buttons .survey-delete{
+  width:34px;padding:6px;color:#ffbbce;border-color:#8a3a58;
+  background:#492036;font-size:18px;
+}
+#teacher .survey-board-library .survey-library-empty{
+  margin:0;padding:12px;border:1px dashed #45759a;
+  border-radius:11px;color:#a8c7db;font-size:12px;
+}
+@media(max-width:960px){
+  #teacher .survey-board-library .survey-library-editor{
+    grid-template-columns:1fr;
+  }
+  #teacher .survey-board-library .survey-library-list{
+    grid-template-columns:1fr;max-height:300px;
+  }
+}
+@media(max-width:520px){
+  #teacher .crew-survey-setup .survey-board-library{
+    padding:11px;gap:10px;
+  }
+  #teacher .survey-board-library .survey-library-count{padding:6px 8px;font-size:10px}
+  #teacher .survey-board-library .survey-library-top p{font-size:10px!important}
+  #teacher .survey-board-library .survey-library-item{flex-wrap:wrap}
+  #teacher .survey-board-library .survey-library-item-buttons{width:100%;justify-content:flex-start}
+  #teacher .survey-board-library .survey-library-actions button{flex:1 1 auto}
+}
