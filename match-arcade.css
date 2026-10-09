@@ -268,3 +268,76 @@ border-color:#fff0a0;box-shadow:inset 0 0 0 2px #fff7c066,0 0 18px #ffe28da6,0 8
  .ma-tile.is-selected{animation:none}
  .ma-tile,.ma-progress-track i{transition:none}
 }
+
+
+/* MATCH teacher setup — holographic arcade treatment, scoped away from Bingo. */
+#teacher #activitiesPanel:has(.match-studio-shell){width:min(1530px,calc(100vw - 28px))!important;max-width:none!important}
+#teacher .match-studio-shell{display:grid;grid-template-columns:minmax(0,1.42fr) minmax(330px,.9fr);align-items:start;gap:15px;font-family:Inter,ui-sans-serif,system-ui,"Segoe UI",sans-serif}
+#teacher .match-studio-shell *{box-sizing:border-box}
+#teacher .match-studio-hero{grid-column:1/-1;display:flex;align-items:center;flex-wrap:wrap;gap:15px;padding:clamp(13px,1.3vw,22px);border:2px solid #57b4ed;border-radius:20px;background:radial-gradient(ellipse at 88% 15%,#2d75b577,transparent 52%),linear-gradient(110deg,#123f75,#081b39 68%);box-shadow:inset 0 2px 0 #adf2ff33,0 12px 25px #0008}
+#teacher .match-studio-logo{flex:0 0 75px;width:75px;height:75px;display:grid;place-items:center;border:3px solid #7ce9ff;border-radius:20px;background:radial-gradient(circle at 35% 25%,#2f9bdd,#123c7e 60%,#0a2044);font-size:52px;color:#d6ffff;text-shadow:0 0 19px #84faff;box-shadow:0 0 19px #48cafc66,inset 0 0 16px #4ad5ff3b}
+#teacher .match-studio-heading{min-width:0;flex:1 1 250px}
+#teacher .match-studio-heading small{color:#9beeff;font-size:11px;font-weight:1000;letter-spacing:.16em}
+#teacher .match-studio-heading h2{margin:4px 0 6px!important;font-size:clamp(24px,3.2vw,41px)!important;line-height:1.05;font-weight:1000;color:#fff;text-shadow:0 0 19px #78daff77}
+#teacher .match-studio-heading p{margin:0;max-width:570px;color:#c7e9ff;font-size:13px;line-height:1.45}
+#teacher .match-studio-metrics{display:flex;gap:8px;flex-wrap:wrap}
+#teacher .match-studio-metrics>div{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:88px;min-height:79px;padding:9px 12px;background:#091e3c;border:1px solid #4688b8;border-radius:12px}
+#teacher .match-studio-metrics strong{font-size:clamp(23px,2.6vw,35px);line-height:1;color:#a3ffe0;font-weight:1000}
+#teacher .match-studio-metrics span{font-size:10px;letter-spacing:.09em;color:#add9ef;font-weight:950}
+#teacher .match-studio-editor{min-width:0;padding:17px!important;border-radius:19px!important;background:radial-gradient(ellipse at 50% -20%,#18487b,#0c2544 48%,#071b31)!important;border:1px solid #4c92c4!important;box-shadow:inset 0 1px 0 #dcffff20,0 7px 18px #0005}
+#teacher .match-studio-editor>.app-status{display:none}
+#teacher .match-studio-editor>h3{font-size:21px!important;letter-spacing:.025em;color:#f2faff!important;margin:0 0 6px!important}
+#teacher .match-studio-editor>.setup-copy{color:#b3d9ec;font-size:12px;line-height:1.5}
+#teacher .match-studio-editor>label{font-size:11px;color:#9fe9ff;letter-spacing:.1em;margin:15px 0 6px}
+#teacher .match-studio-editor #matchSetName{min-height:45px;font-size:16px;font-weight:850;padding:10px 12px;border:1px solid #4e9cd6;border-radius:10px;background:#06182c}
+#teacher .match-studio-editor #matchQuickPairs{font-size:14px;min-height:118px;max-height:175px;line-height:1.5;background:#06162d;color:#e5faff;border:1px solid #498dc2;border-radius:11px}
+#teacher .match-studio-editor .game-builder-actions{gap:9px;margin-top:13px}
+#teacher .match-studio-editor .game-builder-actions button{border-radius:10px;min-height:39px;font-weight:850;font-size:12px;padding:9px 12px;background:#0e345b;border:1px solid #447db6;color:#d9f3ff}
+#teacher .match-studio-editor #matchUploadBtn{background:linear-gradient(110deg,#1785ba,#0d5485);border:1px solid #74dcff;color:#fff}
+#teacher .match-studio-editor #matchSaveBtn{background:#174d72;border:1px solid #84c6df;color:#fff}
+#teacher .match-studio-editor #matchLaunchDraftBtn{background:linear-gradient(120deg,#28d3a0,#0f8b6e);border:1px solid #afffe2;color:#062a21;font-weight:950;box-shadow:0 4px 0 #085747}
+#teacher .match-studio-library-heading{display:flex;align-items:baseline;justify-content:space-between;gap:9px;flex-wrap:wrap;margin:12px 0 8px;padding-bottom:9px;border-bottom:1px solid #3c779e}
+#teacher .match-studio-library-heading strong{color:#def5ff;letter-spacing:.11em;font-size:12px}
+#teacher .match-studio-library-heading small{color:#8dcce7;font-size:11px}
+#teacher .match-studio-editor .game-library-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;max-height:clamp(210px,31vh,340px);padding:4px 5px 8px;scrollbar-color:#428dba #0c213c}
+#teacher .match-studio-editor .game-library-item{border:1px solid #376c97;border-radius:12px;background:linear-gradient(150deg,#16406b,#0d284a);padding:5px;gap:4px}
+#teacher .match-studio-editor .game-library-tile{position:relative;width:100%;min-height:97px;border:1px solid #60a9d2;border-radius:9px;background:#102d4b;cursor:pointer;padding:5px}
+#teacher .match-studio-editor .game-library-tile img{height:67px;max-width:100%;object-fit:contain;background:#e7f4ff;border-radius:6px}
+#teacher .match-studio-editor .game-library-tile b{margin-top:6px;color:#eafaff;font-size:11px;font-weight:850}
+#teacher .match-studio-editor .game-library-tile.selected{outline:2px solid #9ef7d1;background:#155e56;border-color:#84f6ca;box-shadow:0 0 15px #54f9bd5c}
+#teacher .match-studio-editor .game-library-tile.selected:after{content:"✓";position:absolute;top:8px;right:8px;width:22px;height:22px;display:grid;place-items:center;background:#167856;color:#fff;border:1px solid #fff;border-radius:50%;font-size:15px;box-shadow:0 2px 7px #061f17}
+#teacher .match-studio-editor .game-library-tile:focus-visible{outline:3px solid #ffe797;outline-offset:3px}
+#teacher .match-studio-editor .game-library-remove{opacity:.78;font-size:10px!important;min-height:27px!important;background:#402039!important}
+#teacher .match-studio-editor .game-library-remove:focus-visible{opacity:1;outline:2px solid #ffde92}
+#teacher .match-studio-sidebar{display:flex;min-width:0;flex-direction:column;gap:13px}
+#teacher .match-studio-settings,#teacher .match-studio-saved{border:1px solid #4f88bb;border-radius:17px;background:linear-gradient(160deg,#143964,#081b35);padding:17px;box-shadow:inset 0 1px 0 #d4f6ff2a}
+#teacher .match-studio-settings>h4,#teacher .match-studio-saved>h4{font-size:16px;letter-spacing:.03em;color:#e2f5ff;margin-bottom:10px}
+#teacher .match-studio-settings .game-builder-row{gap:10px}
+#teacher .match-studio-settings label{font-size:11px;color:#a7d8f4;letter-spacing:.04em}
+#teacher .match-studio-settings select{min-height:43px;background:#061a2e;border:1px solid #438dc5;color:#fff;font-size:13px}
+#teacher .match-studio-settings input[type=checkbox]{accent-color:#71f8d1;width:19px;height:19px}
+#teacher .match-studio-settings .game-show-crew-preview{border-radius:11px;overflow:hidden}
+#teacher .match-studio-preview{min-height:0;padding:15px;border:2px solid #498fce;border-radius:18px;background:radial-gradient(ellipse at 50% 6%,#1b4c7d,#061a38 75%);box-shadow:inset 0 0 0 3px #0b2e4d}
+#teacher .match-studio-preview-head{display:flex;justify-content:space-between;gap:5px;flex-wrap:wrap;margin-bottom:11px}
+#teacher .match-studio-preview-head span{font-weight:950;letter-spacing:.075em;font-size:11px;color:#b9f0ff}
+#teacher .match-studio-preview-head small{font-weight:650;font-size:10px;color:#91bcd6}
+#teacher .match-studio-mini-board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+#teacher .match-studio-mini-tile{aspect-ratio:1.05;position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;border:2px solid #71c6fa;border-radius:11px;background:radial-gradient(circle at 35% 15%,#2775ba,#0b3b7b 63%,#061e44);box-shadow:inset 0 0 0 2px #9feaff29,0 5px 11px #0008;color:#fff}
+#teacher .match-studio-mini-tile:before{content:"";position:absolute;inset:6px;border:1px solid #8ddef563;border-radius:7px}
+#teacher .match-studio-mini-tile span{font-size:12px;line-height:1;color:#b2f3ff;text-shadow:0 0 6px #7de8ff}
+#teacher .match-studio-mini-tile b{font-size:clamp(20px,2.4vw,30px);line-height:1.1;color:#f2fdff;text-shadow:0 0 9px #6ccfff}
+#teacher .match-studio-examples{margin-top:14px}
+#teacher .match-studio-examples-title{font-weight:950;letter-spacing:.1em;font-size:11px;color:#b5e9ff;margin-bottom:8px}
+#teacher .match-studio-pair-example{display:grid;grid-template-columns:minmax(0,1fr) 23px minmax(0,1fr);gap:6px;align-items:center;margin-bottom:6px}
+#teacher .match-studio-pair-example>span{min-width:0;display:grid;place-items:center;overflow:hidden;text-align:center;min-height:48px;padding:5px;border:1px solid #63b2d2;border-radius:9px;background:#cceeff;color:#103151;font-size:12px;font-weight:850;overflow-wrap:anywhere}
+#teacher .match-studio-pair-example img{width:100%;max-height:75px;object-fit:contain}
+#teacher .match-studio-pair-example strong{text-align:center;font-size:19px;color:#a9ffe0}
+#teacher .match-studio-empty{font-size:12px;line-height:1.5;color:#9ad3ef}
+#teacher .match-studio-saved .game-set-list{max-height:235px;overflow-y:auto}
+#teacher .match-studio-saved .game-set-item{background:#0a2a4d;border:1px solid #4274a6;border-radius:11px;display:flex;flex-wrap:wrap}
+#teacher .match-studio-saved .game-set-item>div{min-width:120px}
+#teacher .match-studio-saved .game-set-item button{min-height:35px;border:1px solid #4ebbb1;border-radius:9px;color:#eaffff;background:#156565;font-weight:850}
+#teacher .match-studio-saved .game-set-item [data-match-delete]{background:#4a1c38;border-color:#ac496d;color:#ffe7f0}
+@media(max-width:1050px){#teacher .match-studio-shell{grid-template-columns:minmax(0,1fr)}#teacher .match-studio-hero{gap:10px}#teacher .match-studio-sidebar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}#teacher .match-studio-saved{grid-column:1/-1}}
+@media(max-width:680px){#teacher .match-studio-logo{width:52px;height:52px;flex-basis:52px;font-size:36px}#teacher .match-studio-hero{padding:11px}#teacher .match-studio-metrics{width:100%}#teacher .match-studio-metrics>div{min-width:0;flex:1}#teacher .match-studio-editor .game-library-grid{grid-template-columns:repeat(3,minmax(0,1fr))}#teacher .match-studio-sidebar{grid-template-columns:1fr}#teacher .match-studio-saved{grid-column:auto}#teacher .match-studio-mini-board{gap:5px}}
+@media(prefers-reduced-motion:reduce){#teacher .match-studio-editor .game-library-tile{transition:none}}
