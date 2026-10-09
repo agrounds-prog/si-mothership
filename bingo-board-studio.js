@@ -658,6 +658,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   function wrapGameplay(){
     if(typeof launchCrewSurvey!=='function'||typeof crewSurveyNewRound!=='function'||typeof renderActivityController!=='function')return;
     const origLaunch=launchCrewSurvey,origNewRound=crewSurveyNewRound,origControl=renderActivityController;
+    const origAward=typeof crewSurveyAwardRound==='function'?crewSurveyAwardRound:null;
+    if(origAward)crewSurveyAwardRound=function(...args){
+      const run=roundRun();
+      if(run?.crewSurvey?.stage==='roundwon'){
+        message('That survey round has already been awarded. Move to the next board.');return;
+      }
+      return origAward.apply(this,args);
+    };
     launchCrewSurvey=function(...args){
       const queue=validRoundSequence();
       if(queue===null)return;
