@@ -3448,6 +3448,7 @@ PERSISTED_STORAGE_KEYS = {
     "siMothership.imageLibrary.v1",
     "siMothership.matchSets.v1",
     "siMothership.bingoSets.v1",
+    "siMothership.crewSurveyBoards.v1",
 }
 
 CLIENTS: set[web.WebSocketResponse] = set()
