@@ -440,7 +440,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   function freezeBoard(x){
     const b=cleanBoard(x);
     if(!b)return null;
-    return {sourceBoardId:b.sourceBoardId||b.id,name:b.name,prompt:b.prompt,
+    return {sourceBoardId:String(x.sourceBoardId||x.id||''),name:b.name,prompt:b.prompt,
       answers:b.answers.map(a=>({...a})),scoring:b.scoring,aacVocab:[...b.aacVocab]};
   }
   function cleanGame(x){
