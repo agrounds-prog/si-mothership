@@ -755,3 +755,30 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(document.readyState==='complete')install();
   else window.addEventListener('load',install,{once:true});
 })();
+
+
+/* Read-only round counter in the separate Shared Screen view. The live
+   run only carries opaque future board IDs, never upcoming answer text. */
+(()=>{
+  if(typeof window==='undefined'||window.__siSurveySharedRoundsInstalled)return;
+  window.__siSurveySharedRoundsInstalled=true;
+  function install(){
+    if(typeof SESSION_ROLE==='undefined'||SESSION_ROLE!=='shared'||typeof crewSurveySharedMarkup!=='function')return;
+    const original=crewSurveySharedMarkup;
+    crewSurveySharedMarkup=function(...args){
+      const html=original.apply(this,args),run=args[0]||state?.activityRun;
+      if(!html||run?.activityId!=='crew-survey-game'||!run.crewSurveyTotal)return html;
+      const num=Math.max(1,Math.min(5,Number(run.crewSurveyRoundIndex||0)+1));
+      const total=Math.max(1,Math.min(5,Number(run.crewSurveyTotal||1)));
+      const cs=run.crewSurvey||{},done=num===total&&cs.stage==='roundwon';
+      const blue=Number(cs.scores?.[0]||0),red=Number(cs.scores?.[1]||0);
+      const win=blue===red?'TIE GAME':blue>red?'BLUE CREW WINS':'RED CREW WINS';
+      const banner='<div class="survey-shared-rounds"><b>ROUND '+num+' OF '+total+'</b>'+
+        (done?'<strong>★ '+win+' · FINAL SCORE ★</strong>':
+        '<span>Fresh face-off on each new board</span>')+'</div>';
+      return html.replace(/(<div class="crew-survey-public[^>]*>)/,'$1'+banner);
+    };
+  }
+  if(document.readyState==='complete')install();
+  else window.addEventListener('load',install,{once:true});
+})();
