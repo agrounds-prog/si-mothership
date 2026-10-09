@@ -584,7 +584,13 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   }
   function playGame(idToPlay){
     if(!loadGame(idToPlay))return;
-    launchCrewSurvey();
+    try{
+      launchCrewSurvey();
+      if(!state.activityRun?.activityId||state.activityRun.activityId!=='crew-survey-game')
+        tell('Survey could not start. Check that every round has a saved board with at least four answers.');
+    }catch(error){
+      tell('Survey launch failed: '+String(error?.message||error));
+    }
   }
   function run(){const r=state.activityRun;return r?.activityId==='crew-survey-game'&&r.crewSurveyTotal?r:null}
   function winner(cs){
@@ -812,7 +818,15 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     studio.querySelectorAll('[data-survey-load-game]').forEach(b=>b.onclick=()=>loadGame(b.dataset.surveyLoadGame));
     studio.querySelectorAll('[data-survey-play-game]').forEach(b=>b.onclick=()=>playGame(b.dataset.surveyPlayGame));
     studio.querySelectorAll('[data-survey-delete-game]').forEach(b=>b.onclick=()=>deleteGame(b.dataset.surveyDeleteGame));
-    if(launch)launch.onclick=launchCrewSurvey;
+    if(launch)launch.onclick=()=>{
+      try{
+        launchCrewSurvey();
+        if(state.activityRun?.activityId!=='crew-survey-game')
+          tell('Survey did not load. Select a Board Library item for each game round.');
+      }catch(error){
+        tell('Survey launch error: '+String(error?.message||error));
+      }
+    };
   }
   function install(){
     if(installed||typeof renderActivities!=='function'||typeof loadGameStore!=='function')return;
