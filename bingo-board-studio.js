@@ -1,5 +1,5 @@
 /* Board-first Bingo authoring. The existing Bingo activity runner is unchanged. */
-let bbsQuery='',bbsRecent=false;
+let bbsQuery='',bbsRecent=false,bbsLibraryBusy=false;
 function bbsSize(){return Math.max(3,Math.min(6,Number(bingoDraft.size||4)))}
 function bbsCenter(){let n=bbsSize();return bingoDraft.free&&n%2?Math.floor(n*n/2):-1}
 function bbsNeed(){return bbsSize()**2-(bbsCenter()<0?0:1)}
@@ -32,10 +32,10 @@ function bbsLibrary(){
     '<div class="bbs-library-tools"><div><button type="button" data-bbs-tab="all"'+(!bbsRecent?' class="active"':'')+'>SAVED</button>'+
     '<button type="button" data-bbs-tab="recent"'+(bbsRecent?' class="active"':'')+'>RECENT</button></div>'+
     '<input id="bbsSearch" type="search" placeholder="Search '+gameImageLibrary.length+' pictures" value="'+esc(bbsQuery)+'"></div>'+
-    '<div class="bbs-library-grid">'+(assets.length?assets.map(a=>'<button type="button" data-bbs-image="'+esc(a.id)+
+    '<div class="bbs-library-grid">'+(assets.length?assets.map(a=>'<div class="bbs-library-entry"><button type="button" data-bbs-image="'+esc(a.id)+
       '" data-bbs-name="'+esc(String(a.name||'').toLowerCase())+'" class="bbs-library-image'+(selected.has(a.id)?' checked':'')+
       '" aria-pressed="'+selected.has(a.id)+'"><img src="'+a.image+'" alt=""><span>'+esc(a.name)+'</span>'+
-      (selected.has(a.id)?'<b class="bbs-image-check">✓</b>':'')+'</button>').join(''):
+      (selected.has(a.id)?'<b class="bbs-image-check">✓</b>':'')+'</button>'+      '<button type="button" class="bbs-library-remove" data-bbs-remove="'+esc(a.id)+      '" aria-label="Delete '+esc(a.name)+' from the image library" title="Delete picture">×</button></div>').join(''):
       '<p class="bbs-hint">No images yet. Upload images to the library first.</p>')+'</div>'+
     '<div class="bbs-picked"><strong>'+selected.size+' / '+need+' CHECKED</strong>'+
     '<button type="button" id="bbsUncheck">Clear Checks</button></div>'+
@@ -78,7 +78,7 @@ function bbsMarkup(){
   const n=bbsSize(),need=bbsNeed(),filled=bbsFilled(),isEditing=!!bingoDraft.editingSetId;
   return '<div class="bbs-studio"><div class="bbs-hero"><div class="bbs-logo">▦</div>'+
     '<div class="bbs-title"><small>MOTHERSHIP ARCADE · BINGO BOARD STUDIO</small><h2 id="bbsTitle">'+esc(bingoDraft.name||'My Bingo Board')+
-    '</h2><p>Upload to library → Check pictures → Create Board, or type directly on the physical grid.</p></div>'+
+    '</h2></div>'+
     '<div class="bbs-progress"><strong>'+filled+'<em> / '+need+'</em></strong><span>FILLED SQUARES</span>'+
     '<div><i style="width:'+Math.round(100*filled/Math.max(1,need))+'%"></i></div></div></div>'+
     '<div class="bbs-layout"><main class="bbs-panel bbs-board-panel"><div class="bbs-name-row">'+
@@ -131,9 +131,45 @@ function bbsLoad(id){
   loadBingoSetIntoBuilder(set);
   bingoDraft.editingSetId=set.id;bingoDraft.selectedImages=[];bbsQuery='';
 }
+/* Only the reusable picture library changes; existing boards keep their image copies. */
+async function bbsRemoveLibraryImage(id){
+  if(bbsLibraryBusy)return toast('Please wait for the library update.');
+  const asset=gameImageLibrary.find(a=>a.id===id);
+  if(!asset)return;
+  const name=String(asset.name||'Picture');
+  if(!confirm('Delete "'+name+'" from the shared image library? Saved Bingo and MATCH sets keep their copies. This cannot be undone.'))return;
+  bbsLibraryBusy=true;
+  const button=[...document.querySelectorAll('[data-bbs-remove]')].find(b=>b.dataset.bbsRemove===id);
+  if(button)button.disabled=true;
+  try{
+    const next=gameImageLibrary.filter(a=>a.id!==id);
+    if(!(await bbsConfirmRemote(GAME_IMAGE_LIBRARY_STORE,next)))
+      return toast('Server could not confirm deletion. The picture is unchanged.');
+    if(!persistGameStore(GAME_IMAGE_LIBRARY_STORE,next))
+      return toast('Library could not be saved. Please retry.');
+    gameImageLibrary=next;
+    bingoDraft.selectedImages=bbsSelected();
+    if(typeof matchDraft!=='undefined'&&Array.isArray(matchDraft.selectedImages))
+      matchDraft.selectedImages=matchDraft.selectedImages.filter(x=>x!==id);
+    button?.closest('.bbs-library-entry')?.remove();
+    const search=document.querySelector('#bbsSearch');
+    if(search)search.placeholder='Search '+next.length+' pictures';
+    const grid=document.querySelector('.bbs-library-grid');
+    if(grid&&!grid.querySelector('[data-bbs-image]'))
+      grid.innerHTML='<p class="bbs-hint">No pictures in this view. Upload or change your search.</p>';
+    bbsUpdateSelections();
+    toast('Deleted "'+name+'" from the library. Saved sets and board tiles remain unchanged.');
+  }finally{
+    bbsLibraryBusy=false;
+    if(button?.isConnected)button.disabled=false;
+  }
+}
 async function bbsImport(files){
   const list=Array.from(files||[]).filter(f=>String(f.type||'').startsWith('image/')).slice(0,48);
   if(!list.length)return;
+  if(bbsLibraryBusy)return toast('Please wait for the library update.');
+  bbsLibraryBusy=true;
+  try{
   const status=document.querySelector('#bbsLibraryStatus'),add=[];
   for(const [i,file] of list.entries()){
     if(status)status.textContent='Saving picture '+(i+1)+' of '+list.length+'…';
@@ -148,6 +184,7 @@ async function bbsImport(files){
   const confirmed=await bbsConfirmRemote(GAME_IMAGE_LIBRARY_STORE,updated);
   toast(confirmed?add.length+' pictures saved to library. Check the pictures you want to use.':
     'Pictures are available here, but server save could not be confirmed. Retry before refreshing.');
+  }finally{bbsLibraryBusy=false}
 }
 function bbsUpdateSelections(){
   const selected=new Set(bbsSelected()),need=bbsNeed();
@@ -201,7 +238,7 @@ function bbsWire(){
   $$('[data-bbs-tab]').forEach(b=>b.onclick=()=>{bbsRecent=b.dataset.bbsTab==='recent';bbsQuery='';renderActivities()});
   const search=$('#bbsSearch');if(search)search.oninput=e=>{
     bbsQuery=e.target.value;const query=bbsQuery.trim().toLowerCase();
-    $$('[data-bbs-image]').forEach(b=>{b.hidden=!b.dataset.bbsName.includes(query)})
+    $('[data-bbs-image]').forEach(b=>{b.closest('.bbs-library-entry').hidden=!b.dataset.bbsName.includes(query)})
   };
   $$('[data-bbs-image]').forEach(b=>b.onclick=()=>{
     const id=b.dataset.bbsImage,selection=bbsSelected(),set=new Set(selection);
@@ -210,6 +247,7 @@ function bbsWire(){
     else set.add(id);
     bingoDraft.selectedImages=[...set];bbsUpdateSelections()
   });
+  $('[data-bbs-remove]').forEach(b=>b.onclick=()=>bbsRemoveLibraryImage(b.dataset.bbsRemove));
   const clear=$('#bbsUncheck');if(clear)clear.onclick=()=>{bingoDraft.selectedImages=[];bbsUpdateSelections()};
   const create=$('#bbsCreate');if(create)create.onclick=bbsPopulate;
   const save=$('#bbsSave'),launch=$('#bbsSaveLaunch');if(save)save.onclick=()=>bbsSaveBoard(false);
