@@ -730,6 +730,17 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         '</div></article>').join('')+'</div>':
         '<p class="survey-library-empty">No saved boards yet. Enter a question and answers below, name your board, then press Save Board.</p>')+
       '</div>'+roundsUI();
+    // Survey setup follows the teacher's creation flow: game length first,
+    // then name/save the current board, then choose later round boards.
+    // Moving the existing elements preserves their IDs and save/load handlers.
+    const roundsPanel=panel.querySelector('.survey-rounds-panel');
+    const lengthChoices=roundsPanel?.querySelector('.survey-round-count-buttons');
+    const nameEditor=panel.querySelector('.survey-library-editor');
+    const savedList=panel.querySelector('.survey-library-bottom');
+    if(roundsPanel&&lengthChoices&&nameEditor&&savedList){
+      lengthChoices.after(nameEditor);
+      savedList.before(roundsPanel);
+    }
     setup.querySelector('.game-show-setup-grid')?.before(panel);
     const nameField=byId('surveyBoardName');
     if(nameField)nameField.oninput=e=>draftName=e.target.value;
