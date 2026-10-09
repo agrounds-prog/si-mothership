@@ -410,365 +410,377 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 
 
-/* Crew Survey Board Library v1 — teacher-only, reusable board authoring.
-   Attaches to the existing Survey editor after the base script is loaded.
-   Existing game run, student/teacher controls and saved Bingo/MATCH sets untouched. */
+/* CREW SURVEY STUDIO v2 — independent Board Library and Saved Game Library.
+   Compatible with v1 saved boards. Saved games contain immutable copies
+   of their ordered boards, keeping future answers teacher-private. */
 (()=>{
   if(typeof window==='undefined'||window.__siSurveyBoardLibraryInstalled)return;
   window.__siSurveyBoardLibraryInstalled=true;
-  const KEY='siMothership.crewSurveyBoards.v1';
-  let boards=[],editingId='',draftName='',busy=false,installed=false;
-  let gameLength=1,roundIds=[];
+  const BOARD_KEY='siMothership.crewSurveyBoards.v1';
+  const GAME_KEY='siMothership.crewSurveyGames.v1';
   const byId=id=>document.getElementById(id);
-  const safe=value=>typeof esc==='function'?esc(value):String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const message=s=>{if(typeof toast==='function')toast(s)};
-  function cleanBoard(record){
-    if(!record||typeof record!=='object')return null;
-    const answers=(Array.isArray(record.answers)?record.answers:[]).slice(0,8).map(x=>({
-      text:String(x?.text||'').slice(0,70),
-      value:Math.max(0,Math.min(999,Number(x?.value)||0))
+  const safe=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const tell=v=>{if(typeof toast==='function')toast(v)};
+  let boards=[],games=[],editingBoardId='',editingGameId='',boardName='',gameName='';
+  let gameLength=1,roundIds=[''],roundCopies=[null],activeCopies=[],busy=false,installed=false;
+  const id=kind=>kind+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9);
+  const value=v=>String(v??'').trim();
+  const clamp=(n,min,max)=>Math.min(max,Math.max(min,Number(n)||0));
+  function cleanBoard(x){
+    if(!x||typeof x!=='object')return null;
+    const answers=(Array.isArray(x.answers)?x.answers:[]).slice(0,8).map(a=>({
+      text:String(a?.text||'').trim().slice(0,70),value:clamp(a?.value,0,999)
     }));
-    if(!answers.length)return null;
     while(answers.length<4)answers.push({text:'',value:0});
-    return {
-      id:String(record.id||'').slice(0,90),
-      name:String(record.name||'Untitled Survey').trim().slice(0,90)||'Untitled Survey',
-      prompt:String(record.prompt||'').slice(0,240),
-      answers,scoring:record.scoring!==false,
-      aacVocab:(Array.isArray(record.aacVocab)?record.aacVocab:[]).map(x=>String(x).trim().slice(0,30)).filter(Boolean).slice(0,10),
-      createdAt:Number(record.createdAt)||Date.now(),
-      updatedAt:Number(record.updatedAt)||Date.now()
-    };
+    return {id:String(x.id||'').slice(0,100),name:value(x.name||x.prompt||'Untitled Board').slice(0,90),
+      prompt:value(x.prompt).slice(0,240),answers,scoring:x.scoring!==false,
+      aacVocab:(Array.isArray(x.aacVocab)?x.aacVocab:[]).map(a=>value(a).slice(0,30)).filter(Boolean).slice(0,10),
+      createdAt:Number(x.createdAt)||Date.now(),updatedAt:Number(x.updatedAt)||Date.now()};
   }
-  function load(){
-    const list=typeof loadGameStore==='function'?loadGameStore(KEY,[]):[];
-    boards=list.map(cleanBoard).filter(Boolean).filter(x=>x.id);
+  function freezeBoard(x){
+    const b=cleanBoard(x);
+    if(!b)return null;
+    return {sourceBoardId:b.sourceBoardId||b.id,name:b.name,prompt:b.prompt,
+      answers:b.answers.map(a=>({...a})),scoring:b.scoring,aacVocab:[...b.aacVocab]};
   }
-  function editorActive(){
-    return typeof state!=='undefined'&&typeof SESSION_ROLE!=='undefined'&&SESSION_ROLE==='teacher'&&
-      state.activeApp==='crew-survey'&&!state.activityRun&&!!document.querySelector('.crew-survey-setup');
+  function cleanGame(x){
+    if(!x||typeof x!=='object')return null;
+    const length=Number(x.length||x.rounds?.length||1);
+    if(![1,3,5].includes(length)||!Array.isArray(x.rounds)||x.rounds.length!==length)return null;
+    const rounds=x.rounds.map(r=>{
+      const b=freezeBoard(r);if(!b)return null;
+      b.sourceBoardId=String(r.sourceBoardId||r.id||'');
+      return b;
+    });
+    if(rounds.some(r=>!r))return null;
+    return {id:String(x.id||'').slice(0,100),name:value(x.name||'Untitled Game').slice(0,90),
+      length,rounds,createdAt:Number(x.createdAt)||Date.now(),updatedAt:Number(x.updatedAt)||Date.now()};
   }
-  function snapshot(){
-    if(typeof crewSurveyDraft==='undefined')return null;
-    const d=crewSurveyDraft;
-    return {
-      prompt:String(d.prompt||'').slice(0,240),
-      answers:(d.answers||[]).slice(0,8).map(x=>({text:String(x.text||'').slice(0,70),value:Math.max(0,Math.min(999,Number(x.value)||0))})),
-      scoring:!!d.scoring,
-      aacVocab:(d.aacVocab||[]).map(x=>String(x).trim().slice(0,30)).filter(Boolean).slice(0,10)
-    };
+  function readList(key,clean){
+    const raw=typeof loadGameStore==='function'?loadGameStore(key,[]):[];
+    return (Array.isArray(raw)?raw:[]).map(clean).filter(x=>x&&x.id);
   }
-  function createId(){
-    return 'survey_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9);
-  }
-  async function commit(next){
-    if(busy)return false;
-    busy=true;
+  function load(){boards=readList(BOARD_KEY,cleanBoard);games=readList(GAME_KEY,cleanGame)}
+  async function persist(key,next,kind){
+    if(busy)return false;busy=true;
     try{
-      const value=JSON.stringify(next);
-      const remote=typeof NETWORK_SYNC!=='undefined'&&NETWORK_SYNC&&SESSION_ROLE==='teacher';
-      if(remote){
-        let response;
+      const serialized=JSON.stringify(next);
+      const online=typeof NETWORK_SYNC!=='undefined'&&NETWORK_SYNC&&SESSION_ROLE==='teacher';
+      if(online){
         try{
-          response=await fetch('/api/storage',{
-            method:'POST',headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({key:KEY,value})
-          });
-          if(!response.ok||!(await response.json())?.ok)throw Error('unconfirmed');
-        }catch(_){message('Survey boards were not saved on the server. Please retry.');return false}
+          const response=await fetch('/api/storage',{method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({key,value:serialized})});
+          if(!response.ok||!(await response.json())?.ok)throw Error('storage rejected');
+        }catch(_){tell('Could not confirm '+kind+' save on Mothership. Retry; nothing was changed.');return false}
       }
-      let localSaved=true;
-      try{localStorage.setItem(KEY,value)}catch(_){localSaved=false}
-      if(!localSaved&&!remote){message('Could not save survey board in browser storage.');return false}
-      if(!localSaved&&remote)message('Saved on Mothership; local browser storage is full.');
-      boards=next;
+      let local=true;try{localStorage.setItem(key,serialized)}catch(_){local=false}
+      if(!local&&!online){tell('Browser storage is full. '+kind+' was not saved.');return false}
+      if(!local)tell(kind+' saved on Mothership; browser cache is full.');
+      if(key===BOARD_KEY)boards=next;
+      else games=next;
       return true;
     }finally{busy=false}
   }
-  function openBoard(id){
-    if(busy)return;
-    const entry=boards.find(x=>x.id===id);
-    if(!entry){message('Survey board not found.');return}
-    editingId=entry.id;
-    draftName=entry.name;
-    crewSurveyDraft={
-      prompt:entry.prompt,answers:entry.answers.map(x=>({...x})),
-      scoring:entry.scoring,
-      aacVocab:[...entry.aacVocab],aacStudents:[]
-    };
-    renderActivities();
-    message('Loaded survey: '+entry.name);
+  function draftBoard(){
+    const d=crewSurveyDraft;
+    return cleanBoard({id:editingBoardId,name:boardName||d.prompt,prompt:d.prompt,
+      answers:d.answers,scoring:d.scoring,aacVocab:d.aacVocab});
   }
-  function playBoard(id){
-    openBoard(id);
-    // Launch uses the existing teacher game rules and student count validation.
-    if(typeof launchCrewSurvey==='function')launchCrewSurvey();
+  function boardValid(b){
+    return !!b&&!!b.prompt&&b.answers.filter(a=>a.text).length>=4;
   }
-  function blankBoard(){
+  function loadBoard(id){
     if(busy)return;
-    editingId='';
-    draftName='';
-    crewSurveyDraft={
-      prompt:'',answers:Array.from({length:4},()=>({text:'',value:0})),
-      scoring:true,aacVocab:['Yes','No','Maybe','Other','Pass'],aacStudents:[]
-    };
+    const b=boards.find(x=>x.id===id);if(!b)return tell('Board not found');
+    editingBoardId=b.id;boardName=b.name;
+    crewSurveyDraft={prompt:b.prompt,answers:b.answers.map(a=>({...a})),
+      scoring:b.scoring,aacVocab:[...b.aacVocab],aacStudents:[...(crewSurveyDraft.aacStudents||[])]};
+    renderActivities();tell('Editing board: '+b.name);
+  }
+  function newBoard(){
+    if(busy)return;
+    editingBoardId='';boardName='';
+    crewSurveyDraft={prompt:'',answers:Array.from({length:4},()=>({text:'',value:0})),
+      scoring:true,aacVocab:['Yes','No','Maybe','Other','Pass'],
+      aacStudents:[...(crewSurveyDraft.aacStudents||[])]};
     renderActivities();
   }
-  async function saveBoard(duplicate=false){
-    if(busy)return;
-    const current=snapshot();
-    if(!current)return;
-    const name=(byId('surveyBoardName')?.value||draftName||current.prompt||'Untitled Survey').trim().slice(0,90);
-    if(!current.prompt.trim()){message('Enter a survey question before saving.');return}
-    if(current.answers.filter(x=>x.text.trim()).length<1){message('Add an answer before saving.');return}
-    const existing=!duplicate?boards.find(x=>x.id===editingId):null;
+  async function saveBoard(copy=false){
+    const draft=draftBoard();if(!boardValid(draft))return tell('Enter a question and at least four answers before saving a board.');
+    if(!boardName.trim())return tell('Give this board a name before saving.');
+    const previous=!copy?boards.find(x=>x.id===editingBoardId):null;
     const now=Date.now();
-    const entry=cleanBoard({
-      ...current,id:existing?.id||createId(),name,
-      createdAt:existing?.createdAt||now,updatedAt:now
-    });
-    const next=[entry,...boards.filter(x=>x.id!==entry.id)];
-    if(!(await commit(next)))return;
-    editingId=entry.id;draftName=entry.name;
+    const board=cleanBoard({...draft,name:boardName,id:previous?.id||id('surveyboard'),
+      createdAt:previous?.createdAt||now,updatedAt:now});
+    if(!(await persist(BOARD_KEY,[board,...boards.filter(b=>b.id!==board.id)],'Board')))return;
+    editingBoardId=board.id;boardName=board.name;renderActivities();
+    tell(previous?'Board updated in the library':'Board saved to the library');
+  }
+  async function deleteBoard(idToDelete){
+    const b=boards.find(x=>x.id===idToDelete);
+    if(!b||!confirm('Delete board "'+b.name+'" from the Board Library? Saved Games will keep their own copies.'))return;
+    if(!(await persist(BOARD_KEY,boards.filter(x=>x.id!==idToDelete),'Board')))return;
+    if(editingBoardId===idToDelete)editingBoardId='';
+    renderActivities();tell('Board deleted. Existing saved games are unchanged.');
+  }
+  function setLength(n){
+    if(![1,3,5].includes(Number(n))||busy)return;
+    gameLength=Number(n);
+    roundIds=Array.from({length:gameLength},(_,i)=>roundIds[i]||'');
+    roundCopies=Array.from({length:gameLength},(_,i)=>roundCopies[i]||null);
     renderActivities();
-    message(existing?'Survey board updated':'Survey board saved');
   }
-  async function deleteBoard(id){
-    if(busy)return;
-    const entry=boards.find(x=>x.id===id);
-    if(!entry||!confirm('Delete saved survey board "'+entry.name+'"? This cannot be undone.'))return;
-    if(!(await commit(boards.filter(x=>x.id!==id))))return;
-    if(editingId===id)editingId='';
-    roundIds=roundIds.map(x=>x===id?'':x);
+  function setRound(i,boardId){
+    if(busy||i<0||i>=gameLength)return;
+    roundIds[i]=boardId;roundCopies[i]=null;
     renderActivities();
-    message('Deleted survey board '+entry.name);
   }
-
-  /* Round 1 uses the board currently open in the editor. Later rounds load
-     only opaque saved-board IDs into the class state: no future answer text
-     is distributed to student or shared devices ahead of its face-off. */
-  function roundsUI(){
-    const options=boards.filter(b=>b.id!==editingId);
-    const slots=Array.from({length:gameLength-1},(_,i)=>{
-      const id=roundIds[i]||'';
-      const usable=options.some(b=>b.id===id);
-      return '<label class="survey-round-select">ROUND '+(i+2)+
-        '<select data-survey-round="'+i+'"><option value="">Choose a saved board…</option>'+
-        options.map(b=>'<option value="'+safe(b.id)+'" '+(b.id===id?'selected':'')+'>'+
-        safe(b.name)+' · '+safe(b.prompt)+'</option>').join('')+'</select>'+
-        (!usable&&id?'<span class="survey-round-warning">This board is missing; choose another.</span>':'')+
-        '</label>';
-    }).join('');
-    return '<section class="survey-rounds-panel" aria-label="Survey game length and board order">'+
-      '<div class="survey-rounds-heading"><div><span class="survey-library-eyebrow">GAME SETUP</span>'+
-      '<h4>How many survey boards?</h4><p>Each board gets a new face-off. Crew scores carry through all rounds.</p></div>'+
-      '<span class="survey-round-count">'+gameLength+' BOARD'+(gameLength===1?'':'S')+'</span></div>'+
-      '<div class="survey-round-count-buttons">'+[1,3,5].map(n=>
-        '<button type="button" data-survey-length="'+n+'" aria-pressed="'+(gameLength===n)+'" class="'+(gameLength===n?'selected':'')+'">'+
-        n+' BOARD'+(n===1?'':'S')+'</button>').join('')+'</div>'+
-      '<div class="survey-round-order"><div class="survey-round-first"><b>ROUND 1 · CURRENT BOARD</b><span>'+
-      safe(draftName||crewSurveyDraft.prompt||'Board being edited above')+'</span></div>'+
-      slots+'</div>'+
-      (gameLength>1?'<p class="survey-round-note">Select '+(gameLength-1)+' different saved boards for the remaining rounds. Save any new boards first.</p>':
-      '<p class="survey-round-note">Play a single board, with a new face-off whenever you replay.</p>')+
-      '</section>';
+  function boardForRound(i){
+    const chosen=roundCopies[i];
+    if(chosen&&chosen.sourceBoardId===roundIds[i])return freezeBoard(chosen);
+    return freezeBoard(boards.find(b=>b.id===roundIds[i]));
   }
-  function validRoundSequence(){
-    if(gameLength===1)return [];
-    const picked=roundIds.slice(0,gameLength-1);
-    if(picked.length!==gameLength-1||picked.some(x=>!x)){
-      message('Choose a saved board for each of the '+gameLength+' rounds.');return null;
+  function compileRounds(){
+    const rounds=Array.from({length:gameLength},(_,i)=>boardForRound(i));
+    if(rounds.some((b,i)=>!b||!boardValid(b))){
+      tell('Assign a saved board with at least four answers to every round.');return null;
     }
-    if(new Set(picked).size!==picked.length||picked.includes(editingId)){
-      message('Select a different board for each round.');return null;
+    const ids=rounds.map(b=>b.sourceBoardId);
+    if(new Set(ids).size!==ids.length){
+      tell('Choose a different saved board for each round.');return null;
     }
-    for(const id of picked){
-      const board=boards.find(x=>x.id===id);
-      if(!board||!board.prompt.trim()||board.answers.filter(a=>a.text.trim()).length<4){
-        message('One selected board is missing or needs at least four answers.');return null;
-      }
+    return rounds.map(b=>({...b,answers:b.answers.map(a=>({...a}))}));
+  }
+  function loadGame(idToLoad){
+    if(busy)return false;
+    const g=games.find(x=>x.id===idToLoad);if(!g){tell('Saved game not found');return false}
+    editingGameId=g.id;gameName=g.name;gameLength=g.length;
+    roundCopies=g.rounds.map(b=>freezeBoard(b));
+    roundIds=g.rounds.map(b=>b.sourceBoardId||'');
+    renderActivities();tell('Loaded game: '+g.name+' · '+g.length+' rounds');return true;
+  }
+  function newGame(){
+    if(busy)return;editingGameId='';gameName='';gameLength=1;roundIds=[''];roundCopies=[null];renderActivities();
+  }
+  async function saveGame(copy=false){
+    const name=value(byId('surveyGameName')?.value||gameName).slice(0,90);
+    if(!name)return tell('Give your Survey game a name before saving.');
+    const rounds=compileRounds();if(!rounds)return;
+    const prior=!copy?games.find(x=>x.id===editingGameId):null;
+    const now=Date.now(),g=cleanGame({id:prior?.id||id('surveygame'),name,length:gameLength,
+      rounds,createdAt:prior?.createdAt||now,updatedAt:now});
+    if(!g)return tell('Could not prepare this game');
+    if(!(await persist(GAME_KEY,[g,...games.filter(x=>x.id!==g.id)],'Game')))return;
+    editingGameId=g.id;gameName=g.name;roundIds=g.rounds.map(b=>b.sourceBoardId);
+    roundCopies=g.rounds.map(b=>freezeBoard(b));
+    renderActivities();tell(prior?'Saved game updated':'Game saved · '+g.length+' boards in order');
+  }
+  async function deleteGame(idToDelete){
+    const g=games.find(x=>x.id===idToDelete);
+    if(!g||!confirm('Delete saved game "'+g.name+'"? Your individual boards will be kept.'))return;
+    if(!(await persist(GAME_KEY,games.filter(x=>x.id!==idToDelete),'Game')))return;
+    if(editingGameId===idToDelete)editingGameId='';
+    renderActivities();tell('Saved game deleted. Your boards remain available.');
+  }
+  function playGame(idToPlay){
+    if(!loadGame(idToPlay))return;
+    launchCrewSurvey();
+  }
+  function run(){const r=state.activityRun;return r?.activityId==='crew-survey-game'&&r.crewSurveyTotal?r:null}
+  function winner(cs){
+    const a=Number(cs?.scores?.[0]||0),b=Number(cs?.scores?.[1]||0);
+    return a===b?'TIE GAME':a>b?'BLUE CREW WINS':'RED CREW WINS';
+  }
+  function advance(original){
+    const r=run();if(!r)return original();
+    const cs=r.crewSurvey,total=Number(r.crewSurveyTotal),idx=Number(r.crewSurveyRoundIndex||0);
+    if(idx>=total-1){
+      if(cs?.stage==='roundwon'){tell('Game complete: '+winner(cs));return}
+      if(!confirm('Replay the final survey board?'))return;
+      original();cs.message='Replay faceoff · final board.';render();return;
     }
-    return picked;
-  }
-  function roundRun(){
-    const run=typeof state!=='undefined'?state.activityRun:null;
-    return run?.activityId==='crew-survey-game'&&run.crewSurveyTotal?run:null;
-  }
-  function winnerLine(cs){
-    const scores=cs.scores||[0,0];
-    const blue=Number(scores[0]||0),red=Number(scores[1]||0);
-    return blue===red?'TIE GAME':blue>red?'BLUE CREW WINS':'RED CREW WINS';
-  }
-  function advanceSurvey(original){
-    const run=roundRun();
-    if(!run)return original();
-    const cs=run.crewSurvey,total=Number(run.crewSurveyTotal||1),index=Number(run.crewSurveyRoundIndex||0);
-    if(index>=total-1){
-      if(cs?.stage==='roundwon'){message('All '+total+' survey boards are complete. '+winnerLine(cs)+'.');return}
-      if(!confirm('Replay this final board and reset its reveals and strikes?'))return;
-      original();
-      cs.message='Replay face-off · Board '+total+' of '+total+'.';
-      render();return;
+    if(cs?.stage!=='roundwon'&&!confirm('Advance without awarding this round?'))return;
+    const nextIndex=idx+1;
+    let next=activeCopies[nextIndex];
+    if(!next&&r.crewSurveyGameId){
+      const saved=games.find(g=>g.id===r.crewSurveyGameId);
+      next=saved?.rounds?.[nextIndex];
     }
-    if(cs?.stage!=='roundwon'&&!confirm('Move to the next board without awarding this round? Current round points will not be added.'))return;
-    const id=(run.crewSurveyPlaylistIds||[])[index]||'';
-    const board=boards.find(x=>x.id===id);
-    if(!board){message('Next survey board not found in the teacher library. Return to Survey setup to check saved boards.');return}
-    const previous=run.crewSurveyConfig||{},members=cs?.teams||[[],[]],next=index+1;
-    run.crewSurveyConfig={
-      prompt:board.prompt,
-      answers:board.answers.filter(a=>a.text.trim()).map((a,i)=>({id:i+1,text:a.text.trim(),value:Number(a.value||0)})),
-      scoring:board.scoring,
-      aacVocab:[...board.aacVocab],
-      aacStudents:[...(previous.aacStudents||[])]
+    if(!boardValid(next)){tell('The next saved game board is unavailable. Return to Survey setup.');return}
+    const oldConfig=r.crewSurveyConfig||{},members=cs?.teams||[[],[]];
+    r.crewSurveyConfig={
+      prompt:next.prompt,
+      answers:next.answers.filter(a=>a.text).map((a,i)=>({id:i+1,text:a.text,value:Number(a.value||0)})),
+      scoring:next.scoring,aacVocab:[...next.aacVocab],
+      aacStudents:[...(oldConfig.aacStudents||[])]
     };
-    run.crewSurveyRoundIndex=next;
-    original(); // existing reset keeps scores, teams and creates a fresh face-off
-    const now=run.crewSurvey;
-    if(now){
-      now.activeIndexes=[next%Math.max(1,members[0]?.length||1),next%Math.max(1,members[1]?.length||1)];
-      now.buzzer.eligible=[members[0]?.[now.activeIndexes[0]],members[1]?.[now.activeIndexes[1]]].filter(Boolean);
-      now.message='Board '+(next+1)+' of '+total+' · New face-off. Arm the buzzers!';
+    r.crewSurveyRoundIndex=nextIndex;
+    original(); // established faceoff reset preserves crew scores and teams
+    const fresh=r.crewSurvey;
+    if(fresh){
+      fresh.activeIndexes=[nextIndex%Math.max(1,members[0]?.length||1),nextIndex%Math.max(1,members[1]?.length||1)];
+      fresh.buzzer.eligible=[members[0]?.[fresh.activeIndexes[0]],members[1]?.[fresh.activeIndexes[1]]].filter(Boolean);
+      fresh.message='Board '+(nextIndex+1)+' of '+total+' · New faceoff! Arm the buzzers.';
     }
-    render(); // synchronize fresh question and rotating contestants to students and shared screen
-    message('Round '+(next+1)+' of '+total+': '+board.name);
+    render();tell('Round '+(nextIndex+1)+' of '+total+': '+next.name);
   }
-  function drawHostRounds(){
-    const run=roundRun();if(!run||run.phase!=='running')return;
-    const box=byId('activityControllerPanel'),cs=run.crewSurvey;
-    if(!box||!cs)return;
-    const n=Number(run.crewSurveyRoundIndex||0)+1,total=Number(run.crewSurveyTotal||1);
-    const finished=n===total&&cs.stage==='roundwon';
-    const head=box.querySelector('.activity-controller-head');
-    if(head&&!box.querySelector('.survey-host-rounds')){
-      const info=document.createElement('div');
-      info.className='survey-host-rounds';
-      info.innerHTML='<b>BOARD '+n+' / '+total+'</b><span>'+
-        (finished?'GAME COMPLETE · '+safe(winnerLine(cs)):safe(run.crewSurveyConfig?.prompt||''))+
+  function drawHost(){
+    const r=run();if(!r||r.phase!=='running')return;
+    const root=byId('activityControllerPanel'),cs=r.crewSurvey;
+    if(!root||!cs)return;
+    const idx=Number(r.crewSurveyRoundIndex||0)+1,total=Number(r.crewSurveyTotal);
+    const finished=idx===total&&cs.stage==='roundwon';
+    const head=root.querySelector('.activity-controller-head');
+    if(head&&!root.querySelector('.survey-host-rounds')){
+      const info=document.createElement('div');info.className='survey-host-rounds';
+      info.innerHTML='<b>BOARD '+idx+' / '+total+'</b><span>'+
+        (finished?'GAME COMPLETE · '+safe(winner(cs)):safe(r.crewSurveyConfig?.prompt||''))+
         '</span><strong>BLUE '+Number(cs.scores?.[0]||0)+' · RED '+Number(cs.scores?.[1]||0)+'</strong>';
       head.after(info);
     }
     const next=byId('crewSurveyNewRoundBtn');
-    if(next){
-      next.textContent=finished?'✓ Game Complete':n<total?'→ Next Board & Face-Off':'↻ Replay This Board';
-      next.disabled=finished;
-      next.title=finished?'Finish & Return when you are ready':n<total?'Advance to board '+(n+1)+' of '+total:'Replay this last board';
-    }
+    if(next){next.textContent=finished?'✓ Game Complete':idx<total?'→ Next Board & Face-Off':'↻ Replay Board';
+      next.disabled=finished;next.title=finished?'Finish & Return when ready':'Start a fresh faceoff';}
   }
   function wrapGameplay(){
     if(typeof launchCrewSurvey!=='function'||typeof crewSurveyNewRound!=='function'||typeof renderActivityController!=='function')return;
-    const origLaunch=launchCrewSurvey,origNewRound=crewSurveyNewRound,origControl=renderActivityController;
-    const origAward=typeof crewSurveyAwardRound==='function'?crewSurveyAwardRound:null;
-    if(origAward)crewSurveyAwardRound=function(...args){
-      const run=roundRun();
-      if(run?.crewSurvey?.stage==='roundwon'){
-        message('That survey round has already been awarded. Move to the next board.');return;
-      }
-      return origAward.apply(this,args);
+    const originalLaunch=launchCrewSurvey,originalRound=crewSurveyNewRound,originalControl=renderActivityController;
+    const originalAward=typeof crewSurveyAwardRound==='function'?crewSurveyAwardRound:null;
+    if(originalAward)crewSurveyAwardRound=function(...args){
+      if(run()?.crewSurvey?.stage==='roundwon')return tell('This round was already awarded. Advance to the next board.');
+      return originalAward.apply(this,args);
     };
     launchCrewSurvey=function(...args){
-      const queue=validRoundSequence();
-      if(queue===null)return;
-      const previous=state.activityRun;
-      const result=origLaunch.apply(this,args);
-      const run=state.activityRun;
-      if(run&&run!==previous&&run.activityId==='crew-survey-game'){
-        run.crewSurveyTotal=gameLength;
-        run.crewSurveyRoundIndex=0;
-        run.crewSurveyPlaylistIds=queue;
-        render();
-      }
-      return result;
+      const chosen=compileRounds();if(!chosen)return;
+      const previous=state.activityRun,initial=chosen[0];
+      const oldDraft=crewSurveyDraft;
+      // The existing game launcher remains authoritative for roster, scoring and stage.
+      crewSurveyDraft={prompt:initial.prompt,answers:initial.answers.map(a=>({...a})),
+        scoring:initial.scoring,aacVocab:[...initial.aacVocab],
+        aacStudents:[...(oldDraft.aacStudents||[])]};
+      try{originalLaunch.apply(this,args)}finally{crewSurveyDraft=oldDraft}
+      const active=state.activityRun;
+      if(!active||active===previous||active.activityId!=='crew-survey-game')return;
+      activeCopies=chosen.map(b=>freezeBoard(b));
+      active.crewSurveyTotal=chosen.length;active.crewSurveyRoundIndex=0;
+      active.crewSurveyGameId=editingGameId||'';
+      // Omit later board text and answers from public session state.
+      active.crewSurveyPlaylistIds=chosen.slice(1).map(b=>b.sourceBoardId);
+      render();
     };
-    crewSurveyNewRound=function(...args){return advanceSurvey(()=>origNewRound.apply(this,args))};
-    renderActivityController=function(...args){const result=origControl.apply(this,args);drawHostRounds();return result};
+    crewSurveyNewRound=function(...args){return advance(()=>originalRound.apply(this,args))};
+    renderActivityController=function(...args){const response=originalControl.apply(this,args);drawHost();return response};
     if(typeof crewSurveySharedMarkup==='function'){
-      const origPublic=crewSurveySharedMarkup;
+      const originalShared=crewSurveySharedMarkup;
       crewSurveySharedMarkup=function(...args){
-        const html=origPublic.apply(this,args),run=roundRun();
-        if(!run||!html)return html;
-        const cs=run.crewSurvey,n=Number(run.crewSurveyRoundIndex||0)+1,total=Number(run.crewSurveyTotal||1);
-        const done=n===total&&cs?.stage==='roundwon';
-        const banner='<div class="survey-shared-rounds"><b>ROUND '+n+' OF '+total+'</b>'+
-          (done?'<strong>★ '+safe(winnerLine(cs))+' · FINAL SCORE ★</strong>':
-            '<span>Next face-off begins on a new board</span>')+'</div>';
-        return html.replace(/(<div class="crew-survey-public[^>]*>)/, '$1'+banner);
+        const html=originalShared.apply(this,args),r=run();
+        if(!r||!html)return html;
+        const idx=Number(r.crewSurveyRoundIndex||0)+1,total=Number(r.crewSurveyTotal);
+        const done=idx===total&&r.crewSurvey?.stage==='roundwon';
+        const badge='<div class="survey-shared-rounds"><b>ROUND '+idx+' OF '+total+'</b>'+
+          (done?'<strong>★ '+safe(winner(r.crewSurvey))+' · FINAL SCORE ★</strong>':'<span>New faceoff each round</span>')+'</div>';
+        return html.replace(/(<div class="crew-survey-public[^>]*>)/,'$1'+badge);
       };
     }
+  }
+  function editorActive(){return SESSION_ROLE==='teacher'&&state.activeApp==='crew-survey'&&!state.activityRun&&
+    !!document.querySelector('.crew-survey-setup');}
+  function boardLibraryMarkup(){
+    const board=boards.find(b=>b.id===editingBoardId);
+    return '<section class="survey-board-library survey-studio-board" aria-label="Survey Board Library">'+
+      '<div class="survey-library-top"><div><span class="survey-library-eyebrow">STEP 1 · BUILD AND SAVE INDIVIDUAL BOARDS</span>'+
+      '<h4>Board Library</h4><p>Create a question with hidden answers below, then save it here. Boards can be reused in different games.</p>'+
+      '</div><span class="survey-library-count">'+boards.length+' BOARDS</span></div>'+
+      '<div class="survey-library-editor"><label for="surveyBoardName">BOARD NAME</label>'+
+      '<input id="surveyBoardName" maxlength="90" placeholder="e.g. Kitchen Tools · Round 1" value="'+safe(boardName)+'">'+
+      '<div class="survey-library-actions"><button id="surveySaveBoard" type="button" class="survey-save-primary">'+
+      (board?'✓ Update Board':'💾 Save to Board Library')+'</button>'+
+      '<button id="surveySaveCopy" type="button">Save Copy</button>'+
+      '<button id="surveyNewBoard" type="button">＋ New Board</button></div></div>'+
+      '<div class="survey-library-bottom"><h5>Saved Boards <small>Load a board to edit it, or assign it in Step 2 below.</small></h5>'+
+      (boards.length?'<div class="survey-library-list">'+boards.map(b=>
+        '<article class="survey-library-item'+(b.id===editingBoardId?' selected':'')+'">'+
+        '<div class="survey-library-item-text"><strong>'+safe(b.name)+'</strong><span>'+safe(b.prompt)+'</span>'+
+        '<small>'+b.answers.filter(a=>a.text).length+' answers</small></div>'+
+        '<div class="survey-library-item-buttons"><button type="button" data-survey-load="'+safe(b.id)+'">Load / Edit</button>'+
+        '<button type="button" data-survey-delete="'+safe(b.id)+'" class="survey-delete" aria-label="Delete '+safe(b.name)+'">×</button></div></article>').join('')+'</div>':
+        '<p class="survey-library-empty">No boards saved yet. Create a question below and save it to begin.</p>')+
+      '</div></section>';
+  }
+  function gameBuilderMarkup(){
+    const selected=games.find(g=>g.id===editingGameId);
+    const options=boards.map(b=>'<option value="'+safe(b.id)+'">'+safe(b.name)+' · '+safe(b.prompt)+'</option>').join('');
+    const rows=Array.from({length:gameLength},(_,i)=>{
+      const id=roundIds[i]||'',copy=roundCopies[i],found=boards.some(b=>b.id===id);
+      const snapshot=!found&&copy?.sourceBoardId===id;
+      const name=copy?.name||boards.find(b=>b.id===id)?.name||'';
+      return '<label class="survey-round-select"><b>ROUND '+(i+1)+'</b>'+
+        '<select data-survey-round="'+i+'"><option value="">— Choose a board —</option>'+
+        (snapshot?'<option value="'+safe(id)+'" selected>'+safe(name)+' (Saved Game Copy)</option>':'')+
+        boards.map(b=>'<option value="'+safe(b.id)+'" '+(b.id===id?'selected':'')+'>'+safe(b.name)+'</option>').join('')+'</select>'+
+        '<span class="survey-round-description">'+(name?safe(copy?.prompt||boards.find(b=>b.id===id)?.prompt||''):'Choose a saved Board Library item')+'</span></label>';
+    }).join('');
+    return '<section class="survey-rounds-panel survey-studio-game" aria-label="Build and save Survey Games">'+
+      '<div class="survey-rounds-heading"><div><span class="survey-library-eyebrow">STEP 2 · ASSEMBLE AND SAVE A GAME</span>'+
+      '<h4>Game Builder</h4><p>Choose 1, 3, or 5 different saved boards. They play in this order, with a new faceoff and running crew scores.</p>'+
+      '</div><span class="survey-round-count">'+gameLength+' ROUNDS</span></div>'+
+      '<div class="survey-round-count-buttons">'+[1,3,5].map(n=>
+        '<button type="button" data-survey-length="'+n+'" aria-pressed="'+(gameLength===n)+'" class="'+(gameLength===n?'selected':'')+'">'+n+' BOARD'+(n===1?'':'S')+'</button>').join('')+'</div>'+
+      '<div class="survey-game-name"><label for="surveyGameName">GAME NAME</label>'+
+      '<input id="surveyGameName" maxlength="90" placeholder="e.g. Friday Survey Showdown" value="'+safe(gameName)+'"></div>'+
+      '<div class="survey-round-order">'+rows+'</div>'+
+      '<p class="survey-round-note">Saved games keep their own copies of each selected board. Editing or deleting a library board later will not change an existing saved game.</p>'+
+      '<div class="survey-game-actions">'+
+      '<button id="surveySaveGame" type="button" class="survey-save-primary">'+(selected?'✓ Update Saved Game':'💾 Save Complete Game')+'</button>'+
+      '<button id="surveyCopyGame" type="button">Save Game Copy</button>'+
+      '<button id="surveyNewGame" type="button">＋ New Game</button>'+
+      '<span id="surveyLaunchSlot"></span></div>'+
+      '<div class="survey-library-bottom survey-game-library"><h5>Saved Games <small>Load / Edit or play a complete game.</small></h5>'+
+      (games.length?'<div class="survey-library-list">'+games.map(g=>
+        '<article class="survey-library-item'+(g.id===editingGameId?' selected':'')+'">'+
+        '<div class="survey-library-item-text"><strong>'+safe(g.name)+'</strong>'+
+        '<span>'+g.length+' boards · '+g.rounds.map(b=>safe(b.name)).join(' → ')+'</span></div>'+
+        '<div class="survey-library-item-buttons"><button type="button" data-survey-load-game="'+safe(g.id)+'">Load / Edit</button>'+
+        '<button class="survey-play" type="button" data-survey-play-game="'+safe(g.id)+'">▶ Play</button>'+
+        '<button class="survey-delete" type="button" data-survey-delete-game="'+safe(g.id)+'" aria-label="Delete saved game '+safe(g.name)+'">×</button></div></article>').join('')+'</div>':
+        '<p class="survey-library-empty">No games saved yet. Assign a board to every round above, then Save Complete Game.</p>')+
+      '</div></section>';
   }
   function draw(){
     if(!editorActive())return;
     const setup=document.querySelector('.crew-survey-setup');
-    if(!setup||setup.querySelector('#surveyBoardLibrary'))return;
-    const panel=document.createElement('section');
-    panel.id='surveyBoardLibrary';
-    panel.className='survey-board-library';
-    panel.setAttribute('aria-label','Save and load Survey boards');
-    const selected=boards.find(x=>x.id===editingId);
-    panel.innerHTML='<div class="survey-library-top"><div>'+
-      '<span class="survey-library-eyebrow">TEACHER BOARD LIBRARY</span>'+
-      '<h4>Save & Reuse Survey Boards</h4>'+
-      '<p>Keep your questions, hidden answers, point values, and AAC vocabulary for another class session.</p>'+
-      '</div><span class="survey-library-count">'+boards.length+' SAVED</span></div>'+
-      '<div class="survey-library-editor"><label for="surveyBoardName">BOARD NAME</label>'+
-      '<input type="text" id="surveyBoardName" maxlength="90" placeholder="e.g. Things at School" value="'+safe(draftName)+'">'+
-      '<div class="survey-library-actions">'+
-      '<button type="button" id="surveySaveBoard" class="survey-save-primary">'+(selected?'✓ Update Saved Board':'💾 Save Board')+'</button>'+
-      '<button type="button" id="surveySaveCopy">Duplicate / Save Copy</button>'+
-      '<button type="button" id="surveyNewBoard">＋ New Blank Board</button>'+
-      '</div></div>'+
-      '<div class="survey-library-bottom"><h5>Saved Boards <small>Choose Load to edit, or Play to launch</small></h5>'+
-      (boards.length?'<div class="survey-library-list">'+boards.map(b=>
-        '<article class="survey-library-item'+(b.id===editingId?' selected':'')+'">'+
-        '<div class="survey-library-item-text"><strong>'+safe(b.name)+'</strong>'+
-        '<span>'+safe(b.prompt)+'</span>'+
-        '<small>'+b.answers.filter(x=>x.text.trim()).length+' answers'+(b.scoring?' · scoring on':' · no scoring')+'</small></div>'+
-        '<div class="survey-library-item-buttons">'+
-        '<button type="button" data-survey-load="'+safe(b.id)+'">Load / Edit</button>'+
-        '<button type="button" data-survey-play="'+safe(b.id)+'" class="survey-play">▶ Play</button>'+
-        '<button type="button" data-survey-delete="'+safe(b.id)+'" class="survey-delete" aria-label="Delete '+safe(b.name)+'">×</button>'+
-        '</div></article>').join('')+'</div>':
-        '<p class="survey-library-empty">No saved boards yet. Enter a question and answers below, name your board, then press Save Board.</p>')+
-      '</div>'+roundsUI();
-    // Survey setup follows the teacher's creation flow: game length first,
-    // then name/save the current board, then choose later round boards.
-    // Moving the existing elements preserves their IDs and save/load handlers.
-    const roundsPanel=panel.querySelector('.survey-rounds-panel');
-    const lengthChoices=roundsPanel?.querySelector('.survey-round-count-buttons');
-    const nameEditor=panel.querySelector('.survey-library-editor');
-    const savedList=panel.querySelector('.survey-library-bottom');
-    if(roundsPanel&&lengthChoices&&nameEditor&&savedList){
-      lengthChoices.after(nameEditor);
-      savedList.before(roundsPanel);
-    }
-    setup.querySelector('.game-show-setup-grid')?.before(panel);
-    const nameField=byId('surveyBoardName');
-    if(nameField)nameField.oninput=e=>draftName=e.target.value;
-    const save=byId('surveySaveBoard'),copy=byId('surveySaveCopy'),blank=byId('surveyNewBoard');
-    if(save)save.onclick=()=>saveBoard(false);
-    if(copy)copy.onclick=()=>saveBoard(true);
-    if(blank)blank.onclick=blankBoard;
-    panel.querySelectorAll('[data-survey-load]').forEach(el=>el.onclick=()=>openBoard(el.dataset.surveyLoad));
-    panel.querySelectorAll('[data-survey-play]').forEach(el=>el.onclick=()=>playBoard(el.dataset.surveyPlay));
-    panel.querySelectorAll('[data-survey-delete]').forEach(el=>el.onclick=()=>deleteBoard(el.dataset.surveyDelete));
-    panel.querySelectorAll('[data-survey-length]').forEach(el=>el.onclick=()=>{
-      gameLength=Number(el.dataset.surveyLength);
-      roundIds=roundIds.slice(0,gameLength-1);
-      renderActivities();
-    });
-    panel.querySelectorAll('[data-survey-round]').forEach(el=>el.onchange=()=>{
-      roundIds[Number(el.dataset.surveyRound)]=el.value;
-      renderActivities();
-    });
-    const launch=byId('launchCrewSurveyBtn');
+    if(!setup||setup.querySelector('#surveyStudio'))return;
+    const grid=setup.querySelector('.game-show-setup-grid');
+    if(!grid)return;
+    const studio=document.createElement('div');
+    studio.id='surveyStudio';studio.className='survey-studio';
+    studio.innerHTML=boardLibraryMarkup()+gameBuilderMarkup();
+    grid.before(studio);
+    const section=studio.querySelector('.survey-studio-board');
+    if(section)section.querySelector('.survey-library-editor')?.after(grid);
+    const launch=byId('launchCrewSurveyBtn'),slot=byId('surveyLaunchSlot');
+    if(launch&&slot){slot.replaceWith(launch);launch.textContent='▶ LAUNCH SELECTED GAME';launch.title='Start the selected 1-, 3-, or 5-board Survey Game';}
+    const n=byId('surveyBoardName'),gn=byId('surveyGameName');
+    if(n)n.oninput=e=>boardName=e.target.value;
+    if(gn)gn.oninput=e=>gameName=e.target.value;
+    const wire=(name,fn)=>{const el=byId(name);if(el)el.onclick=fn};
+    wire('surveySaveBoard',()=>saveBoard(false));wire('surveySaveCopy',()=>saveBoard(true));wire('surveyNewBoard',newBoard);
+    wire('surveySaveGame',()=>saveGame(false));wire('surveyCopyGame',()=>saveGame(true));wire('surveyNewGame',newGame);
+    studio.querySelectorAll('[data-survey-load]').forEach(b=>b.onclick=()=>loadBoard(b.dataset.surveyLoad));
+    studio.querySelectorAll('[data-survey-delete]').forEach(b=>b.onclick=()=>deleteBoard(b.dataset.surveyDelete));
+    studio.querySelectorAll('[data-survey-length]').forEach(b=>b.onclick=()=>setLength(Number(b.dataset.surveyLength)));
+    studio.querySelectorAll('[data-survey-round]').forEach(s=>s.onchange=()=>setRound(Number(s.dataset.surveyRound),s.value));
+    studio.querySelectorAll('[data-survey-load-game]').forEach(b=>b.onclick=()=>loadGame(b.dataset.surveyLoadGame));
+    studio.querySelectorAll('[data-survey-play-game]').forEach(b=>b.onclick=()=>playGame(b.dataset.surveyPlayGame));
+    studio.querySelectorAll('[data-survey-delete-game]').forEach(b=>b.onclick=()=>deleteGame(b.dataset.surveyDeleteGame));
     if(launch)launch.onclick=launchCrewSurvey;
   }
   function install(){
     if(installed||typeof renderActivities!=='function'||typeof loadGameStore!=='function')return;
-    if(typeof SESSION_ROLE==='undefined'||SESSION_ROLE!=='teacher')return;
+    if(SESSION_ROLE!=='teacher')return;
     installed=true;load();wrapGameplay();
-    const originalRender=renderActivities;
-    renderActivities=function(...args){const result=originalRender.apply(this,args);draw();return result};
+    const prior=renderActivities;
+    renderActivities=function(...args){const result=prior.apply(this,args);draw();return result};
     draw();
   }
   if(document.readyState==='complete')install();
