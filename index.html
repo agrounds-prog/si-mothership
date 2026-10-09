@@ -14632,6 +14632,7 @@ body.role-student .minefield-cell.simple.revealed.empty::after{
 @media(max-width:700px){.minefield-narrator .mf-coop-signal{font-size:22px;padding:8px 10px}}
 </style><link rel="stylesheet" href="/cosmic-cards.css?v=1">
 <link rel="stylesheet" href="/match-arcade.css?v=1">
+<link rel="stylesheet" href="/match-builder.css?v=2">
 <style id="v96-bingo-studio-restoration">
 /* Scoped, board-first teacher Bingo editor. Does not affect Bingo runtime, student or shared views. */
 #teacher #activitiesPanel:has(.bingo-studio-shell){width:min(1550px,calc(100vw - 32px))!important;max-width:none!important}
@@ -14877,6 +14878,7 @@ body.role-student .minefield-cell.simple.revealed.empty::after{
 
 <script src="/cosmic-cards.js?v=1"></script>
 <script src="/match-arcade.js?v=1"></script>
+<script src="/match-builder.js?v=2"></script>
 <script>
 window.addEventListener('error',function(e){
   const box=document.getElementById('bootError'),out=document.getElementById('bootErrorText');
@@ -15213,10 +15215,19 @@ function bingoItemsFromSelectedImages(ids){
   return (ids||[]).map(id=>gameImageLibrary.find(a=>a.id===id)).filter(Boolean).map((a,i)=>({id:'item_img_'+i+'_'+Date.now().toString(36),call:{type:'image',value:a.image,label:a.name},card:{type:'image',value:a.image,label:a.name}}));
 }
 function saveMatchDraft(){
-  const pairs=[...parsePairLines(matchDraft.quick),...pairsFromSelectedImages(matchDraft.selectedImages)].slice(0,24);
-  if(pairs.length<4)return toast('Add at least four MATCH pairs');
-  const set={id:'matchset_'+Date.now().toString(36),name:String(matchDraft.name||'MATCH Set').trim().slice(0,80)||'MATCH Set',pairs,createdAt:Date.now()};
-  matchSets=[set,...matchSets.filter(x=>x.id!==set.id)];persistGameStore(MATCH_SET_STORE,matchSets);toast('MATCH set saved');renderActivities();return set;
+  const pairs=matchBuilderPairs();
+  if(matchBuilderMode()==='pairs'&&pairs.length!==(matchDraft.manualPairs||[]).length)
+    return toast('Complete both sides of every MATCH pair before saving.');
+  if(pairs.length<4)return toast('MATCH needs at least 4 complete pairs before saving.');
+  const existing=matchSets.find(s=>s.id===matchDraft.editingSetId);
+  const set={id:existing?.id||'matchset_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,6),
+    name:String(matchDraft.name||'MATCH Set').trim().slice(0,80)||'MATCH Set',pairs,
+    createdAt:existing?.createdAt||Date.now()};
+  const next=[set,...matchSets.filter(s=>s.id!==set.id)];
+  if(!persistGameStore(MATCH_SET_STORE,next))return null;
+  matchSets=next;matchDraft.editingSetId=set.id;
+  toast(existing?'MATCH set updated':'MATCH set saved');
+  renderActivities();return set;
 }
 function saveBingoDraft(){
   const items=bingoDraft.numberedMode?bingoSlotItems().slice(0,48):[...parseBingoLines(bingoDraft.quick),...bingoCardExtras(),...bingoItemsFromSelectedImages(bingoDraft.selectedImages)].slice(0,48);
@@ -18257,54 +18268,15 @@ function renderActivities(){
 
   if(state.activeApp==='match'){
     note.classList.add('hidden');picker.classList.add('hidden');grid.classList.remove('hidden');
-    title.textContent='MATCH';subtitle.textContent='LOAD IMAGES → BUILD PAIRS → FLIP → REMEMBER → MATCH';header.innerHTML=`<button id="backToAppsBtn">← Activity Library</button>`;$('#backToAppsBtn').onclick=backToAppLibrary;
-    const pairs=parsePairLines(matchDraft.quick),selected=new Set(matchDraft.selectedImages||[]);
-    const matchCrewPreview=matchLaunchSettings.mode==='teams'
-      ?Array.from({length:matchLaunchSettings.teamCount},(_,team)=>'<div><b>'+matchTeamMeta(team).icon+' '+esc(matchTeamMeta(team).name)+'</b><span>'+((connectedStudents().filter((s,i)=>i%matchLaunchSettings.teamCount===team).map(s=>esc(s.n)).join(' · '))||'Waiting for students')+'</span></div>').join('')
-      :'<div><b>INDIVIDUAL ROTATION</b><span>'+((connectedStudents().map(s=>esc(s.n)).join(' · '))||'Waiting for students')+'</span></div>';
-    grid.innerHTML=`<div class="game-builder-shell"><div class="game-builder-card"><span class="app-status">REWARDS ARCADE</span><h3>Create MATCH Set</h3><p class="setup-copy">Saved sets contain only pair content. Choose teams and rules fresh for each launch.</p><label>SET NAME</label><input id="matchSetName" value="${esc(matchDraft.name)}"><label>QUICK PAIRS · one pair per line · left | right</label><textarea id="matchQuickPairs">${esc(matchDraft.quick)}</textarea><div class="game-builder-actions"><button id="matchUploadBtn">＋ Upload Images</button><input id="matchUploadInput" type="file" accept="image/*" multiple hidden><button id="matchSelectAllImages">Use All Library Images</button><button id="matchClearImages">Clear Image Selection</button></div><label>MOTHERSHIP IMAGE LIBRARY · ${gameImageLibrary.length} saved</label>${gameImagePickerMarkup(matchDraft.selectedImages)}<div class="game-builder-actions"><button id="matchSaveBtn">Save Set</button><button class="primary" id="matchLaunchDraftBtn">▶ Save & Launch MATCH</button></div></div><div><div class="game-builder-card"><h4>Launch Settings</h4><div class="game-builder-row"><label>MODE<select id="matchMode"><option value="teams" ${matchLaunchSettings.mode==='teams'?'selected':''}>Teams</option><option value="individual" ${matchLaunchSettings.mode==='individual'?'selected':''}>Individual Rotation</option></select></label><label>TEAMS<select id="matchTeamCount" ${matchLaunchSettings.mode!=='teams'?'disabled':''}><option value="2" ${matchLaunchSettings.teamCount===2?'selected':''}>2 Teams</option><option value="3" ${matchLaunchSettings.teamCount===3?'selected':''}>3 Teams</option><option value="4" ${matchLaunchSettings.teamCount===4?'selected':''}>4 Teams</option></select></label></div><div class="game-builder-row"><label>TURN RULE<select id="matchTurnRule"><option value="one_each" ${matchLaunchSettings.turnRule==='one_each'?'selected':''}>One Turn Each</option><option value="match_go_again" ${matchLaunchSettings.turnRule==='match_go_again'?'selected':''}>Match = Go Again</option></select></label><label>SCORING<select id="matchScoring"><option value="pairs" ${matchLaunchSettings.scoring==='pairs'?'selected':''}>Pairs</option><option value="no_score" ${matchLaunchSettings.scoring==='no_score'?'selected':''}>No Score / Crew Memory</option></select></label></div><label><input id="matchCrewConsult" type="checkbox" ${matchLaunchSettings.crewConsult?'checked':''}> Enable Crew Consult</label><div class="game-show-crew-preview">${matchCrewPreview}</div></div><div class="foundation-preview"><span class="eyebrow">BOARD PREVIEW</span><h3>${esc(matchDraft.name||'MATCH')}</h3><div class="foundation-preview-grid">${Array.from({length:Math.min(16,Math.max(8,(pairs.length+(matchDraft.selectedImages||[]).length)*2))},(_,i)=>`<div class="foundation-preview-tile">${i+1}</div>`).join('')}</div></div><div class="game-builder-card" style="margin-top:14px"><h4>Saved MATCH Sets</h4><div class="game-set-list">${matchSets.length?matchSets.map(s=>`<div class="game-set-item"><div><b>${esc(s.name)}</b><small>${s.pairs?.length||0} pairs · ${(s.pairs?.length||0)*2} tiles</small></div><button data-match-launch="${s.id}">Launch</button><button data-match-delete="${s.id}">×</button></div>`).join(''):'<div class="game-library-empty">No saved MATCH sets yet.</div>'}</div></div></div></div>`;
-    // Keep the original MATCH handlers and saved-set actions; upgrade presentation only.
-    const matchShell=grid.querySelector('.game-builder-shell');
-    if(matchShell){
-      matchShell.classList.add('match-studio-shell');
-      const editor=matchShell.querySelector('.game-builder-card');
-      const sidebar=matchShell.children[1];
-      const settings=sidebar?.querySelector('.game-builder-card');
-      const preview=sidebar?.querySelector('.foundation-preview');
-      const saved=sidebar?.querySelectorAll('.game-builder-card')[1];
-      editor?.classList.add('match-studio-editor');
-      sidebar?.classList.add('match-studio-sidebar');
-      settings?.classList.add('match-studio-settings');
-      preview?.classList.add('match-studio-preview');
-      saved?.classList.add('match-studio-saved');
-      const imageCount=(matchDraft.selectedImages||[]).filter(id=>gameImageLibrary.some(a=>a.id===id)).length;
-      const pairCount=Math.min(24,pairs.length+imageCount);
-      matchShell.insertAdjacentHTML('afterbegin',
-        '<div class="match-studio-hero"><div class="match-studio-logo" aria-hidden="true">✦</div>'+
-        '<div class="match-studio-heading"><small>MOTHERSHIP · MEMORY MISSION BUILDER</small>'+
-        '<h2 class="match-studio-hero-title">'+esc(matchDraft.name||'MATCH')+'</h2>'+
-        '<p>Build your pairs, choose your crew, then launch a holographic memory mission.</p></div>'+
-        '<div class="match-studio-metrics"><div><strong class="match-studio-pair-stat">'+pairCount+'</strong><span>PAIRS</span></div>'+
-        '<div><strong class="match-studio-tile-stat">'+(pairCount*2)+'</strong><span>CARDS</span></div>'+
-        '<div><strong class="match-studio-image-stat">'+imageCount+'</strong><span>PHOTO PAIRS</span></div></div></div>');
-      editor?.querySelector('.game-library-grid')?.insertAdjacentHTML('beforebegin',
-        '<div class="match-studio-library-heading"><strong>SELECT PHOTO PAIRS</strong>'+
-        '<small>Tap an image to add or remove a matching picture pair.</small></div>');
-      editor?.querySelectorAll('[data-game-image]').forEach(button=>
-        button.setAttribute('aria-pressed',button.classList.contains('selected')?'true':'false'));
-      if(preview)preview.innerHTML='<div class="match-studio-preview-body">'+matchStudioPreviewMarkup()+'</div>';
-    }
-    $('#matchSetName').oninput=e=>{matchDraft.name=e.target.value;matchStudioRefreshPreview()};
-    $('#matchQuickPairs').oninput=e=>{matchDraft.quick=e.target.value;matchStudioRefreshPreview()};
-    $('#matchMode').onchange=e=>{matchLaunchSettings.mode=e.target.value;renderActivities()};$('#matchTeamCount').onchange=e=>{matchLaunchSettings.teamCount=Number(e.target.value);renderActivities()};$('#matchTurnRule').onchange=e=>matchLaunchSettings.turnRule=e.target.value;$('#matchScoring').onchange=e=>matchLaunchSettings.scoring=e.target.value;$('#matchCrewConsult').onchange=e=>matchLaunchSettings.crewConsult=e.target.checked;
-    $('#matchUploadBtn').onclick=()=>$('#matchUploadInput').click();$('#matchUploadInput').onchange=e=>importGameImages(e.target.files);
-    $$('[data-game-image]').forEach(b=>b.onclick=()=>{const id=b.dataset.gameImage,arr=new Set(matchDraft.selectedImages||[]);arr.has(id)?arr.delete(id):arr.add(id);matchDraft.selectedImages=[...arr];renderActivities()});
-    wireGameLibraryRemoveButtons();$('#matchSelectAllImages').onclick=()=>{matchDraft.selectedImages=gameImageLibrary.map(x=>x.id);renderActivities()};$('#matchClearImages').onclick=()=>{matchDraft.selectedImages=[];renderActivities()};
-    $('#matchSaveBtn').onclick=saveMatchDraft;$('#matchLaunchDraftBtn').onclick=()=>{const s=saveMatchDraft();if(s)launchMatchSet(s)};
-    $$('[data-match-launch]').forEach(b=>b.onclick=()=>{const s=matchSets.find(x=>x.id===b.dataset.matchLaunch);if(s)launchMatchSet(s)});
-    $$('[data-match-delete]').forEach(b=>b.onclick=()=>{matchSets=matchSets.filter(x=>x.id!==b.dataset.matchDelete);persistGameStore(MATCH_SET_STORE,matchSets);renderActivities()});
+    title.textContent='MATCH';
+    subtitle.textContent='LOAD IMAGES → BUILD PAIRS → FLIP → REMEMBER → MATCH';
+    header.innerHTML='<button id="backToAppsBtn">← Activity Library</button>';
+    $('#backToAppsBtn').onclick=backToAppLibrary;
+    grid.innerHTML=matchBuilderMarkup();
+    matchBuilderWire();
     return;
   }
+
 
   if(state.activeApp==='bingo'){
     note.classList.add('hidden');picker.classList.add('hidden');grid.classList.remove('hidden');

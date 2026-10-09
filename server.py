@@ -4920,6 +4920,14 @@ async def match_arcade_style(request: web.Request) -> web.Response:
     return web.FileResponse(ROOT / "match-arcade.css", headers={"Cache-Control": "no-store"})
 
 
+async def match_builder_script(request: web.Request) -> web.Response:
+    return web.FileResponse(ROOT / "match-builder.js", headers={"Cache-Control": "no-store"})
+
+
+async def match_builder_style(request: web.Request) -> web.Response:
+    return web.FileResponse(ROOT / "match-builder.css", headers={"Cache-Control": "no-store"})
+
+
 async def cosmic_cards_script(request: web.Request) -> web.Response:
     return web.FileResponse(ROOT / "cosmic-cards.js", headers={"Cache-Control": "no-store"})
 
@@ -5838,6 +5846,8 @@ def create_app() -> web.Application:
     app.router.add_get("/index.html", index)
     app.router.add_get("/match-arcade.js", match_arcade_script)
     app.router.add_get("/match-arcade.css", match_arcade_style)
+    app.router.add_get("/match-builder.js", match_builder_script)
+    app.router.add_get("/match-builder.css", match_builder_style)
     app.router.add_get("/cosmic-cards.js", cosmic_cards_script)
     app.router.add_get("/cosmic-cards.css", cosmic_cards_style)
     app.router.add_get("/cosmic-cc-emblem.svg", cosmic_cards_artwork)
