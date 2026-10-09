@@ -275,7 +275,7 @@ const controls='button,a,[role="button"]',fields='input,select,textarea';
 function active(){
  if(typeof SESSION_ROLE==='undefined'||SESSION_ROLE!=='teacher'||typeof state==='undefined')return null;
  const run=state.activityRun;
- return run&&run.phase==='running'&&!state.ended?run:null;
+ return run&&(run.phase==='lobby'||run.phase==='running')&&!state.ended?run:null;
 }
 function caption(a){const x=typeof activeActivity==='function'?activeActivity():null;return String(x?.name||a.activityId||'Game').toUpperCase()}
 function init(){
@@ -392,11 +392,14 @@ function detach(){
 function tick(){
  const a=active();if(!a){if(key)reset();return}
  if(!init())return;
+ dock.classList.toggle('prelaunch',a.phase==='lobby');
  const k=String(a.runToken||a.activityId)+'|'+String(a.activityId);
  if(k!==key){reset();key=k;hidden=false;heading.textContent=caption(a);dock.classList.remove('folded');float()}
  if(win&&win.closed){win=null;mirror=null;mirrorDoc=null;prevHTML='';float()}
  if(!hidden&&(!win||win.closed)&&node.parentNode!==box)float();
  if(heading.textContent!==caption(a))heading.textContent=caption(a);
+ const phaseLabel=dock.querySelector('.si-control-caption small');
+ if(phaseLabel){const text=a.phase==='lobby'?'ACTIVITY LOADED · READY TO START':'MISSION CONTROL · LIVE';if(phaseLabel.textContent!==text)phaseLabel.textContent=text;}
 }
 function start(){
  if(typeof SESSION_ROLE==='undefined'||SESSION_ROLE!=='teacher')return;
