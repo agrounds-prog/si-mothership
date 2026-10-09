@@ -4420,6 +4420,9 @@ def merge_student_snapshot(canonical: Optional[dict], incoming: dict, token: str
             if allowed and k in inc_student:
                 can_student[k] = copy.deepcopy(inc_student[k])
 
+    # A newcomer receives one server-authoritative Bingo card; existing cards never reshuffle.
+    _bingo_ensure_card_for_student(out, name)
+
     # Student-owned membership in classroom queues. Teacher enable/disable state wins
     # over delayed student snapshots so closed controls cannot re-open themselves.
     for field, enabled_field in (("buzz", "buzzEnabled"), ("help", "helpEnabled")):
@@ -5507,6 +5510,40 @@ def _match_apply_request(state: dict, run: dict, actor: str, request: dict, teac
             match["message"] = "Last matched pair returned to the board."
 
 
+def _bingo_ensure_card_for_student(state: dict, name: str) -> bool:
+    """Give a late-arriving student one persistent private card without resetting the game."""
+    run = state.get("activityRun") if isinstance(state, dict) else None
+    if not isinstance(run, dict) or run.get("activityId") != "bingo-game" or run.get("phase") not in ("lobby", "running"):
+        return False
+    config = run.get("bingoConfig") if isinstance(run.get("bingoConfig"), dict) else {}
+    bingo = run.get("bingo") if isinstance(run.get("bingo"), dict) else None
+    if not isinstance(bingo, dict) or not name:
+        return False
+    try:
+        size = max(3, min(6, int(config.get("size") or 4)))
+    except (TypeError, ValueError):
+        size = 4
+    count = size * size
+    center = count // 2 if config.get("free") and size % 2 else -1
+    cards = bingo.setdefault("cards", {})
+    if not isinstance(cards, dict):
+        return False
+    existing = cards.get(name)
+    if isinstance(existing, list) and len(existing) == count:
+        return False
+    items = config.get("items") if isinstance(config.get("items"), list) else []
+    ids = list(dict.fromkeys(str(item.get("id") or "") for item in items if isinstance(item, dict) and item.get("id")))
+    needed = count - (1 if center >= 0 else 0)
+    if len(ids) < needed:
+        return False
+    picked = secrets.SystemRandom().sample(ids, needed)
+    card = []
+    for index in range(count):
+        card.append("free" if index == center else picked.pop(0))
+    cards[name] = card
+    return True
+
+
 def _bingo_winning_sets(size: int, pattern: str) -> list[list[int]]:
     n = max(3, min(6, int(size or 4)))
     rows = [[r * n + col for col in range(n)] for r in range(n)]
@@ -5577,10 +5614,18 @@ def _bingo_apply_request(state: dict, run: dict, actor: str, request: dict, teac
             else:
                 own.add(value)
             marks[actor] = list(own)
+            # The old claim is no longer actionable after the student's marks change.
+            for old_claim in bingo.get("claims", []):
+                if isinstance(old_claim, dict) and old_claim.get("name") == actor and old_claim.get("status") == "pending":
+                    old_claim["status"] = "dismissed"
             results = bingo.setdefault("claimResults", {})
             results.pop(actor, None)
             return
         if kind == "claim":
+            # Ignore double-taps until the player changes their marks.
+            if any(isinstance(claim, dict) and claim.get("name") == actor and claim.get("status") == "pending"
+                   for claim in bingo.get("claims", [])):
+                return
             valid = _bingo_claim_valid(run, actor)
             claim = {
                 "id": "claim_" + secrets.token_hex(6),
@@ -5625,10 +5670,22 @@ def _bingo_apply_request(state: dict, run: dict, actor: str, request: dict, teac
 
     if kind == "reveal_claim":
         claims = bingo.get("claims") if isinstance(bingo.get("claims"), list) else []
-        claim = next((x for x in claims if isinstance(x, dict) and str(x.get("id") or "") == value and x.get("valid")), None)
+        claim = next((x for x in claims if isinstance(x, dict) and str(x.get("id") or "") == value
+                      and x.get("valid") and x.get("status") != "dismissed"), None)
         if not claim:
             return
         name = str(claim.get("name") or "")
+        # Verify again at reveal time: a previous valid claim may have gone stale.
+        if not _bingo_claim_valid(run, name):
+            claim["status"] = "dismissed"
+            claim["valid"] = False
+            bingo.setdefault("claimResults", {})[name] = {
+                "valid": False,
+                "at": int(time.time() * 1000),
+                "message": "Your card changed. Keep playing, then claim BINGO again.",
+            }
+            bingo["message"] = f"{name}'s earlier claim is no longer a winning pattern."
+            return
         cards = bingo.get("cards") if isinstance(bingo.get("cards"), dict) else {}
         marks = bingo.get("marks") if isinstance(bingo.get("marks"), dict) else {}
         bingo["reveal"] = {
@@ -5639,6 +5696,11 @@ def _bingo_apply_request(state: dict, run: dict, actor: str, request: dict, teac
             "at": int(time.time() * 1000),
         }
         claim["status"] = "revealed"
+        bingo.setdefault("claimResults", {})[name] = {
+            "valid": True,
+            "at": int(time.time() * 1000),
+            "message": "YOU WON! Your Bingo card is on the shared screen!",
+        }
         bingo["message"] = f"{name} has BINGO!"
         return
 
@@ -5751,6 +5813,13 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                         if name and not meta.get("student_name"):
                             meta["student_name"] = name
                         CLIENT_META[ws] = meta
+                        identity = _student_by_identity(current, token, "") if token else None
+                        if identity is None and not token and name:
+                            legacy = _student_by_identity(current, "", name)
+                            if isinstance(legacy, dict) and not legacy.get("studentToken"):
+                                identity = legacy
+                        if not isinstance(identity, dict) or str(identity.get("n") or "") != name:
+                            continue
                         request_data["name"] = name
                         _bingo_apply_request(current, run, name, request_data, teacher=False)
                     elif role == "teacher":
