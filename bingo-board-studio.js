@@ -238,7 +238,7 @@ function bbsWire(){
   $$('[data-bbs-tab]').forEach(b=>b.onclick=()=>{bbsRecent=b.dataset.bbsTab==='recent';bbsQuery='';renderActivities()});
   const search=$('#bbsSearch');if(search)search.oninput=e=>{
     bbsQuery=e.target.value;const query=bbsQuery.trim().toLowerCase();
-    $('[data-bbs-image]').forEach(b=>{b.closest('.bbs-library-entry').hidden=!b.dataset.bbsName.includes(query)})
+    $$('[data-bbs-image]').forEach(b=>{b.closest('.bbs-library-entry').hidden=!b.dataset.bbsName.includes(query)})
   };
   $$('[data-bbs-image]').forEach(b=>b.onclick=()=>{
     const id=b.dataset.bbsImage,selection=bbsSelected(),set=new Set(selection);
@@ -247,7 +247,7 @@ function bbsWire(){
     else set.add(id);
     bingoDraft.selectedImages=[...set];bbsUpdateSelections()
   });
-  $('[data-bbs-remove]').forEach(b=>b.onclick=()=>bbsRemoveLibraryImage(b.dataset.bbsRemove));
+  $$('[data-bbs-remove]').forEach(b=>b.onclick=()=>bbsRemoveLibraryImage(b.dataset.bbsRemove));
   const clear=$('#bbsUncheck');if(clear)clear.onclick=()=>{bingoDraft.selectedImages=[];bbsUpdateSelections()};
   const create=$('#bbsCreate');if(create)create.onclick=bbsPopulate;
   const save=$('#bbsSave'),launch=$('#bbsSaveLaunch');if(save)save.onclick=()=>bbsSaveBoard(false);
