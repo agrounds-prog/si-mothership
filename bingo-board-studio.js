@@ -813,3 +813,116 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(document.readyState==='complete')install();
   else window.addEventListener('load',install,{once:true});
 })();
+
+
+/* Crew Survey Showtime v1
+   Keeps original Survey game state, answer authority and saved board/game format.
+   Adds protected teacher faceoff actions, a robust waiting-student view, and
+   display-only current-stage decorations and one-time reveal/strike effects. */
+(()=>{
+  if(typeof window==='undefined'||window.__siCrewSurveyShowtime)return;
+  window.__siCrewSurveyShowtime=true;
+  function start(){
+    if(typeof crewSurveySharedMarkup!=='function'||typeof crewSurveyState!=='function')return;
+    const escText=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+    const role=typeof SESSION_ROLE!=='undefined'?SESSION_ROLE:'';
+    const originalPublic=crewSurveySharedMarkup;
+    let stageKey='',oldRevealed=null,oldStrikes=null;
+    crewSurveySharedMarkup=function(...args){
+      const html=originalPublic.apply(this,args);
+      const run=args[0]&&typeof args[0]==='object'?args[0]:state?.activityRun;
+      if(!html||run?.activityId!=='crew-survey-game')return html;
+      const cs=run.crewSurvey||{},round=Number(run.crewSurveyRoundIndex||0)+1;
+      const total=Math.max(1,Number(run.crewSurveyTotal||1));
+      const token=String(run.runToken||'')+'|'+round;
+      const freshRound=!!stageKey&&stageKey!==token;
+      if(stageKey!==token){stageKey=token;oldRevealed=null;oldStrikes=null}
+      const revealed=new Set(Array.isArray(cs.revealed)?cs.revealed.map(Number):[]);
+      const freshReveals=oldRevealed===null?new Set():new Set([...revealed].filter(x=>!oldRevealed.has(x)));
+      oldRevealed=revealed;
+      const strikes=(Array.isArray(cs.strikes)?cs.strikes:[0,0]).map(x=>Math.max(0,Math.min(3,Number(x)||0)));
+      const freshStrike=oldStrikes?strikes.some((x,i)=>x>oldStrikes[i]):false;
+      oldStrikes=strikes;
+      const stage=String(cs.stage||'faceoff').toLowerCase();
+      const statusLabel=stage==='faceoff'?'FACE-OFF':stage==='steal'?'STEAL OPPORTUNITY':
+        stage==='roundwon'?'ROUND COMPLETE':'BOARD IN PLAY';
+      const banner='<div class="cs-show-status" aria-label="Survey round status">'+
+        '<span class="cs-show-stage">'+escText(statusLabel)+'</span>'+
+        '<span class="cs-show-progress">BOARD '+round+' / '+total+'</span>'+
+        '<span class="cs-show-progress">'+revealed.size+' / '+(run.crewSurveyConfig?.answers?.length||0)+' REVEALED</span></div>';
+      let output=html.replace(/(<div class="crew-survey-public\b[^"]*)(")/,(_full,leading,quote)=>
+        leading+' cs-showtime'+(freshRound?' cs-new-board':'')+'" data-cs-stage="'+stage+'"');
+      // Append a stage/status rail only; the original game board remains authoritative.
+      output=output.replace(/(<div class="crew-survey-stage-head">)/,banner+'$1');
+      let slot=-1;
+      output=output.replace(/<div class="crew-survey-panel ([^"]*)">/g,(whole,cls)=>{
+        slot++;
+        return '<div class="crew-survey-panel '+cls+(freshReveals.has(slot)?' cs-new-reveal':'')+'">';
+      });
+      if(freshStrike)output=output.replace('class="crew-survey-footer"','class="crew-survey-footer cs-strike-alert"');
+      if(stage==='roundwon'&&round===total){
+        const left=Number(cs.scores?.[0]||0),right=Number(cs.scores?.[1]||0);
+        const who=left===right?'IT\'S A TIE!':left>right?'BLUE CREW WINS!':'RED CREW WINS!';
+        output=output.replace('</div>', '</div>'); // kept for predictable legacy markup
+        const finale='<div class="cs-show-finale" role="status"><span>★ FINAL ROUND COMPLETE ★</span>'+
+          '<strong>'+escText(who)+'</strong><em>BLUE '+left+' · RED '+right+'</em></div>';
+        const pos=output.lastIndexOf('</div>');
+        if(pos>=0)output=output.slice(0,pos)+finale+output.slice(pos);
+      }
+      return output;
+    };
+    // Some waiting players hit a legacy ReferenceError (undefined "active").
+    // Preserve all established buzzer and answer paths; supply a safe waiting
+    // screen only for that exact failure rather than changing main index.html.
+    if(typeof crewSurveyStudentMarkup==='function'){
+      const priorStudent=crewSurveyStudentMarkup;
+      crewSurveyStudentMarkup=function(run,student){
+        try{return priorStudent.apply(this,arguments)}
+        catch(error){
+          if(!(error instanceof ReferenceError)||!/\bactive is not defined\b/.test(String(error.message||'')))throw error;
+          if(!run?.crewSurvey||!student)return '';
+          const cs=run.crewSurvey,team=crewSurveyTeamFor(student.n,run);
+          const teamLabel=team===0?'BLUE CREW':team===1?'RED CREW':'YOUR CREW';
+          const controlling=cs.controlTeam===0||cs.controlTeam===1?crewSurveyActiveName(cs.controlTeam,run):'';
+          const winner=cs.buzzer?.winner||'';
+          const waiting=cs.stage==='roundwon'?'Round complete! Get ready for the next face-off.':
+            controlling?controlling+' is answering now.':
+            winner?winner+' buzzed first. Watch the board.':
+            cs.buzzer?.armed?'Face-off buzzers are armed. Watch for your turn.':
+            'Watch the shared board and talk strategy with your crew.';
+          return '<div class="student-prompt activity-wait crew-survey-waiting">'+
+            '<span class="eyebrow">CREW SURVEY · '+escText(teamLabel)+'</span>'+
+            '<h2>Watch the Board</h2><p>'+escText(waiting)+'</p></div>';
+        }
+      };
+    }
+    if(role==='teacher'){
+      // A fourth X should not flip possession after steal is already available.
+      if(typeof crewSurveyStrike==='function'){
+        const priorStrike=crewSurveyStrike;
+        crewSurveyStrike=function(...args){
+          const cs=crewSurveyState();
+          if(cs?.stage==='roundwon')return typeof toast==='function'?toast('Round awarded. Start the next board.'):undefined;
+          if(cs?.stage==='steal'&&cs.stealAvailable)return typeof toast==='function'?toast('Steal opportunity is already active.'):undefined;
+          return priorStrike.apply(this,args);
+        };
+      }
+      if(typeof crewSurveyReveal==='function'){
+        const priorReveal=crewSurveyReveal;
+        crewSurveyReveal=function(...args){
+          if(crewSurveyState()?.stage==='roundwon')return typeof toast==='function'?toast('Round already awarded. Advance to the next board.'):undefined;
+          return priorReveal.apply(this,args);
+        };
+      }
+      if(typeof crewSurveyArmBuzzers==='function'){
+        const priorArm=crewSurveyArmBuzzers;
+        crewSurveyArmBuzzers=function(...args){
+          if(crewSurveyState()?.stage==='roundwon')return typeof toast==='function'?toast('Round complete. Advance to the next board.'):undefined;
+          return priorArm.apply(this,args);
+        };
+      }
+    }
+  }
+  if(document.readyState==='complete')start();
+  else window.addEventListener('load',start,{once:true});
+})();
