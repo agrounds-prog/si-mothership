@@ -648,24 +648,23 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     if(next){next.textContent=finished?'✓ Game Complete':idx<total?'→ Next Board & Face-Off':'↻ Replay Board';
       next.disabled=finished;next.title=finished?'Finish & Return when ready':'Start a fresh faceoff';}
   }
-  /* Teacher-preview mode: the original Survey launcher hard-stops with
-     fewer than two connected students. Match its initial game state without
-     inventing phantom students, so teachers can preview a saved Survey game. */
-  function launchSurveyPreview(){
-    const students=connectedStudents(),answers=crewSurveyCleanAnswers();
-    const prompt=String(crewSurveyDraft.prompt||'').trim();
-    if(!prompt)return tell('Enter a survey prompt before launching.');
-    if(answers.length<4)return tell('The first board needs at least four answers.');
-    const teams=crewSurveyTeamsFromRoster();
+  /* Create a fully initialized live Survey run before the first render and
+     state broadcast, using one consistent path for teacher preview and students. */
+  function launchPreparedSurvey(chosen){
+    if(state.activityRun){tell('Finish the current activity before launching another Survey game.');return false}
+    const first=chosen[0],students=connectedStudents(),teams=crewSurveyTeamsFromRoster();
+    const answers=first.answers.filter(a=>a.text).map((a,i)=>({
+      id:i+1,text:String(a.text).slice(0,70),value:Number(a.value||0)
+    }));
+    if(!first.prompt||answers.length<4){tell('The first board needs a question and at least four answers.');return false}
     const eligible=[teams[0]?.[0],teams[1]?.[0]].filter(Boolean);
-    state.activityRun={
-      activityId:'crew-survey-game',runToken:newActivityRunToken(),
-      phase:'lobby',responses:{},
+    const snapshots=chosen.map(b=>freezeBoard(b));
+    const next={
+      activityId:'crew-survey-game',runToken:newActivityRunToken(),phase:'lobby',responses:{},
       crewSurveyConfig:{
-        prompt:prompt.slice(0,240),answers,
-        scoring:!!crewSurveyDraft.scoring,
+        prompt:first.prompt.slice(0,240),answers,scoring:!!first.scoring,
         aacStudents:(crewSurveyDraft.aacStudents||[]).filter(n=>students.some(s=>s.n===n)),
-        aacVocab:(crewSurveyDraft.aacVocab||[]).map(v=>String(v).trim().slice(0,30)).filter(Boolean).slice(0,10)
+        aacVocab:[...first.aacVocab]
       },
       crewSurvey:{
         stage:'faceoff',teams,scores:[0,0],strikes:[0,0],revealed:[],
@@ -674,44 +673,39 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         privateResponses:{},lastResponse:null,
         message:students.length===0
           ?'Teacher preview ready. Reveal answers using Mission Control.'
-          :'One-student practice ready. Arm the buzzer or reveal answers from Mission Control.'
-      }
+          :students.length===1
+            ?'One-student practice ready. Arm the buzzer or reveal answers from Mission Control.'
+            :'Face-off ready. Assign contestants and arm the buzzers.'
+      },
+      crewSurveyTotal:chosen.length,crewSurveyRoundIndex:0,
+      crewSurveyGameId:editingGameId||'',
+      // Future boards remain in teacher-private memory; public state only has IDs.
+      crewSurveyPlaylistIds:chosen.slice(1).map(b=>b.sourceBoardId)
     };
+    activeCopies=snapshots;
+    state.activityRun=next;
     state.screen='activity';state.promptActive=false;state.assigningSlot=null;
     recordActivityLaunch('crew-survey','CREW SURVEY');
     render();
     tell(students.length===0
       ?'CREW SURVEY loaded in teacher preview · no students connected'
-      :'CREW SURVEY loaded for one student · connect another for two-crew faceoffs');
+      :students.length===1
+        ?'CREW SURVEY loaded for one student · connect another for two-crew faceoffs'
+        :'CREW SURVEY loaded — students moved to Activity Lobby');
+    return true;
   }
   function wrapGameplay(){
     if(typeof launchCrewSurvey!=='function'||typeof crewSurveyNewRound!=='function'||typeof renderActivityController!=='function')return;
-    const originalLaunch=launchCrewSurvey,originalRound=crewSurveyNewRound,originalControl=renderActivityController;
+    const originalRound=crewSurveyNewRound,originalControl=renderActivityController;
     const originalAward=typeof crewSurveyAwardRound==='function'?crewSurveyAwardRound:null;
     if(originalAward)crewSurveyAwardRound=function(...args){
       if(run()?.crewSurvey?.stage==='roundwon')return tell('This round was already awarded. Advance to the next board.');
       return originalAward.apply(this,args);
     };
-    launchCrewSurvey=function(...args){
-      const chosen=compileRounds();if(!chosen)return;
-      const previous=state.activityRun,initial=chosen[0];
-      const oldDraft=crewSurveyDraft;
-      // The existing game launcher remains authoritative for roster, scoring and stage.
-      crewSurveyDraft={prompt:initial.prompt,answers:initial.answers.map(a=>({...a})),
-        scoring:initial.scoring,aacVocab:[...initial.aacVocab],
-        aacStudents:[...(oldDraft.aacStudents||[])]};
-      try{
-        if(connectedStudents().length>=2)originalLaunch.apply(this,args);
-        else launchSurveyPreview();
-      }finally{crewSurveyDraft=oldDraft}
-      const active=state.activityRun;
-      if(!active||active===previous||active.activityId!=='crew-survey-game')return;
-      activeCopies=chosen.map(b=>freezeBoard(b));
-      active.crewSurveyTotal=chosen.length;active.crewSurveyRoundIndex=0;
-      active.crewSurveyGameId=editingGameId||'';
-      // Omit later board text and answers from public session state.
-      active.crewSurveyPlaylistIds=chosen.slice(1).map(b=>b.sourceBoardId);
-      render();
+    launchCrewSurvey=function(){
+      if(state.activityRun){tell('Finish the current activity before launching another Survey game.');return false}
+      const chosen=compileRounds();
+      return chosen?launchPreparedSurvey(chosen):false;
     };
     crewSurveyNewRound=function(...args){return advance(()=>originalRound.apply(this,args))};
     renderActivityController=function(...args){const response=originalControl.apply(this,args);drawHost();return response};
