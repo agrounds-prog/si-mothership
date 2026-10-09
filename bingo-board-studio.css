@@ -735,3 +735,105 @@
   outline:3px solid #ffe78e!important;
   outline-offset:3px!important;
 }
+
+/* Universal in-game teacher controller: browser-window popout or draggable dock.
+   Activity markup and event handlers are reused; these styles change positioning only. */
+#teacher .si-live-control-dock{
+  box-sizing:border-box!important;
+  position:fixed!important;
+  z-index:12080!important;
+  top:clamp(70px,11dvh,120px);
+  right:clamp(14px,3vw,46px);
+  left:auto;
+  display:flex!important;
+  flex-direction:column!important;
+  width:min(1030px,calc(100vw - 32px));
+  min-width:min(370px,calc(100vw - 32px));
+  height:min(780px,calc(100dvh - 106px));
+  min-height:185px;
+  max-width:calc(100vw - 8px);
+  max-height:calc(100dvh - 12px);
+  resize:both;
+  overflow:hidden!important;
+  border:2px solid #61bdec!important;
+  border-radius:18px!important;
+  background:linear-gradient(160deg,#0d3055,#061a33 70%,#051322)!important;
+  box-shadow:0 0 0 1px #d9f6ff20,inset 0 1px 0 #d9f6ff29,0 24px 75px #000c,0 0 28px #32b2ff46!important;
+}
+#teacher .si-live-control-dock.off,
+#teacher .si-live-control-dock.detached{display:none!important}
+#teacher .si-live-control-dock .si-control-titlebar{
+  box-sizing:border-box;
+  display:flex;flex:0 0 auto;align-items:center;gap:10px;
+  min-width:0;min-height:65px;padding:8px 13px 8px 16px;
+  border-bottom:1px solid #356e9f;
+  background:linear-gradient(90deg,#164a78,#102a55 61%,#0b1c3c);
+  cursor:move;touch-action:none;user-select:none;
+}
+#teacher .si-control-handle{
+  color:#94eaff;font-size:27px;line-height:1;font-weight:900;
+  text-shadow:0 0 9px #86dcff;flex:0 0 auto;
+}
+#teacher .si-control-caption{min-width:0;display:flex;flex:1;flex-direction:column;gap:3px}
+#teacher .si-control-caption small{font-size:9px;font-weight:950;letter-spacing:.17em;color:#8fe8ff}
+#teacher .si-control-caption b{
+  font-size:clamp(14px,1.65vw,22px);color:white;
+  font-weight:1000;line-height:1.13;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#teacher .si-control-buttons{display:flex;align-items:center;gap:7px;flex:0 0 auto}
+#teacher .si-control-buttons button{
+  flex:0 0 auto;min-height:36px;padding:7px 11px;
+  border:1px solid #74d5ff;border-radius:9px;
+  background:#143e65;color:#eafcff;font:900 12px system-ui;
+  cursor:pointer;box-shadow:0 2px 6px #0005;
+}
+#teacher .si-control-buttons button:hover{background:#226895;border-color:#fff}
+#teacher #siControlFold,#teacher #siControlHide{width:38px;padding:6px;font-size:19px;line-height:1}
+#teacher .si-control-buttons button:focus-visible{
+  outline:3px solid #ffe27a!important;outline-offset:2px!important;
+}
+#teacher .si-live-control-dock .si-control-body{
+  display:block!important;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;
+  padding:clamp(8px,1.4vw,16px);
+  scrollbar-color:#558db3 #071b32;scrollbar-width:thin;
+}
+#teacher .si-live-control-dock .si-control-body>#activityControllerPanel{
+  box-sizing:border-box!important;
+  display:block!important;
+  width:100%!important;max-width:none!important;
+  margin:0!important;
+  min-height:0!important;
+  padding:clamp(10px,1.6vw,20px)!important;
+  border:1px solid #417baa!important;
+  border-radius:13px!important;
+  box-shadow:inset 0 1px 0 #d7f8ff20!important;
+}
+#teacher .si-live-control-dock.folded{height:auto!important;min-height:0!important;resize:none}
+#teacher .si-live-control-dock.folded .si-control-body{display:none!important}
+#teacher .si-control-restore{
+  position:fixed!important;z-index:12080!important;right:22px;bottom:22px;
+  display:none!important;min-height:49px;padding:12px 20px;
+  border:2px solid #85ebff;border-radius:14px;
+  background:linear-gradient(115deg,#146796,#193b73)!important;
+  box-shadow:0 8px 27px #0009,0 0 18px #3dcaff63!important;
+  color:#fff!important;font:950 13px system-ui;cursor:pointer;
+}
+#teacher .si-control-restore.on{display:block!important}
+#teacher .si-control-restore:hover{filter:brightness(1.2)}
+#teacher .si-control-restore:focus-visible{outline:3px solid #ffeb91;outline-offset:3px}
+@media(max-width:650px){
+  #teacher .si-live-control-dock{
+    top:62px;right:8px;width:calc(100vw - 16px);min-width:0;
+    max-width:calc(100vw - 8px);
+    height:min(80dvh,720px);min-height:160px;
+  }
+  #teacher .si-live-control-dock .si-control-titlebar{gap:7px;padding:7px 8px;min-height:57px}
+  #teacher .si-control-handle{font-size:21px}
+  #teacher .si-control-caption small{font-size:7px}
+  #teacher .si-control-caption b{font-size:13px}
+  #teacher .si-control-buttons{gap:4px}
+  #teacher .si-control-buttons button{font-size:10px;padding:6px;min-height:33px}
+  #teacher #siControlFold,#teacher #siControlHide{width:31px;font-size:15px}
+  #teacher .si-live-control-dock .si-control-body{padding:7px}
+  #teacher .si-control-restore{right:10px;bottom:10px}
+}
