@@ -1150,3 +1150,169 @@
     justify-content:flex-start;
   }
 }
+
+/* CREW SURVEY STUDIO v2 — distinct Board Library and complete Saved Games. */
+#teacher .crew-survey-setup .survey-studio{
+  display:flex;flex-direction:column;gap:clamp(16px,2vw,24px);
+  width:100%;min-width:0;margin:14px 0 22px;
+}
+#teacher .crew-survey-setup .survey-studio-board{
+  margin:0!important;
+  border-color:#5ab6ef!important;
+}
+#teacher .crew-survey-setup .survey-studio-board .game-show-setup-grid{
+  width:100%;min-width:0;max-width:none;
+  margin:5px 0;padding:14px 0;
+  border-top:1px solid #39739a;
+  border-bottom:1px solid #39739a;
+}
+#teacher .crew-survey-setup .survey-studio-board .game-show-card{
+  min-width:0;
+}
+#teacher .crew-survey-setup .survey-studio-board .survey-library-bottom{
+  border:0;padding:0;
+}
+#teacher .crew-survey-setup .survey-studio-game{
+  display:flex;flex-direction:column;gap:14px;
+  margin:0!important;
+  border-color:#71e0c2!important;
+  background:radial-gradient(ellipse at 90% 3%,#12596280,transparent 56%),
+    linear-gradient(150deg,#0b2e47,#061f38 70%)!important;
+}
+#teacher .survey-studio-game .survey-rounds-heading h4{
+  font-size:clamp(20px,2vw,28px);
+}
+#teacher .survey-studio-game .survey-round-order{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr))!important;
+  gap:10px!important;
+}
+#teacher .survey-studio-game .survey-round-select{
+  display:flex;flex-direction:column;align-items:stretch;
+  min-width:0;gap:8px;
+  border:1px solid #457b9e!important;
+  background:linear-gradient(150deg,#0b2944,#0e3450)!important;
+}
+#teacher .survey-studio-game .survey-round-select>b{
+  color:#9bf4de;font-size:12px;
+}
+#teacher .survey-studio-game .survey-round-select select{
+  min-width:0;width:100%;min-height:47px;
+}
+#teacher .survey-studio-game .survey-round-description{
+  font-size:11px;font-weight:600;line-height:1.35;
+  letter-spacing:normal;color:#aacce0;
+  overflow-wrap:anywhere;
+}
+#teacher .survey-studio-game .survey-game-name{
+  display:grid;grid-template-columns:minmax(95px,150px) minmax(0,1fr);
+  align-items:center;gap:10px;
+  padding:12px 0;border-top:1px solid #427a91;
+}
+#teacher .survey-studio-game .survey-game-name>label{
+  color:#a4ffe3;font-size:11px;font-weight:950;
+  letter-spacing:.11em;
+}
+#teacher .survey-studio-game #surveyGameName{
+  display:block;box-sizing:border-box;width:100%;min-width:0;
+  min-height:47px;padding:11px 13px;
+  border:1px solid #66acd1;border-radius:10px;
+  background:#061a31;color:white;font:750 15px system-ui;
+}
+#teacher .survey-studio-game .survey-game-actions{
+  display:flex;flex-wrap:wrap;align-items:center;gap:9px;
+  padding:12px 0;border-top:1px solid #427a91;
+}
+#teacher .survey-studio-game .survey-game-actions button{
+  min-height:45px;max-width:100%;padding:10px 15px;
+  border:1px solid #6a9db4;border-radius:10px;
+  background:#143f60;color:#effaff;
+  font-size:12px;font-weight:950;cursor:pointer;
+}
+#teacher .survey-studio-game .survey-game-actions .survey-save-primary{
+  border-color:#9affd9!important;
+  background:linear-gradient(150deg,#118d74,#0d635a)!important;
+  box-shadow:0 2px 0 #084b48,0 0 14px #21c89c36;
+}
+#teacher .survey-studio-game #launchCrewSurveyBtn{
+  border:2px solid #fee696!important;
+  background:linear-gradient(145deg,#b85bed,#653bc9)!important;
+  color:#fff!important;
+  box-shadow:0 0 16px #9a59f756!important;
+}
+#teacher .survey-studio-game .survey-game-actions button:hover{
+  filter:brightness(1.16);
+}
+#teacher .survey-studio-game .survey-game-actions button:focus-visible,
+#teacher .survey-studio-game #surveyGameName:focus-visible{
+  outline:3px solid #ffe68d;outline-offset:3px;
+}
+#teacher .survey-studio-game .survey-game-library{
+  width:100%;min-width:0;padding-top:14px;
+  border-top:1px solid #427a91;
+}
+#teacher .survey-studio-game .survey-game-library>h5{
+  display:flex;flex-wrap:wrap;gap:9px;
+  margin:0 0 12px;font-size:14px;color:#dffcff;
+}
+#teacher .survey-studio-game .survey-game-library h5 small{
+  color:#a9cddd;font-weight:600;font-size:11px;
+}
+#teacher .survey-studio-game .survey-library-list{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));
+  max-height:310px;overflow-y:auto;gap:10px;padding:2px;
+}
+#teacher .survey-studio-game .survey-library-item{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:12px;border:1px solid #4d8ea5;border-radius:12px;
+  background:#071c34;
+}
+#teacher .survey-studio-game .survey-library-item.selected{
+  border-color:#7bf5c8!important;
+  box-shadow:inset 0 0 0 1px #63e3c53b,0 0 13px #63e3c52b;
+}
+#teacher .survey-studio-game .survey-library-item-text{
+  min-width:0;display:flex;flex:1;flex-direction:column;gap:5px;
+}
+#teacher .survey-studio-game .survey-library-item-text>strong{color:white;font-size:13px}
+#teacher .survey-studio-game .survey-library-item-text>span{
+  color:#b9d8e6;font-size:11px;line-height:1.4;overflow-wrap:anywhere;
+}
+#teacher .survey-studio-game .survey-library-item-buttons{
+  display:flex;flex-wrap:wrap;justify-content:flex-end;gap:5px;
+}
+#teacher .survey-studio-game .survey-library-item-buttons button{
+  padding:8px 10px;min-height:36px;border:1px solid #6495b0;
+  border-radius:8px;background:#164669;color:#f1fcff;
+  font-size:11px;font-weight:950;cursor:pointer;
+}
+#teacher .survey-studio-game .survey-library-item-buttons .survey-play{
+  border-color:#78ffd9;background:#086c57;
+}
+#teacher .survey-studio-game .survey-library-item-buttons .survey-delete{
+  width:35px;padding:4px;border-color:#a45268;
+  background:#54273c;color:#fff;font-size:18px;
+}
+#teacher .survey-studio-game .survey-library-empty{
+  margin:0;padding:12px;border:1px dashed #699ab4;
+  border-radius:10px;color:#aecfe2;font-size:12px;
+}
+@media(max-width:790px){
+  #teacher .survey-studio-game .survey-game-name{
+    grid-template-columns:1fr;
+  }
+  #teacher .survey-studio-game .survey-game-actions button{
+    flex:1 1 165px;
+  }
+}
+@media(max-width:520px){
+  #teacher .crew-survey-setup .survey-studio{
+    gap:14px;
+  }
+  #teacher .survey-studio-game .survey-library-item{
+    flex-wrap:wrap;
+  }
+  #teacher .survey-studio-game .survey-library-item-buttons{
+    width:100%;justify-content:flex-start;
+  }
+}
