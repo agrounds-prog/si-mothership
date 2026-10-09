@@ -594,13 +594,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     renderActivities();tell('Saved game deleted. Your boards remain available.');
   }
   function playGame(idToPlay){
-    if(!loadGame(idToPlay))return;
     try{
-      launchCrewSurvey();
-      if(!state.activityRun?.activityId||state.activityRun.activityId!=='crew-survey-game')
-        tell('Survey could not start. Check that every round has a saved board with at least four answers.');
+      if(!loadGame(idToPlay))return false;
+      return launchSelected();
     }catch(error){
-      tell('Survey launch failed: '+String(error?.message||error));
+      tell('Saved Game launch failed: '+String(error?.message||error));return false;
     }
   }
   function run(){const r=state.activityRun;return r?.activityId==='crew-survey-game'&&r.crewSurveyTotal?r:null}
@@ -693,11 +691,21 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       // Future boards remain in teacher-private memory; public state only has IDs.
       crewSurveyPlaylistIds:chosen.slice(1).map(b=>b.sourceBoardId)
     };
+    const previous={run:state.activityRun,screen:state.screen,prompt:state.promptActive,assigning:state.assigningSlot};
     activeCopies=snapshots;
     state.activityRun=next;
     state.screen='activity';state.promptActive=false;state.assigningSlot=null;
-    recordActivityLaunch('crew-survey','CREW SURVEY');
-    render();
+    try{
+      recordActivityLaunch('crew-survey','CREW SURVEY');
+      render();
+    }catch(error){
+      state.activityRun=previous.run;state.screen=previous.screen;
+      state.promptActive=previous.prompt;state.assigningSlot=previous.assigning;
+      activeCopies=[];
+      try{render()}catch(_){}
+      tell('CREW SURVEY could not render: '+String(error?.message||error));
+      return false;
+    }
     tell(students.length===0
       ?'CREW SURVEY is LIVE in teacher preview · no students connected'
       :students.length===1
@@ -845,8 +853,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     if(!play&&!launch)return;
     event.preventDefault();
     event.stopImmediatePropagation();
-    if(play)playGame(play.dataset.surveyPlayGame);
-    else launchSelected();
+    try{
+      if(play)playGame(play.dataset.surveyPlayGame);
+      else launchSelected();
+    }catch(error){tell('CREW SURVEY click failed: '+String(error?.message||error))}
+
   }
   function install(){
     if(installed||typeof renderActivities!=='function'||typeof loadGameStore!=='function')return;
