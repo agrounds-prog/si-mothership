@@ -1130,3 +1130,23 @@
   #teacher .survey-rounds-panel .survey-round-count-buttons button{min-height:48px;font-size:12px}
   #teacher .survey-host-rounds{gap:6px;padding:8px}
 }
+
+/* Survey creation sequence: name/save the first board directly below the
+   1 / 3 / 5 selector, before choosing the remaining round boards. */
+#teacher .crew-survey-setup .survey-rounds-panel .survey-library-editor{
+  padding:14px 0 15px!important;
+  margin:0!important;
+  border-top:1px solid #477b9d;
+  border-bottom:1px solid #477b9d;
+}
+#teacher .crew-survey-setup .survey-rounds-panel .survey-library-editor>label{
+  color:#aff9ec!important;
+}
+#teacher .crew-survey-setup .survey-rounds-panel #surveyBoardName{
+  border-color:#75b3d6!important;
+}
+@media(max-width:960px){
+  #teacher .crew-survey-setup .survey-rounds-panel .survey-library-actions{
+    justify-content:flex-start;
+  }
+}
