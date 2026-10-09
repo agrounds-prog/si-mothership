@@ -24,7 +24,7 @@ function bbsGrid(){
 }
 function bbsLibrary(){
   const selected=new Set(bbsSelected()),need=bbsNeed(),arr=gameImageLibrary.slice().sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
-  const assets=bbsRecent?arr.slice(0,24):arr;
+  const assets=(bbsRecent?arr.slice(0,24):arr).filter(a=>String(a.name||'').toLowerCase().includes(bbsQuery.trim().toLowerCase()));
   return '<section class="bbs-panel bbs-library"><div class="bbs-head"><small>STEP 1 · PICTURE LIBRARY</small><h3>SELECT YOUR PICTURES</h3>'+
     '<p>Upload to the library, check exactly '+need+' pictures, then create the full board.</p></div>'+
     '<button type="button" id="bbsUpload" class="bbs-upload">＋ Upload Pictures to Library</button>'+
@@ -35,7 +35,7 @@ function bbsLibrary(){
     '<div class="bbs-library-grid">'+(assets.length?assets.map(a=>'<button type="button" data-bbs-image="'+esc(a.id)+
       '" data-bbs-name="'+esc(String(a.name||'').toLowerCase())+'" class="bbs-library-image'+(selected.has(a.id)?' checked':'')+
       '" aria-pressed="'+selected.has(a.id)+'"><img src="'+a.image+'" alt=""><span>'+esc(a.name)+'</span>'+
-      (selected.has(a.id)?'<b>✓</b>':'')+'</button>').join(''):
+      (selected.has(a.id)?'<b class="bbs-image-check">✓</b>':'')+'</button>').join(''):
       '<p class="bbs-hint">No images yet. Upload images to the library first.</p>')+'</div>'+
     '<div class="bbs-picked"><strong>'+selected.size+' / '+need+' CHECKED</strong>'+
     '<button type="button" id="bbsUncheck">Clear Checks</button></div>'+
@@ -129,6 +129,23 @@ async function bbsImport(files){
   gameImageLibrary=[...gameImageLibrary,...add];bbsRecent=true;bbsQuery='';
   renderActivities();toast(add.length+' pictures saved to library. Check the pictures you want to use.');
 }
+function bbsUpdateSelections(){
+  const selected=new Set(bbsSelected()),need=bbsNeed();
+  document.querySelectorAll('[data-bbs-image]').forEach(button=>{
+    const yes=selected.has(button.dataset.bbsImage);
+    button.classList.toggle('checked',yes);button.setAttribute('aria-pressed',String(yes));
+    const existing=button.querySelector('.bbs-image-check');
+    if(yes&&!existing)button.insertAdjacentHTML('beforeend','<b class="bbs-image-check">✓</b>');
+    if(!yes&&existing)existing.remove();
+  });
+  const count=document.querySelector('.bbs-picked strong');
+  if(count)count.textContent=selected.size+' / '+need+' CHECKED';
+  const clear=document.querySelector('#bbsUncheck');if(clear)clear.disabled=!selected.size;
+  const create=document.querySelector('#bbsCreate');if(create)create.disabled=selected.size!==need;
+  const status=document.querySelector('#bbsLibraryStatus');
+  if(status)status.textContent=selected.size===need?'Ready to populate all '+need+' board squares.':
+    'Check '+Math.max(0,need-selected.size)+' more picture'+(need-selected.size===1?'':'s')+' to create a board.';
+}
 function bbsWire(){
   const $=x=>document.querySelector(x),$$=x=>[...document.querySelectorAll(x)];
   const name=$('#bbsName');if(name)name.oninput=e=>{bingoDraft.name=e.target.value;const title=$('#bbsTitle');if(title)title.textContent=e.target.value||'My Bingo Board'};
@@ -171,9 +188,9 @@ function bbsWire(){
     if(set.has(id))set.delete(id);
     else if(set.size>=bbsNeed())return toast('Already checked '+bbsNeed()+' pictures. Uncheck one to choose another.');
     else set.add(id);
-    bingoDraft.selectedImages=[...set];renderActivities()
+    bingoDraft.selectedImages=[...set];bbsUpdateSelections()
   });
-  const clear=$('#bbsUncheck');if(clear)clear.onclick=()=>{bingoDraft.selectedImages=[];renderActivities()};
+  const clear=$('#bbsUncheck');if(clear)clear.onclick=()=>{bingoDraft.selectedImages=[];bbsUpdateSelections()};
   const create=$('#bbsCreate');if(create)create.onclick=bbsPopulate;
   const save=$('#bbsSave'),launch=$('#bbsSaveLaunch');if(save)save.onclick=saveBingoDraft;
   if(launch)launch.onclick=()=>{const set=saveBingoDraft();if(set)launchBingoSet(set)};
