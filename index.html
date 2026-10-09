@@ -16772,8 +16772,29 @@ function connectNetworkSync(){
 }
 
 function readSyncedState(){try{const raw=localStorage.getItem(SESSION_SYNC_KEY);if(!raw)return null;const parsed=JSON.parse(raw);return parsed&&typeof parsed==='object'?parsed:null}catch(e){return null}}
-function sharedStateSnapshot(){const c=deepClone(state);c.__sessionId=STUDENT_SESSION_ID||'';delete c.view;delete c.rosterPage;delete c.selectedStudent;delete c.presentationEditor;delete c.editorSlide;delete c.customRosterOpen;delete c.rosterSetEditorId;delete c.avatarUploadPreview;delete c.avatarUploadName;return c}
-function mergeSyncedState(remote){if(!remote||typeof remote!=='object')return;if(remote.__sessionId&&STUDENT_SESSION_ID&&remote.__sessionId!==STUDENT_SESSION_ID)return;const local={view:state.view,rosterPage:state.rosterPage,selectedStudent:state.selectedStudent,presentationEditor:state.presentationEditor,editorSlide:state.editorSlide,customRosterOpen:state.customRosterOpen,rosterSetEditorId:state.rosterSetEditorId,avatarUploadPreview:state.avatarUploadPreview,avatarUploadName:state.avatarUploadName};Object.assign(state,deepClone(remote));delete state.__sessionId;state.view=local.view;state.rosterPage=local.rosterPage;state.presentationEditor=local.presentationEditor;state.editorSlide=local.editorSlide;state.customRosterOpen=local.customRosterOpen;state.rosterSetEditorId=local.rosterSetEditorId||state.activeRosterSetId||'default';state.avatarUploadPreview=local.avatarUploadPreview;state.avatarUploadName=local.avatarUploadName;state.selectedStudent=SESSION_ROLE==='student'?(local.selectedStudent||SESSION_STUDENT):local.selectedStudent}
+function sharedStateSnapshot(){const c=deepClone(state);c.__sessionId=STUDENT_SESSION_ID||'';delete c.activeApp;delete c.view;delete c.rosterPage;delete c.selectedStudent;delete c.presentationEditor;delete c.editorSlide;delete c.customRosterOpen;delete c.rosterSetEditorId;delete c.avatarUploadPreview;delete c.avatarUploadName;return c}
+function mergeSyncedState(remote){
+  if(!remote||typeof remote!=='object')return;
+  if(remote.__sessionId&&STUDENT_SESSION_ID&&remote.__sessionId!==STUDENT_SESSION_ID)return;
+  const local={view:state.view,rosterPage:state.rosterPage,selectedStudent:state.selectedStudent,
+    activeApp:state.activeApp,presentationEditor:state.presentationEditor,editorSlide:state.editorSlide,
+    customRosterOpen:state.customRosterOpen,rosterSetEditorId:state.rosterSetEditorId,
+    avatarUploadPreview:state.avatarUploadPreview,avatarUploadName:state.avatarUploadName};
+  // The app picker/editor belongs to this teacher browser, NOT classroom shared state.
+  // Late server hydration, another tab, or student presence must not close Bingo Studio.
+  const keepEditor=SESSION_ROLE==='teacher'&&!!local.activeApp&&state.screen==='activities'&&
+    !state.activityRun&&!remote.activityRun&&!remote.ended;
+  Object.assign(state,deepClone(remote));
+  delete state.__sessionId;
+  state.activeApp=SESSION_ROLE==='teacher'?local.activeApp:null;
+  if(keepEditor)state.screen='activities';
+  state.view=local.view;state.rosterPage=local.rosterPage;
+  state.presentationEditor=local.presentationEditor;state.editorSlide=local.editorSlide;
+  state.customRosterOpen=local.customRosterOpen;
+  state.rosterSetEditorId=local.rosterSetEditorId||state.activeRosterSetId||'default';
+  state.avatarUploadPreview=local.avatarUploadPreview;state.avatarUploadName=local.avatarUploadName;
+  state.selectedStudent=SESSION_ROLE==='student'?(local.selectedStudent||SESSION_STUDENT):local.selectedStudent;
+}
 function publishSyncedState(){
   if(syncApplying)return;
   const snap=sharedStateSnapshot();
