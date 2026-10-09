@@ -4918,6 +4918,11 @@ async def cosmic_cards_style(request: web.Request) -> web.Response:
     return web.FileResponse(ROOT / "cosmic-cards.css", headers={"Cache-Control": "no-store"})
 
 
+async def minefield_app_artwork(request: web.Request) -> web.Response:
+    """Serve the bundled Minefield app icon; no game state or data access."""
+    return web.FileResponse(ROOT / "minefield-app-icon.webp", headers={"Cache-Control": "public, max-age=86400"})
+
+
 async def cosmic_cards_artwork(request: web.Request) -> web.Response:
     """Only serve the two bundled Cosmic Cards illustration assets."""
     name = request.path.lstrip("/")
@@ -5808,6 +5813,7 @@ def create_app() -> web.Application:
     app.router.add_get("/cosmic-cards.css", cosmic_cards_style)
     app.router.add_get("/cosmic-cc-emblem.svg", cosmic_cards_artwork)
     app.router.add_get("/cosmic-cards-app.svg", cosmic_cards_artwork)
+    app.router.add_get("/minefield-app-icon.webp", minefield_app_artwork)
     app.router.add_get("/tools/scientific-calculator", scientific_calculator)
     app.router.add_get("/tools/scientific-calculator/", scientific_calculator)
     app.router.add_get("/tools/scientific-calculator/engine.js", scientific_calculator_engine)
