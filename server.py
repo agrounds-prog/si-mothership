@@ -4853,7 +4853,8 @@ async def index(request: web.Request) -> web.Response:
     storage_boot = (
         "(function(){"
         f"const d={json.dumps(store)};"
-        "try{Object.keys(d).forEach(k=>localStorage.setItem(k,d[k]));}catch(e){}"
+        "window.__SI_STORAGE_SNAPSHOT__=d;"
+        "Object.keys(d).forEach(k=>{try{localStorage.setItem(k,d[k])}catch(e){}});"
         "const persistKeys=new Set(Object.keys(d).concat(["
         + ",".join(json.dumps(k) for k in sorted(PERSISTED_STORAGE_KEYS))
         + "]));"
