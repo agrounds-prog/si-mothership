@@ -4911,6 +4911,14 @@ async def scientific_calculator_engine(request: web.Request) -> web.Response:
     )
 
 
+async def match_arcade_script(request: web.Request) -> web.Response:
+    return web.FileResponse(ROOT / "match-arcade.js", headers={"Cache-Control": "no-store"})
+
+
+async def match_arcade_style(request: web.Request) -> web.Response:
+    return web.FileResponse(ROOT / "match-arcade.css", headers={"Cache-Control": "no-store"})
+
+
 async def cosmic_cards_script(request: web.Request) -> web.Response:
     return web.FileResponse(ROOT / "cosmic-cards.js", headers={"Cache-Control": "no-store"})
 
@@ -5239,6 +5247,8 @@ def _match_apply_request(state: dict, run: dict, actor: str, request: dict, teac
                 return
             if match.get("locked") or match.get("complete") or match.get("pendingResolution"):
                 return
+            if int(match.get("previewUntil") or 0) > int(time.time() * 1000):
+                return
             selected = match.get("selected") if isinstance(match.get("selected"), list) else []
             matched = set(str(x) for x in (match.get("matched") if isinstance(match.get("matched"), list) else []))
             if len(selected) >= 2 or value in selected or value in matched:
@@ -5312,6 +5322,22 @@ def _match_apply_request(state: dict, run: dict, actor: str, request: dict, teac
             consult = match.get("consult") if isinstance(match.get("consult"), dict) else {}
             consult["open"] = False
             return
+        return
+
+    if kind == "preview":
+        # An educator may grant eight seconds to memorize the board.
+        # Never change cards or scores, and never allow picks during preview.
+        if match.get("complete") or match.get("pendingResolution") or match.get("selected"):
+            return
+        if int(match.get("previewUntil") or 0) > int(time.time() * 1000):
+            return
+        match["previewUntil"] = int(time.time() * 1000) + 8000
+        match["message"] = "MEMORY BOOST — study every card before they hide!"
+        return
+
+    if kind == "preview_stop":
+        match["previewUntil"] = 0
+        match["message"] = "MEMORY BOOST finished. Continue finding pairs."
         return
 
     if kind == "resolve":
@@ -5809,6 +5835,8 @@ def create_app() -> web.Application:
     app = web.Application(client_max_size=32 * 1024 * 1024)
     app.router.add_get("/", index)
     app.router.add_get("/index.html", index)
+    app.router.add_get("/match-arcade.js", match_arcade_script)
+    app.router.add_get("/match-arcade.css", match_arcade_style)
     app.router.add_get("/cosmic-cards.js", cosmic_cards_script)
     app.router.add_get("/cosmic-cards.css", cosmic_cards_style)
     app.router.add_get("/cosmic-cc-emblem.svg", cosmic_cards_artwork)
