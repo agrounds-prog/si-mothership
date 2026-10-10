@@ -9,6 +9,7 @@ on:
       - 'server.py'
       - 'tests/test_classroom_transport_smoke.py'
       - 'tests/test_student_status_ui.js'
+      - 'tests/test_floating_game_dock.cjs'
       - 'tests/test_quick_poll.py'
       - 'quick-poll.js'
       - 'quick-poll.css'
@@ -41,6 +42,8 @@ jobs:
         run: python -m py_compile quick_poll_server.py tests/test_quick_poll.py
       - name: Verify classroom JavaScript syntax
         run: node --check bingo-board-studio.js
+      - name: Floating Mission Control scope and viewport regression
+        run: node tests/test_floating_game_dock.cjs
       - name: Student avatar and turn-state regressions
         run: node tests/test_student_status_ui.js
       - name: Quick Poll server authority, privacy, voting and replay regressions

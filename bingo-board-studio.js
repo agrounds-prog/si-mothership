@@ -278,6 +278,16 @@ function active(){
  return run&&(run.phase==='lobby'||run.phase==='running')&&!state.ended?run:null;
 }
 function caption(a){const x=typeof activeActivity==='function'?activeActivity():null;return String(x?.name||a.activityId||'Game').toUpperCase()}
+// Shared by the initial drag/resize handlers and the periodic game-state tick.
+// It must not be nested inside init(), or tick() throws ReferenceError.
+ function keepVisible(){
+  if(!dock||dock.classList.contains('off')||dock.classList.contains('detached'))return;
+  const r=dock.getBoundingClientRect();if(!r.width||!r.height)return;
+  const x=Math.max(4,Math.min(Math.max(4,innerWidth-r.width-4),r.left));
+  const y=Math.max(4,Math.min(Math.max(4,innerHeight-r.height-4),r.top));
+  if(Math.abs(r.left-x)>1){dock.style.left=x+'px';dock.style.right='auto'}
+  if(Math.abs(r.top-y)>1)dock.style.top=y+'px';
+ }
 function init(){
  if(dock)return true;
  node=document.getElementById('activityControllerPanel');
@@ -304,14 +314,7 @@ function init(){
  const bar=dock.querySelector('#siControlDrag');
  bar.tabIndex=0;
  bar.setAttribute('aria-label','Move Mission Control with arrow keys (hold Shift for faster movement) or drag with a pointer');
- function keepVisible(){
-  if(!dock||dock.classList.contains('off')||dock.classList.contains('detached'))return;
-  const r=dock.getBoundingClientRect();if(!r.width||!r.height)return;
-  const x=Math.max(4,Math.min(Math.max(4,innerWidth-r.width-4),r.left));
-  const y=Math.max(4,Math.min(Math.max(4,innerHeight-r.height-4),r.top));
-  if(Math.abs(r.left-x)>1){dock.style.left=x+'px';dock.style.right='auto'}
-  if(Math.abs(r.top-y)>1)dock.style.top=y+'px';
- }
+
  bar.addEventListener('keydown',e=>{
   if(e.target!==bar||!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))return;
   e.preventDefault();const r=dock.getBoundingClientRect(),step=e.shiftKey?40:12;
