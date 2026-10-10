@@ -85,6 +85,46 @@ function installHeader(){
  top.classList.add('si-v80-topbar');
  return true;
 }
+
+/* v82: Home-matched, large neon glyphs for every Activity Shortcut.
+   The source app registry, artwork, saved slots, and click handlers are unchanged.
+   The main app re-renders the shortcuts: repaint *only* the image surfaces after
+   each re-render. Watch grid direct children to avoid self-triggering mutations. */
+const SHORTCUT_GLYPHS={
+ "SI+":'<path d="M8 13 36 6l5 31-28 6z" fill="currentColor" opacity=".15"/><path d="M8 13 36 6l5 31-28 6z"/><path d="m15 17 18-4M16 23l11-3"/><path d="m16 32 5-3-2 7 5-4M30 28l5 6-7-1z" fill="currentColor" opacity=".5"/>',
+ "STARWHEEL":'<circle cx="24" cy="24" r="20"/><circle cx="24" cy="24" r="6" fill="currentColor" opacity=".5"/><path d="M24 4v14M24 30v14M4 24h14M30 24h14M10 10l10 10m8 8 10 10M38 10 28 20m-8 8L10 38"/><path d="m24 4 5 9-5 5-5-5z" fill="currentColor" opacity=".3"/>',
+ "BINGO":'<rect x="7" y="6" width="34" height="36" rx="5" fill="currentColor" opacity=".12"/><rect x="7" y="6" width="34" height="36" rx="5"/><path d="M7 16h34M18 16v26M30 16v26M7 29h34"/><circle cx="13" cy="23" r="2" fill="currentColor"/><path d="m22 35 3 3 4-6" stroke-width="3.5"/>',
+ "BOARD":'<rect x="5" y="7" width="38" height="30" rx="4" fill="currentColor" opacity=".15"/><rect x="5" y="7" width="38" height="30" rx="4"/><path d="M24 37v6m-11 0h22M11 15h13m-13 6h8"/><path d="m25 26 11-11 4 4-11 11-6 2z" fill="currentColor" opacity=".35"/>',
+ "MATCH":'<rect x="5" y="10" width="18" height="27" rx="4" fill="currentColor" opacity=".18"/><rect x="25" y="10" width="18" height="27" rx="4" fill="currentColor" opacity=".18"/><rect x="5" y="10" width="18" height="27" rx="4"/><rect x="25" y="10" width="18" height="27" rx="4"/><circle cx="14" cy="23" r="5"/><circle cx="34" cy="23" r="5"/><path d="m17 41 7 4 7-4"/>',
+ "COSMIC CARDS":'<rect x="7" y="10" width="24" height="32" rx="4" transform="rotate(-12 19 26)" fill="currentColor" opacity=".18"/><rect x="7" y="10" width="24" height="32" rx="4" transform="rotate(-12 19 26)"/><rect x="20" y="7" width="23" height="32" rx="4" transform="rotate(10 31 23)" fill="currentColor" opacity=".18"/><rect x="20" y="7" width="23" height="32" rx="4" transform="rotate(10 31 23)"/><path d="m31 13 2 7 7 2-7 2-2 7-2-7-7-2 7-2z" fill="currentColor" opacity=".5"/>',
+ "SKETCH SIGNAL":'<rect x="6" y="7" width="36" height="32" rx="4" fill="currentColor" opacity=".14"/><rect x="6" y="7" width="36" height="32" rx="4"/><path d="M13 31c5-8 9-3 13-13"/><path d="m22 34 13-13 5 5-13 13-7 2z" fill="currentColor" opacity=".36"/><path d="M14 44h21"/>',
+ "MINEFIELD":'<rect x="6" y="6" width="36" height="36" rx="5" fill="currentColor" opacity=".13"/><rect x="6" y="6" width="36" height="36" rx="5"/><path d="M18 6v36M30 6v36M6 18h36M6 30h36" opacity=".65"/><path d="m24 14 2.5 6 6 1-4.5 4 1 7-5-3-5 3 1-7-4.5-4 6-1z" fill="currentColor" opacity=".68"/>',
+ "SCIENTIFIC CALCULATOR":'<rect x="11" y="4" width="26" height="40" rx="5" fill="currentColor" opacity=".15"/><rect x="11" y="4" width="26" height="40" rx="5"/><rect x="16" y="10" width="16" height="10" rx="1"/><path d="M17 26h3m8 0h3m-14 7h3m8 0h3m-14 7h3m8 0h3"/><path d="m20 14 3 3 5-5" stroke-width="2"/>',
+ "CREW SURVEY":'<rect x="6" y="7" width="36" height="33" rx="4" fill="currentColor" opacity=".12"/><rect x="6" y="7" width="36" height="33" rx="4"/><path d="M12 16h24M12 25h24M12 34h24"/><circle cx="16" cy="12" r="3" fill="currentColor"/><path d="m28 19 3 3 4-6" stroke-width="3"/>',
+ "MILLION":'<path d="m24 4 18 14-7 23H13L6 18z" fill="currentColor" opacity=".13"/><path d="m24 4 18 14-7 23H13L6 18z"/><path d="m17 18 6-5 5 6-4 5 6 7-8 2-7-7z" fill="currentColor" opacity=".35"/><path d="M12 44h24"/>',
+ "VECTOR":'<circle cx="24" cy="24" r="16"/><circle cx="24" cy="24" r="7" fill="currentColor" opacity=".25"/><path d="M24 3v12m0 18v12M3 24h12m18 0h12"/><circle cx="24" cy="24" r="2" fill="currentColor"/>',
+ "ORBIT":'<ellipse cx="24" cy="24" rx="20" ry="9" transform="rotate(-25 24 24)"/><ellipse cx="24" cy="24" rx="20" ry="9" transform="rotate(55 24 24)"/><circle cx="24" cy="24" r="6" fill="currentColor" opacity=".4"/><circle cx="40" cy="16" r="3" fill="currentColor"/>',
+ "PIXEL REVEAL":'<rect x="6" y="6" width="36" height="36" rx="4"/><path d="M18 6v36M30 6v36M6 18h36M6 30h36"/><path d="M19 19h10v10H19z" fill="currentColor" opacity=".6"/><path d="m33 11 3 3-3 3-3-3z" fill="currentColor"/>'
+};
+function installShortcutArtwork(){
+ const grid=$('#homeAppGrid');if(!grid)return;
+ const renderIcons=()=>{
+   for(const tile of grid.querySelectorAll('.app-shortcut:not(.empty)')){
+     const slot=tile.querySelector('.app-shortcut-icon');
+     const name=tile.querySelector('.app-shortcut-label')?.textContent?.trim()?.toUpperCase();
+     if(!slot||!name||!SHORTCUT_GLYPHS[name]||slot.dataset.siV82Art===name)continue;
+     slot.innerHTML=svgShortcut(name);
+     slot.dataset.siV82Art=name;
+     tile.classList.add('si-v82-vector-shortcut');
+   }
+ };
+ function svgShortcut(name){
+   return '<svg class="si-v82-activity-glyph" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linejoin="round" stroke-linecap="round" focusable="false" aria-hidden="true">'+SHORTCUT_GLYPHS[name]+'</svg>';
+ }
+ renderIcons();
+ new MutationObserver(renderIcons).observe(grid,{childList:true});
+}
+
 function tunePanels(){
  const header=$('#teacher #appShortcutsPanel .app-shortcuts-head');
  const label=header?.querySelector('.hint');
@@ -109,7 +149,7 @@ function init(){
  if(document.body.classList.contains('role-student')||document.body.classList.contains('role-shared'))return;
  if(!$('#teacherControlBar')||!$('#endBtn')||!$('#resetBtn'))return;
  if(!installHeader())return;
- addTheme();tunePanels();
+ addTheme();tunePanels();installShortcutArtwork();
  document.body.classList.add('si-v80-dashboard');
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
