@@ -125,6 +125,61 @@ function installShortcutArtwork(){
  new MutationObserver(renderIcons).observe(grid,{childList:true});
 }
 
+
+/* v83 — real bounding-box clearance for the Class Alerts card.
+   Older display:contents dashboard grid tracks can start the first alert above
+   the bottom of the Home Row. Visually align it to the actual measured edge,
+   not a hardcoded margin or assumed grid track height. */
+function installAlertClearance(){
+ const home=$('#teacherControlBar');
+ const alertCard=$('#attentionSummary');
+ const buzz=$('#buzzPanel'),photo=$('#photoInboxPanel'),help=$('#helpInboxPanel');
+ if(!home||!alertCard)return;
+ const railPanels=[buzz,photo,help].filter(Boolean);
+ const observed=[home,alertCard,buzz].filter(Boolean);
+ let queued=false;
+ function measure(){
+   queued=false;
+   // Reset each visual displacement before taking fresh baseline measurements.
+   // Individual translate does not affect layout track sizing or content handlers.
+   [alertCard,...railPanels].forEach(node=>node.style.removeProperty('translate'));
+   if(!document.body.classList.contains('si-v80-dashboard')||
+      !document.getElementById('teacher')?.classList.contains('active')||
+      window.matchMedia('(max-width:1219px)').matches)return;
+   const homeBox=home.getBoundingClientRect();
+   const alertBox=alertCard.getBoundingClientRect();
+   if(!homeBox.width||!alertBox.width)return;
+   const desiredGap=12;
+   const lift=Math.max(0,Math.ceil(homeBox.bottom+desiredGap-alertBox.top));
+   if(lift){
+     alertCard.style.setProperty('translate','0 '+lift+'px','important');
+   }
+   // Keep the next card at least 12px beneath the displaced alert card.
+   // Do not move the left roster, shared screen, shortcut grid, or Home Row.
+   const buzzBox=buzz?.getBoundingClientRect();
+   const queueLift=buzzBox?.width
+     ?Math.max(0,Math.ceil(alertBox.bottom+lift+desiredGap-buzzBox.top))
+     :0;
+   if(queueLift)for(const card of railPanels)
+     card.style.setProperty('translate','0 '+queueLift+'px','important');
+   alertCard.dataset.siAlertClearance=String(lift);
+   alertCard.dataset.siAlertQueueClearance=String(queueLift);
+ }
+ function schedule(){
+   if(queued)return;
+   queued=true;
+   requestAnimationFrame(measure);
+ }
+ schedule();
+ window.addEventListener('resize',schedule,{passive:true});
+ window.visualViewport?.addEventListener('resize',schedule,{passive:true});
+ if('ResizeObserver' in window){
+   const observer=new ResizeObserver(schedule);
+   observed.forEach(node=>observer.observe(node));
+ }
+ if(document.fonts?.ready)document.fonts.ready.then(schedule).catch(()=>{});
+}
+
 function tunePanels(){
  const header=$('#teacher #appShortcutsPanel .app-shortcuts-head');
  const label=header?.querySelector('.hint');
@@ -151,6 +206,7 @@ function init(){
  if(!installHeader())return;
  addTheme();tunePanels();installShortcutArtwork();
  document.body.classList.add('si-v80-dashboard');
+ installAlertClearance();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
 else init();
