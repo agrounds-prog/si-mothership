@@ -102,18 +102,21 @@ const hosts=[
             const geometry=await page.evaluate(()=>{
               const home=document.getElementById('teacherControlBar');
               const alerts=document.getElementById('attentionSummary');
+              const buzz=document.getElementById('buzzPanel');
               const shortcuts=[...document.querySelectorAll('#homeAppGrid .app-shortcut:not(.empty)')];
               const rect=node=>{const r=node.getBoundingClientRect();return {
                 top:Math.round(r.top),bottom:Math.round(r.bottom),
                 left:Math.round(r.left),right:Math.round(r.right),width:Math.round(r.width)};};
-              const homeRect=rect(home),alertRect=rect(alerts);
-              return {home:homeRect,alerts:alertRect,gap:alertRect.top-homeRect.bottom,
+              const homeRect=rect(home),alertRect=rect(alerts),buzzRect=rect(buzz);
+              return {home:homeRect,alerts:alertRect,buzz:buzzRect,
+                gap:alertRect.top-homeRect.bottom,queueGap:buzzRect.top-alertRect.bottom,
+                clearance:alerts.dataset.siAlertClearance||null,
                 vectorIcons:shortcuts.filter(b=>!!b.querySelector('svg.si-v82-activity-glyph')).length,
                 shortcuts:shortcuts.length,alertVisible:getComputedStyle(alerts).display!=='none'};
             });
             console.log(JSON.stringify({label,role:'teacher-geometry',viewport:width,...geometry}));
             if(!geometry.alertVisible||geometry.shortcuts&&geometry.vectorIcons!==geometry.shortcuts||
-               (width>=1220&&(geometry.gap<5||geometry.alerts.right>width+3||
+               (width>=1220&&(geometry.gap<9||geometry.queueGap<9||geometry.alerts.right>width+3||
                  geometry.home.right>width+3)))failures++;
           }
           await page.setViewportSize({width:1440,height:900});
