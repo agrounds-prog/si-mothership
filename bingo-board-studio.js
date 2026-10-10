@@ -1716,3 +1716,53 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(document.readyState==='complete')install();
   else window.addEventListener('load',install,{once:true});
 })();
+
+/* Student connectivity truthfulness — transport-only UI, never game-state writes. */
+(()=>{
+ if(typeof window==='undefined'||window.__siStudentConnectionFeedbackV2)return;
+ window.__siStudentConnectionFeedbackV2=true;
+ function paint(){
+  if(typeof SESSION_ROLE==='undefined'||SESSION_ROLE!=='student'||typeof state==='undefined')return;
+  const joined=typeof studentNeedsJoin==='function'&&!studentNeedsJoin();
+  const online=!NETWORK_SYNC||(typeof networkSocket!=='undefined'&&networkSocket&&networkSocket.readyState===WebSocket.OPEN);
+  const expired=typeof networkSessionReset!=='undefined'&&networkSessionReset;
+  const mode=expired?'expired':online?'online':navigator.onLine===false?'offline':'reconnecting';
+  const label=document.getElementById('studentConnectionLabel');
+  const caption=!joined?'Join Class':mode==='online'?'Connected':mode==='expired'?'Session Expired':mode==='offline'?'Offline':'Reconnecting';
+  if(label&&label.dataset.siConnection!==caption){
+    label.dataset.siConnection=caption;
+    label.innerHTML=(mode==='online'&&joined?'<span class="pulse"></span>':'<span aria-hidden="true">◌</span>')+' '+caption;
+    label.setAttribute('role','status');label.setAttribute('aria-live','polite');
+  }
+  const status=document.getElementById('siStudentActionStatus');
+  if(status&&joined&&!state.ended){
+    const m=mode!=='online'?'disconnected':state.activityRun?.phase==='running'?'live':'other';
+    const run=state.activityRun;
+    let message=m==='disconnected'?(mode==='expired'?'Session expired — ask your teacher for a new link.':mode==='offline'?'Device offline — check your connection.':'Reconnecting — wait before sending another response.'):'';
+    if(m==='live'&&typeof activeActivity==='function'){
+      const app=activeActivity(),s=typeof selectedStudent==='function'?selectedStudent():null;
+      if(app?.type==='match'&&s&&typeof matchState==='function'){
+        const game=matchState(run),pilot=typeof matchActiveStudent==='function'?matchActiveStudent(run):null;
+        message=game?.complete?'Match complete — nice work!':pilot?.n!==s.n?'Waiting for your turn — watch the shared board.':game?.locked||game?.teacherLocked||game?.pendingResolution?'Cards locked — wait for the reveal.':'Your turn — choose two cards.';
+      }
+      if(app?.type==='orbit'&&s&&typeof orbitResponse==='function')
+        message=orbitResponse(s.n,run)?'Response received — thanks!':'Your response is ready to send.';
+    }
+    if(message){status.dataset.siMode=m;status.textContent=message}
+  }
+  document.querySelectorAll('#studentControls [data-class-action]').forEach(btn=>{
+    const pause=joined&&!state.ended&&mode!=='online';
+    if(pause&&!btn.dataset.siConnectionHold){btn.dataset.siConnectionHold=btn.disabled?'disabled':'enabled';btn.disabled=true}
+    else if(!pause&&btn.dataset.siConnectionHold){if(btn.dataset.siConnectionHold==='enabled')btn.disabled=false;delete btn.dataset.siConnectionHold}
+    btn.setAttribute('aria-disabled',String(!!btn.disabled));
+  });
+ }
+ function init(){
+  if(SESSION_ROLE!=='student')return;
+  const previous=renderPublic;
+  renderPublic=function(...args){const result=previous.apply(this,args);paint();return result};
+  paint();setInterval(paint,1200);
+ }
+ if(document.readyState==='complete')init();
+ else window.addEventListener('load',init,{once:true});
+})();
