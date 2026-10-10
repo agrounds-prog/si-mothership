@@ -1,0 +1,49 @@
+name: Mothership Chromium Startup Smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/test_browser_boot_smoke.cjs'
+      - '.github/workflows/browser-startup-smoke.yml'
+      - 'server.py'
+      - 'index.html'
+      - 'quick-poll.js'
+      - 'quick-poll.css'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  startup-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install app and Chromium
+        run: |
+          pip install -r requirements.txt
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Start local Mothership in isolated storage
+        run: |
+          mkdir -p /tmp/mothership-browser-smoke
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-browser-smoke PORT=8877 python server.py > /tmp/mothership-browser.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8877/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/mothership-browser.log
+          exit 1
+      - name: Browser bootstrap on local and production
+        run: node tests/test_browser_boot_smoke.cjs
+      - name: Print app startup diagnostics on failure
+        if: failure()
+        run: tail -80 /tmp/mothership-browser.log
