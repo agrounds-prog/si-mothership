@@ -94,6 +94,29 @@ const hosts=[
           if(!dashboard.installed||!dashboard.status||!dashboard.endInTop||
             !dashboard.resetInTop||!dashboard.pollOnlyInRow||!dashboard.heroHidden||
             dashboard.icons!==9||JSON.stringify(dashboard.visible)!==JSON.stringify(expected))failures++;
+          // Dashboard layout and icon integration must not regress at desktop sizes.
+          // The production class is never modified: geometry checks run local only.
+          for(const width of [1920,1440,1280,768]){
+            await page.setViewportSize({width,height:960});
+            await page.waitForTimeout(120);
+            const geometry=await page.evaluate(()=>{
+              const home=document.getElementById('teacherControlBar');
+              const alerts=document.getElementById('attentionSummary');
+              const shortcuts=[...document.querySelectorAll('#homeAppGrid .app-shortcut:not(.empty)')];
+              const rect=node=>{const r=node.getBoundingClientRect();return {
+                top:Math.round(r.top),bottom:Math.round(r.bottom),
+                left:Math.round(r.left),right:Math.round(r.right),width:Math.round(r.width)};};
+              const homeRect=rect(home),alertRect=rect(alerts);
+              return {home:homeRect,alerts:alertRect,gap:alertRect.top-homeRect.bottom,
+                vectorIcons:shortcuts.filter(b=>!!b.querySelector('svg.si-v82-activity-glyph')).length,
+                shortcuts:shortcuts.length,alertVisible:getComputedStyle(alerts).display!=='none'};
+            });
+            console.log(JSON.stringify({label,role:'teacher-geometry',viewport:width,...geometry}));
+            if(!geometry.alertVisible||geometry.shortcuts&&geometry.vectorIcons!==geometry.shortcuts||
+               (width>=1220&&(geometry.gap<5||geometry.alerts.right>width+3||
+                 geometry.home.right>width+3)))failures++;
+          }
+          await page.setViewportSize({width:1440,height:900});
           await page.evaluate(()=>document.getElementById('siQuickPollHomeBtn')?.click());
           const opened=await page.evaluate(()=>!!document.querySelector('#qpDialog:not([hidden])'));
           console.log(JSON.stringify({label,role:'dashboard-quick-poll-launch',opened}));
