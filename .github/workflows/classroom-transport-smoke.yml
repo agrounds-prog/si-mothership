@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 8
     env:
-      MOTHERSHIP_DATA_DIR: ${{ runner.temp }}/mothership-classroom-test
+      MOTHERSHIP_DATA_DIR: /tmp/mothership-classroom-test
       MOTHERSHIP_NO_BROWSER: '1'
     steps:
       - name: Checkout source
