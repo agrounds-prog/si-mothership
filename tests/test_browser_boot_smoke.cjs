@@ -129,6 +129,9 @@ const hosts=[
             const ids=['buzzRows','photoRows','helpRows'];
             const nodes=ids.map(id=>document.getElementById(id));
             const saved=nodes.map(node=>node.innerHTML);
+            const panels=['buzzPanel','photoInboxPanel','helpInboxPanel'].map(id=>document.getElementById(id));
+            const wasEmpty=panels.map(el=>el.classList.contains('is-empty'));
+            panels.forEach(el=>el.classList.remove('is-empty'));
             const avatar='<span style="display:inline-block;width:32px;height:32px;border-radius:8px;background:#145075"></span>';
             nodes[0].innerHTML='<div class="student-row inbox-student-row"><span class="queue-num">1</span>'+avatar+'<span class="inbox-copy"><b>Test Student</b><small>Ready to answer</small></span></div>';
             nodes[1].innerHTML='<div class="help-row photo-row">'+avatar+'<span><b>Test Student</b><small>NEW PHOTO</small></span></div>';
@@ -142,6 +145,7 @@ const hosts=[
               shortcutsGap:shortcuts.top-help.bottom,
               allUntranslated:['attentionSummary','buzzPanel','photoInboxPanel','helpInboxPanel'].every(id=>getComputedStyle(document.getElementById(id)).translate==='none')};
             nodes.forEach((node,i)=>{node.innerHTML=saved[i]});
+            panels.forEach((panel,i)=>panel.classList.toggle('is-empty',wasEmpty[i]));
             return result;
           });
           console.log(JSON.stringify({label,role:'populated-alert-layout',...populated}));
