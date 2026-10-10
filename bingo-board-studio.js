@@ -302,6 +302,24 @@ function init(){
  };
  dock.querySelector('#siControlPopout').onclick=detach;
  const bar=dock.querySelector('#siControlDrag');
+ bar.tabIndex=0;
+ bar.setAttribute('aria-label','Move Mission Control with arrow keys (hold Shift for faster movement) or drag with a pointer');
+ function keepVisible(){
+  if(!dock||dock.classList.contains('off')||dock.classList.contains('detached'))return;
+  const r=dock.getBoundingClientRect();if(!r.width||!r.height)return;
+  const x=Math.max(4,Math.min(Math.max(4,innerWidth-r.width-4),r.left));
+  const y=Math.max(4,Math.min(Math.max(4,innerHeight-r.height-4),r.top));
+  if(Math.abs(r.left-x)>1){dock.style.left=x+'px';dock.style.right='auto'}
+  if(Math.abs(r.top-y)>1)dock.style.top=y+'px';
+ }
+ bar.addEventListener('keydown',e=>{
+  if(e.target!==bar||!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))return;
+  e.preventDefault();const r=dock.getBoundingClientRect(),step=e.shiftKey?40:12;
+  dock.style.left=(r.left+(e.key==='ArrowRight'?step:e.key==='ArrowLeft'?-step:0))+'px';
+  dock.style.top=(r.top+(e.key==='ArrowDown'?step:e.key==='ArrowUp'?-step:0))+'px';
+  dock.style.right='auto';keepVisible();
+ });
+ window.addEventListener('resize',keepVisible);
  bar.addEventListener('pointerdown',e=>{
   if(e.button!==0||e.target.closest('button'))return;
   const r=dock.getBoundingClientRect();
@@ -398,8 +416,11 @@ function tick(){
  if(win&&win.closed){win=null;mirror=null;mirrorDoc=null;prevHTML='';float()}
  if(!hidden&&(!win||win.closed)&&node.parentNode!==box)float();
  if(heading.textContent!==caption(a))heading.textContent=caption(a);
+ const paused=a.phase==='lobby'&&!!a.resumePending;
+ dock.classList.toggle('is-paused',paused);
  const phaseLabel=dock.querySelector('.si-control-caption small');
- if(phaseLabel){const text=a.phase==='lobby'?'ACTIVITY LOADED · READY TO START':'MISSION CONTROL · LIVE';if(phaseLabel.textContent!==text)phaseLabel.textContent=text;}
+ if(phaseLabel){const text=paused?'ACTIVITY PAUSED · PROGRESS SAVED':a.phase==='lobby'?'ACTIVITY LOADED · READY TO START':'MISSION CONTROL · LIVE';if(phaseLabel.textContent!==text)phaseLabel.textContent=text;}
+ keepVisible();
 }
 function start(){
  if(typeof SESSION_ROLE==='undefined'||SESSION_ROLE!=='teacher')return;
@@ -1434,6 +1455,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     if(typeof renderControls!=='function'||typeof renderRight!=='function'||typeof renderPublic!=='function')return;
     const teacher=SESSION_ROLE==='teacher';
     const text=v=>typeof esc==='function'?esc(String(v??'')):String(v??'');
+    function classroomPhaseLabel(run,ended){
+      if(ended)return 'SESSION ENDED';
+      if(!run)return 'CLASSROOM';
+      if(run.phase==='lobby')return run.resumePending?'ACTIVITY PAUSED':'ACTIVITY LOADED';
+      return 'ACTIVITY LIVE';
+    }
     function liveStats(){
       const buzz=Array.isArray(state.buzz)?state.buzz.length:0;
       const ignored=new Set((state.helpDeletedIds||[]).map(String));
@@ -1505,8 +1532,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       if(!teacher)return;
       const stats=liveStats(),bar=document.getElementById('teacherControlBar');
       if(!bar)return;
+      wireAlertLinks();
       bar.classList.add('si-command-polish');
-      bar.dataset.siAlerts=String(stats.buzz+stats.help+stats.photos);
+      const totalAlerts=stats.buzz+stats.help+stats.photos+stats.hands;
+      bar.dataset.siAlerts=String(totalAlerts);
+      bar.dataset.siPhase=classroomPhaseLabel(state.activityRun,!!state.ended).toLowerCase().replace(/[^a-z]+/g,'-');
       const copy=bar.querySelector('.mission-context-copy');
       if(copy){
         let line=copy.querySelector('.si-mission-readout');
@@ -1517,13 +1547,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           line.setAttribute('aria-live','off');
           copy.appendChild(line);
         }
-        const ended=!!state.ended;
-        const live=!!state.activityRun&&state.activityRun.phase==='running';
-        const badgeText=ended?'SESSION ENDED':live?'ACTIVITY LIVE':state.activityRun?'ACTIVITY LOBBY':'CLASSROOM';
+        const badgeText=classroomPhaseLabel(state.activityRun,!!state.ended);
         line.innerHTML='<span class="si-readout-mode">'+text(badgeText)+'</span>'+
           '<span>'+stats.connected+' connected</span>'+
-          '<span class="'+(stats.buzz+stats.help+stats.photos?'needs-attention':'')+'">'+
-          (stats.buzz+stats.help+stats.photos?stats.buzz+' buzz · '+stats.help+' help · '+stats.photos+' photo':'All clear')+'</span>';
+          '<span class="'+(totalAlerts?'needs-attention':'')+'">'+
+          (totalAlerts?[stats.hands?stats.hands+' hands':'',stats.buzz?stats.buzz+' buzz':'',stats.help?stats.help+' help':'',stats.photos?stats.photos+' photos':''].filter(Boolean).join(' · '):'All clear')+'</span>';
       }
       for(const key of ['hand','buzz','help','picture']){
         const btn=bar.querySelector('[data-toggle="'+key+'"]');
@@ -1566,12 +1594,34 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const controls=document.getElementById('studentControls');
       if(!controls)return;
       controls.querySelectorAll('button').forEach(btn=>{
-        if(btn.hasAttribute('aria-label'))return;
-        const label=(btn.textContent||'').trim().replace(/\s+/g,' ');
-        if(label)btn.setAttribute('aria-label',label);
-        if(btn.disabled)btn.setAttribute('aria-disabled','true');
-        if(btn.classList.contains('active')||btn.classList.contains('on'))btn.setAttribute('aria-pressed','true');
+        if(!btn.hasAttribute('aria-label')){
+          const label=(btn.textContent||'').trim().replace(/\s+/g,' ');
+          if(label)btn.setAttribute('aria-label',label);
+        }
+        btn.setAttribute('aria-disabled',String(!!btn.disabled));
+        if(btn.hasAttribute('data-class-action'))btn.setAttribute('aria-pressed',String(btn.classList.contains('active')||btn.classList.contains('on')));
+        else if(btn.classList.contains('active')||btn.classList.contains('on'))btn.setAttribute('aria-pressed','true');
       });
+      const wrap=controls.closest('.student-control-zone');
+      if(!wrap)return;
+      let status=wrap.querySelector('#siStudentActionStatus');
+      if(!status){
+        status=document.createElement('div');status.id='siStudentActionStatus';
+        status.className='si-student-action-status';status.setAttribute('role','status');
+        status.setAttribute('aria-live','polite');status.setAttribute('aria-atomic','true');
+        controls.insertAdjacentElement('beforebegin',status);
+      }
+      const run=state.activityRun;
+      const awaiting=typeof studentNeedsJoin==='function'&&studentNeedsJoin();
+      const paused=run&&run.phase==='lobby'&&!!run.resumePending;
+      const mode=state.ended?'ended':awaiting?'join':paused?'paused':run?.phase==='lobby'?'waiting':run?.phase==='running'?'live':state.screen==='brb'?'paused':state.screen==='lobby'?'waiting':'ready';
+      const message=mode==='ended'?'Class session ended.':mode==='join'?'Join your class to activate controls.':
+        mode==='paused'?'Paused — your progress is saved. Wait for your teacher to resume.':
+        mode==='waiting'?'Waiting for your teacher to start the next activity.':
+        mode==='live'?'Activity live — follow your game controls above.':
+        'Classroom ready — choose a control when your teacher asks.';
+      status.dataset.siMode=mode;
+      if(status.textContent!==message)status.textContent=message;
     }
     if(teacher)wireAlertLinks();
     const formerControls=renderControls;
