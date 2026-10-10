@@ -166,6 +166,41 @@ class QuickPollSmoke(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("identifiedVotes", p)
         self.assertEqual((await self.get("teacher"))["counts"]["0"], 1)
 
+    async def test_shared_screen_presentation_toggle_and_display_modes(self):
+        """Only teacher can project, chart selection survives state refresh, votes remain."""
+        poll_id = await self.launch()
+        initial = await self.get("teacher")
+        self.assertFalse(initial["sharedVisible"],
+                         "New polls must not unexpectedly take over the shared screen")
+        self.assertFalse((await self.get("shared"))["sharedVisible"])
+        self.assertEqual((await self.vote(poll_id, "student-alpha-unique", ["0"])).status, 200)
+        for mode in ("bars", "donut", "cards"):
+            await self.control("display", display=mode)
+            await self.control("share", visible=True)
+            teacher, shared = await self.get("teacher"), await self.get("shared")
+            self.assertTrue(teacher["sharedVisible"])
+            self.assertTrue(shared["sharedVisible"])
+            self.assertEqual(shared["display"], mode)
+            self.assertEqual(shared["counts"]["0"], 1)
+            self.assertEqual(shared["question"], "Where should the crew go?")
+        invalid = await self.client.post("/api/quick-poll/control",
+                                         json={"action": "share", "visible": "false"})
+        self.assertEqual(invalid.status, 400)
+        self.assertTrue((await self.get("teacher"))["sharedVisible"])
+        # Showdown requires exactly 2 options, protect the active presentation.
+        invalid = await self.client.post("/api/quick-poll/control",
+                                         json={"action": "display", "display": "showdown"})
+        self.assertEqual(invalid.status, 400)
+        await self.control("share", visible=False)
+        self.assertFalse((await self.get("shared"))["sharedVisible"])
+        await self.control("close")
+        await self.control("reopen")
+        self.assertFalse((await self.get("shared"))["sharedVisible"])
+        self.assertEqual((await self.get("teacher"))["counts"]["0"], 1)
+        self.assertEqual(app.LATEST_STATE["activityRun"], self.initial_activity)
+        await self.control("dismiss")
+        self.assertIsNone(await self.get("teacher"))
+
     async def test_multiple_options_templates_timer_and_new_session(self):
         poll_id = await self.launch(multiple=True, limit=2, duration=15)
         self.assertEqual((await self.vote(poll_id, "student-alpha-unique", ["0", "1"])).status, 200)
