@@ -2439,3 +2439,123 @@ body.role-student .student-actions button[aria-pressed="true"]{
     transition:none!important;
   }
 }
+
+
+/* Mission Control v1 — focused readability pass; the original floating
+   teacher layout and all gameplay/response handlers remain unchanged. */
+#teacher #teacherControlBar.single-mission-bar{
+  box-sizing:border-box!important;
+  border:1px solid #6092b8!important;
+  border-radius:17px!important;
+  box-shadow:inset 0 1px 0 #ffffff22,0 13px 30px #0005!important;
+}
+#teacher #teacherControlBar .single-mission-status{
+  min-width:0!important;
+}
+#teacher #teacherControlBar .mission-context-title b{
+  font-size:clamp(13px,1vw,18px)!important;
+  line-height:1.15!important;
+}
+#teacher #teacherControlBar .students-see{
+  font-size:clamp(10px,.78vw,13px)!important;
+  line-height:1.3!important;
+}
+#teacher #teacherControlBar #teacherQuickStatus{
+  font-size:inherit!important;
+  color:#e9f9ff!important;font-weight:1000!important;
+  overflow-wrap:anywhere;
+}
+#teacher #teacherControlBar .single-mission-controls{
+  min-width:0!important;gap:clamp(4px,.55vw,9px)!important;
+  justify-content:center!important;
+}
+#teacher #teacherControlBar .single-mission-controls .control{
+  box-sizing:border-box!important;min-width:0!important;
+  min-height:clamp(69px,6.5vw,91px)!important;
+  padding:clamp(5px,.6vw,9px)!important;
+  border-radius:12px!important;
+  border:1px solid #517595!important;
+  background:linear-gradient(145deg,#122b4e,#0b1b35)!important;
+  color:#f6fbff!important;
+  transition:transform .15s ease,filter .15s ease,box-shadow .15s ease;
+}
+#teacher #teacherControlBar .single-mission-controls .control:where(.active,.enabled){
+  border-color:#7bdcf1!important;
+  box-shadow:inset 0 1px 0 #ffffff32,0 0 0 1px #55b9d963!important;
+}
+#teacher #teacherControlBar .single-mission-controls .control.active{
+  background:linear-gradient(140deg,#245d86,#153767)!important;
+}
+#teacher #teacherControlBar .single-mission-controls .control[data-toggle]:not(.enabled){
+  border-color:#607080!important;background:linear-gradient(140deg,#223042,#1b2638)!important;
+}
+#teacher #teacherControlBar .single-mission-controls .control .copy{
+  min-width:0!important;max-width:100%!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  flex-direction:column!important;gap:3px!important;
+}
+#teacher #teacherControlBar .single-mission-controls .control .copy b{
+  display:block!important;font-size:clamp(10px,.82vw,14px)!important;
+  font-weight:950!important;line-height:1.22!important;
+  text-align:center!important;overflow-wrap:break-word!important;
+  word-break:normal!important;white-space:normal!important;
+  text-overflow:clip!important;
+}
+#teacher #teacherControlBar .single-mission-controls .control .copy small{
+  display:inline-flex!important;align-items:center!important;gap:4px!important;
+  min-height:15px!important;margin:0!important;
+  font-size:clamp(9px,.7vw,11px)!important;
+  font-weight:950!important;letter-spacing:.02em!important;
+  color:#d0deea!important;
+}
+#teacher #teacherControlBar .single-mission-controls .control[data-toggle].enabled .copy small{
+  color:#99f7d3!important;
+}
+#teacher #teacherControlBar .single-mission-controls .control[data-toggle]:not(.enabled) .copy small{
+  color:#fbd5ae!important;
+}
+#teacher #teacherControlBar .single-mission-controls .control:focus-visible,
+#teacher #teacherControlBar #emergencyReturnBtn:focus-visible{
+  outline:3px solid #ffdf87!important;outline-offset:3px!important;
+}
+#teacher #teacherControlBar .single-mission-controls .control:hover{
+  filter:brightness(1.14)!important;transform:translateY(-2px);
+}
+#teacher #teacherControlBar .single-mission-controls .control[data-control="lobby"].active{
+  border-color:#90f4c9!important;
+}
+#teacher #teacherControlBar .single-mission-controls .control[data-control="ready"].active,
+#teacher #teacherControlBar .single-mission-controls .control[data-send].active{
+  border-color:#ffde99!important;
+}
+#teacher #teacherControlBar.mission-is-running .mission-context-pulse{
+  background:#ffd378!important;box-shadow:0 0 12px #ffc65b!important;
+}
+#teacher #teacherControlBar.mission-is-ended{
+  border-color:#8b6473!important;filter:saturate(.75);
+}
+@media(min-width:1051px) and (max-width:1450px){
+  #teacher #teacherControlBar.single-mission-bar{
+    grid-template-columns:minmax(160px,.85fr) minmax(0,4fr) auto!important;
+  }
+}
+@media(max-width:1050px){
+  #teacher #teacherControlBar.single-mission-bar{
+    display:flex!important;flex-wrap:wrap!important;gap:9px!important;
+    padding:11px!important;
+  }
+  #teacher #teacherControlBar .single-mission-status{flex:1 1 180px!important}
+  #teacher #teacherControlBar .single-mission-controls{
+    flex:1 1 100%!important;display:grid!important;
+    grid-template-columns:repeat(auto-fit,minmax(84px,1fr))!important;
+    gap:7px!important;
+  }
+  #teacher #teacherControlBar .single-mission-controls .control{
+    width:100%!important;min-height:77px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #teacher #teacherControlBar .single-mission-controls .control{
+    transition:none!important;transform:none!important;
+  }
+}
