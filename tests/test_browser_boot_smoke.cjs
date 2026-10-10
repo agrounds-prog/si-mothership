@@ -121,6 +121,19 @@ const hosts=[
                 shortcuts:shortcuts.length,alertVisible:getComputedStyle(alerts).display!=='none'};
             });
             console.log(JSON.stringify({label,role:'teacher-geometry',viewport:width,...geometry}));
+            const gridAudit=await page.evaluate(()=>{
+              const css=id=>{const el=document.querySelector(id),r=el.getBoundingClientRect(),c=getComputedStyle(el);
+                return {top:Math.round(r.top),bottom:Math.round(r.bottom),height:Math.round(r.height),
+                  display:c.display,position:c.position,topStyle:c.top,transform:c.transform,translate:c.translate,
+                  marginTop:c.marginTop,alignSelf:c.alignSelf,gridRow:c.gridRow,gridColumn:c.gridColumn};
+              };
+              return {grid:css('#teacher .mission-grid'),home:css('#teacherControlBar'),
+                roster:css('#lobbyPanel'),mirror:css('#teacher .screen-dock'),
+                stack:css('#siV85AlertStack'),alerts:css('#attentionSummary'),
+                shortcuts:css('#dashboardToolsRow'),
+                tracks:getComputedStyle(document.querySelector('#teacher .mission-grid')).gridTemplateRows};
+            });
+            console.log(JSON.stringify({label,role:'grid-audit',viewport:width,...gridAudit}));
             if(!geometry.stackReady||!geometry.alertVisible||geometry.shortcuts&&geometry.vectorIcons!==geometry.shortcuts||
                (width>=1220&&(geometry.gap<9||geometry.queueGap<9||geometry.shortcutsTop-geometry.helpBottom<6||geometry.panelTranslate!=='none'||geometry.alerts.right>width+3||
                  geometry.home.right>width+3)))failures++;
@@ -144,7 +157,7 @@ const hosts=[
             const home=box('teacherControlBar'),alerts=box('attentionSummary');
             const buzz=box('buzzPanel'),photo=box('photoInboxPanel'),help=box('helpInboxPanel'),shortcuts=box('appShortcutsPanel');
             const stack=document.getElementById('siV85AlertStack');
-            const result={stackReady:!!stack&&[alerts,buzz,photo,help].every(el=>el.parentElement===stack),
+            const result={stackReady:!!stack&&['attentionSummary','buzzPanel','photoInboxPanel','helpInboxPanel'].every(id=>document.getElementById(id).parentElement===stack),
               homeGap:alerts.top-home.bottom,summaryGap:buzz.top-alerts.bottom,
               buzzGap:photo.top-buzz.bottom,photoGap:help.top-photo.bottom,
               shortcutsGap:shortcuts.top-help.bottom,
