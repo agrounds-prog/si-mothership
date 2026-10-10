@@ -1721,6 +1721,16 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 (()=>{
  if(typeof window==='undefined'||window.__siStudentConnectionFeedbackV2)return;
  window.__siStudentConnectionFeedbackV2=true;
+ function modeFromStudentStatus(stage,message){
+  if(stage==='disconnected'||stage==='ended')return 'offline';
+  if(stage==='paused')return 'paused';
+  const msg=String(message||'').toLowerCase();
+  if(/submitted|selected|received|accepted|verified|locked|you won|mission complete/.test(msg))return 'sent';
+  if(/^waiting\b|^watch\b|^spectator\b|^face-off complete\b/.test(msg))return 'watch';
+  if(/your turn|you have the controls|ready to send|choose your answer|choose an answer|send your survey answer|tap buzz|play along/.test(msg))return 'turn';
+  if(stage==='waiting'||/waiting|watch|spectator|awaiting/.test(msg))return 'watch';
+  return 'ready';
+ }
  function paint(){
   if(typeof SESSION_ROLE==='undefined'||SESSION_ROLE!=='student'||typeof state==='undefined')return;
   const joined=typeof studentNeedsJoin==='function'&&!studentNeedsJoin();
@@ -1759,6 +1769,45 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         message=vectorResponse(s.n,run)?.locked?'Vector submitted — waiting for teacher.':'Place your vector, then lock your answer.';
       if(app?.type==='bingo'&&s&&typeof bingoState==='function')
         message=bingoState(run)?.claimResults?.[s.n]?.valid?'BINGO verified — great work!':'Watch for calls and mark your own card.';
+      if(app?.type==='crew-survey'&&s&&typeof crewSurveyState==='function'){
+        const game=crewSurveyState(run),team=typeof crewSurveyTeamFor==='function'?crewSurveyTeamFor(s.n,run):null;
+        const winner=game?.buzzer?.winner===s.n,faceoff=game?.stage==='faceoff';
+        const eligible=(game?.buzzer?.eligible||[]).includes(s.n);
+        const active=winner||((game?.stage==='play'||game?.stage==='steal')&&game?.controlTeam===team&&
+          typeof crewSurveyActiveName==='function'&&crewSurveyActiveName(team,run)===s.n);
+        const sent=typeof crewSurveyPrivateResponse==='function'&&crewSurveyPrivateResponse(s.n,run);
+        message=sent?'Answer submitted privately — watch Mission Control.':
+          faceoff&&eligible&&game?.buzzer?.armed&&!game?.buzzer?.winner?'Your turn — tap BUZZ!':
+          active?'Your turn — send your survey answer.':
+          faceoff&&game?.buzzer?.winner?'Face-off complete — watch the board.':
+          'Watch the survey board and help your crew.';
+      }
+      if(app?.type==='million'&&s&&typeof millionState==='function'){
+        const game=millionState(run),pilot=game?.pilot===s.n,guess=game?.crewPredictions?.[s.n];
+        message=game?.complete?'Mission complete — the crew reached the top!':
+          game?.over?'Run complete — wait for the next round.':
+          game?.revealed?'Answer revealed — watch Mission Control.':
+          pilot&&game?.lockedAnswer?'Final answer locked — awaiting reveal.':
+          pilot&&game?.selectedAnswer?'Answer selected — lock it when ready.':
+          pilot?'Your turn — select your answer.':
+          guess?'Prediction selected — watch the command seat.':'Play along — choose an answer.';
+      }
+      if(app?.type==='cosmic-cards'&&s&&typeof cosmicActive==='function'){
+        const game=cosmicActive(run),pilot=typeof cosmicPlayer==='function'?cosmicPlayer(run):null;
+        message=game?.status==='won'?(game.winner===s.n?'You won the round!':'Round complete — watch the table.'):
+          !game?.players?.includes(s.n)?'Spectator — watch the shared table.':
+          pilot===s.n?'Your turn — play a highlighted card or draw.':
+          'Waiting for your turn — watch the shared table.';
+      }
+      if(app?.type==='pixel'&&s&&typeof pixelGuess==='function')
+        message=pixelGuess(s.n,run)?'Guess submitted — watch the reveal.':'Study the image, then send a private guess.';
+      if(app?.type==='presentation'&&s&&typeof currentSlide==='function'&&typeof studentActivityResponse==='function'){
+        const slide=currentSlide();
+        if(slide&&['question','poll'].includes(slide.type))
+          message=studentActivityResponse(s.n)?'Response selected — watch the presentation.':'Choose your answer below.';
+      }
+      if((app?.type==='binary'||app?.type==='exit')&&s&&typeof studentActivityResponse==='function')
+        message=studentActivityResponse(s.n,0)?'Response selected — thank you!':'Choose an answer below.';
     }
     if(message){status.dataset.siMode=m;if(status.textContent!==message)status.textContent=message}
     else if(status.dataset.siMode==='disconnected'){
@@ -1768,6 +1817,48 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         stage==='live'?'Activity live — follow your game controls above.':
         'Classroom ready — choose a control when your teacher asks.';
       status.dataset.siMode=stage;status.textContent=recovered;
+    }
+  }
+  // Reuse one compact identity strip; do not rerender buttons or interrupt game focus.
+  const zone=document.querySelector('#student .student-control-zone');
+  if(zone){
+    let hud=document.getElementById('siStudentCrewHud');
+    const student=joined&&typeof selectedStudent==='function'?selectedStudent():null;
+    if(!student){if(hud)hud.remove()}
+    else{
+      if(!hud){
+        hud=document.createElement('div');hud.id='siStudentCrewHud';hud.className='si-student-crew-hud';
+        hud.setAttribute('aria-label','Your avatar and classroom status');
+        const avatar=document.createElement('span');avatar.className='si-student-hud-avatar';avatar.setAttribute('aria-hidden','true');
+        const identity=document.createElement('span');identity.className='si-student-hud-copy';
+        const hint=document.createElement('small');hint.textContent='YOUR CREW ID';
+        const name=document.createElement('strong');name.className='si-student-hud-name';
+        identity.append(hint,name);
+        const phase=document.createElement('span');phase.className='si-student-hud-phase';
+        hud.append(avatar,identity,phase);
+        const anchor=zone.querySelector('#studentControlLabel');
+        if(anchor)zone.insertBefore(hud,anchor);else zone.prepend(hud);
+      }
+      const avatar=hud.querySelector('.si-student-hud-avatar');
+      const asset=typeof avatarAsset==='function'?avatarAsset(student.avatarKey):null;
+      const key=String(student.avatarKey||'default');
+      if(avatar&&hud.dataset.siAvatarKey!==key){
+        avatar.replaceChildren();avatar.style.setProperty('--si-avatar-color',asset?.color||student.c||'#5be8ff');
+        if(asset&&(asset.source==='custom'||String(asset.key).startsWith('custom_'))&&asset.image){
+          const image=document.createElement('img');image.src=asset.image;image.alt='';avatar.appendChild(image);
+        }else avatar.textContent=asset?.glyph||'🚀';
+        hud.dataset.siAvatarKey=key;
+      }
+      const name=hud.querySelector('.si-student-hud-name');
+      if(name&&name.textContent!==student.n)name.textContent=student.n||'Student';
+      const phase=hud.querySelector('.si-student-hud-phase');
+      if(phase){
+        const kind=modeFromStudentStatus(status?.dataset.siMode||'ready',status?.textContent||'');
+        phase.dataset.siPhase=kind;
+        const word=kind==='offline'?'OFFLINE':kind==='turn'?'YOUR TURN':kind==='sent'?'SENT':
+          kind==='paused'?'PAUSED':kind==='watch'?'WATCH':'READY';
+        if(phase.textContent!==word)phase.textContent=word;
+      }
     }
   }
   document.querySelectorAll('#studentControls [data-class-action]').forEach(btn=>{
