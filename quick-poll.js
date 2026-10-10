@@ -50,8 +50,10 @@ function results(p){
  const total=p.voters||0,values=p.choices.map((c,i)=>({c,i,n:Number(p.counts[c.id]||0),percent:pct(p.counts[c.id]||0,total)}));
  const top=Math.max(0,...values.map(v=>v.n));
  if(p.display==="donut"){
-  let from=0;const parts=values.map(v=>{const to=from+(total?v.n/total*100:0),s=colors[v.i%6]+" "+from+"% "+to+"%";from=to;return s;});
-  return '<div class="qp-donut-area"><div class="qp-donut" style="background:'+(total?"conic-gradient("+parts.join(",")+")":"#24445d")+'"><span><b>'+total+'</b> votes</span></div><div class="qp-legend">'+values.map(v=>'<div><i style="background:'+colors[v.i%6]+'"></i><span>'+esc(v.c.label)+'</span><b>'+v.percent+'%</b></div>').join("")+'</div></div>';
+  // In multiple-choice polls the pie measures selections, not participants.
+  const selectedTotal=values.reduce((n,v)=>n+v.n,0);
+  let from=0;const parts=values.map(v=>{const to=from+(selectedTotal?v.n/selectedTotal*100:0),s=colors[v.i%6]+" "+from+"% "+to+"%";from=to;return s;});
+  return '<div class="qp-donut-area"><div class="qp-donut" style="background:'+(selectedTotal?"conic-gradient("+parts.join(",")+")":"#24445d")+'"><span><b>'+total+'</b> students</span></div><div class="qp-legend">'+values.map(v=>'<div><i style="background:'+colors[v.i%6]+'"></i><span>'+esc(v.c.label)+'</span><b>'+pct(v.n,selectedTotal)+'%</b></div>').join("")+'</div></div>';
  }
  if(p.display==="bars"){
   return '<div class="qp-bar-chart">'+[...values].sort((a,b)=>b.n-a.n).map(v=>'<div class="qp-chart-row">'+(v.c.image?'<img src="'+v.c.image+'" alt="">':'<span style="background:'+colors[v.i%6]+'">✦</span>')+
@@ -199,7 +201,7 @@ async function teacherClick(e){
  if(b.hasAttribute("data-qp-new")){draft=fresh();renderEditor();return;}
  if(b.hasAttribute("data-qp-gallery")){list=!list;renderEditor();return;}
  if(b.hasAttribute("data-qp-add")){if(draft.choices.length<6){draft.choices.push({label:"",image:""});renderEditor();}return;}
- if(b.dataset.qpRemove!==undefined){if(draft.choices.length>2){draft.choices.splice(Number(b.dataset.qpRemove),1);if(draft.choices.length!==2&&draft.display==="showdown")draft.display="cards";renderEditor();}return;}
+ if(b.dataset.qpRemove!==undefined){if(draft.choices.length>2){draft.choices.splice(Number(b.dataset.qpRemove),1);draft.limit=Math.min(draft.limit,draft.choices.length);if(draft.choices.length!==2&&draft.display==="showdown")draft.display="cards";renderEditor();}return;}
  if(b.dataset.qpClearImage!==undefined){draft.choices[Number(b.dataset.qpClearImage)].image="";renderEditor();return;}
  if(b.dataset.qpTemplate!==undefined){const t=sample[Number(b.dataset.qpTemplate)];draft={...fresh(),question:t[1],choices:t[2].map(label=>({label,image:""})),sensitive:t[3],visibility:t[3]?"reveal":"live"};renderEditor();return;}
  if(b.dataset.qpLoad!==undefined){const t=library.find(x=>x.id===b.dataset.qpLoad);if(t){draft={...fresh(),...clone(t.poll)};list=false;renderEditor();}return;}

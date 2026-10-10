@@ -99,6 +99,19 @@ class QuickPollSmoke(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(vote_rows), 2)
         self.assertTrue(all("student-" not in row["voter_key"] for row in vote_rows))
 
+    async def test_identified_votes_teacher_only(self):
+        poll_id = await self.launch(identity="identified", visibility="live")
+        self.assertEqual((await self.vote(poll_id, "student-alpha-unique", ["2"])).status, 200)
+        teacher = await self.get("teacher")
+        shared = await self.get("shared")
+        student = await self.get("student", "student-beta-unique")
+        self.assertEqual(teacher["identifiedVotes"][0]["name"], "Alpha")
+        self.assertEqual(teacher["identifiedVotes"][0]["choices"], ["2"])
+        self.assertNotIn("identifiedVotes", shared)
+        self.assertNotIn("identifiedVotes", student)
+        self.assertEqual(shared["counts"]["2"], 1)
+        self.assertEqual(app.LATEST_STATE["activityRun"], self.initial_activity)
+
     async def test_hidden_results_and_revote_comparison(self):
         poll_id = await self.launch(visibility="reveal", allowChange=False)
         self.assertEqual((await self.vote(poll_id, "student-alpha-unique", ["0"])).status, 200)
