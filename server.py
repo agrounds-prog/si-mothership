@@ -4311,6 +4311,10 @@ def _million_apply_request(state: dict, run: dict, name: str, request: dict) -> 
         remaining = 0
     if lifeline not in {"poll", "reduce", "clue", "tryAgain"} or remaining <= 0:
         return
+    # Never allow a stale pilot lifeline request to reset an already-correct
+    # question and award its ladder rung a second time.
+    if lifeline == "tryAgain" and (million.get("result") == "correct" or million.get("complete")):
+        return
     inventory[lifeline] = remaining - 1
 
     if lifeline == "poll":
