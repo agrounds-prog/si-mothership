@@ -1289,7 +1289,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       output=output.replace('class="student-prompt million-student', 'class="student-prompt million-student million-student-showtime');
       if(m.complete){
         output=output.replace('1,000,000 Energy!',currency(earned(run))+' Energy!')
-          .replace('The crew completed the mission ladder.','The crew completed all '+total+' questions!');
+          .replace('The crew completed the mission ladder.',total===1?'The crew completed the question!':'The crew completed all '+total+' questions!');
       }
       const tag='<div class="million-student-progress" role="status"><span>QUESTION '+(i+1)+
         ' / '+total+'</span><span>'+escapeText(stateLabel(m))+'</span></div>';
