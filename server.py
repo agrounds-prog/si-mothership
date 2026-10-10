@@ -24,6 +24,7 @@ from aiohttp import WSMsgType, web
 import qrcode
 
 from cosmic_cards_server import apply_cosmic_action, redact_cosmic_state
+from quick_poll_server import QuickPollService
 
 ROOT = Path(__file__).resolve().parent
 INDEX_PATH = ROOT / "index.html"
@@ -4890,6 +4891,9 @@ async def index(request: web.Request) -> web.Response:
         + "</script>"
     )
     text = text.replace("<head>", "<head>" + injected, 1)
+    # Quick Poll loads alongside existing games. It does not modify activityRun.
+    text = text.replace("</head>", '<link rel="stylesheet" href="/quick-poll.css?v=1"></head>', 1)
+    text = text.replace("</body>", '<script src="/quick-poll.js?v=1" defer></script></body>', 1)
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
 
@@ -5075,6 +5079,7 @@ async def new_session_handler(request: web.Request) -> web.Response:
     if not teacher_authorized(request, data):
         raise web.HTTPUnauthorized(text="Teacher login required")
     code = rotate_session()
+    request.app["quick_poll"].reset()
     # Student/shared clients from the prior session are disconnected. Teacher sockets remain.
     stale = []
     for ws in list(CLIENTS):
@@ -5915,6 +5920,7 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                         await _send_current_state(ws)
                 elif mtype == "session_reset" and role == "teacher":
                     save_runtime_state(None)
+                    request.app["quick_poll"].reset()
                     await broadcast({"type": "session_reset"}, exclude=ws)
             elif msg.type in (WSMsgType.ERROR, WSMsgType.CLOSE, WSMsgType.CLOSED):
                 break
@@ -5935,6 +5941,9 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
 
 def create_app() -> web.Application:
     app = web.Application(client_max_size=32 * 1024 * 1024)
+    quick_poll = QuickPollService(db, lambda: CURRENT_SESSION_ID, lambda: LATEST_STATE,
+                                  teacher_authorized, lambda: CURRENT_JOIN_CODE)
+    app["quick_poll"] = quick_poll
     app.router.add_get("/", index)
     app.router.add_get("/index.html", index)
     app.router.add_get("/match-arcade.js", match_arcade_script)
@@ -5963,6 +5972,7 @@ def create_app() -> web.Application:
     app.router.add_post("/api/storage", storage_write)
     app.router.add_post("/api/session/new", new_session_handler)
     app.router.add_get("/ws", websocket_handler)
+    quick_poll.install(app)
     return app
 
 
