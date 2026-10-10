@@ -230,7 +230,11 @@ const hosts=[
             });
             await page.reload({waitUntil:'domcontentloaded'});
             await page.waitForTimeout(450);
-            await page.locator('#siQuickPollHomeBtn').click();
+            await page.evaluate(()=>{
+              const button=document.getElementById('siQuickPollHomeBtn');
+              if(!button)throw Error('Quick Poll Home Row button missing');
+              button.click();
+            });
             await page.locator('#qpDialog [data-qp-launch]').click();
             const warning=await page.locator('#qpTopError').textContent();
             const visible=await page.locator('#qpTopError').isVisible();
