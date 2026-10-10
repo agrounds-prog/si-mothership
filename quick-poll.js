@@ -179,13 +179,13 @@ function renderEditor(){
 }
 function error(e){
  notice=String(e?.message||e).slice(0,200);
- const top=$("#qpTopError",dialog),bottom=$("#qpError",dialog);
+ const top=dialog?$("#qpTopError",dialog):null,bottom=dialog?$("#qpError",dialog):null;
  if(top){top.textContent=notice;top.hidden=false;top.scrollIntoView({block:"start",behavior:"auto"});}
  if(bottom)bottom.textContent=notice;
 }
 function clearError(){
  notice="";
- const top=$("#qpTopError",dialog),bottom=$("#qpError",dialog);
+ const top=dialog?$("#qpTopError",dialog):null,bottom=dialog?$("#qpError",dialog):null;
  if(top){top.textContent="";top.hidden=true;}
  if(bottom)bottom.textContent="";
 }
