@@ -1319,17 +1319,30 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     };
     if(SESSION_ROLE==='teacher'){
       const originalResolve=millionResolve,originalNext=millionNextQuestion;
+      const originalLifeline=millionUseLifeline;
       millionResolve=function(...args){
-        const m=millionState(),before=!!m?.revealed;
+        const m=millionState();
+        if(!m||m.revealed||m.over||m.complete)return;
+        if(!m.lockedAnswer)return typeof toast==='function'?toast('Lock an answer before revealing.'):undefined;
         const result=originalResolve.apply(this,args);
-        if(!before&&millionState()?.revealed)cue(millionState()?.result==='correct'?'correct':'miss');
+        if(millionState()?.revealed)cue(millionState()?.result==='correct'?'correct':'miss');
         return result;
       };
       millionNextQuestion=function(...args){
-        const current=millionState()?.questionIndex;
+        const m=millionState();
+        if(!m)return;
+        if(m.over)return typeof toast==='function'?toast('This run is over. Choose Play Again to restart.'):undefined;
+        if(!m.revealed)return typeof toast==='function'?toast('Reveal the locked answer before advancing.'):undefined;
+        const current=m.questionIndex;
         const result=originalNext.apply(this,args);
         if(millionState()?.questionIndex!==current)cue('next');
         return result;
+      };
+      millionUseLifeline=function(type,...args){
+        const m=millionState();
+        if(String(type)==='tryAgain'&&(m?.result==='correct'||m?.complete))
+          return typeof toast==='function'?toast('Try Again cannot replay an already-correct answer.'):undefined;
+        return originalLifeline.call(this,type,...args);
       };
     }
     function replayMillion(){
@@ -1378,7 +1391,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         '<div class="million-command-row">'+
         '<button type="button" class="million-command-reveal" data-million-show-action="reveal" '+
           (canReveal?'':'disabled')+'>◇ REVEAL LOCKED ANSWER</button>'+
-        '<button type="button" data-million-show-action="next" '+(m.revealed&&!m.complete?'':'disabled')+
+        '<button type="button" data-million-show-action="next" '+(m.revealed&&!m.complete&&!m.over?'':'disabled')+
           '>NEXT QUESTION →</button>'+
         '<button type="button" data-million-show-action="replay">↻ PLAY AGAIN</button>'+
         '<button type="button" data-million-show-action="sound" aria-pressed="'+soundEnabled+'">'+
@@ -1393,7 +1406,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         const a=b.dataset.millionShowAction;
         if(a==='reveal'&&canReveal&&state.activityRun===run)
           millionResolve(Boolean(willCorrect));
-        else if(a==='next'&&m.revealed&&!m.complete)millionNextQuestion();
+        else if(a==='next'&&m.revealed&&!m.complete&&!m.over)millionNextQuestion();
         else if(a==='replay')replayMillion();
         else if(a==='sound'){
           soundEnabled=!soundEnabled;
