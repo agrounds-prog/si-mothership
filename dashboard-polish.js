@@ -126,44 +126,26 @@ function installShortcutArtwork(){
 }
 
 
-/* v84: the Home Row owns a real grid track rather than translating alert cards.
-   CSS grid reserves space for all alert panels and pushes Activity Shortcuts
-   down when students send photos, buzzes or help requests. */
-function installDashboardGridFlow(){
- const grid=$('#teacher .mission-grid'),home=$('#teacherControlBar');
- const controls=home?.querySelector('.single-mission-controls');
- if(!grid||!home)return;
- let pending=false;
- function apply(){
-   pending=false;
-   if(!document.body.classList.contains('si-v80-dashboard')||
-      !window.matchMedia('(min-width:1220px)').matches){
-     grid.style.removeProperty('--si-v84-home-row');
-     return;
-   }
-   const bar=home.getBoundingClientRect();
-   const controlBottom=controls?.getBoundingClientRect().bottom||bar.bottom;
-   if(bar.height<1)return;
-   // Include any visible children extending beyond the legacy bar height.
-   const required=Math.max(158,Math.ceil(Math.max(bar.bottom,controlBottom)-bar.top+8));
-   const value=required+'px';
-   if(grid.style.getPropertyValue('--si-v84-home-row')!==value)
-     grid.style.setProperty('--si-v84-home-row',value);
+/* v85: Put alert panels into one actual grid item, not four independently
+   positioned grid cells. Existing elements, IDs, events and their state stay
+   intact. This structural container makes the alert rail a single flowing
+   column that cannot overlap the Home Row or Activity Shortcuts. */
+function installAlertStack(){
+ const rail=$('#teacher .right-rail');
+ if(!rail)return;
+ const ids=['attentionSummary','buzzPanel','photoInboxPanel','helpInboxPanel'];
+ const panels=ids.map(id=>document.getElementById(id));
+ if(panels.some(node=>!node))return;
+ let stack=document.getElementById('siV85AlertStack');
+ if(!stack){
+   stack=document.createElement('div');
+   stack.id='siV85AlertStack';
+   stack.className='si-v85-alert-stack';
+   const dock=rail.querySelector('.screen-dock');
+   if(dock)rail.insertBefore(stack,dock);
+   else rail.appendChild(stack);
  }
- function schedule(){
-   if(pending)return;
-   pending=true;
-   requestAnimationFrame(apply);
- }
- schedule();
- window.addEventListener('resize',schedule,{passive:true});
- window.visualViewport?.addEventListener('resize',schedule,{passive:true});
- if('ResizeObserver' in window){
-   const observer=new ResizeObserver(schedule);
-   observer.observe(home);
-   if(controls)observer.observe(controls);
- }
- document.fonts?.ready?.then(schedule).catch(()=>{});
+ panels.forEach(panel=>stack.appendChild(panel));
 }
 
 function tunePanels(){
@@ -192,7 +174,7 @@ function init(){
  if(!installHeader())return;
  addTheme();tunePanels();installShortcutArtwork();
  document.body.classList.add('si-v80-dashboard');
- installDashboardGridFlow();
+ installAlertStack();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
 else init();
