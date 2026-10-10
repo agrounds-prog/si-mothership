@@ -32,4 +32,29 @@ for (const app of ["crew-survey", "million", "cosmic-cards", "pixel", "presentat
 for (const marker of ["siStudentCrewHud", "si-student-hud-avatar", "si-student-hud-phase", "data-si-phase=\"turn\""]) {
   assert.ok(js.includes(marker) || css.includes(marker), "Avatar/status HUD marker " + marker);
 }
+
+const fnBegin = js.indexOf("function networkHoldAction(btn,paused,key)");
+const fnEnd = js.indexOf("\n function studentNetworkUnavailable(){", fnBegin);
+assert.ok(fnBegin >= 0 && fnEnd > fnBegin, "Connection guard must exist");
+const hold = vm.runInNewContext("(" + js.slice(fnBegin, fnEnd).trim() + ")");
+function fakeButton(disabled = false) {
+  return {disabled, dataset: {}, attrs: {},
+    setAttribute(key,value) {this.attrs[key]=value;}};
+}
+const readyButton = fakeButton();
+hold(readyButton,true,"siGameConnectionHold");
+assert.equal(readyButton.disabled,true);
+assert.equal(readyButton.attrs["aria-disabled"],"true");
+hold(readyButton,false,"siGameConnectionHold");
+assert.equal(readyButton.disabled,false);
+assert.equal("siGameConnectionHold" in readyButton.dataset,false);
+const teacherLockedButton = fakeButton(true);
+hold(teacherLockedButton,true,"siGameConnectionHold");
+hold(teacherLockedButton,false,"siGameConnectionHold");
+assert.equal(teacherLockedButton.disabled,true,"Reconnect must not unlock a teacher-disabled choice");
+for(const marker of ["siStudentOfflineNotice", "studentNetworkUnavailable()", "event.stopImmediatePropagation()", "siGameConnectionHold", "studentCalculatorBackBtn"]){
+  assert.ok(js.includes(marker),"Disconnect safety remains: "+marker);
+}
+assert.ok(css.includes(".si-student-offline-notice"),"Offline game warning is styled");
+
 console.log("Student turn/status UI: " + scenarios.length + " behavior cases + game coverage and visual markers passed.");

@@ -1731,6 +1731,25 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(stage==='waiting'||/waiting|watch|spectator|awaiting/.test(msg))return 'watch';
   return 'ready';
  }
+ function networkHoldAction(btn,paused,key){
+  // Remember the game's own disabled state, so reconnect never enables an
+  // action that was already locked by turn rules, submission or a reveal.
+  if(paused){
+    if(btn.dataset[key]===undefined)btn.dataset[key]=btn.disabled?'disabled':'enabled';
+    btn.disabled=true;
+  }else if(btn.dataset[key]!==undefined){
+    if(btn.dataset[key]==='enabled')btn.disabled=false;
+    delete btn.dataset[key];
+  }
+  btn.setAttribute('aria-disabled',String(!!btn.disabled));
+ }
+ function studentNetworkUnavailable(){
+  if(typeof SESSION_ROLE==='undefined'||SESSION_ROLE!=='student'||typeof state==='undefined')return false;
+  if(typeof studentNeedsJoin!=='function'||studentNeedsJoin()||state.ended)return false;
+  if(typeof NETWORK_SYNC==='undefined'||!NETWORK_SYNC)return false;
+  return (typeof networkSessionReset!=='undefined'&&networkSessionReset)||
+   typeof networkSocket==='undefined'||!networkSocket||networkSocket.readyState!==WebSocket.OPEN;
+ }
  function paint(){
   if(typeof SESSION_ROLE==='undefined'||SESSION_ROLE!=='student'||typeof state==='undefined')return;
   const joined=typeof studentNeedsJoin==='function'&&!studentNeedsJoin();
@@ -1861,15 +1880,57 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       }
     }
   }
-  document.querySelectorAll('#studentControls [data-class-action]').forEach(btn=>{
-    const pause=joined&&!state.ended&&mode!=='online';
-    if(pause&&!btn.dataset.siConnectionHold){btn.dataset.siConnectionHold=btn.disabled?'disabled':'enabled';btn.disabled=true}
-    else if(!pause&&btn.dataset.siConnectionHold){if(btn.dataset.siConnectionHold==='enabled')btn.disabled=false;delete btn.dataset.siConnectionHold}
-    btn.setAttribute('aria-disabled',String(!!btn.disabled));
-  });
+  const unavailable=studentNetworkUnavailable();
+  document.querySelectorAll('#studentControls [data-class-action]').forEach(btn=>
+    networkHoldAction(btn,unavailable,'siConnectionHold'));
+  const gameActive=joined&&!state.ended&&state.activityRun?.phase==='running';
+  const gamePanel=document.querySelector('#student .device-main');
+  if(gamePanel){
+    gamePanel.querySelectorAll('button').forEach(btn=>{
+      if(btn.id==='studentCalculatorBackBtn')return;
+      networkHoldAction(btn,unavailable&&gameActive,'siGameConnectionHold');
+    });
+    // Place the warning beside the game controls, not only in the footer.
+    let warning=gamePanel.querySelector('#siStudentOfflineNotice');
+    if(unavailable&&gameActive){
+      if(!warning){
+        warning=document.createElement('div');
+        warning.id='siStudentOfflineNotice';warning.className='si-student-offline-notice';
+        warning.setAttribute('role','status');warning.setAttribute('aria-live','polite');
+        gamePanel.prepend(warning);
+      }
+      const note=mode==='expired'?'Session expired — ask your teacher for a new classroom link.':
+        mode==='offline'?'You are offline. Game buttons are paused until the connection returns.':
+        'Reconnecting… Game buttons are paused to prevent a missing response.';
+      if(warning.textContent!==note)warning.textContent=note;
+    }else if(warning)warning.remove();
+  }
  }
  function init(){
   if(SESSION_ROLE!=='student')return;
+  // Capture events immediately on disconnect, including the time between
+  // socket loss and the next 1.2s visual refresh. Never block join or local
+  // calculator navigation, only classroom and active-game submissions.
+  const root=document.getElementById('student');
+  if(root){
+    root.addEventListener('click',event=>{
+      if(!studentNetworkUnavailable())return;
+      const target=event.target;
+      const btn=target instanceof Element?target.closest('button'):null;
+      if(!btn||btn.id==='studentCalculatorBackBtn')return;
+      const classroom=!!btn.closest('#studentControls');
+      const inGame=state.activityRun?.phase==='running'&&!!btn.closest('.device-main');
+      if(classroom||inGame){
+        event.preventDefault();event.stopImmediatePropagation();paint();
+      }
+    },true);
+    root.addEventListener('submit',event=>{
+      if(studentNetworkUnavailable()&&state.activityRun?.phase==='running'&&
+         event.target instanceof Element&&event.target.closest('.device-main')){
+        event.preventDefault();event.stopImmediatePropagation();paint();
+      }
+    },true);
+  }
   const previous=renderPublic;
   renderPublic=function(...args){const result=previous.apply(this,args);paint();return result};
   paint();setInterval(paint,1200);

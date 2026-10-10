@@ -2641,3 +2641,21 @@ body.role-student .si-student-action-status{overflow-wrap:anywhere}
 @media(prefers-reduced-motion:reduce){
  body.role-student #siStudentCrewHud *{animation:none!important;transition:none!important}
 }
+
+/* Reconnect safety: button locks only; local browser navigation is preserved. */
+body.role-student .device-main .si-student-offline-notice{
+ position:sticky;top:0;z-index:12;margin:0 0 12px;padding:11px 13px;
+ border:2px solid #ffb3a3;border-radius:12px;
+ background:#472e30;color:#fff3ed;
+ font:800 clamp(13px,3vw,16px)/1.35 system-ui;
+ box-shadow:0 5px 18px #050f1d91;
+}
+body.role-student .device-main button[data-si-game-connection-hold]{
+ cursor:not-allowed!important;opacity:.56!important;filter:grayscale(.38);
+}
+body.role-student #studentControls button[data-si-connection-hold]{
+ cursor:not-allowed!important;opacity:.64!important;
+}
+@media(prefers-reduced-motion:reduce){
+ body.role-student .device-main .si-student-offline-notice{transition:none!important;animation:none!important}
+}

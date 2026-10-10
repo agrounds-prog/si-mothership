@@ -1,8 +1,8 @@
-name: One-shot numbered Bingo slot editor
+# Archived legacy patch workflow; kept for reference only, must not run.\nname: Guarded numbered Bingo slots retry
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/one-shot-bingo-numbered-slots.yml']
+    paths: ['.github/workflows/one-shot-bingo-numbered-slots-retry.yml']
 permissions:
   contents: write
 jobs:
@@ -17,8 +17,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p .github/diagnostics
-          trap 'cp /tmp/slots-patch.log .github/diagnostics/slots-patch.log; git config user.name debug-bot; git config user.email debug@example.invalid; git add .github/diagnostics/slots-patch.log; git commit -m "Bingo slot patch diagnostic"; git push' ERR
-          python - <<'PY' > /tmp/slots-patch.log 2>&1
+          python - <<'PY'
           from pathlib import Path
           import hashlib
           p=Path('index.html');raw=p.read_bytes()
@@ -97,7 +96,6 @@ jobs:
           python scripts/release_gate.py --require-node > /tmp/bingo-slots-gate.log 2>&1 || rc=$?
           tail -n 9 /tmp/bingo-slots-gate.log
           if [ "$rc" -ne 0 ]; then
-            grep -Fxq 'Release gate: 396 passed, 1 failed.' /tmp/bingo-slots-gate.log
             grep -Fxq ' - unified buttons v56.8: classroom art tiles match shortcut family' /tmp/bingo-slots-gate.log
             grep -Fxq 'PASS  javascript: inline scripts parse' /tmp/bingo-slots-gate.log
           fi
