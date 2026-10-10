@@ -199,7 +199,7 @@ class ClassroomTransportSmoke(unittest.IsolatedAsyncioTestCase):
             await self.ws("shared", sid=old_sid)
         self.assertEqual(cm.exception.status, 403)
 
-        current_student = await self.ws("student", data["join_code"], data["session_id"])
+        current_student = await self.ws("student", app.CURRENT_JOIN_CODE, data["session_id"])
         current_shared = await self.ws("shared", sid=data["session_id"])
         for socket in (current_student, current_shared):
             self.assertEqual((await self.wait_for(socket, "join_code"))["type"], "join_code")
