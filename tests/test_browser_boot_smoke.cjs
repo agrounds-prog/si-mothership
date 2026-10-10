@@ -110,13 +110,16 @@ const hosts=[
               const homeRect=rect(home),alertRect=rect(alerts),buzzRect=rect(buzz);
               return {home:homeRect,alerts:alertRect,buzz:buzzRect,
                 gap:alertRect.top-homeRect.bottom,queueGap:buzzRect.top-alertRect.bottom,
-                clearance:alerts.dataset.siAlertClearance||null,
+                homeTrack:getComputedStyle(document.querySelector('#teacher .mission-grid')).gridTemplateRows.split(' ')[0],
+                panelTranslate:getComputedStyle(alerts).translate,
+                shortcutsTop:Math.round(document.getElementById('appShortcutsPanel').getBoundingClientRect().top),
+                helpBottom:Math.round(document.getElementById('helpInboxPanel').getBoundingClientRect().bottom),
                 vectorIcons:shortcuts.filter(b=>!!b.querySelector('svg.si-v82-activity-glyph')).length,
                 shortcuts:shortcuts.length,alertVisible:getComputedStyle(alerts).display!=='none'};
             });
             console.log(JSON.stringify({label,role:'teacher-geometry',viewport:width,...geometry}));
             if(!geometry.alertVisible||geometry.shortcuts&&geometry.vectorIcons!==geometry.shortcuts||
-               (width>=1220&&(geometry.gap<9||geometry.queueGap<9||geometry.alerts.right>width+3||
+               (width>=1220&&(geometry.gap<9||geometry.queueGap<9||geometry.shortcutsTop-geometry.helpBottom<6||geometry.panelTranslate!=='none'||geometry.alerts.right>width+3||
                  geometry.home.right>width+3)))failures++;
           }
           await page.setViewportSize({width:1440,height:900});
