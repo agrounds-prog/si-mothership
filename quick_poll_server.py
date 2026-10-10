@@ -221,7 +221,7 @@ class QuickPollService:
         clean = self.clean(data)
         clean.update({"id": secrets.token_urlsafe(12), "phase": "open",
                       "startAt": time.time(), "endAt": time.time() + clean["duration"] if clean["duration"] else None,
-                      "round": 1, "before": None})
+                      "round": 1, "before": None, "sharedVisible": False})
         with self.db() as con:
             con.execute("DELETE FROM quick_poll_vote")
             self._save(con, clean)
@@ -285,6 +285,10 @@ class QuickPollService:
                 if style not in STYLES or (style == "showdown" and len(poll["choices"]) != 2):
                     raise web.HTTPBadRequest(text="Unavailable result layout.")
                 poll["display"] = style
+            elif action == "share":
+                if type(data.get("visible")) is not bool:
+                    raise web.HTTPBadRequest(text="Shared Screen visibility must be true or false.")
+                poll["sharedVisible"] = data["visible"]
             else:
                 raise web.HTTPBadRequest(text="Invalid poll action.")
             self._save(con, poll)
