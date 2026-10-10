@@ -158,7 +158,10 @@ function renderEditor(){
  if(role!=="teacher")return;
  if(!dialog){
   dialog=document.createElement("div");dialog.id="qpDialog";dialog.innerHTML='<div class="qp-dialog-window" role="dialog" aria-modal="true" aria-label="Quick Poll Studio"></div>';
-  document.body.append(dialog);dialog.addEventListener("click",teacherClick);dialog.addEventListener("input",teacherInput);dialog.addEventListener("change",teacherChange);
+  document.body.append(dialog);
+  dialog.addEventListener("click",event=>{Promise.resolve(teacherClick(event)).catch(error);});
+  dialog.addEventListener("input",event=>{try{teacherInput(event);}catch(err){error(err);}});
+  dialog.addEventListener("change",event=>{try{teacherChange(event);}catch(err){error(err);}});
  }
  dialog.hidden=!open;
  if(open){$(".qp-dialog-window",dialog).innerHTML=editorHtml();updateLive();}
@@ -245,12 +248,16 @@ function init(){
  if(role==="teacher"){
   launcher=document.createElement("button");launcher.id="qpLauncher";launcher.innerHTML="⚡ QUICK POLL";
   launcher.title="Create, launch or manage a Quick Poll";launcher.setAttribute("aria-expanded","false");
-  launcher.onclick=()=>{open=!open;renderEditor();};
+  launcher.onclick=()=>{try{open=!open;renderEditor();}catch(err){open=false;error(err);}};
   document.body.append(launcher);libraryLoad();
   window.addEventListener("keydown",e=>{if(open&&e.key==="Escape"){open=false;renderEditor();}});
  }else{
   root=document.createElement("div");root.id="qpPublicOverlay";root.hidden=true;document.body.append(root);
-  if(role==="student")root.addEventListener("click",studentClick);
+  if(role==="student")root.addEventListener("click",event=>{
+    Promise.resolve(studentClick(event)).catch(err=>{
+      const box=$("#qpVoteError",root);if(box)box.textContent=String(err?.message||err);
+    });
+  });
  }
  refresh();setInterval(refresh,2200);setInterval(timer,500);
 }
