@@ -1747,6 +1747,18 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       }
       if(app?.type==='orbit'&&s&&typeof orbitResponse==='function')
         message=orbitResponse(s.n,run)?'Response received — thanks!':'Your response is ready to send.';
+      if(app?.type==='starwheel'&&s&&typeof starwheelState==='function'){
+        const wheel=starwheelState(run),pilot=typeof starwheelActivePilot==='function'?starwheelActivePilot(run):null;
+        message=wheel?.solved?'Puzzle complete — great work!':pilot?.n!==s.n?'Waiting for your turn — watch the shared wheel.':wheel?.stage==='solve_pending'?'Answer submitted — awaiting teacher review.':'Your turn — use the Starwheel controls.';
+      }
+      if(app?.type==='sketch'&&s&&typeof sketchState==='function'){
+        const sketch=sketchState(run),guess=sketch?.guesses?.[s.n];
+        message=sketch?.reveal?'Round complete — nice work!':sketch?.artist===s.n?'Your turn — draw for the crew.':guess?.status==='accepted'?'Guess accepted — nice work!':guess?.status==='pending'?'Guess submitted — awaiting review.':'Watch the artist, then submit your guess.';
+      }
+      if(app?.type==='vector'&&s&&typeof vectorResponse==='function')
+        message=vectorResponse(s.n,run)?.locked?'Vector submitted — waiting for teacher.':'Place your vector, then lock your answer.';
+      if(app?.type==='bingo'&&s&&typeof bingoState==='function')
+        message=bingoState(run)?.claimResults?.[s.n]?.valid?'BINGO verified — great work!':'Watch for calls and mark your own card.';
     }
     if(message){status.dataset.siMode=m;if(status.textContent!==message)status.textContent=message}
     else if(status.dataset.siMode==='disconnected'){
