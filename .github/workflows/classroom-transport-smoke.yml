@@ -8,6 +8,7 @@ on:
       - 'bingo-board-studio.css'
       - 'server.py'
       - 'tests/test_classroom_transport_smoke.py'
+      - 'tests/test_student_status_ui.js'
       - '.github/workflows/classroom-transport-smoke.yml'
   workflow_dispatch:
 
@@ -32,5 +33,7 @@ jobs:
         run: pip install -r requirements.txt
       - name: Verify classroom JavaScript syntax
         run: node --check bingo-board-studio.js
+      - name: Student avatar and turn-state regressions
+        run: node tests/test_student_status_ui.js
       - name: Teacher, students, shared-screen websocket regressions
         run: python -m unittest discover -s tests -p test_classroom_transport_smoke.py -v
