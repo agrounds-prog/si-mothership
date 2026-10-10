@@ -377,3 +377,331 @@ body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut{
 @media(prefers-reduced-motion:reduce){
  body.si-v80-dashboard #teacherControlBar .control{transition:none!important;animation:none!important}
 }
+
+
+/* Dashboard v81 — compact header + home-matched activity shortcuts.
+   Styling only: original shortcut/session button DOM handlers are untouched. */
+body.si-v80-dashboard .topbar.si-v80-topbar{
+ grid-template-columns:minmax(200px,290px) minmax(275px,1fr) auto!important;
+ min-height:112px!important;height:112px!important;
+ gap:clamp(12px,2vw,34px)!important;
+ padding-block:9px!important;
+}
+body.si-v80-dashboard #siV80Information{
+ width:min(100%,660px)!important;max-width:660px!important;
+ margin:0 auto!important;
+ min-height:78px!important;
+ align-items:center!important;
+}
+body.si-v80-dashboard #siV80Information>.si-v80-info-class,
+body.si-v80-dashboard #siV80Information>.si-v80-info-time{
+ display:none!important;
+}
+body.si-v80-dashboard #siV80Information>.si-v80-info-status{
+ flex:1 1 54%!important;
+}
+body.si-v80-dashboard #siV80Information>.si-v80-info-code{
+ flex:1 1 46%!important;
+}
+body.si-v80-dashboard #siV80Information .session-pill{
+ display:flex!important;
+ justify-content:center!important;
+}
+body.si-v80-dashboard #siV80Information .session-pill b{
+ font:1000 clamp(16px,1.15vw,20px)/1.25 system-ui!important;
+}
+body.si-v80-dashboard #siV80Information .class-code{
+ display:flex!important;
+ flex-direction:row!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:12px!important;
+ padding:0!important;
+}
+body.si-v80-dashboard #siV80Information .class-code small{
+ align-self:start!important;
+ margin-right:-4px!important;
+}
+body.si-v80-dashboard #siV80Information .class-code strong{
+ font:1000 clamp(20px,1.45vw,28px)/1.1 system-ui!important;
+ letter-spacing:.09em!important;
+}
+body.si-v80-dashboard #siV80Information .class-code .copy-code{
+ position:static!important;transform:none!important;
+ display:grid!important;place-items:center!important;
+ width:34px!important;height:34px!important;
+ flex:0 0 34px!important;margin-left:1px!important;
+}
+body.si-v80-dashboard .topbar .top-actions{
+ gap:12px!important;
+ align-self:stretch!important;
+}
+body.si-v80-dashboard .topbar .si-v80-end-session,
+body.si-v80-dashboard .topbar .si-v80-reset-session{
+ --si81-accent:#ff8aaf;
+ display:flex!important;flex-direction:column!important;
+ align-items:stretch!important;justify-content:flex-start!important;
+ gap:4px!important;
+ height:91px!important;min-height:91px!important;
+ width:126px!important;min-width:126px!important;
+ padding:5px!important;margin:0!important;
+ border:1px solid color-mix(in srgb,var(--si81-accent) 65%,#235879)!important;
+ border-radius:14px!important;
+ background:linear-gradient(180deg,#092441,#06152b)!important;
+ box-shadow:inset 0 1px 0 #ffffff25,0 7px 14px #0007!important;
+ color:#f6faff!important;
+ transition:transform .16s ease,filter .16s ease,box-shadow .16s ease!important;
+}
+body.si-v80-dashboard .topbar .si-v80-reset-session{--si81-accent:#62b9ff}
+body.si-v80-dashboard .topbar .si-v80-end-session:hover,
+body.si-v80-dashboard .topbar .si-v80-reset-session:hover{
+ transform:translateY(-2px)!important;filter:brightness(1.13)!important;
+ box-shadow:inset 0 1px 0 #ffffff28,0 8px 17px #0009,
+ 0 0 18px color-mix(in srgb,var(--si81-accent) 32%,transparent)!important;
+}
+body.si-v80-dashboard .topbar .si-v80-end-session .ico.si-v80-icon,
+body.si-v80-dashboard .topbar .si-v80-reset-session .ico.si-v80-icon{
+ display:grid!important;place-items:center!important;
+ flex:0 0 57px!important;
+ width:100%!important;height:57px!important;min-height:57px!important;
+ margin:0!important;padding:6px!important;
+ border:1px solid var(--si81-accent)!important;
+ border-radius:10px!important;
+ background:radial-gradient(ellipse at 50% 90%,
+ color-mix(in srgb,var(--si81-accent) 24%,transparent),transparent 68%),
+ linear-gradient(155deg,#103557,#06182e)!important;
+ box-shadow:inset 0 1px 0 #ffffff2b,inset 0 -9px 19px #010b1b8c,
+ 0 0 12px color-mix(in srgb,var(--si81-accent) 30%,transparent)!important;
+ color:var(--si81-accent)!important;
+ overflow:hidden!important;
+}
+body.si-v80-dashboard .topbar .si-v80-end-session .ico.si-v80-icon:before,
+body.si-v80-dashboard .topbar .si-v80-end-session .ico.si-v80-icon:after,
+body.si-v80-dashboard .topbar .si-v80-reset-session .ico.si-v80-icon:before,
+body.si-v80-dashboard .topbar .si-v80-reset-session .ico.si-v80-icon:after{display:none!important}
+body.si-v80-dashboard .topbar .si-v80-end-session .ico.si-v80-icon svg,
+body.si-v80-dashboard .topbar .si-v80-reset-session .ico.si-v80-icon svg{
+ display:block!important;position:static!important;
+ width:42px!important;height:42px!important;
+ color:var(--si81-accent)!important;
+ filter:drop-shadow(0 0 6px var(--si81-accent)) drop-shadow(0 3px 3px #0009)!important;
+}
+body.si-v80-dashboard .topbar .si-v80-end-session .copy,
+body.si-v80-dashboard .topbar .si-v80-reset-session b{
+ display:flex!important;flex:0 0 19px!important;
+ align-items:center!important;justify-content:center!important;
+ width:100%!important;min-height:19px!important;
+ padding:0!important;margin:0!important;
+ border:0!important;background:transparent!important;box-shadow:none!important;
+ color:#f7fbff!important;
+}
+body.si-v80-dashboard .topbar .si-v80-end-session .copy b,
+body.si-v80-dashboard .topbar .si-v80-reset-session b{
+ font:900 12px/1.1 system-ui!important;
+ color:#f7fbff!important;text-align:center!important;
+ white-space:normal!important;
+}
+
+/* Activity shortcuts: same two-level neon tile system as the home controls.
+   App-specific artwork stays intact so existing saved shortcuts remain familiar. */
+body.si-v80-dashboard #teacher #homeAppGrid{
+ display:grid!important;
+ grid-template-columns:repeat(9,minmax(0,1fr))!important;
+ grid-auto-rows:128px!important;
+ gap:clamp(4px,.9vw,14px)!important;
+ align-items:stretch!important;
+ justify-content:stretch!important;
+ width:100%!important;
+ padding:8px 0 3px!important;
+ overflow:visible!important;
+}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut{
+ --si81-shortcut-accent:#61ddff;
+ display:flex!important;flex-direction:column!important;
+ align-items:stretch!important;justify-content:flex-start!important;
+ width:100%!important;min-width:0!important;max-width:none!important;
+ height:126px!important;min-height:126px!important;
+ gap:5px!important;margin:0!important;
+ padding:3px 3px 9px!important;
+ border:1px solid #285b85!important;border-radius:15px!important;
+ background:linear-gradient(180deg,#092442,#06162b)!important;
+ box-shadow:inset 0 1px 0 #ffffff1d,0 7px 11px #0005!important;
+ color:#f4faff!important;
+ transition:transform .16s ease,filter .16s ease,box-shadow .16s ease!important;
+}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut:nth-child(9n+2){--si81-shortcut-accent:#ffbc75}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut:nth-child(9n+3){--si81-shortcut-accent:#6ce9ff}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut:nth-child(9n+4){--si81-shortcut-accent:#76bcff}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut:nth-child(9n+5){--si81-shortcut-accent:#cf9cff}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut:nth-child(9n+6){--si81-shortcut-accent:#7cfdc2}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut:nth-child(9n+7){--si81-shortcut-accent:#89c3ff}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut:nth-child(9n+8){--si81-shortcut-accent:#f78bbe}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut:nth-child(9n+9){--si81-shortcut-accent:#9b98ff}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut:not(:disabled):hover{
+ transform:translateY(-3px)!important;filter:brightness(1.14)!important;
+ border-color:var(--si81-shortcut-accent)!important;
+ box-shadow:inset 0 1px 0 #ffffff2f,0 11px 18px #0008,
+ 0 0 16px color-mix(in srgb,var(--si81-shortcut-accent) 35%,transparent)!important;
+}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut:focus-visible{
+ outline:3px solid #ffeca9!important;outline-offset:3px!important;
+}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut .app-shortcut-icon{
+ display:grid!important;place-items:center!important;
+ flex:0 0 80px!important;
+ width:100%!important;max-width:none!important;
+ height:80px!important;min-height:80px!important;
+ padding:6px!important;margin:0!important;
+ position:relative!important;overflow:hidden!important;
+ border:1px solid var(--si81-shortcut-accent)!important;
+ border-radius:12px!important;
+ background:radial-gradient(ellipse at 50% 85%,
+ color-mix(in srgb,var(--si81-shortcut-accent) 27%,transparent),transparent 65%),
+ linear-gradient(165deg,#10365a,#05192f)!important;
+ box-shadow:inset 0 1px 0 #ffffff2e,inset 0 -12px 20px #010c1c80,
+ 0 0 12px color-mix(in srgb,var(--si81-shortcut-accent) 30%,transparent)!important;
+ color:var(--si81-shortcut-accent)!important;
+}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut .app-shortcut-icon:after{
+ inset:4px!important;border-radius:9px!important;border-color:#ffffff17!important;
+ background:linear-gradient(155deg,#ffffff19,transparent 42%)!important;
+}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut .app-shortcut-icon .v562-art{
+ display:block!important;flex:none!important;
+ width:63px!important;height:63px!important;
+ min-width:63px!important;min-height:63px!important;
+ margin:0!important;
+ border:1px solid color-mix(in srgb,var(--si81-shortcut-accent) 36%,transparent)!important;
+ border-radius:11px!important;
+ background-color:#071522!important;
+ box-shadow:0 4px 10px #0008,0 0 10px color-mix(in srgb,var(--si81-shortcut-accent) 22%,transparent)!important;
+ filter:drop-shadow(0 0 4px color-mix(in srgb,var(--si81-shortcut-accent) 22%,transparent));
+}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut .app-shortcut-icon img,
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut .app-shortcut-icon svg{
+ display:block!important;width:63px!important;height:63px!important;
+ max-width:100%!important;max-height:100%!important;
+ object-fit:contain!important;border-radius:10px!important;
+ filter:drop-shadow(0 0 9px color-mix(in srgb,var(--si81-shortcut-accent) 28%,transparent));
+}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut .app-shortcut-label{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ flex:1 1 auto!important;
+ width:100%!important;max-width:100%!important;
+ min-height:27px!important;max-height:34px!important;
+ font:900 clamp(10px,.95vw,14px)/1.13 system-ui!important;
+ color:#f4faff!important;
+ letter-spacing:0!important;text-align:center!important;
+ text-transform:none!important;white-space:normal!important;
+ overflow-wrap:break-word!important;word-break:normal!important;
+ text-overflow:clip!important;
+ padding:0 3px!important;margin:0!important;
+}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut.empty{
+ border-color:#315276!important;background:linear-gradient(180deg,#0b243a,#061629)!important;
+}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut.empty .app-shortcut-icon{
+ border-style:dashed!important;border-color:#447ca3!important;
+ background:linear-gradient(160deg,#0c2740,#08172a)!important;
+ color:#8ab6d4!important;font-size:32px!important;
+}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut.empty .app-shortcut-label{
+ color:#9cbbcd!important;
+}
+@media(max-width:1450px){
+ body.si-v80-dashboard .topbar.si-v80-topbar{
+  grid-template-columns:minmax(175px,245px) minmax(240px,1fr) auto!important;
+ }
+ body.si-v80-dashboard .topbar .si-v80-end-session,
+ body.si-v80-dashboard .topbar .si-v80-reset-session{
+  width:105px!important;min-width:105px!important;
+ }
+ body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut{
+  height:119px!important;min-height:119px!important;
+ }
+ body.si-v80-dashboard #teacher #homeAppGrid{
+  grid-auto-rows:120px!important;
+ }
+ body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut .app-shortcut-icon{
+  height:72px!important;min-height:72px!important;flex-basis:72px!important;
+ }
+ body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut .app-shortcut-icon .v562-art,
+ body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut .app-shortcut-icon img,
+ body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut .app-shortcut-icon svg{
+  width:57px!important;height:57px!important;min-width:0!important;min-height:0!important;
+ }
+}
+@media(max-width:1180px){
+ body.si-v80-dashboard .topbar.si-v80-topbar{
+  min-height:110px!important;height:auto!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  grid-template-rows:auto auto!important;
+ }
+ body.si-v80-dashboard #siV80Information{
+  grid-column:1/-1!important;grid-row:2!important;
+  width:100%!important;max-width:none!important;min-height:62px!important;
+ }
+ body.si-v80-dashboard .topbar .top-actions{
+  grid-column:2!important;grid-row:1!important;align-self:center!important;
+ }
+ body.si-v80-dashboard .topbar .si-v80-end-session,
+ body.si-v80-dashboard .topbar .si-v80-reset-session{
+  height:71px!important;min-height:71px!important;
+  width:92px!important;min-width:92px!important;
+ }
+ body.si-v80-dashboard .topbar .si-v80-end-session .ico.si-v80-icon,
+ body.si-v80-dashboard .topbar .si-v80-reset-session .ico.si-v80-icon{
+  height:39px!important;min-height:39px!important;flex-basis:39px!important;
+ }
+ body.si-v80-dashboard .topbar .si-v80-end-session .ico.si-v80-icon svg,
+ body.si-v80-dashboard .topbar .si-v80-reset-session .ico.si-v80-icon svg{
+  width:31px!important;height:31px!important;
+ }
+ body.si-v80-dashboard #teacher #homeAppGrid{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  grid-auto-rows:119px!important;
+ }
+}
+@media(max-width:710px){
+ body.si-v80-dashboard .topbar .si-v80-end-session,
+ body.si-v80-dashboard .topbar .si-v80-reset-session{
+  height:61px!important;min-height:61px!important;
+  width:73px!important;min-width:73px!important;
+  padding:4px!important;
+ }
+ body.si-v80-dashboard .topbar .si-v80-end-session .ico.si-v80-icon,
+ body.si-v80-dashboard .topbar .si-v80-reset-session .ico.si-v80-icon{
+  flex-basis:35px!important;height:35px!important;min-height:35px!important;
+ }
+ body.si-v80-dashboard .topbar .si-v80-end-session .ico.si-v80-icon svg,
+ body.si-v80-dashboard .topbar .si-v80-reset-session .ico.si-v80-icon svg{
+  width:27px!important;height:27px!important;
+ }
+ body.si-v80-dashboard .topbar .si-v80-end-session .copy,
+ body.si-v80-dashboard .topbar .si-v80-reset-session b{
+  display:flex!important;min-height:15px!important;font-size:9px!important;
+ }
+ body.si-v80-dashboard .topbar .si-v80-end-session .copy b,
+ body.si-v80-dashboard .topbar .si-v80-reset-session b{
+  font-size:9px!important;line-height:1.05!important;
+ }
+ body.si-v80-dashboard #siV80Information .class-code .copy-code{
+  display:grid!important;
+ }
+ body.si-v80-dashboard #siV80Information .class-code strong{
+  font-size:20px!important;
+ }
+ body.si-v80-dashboard #siV80Information .session-pill b{
+  font-size:14px!important;
+ }
+ body.si-v80-dashboard #teacher #homeAppGrid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut,
+ body.si-v80-dashboard .topbar .si-v80-end-session,
+ body.si-v80-dashboard .topbar .si-v80-reset-session{
+  animation:none!important;transition:none!important;
+ }
+}

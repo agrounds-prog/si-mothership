@@ -98,6 +98,38 @@ const hosts=[
           const opened=await page.evaluate(()=>!!document.querySelector('#qpDialog:not([hidden])'));
           console.log(JSON.stringify({label,role:'dashboard-quick-poll-launch',opened}));
           if(!opened||errors.length)failures++;
+          const polish=await page.evaluate(()=>{
+            const info=document.getElementById('siV80Information');
+            const visibleInfo=[...info.children].filter(node=>getComputedStyle(node).display!=='none');
+            const shortcutEls=[...document.querySelectorAll('#homeAppGrid .app-shortcut')];
+            const sample=shortcutEls.find(node=>!node.classList.contains('empty'));
+            const home=document.querySelector('#teacherControlBar .single-mission-controls .control:not(.si-v80-secondary)');
+            const end=document.getElementById('endBtn'),reset=document.getElementById('resetBtn');
+            const visual=(node)=>({display:getComputedStyle(node).display,
+              width:Math.round(node.getBoundingClientRect().width),
+              height:Math.round(node.getBoundingClientRect().height)});
+            return {
+              headerInfo:visibleInfo.map(node=>node.className),
+              missionTimer:!!document.getElementById('siV80MissionTime'),
+              classVisible:!!document.querySelector('#siV80Information .class-context')&&
+                getComputedStyle(document.querySelector('#siV80Information .si-v80-info-class')).display!=='none',
+              shortcuts:shortcutEls.length,
+              home:visual(home),
+              shortcut:sample?visual(sample):null,
+              shortcutIcon:sample?visual(sample.querySelector('.app-shortcut-icon')):null,
+              shortcutLabel:sample?getComputedStyle(sample.querySelector('.app-shortcut-label')).fontSize:null,
+              endIcon:!!end.querySelector('.si-v80-icon svg'),
+              resetIcon:!!reset.querySelector('.si-v80-icon svg'),
+              end:visual(end),reset:visual(reset)
+            };
+          });
+          console.log(JSON.stringify({label,role:'dashboard-polish-v81',...polish}));
+          if(JSON.stringify(polish.headerInfo)!==JSON.stringify(['si-v80-info-status','si-v80-info-code'])||
+             polish.missionTimer||polish.classVisible||polish.shortcuts!==9||
+             !polish.endIcon||!polish.resetIcon||
+             !polish.shortcut||!polish.shortcutIcon||polish.shortcut.height<100||
+             polish.shortcutIcon.height<65||parseFloat(polish.shortcutLabel)<10||
+             polish.end.height<58||polish.reset.height<58||errors.length)failures++;
         }
       }
     }catch(e){failures++;console.log(JSON.stringify({label,role,error:String(e.stack||e)}));}
