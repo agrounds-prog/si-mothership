@@ -72,6 +72,16 @@ class QuickPollSmoke(unittest.IsolatedAsyncioTestCase):
         res = await self.client.post("/api/quick-poll/control", json={"action": action, **kwargs})
         self.assertEqual(res.status, 200, await res.text())
 
+    async def test_quick_poll_loader_stays_outside_inline_html_strings(self):
+        page = await self.client.get("/")
+        self.assertEqual(page.status, 200)
+        html = await page.text()
+        loader = '<script src="/quick-poll.js?v=1" defer></script>'
+        self.assertEqual(html.count(loader), 1)
+        self.assertEqual(html.rfind(loader) + len(loader), html.rfind("</body>"),
+                         "Quick Poll loader must precede the real final body tag")
+        self.assertIn('<link rel="stylesheet" href="/quick-poll.css?v=1">', html)
+
     async def test_anonymous_server_totals_and_private_identity(self):
         poll_id = await self.launch()
         responses = await asyncio.gather(
