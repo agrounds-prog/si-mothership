@@ -103,10 +103,12 @@ async function studentClick(event){
 function renderStudent(force=false){
  if(!root||!poll)return;
  const sig=poll.id+"|"+poll.phase+"|"+poll.round+"|"+JSON.stringify(poll.ownVote)+"|"+poll.allowChange;
- if(!force&&sig===previousStudent)return;
+ const changed=sig!==previousStudent;
+ if(!force&&!changed)return;
  previousStudent=sig;
- if(poll.ownVote)selected=[...poll.ownVote];
- else if(!force)selected=[];
+ // Rehydrate only when the authoritative vote/poll changes. Don't discard
+ // a student's new local selection while they are choosing a revised vote.
+ if(changed)selected=poll.ownVote?[...poll.ownVote]:[];
  root.innerHTML=studentView(poll);
  timer();
 }
@@ -228,7 +230,12 @@ async function refresh(force=false){
   timer();
  }catch(e){
   if(role==="teacher"&&open)error(e);
-  if(role==="student"&&root&&!root.hidden){const msg=$("#qpVoteError",root);if(msg)msg.textContent="Reconnecting — please wait before submitting again.";}
+  if(role==="student"&&root&&String(e.message).includes("(403)")){
+    // A new class session invalidates the previous poll and voting access.
+    root.hidden=true;poll=null;previousStudent="";
+  }else if(role==="student"&&root&&!root.hidden){
+    const msg=$("#qpVoteError",root);if(msg)msg.textContent="Reconnecting — please wait before submitting again.";
+  }
  }finally{loading=false;}
 }
 function init(){
