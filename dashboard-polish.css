@@ -785,3 +785,87 @@ body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut.si-v82-vector-shortcut
    transition:none!important;animation:none!important;
  }
 }
+
+
+/* v84: replace v83's visual translations with an actual full-height grid row.
+   Alerts expand in normal layout; the shortcut section follows the tallest rail. */
+@media(min-width:1220px){
+ body.si-v80-dashboard #teacher .mission-grid{
+  grid-template-rows:minmax(var(--si-v84-home-row,162px),max-content)!important;
+  grid-auto-rows:auto!important;
+  align-items:start!important;
+  row-gap:14px!important;
+ }
+ body.si-v80-dashboard #teacher .command-deck > #teacherControlBar{
+  grid-column:1/-1!important;grid-row:1!important;
+  align-self:start!important;margin:0!important;
+ }
+ body.si-v80-dashboard #teacher .right-rail > #attentionSummary{
+  grid-column:3!important;grid-row:2!important;
+  margin:0!important;align-self:start!important;
+  translate:none!important;
+  z-index:1!important;
+ }
+ body.si-v80-dashboard #teacher .right-rail > #buzzPanel,
+ body.si-v80-dashboard #teacher .right-rail > #photoInboxPanel,
+ body.si-v80-dashboard #teacher .right-rail > #helpInboxPanel{
+  margin:0!important;align-self:start!important;
+  translate:none!important;position:relative!important;
+ }
+ body.si-v80-dashboard #teacher .right-rail > #buzzPanel{grid-column:3!important;grid-row:3!important}
+ body.si-v80-dashboard #teacher .right-rail > #photoInboxPanel{grid-column:3!important;grid-row:4!important}
+ body.si-v80-dashboard #teacher .right-rail > #helpInboxPanel{grid-column:3!important;grid-row:5!important}
+ body.si-v80-dashboard #teacher .command-deck > #dashboardToolsRow{
+  grid-row:6!important;grid-column:1/-1!important;
+  align-self:start!important;margin:4px 0 0!important;
+  z-index:0!important;
+ }
+}
+/* Calm, legible response rail: consistent headings and control spacing,
+   without hiding student responses or shrinking the active queue. */
+body.si-v80-dashboard #teacher .right-rail > .attention-panel{
+ box-sizing:border-box!important;
+ min-width:0!important;
+ max-height:290px!important;
+ overflow-y:auto!important;
+}
+body.si-v80-dashboard #teacher .right-rail > .attention-panel .section-heading{
+ min-height:42px!important;
+ padding:8px 12px!important;
+ gap:7px!important;
+}
+body.si-v80-dashboard #teacher .right-rail > .attention-panel .v564-panel-label{
+ font:900 clamp(11px,.79vw,13px)/1.3 system-ui!important;
+ letter-spacing:.07em!important;
+ color:#d8f4ff!important;
+}
+body.si-v80-dashboard #teacher .attention-summary .v564-panel-label{
+ font:900 clamp(11px,.79vw,13px)/1.3 system-ui!important;
+ color:#cfedfc!important;
+}
+body.si-v80-dashboard #teacher #buzzRows .inbox-copy b,
+body.si-v80-dashboard #teacher #helpRows .preview b,
+body.si-v80-dashboard #teacher #photoRows .photo-row b{
+ font:850 13px/1.25 system-ui!important;
+ color:#f0f8ff!important;
+}
+body.si-v80-dashboard #teacher #buzzRows .inbox-copy small,
+body.si-v80-dashboard #teacher #helpRows .preview small,
+body.si-v80-dashboard #teacher #photoRows .photo-row small{
+ font:700 11px/1.35 system-ui!important;
+ color:#b6d4e7!important;
+}
+body.si-v80-dashboard #teacher .attention-panel .student-row,
+body.si-v80-dashboard #teacher .attention-panel .help-row,
+body.si-v80-dashboard #teacher .attention-panel .help-message-row{
+ max-width:100%!important;
+ box-sizing:border-box!important;
+}
+@media(max-width:1219px){
+ body.si-v80-dashboard #teacher .right-rail > #attentionSummary,
+ body.si-v80-dashboard #teacher .right-rail > #buzzPanel,
+ body.si-v80-dashboard #teacher .right-rail > #photoInboxPanel,
+ body.si-v80-dashboard #teacher .right-rail > #helpInboxPanel{
+  translate:none!important;
+ }
+}
