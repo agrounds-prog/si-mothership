@@ -1748,7 +1748,15 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       if(app?.type==='orbit'&&s&&typeof orbitResponse==='function')
         message=orbitResponse(s.n,run)?'Response received — thanks!':'Your response is ready to send.';
     }
-    if(message){status.dataset.siMode=m;status.textContent=message}
+    if(message){status.dataset.siMode=m;if(status.textContent!==message)status.textContent=message}
+    else if(status.dataset.siMode==='disconnected'){
+      const stage=run?.phase==='lobby'?(run.resumePending?'paused':'waiting'):run?.phase==='running'?'live':state.screen==='lobby'?'waiting':'ready';
+      const recovered=stage==='paused'?'Paused — your progress is saved. Wait for your teacher to resume.':
+        stage==='waiting'?'Waiting for your teacher to start the next activity.':
+        stage==='live'?'Activity live — follow your game controls above.':
+        'Classroom ready — choose a control when your teacher asks.';
+      status.dataset.siMode=stage;status.textContent=recovered;
+    }
   }
   document.querySelectorAll('#studentControls [data-class-action]').forEach(btn=>{
     const pause=joined&&!state.ended&&mode!=='online';
