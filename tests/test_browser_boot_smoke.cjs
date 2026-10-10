@@ -230,6 +230,13 @@ const hosts=[
             });
             await page.reload({waitUntil:'domcontentloaded'});
             await page.waitForTimeout(450);
+            // The isolated UI fixture mocks all poll API routes. Dismiss the
+            // teacher login overlay visually so Playwright can exercise real
+            // pointer interactions; no real API permissions are changed.
+            await page.evaluate(()=>{
+              document.getElementById('teacherLoginOverlay')?.classList.add('hidden');
+              document.getElementById('teacher')?.classList.add('active');
+            });
             await page.evaluate(()=>{
               const button=document.getElementById('siQuickPollHomeBtn');
               if(!button)throw Error('Quick Poll Home Row button missing');
