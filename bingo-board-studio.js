@@ -1209,3 +1209,203 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(document.readyState==='complete')start();
   else window.addEventListener('load',start,{once:true});
 })();
+
+/* MILLION SHOWTIME v2. Purely additive presentation and guarded teacher controls;
+   game questions, crew predictions, locks, lifelines, and scoring retain their
+   established state format and server authority. */
+(()=>{
+  if(typeof window==='undefined'||window.__siMillionShowtimeV2)return;
+  window.__siMillionShowtimeV2=true;
+  function install(){
+    if(typeof millionSharedMarkup!=='function'||typeof millionStudentMarkup!=='function'||
+       typeof renderActivityController!=='function'||typeof millionState!=='function')return;
+    const escapeText=v=>typeof esc==='function'?esc(String(v??'')):String(v??'');
+    const currency=v=>Math.max(0,Number(v||0)).toLocaleString();
+    const earned=(run)=>{
+      const m=run?.million||{},ladder=run?.millionConfig?.ladder||[];
+      const level=Math.min(ladder.length,Math.max(0,Number(m.ladderLevel||0)));
+      return level?Math.max(0,Number(ladder[level-1]||0)):0;
+    };
+    const stateLabel=m=>m.complete?'MISSION COMPLETE':m.over?'SIGNAL LOST':
+      m.revealed?(m.result==='correct'?'SIGNAL CONFIRMED':'SIGNAL LOST'):
+      m.lockedAnswer?'FINAL ANSWER LOCKED':m.pollOpen?'CREW POLL LIVE':'COMMAND SEAT LIVE';
+    const originalShared=millionSharedMarkup,originalStudent=millionStudentMarkup;
+    const originalHost=renderActivityController;
+    const renderTracker={normal:{token:''},big:{token:''}};
+    millionSharedMarkup=function(...args){
+      const html=originalShared.apply(this,args),run=args[0]&&typeof args[0]==='object'?args[0]:state?.activityRun;
+      if(!html||run?.activityId!=='million-game')return html;
+      const m=run.million||{},cfg=run.millionConfig||{};
+      const total=(cfg.questions||[]).length,index=Math.max(0,Number(m.questionIndex||0));
+      const ladder=cfg.ladder||[],current=earned(run);
+      const finished=!!m.complete,ended=finished||!!m.over;
+      const status=stateLabel(m),track=renderTracker[args[1]?'big':'normal'];
+      const marker=String(run.runToken||'')+'|'+index;
+      const newQuestion=!!track.token&&track.token!==marker;
+      track.token=marker;
+      const completed=Math.min(total,index+(m.revealed?1:0));
+      const progress=Array.from({length:total},(_,i)=>'<i class="'+(i===index?'current':i<index?'done':'')+
+        '" aria-hidden="true"></i>').join('');
+      const header='<section class="million-show-head" aria-label="Mission progress">'+
+        '<div class="million-show-ident"><span class="million-show-emblem">◆</span><span><b>MISSION MILLION</b>'+
+        '<small>QUESTION '+(index+1)+' / '+total+'</small></span></div>'+
+        '<div class="million-show-status'+(ended?' finished':'')+'" role="status">'+escapeText(status)+'</div>'+
+        '<div class="million-show-energy"><small>ENERGY EARNED</small><strong>'+currency(current)+'</strong></div>'+
+        '</section><div class="million-show-progress" role="img" aria-label="'+completed+' of '+total+
+        ' questions completed">'+progress+'</div>';
+      let output=html.replace('class="million-public ','class="million-public million-showtime '+
+        (newQuestion?'million-question-enter ':'')+'million-status-'+(finished?'complete':m.over?'lost':m.revealed?'revealed':m.lockedAnswer?'locked':'ready')+' ');
+      output=output.replace('<main class="million-stage">','<main class="million-stage">'+header);
+      const runEnd='<div class="million-show-end" role="status"><strong>'+
+        (finished?'QUESTION SET COMPLETE':m.over?'RUN COMPLETE':'')+'</strong><span>'+
+        currency(current)+' ENERGY EARNED</span></div>';
+      if(finished){
+        output=output.replace(/<div class="million-complete">[^<]*<\/div>/,
+          '<div class="million-complete">'+(current>=Number(ladder[ladder.length-1]||Infinity)?
+            '★ MILLION ENERGY MISSION COMPLETE ★':'★ ALL QUESTIONS COMPLETE · '+currency(current)+' ENERGY ★')+'</div>');
+      }else if(m.over){
+        output=output.replace('</main>',runEnd+'</main>');
+      }
+      // Present lock/reveal without exposing answer keys early. The original
+      // markup is still the authority for which option may display as correct.
+      if(m.lockedAnswer&&!m.revealed){
+        output=output.replace('<div class="million-choices">',
+          '<div class="million-show-lock">🔒 FINAL ANSWER LOCKED · AWAITING MISSION CONTROL</div><div class="million-choices">');
+      }
+      if(newQuestion){
+        const overlay='<div class="million-show-new-question" aria-hidden="true"><span>NEXT SIGNAL</span>'+
+          '<strong>QUESTION '+(index+1)+'</strong></div>';
+        const pos=output.lastIndexOf('</div>');
+        if(pos>=0)output=output.slice(0,pos)+overlay+output.slice(pos);
+      }
+      return output;
+    };
+    millionStudentMarkup=function(...args){
+      let output=originalStudent.apply(this,args);
+      const run=args[0]&&typeof args[0]==='object'?args[0]:state?.activityRun;
+      if(!output||run?.activityId!=='million-game')return output;
+      const m=run.million||{},total=run.millionConfig?.questions?.length||1;
+      const i=Math.max(0,Number(m.questionIndex||0));
+      output=output.replace('class="student-prompt million-student', 'class="student-prompt million-student million-student-showtime');
+      if(m.complete){
+        output=output.replace('1,000,000 Energy!',currency(earned(run))+' Energy!')
+          .replace('The crew completed the mission ladder.','The crew completed all '+total+' questions!');
+      }
+      const tag='<div class="million-student-progress" role="status"><span>QUESTION '+(i+1)+
+        ' / '+total+'</span><span>'+escapeText(stateLabel(m))+'</span></div>';
+      return output.replace('<span class="eyebrow">',tag+'<span class="eyebrow">');
+    };
+    let soundEnabled=false,audioContext=null;
+    try{soundEnabled=localStorage.getItem('siMothership.millionSound.v1')==='on'}catch(_){}
+    const cue=type=>{
+      if(!soundEnabled||SESSION_ROLE!=='teacher')return;
+      try{
+        const Audio=window.AudioContext||window.webkitAudioContext;
+        if(!Audio)return;
+        audioContext=audioContext||new Audio();
+        if(audioContext.state==='suspended')audioContext.resume().catch(()=>{});
+        const frequencies=type==='miss'?[260,160]:type==='correct'?[520,660,880]:
+          type==='next'?[420,600]:[540,810];
+        const time=audioContext.currentTime;
+        frequencies.forEach((freq,i)=>{
+          const from=time+i*.16,osc=audioContext.createOscillator(),gain=audioContext.createGain();
+          osc.type=type==='miss'?'triangle':'sine';osc.frequency.value=freq;
+          gain.gain.setValueAtTime(.0001,from);
+          gain.gain.exponentialRampToValueAtTime(.038,from+.02);
+          gain.gain.exponentialRampToValueAtTime(.0001,from+.2);
+          osc.connect(gain);gain.connect(audioContext.destination);osc.start(from);osc.stop(from+.22);
+        });
+      }catch(_){}
+    };
+    if(SESSION_ROLE==='teacher'){
+      const originalResolve=millionResolve,originalNext=millionNextQuestion;
+      millionResolve=function(...args){
+        const m=millionState(),before=!!m?.revealed;
+        const result=originalResolve.apply(this,args);
+        if(!before&&millionState()?.revealed)cue(millionState()?.result==='correct'?'correct':'miss');
+        return result;
+      };
+      millionNextQuestion=function(...args){
+        const current=millionState()?.questionIndex;
+        const result=originalNext.apply(this,args);
+        if(millionState()?.questionIndex!==current)cue('next');
+        return result;
+      };
+    }
+    function replayMillion(){
+      const old=state.activityRun;
+      if(SESSION_ROLE!=='teacher'||old?.activityId!=='million-game')return false;
+      const cfg=old.millionConfig||{},m=old.million||{};
+      if(!Array.isArray(cfg.questions)||!cfg.questions.length)return false;
+      if(!confirm('Replay MILLION from Question 1? This will reset progress, lifelines and answers.'))return false;
+      const crew=connectedStudents(),pilot=crew.some(s=>s.n===m.pilot)?m.pilot:crew[0]?.n||m.pilot||'';
+      const inventory={poll:0,reduce:0,clue:0,tryAgain:0};
+      Object.keys(inventory).forEach(k=>inventory[k]=Math.max(0,Number(cfg.lifelines?.[k]||0)));
+      const fresh={
+        activityId:'million-game',runToken:newActivityRunToken(),phase:'running',responses:{},
+        millionConfig:typeof deepClone==='function'?deepClone(cfg):JSON.parse(JSON.stringify(cfg)),
+        million:{
+          questionIndex:0,pilot,pilotIndex:Math.max(0,crew.findIndex(s=>s.n===pilot)),
+          ladderLevel:0,inventory,selectedAnswer:'',lockedAnswer:'',crewPredictions:{},
+          eliminated:[],publicClue:'',pollOpen:false,pollVisible:false,revealed:false,
+          result:'',over:false,complete:false,lastRequestId:'',
+          message:'New MILLION run ready. Command Seat is open.'
+        }
+      };
+      const previous=state.activityRun,screen=state.screen;
+      state.activityRun=fresh;state.screen='activity';
+      try{recordActivityLaunch('million','MILLION');render();}
+      catch(e){state.activityRun=previous;state.screen=screen;try{render()}catch(_){};return false}
+      cue('next');return true;
+    }
+    renderActivityController=function(...args){
+      const result=originalHost.apply(this,args);
+      const run=state.activityRun;
+      if(SESSION_ROLE!=='teacher'||run?.activityId!=='million-game'||run.phase!=='running')return result;
+      const root=document.getElementById('activityControllerPanel'),m=run.million||{},cfg=run.millionConfig||{};
+      if(!root||root.querySelector('.million-show-command'))return result;
+      const q=typeof millionQuestion==='function'?millionQuestion(run):cfg.questions?.[m.questionIndex];
+      const final=!!m.complete||!!m.over,canReveal=!!m.lockedAnswer&&!m.revealed&&!final;
+      const total=cfg.questions?.length||1,question=Math.max(0,Number(m.questionIndex||0))+1;
+      const lock=String(m.lockedAnswer||'');
+      const willCorrect=lock&&q?.correct===lock;
+      const info=document.createElement('section');
+      info.className='million-show-command';
+      info.setAttribute('aria-label','MILLION Mission Control command deck');
+      info.innerHTML='<div class="million-command-head"><div><b>◆ MILLION COMMAND DECK</b><span>'+
+        escapeText(stateLabel(m))+' · QUESTION '+question+' / '+total+'</span></div>'+
+        '<strong>'+currency(earned(run))+' <small>ENERGY</small></strong></div>'+
+        '<div class="million-command-row">'+
+        '<button type="button" class="million-command-reveal" data-million-show-action="reveal" '+
+          (canReveal?'':'disabled')+'>◇ REVEAL LOCKED ANSWER</button>'+
+        '<button type="button" data-million-show-action="next" '+(m.revealed&&!m.complete?'':'disabled')+
+          '>NEXT QUESTION →</button>'+
+        '<button type="button" data-million-show-action="replay">↻ PLAY AGAIN</button>'+
+        '<button type="button" data-million-show-action="sound" aria-pressed="'+soundEnabled+'">'+
+          (soundEnabled?'♪ SOUND ON':'♫ SOUND OFF')+'</button></div>'+
+        '<p class="million-command-note">'+(final?'Run ended. Replay to reset or Finish & Return.':
+          canReveal?'The locked answer is '+escapeText(lock)+'. Reveal checks the answer key automatically.':
+          m.revealed?'Answer revealed. Advance when ready.':
+          'Wait for the Command Seat student to select and lock an answer. Crew predictions remain private.')+'</p>';
+      const h=root.querySelector('.activity-controller-head');
+      if(h)h.after(info);else root.prepend(info);
+      info.querySelectorAll('[data-million-show-action]').forEach(b=>b.onclick=()=>{
+        const a=b.dataset.millionShowAction;
+        if(a==='reveal'&&canReveal&&state.activityRun===run)
+          millionResolve(Boolean(willCorrect));
+        else if(a==='next'&&m.revealed&&!m.complete)millionNextQuestion();
+        else if(a==='replay')replayMillion();
+        else if(a==='sound'){
+          soundEnabled=!soundEnabled;
+          try{localStorage.setItem('siMothership.millionSound.v1',soundEnabled?'on':'off')}catch(_){}
+          b.setAttribute('aria-pressed',String(soundEnabled));
+          b.textContent=soundEnabled?'♪ SOUND ON':'♫ SOUND OFF';
+          if(soundEnabled)cue('next');
+        }
+      });
+      return result;
+    };
+  }
+  if(document.readyState==='complete')install();
+  else window.addEventListener('load',install,{once:true});
+})();
