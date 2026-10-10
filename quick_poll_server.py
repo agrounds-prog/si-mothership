@@ -323,6 +323,8 @@ class QuickPollService:
     def install(self, app):
         app.router.add_get("/quick-poll.js", self.serve_js)
         app.router.add_get("/quick-poll.css", self.serve_css)
+        app.router.add_get("/dashboard-polish.js", self.serve_dashboard_js)
+        app.router.add_get("/dashboard-polish.css", self.serve_dashboard_css)
         app.router.add_get("/api/quick-poll/state", self.state_route)
         app.router.add_post("/api/quick-poll/launch", self.launch_route)
         app.router.add_post("/api/quick-poll/vote", self.vote_route)
@@ -341,4 +343,16 @@ class QuickPollService:
     async def serve_css(request):
         from pathlib import Path
         return web.FileResponse(Path(__file__).with_name("quick-poll.css"),
+                                headers={"Cache-Control": "no-store"})
+
+    @staticmethod
+    async def serve_dashboard_js(request):
+        from pathlib import Path
+        return web.FileResponse(Path(__file__).with_name("dashboard-polish.js"),
+                                headers={"Cache-Control": "no-store"})
+
+    @staticmethod
+    async def serve_dashboard_css(request):
+        from pathlib import Path
+        return web.FileResponse(Path(__file__).with_name("dashboard-polish.css"),
                                 headers={"Cache-Control": "no-store"})

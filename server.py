@@ -4892,12 +4892,17 @@ async def index(request: web.Request) -> web.Response:
     )
     text = text.replace("<head>", "<head>" + injected, 1)
     # Quick Poll loads alongside existing games. It does not modify activityRun.
-    text = text.replace("</head>", '<link rel="stylesheet" href="/quick-poll.css?v=1"></head>', 1)
+    text = text.replace("</head>",
+                        '<link rel="stylesheet" href="/quick-poll.css?v=1">'
+                        '<link rel="stylesheet" href="/dashboard-polish.css?v=80"></head>', 1)
     # Insert before the final body close: index.html also contains HTML strings
     # in internal scripts, so replacing the first occurrence would corrupt JS.
     body_close = text.rfind("</body>")
     if body_close >= 0:
-        text = text[:body_close] + '<script src="/quick-poll.js?v=1" defer></script>' + text[body_close:]
+        text = (text[:body_close] +
+                '<script src="/quick-poll.js?v=1" defer></script>' +
+                '<script src="/dashboard-polish.js?v=80" defer></script>' +
+                text[body_close:])
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
 

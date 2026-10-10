@@ -11,6 +11,9 @@ on:
       - 'quick-poll.js'
       - 'quick-poll.css'
       - 'bingo-board-studio.js'
+      - 'dashboard-polish.js'
+      - 'dashboard-polish.css'
+      - 'quick_poll_server.py'
   workflow_dispatch:
 
 permissions:
@@ -43,6 +46,8 @@ jobs:
           done
           cat /tmp/mothership-browser.log
           exit 1
+      - name: Verify dashboard presentation JavaScript syntax
+        run: node --check dashboard-polish.js
       - name: Browser bootstrap on local and production
         run: node tests/test_browser_boot_smoke.cjs
       - name: Print app startup diagnostics on failure

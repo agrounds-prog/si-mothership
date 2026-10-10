@@ -73,6 +73,31 @@ const hosts=[
           console.log(JSON.stringify({label,role:"teacher-active-game",...game,
             pageErrors:errors.slice(-5)}));
           if(!game.dock||game.boot||errors.length)failures++;
+          const dashboard=await page.evaluate(()=>{
+            const nav=[...document.querySelectorAll('#teacherControlBar .single-mission-controls .control')];
+            const shown=nav.filter(b=>getComputedStyle(b).display!=='none');
+            const end=document.getElementById('endBtn'),reset=document.getElementById('resetBtn');
+            const top=document.querySelector('.topbar .top-actions');
+            const iconCount=shown.filter(b=>b.querySelector('.si-v80-icon svg')).length;
+            return {installed:document.body.classList.contains('si-v80-dashboard'),
+              status:!!document.getElementById('siV80Information'),
+              visible:shown.map(b=>b.querySelector('.copy b')?.textContent?.trim()),
+              endInTop:!!end&&top?.contains(end),
+              resetInTop:!!reset&&top?.contains(reset),
+              pollOnlyInRow:!!document.getElementById('siQuickPollHomeBtn')&&
+                getComputedStyle(document.getElementById('qpLauncher')).display==='none',
+              icons:iconCount,
+              heroHidden:getComputedStyle(document.querySelector('#teacher .deck-header')).display==='none'};
+          });
+          console.log(JSON.stringify({label,role:'dashboard-layout',...dashboard}));
+          const expected=['Lobby','Activities','Agenda','Ready Check','Raise Hand','Buzz','Ask for Help','Picture Prompt','Quick Poll'];
+          if(!dashboard.installed||!dashboard.status||!dashboard.endInTop||
+            !dashboard.resetInTop||!dashboard.pollOnlyInRow||!dashboard.heroHidden||
+            dashboard.icons!==9||JSON.stringify(dashboard.visible)!==JSON.stringify(expected))failures++;
+          await page.evaluate(()=>document.getElementById('siQuickPollHomeBtn')?.click());
+          const opened=await page.evaluate(()=>!!document.querySelector('#qpDialog:not([hidden])'));
+          console.log(JSON.stringify({label,role:'dashboard-quick-poll-launch',opened}));
+          if(!opened||errors.length)failures++;
         }
       }
     }catch(e){failures++;console.log(JSON.stringify({label,role,error:String(e.stack||e)}));}

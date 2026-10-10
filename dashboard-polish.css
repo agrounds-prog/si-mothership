@@ -1,0 +1,379 @@
+/* SI Mothership Dashboard v80 — refined teacher cockpit.
+   All rules are scoped to the successfully installed teacher dashboard. */
+body.si-v80-dashboard{--si80-ice:#7beaff;--si80-line:#318dbf;--si80-text:#edfaff}
+body.si-v80-dashboard .topbar.si-v80-topbar{
+ position:sticky!important;z-index:100!important;top:0!important;
+ height:90px!important;min-height:90px!important;width:100%!important;
+ padding:11px clamp(12px,2vw,38px)!important;gap:clamp(10px,1.3vw,24px)!important;
+ display:grid!important;grid-template-columns:minmax(190px,290px) minmax(420px,1fr) auto!important;
+ align-items:center!important;
+ background:radial-gradient(ellipse at 92% -10%,#173e83b3,transparent 28%),linear-gradient(112deg,#051328,#07152d 76%,#091b3b)!important;
+ border-bottom:1px solid #2e9ad2!important;box-shadow:0 6px 24px #01050fa8!important;
+}
+body.si-v80-dashboard .topbar .brand{
+ display:flex!important;min-width:0!important;gap:13px!important;align-items:center!important;
+}
+body.si-v80-dashboard .topbar .brand-mark{
+ width:53px!important;height:53px!important;flex:0 0 53px!important;
+ border:2px solid #28e5ff!important;border-radius:15px!important;
+ box-shadow:0 0 19px #32cfff78,inset 0 0 15px #3a64ff55!important;
+ background:linear-gradient(135deg,#071e4b,#123989 60%,#201247)!important;
+}
+body.si-v80-dashboard .topbar .brand-copy b{
+ font-size:clamp(19px,1.75vw,29px)!important;font-weight:1000!important;
+ letter-spacing:-.035em!important;line-height:1.08!important;
+ color:#fbffff!important;text-shadow:0 3px 13px #08183488;
+}
+body.si-v80-dashboard .topbar .brand-copy small{
+ font:900 9px/1.15 system-ui!important;letter-spacing:.27em!important;color:#61dfff!important;
+}
+body.si-v80-dashboard #siV80Information{
+ display:flex!important;align-items:stretch!important;min-width:0!important;
+ padding:3px 0!important;min-height:65px!important;
+ border:1px solid #2882b0!important;border-radius:15px!important;
+ background:linear-gradient(115deg,#0a2844,#081930 80%)!important;
+ box-shadow:inset 0 1px 0 #ffffff19,0 0 25px #1b94de19!important;
+}
+body.si-v80-dashboard #siV80Information>div{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ flex:1 1 0!important;min-width:0!important;
+ padding:4px clamp(8px,1.15vw,22px)!important;position:relative;
+}
+body.si-v80-dashboard #siV80Information>div+div::before{
+ content:"";position:absolute;left:0;top:13%;bottom:13%;width:1px;background:#36617da6;
+}
+body.si-v80-dashboard #siV80Information .si-v80-info-class{flex:1.6 1 0!important}
+body.si-v80-dashboard #siV80Information .si-v80-info-code{flex:1.15 1 0!important}
+body.si-v80-dashboard #siV80Information .si-v80-info-time{flex:1.12 1 0!important;gap:10px}
+body.si-v80-dashboard #siV80Information .session-pill{
+ position:static!important;transform:none!important;box-shadow:none!important;background:transparent!important;
+ border:0!important;margin:0!important;padding:0!important;width:100%!important;min-width:0!important;
+ display:flex!important;justify-content:center!important;gap:10px!important;
+}
+body.si-v80-dashboard #siV80Information .session-pill small{
+ font:900 9px/1.2 system-ui!important;letter-spacing:.16em!important;color:#a4d7ee!important;
+}
+body.si-v80-dashboard #siV80Information .session-pill b{
+ font:1000 clamp(13px,1.12vw,18px)/1.3 system-ui!important;color:#7fffb8!important;
+}
+body.si-v80-dashboard #siV80Information .session-pill .pulse{
+ width:12px!important;height:12px!important;min-width:12px!important;
+ background:#38ff9d!important;box-shadow:0 0 13px #29ffa6c9!important;
+}
+body.si-v80-dashboard #siV80Information .class-context,
+body.si-v80-dashboard #siV80Information .class-code{
+ display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:flex-start!important;
+ border:0!important;border-radius:0!important;background:transparent!important;
+ box-shadow:none!important;min-height:0!important;padding:0!important;margin:0!important;min-width:0!important;
+}
+body.si-v80-dashboard #siV80Information .class-context small,
+body.si-v80-dashboard #siV80Information .class-code small,
+body.si-v80-dashboard #siV80Information .si-v80-info-time small{
+ font:900 9px/1.2 system-ui!important;letter-spacing:.16em!important;color:#a4d7ee!important;
+ display:block!important;margin-bottom:3px!important;
+}
+body.si-v80-dashboard #siV80Information .class-context b{
+ color:#f8ffff!important;font:900 clamp(12px,1.05vw,17px)/1.35 system-ui!important;
+ text-overflow:ellipsis!important;white-space:nowrap!important;overflow:hidden!important;max-width:100%!important;
+}
+body.si-v80-dashboard #siV80Information .class-code{
+ position:relative!important;padding-right:32px!important;
+}
+body.si-v80-dashboard #siV80Information .class-code strong{
+ font:1000 clamp(17px,1.5vw,25px)/1.1 system-ui!important;color:#5ceaff!important;
+ text-shadow:0 0 17px #0ed9ff70!important;letter-spacing:.09em!important;
+}
+body.si-v80-dashboard #siV80Information .class-code .copy-code{
+ position:absolute!important;right:0!important;top:50%!important;transform:translateY(-50%)!important;
+ display:grid!important;place-items:center!important;min-width:30px!important;
+ width:30px!important;height:30px!important;border:1px solid #398ab8!important;border-radius:8px!important;
+ background:#0c3c5d!important;color:#bdedff!important;font-size:17px!important;
+}
+body.si-v80-dashboard #siV80Information .si-v80-info-time .si-v80-clock-glyph{
+ font-size:27px;color:#9de8ff;text-shadow:0 0 13px #45cfff;
+}
+body.si-v80-dashboard #siV80Information .si-v80-info-time b{
+ color:#f8ffff!important;font:1000 clamp(15px,1.3vw,21px)/1.2 system-ui!important;
+ font-variant-numeric:tabular-nums!important;
+}
+body.si-v80-dashboard .topbar .top-actions{
+ display:flex!important;align-items:center!important;justify-content:flex-end!important;
+ flex-wrap:nowrap!important;gap:9px!important;min-width:0!important;margin:0!important;
+}
+body.si-v80-dashboard .topbar .si-v80-end-session,
+body.si-v80-dashboard .topbar .si-v80-reset-session{
+ display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;
+ gap:8px!important;width:auto!important;min-width:125px!important;max-width:none!important;
+ height:51px!important;min-height:51px!important;padding:7px 13px!important;
+ border-radius:12px!important;white-space:nowrap!important;
+ font:900 13px/1.15 system-ui!important;cursor:pointer!important;
+}
+body.si-v80-dashboard .topbar .si-v80-end-session{
+ --art-accent:#ff7ba7!important;
+ border:1px solid #ff76a5!important;background:linear-gradient(135deg,#4b1633,#1d122e)!important;
+ box-shadow:inset 0 1px 0 #ffd4e12b,0 0 17px #ff539f32!important;color:#ffe7ef!important;
+}
+body.si-v80-dashboard .topbar .si-v80-end-session .ico{
+ width:24px!important;height:24px!important;min-width:24px!important;margin:0!important;padding:0!important;
+ border:0!important;background:none!important;box-shadow:none!important;
+}
+body.si-v80-dashboard .topbar .si-v80-end-session .ico:before,
+body.si-v80-dashboard .topbar .si-v80-end-session .ico:after{display:none!important}
+body.si-v80-dashboard .topbar .si-v80-end-session .copy{display:block!important;min-height:0!important;padding:0!important}
+body.si-v80-dashboard .topbar .si-v80-end-session b{
+ font:900 13px/1 system-ui!important;color:#ffe7ef!important;white-space:nowrap!important;
+}
+body.si-v80-dashboard .topbar .si-v80-reset-session{
+ background:linear-gradient(120deg,#0c3460,#081b38)!important;
+ border:1px solid #419ce8!important;box-shadow:0 0 14px #257ffc2c!important;color:#e5f5ff!important;
+}
+body.si-v80-dashboard .topbar .si-v80-reset-session span{
+ color:#56baff!important;font:1000 27px/1 system-ui!important;
+}
+body.si-v80-dashboard .topbar .si-v80-reset-session b{
+ display:block!important;color:#e7f5ff!important;font:900 13px/1 system-ui!important;
+}
+body.si-v80-dashboard .topbar button:focus-visible,
+body.si-v80-dashboard #teacherControlBar button:focus-visible{
+ outline:3px solid #ffe6a2!important;outline-offset:3px!important;
+}
+
+/* The old cinematic hero and redundant classroom status are replaced by the top bar. */
+body.si-v80-dashboard #teacher .deck-header{display:none!important}
+body.si-v80-dashboard #teacher #teacherControlBar .single-mission-status{display:none!important}
+body.si-v80-dashboard #teacher #teacherControlBar .single-mission-danger{display:none!important}
+body.si-v80-dashboard #teacher #teacherControlBar .single-mission-danger:has(.emergency-btn:not(.hidden)){
+ display:flex!important;position:absolute!important;right:11px!important;bottom:-55px!important;z-index:9!important;
+}
+body.si-v80-dashboard #teacher .workspace{padding:12px clamp(10px,1.7vw,30px) 30px!important}
+body.si-v80-dashboard #teacher .mission-grid{max-width:1900px!important;gap:12px!important}
+body.si-v80-dashboard #teacher #teacherControlBar.single-mission-bar{
+ position:relative!important;display:block!important;
+ width:100%!important;margin:0 0 2px!important;padding:12px 14px!important;
+ min-height:0!important;max-height:none!important;
+ border:2px solid #248cc5!important;border-radius:20px!important;
+ background:linear-gradient(105deg,#071d38,#06152d 80%)!important;
+ box-shadow:0 0 0 1px #33a8ee19,0 10px 23px #0008,inset 0 1px 0 #e2ffff1b!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .single-mission-controls{
+ display:grid!important;grid-template-columns:repeat(9,minmax(0,1fr))!important;
+ align-items:stretch!important;justify-items:stretch!important;gap:clamp(4px,.9vw,14px)!important;
+ width:100%!important;max-width:100%!important;padding:0!important;margin:0!important;
+ overflow:visible!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .single-mission-controls .control:not(.si-v80-secondary){
+ --si80-glow:#51dfff;--si80-surface:#082e51;
+ display:flex!important;flex-direction:column!important;gap:5px!important;justify-content:flex-start!important;
+ align-items:center!important;min-width:0!important;max-width:none!important;
+ width:100%!important;height:126px!important;min-height:126px!important;
+ margin:0!important;padding:3px 3px 9px!important;
+ border:1px solid #265984!important;border-radius:15px!important;
+ background:linear-gradient(180deg,#092442,#06162b)!important;
+ box-shadow:inset 0 1px 0 #ffffff1d,0 7px 11px #0005!important;
+ transition:filter .16s ease,transform .16s ease,box-shadow .16s ease!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .control.si-v80-secondary{display:none!important}
+body.si-v80-dashboard #teacher #teacherControlBar .single-mission-controls .control:not(.si-v80-secondary):hover{
+ filter:brightness(1.16)!important;transform:translateY(-3px)!important;
+ box-shadow:inset 0 1px 0 #ffffff30,0 11px 17px #0008,0 0 16px var(--si80-glow)!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .single-mission-controls .control.active:not(.si-v80-secondary){
+ border-color:#49e7ff!important;background:linear-gradient(180deg,#10476d,#06213f)!important;
+ box-shadow:0 0 0 2px #38cfff81,inset 0 0 15px #27bafe37,0 0 19px #1ad6ff65!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .single-mission-controls .control.enabled:not(.si-v80-secondary){
+ border-color:#4e8ea0!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .single-mission-controls .control .ico.si-v80-icon{
+ display:grid!important;place-items:center!important;
+ width:100%!important;max-width:none!important;height:80px!important;min-height:80px!important;
+ margin:0!important;padding:8px!important;border-radius:12px!important;
+ border:1px solid var(--si80-glow)!important;
+ background:radial-gradient(ellipse at 50% 80%,color-mix(in srgb,var(--si80-glow) 26%,transparent),transparent 65%),linear-gradient(160deg,#103657,#05182f)!important;
+ box-shadow:inset 0 1px 0 #ffffff2e,inset 0 -14px 20px #010c1c8c,0 0 12px color-mix(in srgb,var(--si80-glow) 32%,transparent)!important;
+ color:var(--si80-glow)!important;text-shadow:none!important;overflow:hidden!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .ico.si-v80-icon:before,
+body.si-v80-dashboard #teacher #teacherControlBar .ico.si-v80-icon:after{display:none!important}
+body.si-v80-dashboard #teacher #teacherControlBar .ico.si-v80-icon svg{
+ display:block!important;position:static!important;width:clamp(37px,3.5vw,58px)!important;
+ height:clamp(37px,3.5vw,58px)!important;fill:none;
+ filter:drop-shadow(0 0 6px var(--si80-glow)) drop-shadow(0 4px 2px #020b19);
+}
+body.si-v80-dashboard #teacher #teacherControlBar .control .copy{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:100%!important;min-height:29px!important;max-height:none!important;
+ padding:0 1px!important;margin:0!important;
+ background:transparent!important;box-shadow:none!important;overflow:visible!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .control .copy b{
+ display:block!important;min-height:0!important;max-width:100%!important;
+ font:900 clamp(10px,.95vw,14px)/1.12 system-ui!important;
+ color:#f4faff!important;letter-spacing:0!important;
+ white-space:normal!important;word-break:normal!important;overflow-wrap:normal!important;
+ text-align:center!important;text-shadow:0 2px 8px #000a!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .control .copy small{display:none!important}
+body.si-v80-dashboard #teacher #teacherControlBar [data-si-v80-action="activities"]{--si80-glow:#b58aff!important}
+body.si-v80-dashboard #teacher #teacherControlBar [data-si-v80-action="agenda"]{--si80-glow:#82d2ff!important}
+body.si-v80-dashboard #teacher #teacherControlBar [data-si-v80-action="ready"]{--si80-glow:#70ffbc!important}
+body.si-v80-dashboard #teacher #teacherControlBar [data-si-v80-action="hand"]{--si80-glow:#ffb974!important}
+body.si-v80-dashboard #teacher #teacherControlBar [data-si-v80-action="buzz"]{--si80-glow:#ffda79!important}
+body.si-v80-dashboard #teacher #teacherControlBar [data-si-v80-action="help"]{--si80-glow:#ff8bb4!important}
+body.si-v80-dashboard #teacher #teacherControlBar [data-si-v80-action="picture"]{--si80-glow:#77b3ff!important}
+body.si-v80-dashboard #teacher #teacherControlBar [data-si-v80-action="poll"]{--si80-glow:#c68bff!important}
+body.si-v80-dashboard #teacher #teacherControlBar .control:disabled{opacity:.48!important;cursor:not-allowed!important}
+/* The new primary Quick Poll tile owns access; no overlapping fixed launcher. */
+body.si-v80-dashboard #qpLauncher{display:none!important}
+
+/* Keep established 3-column layout; reclaim hero row and let shortcut cards use all columns. */
+@media(min-width:1220px){
+ body.si-v80-dashboard #teacher .mission-grid{
+  grid-template-columns:minmax(255px,1.05fr) minmax(380px,1.6fr) minmax(245px,1.05fr)!important;
+  row-gap:12px!important;column-gap:12px!important;
+ }
+ body.si-v80-dashboard #teacher .command-deck > #teacherControlBar{
+  grid-row:1!important;grid-column:1/-1!important;
+ }
+ body.si-v80-dashboard #teacher .command-deck > #lobbyPanel{grid-row:2 / span 4!important;grid-column:1!important}
+ body.si-v80-dashboard #teacher .right-rail > .screen-dock{grid-row:2 / span 4!important;grid-column:2!important}
+ body.si-v80-dashboard #teacher .right-rail > #attentionSummary{grid-row:2!important;grid-column:3!important}
+ body.si-v80-dashboard #teacher .right-rail > #buzzPanel{grid-row:3!important;grid-column:3!important}
+ body.si-v80-dashboard #teacher .right-rail > #photoInboxPanel{grid-row:4!important;grid-column:3!important}
+ body.si-v80-dashboard #teacher .right-rail > #helpInboxPanel{grid-row:5!important;grid-column:3!important}
+ body.si-v80-dashboard #teacher .command-deck > #dashboardToolsRow{
+  grid-row:6!important;grid-column:1/-1!important;min-width:0!important;
+ }
+}
+body.si-v80-dashboard #teacher .roster-card,
+body.si-v80-dashboard #teacher .screen-dock,
+body.si-v80-dashboard #teacher #appShortcutsPanel,
+body.si-v80-dashboard #teacher .attention-summary,
+body.si-v80-dashboard #teacher .right-rail > .attention-panel{
+ border-radius:16px!important;
+ border:1px solid #208cba!important;
+ background:linear-gradient(145deg,#09253f,#06182e 70%,#051324)!important;
+ box-shadow:inset 0 1px 0 #d3f6ff21,0 9px 23px #0006!important;
+}
+body.si-v80-dashboard #teacher .roster-head,
+body.si-v80-dashboard #teacher .screen-dock-head,
+body.si-v80-dashboard #teacher .attention-panel .section-heading{
+ min-height:45px!important;align-items:center!important;
+ padding:10px 12px!important;border-bottom:1px solid #2776a28a!important;
+ background:linear-gradient(90deg,#16436ba1,#071a32)!important;
+}
+body.si-v80-dashboard #teacher .roster-head .eyebrow,
+body.si-v80-dashboard #teacher .screen-dock-title,
+body.si-v80-dashboard #teacher .attention-panel .section-heading,
+body.si-v80-dashboard #teacher .attention-summary .v564-panel-label{
+ font:900 clamp(11px,1vw,15px)/1.25 system-ui!important;letter-spacing:.06em!important;
+ color:#ceeeff!important;
+}
+body.si-v80-dashboard #teacher .roster-head .roster-head-actions button,
+body.si-v80-dashboard #teacher .roster-head .roster-head-actions .carousel-controls{
+ border-radius:10px!important;
+}
+body.si-v80-dashboard #teacher .roster-card .roster-inner{padding:10px 13px 13px!important}
+body.si-v80-dashboard #teacher .roster-card .roster-head{margin-bottom:12px!important}
+body.si-v80-dashboard #teacher .avatar-line{gap:clamp(8px,1vw,15px)!important}
+body.si-v80-dashboard #teacher .bot-card,
+body.si-v80-dashboard #teacher .student-roster-card{
+ border-color:#3279a8!important;border-radius:14px!important;
+ background:linear-gradient(160deg,#0c3652,#091b30)!important;
+ box-shadow:inset 0 1px 0 #ffffff20,0 5px 13px #0005!important;
+}
+body.si-v80-dashboard #teacher .roster-card .crew-avatar-stage{border-radius:17px!important}
+body.si-v80-dashboard #teacher .screen-dock{padding:11px!important}
+body.si-v80-dashboard #teacher .screen-dock .launch-screen-btn{
+ width:100%!important;min-height:46px!important;margin:8px 0 11px!important;
+ border:1px solid #45c5f9!important;border-radius:11px!important;
+ background:linear-gradient(125deg,#104f7f,#092c51)!important;
+ color:#e5f6ff!important;font:900 clamp(12px,1.1vw,17px)/1.3 system-ui!important;
+ box-shadow:inset 0 1px 0 #ffffff1c!important;
+}
+body.si-v80-dashboard #teacher .screen-dock .mirror-screen{
+ border:1px solid #389cde!important;border-radius:13px!important;
+ box-shadow:0 0 0 2px #052b4b,0 0 24px #2b9fed22!important;
+}
+body.si-v80-dashboard #teacher .attention-summary{
+ padding:12px!important;min-height:78px!important;
+}
+body.si-v80-dashboard #teacher .attention-summary-copy{gap:7px!important}
+body.si-v80-dashboard #teacher .attention-summary-copy b{
+ color:#eaf8ff!important;font:850 14px/1.3 system-ui!important;
+}
+body.si-v80-dashboard #teacher .attention-panel{min-height:98px!important}
+body.si-v80-dashboard #teacher .attention-panel .empty{
+ padding:12px 10px!important;border-radius:10px!important;
+ background:#0a2842!important;color:#bbd8eb!important;
+ font:750 13px/1.4 system-ui!important;text-align:center!important;
+}
+body.si-v80-dashboard #teacher #appShortcutsPanel{padding:12px 16px!important}
+body.si-v80-dashboard #teacher #appShortcutsPanel .app-shortcuts-head{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ flex-wrap:wrap!important;gap:8px!important;border-bottom:1px solid #24587980!important;
+ padding-bottom:8px!important;margin-bottom:7px!important;
+}
+body.si-v80-dashboard #teacher #appShortcutsPanel .app-shortcuts-head .eyebrow{
+ font:900 13px/1.3 system-ui!important;letter-spacing:.08em!important;color:#d5f5ff!important;
+}
+body.si-v80-dashboard #teacher #appShortcutsPanel .app-shortcuts-head .hint{
+ font:700 11px/1.3 system-ui!important;color:#a9cbde!important;
+}
+body.si-v80-dashboard #teacher #appShortcutsPanel .si-v80-manage{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ border:1px solid #379fe5!important;border-radius:9px!important;min-height:38px!important;
+ padding:6px 12px!important;background:linear-gradient(120deg,#0c3a63,#0b254a)!important;
+ color:#d7f4ff!important;font:850 12px/1 system-ui!important;
+}
+body.si-v80-dashboard #teacher #homeAppGrid{
+ display:grid!important;grid-template-columns:repeat(9,minmax(0,1fr))!important;
+ justify-content:stretch!important;align-items:start!important;gap:8px!important;
+}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut{
+ width:100%!important;min-width:0!important;max-width:none!important;
+ border-radius:11px!important;
+}
+/* Keep tablet layouts operable: button grid scrolls horizontally instead of clipping. */
+@media(max-width:1450px){
+ body.si-v80-dashboard .topbar.si-v80-topbar{grid-template-columns:minmax(175px,220px) minmax(370px,1fr) auto!important;gap:8px!important;padding-inline:12px!important}
+ body.si-v80-dashboard .topbar .si-v80-end-session,
+ body.si-v80-dashboard .topbar .si-v80-reset-session{min-width:100px!important;padding:6px 9px!important}
+ body.si-v80-dashboard #siV80Information>div{padding-inline:8px!important}
+ body.si-v80-dashboard #teacher #teacherControlBar .single-mission-controls .control:not(.si-v80-secondary){height:115px!important;min-height:115px!important}
+ body.si-v80-dashboard #teacher #teacherControlBar .single-mission-controls .control .ico.si-v80-icon{height:67px!important;min-height:67px!important}
+}
+@media(max-width:1180px){
+ body.si-v80-dashboard .topbar.si-v80-topbar{
+  height:auto!important;min-height:100px!important;grid-template-columns:minmax(0,1fr) auto!important;
+  grid-template-rows:auto auto!important;row-gap:10px!important;flex-wrap:nowrap!important;
+ }
+ body.si-v80-dashboard .topbar .brand{grid-column:1!important;grid-row:1!important}
+ body.si-v80-dashboard .topbar .top-actions{grid-column:2!important;grid-row:1!important}
+ body.si-v80-dashboard #siV80Information{grid-column:1/-1!important;grid-row:2!important}
+ body.si-v80-dashboard #teacher #teacherControlBar .single-mission-controls{
+  grid-template-columns:repeat(9,minmax(88px,1fr))!important;overflow-x:auto!important;
+  justify-content:start!important;scrollbar-width:thin!important;padding:5px 2px 8px!important;
+ }
+ body.si-v80-dashboard #teacher #homeAppGrid{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+}
+@media(max-width:710px){
+ body.si-v80-dashboard .topbar.si-v80-topbar{padding:8px!important}
+ body.si-v80-dashboard .topbar .brand-mark{width:40px!important;height:40px!important;flex-basis:40px!important}
+ body.si-v80-dashboard .topbar .brand-copy b{font-size:17px!important}
+ body.si-v80-dashboard .topbar .si-v80-end-session,
+ body.si-v80-dashboard .topbar .si-v80-reset-session{min-width:40px!important;width:45px!important;height:43px!important;min-height:43px!important;padding:4px!important}
+ body.si-v80-dashboard .topbar .si-v80-end-session .copy,
+ body.si-v80-dashboard .topbar .si-v80-reset-session b{display:none!important}
+ body.si-v80-dashboard #siV80Information .class-context b{font-size:11px!important}
+ body.si-v80-dashboard #siV80Information>div{padding:3px 5px!important}
+ body.si-v80-dashboard #siV80Information .si-v80-info-time .si-v80-clock-glyph{display:none!important}
+ body.si-v80-dashboard #siV80Information small{font-size:7px!important}
+ body.si-v80-dashboard #siV80Information .class-code strong{font-size:15px!important}
+ body.si-v80-dashboard #siV80Information .class-code .copy-code{display:none!important}
+ body.si-v80-dashboard #siV80Information .class-code{padding-right:0!important}
+ body.si-v80-dashboard #teacher #homeAppGrid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(prefers-reduced-motion:reduce){
+ body.si-v80-dashboard #teacherControlBar .control{transition:none!important;animation:none!important}
+}
