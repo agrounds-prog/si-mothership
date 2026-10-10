@@ -291,3 +291,149 @@
  outline:2px solid #ff9f84!important;
  box-shadow:0 0 12px #fc847755!important;
 }
+
+
+/* v2 – teacher-controlled projector modes and an accurate inline preview.
+   This preview is layered inside the existing shared-screen mirror, without
+   touching student/teacher navigation, dashboard tracks or classroom state. */
+#qpDialog .qp-display-hint{
+ color:#9be8fc;font-size:12px;font-weight:950;letter-spacing:.075em;margin:14px 0 7px;
+}
+#qpDialog .qp-share-row{
+ display:flex;align-items:center;flex-wrap:wrap;gap:11px;
+ margin:10px 0 13px;
+ padding:11px 12px;border:1px solid #27587e;border-radius:11px;
+ background:linear-gradient(125deg,#0a2844,#071c31);
+}
+#qpDialog .qp-share-row button{
+ min-height:45px;padding:8px 18px;border-radius:10px;cursor:pointer;
+ font-size:14px;font-weight:900;letter-spacing:.02em;
+ border:1px solid #62dafe;color:#e8faff;
+ background:linear-gradient(135deg,#135c86,#0e335d);
+}
+#qpDialog .qp-share-row button.qp-share-on{
+ background:linear-gradient(135deg,#aa3b53,#602339);
+ border-color:#f298ac;
+}
+#qpDialog .qp-share-status{font-size:12px;font-weight:850;color:#b7d7e9}
+#qpDialog .qp-share-status.live{color:#91ffc7}
+#qpDialog .qp-share-row button:focus-visible{outline:3px solid #ffe48c;outline-offset:2px}
+#qpDialog .qp-display-buttons button.on{box-shadow:inset 0 0 0 1px #a2ffe8,0 0 15px #2ed9cc50}
+body #teacher .mirror-screen{position:relative!important;isolation:isolate}
+body #teacher #qpMirrorPreview{
+ position:absolute;inset:22px 5px 22px;z-index:5;
+ min-height:0;min-width:0;overflow:hidden;
+ border-radius:4px;background:#061b35;
+ color:#edfbff;font-family:Inter,"Segoe UI",system-ui,sans-serif;
+}
+body #teacher #qpMirrorPreview[hidden]{display:none!important}
+body #teacher .qp-mirror-scene{
+ display:flex;flex-direction:column;box-sizing:border-box;
+ width:100%;height:100%;min-height:0;gap:5px;
+ padding:clamp(7px,1vw,13px);
+ background:radial-gradient(ellipse at 60% 10%,#194773,#081c35 70%);
+}
+body #teacher .qp-mirror-heading{
+ display:flex;justify-content:space-between;align-items:center;gap:8px;
+ color:#8eeafe;font-size:clamp(9px,.76vw,11px);font-weight:900;
+ letter-spacing:.055em;
+}
+body #teacher .qp-mirror-heading b{color:#ffcc87;text-align:right}
+body #teacher .qp-mirror-scene h3{
+ font:900 clamp(13px,1.3vw,21px)/1.16 system-ui!important;
+ text-align:center;color:#f7fdff;
+ margin:0!important;overflow-wrap:anywhere;
+}
+body #teacher .qp-mirror-scene footer{
+ margin-top:auto;padding-top:4px;border-top:1px solid #40647b;
+ font-size:clamp(8px,.7vw,11px);font-weight:750;color:#b9d6ed;
+ text-align:center;
+}
+body #teacher .qp-mirror-bars{
+ flex:1;min-height:0;display:flex;flex-direction:column;gap:7px;justify-content:center;
+}
+body #teacher .qp-mirror-bar{
+ display:grid;grid-template-columns:minmax(35px,1.1fr) minmax(60px,2.3fr) 37px;
+ gap:8px;align-items:center;
+ font-size:clamp(9px,.83vw,12px);font-weight:900;min-width:0;
+}
+body #teacher .qp-mirror-bar span{
+ text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+body #teacher .qp-mirror-bar b{text-align:right;white-space:nowrap}
+body #teacher .qp-mirror-track{
+ height:clamp(8px,1.1vw,14px);border-radius:20px;
+ background:#0b2844;border:1px solid #2c668a;overflow:hidden;
+}
+body #teacher .qp-mirror-track i{
+ display:block;height:100%;border-radius:inherit;
+ box-shadow:0 0 10px currentColor;
+}
+body #teacher .qp-mirror-donut-layout{
+ flex:1;display:flex;align-items:center;justify-content:center;
+ gap:clamp(12px,2vw,35px);min-height:0;overflow:hidden;
+}
+body #teacher .qp-mirror-donut{
+ width:min(35%,155px,26vh);aspect-ratio:1;border-radius:50%;
+ display:grid;place-items:center;flex-shrink:0;
+ box-shadow:0 0 16px #2cdcff35;
+}
+body #teacher .qp-mirror-donut>span{
+ width:62%;aspect-ratio:1;border-radius:50%;background:#071c33;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ font:900 clamp(18px,2vw,32px)/1.1 system-ui;
+}
+body #teacher .qp-mirror-donut small{font-size:9px;font-weight:800;color:#95d6f1}
+body #teacher .qp-mirror-legend{
+ flex:0 1 50%;min-width:0;max-height:100%;overflow:auto;
+ display:flex;flex-direction:column;gap:7px;
+ font:850 clamp(9px,.82vw,12px)/1.2 system-ui;
+}
+body #teacher .qp-mirror-legend>div{
+ display:flex;align-items:center;gap:6px;min-width:0;
+}
+body #teacher .qp-mirror-legend i{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+body #teacher .qp-mirror-legend b{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body #teacher .qp-mirror-legend span{white-space:nowrap}
+body #teacher .qp-mirror-showdown{
+ flex:1;display:flex;align-items:stretch;justify-content:center;
+ gap:10px;min-height:0;overflow:hidden;
+}
+body #teacher .qp-mirror-showdown>div{
+ flex:1;min-width:0;display:flex;flex-direction:column;
+ justify-content:center;align-items:center;gap:5px;
+ border:1px solid var(--qp-color);border-radius:10px;
+ background:#092b48;text-align:center;
+}
+body #teacher .qp-mirror-showdown>div>b{font:900 clamp(10px,1vw,15px)/1.2 system-ui}
+body #teacher .qp-mirror-showdown strong{color:var(--qp-color);font:950 clamp(22px,3vw,42px)/1 system-ui}
+body #teacher .qp-mirror-showdown span{font-size:10px}
+body #teacher .qp-mirror-showdown em{
+ align-self:center;font:950 17px system-ui;color:#ffdb96;font-style:normal;
+}
+body #teacher .qp-mirror-cards{
+ flex:1;min-height:0;display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(58px,1fr));
+ gap:6px;overflow:hidden;
+}
+body #teacher .qp-mirror-cards>div{
+ min-width:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;
+ justify-content:space-evenly;gap:4px;padding:5px;
+ border:1px solid var(--qp-color);border-radius:9px;background:#0b2a48;
+}
+body #teacher .qp-mirror-cards i{font:950 clamp(17px,2vw,29px) system-ui;color:var(--qp-color);font-style:normal}
+body #teacher .qp-mirror-cards img{max-height:35%;max-width:90%;object-fit:contain}
+body #teacher .qp-mirror-cards b{
+ font:850 clamp(9px,.82vw,12px)/1.15 system-ui;text-align:center;
+ overflow-wrap:anywhere;
+}
+body #teacher .qp-mirror-cards strong{font:900 clamp(12px,1.2vw,19px) system-ui}
+body #teacher .qp-mirror-cards small{font-size:8px}
+body #teacher .qp-mirror-private{
+ flex:1;display:grid;place-content:center;text-align:center;
+ font:850 clamp(12px,1.2vw,17px) system-ui;color:#c9e8ff;
+}
+@media(max-width:620px){
+ #qpDialog .qp-share-row{padding:9px}
+ #qpDialog .qp-share-row button{width:100%}
+}
