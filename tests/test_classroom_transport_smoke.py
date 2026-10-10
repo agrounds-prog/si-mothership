@@ -73,12 +73,13 @@ class ClassroomTransportSmoke(unittest.IsolatedAsyncioTestCase):
         await self.login()
         teacher = await self.ws("teacher")
         student = await self.ws("student", app.CURRENT_JOIN_CODE, app.CURRENT_SESSION_ID)
+        student2 = await self.ws("student", app.CURRENT_JOIN_CODE, app.CURRENT_SESSION_ID)
         shared = await self.ws("shared", sid=app.CURRENT_SESSION_ID)
-        for ws in (teacher, student, shared):
+        for ws in (teacher, student, student2, shared):
             self.assertEqual((await self.wait_for(ws, "join_code"))["type"], "join_code")
         health = await (await self.client.get("/api/health")).json()
         self.assertEqual(health["client_roles"]["teacher"], 1)
-        self.assertEqual(health["client_roles"]["student"], 1)
+        self.assertEqual(health["client_roles"]["student"], 2)
         self.assertEqual(health["client_roles"]["shared"], 1)
 
     async def test_teacher_authority_shared_readonly_and_student_reconnect(self):
