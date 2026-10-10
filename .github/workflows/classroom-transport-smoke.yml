@@ -1,0 +1,36 @@
+name: Classroom Transport Smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'bingo-board-studio.js'
+      - 'bingo-board-studio.css'
+      - 'server.py'
+      - 'tests/test_classroom_transport_smoke.py'
+      - '.github/workflows/classroom-transport-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  classroom-transport-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    env:
+      MOTHERSHIP_DATA_DIR: ${{ runner.temp }}/mothership-classroom-test
+      MOTHERSHIP_NO_BROWSER: '1'
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install server requirements
+        run: pip install -r requirements.txt
+      - name: Verify classroom JavaScript syntax
+        run: node --check bingo-board-studio.js
+      - name: Teacher, students, shared-screen websocket regressions
+        run: python -m unittest discover -s tests -p test_classroom_transport_smoke.py -v
