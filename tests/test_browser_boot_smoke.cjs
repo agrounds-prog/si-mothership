@@ -206,6 +206,53 @@ const hosts=[
              !polish.shortcut||!polish.shortcutIcon||polish.shortcut.height<100||
              polish.shortcutIcon.height<65||parseFloat(polish.shortcutLabel)<10||
              polish.end.height<58||polish.reset.height<58||errors.length)failures++;
+          // Quick Poll interaction test against isolated browser-mocked routes.
+          // The production class and persistent database are never mutated.
+          try{
+            let simulated=null;
+            await page.route('**/api/quick-poll/**',async route=>{
+              const path=new URL(route.request().url()).pathname;
+              const verb=route.request().method();
+              const data=verb==='POST'?route.request().postDataJSON():{};
+              let result={ok:true};
+              if(path.endsWith('/state'))result={active:!!simulated,poll:simulated};
+              else if(path.endsWith('/templates'))result={templates:[]};
+              else if(path.endsWith('/launch')){
+                simulated={...data,id:'ui-regression-poll',phase:'open',round:1,
+                  choices:data.choices.map((c,i)=>({...c,id:String(i)})),
+                  counts:Object.fromEntries(data.choices.map((_,i)=>[String(i),0])),
+                  voters:0,eligible:0,ownVote:null,endAt:null};
+              }else if(path.endsWith('/control')){
+                if(data.action==='dismiss')simulated=null;
+                else if(simulated)simulated.phase=data.action==='close'?'closed':'open';
+              }
+              await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(result)});
+            });
+            await page.reload({waitUntil:'domcontentloaded'});
+            await page.waitForTimeout(450);
+            await page.locator('#siQuickPollHomeBtn').click();
+            await page.locator('#qpDialog [data-qp-launch]').click();
+            const warning=await page.locator('#qpTopError').textContent();
+            const visible=await page.locator('#qpTopError').isVisible();
+            console.log(JSON.stringify({label,role:'poll-form-validation',visible,warning}));
+            if(!visible||!warning.includes('Enter your question'))failures++;
+            await page.locator('#qpQuestion').fill('Choose our next classroom activity');
+            await page.locator('[data-qp-label="0"]').fill('Bingo');
+            await page.locator('[data-qp-label="1"]').fill('Starwheel');
+            await page.locator('#qpDialog [data-qp-launch]').click();
+            await page.waitForFunction(()=>document.querySelector('#qpTeacherLive')?.textContent?.includes('VOTING OPEN'),null,{timeout:8500});
+            console.log(JSON.stringify({label,role:'poll-launch-ui',
+              active:!!simulated,question:simulated?.question,choices:simulated?.choices?.map(x=>x.label)}));
+            if(!simulated||simulated.question!=='Choose our next classroom activity')failures++;
+            await page.locator('#qpDialog [data-qp-control="close"]').click();
+            await page.waitForFunction(()=>document.querySelector('#qpTeacherLive')?.textContent?.includes('POLL CLOSED'),null,{timeout:8500});
+            page.once('dialog',dialog=>dialog.accept());
+            await page.locator('#qpDialog [data-qp-control="dismiss"]').click();
+            await page.waitForFunction(()=>document.querySelector('#qpTeacherLive')?.textContent?.includes('Create and send'),null,{timeout:8500});
+            console.log(JSON.stringify({label,role:'poll-dismiss-ui',cleaned:!simulated,pageErrors:errors.slice(-3)}));
+            if(simulated||errors.length)failures++;
+          }catch(e){failures++;console.log(JSON.stringify({label,role:'quick-poll-ui-e2e',error:String(e.stack||e)}));}
+
         }
       }
     }catch(e){failures++;console.log(JSON.stringify({label,role,error:String(e.stack||e)}));}
