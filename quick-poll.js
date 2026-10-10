@@ -30,9 +30,19 @@ const params=()=>{
 };
 async function api(path,data){
  const opts=data===undefined?{cache:"no-store"}:{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data),cache:"no-store"};
- const r=await fetch(path,opts);let value=null;
- try{value=await r.json();}catch{}
- if(!r.ok)throw Error((value?.error||value?.message||"Quick Poll request failed")+" ("+r.status+")");
+ const r=await fetch(path,opts);
+ const body=await r.text();
+ let value=null;
+ try{value=JSON.parse(body);}catch{}
+ if(!r.ok){
+  const serverMessage=(typeof value?.error==="string"&&value.error)
+   ||(typeof value?.message==="string"&&value.message)
+   ||(body&&!body.trimStart().startsWith("<")?body:"");
+  const fallback=r.status===401?"Teacher login required. Sign in again, then reopen Quick Poll."
+   :r.status===403?"Class connection expired. Rejoin the current classroom."
+   :"Quick Poll request failed";
+  throw Error(String(serverMessage||fallback).trim().slice(0,200)+" ("+r.status+")");
+ }
  return value;
 }
 const remaining=p=>p?.phase==="open"&&p.endAt!=null?Math.max(0,Math.ceil(p.endAt-Date.now()/1000-serverOffset)):null;
@@ -126,7 +136,7 @@ function editorHtml(){
  const gallery=list?'<div class="qp-library"><strong>QUICK TEMPLATES</strong><div>'+sample.map((t,i)=>'<button type="button" data-qp-template="'+i+'">'+esc(t[0])+'</button>').join("")+'</div><strong>YOUR SAVED PROMPTS</strong>'+
  (library.length?'<div>'+library.map(t=>'<span><button type="button" data-qp-load="'+esc(t.id)+'">'+esc(t.name)+'</button><button type="button" class="qp-del" data-qp-delete="'+esc(t.id)+'">×</button></span>').join("")+'</div>':'<p>No saved prompts yet.</p>')+'</div>':"";
  return '<div class="qp-teacher"><header><div><small>🚀 MOTHERSHIP</small><h2>QUICK <em>POLL</em></h2><span>Ask · Vote · See · Discuss · Repeat</span></div><button type="button" data-qp-close aria-label="Close Poll Studio">×</button></header>'+
- '<div class="qp-teacher-scroll"><section id="qpTeacherLive"></section>'+
+ '<div class="qp-teacher-scroll"><div id="qpTopError" class="qp-editor-notice" role="alert" '+(notice?'':'hidden')+'>'+esc(notice)+'</div><section id="qpTeacherLive"></section>'+
  '<div class="qp-actionbar"><button type="button" data-qp-gallery>▣ '+(list?"Hide":"Open")+' Prompt Library</button><button type="button" data-qp-new>＋ New Poll</button></div>'+gallery+
  field("1. YOUR QUESTION",'<input id="qpQuestion" maxlength="240" value="'+esc(draft.question)+'" placeholder="What should our crew choose?">')+
  field("Optional directions",'<textarea id="qpDescription" rows="2" maxlength="350" placeholder="Add context…">'+esc(draft.description)+'</textarea>')+
@@ -167,11 +177,47 @@ function renderEditor(){
  if(open){$(".qp-dialog-window",dialog).innerHTML=editorHtml();updateLive();}
  if(launcher)launcher.setAttribute("aria-expanded",String(open));
 }
-function error(e){notice=String(e?.message||e).slice(0,160);const box=$("#qpError");if(box)box.textContent=notice;}
+function error(e){
+ notice=String(e?.message||e).slice(0,200);
+ const top=$("#qpTopError",dialog),bottom=$("#qpError",dialog);
+ if(top){top.textContent=notice;top.hidden=false;top.scrollIntoView({block:"start",behavior:"auto"});}
+ if(bottom)bottom.textContent=notice;
+}
+function clearError(){
+ notice="";
+ const top=$("#qpTopError",dialog),bottom=$("#qpError",dialog);
+ if(top){top.textContent="";top.hidden=true;}
+ if(bottom)bottom.textContent="";
+}
+function validateDraft(){
+ const question=$("#qpQuestion",dialog);
+ if(!draft.question.trim()){
+  error(Error("Enter your question before sending Quick Poll."));
+  if(question){question.classList.add("qp-invalid");question.focus();question.scrollIntoView({block:"center"});}
+  return false;
+ }
+ for(let i=0;i<draft.choices.length;i++){
+  if(!draft.choices[i].label.trim()){
+   error(Error("Enter a label for choice "+(i+1)+" before sending."));
+   const input=$('[data-qp-label="'+i+'"]',dialog);
+   if(input){input.classList.add("qp-invalid");input.focus();input.scrollIntoView({block:"center"});}
+   return false;
+  }
+ }
+ if(draft.choices.length<2||draft.choices.length>6){
+  error(Error("Quick Poll needs 2 to 6 choices."));
+  return false;
+ }
+ clearError();
+ return true;
+}
 function teacherInput(e){
- const t=e.target;if(t.id==="qpQuestion")draft.question=t.value;
+ const t=e.target;
+ if(t.id==="qpQuestion")draft.question=t.value;
  if(t.id==="qpDescription")draft.description=t.value;
  if(t.dataset.qpLabel!==undefined)draft.choices[Number(t.dataset.qpLabel)].label=t.value;
+ if(t.matches("input,textarea"))t.classList.remove("qp-invalid");
+ if(notice)clearError();
 }
 function teacherChange(e){
  const t=e.target;
@@ -197,7 +243,18 @@ async function imageUpload(file,index){
  }finally{URL.revokeObjectURL(url);}
 }
 async function libraryLoad(){try{library=(await api("/api/quick-poll/templates")).templates||[];if(open)renderEditor();}catch(e){error(e);}}
-async function post(url,body){if(busy)return;busy=true;notice="";try{await api(url,body);await refresh(true);}catch(e){error(e);}finally{busy=false;}}
+async function post(url,body){
+ if(busy)return false;
+ busy=true;clearError();
+ try{
+  await api(url,body);
+  // Even if the regular background poll is in flight, the next tick will
+  // reconcile the state. Don't lose errors or silently discard the request.
+  await refresh(true);
+  return true;
+ }catch(e){error(e);return false;}
+ finally{busy=false;}
+}
 async function teacherClick(e){
  const b=e.target.closest("button");if(!b)return;
  if(b.hasAttribute("data-qp-close")){open=false;renderEditor();return;}
@@ -209,8 +266,18 @@ async function teacherClick(e){
  if(b.dataset.qpTemplate!==undefined){const t=sample[Number(b.dataset.qpTemplate)];draft={...fresh(),question:t[1],choices:t[2].map(label=>({label,image:""})),sensitive:t[3],visibility:t[3]?"reveal":"live"};renderEditor();return;}
  if(b.dataset.qpLoad!==undefined){const t=library.find(x=>x.id===b.dataset.qpLoad);if(t){draft={...fresh(),...clone(t.poll)};list=false;renderEditor();}return;}
  if(b.dataset.qpDelete!==undefined){if(confirm("Delete this saved Quick Poll prompt?")){await post("/api/quick-poll/templates/delete",{id:b.dataset.qpDelete});await libraryLoad();}return;}
- if(b.hasAttribute("data-qp-save")){const name=prompt("Save prompt as:",draft.question||"New Poll");if(name?.trim()){await post("/api/quick-poll/templates",{name:name.trim(),poll:draft});await libraryLoad();}return;}
- if(b.hasAttribute("data-qp-launch")){if(poll?.phase==="open"&&!confirm("Replace the live Quick Poll? Current votes will be cleared."))return;await post("/api/quick-poll/launch",draft);return;}
+ if(b.hasAttribute("data-qp-save")){
+  if(!validateDraft())return;
+  const name=prompt("Save prompt as:",draft.question||"New Poll");
+  if(name?.trim()&&await post("/api/quick-poll/templates",{name:name.trim(),poll:clone(draft)}))await libraryLoad();
+  return;
+ }
+ if(b.hasAttribute("data-qp-launch")){
+  if(!validateDraft())return;
+  if(poll?.phase==="open"&&!confirm("Replace the live Quick Poll? Current votes will be cleared."))return;
+  await post("/api/quick-poll/launch",clone(draft));
+  return;
+ }
  if(b.dataset.qpDisplay!==undefined){await post("/api/quick-poll/control",{action:"display",display:b.dataset.qpDisplay});return;}
  if(b.dataset.qpControl!==undefined){const action=b.dataset.qpControl;
   if(["dismiss","revote"].includes(action)&&!confirm(action==="dismiss"?"Dismiss Quick Poll and restore the classroom?":"Save this round's tally and begin a revote?"))return;
