@@ -808,6 +808,10 @@ body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut.si-v82-vector-shortcut
   grid-column:1/-1!important;
   grid-row:1!important;
   position:relative!important;
+  /* Legacy hero-less console retained top:72px, visually moving the row
+     over Class Alerts. The real grid starts at the Home Row's natural edge. */
+  top:0!important;
+  bottom:auto!important;
   align-self:start!important;
   z-index:1!important;
   margin:0!important;
