@@ -49,6 +49,24 @@ const hosts=[
         }));
         console.log(JSON.stringify({label,role:"studio",...studio,pageErrors:errors.slice(0,5)}));
         if(!studio.visible||!studio.editor||studio.boot||errors.length)failures++;
+        if(label==="local"){
+          // Browser-only game simulation on the isolated local server.
+          // No network write, no change to production classroom state.
+          await page.evaluate(()=>{
+            if(typeof state==="undefined")throw new Error("Classroom state unavailable");
+            state.activityRun={activityId:"scope-probe",runToken:"scope-probe",phase:"lobby"};
+            state.ended=false;
+          });
+          await page.waitForTimeout(1050); // > 3 iterations of the 320ms dock tick
+          const game=await page.evaluate(()=>({
+            dock:!!document.getElementById("siLiveControlDock"),
+            caption:document.querySelector("#siControlName")?.textContent||"",
+            boot:document.getElementById("bootErrorText")?.textContent||""
+          }));
+          console.log(JSON.stringify({label,role:"teacher-active-game",...game,
+            pageErrors:errors.slice(-5)}));
+          if(!game.dock||game.boot||errors.length)failures++;
+        }
       }
     }catch(e){failures++;console.log(JSON.stringify({label,role,error:String(e.stack||e)}));}
     await ctx.close();

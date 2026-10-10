@@ -10,6 +10,7 @@ on:
       - 'index.html'
       - 'quick-poll.js'
       - 'quick-poll.css'
+      - 'bingo-board-studio.js'
   workflow_dispatch:
 
 permissions:
