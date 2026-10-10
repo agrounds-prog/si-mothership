@@ -661,6 +661,33 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     }
     render();tell('Round '+(nextIndex+1)+' of '+total+': '+next.name);
   }
+  // Optional teacher-side sound cues. Off until a teacher explicitly enables
+  // them; no autoplay on student devices or the separate Zoom shared view.
+  let soundEnabled=false,audioContext=null;
+  try{soundEnabled=localStorage.getItem('siMothership.crewSurveySound.v1')==='on'}catch(_){}
+  function showSound(kind){
+    if(!soundEnabled||SESSION_ROLE!=='teacher')return;
+    try{
+      const Context=window.AudioContext||window.webkitAudioContext;
+      if(!Context)return;
+      audioContext=audioContext||new Context();
+      if(audioContext.state==='suspended')audioContext.resume().catch(()=>{});
+      const sounds=kind==='strike'?[190,135]:kind==='award'?[523,659,880]:
+        kind==='round'?[410,615]:kind==='arm'?[510,760]:[700,930];
+      const now=audioContext.currentTime;
+      sounds.forEach((frequency,i)=>{
+        const begin=now+i*.155,duration=kind==='strike'?.18:.14;
+        const oscillator=audioContext.createOscillator(),gain=audioContext.createGain();
+        oscillator.type=kind==='strike'?'sawtooth':'sine';
+        oscillator.frequency.value=frequency;
+        gain.gain.setValueAtTime(.0001,begin);
+        gain.gain.exponentialRampToValueAtTime(kind==='strike'?.045:.038,begin+.018);
+        gain.gain.exponentialRampToValueAtTime(.0001,begin+duration);
+        oscillator.connect(gain);gain.connect(audioContext.destination);
+        oscillator.start(begin);oscillator.stop(begin+duration+.015);
+      });
+    }catch(_){}
+  }
   function drawHost(){
     const r=run();if(!r||r.phase!=='running')return;
     const root=byId('activityControllerPanel'),cs=r.crewSurvey;
@@ -703,7 +730,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         btn('strike','✕ STRIKE',canStrike,'cs-quick-strike')+
         btn('player','→ NEXT PLAYER',canNext)+
         btn('award','★ AWARD '+(selected||'ROUND'),!done&&control!==null,'cs-quick-award')+
-        btn('round',idx<total?'NEXT BOARD →':'↻ PLAY AGAIN',done,'cs-quick-primary')+'</div>'+
+        btn('round',idx<total?'NEXT BOARD →':'↻ PLAY AGAIN',done,'cs-quick-primary')+
+        btn('sound',soundEnabled?'♪ SOUND ON':'♫ SOUND OFF',true,'cs-quick-sound')+'</div>'+
         '<p class="cs-teacher-tip">'+(done?'Round awarded. '+(idx<total?'Move to the next faceoff.':'Final results are ready.'):
           cs.stage==='steal'?'Three strikes! The opposing crew gets the steal attempt.':
           cs.stage==='faceoff'?'Choose contestants below, arm buzzers, then reveal their answer.':
@@ -712,6 +740,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       if(header)header.after(strip);else root.prepend(strip);
       strip.querySelectorAll('[data-cs-quick]').forEach(button=>button.onclick=()=>{
         const action=button.dataset.csQuick;
+        if(action==='sound'){
+          soundEnabled=!soundEnabled;
+          try{localStorage.setItem('siMothership.crewSurveySound.v1',soundEnabled?'on':'off')}catch(_){}
+          button.textContent=soundEnabled?'♪ SOUND ON':'♫ SOUND OFF';
+          button.setAttribute('aria-pressed',String(soundEnabled));
+          if(soundEnabled)showSound('arm');
+          return;
+        }
         if(action==='arm')crewSurveyArmBuzzers();
         else if(action==='reset')crewSurveyResetBuzzers();
         else if(action==='strike')crewSurveyStrike();
@@ -799,8 +835,37 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const originalAward=typeof crewSurveyAwardRound==='function'?crewSurveyAwardRound:null;
     if(originalAward)crewSurveyAwardRound=function(...args){
       if(run()?.crewSurvey?.stage==='roundwon')return tell('This round was already awarded. Advance to the next board.');
-      return originalAward.apply(this,args);
+      const result=originalAward.apply(this,args);
+      if(run()?.crewSurvey?.stage==='roundwon')showSound('award');
+      return result;
     };
+    if(typeof crewSurveyReveal==='function'){
+      const originalReveal=crewSurveyReveal;
+      crewSurveyReveal=function(...args){
+        const count=crewSurveyState()?.revealed?.length||0;
+        const result=originalReveal.apply(this,args);
+        if((crewSurveyState()?.revealed?.length||0)>count)showSound('reveal');
+        return result;
+      };
+    }
+    if(typeof crewSurveyStrike==='function'){
+      const originalStrike=crewSurveyStrike;
+      crewSurveyStrike=function(...args){
+        const tally=(crewSurveyState()?.strikes||[]).reduce((a,b)=>a+Number(b||0),0);
+        const result=originalStrike.apply(this,args);
+        if((crewSurveyState()?.strikes||[]).reduce((a,b)=>a+Number(b||0),0)>tally)showSound('strike');
+        return result;
+      };
+    }
+    if(typeof crewSurveyArmBuzzers==='function'){
+      const originalArm=crewSurveyArmBuzzers;
+      crewSurveyArmBuzzers=function(...args){
+        const wasArmed=!!crewSurveyState()?.buzzer?.armed;
+        const result=originalArm.apply(this,args);
+        if(!wasArmed&&crewSurveyState()?.buzzer?.armed)showSound('arm');
+        return result;
+      };
+    }
     launchCrewSurvey=function(){
       if(state.activityRun?.activityId&&state.activityRun.activityId!=='crew-survey-game'){
         tell('Finish the other activity before starting CREW SURVEY.');return false;
@@ -817,7 +882,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const chosen=compileRounds();
       return chosen?launchPreparedSurvey(chosen):false;
     };
-    crewSurveyNewRound=function(...args){return advance(()=>originalRound.apply(this,args))};
+    crewSurveyNewRound=function(...args){
+      const before=run()?.crewSurveyRoundIndex;
+      const result=advance(()=>originalRound.apply(this,args));
+      if(run()&&run().crewSurveyRoundIndex!==before)showSound('round');
+      return result;
+    };
     renderActivityController=function(...args){const response=originalControl.apply(this,args);drawHost();return response};
     if(typeof crewSurveySharedMarkup==='function'){
       const originalShared=crewSurveySharedMarkup;
