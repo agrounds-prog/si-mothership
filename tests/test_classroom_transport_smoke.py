@@ -161,5 +161,49 @@ class ClassroomTransportSmoke(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(set(app.LATEST_STATE.get("buzz", [])), {"Alpha", "Beta"})
 
 
+    async def test_new_session_revokes_old_student_and_shared_sockets(self):
+        """Teacher session reset invalidates old links but leaves teacher socket alive."""
+        await self.login()
+        teacher = await self.ws("teacher")
+        student = await self.ws("student", app.CURRENT_JOIN_CODE, app.CURRENT_SESSION_ID)
+        shared = await self.ws("shared", sid=app.CURRENT_SESSION_ID)
+        for socket in (teacher, student, shared):
+            await self.wait_for(socket, "join_code")
+        old_code, old_sid = app.CURRENT_JOIN_CODE, app.CURRENT_SESSION_ID
+
+        response = await self.client.post("/api/session/new", json={})
+        self.assertEqual(response.status, 200)
+        data = await response.json()
+        self.assertTrue(data["ok"])
+        self.assertNotEqual(data["session_id"], old_sid)
+        self.assertNotEqual(app.CURRENT_SESSION_ID, old_sid)
+
+        reset_student = await self.wait_for(student, "session_reset")
+        reset_shared = await self.wait_for(shared, "session_reset")
+        self.assertEqual(reset_student["type"], "session_reset")
+        self.assertEqual(reset_shared["type"], "session_reset")
+        for _ in range(30):
+            if student.closed and shared.closed:
+                break
+            await asyncio.sleep(0.02)
+        health = await (await self.client.get("/api/health")).json()
+        self.assertEqual(health["client_roles"]["student"], 0)
+        self.assertEqual(health["client_roles"]["shared"], 0)
+        self.assertEqual(health["client_roles"]["teacher"], 1)
+        self.assertFalse(teacher.closed)
+
+        with self.assertRaises(WSServerHandshakeError) as cm:
+            await self.ws("student", old_code, old_sid)
+        self.assertEqual(cm.exception.status, 403)
+        with self.assertRaises(WSServerHandshakeError) as cm:
+            await self.ws("shared", sid=old_sid)
+        self.assertEqual(cm.exception.status, 403)
+
+        current_student = await self.ws("student", data["join_code"], data["session_id"])
+        current_shared = await self.ws("shared", sid=data["session_id"])
+        for socket in (current_student, current_shared):
+            self.assertEqual((await self.wait_for(socket, "join_code"))["type"], "join_code")
+
+
 if __name__ == "__main__":
     unittest.main()
