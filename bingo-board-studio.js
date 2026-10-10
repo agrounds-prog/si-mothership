@@ -1731,6 +1731,31 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(stage==='waiting'||/waiting|watch|spectator|awaiting/.test(msg))return 'watch';
   return 'ready';
  }
+ function studentGameGuidance(type,stage,message){
+   const label=({'crew-survey':'CREW SURVEY',match:'MATCH',bingo:'BINGO','cosmic-cards':'COSMIC CARDS'})[type];
+   if(!label)return null;
+   const msg=String(message||'').toLowerCase();
+   const make=(title,detail,tone)=>({label,title,detail,tone});
+   if(stage==='disconnected')return make('CONTROLS PAUSED','Reconnecting — game controls are temporarily disabled.','paused');
+   if(type==='crew-survey'){
+     if(msg.includes('tap buzz'))return make('BUZZ NOW!','Tap BUZZ to signal your team.','turn');
+     if(msg.startsWith('your turn'))return make('ANSWER NOW','Type or choose your answer, then send.','turn');
+     if(msg.includes('submitted'))return make('ANSWER SENT','Watch Mission Control for the next step.','sent');
+     return make('WATCH THE BOARD','Help your crew think of answers.','watch');
+   }
+   if(type==='match'){
+     if(msg.includes('match complete'))return make('BOARD COMPLETE','All pairs have been discovered!','sent');
+     if(msg.startsWith('your turn'))return make('FIND A PAIR','Choose two hidden cards.','turn');
+     return make('WATCH & REMEMBER','Remember the card locations for your turn.','watch');
+   }
+   if(type==='bingo'){
+     if(msg.includes('verified'))return make('BINGO VERIFIED!','Your winning card was confirmed.','sent');
+     return make('CHECK YOUR CARD','Mark called items. Tap BINGO when you win.','turn');
+   }
+   if(msg.includes('you won'))return make('YOU WON!','Great game, pilot!','sent');
+   if(msg.startsWith('your turn'))return make('PLAY YOUR CARD','Choose a glowing card or draw one.','turn');
+   return make('WATCH THE TABLE','Your turn will appear automatically.','watch');
+ }
  function networkHoldAction(btn,paused,key){
   // Remember the game's own disabled state, so reconnect never enables an
   // action that was already locked by turn rules, submission or a reveal.
@@ -1890,6 +1915,40 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       if(btn.id==='studentCalculatorBackBtn')return;
       networkHoldAction(btn,unavailable&&gameActive,'siGameConnectionHold');
     });
+    const gameType=gameActive&&typeof activeActivity==='function'?activeActivity()?.type:null;
+    const guidance=gameType?studentGameGuidance(gameType,unavailable?'disconnected':status?.dataset.siMode||'ready',status?.textContent||''):null;
+    let cue=gamePanel.querySelector('#siStudentGameCue');
+    if(!guidance){if(cue)cue.remove()}
+    else{
+      if(!cue){
+        cue=document.createElement('div');
+        cue.id='siStudentGameCue';cue.className='si-student-game-cue';
+        cue.setAttribute('role','status');cue.setAttribute('aria-live','polite');
+        for(const className of ['si-cue-app','si-cue-heading','si-cue-help']){
+          const node=document.createElement(className==='si-cue-heading'?'strong':'span');
+          node.className=className;cue.appendChild(node);
+        }
+        gamePanel.prepend(cue);
+      }
+      cue.dataset.siTone=guidance.tone;
+      for(const [name,value] of [['.si-cue-app',guidance.label],['.si-cue-heading',guidance.title],['.si-cue-help',guidance.detail]]){
+        const node=cue.querySelector(name);if(node&&node.textContent!==value)node.textContent=value;
+      }
+    }
+    if(gameType==='bingo'){
+      gamePanel.querySelectorAll('.bingo-student-cell').forEach((btn,i)=>{
+        const text=String(btn.querySelector('img')?.alt||btn.textContent||'picture').replace(/\s+/g,' ').trim().slice(0,80)||'picture';
+        const selected=btn.classList.contains('marked');
+        btn.setAttribute('aria-label','BINGO square '+(i+1)+': '+text+(selected?', marked':btn.disabled?', not yet called':', unmarked'));
+        btn.setAttribute('aria-pressed',String(selected));
+      });
+    }
+    if(gameType==='crew-survey'){
+      const entry=gamePanel.querySelector('#crewSurveyAnswerInput');
+      if(entry&&!entry.hasAttribute('aria-label'))entry.setAttribute('aria-label','Your private survey answer');
+      const send=gamePanel.querySelector('#crewSurveyAnswerSend');
+      if(send)send.setAttribute('aria-label','Send your private survey answer');
+    }
     // Place the warning beside the game controls, not only in the footer.
     let warning=gamePanel.querySelector('#siStudentOfflineNotice');
     if(unavailable&&gameActive){

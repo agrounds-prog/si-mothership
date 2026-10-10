@@ -2659,3 +2659,47 @@ body.role-student #studentControls button[data-si-connection-hold]{
 @media(prefers-reduced-motion:reduce){
  body.role-student .device-main .si-student-offline-notice{transition:none!important;animation:none!important}
 }
+
+/* Student Game Cue vNext: same instruction placement for four classroom games. */
+body.role-student #student .device-main .si-student-game-cue{
+ --cue-color:#75d6ee;position:sticky;top:0;z-index:7;
+ display:grid;gap:4px;box-sizing:border-box;margin:0 0 12px;padding:11px 14px;
+ border:2px solid var(--cue-color);border-radius:14px;width:100%;
+ background:linear-gradient(105deg,#102c43f0,#061727f7);
+ box-shadow:0 9px 20px #0007;color:#f7fcff;text-align:left;
+}
+body.role-student #student .si-student-game-cue[data-si-tone="turn"]{
+ --cue-color:#9bffd4;background:linear-gradient(105deg,#12483cf2,#092934f7);
+}
+body.role-student #student .si-student-game-cue[data-si-tone="watch"]{
+ --cue-color:#ffd695;background:linear-gradient(105deg,#443823f1,#172534f8);
+}
+body.role-student #student .si-student-game-cue[data-si-tone="sent"]{
+ --cue-color:#96bdff;background:linear-gradient(105deg,#293f6bed,#102139f8);
+}
+body.role-student #student .si-student-game-cue[data-si-tone="paused"]{
+ --cue-color:#ffb6a7;background:linear-gradient(105deg,#583031ef,#231c25f7);
+}
+body.role-student #student .si-student-game-cue .si-cue-app{
+ font:900 10px/1.2 system-ui;letter-spacing:.15em;color:#c2dfea;
+}
+body.role-student #student .si-student-game-cue .si-cue-heading{
+ font:1000 clamp(18px,4.6vw,26px)/1.1 system-ui;color:#fff;
+}
+body.role-student #student .si-student-game-cue .si-cue-help{
+ font:750 clamp(12px,3vw,15px)/1.3 system-ui;color:#e1eff9;
+}
+body.role-student #student .crew-survey-type input{min-height:56px!important;font-size:16px!important;min-width:0}
+body.role-student #student .crew-survey-type button{min-height:56px!important;font-size:16px!important}
+body.role-student #student .crew-survey-aac button{min-height:64px!important;font-size:clamp(15px,3.5vw,19px)!important;line-height:1.2}
+body.role-student #student .ma-student .ma-consult-btn,
+body.role-student #student .ma-student .ma-consult-box button,
+body.role-student #student .cc-device-actions button{min-height:58px!important;font-size:clamp(13px,3vw,17px)!important}
+body.role-student #student .device-main button:not(:disabled):focus-visible{outline:3px solid #fff2a5!important;outline-offset:3px!important}
+body.role-student #student .bingo-student-cell[aria-pressed="true"]{outline:2px solid #8cffe1!important;outline-offset:-4px!important}
+@media(max-width:370px){
+ body.role-student #student .device-main .si-student-game-cue{padding:9px 11px;margin-bottom:9px}
+ body.role-student #student .si-student-game-cue .si-cue-heading{font-size:18px}
+ body.role-student #student .si-student-game-cue .si-cue-help{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){body.role-student #student .si-student-game-cue{animation:none!important;transition:none!important}}
