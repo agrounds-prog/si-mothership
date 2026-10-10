@@ -122,6 +122,31 @@ const hosts=[
                (width>=1220&&(geometry.gap<9||geometry.queueGap<9||geometry.shortcutsTop-geometry.helpBottom<6||geometry.panelTranslate!=='none'||geometry.alerts.right>width+3||
                  geometry.home.right>width+3)))failures++;
           }
+          // Reproduce the populated alert rail shown in classrooms without
+          // modifying the actual class: DOM-only fixture on isolated localhost.
+          await page.setViewportSize({width:1440,height:960});
+          const populated=await page.evaluate(async()=>{
+            const ids=['buzzRows','photoRows','helpRows'];
+            const nodes=ids.map(id=>document.getElementById(id));
+            const saved=nodes.map(node=>node.innerHTML);
+            const avatar='<span style="display:inline-block;width:32px;height:32px;border-radius:8px;background:#145075"></span>';
+            nodes[0].innerHTML='<div class="student-row inbox-student-row"><span class="queue-num">1</span>'+avatar+'<span class="inbox-copy"><b>Test Student</b><small>Ready to answer</small></span></div>';
+            nodes[1].innerHTML='<div class="help-row photo-row">'+avatar+'<span><b>Test Student</b><small>NEW PHOTO</small></span></div>';
+            nodes[2].innerHTML='<div class="help-message-row unread">'+avatar+'<span class="preview"><b>Test Student</b><small>Needs support</small></span><button>Read</button></div>';
+            await new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done)));
+            const box=id=>document.getElementById(id).getBoundingClientRect();
+            const home=box('teacherControlBar'),alerts=box('attentionSummary');
+            const buzz=box('buzzPanel'),photo=box('photoInboxPanel'),help=box('helpInboxPanel'),shortcuts=box('appShortcutsPanel');
+            const result={homeGap:alerts.top-home.bottom,summaryGap:buzz.top-alerts.bottom,
+              buzzGap:photo.top-buzz.bottom,photoGap:help.top-photo.bottom,
+              shortcutsGap:shortcuts.top-help.bottom,
+              allUntranslated:['attentionSummary','buzzPanel','photoInboxPanel','helpInboxPanel'].every(id=>getComputedStyle(document.getElementById(id)).translate==='none')};
+            nodes.forEach((node,i)=>{node.innerHTML=saved[i]});
+            return result;
+          });
+          console.log(JSON.stringify({label,role:'populated-alert-layout',...populated}));
+          if(populated.homeGap<9||populated.summaryGap<9||populated.buzzGap<9||
+             populated.photoGap<9||populated.shortcutsGap<6||!populated.allUntranslated)failures++;
           await page.setViewportSize({width:1440,height:900});
           await page.evaluate(()=>document.getElementById('siQuickPollHomeBtn')?.click());
           const opened=await page.evaluate(()=>!!document.querySelector('#qpDialog:not([hidden])'));
