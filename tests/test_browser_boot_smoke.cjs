@@ -103,12 +103,15 @@ const hosts=[
               const home=document.getElementById('teacherControlBar');
               const alerts=document.getElementById('attentionSummary');
               const buzz=document.getElementById('buzzPanel');
+              const stack=document.getElementById('siV85AlertStack');
+              const railOrder=['attentionSummary','buzzPanel','photoInboxPanel','helpInboxPanel'];
+              const stackReady=!!stack&&railOrder.every((id,i)=>stack.children[i]?.id===id);
               const shortcuts=[...document.querySelectorAll('#homeAppGrid .app-shortcut:not(.empty)')];
               const rect=node=>{const r=node.getBoundingClientRect();return {
                 top:Math.round(r.top),bottom:Math.round(r.bottom),
                 left:Math.round(r.left),right:Math.round(r.right),width:Math.round(r.width)};};
               const homeRect=rect(home),alertRect=rect(alerts),buzzRect=rect(buzz);
-              return {home:homeRect,alerts:alertRect,buzz:buzzRect,
+              return {home:homeRect,alerts:alertRect,buzz:buzzRect,stackReady,
                 gap:alertRect.top-homeRect.bottom,queueGap:buzzRect.top-alertRect.bottom,
                 homeTrack:getComputedStyle(document.querySelector('#teacher .mission-grid')).gridTemplateRows.split(' ')[0],
                 panelTranslate:getComputedStyle(alerts).translate,
@@ -118,7 +121,7 @@ const hosts=[
                 shortcuts:shortcuts.length,alertVisible:getComputedStyle(alerts).display!=='none'};
             });
             console.log(JSON.stringify({label,role:'teacher-geometry',viewport:width,...geometry}));
-            if(!geometry.alertVisible||geometry.shortcuts&&geometry.vectorIcons!==geometry.shortcuts||
+            if(!geometry.stackReady||!geometry.alertVisible||geometry.shortcuts&&geometry.vectorIcons!==geometry.shortcuts||
                (width>=1220&&(geometry.gap<9||geometry.queueGap<9||geometry.shortcutsTop-geometry.helpBottom<6||geometry.panelTranslate!=='none'||geometry.alerts.right>width+3||
                  geometry.home.right>width+3)))failures++;
           }
@@ -140,7 +143,9 @@ const hosts=[
             const box=id=>document.getElementById(id).getBoundingClientRect();
             const home=box('teacherControlBar'),alerts=box('attentionSummary');
             const buzz=box('buzzPanel'),photo=box('photoInboxPanel'),help=box('helpInboxPanel'),shortcuts=box('appShortcutsPanel');
-            const result={homeGap:alerts.top-home.bottom,summaryGap:buzz.top-alerts.bottom,
+            const stack=document.getElementById('siV85AlertStack');
+            const result={stackReady:!!stack&&[alerts,buzz,photo,help].every(el=>el.parentElement===stack),
+              homeGap:alerts.top-home.bottom,summaryGap:buzz.top-alerts.bottom,
               buzzGap:photo.top-buzz.bottom,photoGap:help.top-photo.bottom,
               shortcutsGap:shortcuts.top-help.bottom,
               allUntranslated:['attentionSummary','buzzPanel','photoInboxPanel','helpInboxPanel'].every(id=>getComputedStyle(document.getElementById(id)).translate==='none')};
@@ -149,7 +154,7 @@ const hosts=[
             return result;
           });
           console.log(JSON.stringify({label,role:'populated-alert-layout',...populated}));
-          if(populated.homeGap<9||populated.summaryGap<9||populated.buzzGap<9||
+          if(!populated.stackReady||populated.homeGap<9||populated.summaryGap<9||populated.buzzGap<9||
              populated.photoGap<9||populated.shortcutsGap<6||!populated.allUntranslated)failures++;
           await page.setViewportSize({width:1440,height:900});
           await page.evaluate(()=>document.getElementById('siQuickPollHomeBtn')?.click());
