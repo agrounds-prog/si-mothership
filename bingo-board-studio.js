@@ -602,6 +602,28 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     }
   }
   function run(){const r=state.activityRun;return r?.activityId==='crew-survey-game'&&r.crewSurveyTotal?r:null}
+  function replayBoards(){
+    const r=run();if(!r)return null;
+    const total=Number(r.crewSurveyTotal||1);
+    if(activeCopies.length===total&&activeCopies.every(boardValid))return activeCopies.map(freezeBoard);
+    const saved=games.find(g=>g.id===r.crewSurveyGameId);
+    if(saved?.rounds.length===total&&saved.rounds.every(boardValid))return saved.rounds.map(freezeBoard);
+    if(total!==1)return null;
+    // An unsaved practice board can also be replayed after a page refresh.
+    const cfg=r.crewSurveyConfig||{};
+    const board=freezeBoard({
+      id:'survey-replay-current',name:'Current Survey Board',prompt:cfg.prompt,
+      answers:(cfg.answers||[]).map(a=>({text:a.text,value:a.value})),
+      scoring:cfg.scoring,aacVocab:cfg.aacVocab||[]
+    });
+    return boardValid(board)?[board]:null;
+  }
+  function restartSurvey(){
+    const chosen=replayBoards();
+    if(!chosen){tell('Could not replay this game. Finish & Return, then reload it from Saved Games.');return false}
+    if(!confirm('Play CREW SURVEY again from Round 1? Current scores and reveals will reset.'))return false;
+    return launchPreparedSurvey(chosen,true);
+  }
   function winner(cs){
     const a=Number(cs?.scores?.[0]||0),b=Number(cs?.scores?.[1]||0);
     return a===b?'TIE GAME':a>b?'BLUE CREW WINS':'RED CREW WINS';
@@ -655,12 +677,25 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     }
     const next=byId('crewSurveyNewRoundBtn');
     if(next){next.textContent=finished?'✓ Game Complete':idx<total?'→ Next Board & Face-Off':'↻ Replay Board';
-      next.disabled=finished;next.title=finished?'Finish & Return when ready':'Start a fresh faceoff';}
+      next.disabled=finished;next.title=finished?'Play Again or Finish & Return':'Start a fresh faceoff';}
+    const safety=root.querySelector('.controller-safety');
+    if(safety&&!root.querySelector('#crewSurveyReplayBtn')){
+      const again=document.createElement('button');
+      again.id='crewSurveyReplayBtn';again.type='button';again.className='primary-action';
+      again.textContent=finished?'↻ PLAY AGAIN':'↻ Restart This Game';
+      again.title='Restart this 1-, 3-, or 5-board Survey game from Round 1';
+      again.onclick=restartSurvey;safety.prepend(again);
+    }
   }
   /* Create a fully initialized live Survey run before the first render and
      state broadcast, using one consistent path for teacher preview and students. */
-  function launchPreparedSurvey(chosen){
-    if(state.activityRun){tell('Finish the current activity before launching another Survey game.');return false}
+  function launchPreparedSurvey(chosen,replayConfirmed=false){
+    if(state.activityRun){
+      if(state.activityRun.activityId!=='crew-survey-game'){
+        tell('Finish the other activity before starting CREW SURVEY.');return false;
+      }
+      if(!replayConfirmed&&!confirm('Restart CREW SURVEY from Round 1? Current scores and reveals will reset.'))return false;
+    }
     const first=chosen[0],students=connectedStudents(),teams=crewSurveyTeamsFromRoster();
     const answers=first.answers.filter(a=>a.text).map((a,i)=>({
       id:i+1,text:String(a.text).slice(0,70),value:Number(a.value||0)
@@ -691,7 +726,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       // Future boards remain in teacher-private memory; public state only has IDs.
       crewSurveyPlaylistIds:chosen.slice(1).map(b=>b.sourceBoardId)
     };
-    const previous={run:state.activityRun,screen:state.screen,prompt:state.promptActive,assigning:state.assigningSlot};
+    const previous={run:state.activityRun,screen:state.screen,prompt:state.promptActive,assigning:state.assigningSlot,copies:activeCopies};
     activeCopies=snapshots;
     state.activityRun=next;
     state.screen='activity';state.promptActive=false;state.assigningSlot=null;
@@ -701,7 +736,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     }catch(error){
       state.activityRun=previous.run;state.screen=previous.screen;
       state.promptActive=previous.prompt;state.assigningSlot=previous.assigning;
-      activeCopies=[];
+      activeCopies=previous.copies;
       try{render()}catch(_){}
       tell('CREW SURVEY could not render: '+String(error?.message||error));
       return false;
@@ -722,7 +757,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       return originalAward.apply(this,args);
     };
     launchCrewSurvey=function(){
-      if(state.activityRun){tell('Finish the current activity before launching another Survey game.');return false}
+      if(state.activityRun?.activityId&&state.activityRun.activityId!=='crew-survey-game'){
+        tell('Finish the other activity before starting CREW SURVEY.');return false;
+      }
       // A teacher editing a single unsaved board can test it without having
       // to create a Board Library entry and a Saved Game first.
       if(gameLength===1&&!roundIds[0]&&!roundCopies[0]){
@@ -848,7 +885,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   }
   function launchDraft(){
     try{
-      if(state.activityRun){tell('Finish the current activity before starting another Survey board.');return false}
+      if(state.activityRun?.activityId&&state.activityRun.activityId!=='crew-survey-game'){
+        tell('Finish the other activity before starting another Survey board.');return false;
+      }
       const draft=draftBoard();
       if(!boardValid(draft)){
         tell('To play this board, enter a question and at least four answers in the editor below.');
