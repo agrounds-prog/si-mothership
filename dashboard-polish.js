@@ -126,58 +126,44 @@ function installShortcutArtwork(){
 }
 
 
-/* v83 — real bounding-box clearance for the Class Alerts card.
-   Older display:contents dashboard grid tracks can start the first alert above
-   the bottom of the Home Row. Visually align it to the actual measured edge,
-   not a hardcoded margin or assumed grid track height. */
-function installAlertClearance(){
- const home=$('#teacherControlBar');
- const alertCard=$('#attentionSummary');
- const buzz=$('#buzzPanel'),photo=$('#photoInboxPanel'),help=$('#helpInboxPanel');
- if(!home||!alertCard)return;
- const railPanels=[buzz,photo,help].filter(Boolean);
- const observed=[home,alertCard,buzz].filter(Boolean);
- let queued=false;
- function measure(){
-   queued=false;
-   // Reset each visual displacement before taking fresh baseline measurements.
-   // Individual translate does not affect layout track sizing or content handlers.
-   [alertCard,...railPanels].forEach(node=>node.style.removeProperty('translate'));
+/* v84: the Home Row owns a real grid track rather than translating alert cards.
+   CSS grid reserves space for all alert panels and pushes Activity Shortcuts
+   down when students send photos, buzzes or help requests. */
+function installDashboardGridFlow(){
+ const grid=$('#teacher .mission-grid'),home=$('#teacherControlBar');
+ const controls=home?.querySelector('.single-mission-controls');
+ if(!grid||!home)return;
+ let pending=false;
+ function apply(){
+   pending=false;
    if(!document.body.classList.contains('si-v80-dashboard')||
-      !document.getElementById('teacher')?.classList.contains('active')||
-      window.matchMedia('(max-width:1219px)').matches)return;
-   const homeBox=home.getBoundingClientRect();
-   const alertBox=alertCard.getBoundingClientRect();
-   if(!homeBox.width||!alertBox.width)return;
-   const desiredGap=12;
-   const lift=Math.max(0,Math.ceil(homeBox.bottom+desiredGap-alertBox.top));
-   if(lift){
-     alertCard.style.setProperty('translate','0 '+lift+'px','important');
+      !window.matchMedia('(min-width:1220px)').matches){
+     grid.style.removeProperty('--si-v84-home-row');
+     return;
    }
-   // Keep the next card at least 12px beneath the displaced alert card.
-   // Do not move the left roster, shared screen, shortcut grid, or Home Row.
-   const buzzBox=buzz?.getBoundingClientRect();
-   const queueLift=buzzBox?.width
-     ?Math.max(0,Math.ceil(alertBox.bottom+lift+desiredGap-buzzBox.top))
-     :0;
-   if(queueLift)for(const card of railPanels)
-     card.style.setProperty('translate','0 '+queueLift+'px','important');
-   alertCard.dataset.siAlertClearance=String(lift);
-   alertCard.dataset.siAlertQueueClearance=String(queueLift);
+   const bar=home.getBoundingClientRect();
+   const controlBottom=controls?.getBoundingClientRect().bottom||bar.bottom;
+   if(bar.height<1)return;
+   // Include any visible children extending beyond the legacy bar height.
+   const required=Math.max(158,Math.ceil(Math.max(bar.bottom,controlBottom)-bar.top+8));
+   const value=required+'px';
+   if(grid.style.getPropertyValue('--si-v84-home-row')!==value)
+     grid.style.setProperty('--si-v84-home-row',value);
  }
  function schedule(){
-   if(queued)return;
-   queued=true;
-   requestAnimationFrame(measure);
+   if(pending)return;
+   pending=true;
+   requestAnimationFrame(apply);
  }
  schedule();
  window.addEventListener('resize',schedule,{passive:true});
  window.visualViewport?.addEventListener('resize',schedule,{passive:true});
  if('ResizeObserver' in window){
    const observer=new ResizeObserver(schedule);
-   observed.forEach(node=>observer.observe(node));
+   observer.observe(home);
+   if(controls)observer.observe(controls);
  }
- if(document.fonts?.ready)document.fonts.ready.then(schedule).catch(()=>{});
+ document.fonts?.ready?.then(schedule).catch(()=>{});
 }
 
 function tunePanels(){
@@ -206,7 +192,7 @@ function init(){
  if(!installHeader())return;
  addTheme();tunePanels();installShortcutArtwork();
  document.body.classList.add('si-v80-dashboard');
- installAlertClearance();
+ installDashboardGridFlow();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
 else init();
