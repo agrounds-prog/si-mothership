@@ -1598,3 +1598,71 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(document.readyState==='complete')install();
   else window.addEventListener('load',install,{once:true});
 })();
+
+/* Classroom Controls v1 — accessibility and reliable teacher feedback.
+   Decorates existing controls only; never replaces their event handlers or
+   modifies activity state, saved libraries, or student response semantics. */
+(()=>{
+  if(typeof window==='undefined'||window.__siClassControlPolishV1)return;
+  window.__siClassControlPolishV1=true;
+  function install(){
+    if(typeof renderControls!=='function')return;
+    const original=renderControls;
+    const descriptions={
+      lobby:'Send the class to the lobby',
+      activities:'Open the activity library',
+      agenda:'Open the class agenda',
+      ready:'Start a ready check',
+      emotion:'Open the emotion response prompt',
+      understanding:'Open the understanding response prompt'
+    };
+    function decorate(){
+      if(typeof SESSION_ROLE==='undefined'||SESSION_ROLE!=='teacher')return;
+      const bar=document.getElementById('teacherControlBar');
+      if(!bar)return;
+      const activity=!!state.activityRun,ended=!!state.ended;
+      bar.classList.toggle('mission-is-running',activity);
+      bar.classList.toggle('mission-is-ended',ended);
+      const pills=bar.querySelectorAll('[data-control],[data-send],[data-toggle]');
+      pills.forEach(btn=>{
+        const screen=btn.dataset.control||btn.dataset.send||'';
+        const type=btn.dataset.toggle||'';
+        if(screen){
+          const active=!activity&&state.screen===screen;
+          btn.setAttribute('aria-current',active?'page':'false');
+          btn.setAttribute('aria-label',(descriptions[screen]||screen)+(active?' — currently shown':''));
+          // Existing handlers block unsupported transitions during an activity.
+          btn.title=activity&&screen!=='lobby'?'Return to Classroom to open '+screen:descriptions[screen]||screen;
+        }
+        if(type){
+          const enabled=!!state[type+'Enabled'];
+          btn.setAttribute('aria-pressed',String(enabled));
+          btn.setAttribute('aria-label',(btn.querySelector('b')?.textContent||type)+
+            ' — '+(enabled?'enabled for students':'paused for students'));
+          btn.title=enabled?'Tap to pause this student response':'Tap to enable this student response';
+        }
+      });
+      const emergency=bar.querySelector('#emergencyReturnBtn');
+      if(emergency){
+        emergency.setAttribute('aria-label','Emergency return to the classroom');
+        emergency.title='Immediately return the class to the classroom';
+      }
+      const label=bar.querySelector('#teacherQuickStatus');
+      if(label){
+        label.setAttribute('role','status');
+        label.setAttribute('aria-live','polite');
+        label.setAttribute('aria-atomic','true');
+      }
+      const end=bar.querySelector('#endBtn');
+      if(end){end.title='End this classroom session';end.setAttribute('aria-label','End session');}
+    }
+    renderControls=function(...args){
+      const value=original.apply(this,args);
+      try{decorate()}catch(e){console.warn('Mission Control visual feedback unavailable',e)}
+      return value;
+    };
+    if(document.readyState==='complete')decorate();
+  }
+  if(document.readyState==='complete')install();
+  else window.addEventListener('load',install,{once:true});
+})();
