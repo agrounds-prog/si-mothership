@@ -17,7 +17,14 @@ const hosts=[
     page.on("pageerror",error=>errors.push(String(error.stack||error.message||error).slice(0,1900)));
     const target=url+(url.includes("?")?"&":"?")+"role="+role;
     try{
-      const response=await page.goto(target,{waitUntil:"domcontentloaded",timeout:45000});
+      let response=null;
+      for(let attempt=0;attempt<4;attempt++){
+        response=await page.goto(target,{waitUntil:"domcontentloaded",timeout:45000});
+        if(response&&response.status()<500)break;
+        if(label!=="production"||attempt===3)break;
+        console.log(JSON.stringify({label,role,retryingHttp:response?.status(),attempt:attempt+1}));
+        await page.waitForTimeout(2000+attempt*1000);
+      }
       await page.waitForTimeout(1600);
       const info=await page.evaluate(()=>{
        const overlay=document.getElementById("bootError");
