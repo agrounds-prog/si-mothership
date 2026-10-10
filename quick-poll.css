@@ -268,3 +268,26 @@
 @media(prefers-reduced-motion:reduce){
  #qpDialog *,#qpPublicOverlay *,#qpLauncher{animation:none!important;transition:none!important}
 }
+
+/* Launch feedback: visible in the editor header area instead of only below
+   a long list of choices. Keep the actual question and existing answers intact. */
+#qpDialog .qp-editor-notice{
+ display:block;
+ padding:12px 15px;
+ margin:0 0 13px;
+ border:1px solid #ffb676;
+ border-radius:12px;
+ background:linear-gradient(110deg,#4c2c1e,#281e28);
+ color:#fff0db;
+ font-size:14px;
+ line-height:1.35;
+ font-weight:850;
+ box-shadow:0 0 0 2px #c5772740,0 8px 18px #0005;
+}
+#qpDialog .qp-editor-notice[hidden]{display:none!important}
+#qpDialog .qp-field input.qp-invalid,
+#qpDialog .qp-edit-choice input.qp-invalid{
+ border-color:#ff9f84!important;
+ outline:2px solid #ff9f84!important;
+ box-shadow:0 0 12px #fc847755!important;
+}
