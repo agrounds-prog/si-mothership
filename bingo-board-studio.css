@@ -2584,3 +2584,15 @@ body.role-student .student-actions button:focus-visible{outline:3px solid #ffe69
 @media (prefers-reduced-motion:reduce){
  #teacher .si-live-control-dock,body.role-student .student-actions button{scroll-behavior:auto!important;transition:none!important}
 }
+
+/* Student transport status: text plus unmistakable contrast when offline. */
+body.role-student #studentConnectionLabel[data-si-connection="Reconnecting"],
+body.role-student #studentConnectionLabel[data-si-connection="Offline"],
+body.role-student #studentConnectionLabel[data-si-connection="Session Expired"]{
+ color:#ffe3af!important;font-weight:900;
+}
+body.role-student .student-control-zone .si-student-action-status[data-si-mode="disconnected"]{
+ background:#4a2f2b!important;border-color:#ffad9c!important;color:#fff0e7!important;
+}
+body.role-student .student-control-zone .si-student-action-status[data-si-mode="disconnected"]::before{color:#ffad9c!important}
+body.role-student .student-actions [data-class-action]:disabled{cursor:not-allowed;opacity:.64}
