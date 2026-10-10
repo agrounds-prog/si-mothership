@@ -1422,3 +1422,179 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(document.readyState==='complete')install();
   else window.addEventListener('load',install,{once:true});
 })();
+
+
+/* SI MOTHERSHIP CLASSROOM COMMAND POLISH v1.
+   Display-only teacher information / alert navigation. Preserves the original
+   controls, events, permissions, state, and all game controllers. */
+(()=>{
+  if(typeof window==='undefined'||window.__siClassroomCommandPolish)return;
+  window.__siClassroomCommandPolish=true;
+  function install(){
+    if(typeof renderControls!=='function'||typeof renderRight!=='function'||typeof renderPublic!=='function')return;
+    const teacher=SESSION_ROLE==='teacher';
+    const text=v=>typeof esc==='function'?esc(String(v??'')):String(v??'');
+    function liveStats(){
+      const buzz=Array.isArray(state.buzz)?state.buzz.length:0;
+      const ignored=new Set((state.helpDeletedIds||[]).map(String));
+      const help=(state.helpMessages||[]).filter(m=>m&&!ignored.has(String(m.id))).length;
+      const unread=(state.helpMessages||[]).filter(m=>m&&!ignored.has(String(m.id))&&!m.seen).length;
+      const photos=Array.isArray(state.photos)?state.photos.length:0;
+      const newPhotos=(state.photos||[]).filter(p=>p&&!p.seen).length;
+      const hands=(state.alerts||[]).filter(a=>a&&a.type==='hand').length;
+      return {buzz,help,photos,unread,newPhotos,hands,connected:typeof connectedStudents==='function'?connectedStudents().length:0};
+    }
+    const selectors={buzz:'buzzPanel',help:'helpInboxPanel',photo:'photoInboxPanel'};
+    function visitInbox(kind){
+      const panel=document.getElementById(selectors[kind]||'');
+      if(!panel)return;
+      if(typeof panel.scrollIntoView==='function'){
+        const reduce=!!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+        try{panel.scrollIntoView({behavior:reduce?'instant':'smooth',block:'center'})}
+        catch(_){panel.scrollIntoView()}
+      }
+      panel.tabIndex=-1;
+      try{panel.focus({preventScroll:true})}catch(_){}
+      panel.classList.remove('si-inbox-focus');
+      // Retrigger a visual cue even when the same inbox was selected earlier.
+      void panel.offsetWidth;
+      panel.classList.add('si-inbox-focus');
+      if(panel.__siInboxFlash)clearTimeout(panel.__siInboxFlash);
+      panel.__siInboxFlash=setTimeout(()=>panel.classList.remove('si-inbox-focus'),2100);
+    }
+    function wireAlertLinks(){
+      if(!teacher)return;
+      [['attentionBuzzChip','buzz'],['attentionHelpChip','help'],['attentionPhotoChip','photo']].forEach(([id,kind])=>{
+        const chip=document.getElementById(id);
+        if(!chip||chip.dataset.siAlertLink)return;
+        chip.dataset.siAlertLink='true';
+        chip.setAttribute('role','button');
+        chip.setAttribute('tabindex','0');
+        chip.addEventListener('click',()=>visitInbox(kind));
+        chip.addEventListener('keydown',event=>{
+          if(event.key==='Enter'||event.key===' '){event.preventDefault();visitInbox(kind)}
+        });
+      });
+      const summary=document.getElementById('attentionSummary');
+      if(summary)summary.setAttribute('aria-label','Live classroom alerts. Choose Buzz, Help or Photos to open the corresponding inbox.');
+      const launch=document.getElementById('launchSecondScreenBtn');
+      if(launch)launch.title='Open the synchronized classroom display for Zoom or a second monitor';
+    }
+    function addToggleIndicator(button){
+      if(!button.querySelector('.si-toggle-led')){
+        const dot=document.createElement('span');
+        dot.className='si-toggle-led';
+        dot.setAttribute('aria-hidden','true');
+        button.appendChild(dot);
+      }
+    }
+    function setCounter(button,count){
+      if(!button)return;
+      let badge=button.querySelector('.si-mission-counter');
+      if(count>0){
+        if(!badge){
+          badge=document.createElement('span');
+          badge.className='si-mission-counter';
+          badge.setAttribute('aria-hidden','true');
+          button.appendChild(badge);
+        }
+        badge.textContent=count>99?'99+':String(count);
+      }else if(badge)badge.remove();
+    }
+    function paintTeacher(){
+      if(!teacher)return;
+      const stats=liveStats(),bar=document.getElementById('teacherControlBar');
+      if(!bar)return;
+      bar.classList.add('si-command-polish');
+      bar.dataset.siAlerts=String(stats.buzz+stats.help+stats.photos);
+      const copy=bar.querySelector('.mission-context-copy');
+      if(copy){
+        let line=copy.querySelector('.si-mission-readout');
+        if(!line){
+          line=document.createElement('div');
+          line.className='si-mission-readout';
+          line.setAttribute('role','status');
+          line.setAttribute('aria-live','off');
+          copy.appendChild(line);
+        }
+        const ended=!!state.ended;
+        const live=!!state.activityRun&&state.activityRun.phase==='running';
+        const badgeText=ended?'SESSION ENDED':live?'ACTIVITY LIVE':state.activityRun?'ACTIVITY LOBBY':'CLASSROOM';
+        line.innerHTML='<span class="si-readout-mode">'+text(badgeText)+'</span>'+
+          '<span>'+stats.connected+' connected</span>'+
+          '<span class="'+(stats.buzz+stats.help+stats.photos?'needs-attention':'')+'">'+
+          (stats.buzz+stats.help+stats.photos?stats.buzz+' buzz · '+stats.help+' help · '+stats.photos+' photo':'All clear')+'</span>';
+      }
+      for(const key of ['hand','buzz','help','picture']){
+        const btn=bar.querySelector('[data-toggle="'+key+'"]');
+        if(!btn)continue;
+        const enabled=!state.ended&&!!state[key+'Enabled'];
+        const label={hand:'Raise Hand',buzz:'Buzz',help:'Ask for Help',picture:'Picture Prompt'}[key];
+        const notices=key==='buzz'?stats.buzz:key==='help'?stats.help:key==='picture'?stats.photos:stats.hands;
+        btn.dataset.siEnabled=enabled?'on':'off';
+        btn.setAttribute('aria-pressed',String(enabled));
+        btn.setAttribute('aria-label',label+' '+(enabled?'enabled':'paused')+
+          (notices?' · '+notices+' active '+(notices===1?'request':'requests'):''));
+        btn.title=label+': '+(enabled?'enabled':'paused')+(notices?' ('+notices+' active)':'');
+        addToggleIndicator(btn);
+        if(key==='buzz'||key==='help'||key==='picture')setCounter(btn,notices);
+      }
+      bar.querySelectorAll('[data-control],[data-send]').forEach(btn=>{
+        const selected=btn.classList.contains('active');
+        btn.setAttribute('aria-pressed',String(selected));
+        btn.title=(btn.querySelector('b')?.textContent||'Classroom action').trim();
+      });
+      for(const [id,kind] of [['attentionBuzzChip','buzz'],['attentionHelpChip','help'],['attentionPhotoChip','photo']]){
+        const el=document.getElementById(id);
+        if(el)el.setAttribute('aria-label',kind.charAt(0).toUpperCase()+kind.slice(1)+
+          ' inbox · '+stats[kind==='photo'?'photos':kind]+' active · open inbox');
+      }
+      const attention=document.getElementById('attentionSummary');
+      if(attention){
+        attention.classList.toggle('si-attention-live',stats.buzz+stats.help+stats.photos>0);
+        attention.setAttribute('aria-live','off');
+      }
+      const quiet=stats.buzz+stats.help+stats.photos===0;
+      const panels=[['buzzPanel',stats.buzz],['helpInboxPanel',stats.help],['photoInboxPanel',stats.photos]];
+      panels.forEach(([id,count])=>{
+        const panel=document.getElementById(id);
+        if(panel)panel.dataset.siInboxCount=String(count);
+      });
+    }
+    function paintStudent(){
+      if(SESSION_ROLE!=='student')return;
+      const controls=document.getElementById('studentControls');
+      if(!controls)return;
+      controls.querySelectorAll('button').forEach(btn=>{
+        if(btn.hasAttribute('aria-label'))return;
+        const label=(btn.textContent||'').trim().replace(/\s+/g,' ');
+        if(label)btn.setAttribute('aria-label',label);
+        if(btn.disabled)btn.setAttribute('aria-disabled','true');
+        if(btn.classList.contains('active')||btn.classList.contains('on'))btn.setAttribute('aria-pressed','true');
+      });
+    }
+    if(teacher)wireAlertLinks();
+    const formerControls=renderControls;
+    renderControls=function(...args){
+      const value=formerControls.apply(this,args);
+      if(teacher)paintTeacher();
+      return value;
+    };
+    const formerRight=renderRight;
+    renderRight=function(...args){
+      const value=formerRight.apply(this,args);
+      if(teacher)paintTeacher();
+      return value;
+    };
+    const formerPublic=renderPublic;
+    renderPublic=function(...args){
+      const value=formerPublic.apply(this,args);
+      paintStudent();
+      return value;
+    };
+    if(teacher){wireAlertLinks();paintTeacher()}
+    else paintStudent();
+  }
+  if(document.readyState==='complete')install();
+  else window.addEventListener('load',install,{once:true});
+})();
