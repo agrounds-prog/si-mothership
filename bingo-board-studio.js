@@ -675,6 +675,51 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         '</span><strong>BLUE '+Number(cs.scores?.[0]||0)+' · RED '+Number(cs.scores?.[1]||0)+'</strong>';
       head.after(info);
     }
+
+    // A single command deck mirrors existing teacher actions without touching
+    // the game engine, saved content, or student permissions.
+    if(!root.querySelector('.cs-teacher-show-controls')){
+      const control=cs.controlTeam==null?null:Number(cs.controlTeam);
+      const selected=control===0?'BLUE':control===1?'RED':'';
+      const done=cs.stage==='roundwon',winnerName=String(cs.buzzer?.winner||'');
+      const canStrike=!done&&cs.stage!=='steal'&&(control!==null||!!winnerName);
+      const canNext=!done&&control!==null&&(cs.teams?.[control]||[]).length>0;
+      const strip=document.createElement('section');
+      strip.className='cs-teacher-show-controls';
+      strip.setAttribute('aria-label','CREW SURVEY show controls');
+      const roundDots=Array.from({length:total},(_,i)=>
+        '<span class="'+(i===idx-1?'now':i<idx-1?'done':'')+'" aria-label="Board '+(i+1)+'">'+(i+1)+'</span>').join('');
+      const stage=done?'ROUND COMPLETE':cs.stage==='steal'?'STEAL CHANCE':
+        cs.stage==='faceoff'?(cs.buzzer?.armed?'BUZZERS ARMED':winnerName?'FIRST BUZZ':'FACE-OFF READY'):
+        selected+' CREW IN CONTROL';
+      const btn=(action,label,enabled=true,style='')=>'<button type="button" data-cs-quick="'+action+
+        '" class="cs-quick '+style+'" '+(enabled?'':'disabled')+'>'+label+'</button>';
+      strip.innerHTML='<div class="cs-teacher-show-head"><div><b>ϟ FACE-OFF COMMAND DECK</b>'+
+        '<span>'+safe(stage)+(winnerName?' · '+safe(winnerName):'')+'</span></div>'+
+        '<div class="cs-teacher-round-dots">'+roundDots+'</div></div>'+
+        '<div class="cs-teacher-action-row">'+
+        btn('arm','ϟ ARM BUZZERS',!done&&!cs.buzzer?.armed,'cs-quick-primary')+
+        btn('reset','↻ RESET',!done)+
+        btn('strike','✕ STRIKE',canStrike,'cs-quick-strike')+
+        btn('player','→ NEXT PLAYER',canNext)+
+        btn('award','★ AWARD '+(selected||'ROUND'),!done&&control!==null,'cs-quick-award')+
+        btn('round',idx<total?'NEXT BOARD →':'↻ PLAY AGAIN',done,'cs-quick-primary')+'</div>'+
+        '<p class="cs-teacher-tip">'+(done?'Round awarded. '+(idx<total?'Move to the next faceoff.':'Final results are ready.'):
+          cs.stage==='steal'?'Three strikes! The opposing crew gets the steal attempt.':
+          cs.stage==='faceoff'?'Choose contestants below, arm buzzers, then reveal their answer.':
+          'Reveal answers below; rotate players or assign a strike as needed.')+'</p>';
+      const header=root.querySelector('.activity-controller-head');
+      if(header)header.after(strip);else root.prepend(strip);
+      strip.querySelectorAll('[data-cs-quick]').forEach(button=>button.onclick=()=>{
+        const action=button.dataset.csQuick;
+        if(action==='arm')crewSurveyArmBuzzers();
+        else if(action==='reset')crewSurveyResetBuzzers();
+        else if(action==='strike')crewSurveyStrike();
+        else if(action==='player')crewSurveyNextPlayer();
+        else if(action==='award'&&control!==null)crewSurveyAwardRound(control);
+        else if(action==='round')done?(idx<total?crewSurveyNewRound():restartSurvey()):null;
+      });
+    }
     const next=byId('crewSurveyNewRoundBtn');
     if(next){next.textContent=finished?'✓ Game Complete':idx<total?'→ Next Board & Face-Off':'↻ Replay Board';
       next.disabled=finished;next.title=finished?'Play Again or Finish & Return':'Start a fresh faceoff';}
@@ -977,7 +1022,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const escText=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
     const role=typeof SESSION_ROLE!=='undefined'?SESSION_ROLE:'';
     const originalPublic=crewSurveySharedMarkup;
-    let stageKey='',oldRevealed=null,oldStrikes=null;
+
+    // RenderPublic draws the teacher mirror and shared screen separately.
+    // Track visual effects per viewport, so both receive each reveal/strike.
+    const channels={normal:{stageKey:'',oldRevealed:null,oldStrikes:null},
+      big:{stageKey:'',oldRevealed:null,oldStrikes:null}};
     crewSurveySharedMarkup=function(...args){
       const html=originalPublic.apply(this,args);
       const run=args[0]&&typeof args[0]==='object'?args[0]:state?.activityRun;
@@ -985,17 +1034,47 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const cs=run.crewSurvey||{},round=Number(run.crewSurveyRoundIndex||0)+1;
       const total=Math.max(1,Number(run.crewSurveyTotal||1));
       const token=String(run.runToken||'')+'|'+round;
-      const freshRound=!!stageKey&&stageKey!==token;
-      if(stageKey!==token){stageKey=token;oldRevealed=null;oldStrikes=null}
+      const track=channels[args[1]?'big':'normal'];
+      const freshRound=!!track.stageKey&&track.stageKey!==token;
+      if(track.stageKey!==token){track.stageKey=token;track.oldRevealed=null;track.oldStrikes=null}
       const revealed=new Set(Array.isArray(cs.revealed)?cs.revealed.map(Number):[]);
-      const freshReveals=oldRevealed===null?new Set():new Set([...revealed].filter(x=>!oldRevealed.has(x)));
-      oldRevealed=revealed;
+      const freshReveals=track.oldRevealed===null?new Set():new Set([...revealed].filter(x=>!track.oldRevealed.has(x)));
+      track.oldRevealed=revealed;
       const strikes=(Array.isArray(cs.strikes)?cs.strikes:[0,0]).map(x=>Math.max(0,Math.min(3,Number(x)||0)));
-      const freshStrike=oldStrikes?strikes.some((x,i)=>x>oldStrikes[i]):false;
-      oldStrikes=strikes;
+      const freshStrike=track.oldStrikes?strikes.some((x,i)=>x>track.oldStrikes[i]):false;
+      track.oldStrikes=strikes;
+
       const stage=String(cs.stage||'faceoff').toLowerCase();
-      const statusLabel=stage==='faceoff'?'FACE-OFF':stage==='steal'?'STEAL OPPORTUNITY':
-        stage==='roundwon'?'ROUND COMPLETE':'BOARD IN PLAY';
+      const won=stage==='roundwon',buzzName=String(cs.buzzer?.winner||'');
+      const buzzTeam=buzzName&&typeof crewSurveyTeamFor==='function'?crewSurveyTeamFor(buzzName,run):null;
+      const controlTeam=cs.controlTeam==null?buzzTeam:Number(cs.controlTeam);
+      const teamName=t=>t===0?'BLUE CREW':'RED CREW';
+      const statusLabel=stage==='faceoff'?(buzzName?'FIRST BUZZ':'FACE-OFF'):
+        stage==='steal'?'STEAL OPPORTUNITY':won?'ROUND COMPLETE':'BOARD IN PLAY';
+      const cue=won?'ROUND POINTS AWARDED':stage==='steal'?'THREE STRIKES · STEAL AVAILABLE':
+        stage==='faceoff'?(buzzName?'FIRST BUZZ · '+buzzName:cs.buzzer?.armed?'BUZZERS ARMED · FIRST SIGNAL WINS':'SELECT PLAYERS · ARM BUZZERS'):
+        (controlTeam!==null?teamName(controlTeam)+' IN CONTROL':'BOARD IN PLAY')+' · FIND THE ANSWERS';
+      const roster=Array.isArray(cs.teams)?cs.teams:[[],[]];
+      const eligible=Array.isArray(cs.buzzer?.eligible)?cs.buzzer.eligible:[];
+      const person=t=>{
+        const selected=eligible.find(n=>(roster[t]||[]).includes(n));
+        const name=stage==='faceoff'&&selected?selected:
+          typeof crewSurveyActiveName==='function'?crewSurveyActiveName(t,run):roster[t]?.[0]||'';
+        if(!name)return '<span class="cs-person-empty">Awaiting player</span>';
+        const student=(state.students||[]).find(s=>s.n===name);
+        return student&&typeof studentAvatarBadgeMarkup==='function'?
+          studentAvatarBadgeMarkup(student):'<span class="cs-person-fallback">✦</span><span>'+esc(name)+'</span>';
+      };
+      const card=t=>'<div class="cs-faceoff-card '+(t===0?'blue':'red')+
+        (controlTeam===t?' active':'')+'"><b>'+teamName(t)+'</b>'+
+        '<div class="cs-faceoff-player">'+person(t)+'</div>'+
+        '<small>'+(roster[t]?.length||0)+' CREW MEMBER'+((roster[t]?.length||0)===1?'':'S')+'</small></div>';
+      const spotlight='<div class="cs-faceoff-spotlight">'+card(0)+
+        '<div class="cs-faceoff-vs"><span>'+(won?'ROUND RESULT':stage==='faceoff'?'FACE-OFF':'CURRENT TURN')+
+        '</span><strong>'+(stage==='faceoff'?'VS':won?'★':'▶')+'</strong>'+
+        '<em>'+(buzzName?'BUZZ: '+esc(buzzName):cs.buzzer?.armed?'BUZZERS LIVE':'READY')+'</em></div>'+
+        card(1)+'</div>';
+      const cueMarkup='<div class="cs-show-cue" role="status"><span class="cs-cue-light"></span>'+esc(cue)+'</div>';
       const banner='<div class="cs-show-status" aria-label="Survey round status">'+
         '<span class="cs-show-stage">'+escText(statusLabel)+'</span>'+
         '<span class="cs-show-progress">BOARD '+round+' / '+total+'</span>'+
@@ -1003,13 +1082,23 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       let output=html.replace(/(<div class="crew-survey-public\b[^"]*)(")/,(_full,leading,quote)=>
         leading+' cs-showtime'+(freshRound?' cs-new-board':'')+'" data-cs-stage="'+stage+'"');
       // Append a stage/status rail only; the original game board remains authoritative.
-      output=output.replace(/(<div class="crew-survey-stage-head">)/,banner+'$1');
+      output=output.replace(/(<div class="crew-survey-stage-head">)/,banner+cueMarkup+spotlight+'$1');
+      if(controlTeam!==null)output=output.replace('class="crew-survey-score '+(controlTeam===0?'blue':'red')+'"',
+        'class="crew-survey-score '+(controlTeam===0?'blue':'red')+' cs-has-control"');
       let slot=-1;
       output=output.replace(/<div class="crew-survey-panel ([^"]*)">/g,(whole,cls)=>{
         slot++;
         return '<div class="crew-survey-panel '+cls+(freshReveals.has(slot)?' cs-new-reveal':'')+'">';
       });
-      if(freshStrike)output=output.replace('class="crew-survey-footer"','class="crew-survey-footer cs-strike-alert"');
+      if(freshStrike){
+        output=output.replace('class="crew-survey-footer"','class="crew-survey-footer cs-strike-alert"');
+        const pos=output.lastIndexOf('</div>');
+        if(pos>=0)output=output.slice(0,pos)+'<div class="cs-strike-flash" aria-hidden="true">✕</div>'+output.slice(pos);
+      }
+      if(freshRound){
+        const pos=output.lastIndexOf('</div>');
+        if(pos>=0)output=output.slice(0,pos)+'<div class="cs-round-intro" aria-hidden="true"><span>NEXT FACE-OFF</span><b>BOARD '+round+' / '+total+'</b></div>'+output.slice(pos);
+      }
       if(stage==='roundwon'&&round===total){
         const left=Number(cs.scores?.[0]||0),right=Number(cs.scores?.[1]||0);
         const who=left===right?'IT\'S A TIE!':left>right?'BLUE CREW WINS!':'RED CREW WINS!';
