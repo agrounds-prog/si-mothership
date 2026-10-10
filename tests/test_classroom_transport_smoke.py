@@ -115,5 +115,51 @@ class ClassroomTransportSmoke(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(state["state"]["screen"], "classroom")
 
 
+    async def test_two_students_concurrent_buzz_merges_and_identity_is_locked(self):
+        await self.login()
+        teacher = await self.ws("teacher")
+        alpha = await self.ws("student", app.CURRENT_JOIN_CODE, app.CURRENT_SESSION_ID)
+        beta = await self.ws("student", app.CURRENT_JOIN_CODE, app.CURRENT_SESSION_ID)
+        for socket in (teacher, alpha, beta):
+            await self.wait_for(socket, "join_code")
+
+        roster = [{"n": "Alpha", "studentToken": "token-alpha", "c": "#445566"},
+                  {"n": "Beta", "studentToken": "token-beta", "c": "#667788"}]
+        baseline = {"screen": "classroom", "students": roster, "activityRun": None,
+                    "buzz": [], "buzzEnabled": True, "handEnabled": True,
+                    "alerts": [], "helpMessages": [], "photos": [], "ended": False}
+        await teacher.send_json({"type": "state", "state": baseline})
+        for _ in range(30):
+            if app.LATEST_STATE is not None:
+                break
+            await asyncio.sleep(0.02)
+
+        await alpha.send_json({"type": "hello", "student_token": "token-alpha",
+                               "student_name": "Alpha"})
+        await beta.send_json({"type": "hello", "student_token": "token-beta",
+                              "student_name": "Beta"})
+
+        async def buzz(socket, student):
+            await socket.send_json({"type": "state",
+                                    "state": {"screen": "hijacked",
+                                              "students": [student],
+                                              "buzz": [student["n"]]}})
+        await asyncio.gather(buzz(alpha, roster[0]), buzz(beta, roster[1]))
+        for _ in range(40):
+            if set(app.LATEST_STATE.get("buzz", [])) == {"Alpha", "Beta"}:
+                break
+            await asyncio.sleep(0.025)
+        self.assertEqual(set(app.LATEST_STATE.get("buzz", [])), {"Alpha", "Beta"})
+        self.assertEqual(app.LATEST_STATE["screen"], "classroom")
+
+        # Alpha cannot switch its established socket identity to Beta.
+        await alpha.send_json({"type": "hello", "student_token": "token-beta",
+                               "student_name": "Beta"})
+        await alpha.send_json({"type": "state",
+                               "state": {"students": [roster[1]], "buzz": []}})
+        await asyncio.sleep(0.08)
+        self.assertEqual(set(app.LATEST_STATE.get("buzz", [])), {"Alpha", "Beta"})
+
+
 if __name__ == "__main__":
     unittest.main()
