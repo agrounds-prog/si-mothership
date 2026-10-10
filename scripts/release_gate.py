@@ -233,7 +233,7 @@ def main() -> int:
     check("activity library: release style remains", '<style id="v55-5-activity-library-organization">' in html)
     check("activity library: search remains teacher-local", "let activityLibraryQuery=''" in html and "activityLibraryQuery" not in segment(html, "function sharedStateSnapshot("))
     check("activity library: category filters remain", all(x in html for x in ("ACTIVITY_LIBRARY_CATEGORY_ORDER", "'presentation'", "'collaboration'", "'games'", "'tools'")))
-    check("activity library: every registered app category is represented", all(x in html for x in ("id==='si-plus'", "['vector','board','orbit']", "['minefield','sketch','pixel','starwheel','crew-survey','million','match','bingo']", "id==='scientific-calculator'")))
+    check("activity library: every registered app category is represented", all(x in html for x in ("id==='si-plus'", "['vector','board','orbit']", "['minefield','sketch','pixel','starwheel','crew-survey','million','match','bingo','cosmic-cards']", "id==='scientific-calculator'")))
     check("activity library: recent shelf precedes saved presets", "activity-library-shelves" in library_render and "recentSection" in library_render and "presetSection" in library_render and "recentSection}${presetSection}" in library_render)
     check("activity library: catalog filters before rendering", "const visibleApps=APP_REGISTRY.filter(app=>activityLibraryMatches(app))" in library_render and "Showing ${visibleApps.length} of ${APP_REGISTRY.length}" in library_render)
     check("activity library: shortcut management remains available", all(x in library_render for x in ("data-shortcut-replace", "data-shortcut-remove", "data-manage-shortcut", "data-add-app")))
@@ -440,7 +440,16 @@ def main() -> int:
     check("live roster compact v55.28: three-four student pods reduced", "min-height:218px!important" in html and "width:123px!important" in html and "height:122px!important" in html)
     check("live roster compact v55.28: roster behavior remains presentation-only", "Presentation only: preserve roster state, alerts and authority." in html)
     check("match completion v55.27: release style remains", 'id="v55-27-match-completion"' in html)
-    check("match completion v55.27: launch settings remain separate from saved sets", "matchLaunchSettings" in html and "Saved sets contain only pair content" in html and "matchTeamAssignments" in html)
+    # Saved MATCH sets hold pair content; classroom rules belong to launch settings
+    # and are copied into each run's matchConfig rather than saved with the set.
+    match_save = segment(html, "function saveMatchDraft(")
+    match_launch = segment(html, "function launchMatchSet(")
+    check("match completion v55.27: launch settings remain separate from saved sets",
+          all(x in match_save for x in ("const set={id:existing?.id", "name:String(matchDraft.name", "pairs,", "createdAt:existing?.createdAt")) and
+          all(x not in match_save for x in ("matchLaunchSettings", "teamAssignments", "turnRule", "crewConsult")) and
+          "const settings=deepClone(matchLaunchSettings)" in match_launch and
+          "matchConfig:{setId:set.id,name:set.name,pairs:deepClone(set.pairs),mode:settings.mode" in match_launch and
+          "matchTeamAssignments" in html)
     check("match completion v55.27: recommended team defaults remain", "mode:\'teams\'" in html and "teamCount:3" in html and "turnRule:\'one_each\'" in html and "crewConsult:true" in html)
     check("match completion v55.27: authoritative team rotation remains", "_match_team_members" in server and "_match_advance_turn" in server and "teamPlayerIndexes" in server and "activeTeam" in server)
     check("match completion v55.27: match-go-again rule remains", "match_go_again" in html and "match_go_again" in server and "go_again" in server)
@@ -584,7 +593,13 @@ def main() -> int:
     check("unified buttons v56.8: dedicated layer remains", bool(v568_style))
     check("unified buttons v56.8: activity shortcuts are centered fixed modules", "grid-template-columns:repeat(9,84px)!important" in v568_css and "justify-content:center!important" in v568_css)
     check("unified buttons v56.8: classroom controls use launcher geometry", "grid-template-rows:62px 20px!important" in v568_css and "#teacher .single-mission-controls .control" in v568_css)
-    check("unified buttons v56.8: classroom art tiles match shortcut family", "width:60px!important" in v568_css and "border-radius:16px!important" in v568_css)
+    # Current art tiles use a 15px rounded edge inside the 60px module.
+    tile_art = re.search(r"#teacher \.single-mission-controls \.control \.ico\.v562-art\{(.*?)\}", v568_css, re.S)
+    check("unified buttons v56.8: classroom art tiles match shortcut family",
+          bool(tile_art) and "width:60px!important" in tile_art.group(1) and
+          "height:60px!important" in tile_art.group(1) and
+          "border-radius:15px!important" in tile_art.group(1) and
+          "#teacher .v562-end-btn .v562-art" in v568_css)
     check("unified buttons v56.8: state styling stays on art tiles", "#teacher .single-mission-controls .control.active .ico.v562-art" in v568_css and "#teacher .single-mission-controls .control.enabled .ico.v562-art" in v568_css)
     check("unified buttons v56.8: end session joins unified family", "#teacher .v562-end-btn" in v568_css and "grid-template-rows:62px 20px!important" in v568_css)
     check("unified buttons v56.8: behavior hooks remain", 'data-control="lobby"' in html and 'data-toggle="buzz"' in html and 'data-send="understanding"' in html and 'id="endBtn"' in html)
