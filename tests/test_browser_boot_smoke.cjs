@@ -210,7 +210,7 @@ const hosts=[
           // The production class and persistent database are never mutated.
           try{
             let simulated=null;
-            await page.route('**/api/quick-poll/**',async route=>{
+            await ctx.route('**/api/quick-poll/**',async route=>{
               const path=new URL(route.request().url()).pathname;
               const verb=route.request().method();
               const data=verb==='POST'?route.request().postDataJSON():{};
@@ -221,10 +221,14 @@ const hosts=[
                 simulated={...data,id:'ui-regression-poll',phase:'open',round:1,
                   choices:data.choices.map((c,i)=>({...c,id:String(i)})),
                   counts:Object.fromEntries(data.choices.map((_,i)=>[String(i),0])),
-                  voters:0,eligible:0,ownVote:null,endAt:null};
+                  voters:0,eligible:0,ownVote:null,endAt:null,sharedVisible:false};
               }else if(path.endsWith('/control')){
                 if(data.action==='dismiss')simulated=null;
-                else if(simulated)simulated.phase=data.action==='close'?'closed':'open';
+                else if(simulated){
+                  if(data.action==='display')simulated.display=data.display;
+                  else if(data.action==='share')simulated.sharedVisible=data.visible;
+                  else simulated.phase=data.action==='close'?'closed':'open';
+                }
               }
               await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(result)});
             });
@@ -255,6 +259,36 @@ const hosts=[
             console.log(JSON.stringify({label,role:'poll-launch-ui',
               active:!!simulated,question:simulated?.question,choices:simulated?.choices?.map(x=>x.label)}));
             if(!simulated||simulated.question!=='Choose our next classroom activity')failures++;
+            // The same chart must be visible in the teacher mirror and in the
+            // independent second-screen role. The test's route interception
+            // prevents any writes to Railway's real classroom.
+            const sharedPage=await ctx.newPage();
+            await sharedPage.goto(url+'/?role=shared',{waitUntil:'domcontentloaded'});
+            await sharedPage.waitForTimeout(250);
+            await sharedPage.evaluate(()=>window.SIQuickPoll.refresh(true));
+            const initiallyHidden=await sharedPage.locator('#qpPublicOverlay').evaluate(el=>el.hidden);
+            const initialMirrorHidden=await page.locator('#qpMirrorPreview').evaluate(el=>el.hidden);
+            if(!initiallyHidden||!initialMirrorHidden)failures++;
+            for(const [mode,chart] of [['bars','.qp-bar-chart'],['donut','.qp-donut'],
+                                       ['showdown','.qp-showdown'],['cards','.qp-results']]){
+              await page.locator('#qpDialog [data-qp-display="'+mode+'"]').click();
+              await page.waitForFunction(mode=>document.querySelector('#qpTeacherLive button.on[data-qp-display="'+mode+'"]'),mode,{timeout:8000});
+              if(mode==='bars')await page.locator('#qpDialog [data-qp-share="show"]').click();
+              await page.waitForFunction(()=>!document.getElementById('qpMirrorPreview')?.hidden,null,{timeout:8000});
+              await sharedPage.evaluate(()=>window.SIQuickPoll.refresh(true));
+              const projected=await sharedPage.locator('#qpPublicOverlay').evaluate(el=>!el.hidden);
+              const rendered=await sharedPage.locator('#qpPublicOverlay '+chart).count();
+              const miniSelector={bars:'.qp-mirror-bars',donut:'.qp-mirror-donut',
+                showdown:'.qp-mirror-showdown',cards:'.qp-mirror-cards'}[mode];
+              const mirrored=await page.locator('#qpMirrorPreview '+miniSelector).count();
+              console.log(JSON.stringify({label,role:'poll-projector-mode',mode,projected,rendered,mirrored}));
+              if(!projected||!rendered||!mirrored)failures++;
+            }
+            await page.locator('#qpDialog [data-qp-share="hide"]').click();
+            await page.waitForFunction(()=>document.querySelector('#qpMirrorPreview')?.hidden,null,{timeout:8000});
+            await sharedPage.evaluate(()=>window.SIQuickPoll.refresh(true));
+            if(!await sharedPage.locator('#qpPublicOverlay').evaluate(el=>el.hidden))failures++;
+            await sharedPage.close();
             await page.locator('#qpDialog [data-qp-control="close"]').click();
             await page.waitForFunction(()=>document.querySelector('#qpTeacherLive')?.textContent?.includes('POLL CLOSED'),null,{timeout:8500});
             page.once('dialog',dialog=>dialog.accept());
