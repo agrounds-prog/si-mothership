@@ -723,6 +723,15 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     };
     launchCrewSurvey=function(){
       if(state.activityRun){tell('Finish the current activity before launching another Survey game.');return false}
+      // A teacher editing a single unsaved board can test it without having
+      // to create a Board Library entry and a Saved Game first.
+      if(gameLength===1&&!roundIds[0]&&!roundCopies[0]){
+        const draft=draftBoard();
+        if(boardValid(draft)){
+          draft.id=draft.id||'teacher-preview';
+          return launchPreparedSurvey([freezeBoard(draft)]);
+        }
+      }
       const chosen=compileRounds();
       return chosen?launchPreparedSurvey(chosen):false;
     };
@@ -792,7 +801,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       '<button id="surveySaveGame" type="button" class="survey-save-primary">'+(selected?'✓ Update Saved Game':'💾 Save Complete Game')+'</button>'+
       '<button id="surveyCopyGame" type="button">Save Game Copy</button>'+
       '<button id="surveyNewGame" type="button">＋ New Game</button>'+
+      '<button id="surveyPlayDraft" type="button" title="Start one round from the board currently in the editor; this does not save a board or change the saved game.">▶ PLAY CURRENT BOARD</button>'+
       '<span id="surveyLaunchSlot"></span></div>'+
+      '<p class="survey-round-note">Play Current Board runs one unsaved practice round using the question and answers in the editor. Launch Selected Game uses your selected saved boards in the chosen 1-, 3-, or 5-round order.</p>'+
       '<div id="surveyLaunchStatus" role="status" aria-live="polite" '+(lastLaunchStatus?'':'hidden')+' style="margin:9px 0;padding:10px 12px;border:1px solid #5485a1;border-radius:9px;background:#0a2840;color:#c1ffed;font-weight:750;">'+safe(lastLaunchStatus)+'</div>'+
       '<div class="survey-library-bottom survey-game-library"><h5>Saved Games <small>Load / Edit or play a complete game.</small></h5>'+
       (games.length?'<div class="survey-library-list">'+games.map(g=>
@@ -825,6 +836,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const wire=(name,fn)=>{const el=byId(name);if(el)el.onclick=fn};
     wire('surveySaveBoard',()=>saveBoard(false));wire('surveySaveCopy',()=>saveBoard(true));wire('surveyNewBoard',newBoard);
     wire('surveySaveGame',()=>saveGame(false));wire('surveyCopyGame',()=>saveGame(true));wire('surveyNewGame',newGame);
+    wire('surveyPlayDraft',launchDraft);
     studio.querySelectorAll('[data-survey-load]').forEach(b=>b.onclick=()=>loadBoard(b.dataset.surveyLoad));
     studio.querySelectorAll('[data-survey-delete]').forEach(b=>b.onclick=()=>deleteBoard(b.dataset.surveyDelete));
     studio.querySelectorAll('[data-survey-length]').forEach(b=>b.onclick=()=>setLength(Number(b.dataset.surveyLength)));
@@ -833,6 +845,18 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     studio.querySelectorAll('[data-survey-play-game]').forEach(b=>b.onclick=()=>playGame(b.dataset.surveyPlayGame));
     studio.querySelectorAll('[data-survey-delete-game]').forEach(b=>b.onclick=()=>deleteGame(b.dataset.surveyDeleteGame));
     if(launch)launch.onclick=launchSelected;
+  }
+  function launchDraft(){
+    try{
+      if(state.activityRun){tell('Finish the current activity before starting another Survey board.');return false}
+      const draft=draftBoard();
+      if(!boardValid(draft)){
+        tell('To play this board, enter a question and at least four answers in the editor below.');
+        return false;
+      }
+      draft.id=draft.id||'teacher-preview';
+      return launchPreparedSurvey([freezeBoard(draft)]);
+    }catch(error){tell('Survey practice launch failed: '+String(error?.message||error));return false}
   }
   function launchSelected(){
     try{
@@ -850,11 +874,13 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     if(!(target instanceof Element))return;
     const play=target.closest('[data-survey-play-game]');
     const launch=target.closest('#launchCrewSurveyBtn');
-    if(!play&&!launch)return;
+    const draft=target.closest('#surveyPlayDraft');
+    if(!play&&!launch&&!draft)return;
     event.preventDefault();
     event.stopImmediatePropagation();
     try{
       if(play)playGame(play.dataset.surveyPlayGame);
+      else if(draft)launchDraft();
       else launchSelected();
     }catch(error){tell('CREW SURVEY click failed: '+String(error?.message||error))}
 
