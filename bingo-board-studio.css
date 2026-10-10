@@ -2199,3 +2199,243 @@ body.role-student .million-student-showtime .million-student-choice.selected{
     animation:none!important;transition:none!important;
   }
 }
+
+
+/* SI MOTHERSHIP CLASSROOM COMMAND POLISH v1.
+   Keep the existing sprite tiles, floating bar and panel placement.
+   Changes are scoped to Mission Control, inbox shortcuts and student responses. */
+#teacher #teacherControlBar.si-command-polish{
+  isolation:isolate;
+  border:2px solid #4aafd0!important;
+  border-radius:18px!important;
+  background:linear-gradient(145deg,#102c47,#071e33 62%,#081827)!important;
+  box-shadow:inset 0 1px 0 #e2fcff26,
+    0 8px 28px #0006,0 0 16px #5bbfff30!important;
+}
+#teacher #teacherControlBar.si-command-polish .single-mission-status{
+  min-width:180px!important;
+  max-width:235px;
+  padding:8px clamp(7px,.8vw,14px) 8px 4px!important;
+}
+#teacher #teacherControlBar.si-command-polish .mission-context-copy{
+  min-width:0;
+}
+#teacher #teacherControlBar.si-command-polish .students-see{
+  margin-top:5px!important;
+  color:#b8d1db!important;
+  font-size:clamp(9px,.7vw,11px)!important;
+  line-height:1.25!important;
+  letter-spacing:.02em!important;
+}
+#teacher #teacherControlBar.si-command-polish .students-see b{
+  color:#f0fcff!important;
+  font-size:inherit!important;
+}
+#teacher #teacherControlBar.si-command-polish .si-mission-readout{
+  display:flex!important;
+  flex-wrap:wrap;
+  gap:4px 6px;
+  align-items:center;
+  margin:7px 0 0;
+  max-width:230px;
+}
+#teacher #teacherControlBar.si-command-polish .si-mission-readout span{
+  display:inline-flex;
+  align-items:center;
+  max-width:100%;
+  padding:4px 6px;
+  border:1px solid #315977;border-radius:8px;
+  background:#091b33;
+  color:#c4e7f4;font-size:clamp(9px,.68vw,11px);
+  line-height:1.1;font-weight:850;
+  white-space:normal;
+}
+#teacher #teacherControlBar.si-command-polish .si-mission-readout .si-readout-mode{
+  border-color:#5a91b6;background:#173454;color:#fff1ba;
+}
+#teacher #teacherControlBar.si-command-polish .si-mission-readout .needs-attention{
+  border-color:#f7c977;
+  background:#543e2d;color:#fff1ca;
+}
+#teacher #teacherControlBar.si-command-polish .single-mission-controls{
+  gap:clamp(4px,.5vw,9px)!important;
+}
+#teacher #teacherControlBar.si-command-polish .single-mission-controls .control{
+  position:relative!important;
+  cursor:pointer!important;
+}
+#teacher #teacherControlBar.si-command-polish .single-mission-controls .control .ico.v562-art{
+  transition:filter .16s ease,box-shadow .16s ease!important;
+}
+#teacher #teacherControlBar.si-command-polish .single-mission-controls .control[data-si-enabled="on"] .ico.v562-art{
+  box-shadow:inset 0 1px 0 #ffffff35,
+    0 3px 0 #041018,0 0 0 2px #76f9cc52,0 0 18px #73dfe54f!important;
+}
+#teacher #teacherControlBar.si-command-polish .single-mission-controls .control[data-si-enabled="off"] .ico.v562-art{
+  filter:saturate(.42) brightness(.65)!important;
+  border-color:#526372!important;
+}
+#teacher #teacherControlBar.si-command-polish .single-mission-controls .control[data-si-enabled="off"] b{
+  color:#93a6b2!important;
+}
+#teacher #teacherControlBar.si-command-polish .si-toggle-led{
+  position:absolute!important;z-index:4;
+  top:52px;right:4px;width:12px;height:12px;
+  display:block!important;pointer-events:none;
+  border-radius:50%;
+  border:2px solid #091727;
+  background:#73818a;
+  box-shadow:0 1px 5px #0009;
+}
+#teacher #teacherControlBar.si-command-polish [data-si-enabled="on"] .si-toggle-led{
+  background:#77ffca;box-shadow:0 0 10px #60eac780,0 1px 5px #0008;
+}
+#teacher #teacherControlBar.si-command-polish [data-si-enabled="off"] .si-toggle-led{
+  background:#6d7580;
+}
+#teacher #teacherControlBar.si-command-polish .si-mission-counter{
+  position:absolute!important;right:-2px;top:-5px;z-index:5;
+  display:grid!important;place-items:center!important;
+  min-width:24px;height:24px;padding:1px 5px;
+  box-sizing:border-box;border:2px solid #112035;border-radius:999px;
+  background:#f8c76f;color:#182338;
+  box-shadow:0 2px 8px #0009,0 0 10px #f1c66677;
+  font-size:12px;font-weight:1000;line-height:1!important;
+  pointer-events:none;
+}
+#teacher #teacherControlBar.si-command-polish [data-toggle="help"] .si-mission-counter{
+  background:#ff9ca8;
+}
+#teacher #teacherControlBar.si-command-polish [data-toggle="picture"] .si-mission-counter{
+  background:#a7e1ff;
+}
+#teacher #teacherControlBar.si-command-polish .control:focus-visible .ico.v562-art{
+  outline:3px solid #fff0b0!important;outline-offset:3px!important;
+}
+#teacher #attentionSummary.si-attention-live{
+  border-color:#e2b56a!important;
+  box-shadow:inset 0 1px 0 #ffffff3a,0 0 18px #ffe0a72e!important;
+}
+#teacher #attentionSummary .attention-chip[role="button"]{
+  cursor:pointer!important;
+  user-select:none!important;
+  min-height:29px;
+  border:1px solid #6b8eaa!important;
+  padding:5px 8px!important;
+  border-radius:9px!important;
+  transition:transform .15s ease,filter .15s ease;
+}
+#teacher #attentionSummary .attention-chip[role="button"].active{
+  border-color:#ffd987!important;
+  box-shadow:0 0 8px #f9cc6259!important;
+}
+#teacher #attentionSummary .attention-chip[role="button"]:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.13);
+}
+#teacher #attentionSummary .attention-chip[role="button"]:focus-visible{
+  outline:3px solid #ffe3a5!important;
+  outline-offset:2px!important;
+}
+#teacher .attention-panel.si-inbox-focus{
+  position:relative;
+  border:2px solid #ffe5a7!important;
+  box-shadow:0 0 0 3px #eec27441,0 0 25px #eec27461!important;
+  outline:none!important;
+}
+#teacher .attention-panel.si-inbox-focus .section-heading{
+  color:#fff4c9!important;
+}
+#teacher .attention-panel .section-heading b,
+#teacher .attention-panel .section-heading strong{
+  font-variant-numeric:tabular-nums;
+}
+#teacher .screen-dock #launchSecondScreenBtn{
+  min-height:40px!important;
+  border-radius:11px!important;
+  font-size:clamp(11px,1vw,15px)!important;
+  font-weight:950!important;
+}
+body.role-student .student-actions button:focus-visible{
+  outline:3px solid #ffde92!important;
+  outline-offset:3px!important;
+}
+body.role-student .student-actions button.active,
+body.role-student .student-actions button.on,
+body.role-student .student-actions button[aria-pressed="true"]{
+  box-shadow:inset 0 0 0 2px #fff5c881,
+    0 0 17px #e4c36a59!important;
+}
+@media(min-width:1220px){
+  #teacher #teacherControlBar.si-command-polish{
+    position:sticky!important;
+    top:72px!important;
+    z-index:48!important;
+  }
+}
+@media(min-width:1220px) and (max-width:1480px){
+  #teacher #teacherControlBar.si-command-polish .single-mission-status{
+    min-width:155px!important;max-width:185px;
+  }
+  #teacher #teacherControlBar.si-command-polish .si-mission-readout{
+    gap:3px;max-width:180px;
+  }
+  #teacher #teacherControlBar.si-command-polish .si-mission-readout span{
+    padding:3px 4px;font-size:9px;
+  }
+  #teacher #teacherControlBar.si-command-polish .single-mission-controls{gap:4px!important}
+}
+@media(max-width:1219px){
+  #teacher #teacherControlBar.si-command-polish{
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:6px!important;
+    position:relative!important;
+  }
+  #teacher #teacherControlBar.si-command-polish .single-mission-status{
+    min-width:0!important;max-width:none!important;grid-column:1/-1;
+    padding:5px 9px!important;border-right:0!important;
+  }
+  #teacher #teacherControlBar.si-command-polish .si-mission-readout{
+    max-width:none;
+  }
+  #teacher #teacherControlBar.si-command-polish .single-mission-controls{
+    grid-column:1/-1!important;
+    display:flex!important;flex-wrap:nowrap!important;
+    justify-content:flex-start!important;
+    align-items:flex-start!important;
+    min-width:0!important;width:100%!important;
+    padding:7px 5px 10px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scrollbar-width:thin;
+    scrollbar-color:#4f8aae #08182a;
+    overscroll-behavior-inline:contain;
+  }
+  #teacher #teacherControlBar.si-command-polish .single-mission-controls .control{
+    flex:0 0 72px!important;
+  }
+  #teacher #teacherControlBar.si-command-polish .single-mission-danger{
+    grid-column:1/-1!important;
+    border-left:0!important;
+    justify-content:flex-end!important;
+  }
+}
+@media(max-width:700px){
+  #teacher #teacherControlBar.si-command-polish .single-mission-status{
+    padding:4px!important;
+  }
+  #teacher #teacherControlBar.si-command-polish .mission-context-title>b{
+    font-size:16px!important;
+  }
+  #teacher #teacherControlBar.si-command-polish .si-mission-readout span{
+    padding:4px 6px!important;font-size:10px!important;
+  }
+  #teacher #attentionSummary .attention-chip[role="button"]{
+    min-height:36px;min-width:44px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #teacher #attentionSummary .attention-chip[role="button"]{
+    transition:none!important;
+  }
+}
