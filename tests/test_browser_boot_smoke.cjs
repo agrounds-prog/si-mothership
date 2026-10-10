@@ -37,6 +37,19 @@ const hosts=[
       console.log(JSON.stringify({label,role,http:response?.status(),...info,pageErrors:errors.slice(0,5)}));
       if(!response||response.status()>=400||info.bootVisible||errors.length)failures++;
       if(!info.quickPollScript||!info.quickPollCSS)failures++;
+      if(role==="teacher"){
+        // Inspect the Quick Poll studio without changing classroom state.
+        // Do not submit questions or vote on the live deployment.
+        await page.evaluate(()=>document.getElementById("qpLauncher")?.click());
+        await page.waitForTimeout(320);
+        const studio=await page.evaluate(()=>({
+          visible:!!document.querySelector("#qpDialog:not([hidden])"),
+          editor:!!document.querySelector("#qpQuestion"),
+          boot:document.getElementById("bootErrorText")?.textContent||""
+        }));
+        console.log(JSON.stringify({label,role:"studio",...studio,pageErrors:errors.slice(0,5)}));
+        if(!studio.visible||!studio.editor||studio.boot||errors.length)failures++;
+      }
     }catch(e){failures++;console.log(JSON.stringify({label,role,error:String(e.stack||e)}));}
     await ctx.close();
    }
