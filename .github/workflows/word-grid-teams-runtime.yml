@@ -32,7 +32,7 @@ jobs:
           s=s[:start]+replacement+s[end:]
           once('window.WordGrid.setupHTML(connectedStudents().map(s=>s.n).slice(0,4))','window.WordGrid.setupHTML(connectedStudents().map(s=>s.n))')
           start=s.index("    $('#wgStart').onclick=()=>{")
-          end=s.index('    return;\\n  }',start)
+          end=s.index('    return;',s.index("$('[data-wg-load]')",start))
           original=s[start:end]
           assert "data-wg-load" in original and 'launchWordGridGame' in original
           replacement="    window.WordGrid.wireSetup(grid,connectedStudents().map(st=>st.n),launchWordGridGame,launchWordGridGame);\n"
