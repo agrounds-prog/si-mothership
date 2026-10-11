@@ -57,4 +57,12 @@ run("game can be reset while preserving configured team seats",()=>{
  assert.equal(g.cols,9);assert.equal(g.mode,"teams");assert.deepEqual(g.seats,{Alex:1});
  assert.equal(old.board.filter(Boolean).length,1);
 });
+run("projector champion overlay stays off the miniature mirror",()=>{
+ const g=F.make(["Blue","Gold"]);
+ for(const col of [0,0,1,1,2,2,3])F.drop(g,g.turn,col);
+ assert.equal(g.status,"won");
+ assert.match(F.publicHTML(g,true),/fil-victory/);
+ assert.match(F.publicHTML(g,true),/Blue WINS/);
+ assert.doesNotMatch(F.publicHTML(g,false),/fil-victory/);
+});
 console.log("FOUR IN LINE engine regression complete");
