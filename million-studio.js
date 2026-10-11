@@ -185,6 +185,79 @@ function updateStatus(){
  const progress=document.querySelector('.ms-progress-block');if(progress){progress.querySelector('span').textContent=count+' of '+draft.count+' ready';progress.querySelector('i').style.width=(count/draft.count*100)+'%'}
  const active=document.querySelector('.ms-slide.active');if(active){active.classList.toggle('done',ready(q));active.lastElementChild.textContent=ready(q)?'✓':'○'}
 }
+/* One-shot stage cues live OUTSIDE the re-rendered projector markup.
+   Only shared screen sees this: no teacher keys, save data or synchronized state changes. */
+function installMillionStageCues(){
+ if(new URLSearchParams(location.search).get('role')!=='shared')return;
+ let lastKey='',cue=null,hideHandle=0,framePending=false;
+ function ensureCue(){
+  if(cue?.isConnected)return cue;
+  cue=document.createElement('div');
+  cue.id='msMillionStageCue';
+  cue.className='ms-million-cue';
+  cue.setAttribute('role','status');
+  cue.setAttribute('aria-live','polite');
+  cue.setAttribute('aria-atomic','true');
+  cue.setAttribute('aria-hidden','true');
+  document.body.appendChild(cue);
+  return cue;
+ }
+ function clearCue(){
+  if(cue){cue.classList.remove('visible');cue.setAttribute('aria-hidden','true')}
+  window.clearTimeout(hideHandle);
+ }
+ function sync(){
+  framePending=false;
+  const run=typeof state==='undefined'?null:state.activityRun;
+  const stage=document.querySelector('.million-public');
+  if(!stage||!run||run.activityId!=='million-game'||run.phase!=='running'){
+   clearCue();lastKey='';return
+  }
+  const m=run.million||{},cfg=run.millionConfig||{};
+  const q=Math.max(0,Number(m.questionIndex)||0);
+  const stageName=m.revealed?(m.complete?'complete':m.result==='correct'?'correct':'wrong'):(m.lockedAnswer?'locked':'question');
+  const key=String(run.runToken||'')+':'+q+':'+stageName;
+  if(lastKey===key)return;
+  lastKey=key;
+  const ladder=Array.isArray(cfg.ladder)?cfg.ladder:[];
+  const prize=Number(ladder[Math.max(0,Math.min(ladder.length-1,Number(m.ladderLevel||0)-1))]||0);
+  let headline='',detail='',duration=0;
+  if(stageName==='question'){headline='NEW QUESTION';detail='QUESTION '+(q+1)+' OF '+(cfg.questions?.length||15);duration=950}
+  if(stageName==='locked'){headline='FINAL ANSWER LOCKED';detail='MISSION CONTROL · REVEAL PENDING';duration=1350}
+  if(stageName==='correct'){headline='SIGNAL CONFIRMED';detail='MILESTONE REACHED · ,checkpoints:n=>n===5?[3]:n===10?[5]:[5,10],
+ currentName:()=>draft.name||'MILLION',inspection:()=>({count:draft.count,ready:readyCount(),saved:listGames().length,loadedId})};
+if(typeof state!=='undefined'&&state.activeApp==='million'&&typeof renderActivities==='function')renderActivities();
+})();+prize.toLocaleString('en-US');duration=2050}
+  if(stageName==='wrong'){headline='SIGNAL LOST';detail=m.over?'RUN COMPLETE':'ANSWER REVEALED';duration=2000}
+  if(stageName==='complete'){headline='MILLION COMPLETE';detail='FINAL MILESTONE · ,checkpoints:n=>n===5?[3]:n===10?[5]:[5,10],
+ currentName:()=>draft.name||'MILLION',inspection:()=>({count:draft.count,ready:readyCount(),saved:listGames().length,loadedId})};
+if(typeof state!=='undefined'&&state.activeApp==='million'&&typeof renderActivities==='function')renderActivities();
+})();+Number(ladder.at(-1)||1000000).toLocaleString('en-US');duration=2800}
+  const node=ensureCue();
+  node.className='ms-million-cue '+stageName;
+  const title=document.createElement('strong');title.textContent=headline;
+  const sub=document.createElement('span');sub.textContent=detail;
+  node.replaceChildren(title,sub);
+  node.classList.remove('visible');
+  // Browser presentation frames start a new visual cue only on a real game-state transition.
+  void node.offsetWidth;
+  node.classList.add('visible');node.setAttribute('aria-hidden','false');
+  window.clearTimeout(hideHandle);
+  hideHandle=window.setTimeout(clearCue,duration);
+ }
+ function queue(){
+  if(framePending)return;
+  framePending=true;
+  window.requestAnimationFrame(sync);
+ }
+ if(document.body){
+  new MutationObserver(queue).observe(document.body,{subtree:true,childList:true});
+  window.setInterval(queue,340);
+  queue();
+ }
+}
+installMillionStageCues();
+
 syncEngine();
 window.MillionStudio={markup,wire,questions,ladder,checkpoints:n=>n===5?[3]:n===10?[5]:[5,10],
  currentName:()=>draft.name||'MILLION',inspection:()=>({count:draft.count,ready:readyCount(),saved:listGames().length,loadedId})};
