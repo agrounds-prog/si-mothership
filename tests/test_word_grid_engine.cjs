@@ -64,7 +64,7 @@ run("pass/exchange and game-end logic maintain scores",()=>{
 });
 run("a single connected learner defaults to a valid two-team setup",()=>{
  const html=W.setupHTML(["Solo Student"]);
- assert.match(html,/Crew Alpha\\nCrew Beta/);
+ assert.match(html,/Crew Alpha\nCrew Beta/);
  assert.match(html,/id="wgSetupStatus"/);
  assert.equal(W.make(["Crew Alpha","Crew Beta"]).players.length,2);
 });
