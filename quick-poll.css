@@ -437,3 +437,289 @@ body #teacher .qp-mirror-private{
  #qpDialog .qp-share-row{padding:9px}
  #qpDialog .qp-share-row button{width:100%}
 }
+
+
+/* Studio v3: clear modes with a persistent header, compact session ribbon,
+   spacious editor, separate reusable prompt library and live presentation. */
+#qpDialog .qp-studio-v2{
+ height:100%;min-height:0;
+ display:flex;flex-direction:column;
+ background:radial-gradient(ellipse at 87% -30%,#1b4871 0%,transparent 52%),#07172b;
+}
+#qpDialog .qp-studio-v2>header{
+ flex-shrink:0;padding:15px clamp(14px,2.4vw,28px);
+ background:linear-gradient(105deg,#0b3053,#081e3a 75%,#0a1c32);
+}
+#qpDialog .qp-studio-v2>header small{font-size:11px;letter-spacing:.13em}
+#qpDialog .qp-studio-v2>header h2{font-size:clamp(25px,2.9vw,35px)}
+#qpDialog .qp-studio-tabs{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:7px;flex:0 0 auto;
+ padding:10px clamp(12px,2vw,22px) 8px;
+ background:#071a30;border-bottom:1px solid #285276;
+}
+#qpDialog .qp-studio-tabs .qp-studio-tab{
+ position:relative;display:flex;justify-content:center;align-items:center;gap:10px;
+ padding:11px 12px;min-height:51px;
+ border:1px solid #285779;border-radius:11px;
+ background:linear-gradient(160deg,#102c49,#0b2139);
+ color:#c0dcec;font:900 clamp(12px,1.05vw,15px)/1.15 system-ui;
+ letter-spacing:.01em;cursor:pointer;
+ transition:background .15s,border-color .15s,box-shadow .15s;
+}
+#qpDialog .qp-studio-tabs .qp-studio-tab:hover{
+ background:#143c5c;border-color:#5caace;color:#fff;
+}
+#qpDialog .qp-studio-tabs .qp-studio-tab.active{
+ border-color:#68dfff;color:#f5ffff;
+ background:linear-gradient(160deg,#15517a,#0a304b);
+ box-shadow:inset 0 1px 0 #d9ffff55,0 0 0 1px #38c5ef33,0 0 13px #22d5ff28;
+}
+#qpDialog .qp-tab-icon{
+ font-size:21px;color:#73ddff;text-shadow:0 0 12px #5bdbff99;
+ line-height:1;
+}
+#qpDialog .qp-studio-tab[data-qp-tab="create"] .qp-tab-icon{color:#b99aff}
+#qpDialog .qp-studio-tab[data-qp-tab="library"] .qp-tab-icon{color:#ffce87}
+#qpDialog .qp-tab-live-dot{
+ position:absolute;top:8px;right:9px;width:8px;height:8px;
+ border-radius:50%;background:#57ffb8;box-shadow:0 0 10px #43ffad;
+}
+#qpDialog .qp-studio-context{
+ display:flex;align-items:center;gap:9px;flex:0 0 auto;
+ min-height:34px;padding:7px clamp(14px,2vw,24px);
+ background:#08192e;border-bottom:1px solid #1e4765;
+ color:#b7d4e4;font-size:11px;line-height:1.25;
+}
+#qpDialog .qp-context-pulse{
+ width:8px;height:8px;flex:0 0 8px;border-radius:50%;
+ background:#5986a1;box-shadow:0 0 8px #438fa966;
+}
+#qpDialog .qp-context-pulse.live{background:#53ffad;box-shadow:0 0 9px #43ffad}
+#qpDialog .qp-studio-context>b{color:#ebfaff;font-size:10px;letter-spacing:.07em;white-space:nowrap}
+#qpDialog .qp-studio-context>span:not(.qp-context-pulse){
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;
+}
+#qpDialog .qp-studio-context .qp-context-link{
+ margin-left:auto;color:#95e2ff;flex-shrink:0;
+ font-weight:800;
+}
+#qpDialog .qp-studio-v2>.qp-teacher-scroll{
+ flex:1;min-height:0;overflow-y:auto;
+ padding:clamp(15px,2vw,25px) clamp(13px,2.5vw,30px) 38px;
+ scrollbar-width:thin;scrollbar-color:#2f7ea4 #081b31;
+}
+#qpDialog .qp-studio-pane{max-width:1080px;margin:0 auto}
+#qpDialog .qp-pane-heading{
+ display:flex;justify-content:space-between;align-items:center;
+ gap:20px;margin:2px 0 19px;
+}
+#qpDialog .qp-pane-heading>div{min-width:0}
+#qpDialog .qp-eyebrow{
+ display:block;color:#70dfff;letter-spacing:.15em;font-size:10px;
+ font-weight:950;margin-bottom:5px;
+}
+#qpDialog .qp-pane-heading h3{
+ margin:0 0 5px!important;color:#f3fbff;
+ font:950 clamp(22px,2.25vw,31px)/1.15 system-ui;
+ letter-spacing:-.02em;
+}
+#qpDialog .qp-pane-heading p{
+ margin:0!important;color:#a9c9dc;font-size:13px;line-height:1.45;
+}
+#qpDialog .qp-pane-heading>button,#qpDialog .qp-library-empty button{
+ border:1px solid #56b6df;border-radius:10px;
+ padding:10px 15px;min-height:42px;flex-shrink:0;
+ background:linear-gradient(140deg,#174c72,#103352);
+ color:#e8faff;font:850 12px system-ui;
+}
+#qpDialog .qp-pane-heading>button:hover,#qpDialog .qp-library-empty button:hover{
+ border-color:#9ff6ff;background:#1c608c;
+}
+#qpDialog .qp-studio-section{
+ margin:0 0 18px;padding:17px clamp(12px,2vw,21px);
+ border:1px solid #28587e;border-radius:15px;
+ background:linear-gradient(155deg,#0c2946,#091e35 80%);
+ box-shadow:inset 0 1px 0 #dbffff15;
+}
+#qpDialog .qp-create-pane>.qp-field{
+ margin-left:0;margin-right:0;
+}
+#qpDialog .qp-studio-section .qp-field>span{
+ font:850 11px/1.25 system-ui;letter-spacing:.04em;
+ color:#b6e4fa;
+}
+#qpDialog .qp-create-pane #qpQuestion{
+ min-height:53px;font-size:17px;font-weight:750;
+}
+#qpDialog .qp-section-heading{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:13px;margin:0 0 12px;
+}
+#qpDialog .qp-section-heading>b{
+ color:#95e5ff;font:950 12px/1.3 system-ui;letter-spacing:.10em;
+}
+#qpDialog .qp-section-heading>span{
+ color:#a6c2d7;font:700 11px/1.4 system-ui;
+}
+#qpDialog .qp-create-pane .qp-subhead{margin:0 0 10px}
+#qpDialog .qp-create-pane .qp-edit-grid{
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:12px;
+}
+#qpDialog .qp-create-pane .qp-edit-choice{
+ min-width:0;padding:13px;border:1px solid #356c90;
+ border-radius:12px;background:linear-gradient(160deg,#113653,#0b273e);
+}
+#qpDialog .qp-create-pane .qp-edit-choice .qp-image{height:95px}
+#qpDialog .qp-create-pane .qp-section-note{margin:0 0 12px!important;font-size:12px;color:#a7c6d9}
+#qpDialog .qp-create-pane .qp-settings{grid-template-columns:repeat(2,minmax(0,1fr))}
+#qpDialog .qp-create-pane .qp-checks{
+ margin:13px 0 3px;padding-top:13px;border-top:1px solid #245a7c;
+}
+#qpDialog .qp-studio-footer{
+ position:sticky;bottom:-18px;z-index:2;
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ padding:13px 16px;margin:17px 0 10px;
+ border:1px solid #367aa6;border-radius:13px;
+ background:linear-gradient(115deg,#103455f2,#0a243ff5);
+ box-shadow:0 -5px 21px #020b18aa;
+ backdrop-filter:blur(9px);
+}
+#qpDialog .qp-studio-footer>span{display:flex;flex-direction:column;gap:2px}
+#qpDialog .qp-studio-footer>span>b{
+ color:#9ee6f8;font:950 11px system-ui;letter-spacing:.07em;
+}
+#qpDialog .qp-studio-footer>span>small{font-size:11px;color:#c1d6e3}
+#qpDialog .qp-studio-footer>button{min-width:130px}
+#qpDialog .qp-live-pane #qpTeacherLive>.qp-teacher-live{
+ padding:19px clamp(14px,2.2vw,25px);
+ background:linear-gradient(145deg,#0f3152,#0a223d 70%);
+ border:1px solid #3979a1;border-radius:15px;
+ box-shadow:inset 0 1px 0 #b3f6ff25,0 9px 30px #0003;
+}
+#qpDialog .qp-live-pane .qp-teacher-live>div:first-child{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ flex-wrap:wrap;
+}
+#qpDialog .qp-live-pane .qp-teacher-live>div:first-child>b{
+ color:#f0fcff;font-size:clamp(18px,2.3vw,28px);
+ overflow-wrap:anywhere;
+}
+#qpDialog .qp-live-pane .qp-teacher-live>div:first-child>span{
+ padding:7px 12px;border:1px solid #3fb889;border-radius:999px;
+ background:#0f473d;color:#a6ffce;
+ font:950 11px system-ui;letter-spacing:.06em;
+}
+#qpDialog .qp-live-pane #qpTeacherLive>.qp-nopoll{
+ min-height:190px;display:grid;place-content:center;text-align:center;
+ color:#c7e3f6;font-size:17px;
+}
+#qpDialog .qp-live-pane .qp-display-hint{
+ margin-top:21px;padding-top:18px;border-top:1px solid #2b6080;
+}
+#qpDialog .qp-live-pane .qp-display-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#qpDialog .qp-live-pane .qp-display-buttons button{
+ text-align:center;min-height:48px;font-size:13px;
+}
+#qpDialog .qp-live-pane .qp-display-buttons button.on{
+ background:linear-gradient(120deg,#147d69,#104d54);
+ border:1px solid #79ffcf;box-shadow:inset 0 0 0 1px #a2ffe833,0 0 15px #22cf9f2b;
+}
+#qpDialog .qp-live-pane .qp-share-row{
+ margin:15px 0;border-color:#2b698c;
+}
+#qpDialog .qp-live-pane .qp-live-actions{margin-top:18px;padding-top:16px;border-top:1px solid #2b6080}
+#qpDialog .qp-live-pane .qp-live-actions button{min-height:44px}
+#qpDialog .qp-library-section{
+ margin:0 0 22px;
+ padding:16px;border:1px solid #285879;border-radius:14px;
+ background:linear-gradient(140deg,#0a263f,#091e34);
+}
+#qpDialog .qp-template-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#qpDialog .qp-template-card{
+ display:flex;align-items:center;gap:12px;min-width:0;
+ padding:14px 13px;text-align:left;min-height:91px;
+ border:1px solid #2f7498;border-radius:12px;
+ background:linear-gradient(120deg,#113653,#0c2843);color:#e4f9ff;
+}
+#qpDialog .qp-template-card:hover{
+ border-color:#9deaff;background:#174364;transform:translateY(-1px);
+}
+#qpDialog .qp-template-symbol{
+ flex:0 0 48px;display:grid;place-items:center;
+ height:48px;border:1px solid #3f9bc5;border-radius:12px;
+ color:#77e1ff;background:#09223b;
+ font-size:27px;text-shadow:0 0 12px #67e8ff77;
+}
+#qpDialog .qp-template-copy,#qpDialog .qp-saved-copy{
+ display:flex;flex:1;flex-direction:column;gap:4px;min-width:0;
+}
+#qpDialog .qp-template-copy small,#qpDialog .qp-saved-copy small{
+ color:#83d6ee;font:950 10px system-ui;letter-spacing:.1em;
+}
+#qpDialog .qp-template-copy b,#qpDialog .qp-saved-copy b{
+ color:#f5fbff;font:900 15px/1.2 system-ui;
+ overflow-wrap:anywhere;
+}
+#qpDialog .qp-template-copy em{
+ color:#b5d2e2;font:normal 12px/1.3 system-ui;
+ overflow-wrap:anywhere;
+}
+#qpDialog .qp-template-arrow{color:#7bdfff;font-size:19px}
+#qpDialog .qp-saved-grid{display:grid;gap:9px}
+#qpDialog .qp-saved-card{
+ display:flex;align-items:center;gap:14px;min-width:0;
+ padding:13px;border:1px solid #2d6c94;border-radius:11px;
+ background:linear-gradient(120deg,#102d4a,#0c253c);
+}
+#qpDialog .qp-saved-icon{
+ flex:0 0 42px;display:grid;place-items:center;width:42px;height:42px;
+ border:1px solid #7358ae;border-radius:11px;color:#d2a7ff;background:#2c1e4a;
+ font-size:21px;
+}
+#qpDialog .qp-saved-copy span{
+ color:#b5d3e1;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#qpDialog .qp-saved-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+#qpDialog .qp-saved-actions button,#qpDialog .qp-library-empty button{
+ min-height:40px;padding:7px 13px;border-radius:9px;
+ border:1px solid #5fc5e9;background:#145479;color:#f0ffff;
+ font:850 12px system-ui;
+}
+#qpDialog .qp-saved-actions .qp-del{
+ width:38px;padding:0;border-color:#d47b98;background:#47273f;font-size:21px;
+}
+#qpDialog .qp-library-empty{
+ min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:9px;text-align:center;color:#c2dcea;
+}
+#qpDialog .qp-library-empty>span{color:#97bbeb;font-size:32px}
+#qpDialog .qp-library-empty b{font:900 16px system-ui;color:#f0fbff}
+#qpDialog .qp-library-empty p{margin:0 0 8px!important;font-size:12px}
+@media(max-width:750px){
+ #qpDialog .qp-create-pane .qp-settings{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #qpDialog .qp-studio-context .qp-context-link{display:none}
+ #qpDialog .qp-studio-v2>.qp-teacher-scroll{padding:14px 12px 28px}
+ #qpDialog .qp-template-grid{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+ #qpDialog .qp-studio-tabs{gap:4px;padding:7px}
+ #qpDialog .qp-studio-tabs .qp-studio-tab{gap:4px;flex-direction:column;padding:7px 3px;min-height:61px;font-size:11px}
+ #qpDialog .qp-tab-icon{font-size:18px}
+ #qpDialog .qp-pane-heading{align-items:flex-start;gap:10px}
+ #qpDialog .qp-pane-heading>button{padding:9px 10px;min-width:0}
+ #qpDialog .qp-studio-context{padding:7px 12px}
+ #qpDialog .qp-studio-context>span:not(.qp-context-pulse){display:none}
+ #qpDialog .qp-create-pane .qp-edit-grid{grid-template-columns:1fr}
+ #qpDialog .qp-create-pane .qp-settings{grid-template-columns:1fr}
+ #qpDialog .qp-studio-footer{align-items:stretch;flex-direction:column;bottom:-13px}
+ #qpDialog .qp-studio-footer>span{display:none}
+ #qpDialog .qp-studio-footer>button{width:100%}
+ #qpDialog .qp-saved-card{flex-wrap:wrap}
+ #qpDialog .qp-saved-actions{width:100%;justify-content:flex-end}
+ #qpDialog .qp-live-pane .qp-display-buttons{grid-template-columns:1fr 1fr}
+}
+@media(prefers-reduced-motion:reduce){
+ #qpDialog .qp-studio-tabs .qp-studio-tab,#qpDialog .qp-template-card{transition:none!important}
+}
