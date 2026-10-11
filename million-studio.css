@@ -1,0 +1,102 @@
+/* MILLION Studio · aligns with Mission Control neon tiles without changing other apps. */
+#activitiesPanel .ms-studio{--ms-bg:#071527;--ms-panel:#0a2039;--ms-border:#285877;--ms-cyan:#63ddfa;--ms-gold:#ffcd67;color:#edf6ff;width:100%;font-family:inherit}
+.ms-studio *{box-sizing:border-box}
+.ms-studio button,.ms-studio select,.ms-studio input,.ms-studio textarea{font-family:inherit}
+.ms-studio button{cursor:pointer;transition:background .16s,border-color .16s,transform .16s}
+.ms-studio button:disabled{opacity:.4;cursor:not-allowed}
+.ms-studio button:focus-visible,.ms-studio input:focus-visible,.ms-studio select:focus-visible,.ms-studio textarea:focus-visible{outline:3px solid #84e9fb;outline-offset:2px}
+.ms-hero{display:flex;align-items:center;justify-content:space-between;gap:24px;border:1px solid #4276a0;border-radius:20px;padding:25px 28px;min-height:155px;background:radial-gradient(circle at 84% 12%,rgba(250,181,74,.20),transparent 35%),radial-gradient(circle at 16% 20%,rgba(45,200,252,.17),transparent 50%),linear-gradient(120deg,#0a2945,#081225 68%);box-shadow:0 17px 40px #0005}
+.ms-hero h2{font-size:clamp(29px,3.5vw,47px)!important;line-height:1.06;margin:6px 0!important;color:#fff!important;letter-spacing:.04em;font-weight:950}
+.ms-hero h2 em{color:var(--ms-gold);font-style:normal}
+.ms-hero p{margin:10px 0 0;color:#adcbe2;line-height:1.5;font-size:14px}
+.ms-eyebrow{font-size:11px;color:#72dfff;letter-spacing:.19em;font-weight:900}
+.ms-hero-mark{min-width:220px;text-align:center;border:1px solid #edb85d77;padding:19px;border-radius:14px;background:#e49c2520;box-shadow:inset 0 0 24px #ffdc6220}
+.ms-hero-mark strong{display:block;color:#ffe2a0;font-size:clamp(24px,3vw,37px);font-variant-numeric:tabular-nums;letter-spacing:.035em}
+.ms-hero-mark span{display:block;color:#d2a767;font-size:10px;font-weight:900;letter-spacing:.15em;margin-top:3px}
+.ms-tabs{display:flex;gap:8px;margin:18px 0 12px;padding:6px;border:1px solid #315b77;border-radius:13px;background:#061523}
+.ms-tabs button{border:1px solid transparent!important;border-radius:9px!important;background:transparent!important;color:#b5cde0!important;min-height:42px;padding:9px 18px!important;font-size:14px!important;font-weight:900!important}
+.ms-tabs button.active{border-color:#56bcf777!important;color:#fff!important;background:linear-gradient(135deg,#174d70,#102b48)!important;box-shadow:0 0 17px #39baff18}
+.ms-tabs button span{background:#285273;border-radius:30px;padding:3px 8px;margin-left:8px}
+.ms-game-meta,.ms-settings{border:1px solid var(--ms-border);background:#0a1b30;border-radius:14px;margin-bottom:12px;padding:15px}
+.ms-game-meta{display:flex;gap:14px;align-items:end;flex-wrap:wrap}
+.ms-studio label{color:#b9d2e6;font-weight:800;font-size:11px;letter-spacing:.045em;display:flex;flex-direction:column;gap:8px}
+.ms-game-meta>label:first-child{flex:2 1 265px}.ms-game-meta>label:nth-child(2){flex:0 1 190px}
+.ms-studio input,.ms-studio textarea,.ms-studio select{display:block;width:100%;border:1px solid #3b6482!important;background:#061526!important;color:#f3f8ff!important;border-radius:9px;padding:12px!important;min-height:44px;line-height:1.35;font-size:15px!important}
+.ms-studio textarea{resize:vertical;min-height:70px}
+.ms-draft-actions{display:flex;gap:7px;flex-wrap:wrap}
+.ms-draft-actions button,.ms-editor-actions button,.ms-footer-buttons button,.ms-saved-game button,.ms-empty button{background:#14324d!important;border:1px solid #397899!important;color:#e2f4ff!important;border-radius:9px!important;padding:11px 15px!important;min-height:43px;font-size:13px!important;font-weight:900}
+.ms-draft-actions button:hover,.ms-editor-actions button:hover,.ms-footer-buttons button:hover{background:#1a4d73!important}
+.ms-workspace{display:grid;grid-template-columns:minmax(126px,.61fr) minmax(320px,2fr) minmax(250px,1.3fr);gap:12px;align-items:start}
+.ms-slide-rail,.ms-question-editor,.ms-preview{border:1px solid var(--ms-border);border-radius:15px;background:linear-gradient(180deg,#0c253f,#08182b);padding:15px;min-width:0}
+.ms-block-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 14px;font-size:11px;font-weight:950;letter-spacing:.08em;color:#eaf5ff}
+.ms-block-head small{font-size:10px;color:#8eb3cc;font-weight:800;letter-spacing:0}
+.ms-slide-rail{display:grid;gap:5px}
+.ms-slide-rail .ms-block-head{display:flex;margin-bottom:9px}
+.ms-slide{display:grid;grid-template-columns:36px 1fr 20px;align-items:center;gap:6px;width:100%;height:37px;border-radius:8px!important;border:1px solid #284761!important;background:#091b30!important;color:#91b1cb!important;text-align:left;padding:5px 8px!important;font-size:12px!important;font-weight:800!important;white-space:nowrap}
+.ms-slide span:nth-child(2){text-align:right;font-size:11px;font-variant-numeric:tabular-nums}
+.ms-slide b{font-size:15px;text-align:center;color:#52728f}
+.ms-slide.done{color:#c7ebf9!important;border-color:#30897d!important}
+.ms-slide.done b{color:#54ebbe}
+.ms-slide.active{border-color:#f9d189!important;background:linear-gradient(90deg,#4c3a1c,#203347)!important;color:#fff!important;box-shadow:0 0 12px #ffcd4730}
+.ms-question-editor{display:grid;gap:14px}
+.ms-question-editor>.ms-block-head{margin:0}
+.ms-question-editor>label{margin:0}
+.ms-answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.ms-answer-grid label{display:flex;flex-direction:row;align-items:center;gap:7px;background:#08192c;border:1px solid #244d71;border-radius:10px;padding:7px}
+.ms-answer-grid input{min-width:0;border:0!important;background:transparent!important;padding:7px!important;font-size:14px!important}
+.ms-answer-letter{width:35px;min-width:35px;height:35px;border-radius:8px;background:#134b71;border:1px solid #2585bd;display:grid;place-items:center;color:#fff;font-size:17px;font-weight:950}
+.ms-editor-actions{display:flex;justify-content:space-between;gap:12px;padding-top:7px;border-top:1px solid #1e4a67}
+.ms-preview{position:sticky;top:14px}
+.ms-preview-panel{background:radial-gradient(circle at 50% -20%,#265084,#06142c 75%);border:1px solid #5890b5;border-radius:14px;padding:17px;box-shadow:inset 0 0 30px #0004}
+.ms-preview-top{display:flex;justify-content:space-between;gap:12px;color:#b2d3f3;font-size:10px;font-weight:900;letter-spacing:.06em}
+.ms-preview-top span:first-child{color:#ffe0a2}
+.ms-preview-prompt{text-align:center;color:#fff;font-weight:900;font-size:clamp(17px,1.5vw,23px);line-height:1.35;margin:28px 0;min-height:50px;overflow-wrap:anywhere}
+.ms-preview-choices{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ms-preview-choices>div{min-width:0;min-height:66px;border:1px solid #3b6b95;border-radius:8px;padding:10px 8px;color:#c6d6eb;background:#0d2a49;overflow-wrap:anywhere;font-size:12px;line-height:1.3}
+.ms-preview-choices b{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:7px;margin-right:3px;color:#fff;background:#23669d;font-size:14px}
+.ms-preview-choices .answer{border-color:#4ccba2;background:#123c3e;color:#effff6}
+.ms-preview-panel>small{display:block;color:#8da8bd;line-height:1.4;font-size:10px;margin-top:15px}
+.ms-progress-block{margin:17px 0 9px;font-size:12px;font-weight:800;color:#b9d3e8}
+.ms-progress-block>div{background:#061222;border-radius:20px;height:8px;margin-top:8px;overflow:hidden;border:1px solid #214564}
+.ms-progress-block i{display:block;background:linear-gradient(90deg,#139ddc,#76e8c2);height:100%}
+.ms-note{color:#96bbd3;font-size:12px;line-height:1.5}
+.ms-settings{margin-top:12px}
+.ms-settings-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.ms-life-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:16px}
+.ms-life-grid label{display:flex;flex-direction:row;align-items:center;justify-content:space-between;border:1px solid #36577b;border-radius:9px;padding:9px;background:#0a2440;gap:7px;font-size:12px;letter-spacing:0}
+.ms-life-grid input{width:63px;min-width:50px;text-align:center;padding:5px!important;min-height:36px}
+.ms-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#102740;border:1px solid #40708d;border-radius:14px;padding:15px;margin:12px 0}
+.ms-save-state{color:#a9c9dd;font-size:12px;max-width:280px;line-height:1.5}
+.ms-footer-buttons{display:flex;gap:7px;flex-wrap:wrap}
+.ms-footer-buttons .ms-save-primary{border-color:#389dd6!important;background:#126395!important}
+.ms-footer-buttons .ms-launch{border-color:#edc16b!important;background:linear-gradient(130deg,#d8942e,#e9bd5b)!important;color:#101b2a!important;font-size:14px!important}
+.ms-library{background:linear-gradient(180deg,#0d233a,#071829);border:1px solid #305777;border-radius:15px;padding:20px;min-height:310px}
+.ms-saved-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:13px}
+.ms-saved-game{padding:20px;border:1px solid #41728e;border-radius:13px;background:radial-gradient(circle at 75% -10%,#f2ba4330,transparent 65%),#092035;display:flex;flex-direction:column;gap:10px}
+.ms-saved-game>span{font-size:10px;letter-spacing:.14em;font-weight:950;color:#eac876}
+.ms-saved-game h3{color:#fff!important;font-size:18px!important;margin:0!important;line-height:1.3}
+.ms-saved-game p{margin:0;color:#accbe0;font-size:12px;line-height:1.5}
+.ms-saved-game small{color:#7496af}
+.ms-saved-game>div{display:flex;gap:7px;margin-top:auto}
+.ms-saved-game button:last-child{background:#3b2436!important;border-color:#8c4963!important}
+.ms-empty{text-align:center;padding:46px 16px;color:#aed0e7}
+.ms-empty strong{font-size:20px;color:#fff}
+.ms-empty p{max-width:450px;margin:12px auto 22px;font-size:14px;line-height:1.5}
+@media(max-width:1180px){.ms-workspace{grid-template-columns:150px minmax(0,1fr)}.ms-preview{position:static;grid-column:2}.ms-preview-choices>div{min-height:55px}.ms-life-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:730px){.ms-hero{padding:18px;flex-direction:column;align-items:stretch}.ms-hero-mark{min-width:0}.ms-workspace{grid-template-columns:1fr}.ms-slide-rail{display:flex;flex-wrap:wrap;gap:6px}.ms-slide-rail .ms-block-head{width:100%}.ms-slide{width:90px;grid-template-columns:1fr 12px;height:52px;line-height:1.4}.ms-slide span:nth-child(2){font-size:10px;grid-row:2;grid-column:1;text-align:left}.ms-slide b{grid-row:1/3;grid-column:2}.ms-preview{grid-column:1}.ms-settings-grid,.ms-life-grid{grid-template-columns:1fr}.ms-answer-grid{grid-template-columns:1fr}.ms-tabs button{flex:1;padding:9px!important;font-size:12px!important}}
+@media(prefers-reduced-motion:reduce){.ms-studio *, .million-public *,.million-student *{transition:none!important;animation:none!important}}
+
+/* Existing host / projector views: sharper, large-screen-friendly play surfaces. */
+.million-public{border:1px solid #519cbd!important;background:radial-gradient(ellipse at 57% -20%,#1b4263,#061023 68%)!important;box-shadow:0 0 40px #13375366, inset 0 0 30px #041329!important}
+.million-stage{min-width:0}
+.million-stage h3{overflow-wrap:anywhere!important;line-height:1.23!important;text-wrap:balance}
+.million-choice{overflow-wrap:anywhere;min-width:0;border-width:2px!important}
+.million-choice.correct{box-shadow:0 0 24px #44dfa44a!important}
+.million-choice.wrong{box-shadow:0 0 21px #f37a7550!important}
+.million-rung.active{box-shadow:0 0 16px #ffc46f33!important}
+.million-student-choice:focus-visible{outline:3px solid #74e4f8;outline-offset:3px}
+#activityControllerPanel .million-teacher-grid{gap:14px}
+#activityControllerPanel .million-teacher-card{background:linear-gradient(180deg,#102c49,#081b31)!important;border:1px solid #41718f!important;border-radius:16px!important}
+#activityControllerPanel .million-teacher-actions button{font-size:14px!important;min-height:46px}
+#activityControllerPanel #millionCorrectBtn{background:linear-gradient(135deg,#ecac42,#f3d88e)!important;color:#162239!important;font-weight:950!important;border-color:#f1cc78!important}
+@media(min-width:1400px){.million-public.big{width:min(98%,1800px)!important;grid-template-columns:215px minmax(0,1fr) 220px!important;gap:16px!important}.million-public.big .million-stage h3{font-size:clamp(29px,3.4vw,57px)!important}.million-public.big .million-choice{min-height:83px!important}}
