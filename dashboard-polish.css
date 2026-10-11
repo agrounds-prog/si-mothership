@@ -1612,3 +1612,251 @@ body.role-shared .shared-screen .presentation-public .presentation-media-stack .
   transform:none!important;transition:none!important;
  }
 }
+
+
+/* ====================================================================
+   v87 · AVATAR-INSPIRED MOTHERSHIP COSMETIC PASS
+   Faithful layout: top session/actions; 9 Home controls; roster/preview/
+   alert stack; 9 Activity Shortcuts *below*. No geometry/grid overrides.
+   Motion is interaction-only; live video and SI+ keep stable rendering.
+   ==================================================================== */
+body.si-v80-dashboard{
+ --si87-carbon:#071626;--si87-slate:#102740;--si87-edge:#467da1;
+ --si87-gold:#f6c987;--si87-aqua:#81e9fa;--si87-soft:#bedbeb;
+}
+/* Shared styling cues from student avatars: sculpted finish, saturated jewel
+   accents, fine-rim lighting. Desktop positions remain exactly as before. */
+body.si-v80-dashboard .topbar.si-v80-topbar{
+ background:
+  radial-gradient(ellipse at 18% -75%,#2486b344,transparent 48%),
+  radial-gradient(ellipse at 83% 140%,#654d9b20,transparent 43%),
+  linear-gradient(117deg,#08182d 0%,#10243c 58%,#0a192e 100%)!important;
+ border-bottom:1px solid #5398b7!important;
+ box-shadow:inset 0 1px 0 #dbf5ff18,0 5px 0 #030d1e,0 10px 27px #0009!important;
+}
+body.si-v80-dashboard .topbar .brand-mark{
+ background:
+  radial-gradient(circle at 31% 16%,#a2eeff5c,transparent 37%),
+  linear-gradient(150deg,#205784,#142b60 55%,#29214e)!important;
+ border-color:#74d8ed!important;
+ box-shadow:inset 0 2px 1px #f7ffff6a,inset 0 -6px 13px #030f3795,0 4px 0 #05152e,0 0 18px #79ecfb3d!important;
+}
+body.si-v80-dashboard .topbar .brand-copy b{
+ color:#fffefa!important;
+ text-shadow:0 2px 0 #132641,0 3px 14px #0009!important;
+}
+body.si-v80-dashboard .topbar .brand-copy small{
+ color:#92ecfc!important;letter-spacing:.2em!important;
+}
+body.si-v80-dashboard #siV80Information{
+ background:linear-gradient(155deg,#163651,#0b1b32 68%)!important;
+ border-color:#5387a5!important;
+ box-shadow:inset 0 2px 0 #a6dded27,inset 0 -3px 12px #050e2066,0 5px 16px #0005!important;
+}
+body.si-v80-dashboard #siV80Information .session-pill b{
+ color:#affbd4!important;text-shadow:0 0 12px #5debc251!important;
+}
+body.si-v80-dashboard #siV80Information .class-code strong{
+ color:#a8eeff!important;text-shadow:0 0 15px #68dbf580!important;
+}
+body.si-v80-dashboard #siV80Information .class-code .copy-code{
+ background:linear-gradient(155deg,#245e80,#102b48)!important;
+ border-color:#72c9e0!important;box-shadow:inset 0 1px #daffff36,0 3px 6px #0008!important;
+}
+/* Header action buttons use the *same* sculpted emblem treatment as Home.
+   Do not relocate End/Reset or replace their original DOM/event handlers. */
+body.si-v80-dashboard .topbar .si-v80-end-session,
+body.si-v80-dashboard .topbar .si-v80-reset-session{
+ background:
+  radial-gradient(ellipse at 50% -17%,color-mix(in srgb,var(--si81-accent) 19%,transparent),transparent 62%),
+  linear-gradient(155deg,#14344e,#09192d 77%)!important;
+ border-color:color-mix(in srgb,var(--si81-accent) 63%,#395875)!important;
+ box-shadow:inset 0 1px #def8ff3a,inset 0 -3px #030d1e55,0 4px 0 #030c1c,0 9px 16px #0006!important;
+}
+body.si-v80-dashboard .topbar .si-v80-end-session .ico.si-v80-icon,
+body.si-v80-dashboard .topbar .si-v80-reset-session .ico.si-v80-icon{
+ background:
+  linear-gradient(145deg,#ffffff31 0%,transparent 24%,transparent 72%,#00000025 100%),
+  radial-gradient(ellipse at 50% 98%,color-mix(in srgb,var(--si81-accent) 31%,transparent),transparent 64%),
+  linear-gradient(155deg,#225579,#0c203b)!important;
+ border-color:color-mix(in srgb,var(--si81-accent) 77%,#92dae9)!important;
+ box-shadow:inset 0 2px #edffff53,inset 0 -7px 0 #050e1c52,0 3px 4px #0008,
+            0 0 12px color-mix(in srgb,var(--si81-accent) 25%,transparent)!important;
+}
+body.si-v80-dashboard .topbar .si-v80-end-session .ico.si-v80-icon svg,
+body.si-v80-dashboard .topbar .si-v80-reset-session .ico.si-v80-icon svg{
+ filter:drop-shadow(0 1px 0 #fff5) drop-shadow(0 3px 2px #000d)
+        drop-shadow(0 0 7px var(--si81-accent))!important;
+}
+/* Nine Home control surfaces. Keep their established dimensions and order. */
+body.si-v80-dashboard #teacher #teacherControlBar.single-mission-bar{
+ border-color:#5499bb!important;
+ background:
+  radial-gradient(ellipse at 12% -17%,#2078a63c,transparent 50%),
+  linear-gradient(145deg,#102a44,#08182e 68%,#071629)!important;
+ box-shadow:inset 0 2px #e2faff25,inset 0 -3px 0 #020c1c5e,
+            0 1px 0 #0e324b,0 9px 26px #0009!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .single-mission-controls .control:not(.si-v80-secondary){
+ background:
+  radial-gradient(ellipse at 47% 0%,color-mix(in srgb,var(--si80-glow) 10%,transparent),transparent 66%),
+  linear-gradient(167deg,#1b3b56 0%,#0e2139 40%,#0b192e 100%)!important;
+ border-color:color-mix(in srgb,var(--si80-glow) 36%,#345a73)!important;
+ box-shadow:inset 0 1px 0 #d5f7ff36,inset 0 -3px 0 #030e1d73,
+            0 4px 0 #041326,0 7px 13px #0007!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .single-mission-controls .control .ico.si-v80-icon{
+ isolation:isolate;
+ position:relative!important;
+ background:
+  linear-gradient(150deg,#ffffff30 0%,transparent 25%,transparent 72%,#00000030 100%),
+  radial-gradient(ellipse at 50% 76%,color-mix(in srgb,var(--si80-glow) 36%,transparent),transparent 63%),
+  linear-gradient(155deg,#1b4a6e 0%,#0d2945 54%,#0b1a30 100%)!important;
+ border-color:color-mix(in srgb,var(--si80-glow) 78%,#c5eaff)!important;
+ box-shadow:inset 0 2px 0 #e6ffff54,inset 0 -7px 0 #030d1959,
+            0 3px 5px #000b,0 0 12px color-mix(in srgb,var(--si80-glow) 26%,transparent)!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .ico.si-v80-icon svg{
+ filter:drop-shadow(0 1px 0 #ffffff66) drop-shadow(0 4px 2px #020918)
+        drop-shadow(0 0 5px var(--si80-glow))!important;
+ stroke-linecap:round;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .single-mission-controls .control .copy b{
+ color:#f5fdff!important;
+ text-shadow:0 2px 6px #000d!important;
+ letter-spacing:-.015em!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .single-mission-controls .control.active:not(.si-v80-secondary),
+body.si-v80-dashboard #teacher #teacherControlBar .single-mission-controls .control.enabled:not(.si-v80-secondary){
+ border-color:var(--si80-glow)!important;
+ box-shadow:inset 0 1px #faffff59,0 0 0 1px color-mix(in srgb,var(--si80-glow) 45%,transparent),
+            0 0 18px color-mix(in srgb,var(--si80-glow) 28%,transparent)!important;
+}
+/* The bottom 9 shortcuts stay at the bottom and retain their own handlers. */
+body.si-v80-dashboard #teacher #appShortcutsPanel{
+ border-color:#518fb0!important;
+ background:
+  radial-gradient(ellipse at 80% -50%,#3a507a3a,transparent 51%),
+  linear-gradient(146deg,#102b42,#0a1a30 75%)!important;
+ box-shadow:inset 0 2px #d5f9ff21,inset 0 -2px #040f2155,0 10px 22px #0007!important;
+}
+body.si-v80-dashboard #teacher #appShortcutsPanel .app-shortcuts-head .eyebrow{
+ color:#e7f6ff!important;text-shadow:0 2px 8px #000a!important;
+}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut{
+ background:
+  radial-gradient(ellipse at 50% -16%,color-mix(in srgb,var(--si81-shortcut-accent) 12%,transparent),transparent 67%),
+  linear-gradient(165deg,#193852,#0c2038 67%,#09172c)!important;
+ border-color:color-mix(in srgb,var(--si81-shortcut-accent) 40%,#345d7d)!important;
+ box-shadow:inset 0 1px #d6f7ff36,inset 0 -3px #040e1f6b,
+            0 4px 0 #041326,0 8px 13px #0006!important;
+}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut .app-shortcut-icon{
+ background:
+  linear-gradient(148deg,#ffffff31,transparent 26%,transparent 71%,#00000026),
+  radial-gradient(ellipse at 50% 74%,color-mix(in srgb,var(--si81-shortcut-accent) 32%,transparent),transparent 63%),
+  linear-gradient(160deg,#20577c,#0b263f 58%,#091a30)!important;
+ border-color:color-mix(in srgb,var(--si81-shortcut-accent) 82%,#dbfdff)!important;
+ box-shadow:inset 0 2px #ffffff59,inset 0 -7px #030c1d69,
+            0 4px 6px #000a,0 0 15px color-mix(in srgb,var(--si81-shortcut-accent) 29%,transparent)!important;
+}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut .app-shortcut-icon svg.si-v82-activity-glyph{
+ filter:drop-shadow(0 1px 0 #ffffff8c) drop-shadow(0 3px 2px #000d)
+        drop-shadow(0 0 5px var(--si81-shortcut-accent))!important;
+}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut .app-shortcut-label{
+ color:#f4faff!important;font-weight:900!important;
+ text-shadow:0 2px 7px #000c!important;
+}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut.empty{
+ opacity:.78;box-shadow:inset 0 1px #99b9cc22,0 4px 0 #041326!important;
+}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut.empty .app-shortcut-icon{
+ background:linear-gradient(160deg,#15334b,#091d30)!important;
+}
+/* Roster, preview and alerts: one visual family, three original columns. */
+body.si-v80-dashboard #teacher .roster-card,
+body.si-v80-dashboard #teacher .screen-dock,
+body.si-v80-dashboard #teacher #siV85AlertStack > #attentionSummary,
+body.si-v80-dashboard #teacher #siV85AlertStack > .attention-panel{
+ border-color:#497f9f!important;
+ background:
+  radial-gradient(ellipse at 16% -36%,#287ca32a,transparent 65%),
+  linear-gradient(148deg,#102c44,#0a1b2f 76%)!important;
+ box-shadow:inset 0 2px #e3fcff1e,inset 0 -2px #0613224d,
+            0 8px 17px #0006!important;
+}
+body.si-v80-dashboard #teacher .roster-head,
+body.si-v80-dashboard #teacher .screen-dock-head,
+body.si-v80-dashboard #teacher #siV85AlertStack .attention-panel .section-heading{
+ border-bottom:1px solid #548db087!important;
+ background:linear-gradient(90deg,#1b4a66ad,#0e283a2e)!important;
+}
+body.si-v80-dashboard #teacher .roster-head .eyebrow,
+body.si-v80-dashboard #teacher .screen-dock-title,
+body.si-v80-dashboard #teacher #siV85AlertStack .v564-panel-label{
+ color:#e2f4ff!important;text-shadow:0 1px 8px #020c1f8e!important;
+}
+body.si-v80-dashboard #teacher .bot-card,
+body.si-v80-dashboard #teacher .student-roster-card{
+ border-color:#5686a1!important;
+ background:
+  radial-gradient(ellipse at 14% 6%,#4e87b92a,transparent 64%),
+  linear-gradient(158deg,#173e54,#0c2338)!important;
+ box-shadow:inset 0 1px #e5ffff36,0 3px 0 #071727,0 7px 12px #0006!important;
+}
+body.si-v80-dashboard #teacher .roster-card .crew-avatar-stage{
+ box-shadow:inset 0 2px #e9ffff33,inset 0 -6px 12px #020c1f70,
+            0 5px 13px #0008!important;
+}
+body.si-v80-dashboard #teacher .screen-dock .launch-screen-btn,
+body.si-v80-dashboard #teacher #appShortcutsPanel .si-v80-manage{
+ background:linear-gradient(150deg,#236a83,#0d3c5b 69%,#0a2a49)!important;
+ border-color:#80c5dd!important;
+ box-shadow:inset 0 1px #f6ffff3e,0 3px 0 #061a2d,0 7px 12px #0007!important;
+}
+body.si-v80-dashboard #teacher .screen-dock .mirror-screen{
+ border-color:#5eafd0!important;
+ box-shadow:0 0 0 2px #082337,0 0 22px #69e4ef23!important;
+}
+body.si-v80-dashboard #teacher #siV85AlertStack .attention-summary-copy b{
+ color:#f2fcff!important;line-height:1.4!important;
+}
+body.si-v80-dashboard #teacher #siV85AlertStack .attention-panel .empty{
+ color:#c8dfeb!important;line-height:1.48!important;
+}
+/* Activity Library reflects the same new surfaces; card sizes and buttons
+   remain exactly as previously established and all app IDs are preserved. */
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .real-app-card{
+ border-color:color-mix(in srgb,var(--si-v86-accent) 36%,#3d6c88)!important;
+ background:
+  radial-gradient(ellipse at 50% -17%,color-mix(in srgb,var(--si-v86-accent) 10%,transparent),transparent 70%),
+  linear-gradient(158deg,#17344e,#0c2238 71%,#091b2e)!important;
+ box-shadow:inset 0 2px #eaffff30,inset 0 -3px #030e1e64,0 4px 0 #061425,0 10px 23px #0004!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .real-app-card .act-icon{
+ background:
+  linear-gradient(145deg,#ffffff2a,transparent 28%,transparent 72%,#0000002b),
+  radial-gradient(ellipse at 50% 67%,color-mix(in srgb,var(--si-v86-accent) 28%,transparent),transparent 66%),
+  linear-gradient(155deg,#25587a,#0d2c49 58%,#0a1b31)!important;
+ box-shadow:inset 0 2px #f4ffff52,inset 0 -8px 0 #020e1c61,
+            0 4px 8px #0007,0 0 13px color-mix(in srgb,var(--si-v86-accent) 22%,transparent)!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .real-app-card .act-icon .si-v86-library-glyph{
+ filter:drop-shadow(0 1px 0 #fff5) drop-shadow(0 3px 2px #000d)
+        drop-shadow(0 0 5px var(--si-v86-accent))!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .real-app-card .real-app-actions button:first-child{
+ background:linear-gradient(150deg,color-mix(in srgb,var(--si-v86-accent) 90%,#f2ffff),var(--si-v86-accent))!important;
+ color:#071b2d!important;text-shadow:0 1px 0 #ffffff66;
+ box-shadow:inset 0 2px #ffffff77,0 3px 0 #07182d,0 6px 13px #0006!important;
+}
+body.si-v80-dashboard #teacher :is(#teacherControlBar,#homeAppGrid,#activitiesPanel) button:focus-visible{
+ outline:3px solid #fff2b4!important;outline-offset:3px!important;
+}
+@media(prefers-reduced-motion:reduce){
+ body.si-v80-dashboard #teacher :is(#teacherControlBar,#homeAppGrid,#activitiesPanel) button,
+ body.si-v80-dashboard #teacher :is(#teacherControlBar,#homeAppGrid,#activitiesPanel) svg{
+  transition:none!important;animation:none!important;
+ }
+}
