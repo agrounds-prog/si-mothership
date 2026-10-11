@@ -68,7 +68,7 @@ jobs:
               window.Dominoes.setupWire(grid,names,launchDominoesGame,launchDominoesGame,()=>renderActivities());
               return;
             }""")
-          one("     if(a.type==='word-grid'){",
+          one("if(a.type==='word-grid'){",
               """     if(a.type==='dominoes'){
                  label.innerHTML='<b>DOMINOES</b><span>Play from your private domino rack above.</span>';
                  zone.className='student-actions';zone.innerHTML='';return;
