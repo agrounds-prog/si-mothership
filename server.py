@@ -4314,6 +4314,12 @@ def _million_apply_request(state: dict, run: dict, name: str, request: dict) -> 
         remaining = 0
     if lifeline not in {"poll", "reduce", "clue", "tryAgain"} or remaining <= 0:
         return
+    # 50/50 is only available before a final lock/reveal and once per question.
+    # Refuse stale/duplicate requests BEFORE spending another lifeline.
+    if lifeline == "reduce" and (
+        million.get("lockedAnswer") or million.get("revealed") or eliminated
+    ):
+        return
     # Never allow a stale pilot lifeline request to reset an already-correct
     # question and award its ladder rung a second time.
     if lifeline == "tryAgain" and (million.get("result") == "correct" or million.get("complete")):
@@ -4328,16 +4334,22 @@ def _million_apply_request(state: dict, run: dict, name: str, request: dict) -> 
 
     if lifeline == "reduce":
         correct = str(question.get("correct") or "").upper()
+        selected = str(million.get("selectedAnswer") or "").upper()
+        # Preserve a student's selected option (even if incorrect) to avoid
+        # silently eliminating the currently selected answer.
         wrong = [
             str(choice.get("key") or "").upper()
             for choice in question.get("choices", [])
             if isinstance(choice, dict)
             and str(choice.get("key") or "").upper() in valid_keys
             and str(choice.get("key") or "").upper() != correct
-            and str(choice.get("key") or "").upper() not in eliminated
+            and str(choice.get("key") or "").upper() != selected
         ]
+        if len(wrong) < 2 or correct not in valid_keys:
+            inventory[lifeline] = remaining  # malformed game, do not spend 50/50
+            return
         million["eliminated"] = wrong[:2]
-        million["message"] = "REDUCE SIGNAL removed two incorrect choices."
+        million["message"] = "50/50 ACTIVATED — two incorrect answers removed. Choose from the two remaining signals."
         return
 
     if lifeline == "clue":
