@@ -75,14 +75,35 @@ function setupHTML(students=[]){
  return '<section class="fil-setup"><div class="fil-title"><span>MOTHERSHIP · NEW CLASSROOM GAME</span><h2>FOUR <em>IN LINE</em></h2><p>Drop. Connect. Win.</p></div><div class="fil-setup-cards"><div class="fil-setup-card"><h3>01 · Game Settings</h3><label>Mode<select id="filMode"><option value="classic">Classic · 1 vs 1</option><option value="teams">Team Battle · Crew vs Crew</option></select></label><label>Board Size<select id="filSize"><option value="classic">Classic · 7 × 6</option><option value="mini">Mini · 5 × 4</option><option value="mega">Mega · 9 × 7</option></select></label><label>Blue Side<input id="filOne" maxlength="35" value="Blue Crew"></label><label>Gold Side<input id="filTwo" maxlength="35" value="Gold Crew"></label><p>Play with students, teacher, or two classroom teams. You can always place discs from Mission Control.</p><button class="fil-primary" id="filLaunch">▶ START FOUR IN LINE</button><div class="fil-setup-error" id="filSetupError" role="status"></div></div><div class="fil-setup-card"><h3>02 · Assign Crew</h3><p>Each connected student may control one side; unassigned students safely spectate. Teams can have several students.</p><div class="fil-setup-crew">'+clean.map(name=>'<label class="fil-crew-row"><span>'+esc(name)+'</span><select data-fil-seat="'+esc(name)+'"><option value="-1">Spectator</option><option value="0">Blue Side</option><option value="1">Gold Side</option></select></label>').join("")+(clean.length?'':'<p>Students can join before the next match.</p>')+'</div></div></div><div class="fil-saves">'+saved().slice(0,8).map((x,i)=>'<button data-fil-load="'+i+'">▣ '+esc(x.name)+' · '+new Date(x.at).toLocaleDateString()+'</button>').join("")+'</div></section>';
 }
 function wireStudent(g,name){
- document.querySelectorAll("#studentContent [data-fil-drop]").forEach(el=>el.onclick=()=>{
-  const col=Number(el.dataset.filDrop),seat=seatOf(g,name);
+ const zone=document.querySelector("#studentContent");
+ if(!zone)return;
+ zone.querySelectorAll("[data-fil-drop]").forEach(button=>button.onclick=()=>{
+  const col=Number(button.dataset.filDrop),seat=seatOf(g,name);
   if(seat!==g.turn||!legal(g,col))return;
-  const ident=typeof currentStudentIdentity==="function"?currentStudentIdentity():null;
-  if(typeof networkSocket!=="undefined"&&networkSocket?.readyState===WebSocket.OPEN){
+  let row=g.rows-1;while(row>=0&&g.board[row*g.cols+col])row--;
+  const arena=zone.querySelector(".fil-arena");if(!arena)return;
+  arena.querySelectorAll(".fil-preview-cell").forEach(el=>el.classList.remove("fil-preview-cell"));
+  arena.querySelectorAll(".fil-preview-selected").forEach(el=>el.classList.remove("fil-preview-selected"));
+  arena.querySelectorAll(".fil-preview-status").forEach(el=>el.remove());
+  button.classList.add("fil-preview-selected");
+  arena.querySelectorAll(".fil-cell")[row*g.cols+col]?.classList.add("fil-preview-cell");
+  const panel=document.createElement("div");
+  panel.className="fil-preview-status";
+  panel.setAttribute("role","status");
+  panel.innerHTML='<span>COLUMN '+(col+1)+' · LANDING ROW '+(row+1)+'</span><button type="button" data-fil-confirm>✓ DROP DISC</button><button type="button" data-fil-cancel>Cancel</button>';
+  arena.appendChild(panel);
+  function clear(){panel.remove();arena.querySelectorAll(".fil-preview-cell,.fil-preview-selected").forEach(el=>el.classList.remove("fil-preview-cell","fil-preview-selected"))}
+  panel.querySelector("[data-fil-cancel]").onclick=clear;
+  panel.querySelector("[data-fil-confirm]").onclick=()=>{
+   if(seatOf(g,name)!==g.turn||!legal(g,col))return clear();
+   const ident=typeof currentStudentIdentity==="function"?currentStudentIdentity():null;
+   if(typeof networkSocket!=="undefined"&&networkSocket?.readyState===WebSocket.OPEN){
     networkSocket.send(JSON.stringify({type:"four_in_line_action",request:{column:col,runToken:state.activityRun?.runToken,id:"move-"+Date.now()+"-"+Math.random().toString(36).slice(2)},student_token:ident?.student_token||"",student_name:name}));
-  }
+    panel.textContent="Disc submitted. Waiting for board update.";
+   }else panel.textContent="Not connected. Reconnect before submitting.";
+  };
  });
 }
+
 return {make,drop,undo,reset,legal,findWin,seatOf,boardHTML,teacherHTML,studentHTML,publicHTML,setupHTML,wireStudent,save,saved,snapshot,LIB,SIZES};
 });
