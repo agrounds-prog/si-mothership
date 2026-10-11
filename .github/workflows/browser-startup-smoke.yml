@@ -10,6 +10,10 @@ on:
       - 'index.html'
       - 'quick-poll.js'
       - 'quick-poll.css'
+      - 'word-grid.js'
+      - 'word-grid.css'
+      - 'tests/test_word_grid_engine.cjs'
+      - 'tests/test_word_grid_browser.cjs'
       - 'bingo-board-studio.js'
       - 'dashboard-polish.js'
       - 'dashboard-polish.css'
@@ -79,6 +83,11 @@ jobs:
         run: |
           node --check dashboard-polish.js
           node --check million-studio.js
+      - name: WORD GRID gameplay, tile scoring, shared screen, and saved game browser regression
+        run: |
+          node --check word-grid.js
+          node tests/test_word_grid_engine.cjs
+          node tests/test_word_grid_browser.cjs
       - name: Quick Poll server integration and vote lifecycle
         run: python -m unittest discover -s tests -p 'test_quick_poll.py' -v
       - name: Quick Poll four projector graphic layouts, shared reveal, mirror and Zoom resolutions
