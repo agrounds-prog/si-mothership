@@ -1,0 +1,45 @@
+name: Inspect MILLION current code
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-million-inspect.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect existing gameplay and storage (no modifications)
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text()
+          lines=s.splitlines()
+          print('INDEX_BYTES',len(s),'INDEX_LINES',len(lines))
+          keys=['millionDraft','parseMillionQuestions','launchMillion','millionUseLifeline','millionResolve','millionQuestion','millionPollCounts','million-game','millionGame','millionQuestions','million_','million-','MILLION']
+          hits=[(i+1,l) for i,l in enumerate(lines) if any(k in l for k in keys)]
+          print('MILLION_LINE_INDEX',[(i,len(l),l[:185]) for i,l in hits])
+          ranges=[]
+          for i,l in hits:
+            if any(k in l for k in ['function ','const ','let ','id=','case ','if(',"on('",'onclick=','millionDraft','millionQuestions','MILLION']):
+              ranges.append((max(1,i-3),min(len(lines),i+17)))
+          merged=[]
+          for a,b in sorted(ranges):
+            if merged and a<=merged[-1][1]+2:merged[-1]=(merged[-1][0],max(merged[-1][1],b))
+            else:merged.append((a,b))
+          budget=0
+          for a,b in merged:
+            if budget>125000:break
+            part='\n'.join(f'{i+1:>5} {lines[i][:500]}' for i in range(a-1,b))
+            print('=== CONTEXT',a,b,'===\n'+part)
+            budget+=len(part)
+          for path in ['server.py','index.html']:
+            ss=Path(path).read_text().splitlines()
+            tags=['teacher_preset','teacher-library','preset/save','preset/list','saved_presentation','presentation_library','/api/teacher','teacher-storage']
+            locations=[(i,l) for i,l in enumerate(ss) if any(k.lower() in l.lower() for k in tags)]
+            print('=== STORAGE INDEX',path,[(i+1,l[:180]) for i,l in locations[:100]])
+            for i,l in locations[:12]:
+              print('\n'.join(f'{j+1:>5} {ss[j][:300]}' for j in range(max(0,i-2),min(len(ss),i+8))))
+          PY
