@@ -18,9 +18,20 @@ const base=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const card=page.locator("#activitiesPanel .ss-library-card");
   assert.equal(await card.count(),1);await card.locator(".ss-open").click();
   await page.waitForSelector("#ssLaunch");
+  // Old classroom snapshots did not include SIGNAL SEQUENCE. A fresh render
+  // must re-register it without touching the selected setup screen.
+  await page.evaluate(()=>{state.activities=state.activities.filter(a=>a.id!=="signal-sequence-game");render()});
+  assert.equal(await page.evaluate(()=>state.activities.filter(a=>a.id==="signal-sequence-game").length),1);
+  assert.equal(await page.locator("#ssLaunch").count(),1);
   await page.locator("#ssPilot").selectOption("Teacher");
   await page.locator("#ssLaunch").click();
   await page.waitForFunction(()=>state.activityRun?.activityId==="signal-sequence-game"&&!!document.querySelector("#activityControllerPanel .ss-console"),{timeout:12000});
+  // Recreate the missing-registry state that previously caused "Prototype
+  // error" in renderRosterAlert after a remote classroom hydration.
+  await page.evaluate(()=>{state.activities=state.activities.filter(a=>a.id!=="signal-sequence-game");render()});
+  assert.equal(await page.evaluate(()=>state.activities.filter(a=>a.id==="signal-sequence-game").length),1);
+  assert.equal(await page.locator("#bootError").evaluate(el=>getComputedStyle(el).display==="none"),true);
+  assert.equal(await page.locator("#activityControllerPanel .ss-console").count(),1);
   assert.equal(await page.locator("#sharedContent .ss-pad").count(),4);
   assert.equal(await page.locator("#mirrorContent .ss-pad").count(),4);
   assert.equal(await page.locator("#sharedContent [data-ss-press]").count(),0);
@@ -43,6 +54,20 @@ const base=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    assert.ok(result.over<=5,JSON.stringify({width,...result}));
    assert.equal(result.segments,4);
   }
+  // Browser restarts while a game is live must not bootstrap into the generic
+  // Prototype error overlay, even if local storage predates the new activity.
+  await page.evaluate(()=>{
+    const key="siMothership.session.network.v42";
+    const snap=JSON.parse(localStorage.getItem(key)||"{}");
+    if(snap.activityRun?.activityId==="signal-sequence-game"){
+      snap.activities=(snap.activities||[]).filter(a=>a.id!=="signal-sequence-game");
+      localStorage.setItem(key,JSON.stringify(snap));
+    }
+  });
+  await page.reload({waitUntil:"domcontentloaded"});
+  await page.waitForFunction(()=>!!window.__signalSequenceBridge,{timeout:12000});
+  assert.equal(await page.locator("#bootError").evaluate(el=>getComputedStyle(el).display==="none"),true);
+  assert.equal(await page.evaluate(()=>state.activities.some(a=>a.id==="signal-sequence-game")),true);
   assert.deepEqual(errors,[]);
   console.log("SIGNAL SEQUENCE browser startup, playback, scoring, save and projector passed");
  }finally{await browser.close()}

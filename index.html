@@ -15507,6 +15507,7 @@ const presentationSlides=[
 
 const activitySeed=[
  {id:1,name:'Social Skills Check-In',icon:'▣',type:'presentation',text:'Interactive presentation',deckTitle:'Social Skills Check-In',slides:presentationSlides,userCreated:false},
+ {id:'signal-sequence-game',name:'SIGNAL SEQUENCE',icon:'✧',type:'signal-sequence',text:'Four-signal memory arcade'},
  {id:'cosmic-cards-game',name:'COSMIC CARDS',icon:'✦',type:'cosmic-cards',text:'Individual color-and-number card game with up to eight players'},
  {id:'minefield-game',name:'MINEFIELD',icon:'✦',type:'minefield',text:'Whole-class crew navigation reward game'},
  {id:'vector-game',name:'VECTOR',icon:'⊕',type:'vector',text:'Visual pin interaction activity'},
@@ -16842,6 +16843,11 @@ function mergeSyncedState(remote){
   const keepEditor=SESSION_ROLE==='teacher'&&!!local.activeApp&&state.screen==='activities'&&
     !state.activityRun&&!remote.activityRun&&!remote.ended;
   Object.assign(state,deepClone(remote));
+  // Older classroom snapshots do not know about this dynamically added game.
+  // Restore its registry entry before any render uses activeActivity().type.
+  if(!Array.isArray(state.activities))state.activities=hydratedActivities();
+  if(!state.activities.some(a=>a&&a.id==='signal-sequence-game'))
+    state.activities.push({id:'signal-sequence-game',name:'SIGNAL SEQUENCE',type:'signal-sequence',description:'Four-signal memory challenge'});
   delete state.__sessionId;
   state.activeApp=SESSION_ROLE==='teacher'?local.activeApp:null;
   if(keepEditor)state.screen='activities';

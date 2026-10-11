@@ -4940,7 +4940,7 @@ async def index(request: web.Request) -> web.Response:
                 '<script src="/four-in-line.js?v=1" defer></script>' +
                 '<script src="/four-in-line-bridge.js?v=1" defer></script>' +
                 '<script src="/signal-sequence.js?v=1" defer></script>' +
-                '<script src="/signal-sequence-bridge.js?v=1" defer></script>' +
+                '<script src="/signal-sequence-bridge.js?v=2" defer></script>' +
                 f'<script src="/quick-poll.js?v={QUICK_POLL_ASSET_VERSION}" defer></script>' +
                 '<script src="/dashboard-polish.js?v=80" defer></script>' +
                 '<script src="/million-studio.js?v=1" defer></script>' +

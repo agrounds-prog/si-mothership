@@ -104,6 +104,10 @@ function wireStudent(){
 function install(){
  if(window.__signalSequenceBridge||typeof SignalSequence==="undefined"||typeof state==="undefined"||typeof render!=="function")return;
  window.__signalSequenceBridge=true;ensure();
+ // Restored sessions can replace the activity registry with a pre-game snapshot.
+ // Reinstall the entry before core renderRosterAlert accesses activeActivity().
+ const oldRender=window.render;
+ window.render=function(){ensure();return oldRender.apply(this,arguments)};
  const oldActivities=window.renderActivities,oldController=window.renderActivityController,oldShared=window.sharedMarkup,
   oldStudent=window.studentMarkup,oldPublic=window.renderPublic,oldStudentControls=window.renderStudentControls;
  window.renderActivities=function(){const value=oldActivities.apply(this,arguments);if(state?.activeApp===APP)showSetup();else if(!state?.activeApp)decorateCatalog();return value};
