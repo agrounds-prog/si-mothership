@@ -37,4 +37,14 @@ jobs:
           for a,b in [(4865,4922),(5970,6032)]:
            print('### SERVER',a,b)
            for j in range(a-1,b):print(f'{j+1}: {ss[j][:550]}')
+          print('=== WORDGRID HOOK ANCHORS ===')
+          s=Path('index.html').read_text().splitlines()
+          for needle in ['function activeActivity','function sharedMarkup','function studentMarkup','function openApp(','function launchActivity','function startLoadedActivity','function renderActivityController','function renderStudentControls','function initial()','const DEFAULT_ACTIVITIES','function activityLibraryCategoryFor','function activityLibrary', 'function appIconMarkup','function recordActivityLaunch','function renderActivities()','function saveActivityPreset','function renderPublic()']:
+           hits=[i for i,x in enumerate(s) if needle in x]
+           print('###',needle,[i+1 for i in hits[:6]])
+           for i in hits[:1]:
+            for j in range(max(0,i-2),min(len(s),i+28)):print(f'{j+1}: {s[j][:900]}')
+          print('=== index injection anchors ===')
+          for needle in ['</head>','</body>','function renderStudentControls','function renderActivities','window.MillionStudio','type:\'million\'','type:\'bingo\'']:
+           hits=[i for i,x in enumerate(s) if needle in x];print(needle,[i+1 for i in hits[:10]])
           PY
