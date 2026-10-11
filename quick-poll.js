@@ -8,7 +8,7 @@ let sid=window.__SI_SESSION_ID__||"",code=window.__SI_JOIN_CODE__||"";
 let lastSessionCheck=0,sessionCheck=null;
 const colors=["#5ce8ff","#89ef9c","#bc87ff","#ffb96b","#ff79a4","#ffe180"];
 const styles={cards:"Image Leaderboard",bars:"Bar Chart",donut:"Donut Chart",showdown:"Two-Sided Showdown"};
-const graphicVersion="SHOW GRAPHICS 4.2";
+const graphicVersion="SHOW GRAPHICS 4.3";
 const styleArt={
  bars:'<span class="qp-style-art qp-style-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>',
  donut:'<span class="qp-style-art qp-style-donut" aria-hidden="true"><i></i></span>',
@@ -97,24 +97,47 @@ function pollVizData(p){
  values.forEach(v=>{v.percent=pct(v.n,voters);v.share=pct(v.n,selections);v.isLeader=top>0&&v.n===top});
  return {values,voters,selections,top,leaders};
 }
+
+/* Self-contained vector artwork: no external asset, tracking, or image upload. */
+const qpV6Paths=[
+ '<circle cx="50" cy="49" r="23"/><ellipse cx="50" cy="49" rx="41" ry="13" transform="rotate(-22 50 49)"/><circle cx="73" cy="20" r="4" fill="currentColor" stroke="none"/>',
+ '<path d="M50 13 Q72 32 68 60 L50 77 32 60 Q28 32 50 13Z"/><circle cx="50" cy="42" r="9"/><path d="M33 53 19 68 35 65 M67 53 81 68 65 65 M44 80 50 93 56 80"/>',
+ '<path d="M52 8 23 53 H45 L36 91 80 41 H55 Z" fill="currentColor" fill-opacity=".32"/>',
+ '<ellipse cx="50" cy="50" rx="39" ry="18"/><ellipse cx="50" cy="50" rx="39" ry="18" transform="rotate(60 50 50)"/><ellipse cx="50" cy="50" rx="39" ry="18" transform="rotate(120 50 50)"/><circle cx="50" cy="50" r="8" fill="currentColor" stroke="none"/>',
+ '<path d="M50 12 61 38 89 50 61 61 50 89 39 61 11 50 39 38 Z"/><circle cx="50" cy="50" r="11"/><path d="M24 20 30 14 M76 80 82 86"/>',
+ '<path d="M50 10 82 29 82 71 50 90 18 71 18 29Z"/><circle cx="50" cy="50" r="25"/><path d="M50 25 62 50 50 75 38 50Z" fill="currentColor" fill-opacity=".24"/>'
+];
+const qpV6Icon=i=>'<span class="qp-v6-emblem" aria-hidden="true"><svg viewBox="0 0 100 100" focusable="false" fill="none" stroke="currentColor" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round">'+qpV6Paths[i%6]+'</svg></span>';
+const qpV6Crest=()=>'<svg class="qp-v6-crest" viewBox="0 0 60 60" focusable="false" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linejoin="round"><path d="M10 21 19 30 30 14 41 30 50 21 44 45H16Z" fill="currentColor" fill-opacity=".16"/><path d="M16 49H44"/><path d="M25 35H35"/></svg>';
+function qpV6Turnout(voters,eligible){
+ const total=Math.max(0,Number(eligible)||0);
+ const value=Math.min(100,Math.max(0,total?Math.round(voters/total*100):0));
+ return '<div class="qp-v6-participation" role="group" aria-label="'+value+' percent classroom participation">'+
+  '<span class="qp-v6-turnout-wheel" aria-hidden="true"><svg viewBox="0 0 52 52" focusable="false">'+
+  '<circle cx="26" cy="26" r="21" fill="none" stroke="#1d425f" stroke-width="5"/>'+
+  '<circle cx="26" cy="26" r="21" pathLength="100" fill="none" stroke="#66f0d4" stroke-width="5" stroke-linecap="round" stroke-dasharray="'+value+' 100" transform="rotate(-90 26 26)"/></svg>'+
+  '<b>'+value+'<small>%</small></b></span>'+
+  '<span class="qp-v6-participation-copy"><strong>CREW TURNOUT</strong><small>'+voters+' OF '+total+' CHECKED IN</small></span></div>';
+}
+
 const media=(c,i)=>'<div class="qp-image" style="--qp-color:'+colors[i%6]+'">'+
- (c.image?'<img alt="'+esc(c.label)+'" src="'+c.image+'">':'<span aria-hidden="true">'+["✦","◈","◆","✿","⬡","◉"][i%6]+'</span>')+'</div>';
+ (c.image?'<img alt="'+esc(c.label)+'" src="'+c.image+'">':qpV6Icon(i))+'</div>';
 const badge=p=>'<div class="qp-status"><strong>'+(p.phase==="open"?"● VOTING OPEN":"✓ VOTING CLOSED")+'</strong><b data-quick-poll-timer>—</b><span>'+(p.voters==null?"PRIVATE":p.voters+" of "+(p.eligible??0))+' VOTED</span></div>';
 function results(p){
  if(!p.counts)return '<div class="qp-secret qp-v4-secret"><div class="qp-v4-secret-orbit"><span>◈</span></div><small>RESULTS SEALED</small><h2>Waiting for the reveal</h2><p>Votes are coming in. Mission Control will reveal the results.</p><div class="qp-v4-secret-bars"><i></i><i></i><i></i><i></i><i></i></div></div>';
  const {values,voters,selections,leaders}=pollVizData(p);
  const sub=p.multiple?'Percentages show the share of students selecting each answer.':'Percentages show the share of students voting.';
  const winner=leaders.length===1?'LEADING SIGNAL · '+esc(leaders[0].c.label):leaders.length>1?'TIED LEAD · '+leaders.length+' ANSWERS':selections?'RESULTS LIVE':'AWAITING FIRST VOTE';
- const ribbon='<div class="qp-v4-results-heading"><div><span class="qp-v4-overline">◈ LIVE DATA VISUALIZATION</span><strong>'+esc(styles[p.display]||'Results')+'</strong></div><div class="qp-v4-heading-totals"><b>'+voters+'</b><span>STUDENTS VOTED</span></div></div>';
+ const ribbon='<div class="qp-v4-results-heading"><div class="qp-v6-title-block"><span class="qp-v4-overline">◈ LIVE DATA VISUALIZATION · MISSION CONTROL</span><strong>'+esc(styles[p.display]||'Results')+'</strong></div>'+qpV6Turnout(voters,p.eligible)+'<div class="qp-v4-heading-totals"><b>'+voters+'</b><span>STUDENTS VOTED</span></div></div>';
  const footer='<div class="qp-v4-data-footer"><span>'+sub+'</span><b>'+selections+' TOTAL '+(selections===1?'SELECTION':'SELECTIONS')+'</b></div>';
  if(p.display==='bars'){
   const rows=values.map((v)=>'<div class="qp-v4-bar-row '+(v.isLeader?'is-leader':'')+'" style="--qp-color:'+colors[v.i%6]+'">'+
     '<div class="qp-v4-bar-meta"><span class="qp-v4-bar-index">'+String(v.i+1).padStart(2,'0')+'</span>'+
-    '<div class="qp-v4-bar-symbol">'+(v.c.image?'<img src="'+v.c.image+'" alt="">':'<span>'+['◆','◈','✦','✿','⬡','◉'][v.i%6]+'</span>')+'</div>'+
-    '<div class="qp-v4-bar-title"><strong>'+esc(v.c.label)+'</strong><span>'+(v.isLeader?'◆ CURRENT LEADER':v.n+' '+(v.n===1?'VOTE':'VOTES'))+'</span></div>'+
+    '<div class="qp-v4-bar-symbol">'+(v.c.image?'<img src="'+v.c.image+'" alt="">':qpV6Icon(v.i))+'</div>'+
+    '<div class="qp-v4-bar-title"><strong>'+esc(v.c.label)+'</strong><span>'+(v.isLeader?'✦ CURRENT LEADER':v.n+' '+(v.n===1?'VOTE':'VOTES'))+'</span></div>'+(v.isLeader?'<span class="qp-v6-bar-laurel" aria-label="Current leading answer">'+qpV6Crest()+'</span>':'')+
     '<b class="qp-v4-bar-percent">'+v.percent+'<small>%</small></b></div>'+
     '<div class="qp-v4-bar-rail" role="img" aria-label="'+esc(v.c.label)+': '+v.percent+' percent, '+v.n+' votes"><div class="qp-v4-bar-fill" style="width:'+v.percent+'%"></div><span class="qp-v4-bar-value">'+v.n+' VOTES</span></div></div>').join('');
-  return '<section class="qp-v4-stage qp-v4-bars">'+ribbon+'<div class="qp-v4-bar-list">'+rows+'</div><div class="qp-v4-leadline"><span>◆</span><strong>'+winner+'</strong></div>'+footer+'</section>';
+  return '<section class="qp-v4-stage qp-v4-bars">'+ribbon+'<div class="qp-v4-bar-list">'+rows+'</div><div class="qp-v4-leadline qp-v6-leader-banner '+(leaders.length===1?'has-winner':leaders.length>1?'has-tie':'pending')+'">'+(leaders.length?qpV6Crest():'<span class="qp-v6-wait-icon">◉</span>')+'<strong>'+winner+'</strong><span class="qp-v6-leader-line"></span></div>'+footer+'</section>';
  }
  if(p.display==='donut'){
   let from=0;
@@ -450,7 +473,7 @@ function liveHtml(p){
  if(!p)return '<div class="qp-teacher-live qp-nopoll">Create and send a question to your existing classroom session.</div>';
  return '<div class="qp-teacher-live"><div><b>'+esc(p.question)+'</b><span>'+(p.phase==="open"?"VOTING OPEN":"POLL CLOSED")+'</span></div>'+
  '<p>'+p.voters+' of '+p.eligible+' voted · Round '+p.round+'</p><div class="qp-mini-results">'+p.choices.map(c=>'<span>'+esc(c.label)+' <b>'+Number(p.counts?.[c.id]||0)+'</b></span>').join("")+'</div>'+
- '<div class="qp-display-hint qp-v4-graphics-label"><strong>◈ SHOW GRAPHICS 4.2</strong><span>SELECT A PROJECTOR PRESENTATION</span></div>'+
+ '<div class="qp-display-hint qp-v4-graphics-label"><strong>◈ SHOW GRAPHICS 4.3</strong><span>SELECT A PROJECTOR PRESENTATION</span></div>'+
  '<div class="qp-display-buttons qp-v4-display-gallery">'+Object.entries(styles).filter(([k])=>k!=="showdown"||p.choices.length===2).map(([k,l])=>'<button type="button" class="qp-v4-display-tile '+(p.display===k?"on":"")+'" data-qp-display="'+k+'" aria-label="'+esc(l)+' projector view" aria-pressed="'+(p.display===k)+'">'+styleArt[k]+'<span class="qp-style-info"><b>'+esc(l)+'</b><small>'+(k==="bars"?"Big glowing vote bars":k==="donut"?"Live circular breakdown":k==="showdown"?"Two-team face-off":"Illustrated answer leaderboard")+'</small></span>'+(p.display===k?'<span class="qp-style-picked">✓ ACTIVE</span>':'')+'</button>').join("")+'</div>'+
  '<div class="qp-v5-preview-cta"><div><b>◈ SEE THE FULL EXPERIENCE</b><span>Preview this chart on your screen. Try demo votes without changing the classroom.</span></div>'+
  '<button type="button" data-qp-preview-open>▣ PREVIEW FULL SCREEN <span>↗</span></button></div>'+
