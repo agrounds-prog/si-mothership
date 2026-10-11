@@ -101,6 +101,7 @@ const SHORTCUT_GLYPHS={
  "MINEFIELD":'<rect x="6" y="6" width="36" height="36" rx="5" fill="currentColor" opacity=".13"/><rect x="6" y="6" width="36" height="36" rx="5"/><path d="M18 6v36M30 6v36M6 18h36M6 30h36" opacity=".65"/><path d="m24 14 2.5 6 6 1-4.5 4 1 7-5-3-5 3 1-7-4.5-4 6-1z" fill="currentColor" opacity=".68"/>',
  "SCIENTIFIC CALCULATOR":'<rect x="11" y="4" width="26" height="40" rx="5" fill="currentColor" opacity=".15"/><rect x="11" y="4" width="26" height="40" rx="5"/><rect x="16" y="10" width="16" height="10" rx="1"/><path d="M17 26h3m8 0h3m-14 7h3m8 0h3m-14 7h3m8 0h3"/><path d="m20 14 3 3 5-5" stroke-width="2"/>',
  "CREW SURVEY":'<rect x="6" y="7" width="36" height="33" rx="4" fill="currentColor" opacity=".12"/><rect x="6" y="7" width="36" height="33" rx="4"/><path d="M12 16h24M12 25h24M12 34h24"/><circle cx="16" cy="12" r="3" fill="currentColor"/><path d="m28 19 3 3 4-6" stroke-width="3"/>',
+ "WORD GRID":'<rect x="6" y="6" width="36" height="36" rx="6" fill="currentColor" opacity=".12"/><rect x="6" y="6" width="36" height="36" rx="6"/><path d="M18 6v36M30 6v36M6 18h36M6 30h36" opacity=".43"/><rect x="19" y="19" width="10" height="10" rx="2" fill="currentColor" opacity=".5"/><path d="m22 23 2 3 3-5" stroke-width="2.6"/>',
  "MILLION":'<path d="m24 4 18 14-7 23H13L6 18z" fill="currentColor" opacity=".13"/><path d="m24 4 18 14-7 23H13L6 18z"/><path d="m17 18 6-5 5 6-4 5 6 7-8 2-7-7z" fill="currentColor" opacity=".35"/><path d="M12 44h24"/>',
  "VECTOR":'<circle cx="24" cy="24" r="16"/><circle cx="24" cy="24" r="7" fill="currentColor" opacity=".25"/><path d="M24 3v12m0 18v12M3 24h12m18 0h12"/><circle cx="24" cy="24" r="2" fill="currentColor"/>',
  "ORBIT":'<ellipse cx="24" cy="24" rx="20" ry="9" transform="rotate(-25 24 24)"/><ellipse cx="24" cy="24" rx="20" ry="9" transform="rotate(55 24 24)"/><circle cx="24" cy="24" r="6" fill="currentColor" opacity=".4"/><circle cx="40" cy="16" r="3" fill="currentColor"/>',
@@ -137,7 +138,7 @@ function installLibraryArtwork(){
   "VECTOR":"blue","BOARD":"blue","SKETCH SIGNAL":"cyan",
   "ORBIT":"purple","PIXEL REVEAL":"pink","STARWHEEL":"amber",
   "CREW SURVEY":"purple","MILLION":"amber","MATCH":"purple",
-  "BINGO":"cyan","SCIENTIFIC CALCULATOR":"purple"
+  "BINGO":"cyan","WORD GRID":"amber","SCIENTIFIC CALCULATOR":"purple"
  };
  const aliases={
   "PRESENTATION":"SI+","SI+ INTERACTIVE PRESENTATION":"SI+",
