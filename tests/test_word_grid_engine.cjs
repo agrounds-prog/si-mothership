@@ -73,6 +73,6 @@ run("projection and student view render tiles, not a private teacher rack",()=>{
  assert.equal((shared.match(/data-wg-cell=/g)||[]).length,225);
  assert.equal((student.match(/data-wg-cell=/g)||[]).length,225);
  assert.doesNotMatch(student,/data-wg-action/);
- assert.match(W.setupHTML([]),/CREATE WORD GRID/);
+ assert.match(W.setupHTML([]),/START WORD GRID/);
 });
 console.log("WORD GRID engine regression complete");
