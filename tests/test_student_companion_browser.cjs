@@ -53,6 +53,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await avatarNav.waitFor({timeout:6000});
   const allChoices=student.locator("#studentContent [data-join-avatar]");
   assert.ok(await allChoices.count()>=12,"full class roster is still present");
+  await student.waitForFunction(() => document.querySelectorAll("#studentContent [data-join-avatar]:not([hidden])").length === 9, null, {timeout:5000});
   assert.equal(await student.locator("#studentContent [data-join-avatar]:visible").count(),9,"regular companion uses three rows");
   await avatarNav.locator("[data-si-avatar-next]").click();
   assert.equal(await avatarNav.locator(".si-avatar-page-count").textContent().then(s=>s.trim().startsWith("2 /")),true);
