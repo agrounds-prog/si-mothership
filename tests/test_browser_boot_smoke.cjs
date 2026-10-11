@@ -378,6 +378,15 @@ const hosts=[
               currentTab,creationHidden,active:!!simulated,question:simulated?.question,choices:simulated?.choices?.map(x=>x.label)}));
             if(currentTab!=='live'||!creationHidden)failures++;
             if(!simulated||simulated.question!=='Choose our next classroom activity')failures++;
+            const graphicStyleGallery=await page.evaluate(()=>({
+              version:document.querySelector('#qpDialog .qp-v4-graphics-label strong')?.textContent||'',
+              options:document.querySelectorAll('#qpDialog .qp-v4-display-tile').length,
+              symbols:document.querySelectorAll('#qpDialog .qp-v4-display-tile .qp-style-art').length,
+              selected:document.querySelectorAll('#qpDialog .qp-v4-display-tile.on').length
+            }));
+            console.log(JSON.stringify({label,role:'quick-poll-graphics-selector-v4',...graphicStyleGallery}));
+            if(!graphicStyleGallery.version.includes('4.1')||graphicStyleGallery.options!==4||
+              graphicStyleGallery.symbols!==4||graphicStyleGallery.selected!==1)failures++;
             // The same chart must be visible in the teacher mirror and in the
             // independent second-screen role. The test's route interception
             // prevents any writes to Railway's real classroom.
