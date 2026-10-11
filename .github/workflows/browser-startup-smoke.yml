@@ -57,6 +57,7 @@ jobs:
         run: |
           set -e
           node --check quick-poll.js
+          python -m py_compile server.py quick_poll_server.py
           python - <<'PY'
           import hashlib,re,urllib.request
           from pathlib import Path
