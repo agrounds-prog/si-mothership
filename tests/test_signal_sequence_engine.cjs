@@ -27,7 +27,8 @@ run("classic round grows, watches first, then checks each input in order",()=>{
 });
 run("only active pilot receives interactive student donut, and saved games round trip",()=>{
  const g=S.make({pilot:"Ava"});S.startRound(g,{now:1000,random:()=>.26});S.beginInput(g,g.playbackEnd+1);
- assert.equal((S.studentHTML(g,"Ava").match(/data-ss-press=/g)||[]).length,4);
+ assert.equal((S.studentHTML(g,"Ava").match(/data-ss-press=/g)||[]).length,8);
+ assert.equal((S.studentHTML(g,"Ava").match(/class="ss-touch-key"/g)||[]).length,4);
  assert.equal((S.studentHTML(g,"Sam").match(/data-ss-press=/g)||[]).length,0);
  assert.equal((S.sharedHTML(g,true).match(/data-ss-press=/g)||[]).length,0);
  assert.doesNotMatch(S.studentHTML(g,"Ava"),/PRIVATE SEQUENCE/);

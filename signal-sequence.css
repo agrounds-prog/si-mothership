@@ -75,3 +75,21 @@
 @media(max-width:850px){.ss-public-main,.ss-teacher-main,.ss-setup-main{grid-template-columns:minmax(0,1fr)}.ss-big .ss-console{width:min(100%,66vh)}.ss-broadcast-side{grid-template-columns:repeat(2,minmax(0,1fr))}.ss-broadcast-side .ss-legend{grid-column:span 2}}
 @media(max-width:540px){.ss-heading h2{font-size:27px}.ss-student .ss-console{width:min(100%,94vw)}.ss-broadcast-side{grid-template-columns:1fr}.ss-broadcast-side .ss-legend{grid-column:auto}.ss-teacher-main{grid-template-columns:minmax(0,1fr)}.ss-setup-card{padding:12px}}
 @media(prefers-reduced-motion:reduce){.ss-pad path{transition:none!important}}
+
+/* SIGNAL SEQUENCE v1.1: reliable, large student touch targets and acknowledgement. */
+.ss-student .ss-pad[data-ss-press],.ss-student .ss-pad[data-ss-press] path{
+ pointer-events:all;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+.ss-student .ss-donut{touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.ss-student .ss-pad[data-ss-press]:active path,.ss-student .ss-pad.ss-pressed path{
+ filter:brightness(1.6) drop-shadow(0 0 18px var(--ss-segment));
+}
+.ss-student-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:520px;margin:14px auto 0}
+.ss-touch-key{display:flex;align-items:center;justify-content:center;gap:12px;min-height:69px;min-width:0;border:2px solid var(--ss-segment);border-radius:15px;background:color-mix(in srgb,var(--ss-segment) 18%,#0a1d34);color:white;font:950 15px system-ui;letter-spacing:.075em;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;box-shadow:inset 0 1px 2px #fff3,0 4px 13px #0006}
+.ss-touch-key b{font:1000 35px/1 system-ui;color:var(--ss-segment);filter:drop-shadow(0 1px 3px #000d)}
+.ss-touch-key:active,.ss-touch-key.ss-pressed{background:color-mix(in srgb,var(--ss-segment) 34%,#0a1d34);box-shadow:inset 0 0 19px var(--ss-segment)}
+.ss-student-status.ss-status-sending{color:#ffe2ad}
+.ss-student-status.ss-status-ok{color:#acffda}
+.ss-student-status.ss-status-error{color:#ffb5ba}
+.ss-student-status{font-size:14px;line-height:1.55;padding:8px;min-height:45px}
+@media(max-width:480px){.ss-student-buttons{gap:9px}.ss-touch-key{min-height:74px;font-size:13px;gap:7px}.ss-touch-key b{font-size:34px}.ss-student .ss-donut{max-height:42vh}}

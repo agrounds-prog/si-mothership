@@ -10,6 +10,8 @@ on:
       - 'tests/test_signal_sequence_engine.cjs'
       - 'tests/test_signal_sequence_server.py'
       - 'tests/test_signal_sequence_browser.cjs'
+      - 'tests/test_signal_sequence_mobile_browser.cjs'
+      - 'tests/test_signal_sequence_websocket.py'
       - 'server.py'
       - '.github/workflows/signal-sequence-regression.yml'
   workflow_dispatch:
@@ -30,6 +32,7 @@ jobs:
           node --check signal-sequence-bridge.js
           node tests/test_signal_sequence_engine.cjs
           python -m unittest discover -s tests -p 'test_signal_sequence_server.py' -v
+          python -m unittest discover -s tests -p 'test_signal_sequence_websocket.py' -v
           python -m py_compile server.py signal_sequence_server.py
       - name: Existing release gate
         run: python scripts/release_gate.py --require-node
@@ -50,6 +53,8 @@ jobs:
           exit 1
       - name: Live Activity Library and Classic browser gameplay
         run: node tests/test_signal_sequence_browser.cjs
+      - name: Real student mobile touch and multiplayer round progression
+        run: node tests/test_signal_sequence_mobile_browser.cjs
       - name: Local diagnostics on failure
         if: failure()
         run: tail -90 /tmp/signal-sequence.log || true

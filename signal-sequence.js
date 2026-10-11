@@ -73,7 +73,9 @@ function sharedHTML(g,big=false){
 function studentHTML(g,name=""){
  const pilot=String(name||"")===g.pilot,active=pilot&&g.phase==="input";
  return '<section class="ss-student">'+header()+'<div class="ss-student-meta"><strong>'+esc(pilot?"YOUR MISSION": "SPECTATOR MODE")+'</strong><span>'+esc(g.phase==="watch"?"Watch and memorize":active?"Your turn — tap the signals":g.phase==="input"?"Watch the pilot respond":g.message)+'</span></div>'+
- donutHTML(g,{interactive:active})+'<div class="ss-student-status" role="status">'+(active?'Tap '+(g.round-g.progress)+' more signal'+(g.round-g.progress===1?'':'s')+'.':esc(g.message))+'</div></section>';
+ donutHTML(g,{interactive:active})+
+ (active?'<div class="ss-student-buttons" aria-label="Large touch controls">'+COLORS.map(([color,symbol,label],i)=>'<button type="button" class="ss-touch-key" data-ss-press="'+i+'" style="--ss-segment:'+color+'" aria-label="'+label+' '+symbol+'"><b aria-hidden="true">'+symbol+'</b><span>'+label+'</span></button>').join("")+'</div>':'')+
+ '<div class="ss-student-status" role="status" aria-live="polite">'+(active?'YOUR TURN · TAP THE SIGNALS IN ORDER':esc(g.message))+'</div></section>';
 }
 function teacherHTML(g){
  const button=(action,label,disabled=false)=>'<button type="button" data-ss-action="'+action+'" '+(disabled?'disabled':'')+'>'+label+'</button>';

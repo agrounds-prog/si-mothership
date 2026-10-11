@@ -4930,7 +4930,7 @@ async def index(request: web.Request) -> web.Response:
                         '<link rel="stylesheet" href="/word-grid.css?v=1">'
                         '<link rel="stylesheet" href="/dominoes.css?v=1">'
                         '<link rel="stylesheet" href="/four-in-line.css?v=1">'
-                        '<link rel="stylesheet" href="/signal-sequence.css?v=1">'
+                        '<link rel="stylesheet" href="/signal-sequence.css?v=3">'
                         '<link rel="stylesheet" href="/si-plus-polish.css?v=88"></head>', 1)
     # Insert before the final body close: index.html also contains HTML strings
     # in internal scripts, so replacing the first occurrence would corrupt JS.
@@ -4939,8 +4939,8 @@ async def index(request: web.Request) -> web.Response:
         text = (text[:body_close] +
                 '<script src="/four-in-line.js?v=1" defer></script>' +
                 '<script src="/four-in-line-bridge.js?v=1" defer></script>' +
-                '<script src="/signal-sequence.js?v=1" defer></script>' +
-                '<script src="/signal-sequence-bridge.js?v=2" defer></script>' +
+                '<script src="/signal-sequence.js?v=3" defer></script>' +
+                '<script src="/signal-sequence-bridge.js?v=3" defer></script>' +
                 f'<script src="/quick-poll.js?v={QUICK_POLL_ASSET_VERSION}" defer></script>' +
                 '<script src="/dashboard-polish.js?v=80" defer></script>' +
                 '<script src="/million-studio.js?v=1" defer></script>' +
@@ -5908,8 +5908,17 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                     run = current.get("activityRun")
                     if not isinstance(run, dict):
                         continue
-                    if apply_signal_sequence_action(current, run, name, data["request"]):
+                    # A confirmed response lets the student distinguish an
+                    # accepted press from an unavailable or stale round.
+                    accepted = apply_signal_sequence_action(current, run, name, data["request"])
+                    if accepted:
                         save_runtime_state(current)
+                    await ws.send_json({
+                        "type": "signal_sequence_ack",
+                        "id": str(data["request"].get("id") or "")[:100],
+                        "ok": bool(accepted),
+                    })
+                    if accepted:
                         await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
                 elif mtype == "four_in_line_action" and isinstance(data.get("request"), dict):
                     if role != "student":

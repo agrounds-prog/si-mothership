@@ -3,6 +3,24 @@
 "use strict";
 const ID="signal-sequence-game",APP="signal-sequence";
 let watchTimer=null,visualTimer=null,lastToneKey="",audio=null;
+let studentPending=null,studentFeedback="",studentFeedbackType="",signalSocket=null,ignoreSyntheticClickUntil=0;
+function studentNotice(message,kind=""){
+ studentFeedback=String(message||"");studentFeedbackType=kind;
+ const node=document.querySelector("#studentContent .ss-student-status");
+ if(node){node.textContent=studentFeedback;node.classList.remove("ss-status-sending","ss-status-ok","ss-status-error");if(kind)node.classList.add("ss-status-"+kind)}
+}
+function socketAck(event){
+ let data;try{data=JSON.parse(event.data)}catch(_){return}
+ if(!data||data.type!=="signal_sequence_ack"||!studentPending||String(data.id)!==studentPending.id)return;
+ if(data.ok){studentPending.acknowledged=true;studentNotice("✓ Signal received. Updating game…","ok")}
+ else {studentPending=null;studentNotice("Signal was not accepted. Check that it is your turn and try again.","error")}
+}
+function watchSignalSocket(){
+ if(typeof networkSocket==="undefined"||networkSocket===signalSocket)return;
+ if(signalSocket)signalSocket.removeEventListener("message",socketAck);
+ signalSocket=networkSocket;
+ if(signalSocket)signalSocket.addEventListener("message",socketAck);
+}
 const live=()=>typeof state!=="undefined"&&state?.activityRun?.activityId===ID&&state.activityRun.signalSequence;
 const notice=t=>{if(typeof toast==="function")toast(t)};
 function ensure(){
@@ -28,6 +46,9 @@ function visuals(){
  tick();visualTimer=setInterval(tick,85);
 }
 function schedule(){
+ // Only Mission Control may open an input phase. A student browser must wait
+ // for the teacher's server-synchronized change, not advance its local copy.
+ if(typeof SESSION_ROLE!=="undefined"&&SESSION_ROLE!=="teacher")return;
  if(watchTimer)clearTimeout(watchTimer);
  const g=live();if(!g||g.phase!=="watch")return;
  const wait=Math.max(0,Number(g.playbackEnd)-Date.now()+70);
@@ -74,6 +95,7 @@ function decorateCatalog(){
 }
 function controller(){
  const g=live(),el=document.getElementById("activityControllerPanel");if(!g||!el)return false;
+ if(typeof SESSION_ROLE!=="undefined"&&SESSION_ROLE!=="teacher"){el.innerHTML="";return true}
  el.innerHTML=SignalSequence.teacherHTML(g);
  el.querySelectorAll("[data-ss-action]").forEach(b=>b.onclick=()=>{
   const a=b.dataset.ssAction;
@@ -88,19 +110,59 @@ function controller(){
  schedule();return true;
 }
 function wireStudent(){
- const g=live();if(!g)return;
- const pilot=typeof selectedStudent==="function"?selectedStudent()?.n||"":"";
- document.querySelectorAll("#studentContent [data-ss-press]").forEach(p=>{
-  const send=()=>{
-   if(pilot!==g.pilot||g.phase!=="input")return;
-   const ident=typeof currentStudentIdentity==="function"?currentStudentIdentity():null;
-   if(typeof networkSocket!=="undefined"&&networkSocket?.readyState===WebSocket.OPEN)
-    networkSocket.send(JSON.stringify({type:"signal_sequence_action",request:{signal:Number(p.dataset.ssPress),runToken:state.activityRun?.runToken,id:"ssmove-"+Date.now()+"-"+Math.random().toString(36).slice(2)},student_token:ident?.student_token||"",student_name:pilot}));
-   tone(Number(p.dataset.ssPress),g);
-  };
-  p.addEventListener("click",send);p.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();send()}});
+ const g=live();if(!g||typeof SESSION_ROLE==="undefined"||SESSION_ROLE!=="student")return;
+ const pilot=typeof selectedStudent==="function"?selectedStudent()?.n||"":"",zone=document.querySelector("#studentContent");
+ if(!zone)return;
+ watchSignalSocket();
+ // Rendered student markup is replaced on each classroom update. Keep
+ // in-flight requests in the bridge until canonical progress advances.
+ if(studentPending&&(studentPending.gameId!==g.id||studentPending.round!==g.round||studentPending.progress!==g.progress||g.phase!=="input")){
+  studentPending=null;
+  studentFeedback=g.phase==="failed"?"Signal missed. Watch Mission Control for a retry.":g.phase==="success"?"✓ Round complete!":"✓ Signal registered.";
+  studentFeedbackType=g.phase==="failed"?"error":"ok";
+ }
+ if(g.phase!=="input"||pilot!==g.pilot){studentPending=null;studentFeedback="";studentFeedbackType=""}
+ if(studentPending)studentNotice(studentPending.acknowledged?"✓ Signal received. Updating game…":"Sending signal…","sending");
+ else if(studentFeedback)studentNotice(studentFeedback,studentFeedbackType);
+ const send=(signal)=>{
+  if(g.phase!=="input"||pilot!==g.pilot||studentPending)return;
+  if(typeof networkSocket==="undefined"||!networkSocket||networkSocket.readyState!==WebSocket.OPEN){
+   studentNotice("Not connected to Mission Control. Reconnect before tapping.","error");return
+  }
+  const current=typeof currentStudentIdentity==="function"?currentStudentIdentity():null;
+  const stored=typeof readStudentIdentity==="function"?readStudentIdentity():null;
+  // An existing student entry can temporarily be missing its token when
+  // a role-filtered state packet arrives before WebSocket hello.
+  const token=current?.student_token||(stored?.name===pilot?stored.studentToken:"")||"";
+  if(!token){studentNotice("Student identity is still syncing. Reconnect this device.","error");return}
+  const number=Number(signal),req={signal:number,runToken:state.activityRun?.runToken,id:"ssmove-"+Date.now()+"-"+Math.random().toString(36).slice(2)};
+  studentPending={id:req.id,signal:number,gameId:g.id,round:g.round,progress:g.progress,acknowledged:false};
+  studentNotice("Sending "+SignalSequence.COLORS[number][2]+" signal…","sending");
+  try{
+   networkSocket.send(JSON.stringify({type:"signal_sequence_action",request:req,student_token:token,student_name:pilot}));
+   tone(number,g);
+  }catch(_){studentPending=null;studentNotice("Couldn't send. Check your classroom connection.","error")}
+ };
+ zone.querySelectorAll("[data-ss-press]").forEach(control=>{
+  const signal=Number(control.dataset.ssPress),svg=control.tagName.toLowerCase()==="g";
+  // touch/pen pointerdown fires before synthetic clicks and before mobile
+  // scrolling can interrupt the gesture; mouse and keyboard use click.
+  if(svg)control.addEventListener("pointerdown",e=>{
+   if(e.pointerType==="mouse")return;
+   e.preventDefault();ignoreSyntheticClickUntil=Date.now()+750;
+   control.classList.add("ss-pressed");
+   send(signal);
+  },{passive:false});
+  control.addEventListener("click",e=>{
+   if(svg&&Date.now()<ignoreSyntheticClickUntil){e.preventDefault();return}
+   send(signal);
+  });
+  if(svg)control.addEventListener("keydown",e=>{
+   if(e.key==="Enter"||e.key===" "){e.preventDefault();send(signal)}
+  });
  });
 }
+
 function install(){
  if(window.__signalSequenceBridge||typeof SignalSequence==="undefined"||typeof state==="undefined"||typeof render!=="function")return;
  window.__signalSequenceBridge=true;ensure();
@@ -115,7 +177,7 @@ function install(){
  window.sharedMarkup=function(size){const g=live();if(g)return SignalSequence.sharedHTML(g,size==="big");return oldShared.apply(this,arguments)};
  window.studentMarkup=function(){const g=live();if(g&&typeof studentNeedsJoin==="function"&&!studentNeedsJoin()){const st=typeof selectedStudent==="function"?selectedStudent():null;return SignalSequence.studentHTML(g,st?.n||"")}return oldStudent.apply(this,arguments)};
  if(typeof oldStudentControls==="function")window.renderStudentControls=function(){if(live()){const label=document.getElementById("studentControlLabel"),zone=document.getElementById("studentControls");if(label)label.innerHTML="<b>SIGNAL SEQUENCE</b><span>Watch the lights, then tap the matching donut segments.</span>";if(zone){zone.innerHTML="";zone.className="student-actions"}return}return oldStudentControls.apply(this,arguments)};
- window.renderPublic=function(){const result=oldPublic.apply(this,arguments);if(live()){wireStudent();visuals()}return result};
+ window.renderPublic=function(){const result=oldPublic.apply(this,arguments);if(live()){wireStudent();visuals()}else{studentPending=null;studentFeedback="";studentFeedbackType=""}return result};
  ensure();try{renderActivities()}catch(e){console.warn("SIGNAL SEQUENCE library unavailable",e)}
  // When loading an active game from browser/session storage, the inline app
  // deliberately held the first render until this wrapper became available.
