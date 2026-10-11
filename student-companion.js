@@ -13,7 +13,7 @@
   tools.className="si-student-header-tools";
   head.appendChild(tools);
   tools.appendChild(status);
-  const isPopout=window.name==="si_mothership_student_sidecar";
+  const isPopout=window.name==="si_mothership_student_sidecar" || new URLSearchParams(location.search).get("compact")==="1";
   if(isPopout){document.body.classList.add("si-student-popout");return;}
   const button=document.createElement("button");
   button.type="button";
@@ -24,7 +24,9 @@
   button.addEventListener("click",()=>{
    // Reuse the complete authenticated, current-session student URL. Because
    // this is a real user gesture, Chrome/Edge can allow the popup.
-   const w=window.open(location.href,"si_mothership_student_sidecar",
+   const url=new URL(location.href);
+   url.searchParams.set("compact","1");
+   const w=window.open(url.toString(),"si_mothership_student_sidecar",
      "popup=yes,width=440,height=780,resizable=yes,scrollbars=yes");
    if(w){w.focus();}
    else if(typeof toast==="function")toast("Allow pop-ups for Mothership to open the student window.");
