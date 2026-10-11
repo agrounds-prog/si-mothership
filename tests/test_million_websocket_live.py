@@ -104,6 +104,15 @@ class MillionWebSocketE2E(unittest.IsolatedAsyncioTestCase):
         await self.request(crew, "Crew", "token-crew-445566", "predict", "C", "crew-predict")
         audience = await self.state_from(crew, lambda s: s["activityRun"]["million"]["crewPredictions"].get("Crew") == "C")
         self.assertEqual(audience["activityRun"]["million"]["crewPredictions"], {"Crew": "C"})
+        # Exercise the actual student WebSocket 50/50 path. Both students and
+        # the projector must get the same two eliminations from server state.
+        await self.request(pilot, "Pilot", "token-pilot-112233", "lifeline", "reduce", "pilot-5050")
+        pilot_half = await self.state_from(pilot, lambda st: len(st["activityRun"]["million"]["eliminated"]) == 2)
+        self.assertEqual(set(pilot_half["activityRun"]["million"]["eliminated"]), {"A", "C"})
+        self.assertEqual(pilot_half["activityRun"]["million"]["inventory"]["reduce"], 0)
+        viewer_half = await self.state_from(shared, lambda st: len(st["activityRun"]["million"]["eliminated"]) == 2)
+        self.assertEqual(set(viewer_half["activityRun"]["million"]["eliminated"]), {"A", "C"})
+        self.assertNotIn("correct", viewer_half["activityRun"]["millionConfig"]["questions"][0])
         await self.request(crew, "Crew", "token-crew-445566", "lock", "", "crew-forged-lock")
         await self.state_from(crew)
         self.assertEqual(app.LATEST_STATE["activityRun"]["million"]["lockedAnswer"], "")
