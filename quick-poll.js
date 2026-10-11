@@ -3,7 +3,9 @@
 "use strict";
 if(window.SIQuickPoll)return;
 const role=new URLSearchParams(location.search).get("role")||"teacher";
-const sid=window.__SI_SESSION_ID__||"",code=window.__SI_JOIN_CODE__||"";
+// Session identity changes after Reset Session without reloading each open screen.
+let sid=window.__SI_SESSION_ID__||"",code=window.__SI_JOIN_CODE__||"";
+let lastSessionCheck=0,sessionCheck=null;
 const colors=["#5ce8ff","#89ef9c","#bc87ff","#ffb96b","#ff79a4","#ffe180"];
 const styles={cards:"Image Leaderboard",bars:"Bar Chart",donut:"Donut Chart",showdown:"Two-Sided Showdown"};
 const sample=[
@@ -19,6 +21,32 @@ const clone=v=>JSON.parse(JSON.stringify(v));
 const fresh=()=>({question:"",description:"",choices:[{label:"Yes",image:""},{label:"No",image:""}],identity:"anonymous",visibility:"live",allowChange:true,multiple:false,limit:2,duration:0,display:"cards",sensitive:false});
 let draft=fresh(),poll=null,library=[],selected=[],open=false,list=false,busy=false,loading=false,previousStudent="",serverOffset=0;
 let root=null,dialog=null,launcher=null,notice="";
+/* The existing shared screen stays open when Reset Session rotates its ID.
+   Re-check the authoritative session only when a stale-ID request is rejected.
+   Old student identity is NEVER promoted to a new class: the server still
+   validates both the new session and the student's current roster token. */
+async function reconcileSession(){
+ const now=Date.now();
+ if(sessionCheck)return sessionCheck;
+ // Protect the endpoint if a student has not joined the new class.
+ if(now-lastSessionCheck<5000)return false;
+ lastSessionCheck=now;
+ sessionCheck=(async()=>{
+  try{
+   const r=await fetch("/api/session/info",{cache:"no-store"});
+   if(!r.ok)return false;
+   const info=await r.json();
+   const newSid=String(info.session_id||""),newCode=String(info.code||"");
+   if(!newSid||!newCode||(newSid===sid&&newCode===code))return false;
+   sid=newSid;code=newCode;
+   poll=null;selected=[];previousStudent="";
+   if(root){root.hidden=true;root.innerHTML="";}
+   if(role==="teacher"){updateLive();syncMirror();}
+   return true;
+  }catch{return false;}
+ })();
+ try{return await sessionCheck;}finally{sessionCheck=null;}
+}
 const params=()=>{
  const q=new URLSearchParams({role,sid,code});
  if(role==="student"){
@@ -362,12 +390,17 @@ async function refresh(force=false){
   }
   timer();
  }catch(e){
-  if(role==="teacher"&&open)error(e);
-  if(role==="student"&&root&&String(e.message).includes("(403)")){
-    // A new class session invalidates the previous poll and voting access.
-    root.hidden=true;poll=null;previousStudent="";
-  }else if(role==="student"&&root&&!root.hidden){
-    const msg=$("#qpVoteError",root);if(msg)msg.textContent="Reconnecting — please wait before submitting again.";
+  const forbidden=String(e.message).includes("(403)");
+  if(forbidden&&role!=="teacher"){
+   // Never keep the old classroom's chart or vote panel visible after reset.
+   if(root){root.hidden=true;root.innerHTML="";}
+   poll=null;selected=[];previousStudent="";
+   // Shared screens will recover automatically. Student devices cannot vote
+   // until their current roster token is accepted by the new session.
+   if(await reconcileSession()&&role==="shared")setTimeout(()=>refresh(true),0);
+  }else if(role==="teacher"&&open)error(e);
+  else if(role==="student"&&root&&!root.hidden){
+   const msg=$("#qpVoteError",root);if(msg)msg.textContent="Reconnecting — please wait before submitting again.";
   }
  }finally{loading=false;}
 }
