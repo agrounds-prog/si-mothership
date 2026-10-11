@@ -65,7 +65,7 @@ function publicHTML(g,big=false){
 }
 function studentHTML(g,name){
  const seat=seatOf(g,name),mine=seat===g.turn&&g.status==="playing",watch=seat<0;
- return '<section class="fil-student"><div class="fil-title"><span>SI MOTHERSHIP · YOUR CONTROLLER</span><h2>FOUR <em>IN LINE</em></h2></div><div class="fil-student-status">'+(g.status==="won"?esc(g.players[g.winner])+" won the match!":g.status==="draw"?"It is a draw!":watch?"SPECTATOR · Watch the match":mine?"YOUR TURN · Choose a column":"WATCH · "+esc(g.players[g.turn])+" is moving")+'</div>'+avatars(g)+boardHTML(g,{student:true,name})+'<p>Discs fall to the lowest open space. Connect four in a row to win.</p></section>';
+ return '<section class="fil-student"><div class="fil-title"><span>SI MOTHERSHIP · YOUR CONTROLLER</span><h2>FOUR <em>IN LINE</em></h2></div><div class="fil-student-status">'+(g.status==="won"?esc(g.players[g.winner])+" won the match!":g.status==="draw"?"It is a draw!":watch?"SPECTATOR · Watch the match":mine?"YOUR TURN · Choose a column":"WATCH · "+esc(g.players[g.turn])+" is moving")+'</div>'+avatars(g)+boardHTML(g,{student:true,name})+'<p>Tap a numbered column once to drop your disc. Connect four in a row to win.</p></section>';
 }
 function teacherHTML(g){
  return '<section class="fil-teacher"><div class="fil-teacher-head"><div><span>SI MOTHERSHIP · GAME CONTROL</span><h2>FOUR IN LINE</h2><p>'+esc(g.message)+'</p></div><b>'+g.moves+' MOVES</b></div><div class="fil-teacher-grid">'+boardHTML(g,{teacher:true})+'<aside class="fil-teacher-side">'+avatars(g)+'<p>Teacher may place a disc for the active player using the numbered columns.</p><div class="fil-actions"><button data-fil-action="undo" '+(!g.history.length?'disabled':'')+'>↶ Undo Move</button><button data-fil-action="reset">↻ New Match</button><button data-fil-action="save">▣ Save Game</button><button data-fil-action="exit">↩ Return to Class</button></div><div class="fil-controller-safety"><button data-fil-action="lobby">Ⅱ Activity Lobby</button><button class="fil-danger" data-fil-action="emergency">⚠ Emergency Return</button></div></aside></div></section>';
@@ -74,34 +74,52 @@ function setupHTML(students=[]){
  const clean=students.map(x=>String(x||"").trim()).filter(Boolean),options='<option value="">Teacher / spectator</option>'+clean.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join("");
  return '<section class="fil-setup"><div class="fil-title"><span>MOTHERSHIP · NEW CLASSROOM GAME</span><h2>FOUR <em>IN LINE</em></h2><p>Drop. Connect. Win.</p></div><div class="fil-setup-cards"><div class="fil-setup-card"><h3>01 · Game Settings</h3><label>Mode<select id="filMode"><option value="classic">Classic · 1 vs 1</option><option value="teams">Team Battle · Crew vs Crew</option></select></label><label>Board Size<select id="filSize"><option value="classic">Classic · 7 × 6</option><option value="mini">Mini · 5 × 4</option><option value="mega">Mega · 9 × 7</option></select></label><label>Blue Side<input id="filOne" maxlength="35" value="Blue Crew"></label><label>Gold Side<input id="filTwo" maxlength="35" value="Gold Crew"></label><p>Play with students, teacher, or two classroom teams. You can always place discs from Mission Control.</p><button class="fil-primary" id="filLaunch">▶ START FOUR IN LINE</button><div class="fil-setup-error" id="filSetupError" role="status"></div></div><div class="fil-setup-card"><h3>02 · Assign Crew</h3><p>Each connected student may control one side; unassigned students safely spectate. Teams can have several students.</p><div class="fil-setup-crew">'+clean.map(name=>'<label class="fil-crew-row"><span>'+esc(name)+'</span><select data-fil-seat="'+esc(name)+'"><option value="-1">Spectator</option><option value="0">Blue Side</option><option value="1">Gold Side</option></select></label>').join("")+(clean.length?'':'<p>Students can join before the next match.</p>')+'</div></div></div><div class="fil-saves">'+saved().slice(0,8).map((x,i)=>'<button data-fil-load="'+i+'">▣ '+esc(x.name)+' · '+new Date(x.at).toLocaleDateString()+'</button>').join("")+'</div></section>';
 }
+let pendingDrop=null;
 function wireStudent(g,name){
- const zone=document.querySelector("#studentContent");
- if(!zone)return;
- zone.querySelectorAll("[data-fil-drop]").forEach(button=>button.onclick=()=>{
-  const col=Number(button.dataset.filDrop),seat=seatOf(g,name);
-  if(seat!==g.turn||!legal(g,col))return;
-  let row=g.rows-1;while(row>=0&&g.board[row*g.cols+col])row--;
-  const arena=zone.querySelector(".fil-arena");if(!arena)return;
-  arena.querySelectorAll(".fil-preview-cell").forEach(el=>el.classList.remove("fil-preview-cell"));
-  arena.querySelectorAll(".fil-preview-selected").forEach(el=>el.classList.remove("fil-preview-selected"));
-  arena.querySelectorAll(".fil-preview-status").forEach(el=>el.remove());
-  button.classList.add("fil-preview-selected");
-  arena.querySelectorAll(".fil-cell")[row*g.cols+col]?.classList.add("fil-preview-cell");
-  const panel=document.createElement("div");
-  panel.className="fil-preview-status";
-  panel.setAttribute("role","status");
-  panel.innerHTML='<span>COLUMN '+(col+1)+' · LANDING ROW '+(row+1)+'</span><button type="button" data-fil-confirm>✓ DROP DISC</button><button type="button" data-fil-cancel>Cancel</button>';
-  arena.appendChild(panel);
-  function clear(){panel.remove();arena.querySelectorAll(".fil-preview-cell,.fil-preview-selected").forEach(el=>el.classList.remove("fil-preview-cell","fil-preview-selected"))}
-  panel.querySelector("[data-fil-cancel]").onclick=clear;
-  panel.querySelector("[data-fil-confirm]").onclick=()=>{
-   if(seatOf(g,name)!==g.turn||!legal(g,col))return clear();
-   const ident=typeof currentStudentIdentity==="function"?currentStudentIdentity():null;
-   if(typeof networkSocket!=="undefined"&&networkSocket?.readyState===WebSocket.OPEN){
-    networkSocket.send(JSON.stringify({type:"four_in_line_action",request:{column:col,runToken:state.activityRun?.runToken,id:"move-"+Date.now()+"-"+Math.random().toString(36).slice(2)},student_token:ident?.student_token||"",student_name:name}));
-    panel.textContent="Disc submitted. Waiting for board update.";
-   }else panel.textContent="Not connected. Reconnect before submitting.";
-  };
+ if(typeof SESSION_ROLE!=="undefined"&&SESSION_ROLE!=="student")return;
+ const zone=document.querySelector("#studentContent");if(!zone)return;
+ const seat=seatOf(g,name),key=g.id+"|"+g.moves+"|"+g.turn;
+ // A successful move invalidates the previous pending request automatically.
+ if(pendingDrop&&pendingDrop.key!==key)pendingDrop=null;
+ const status=zone.querySelector(".fil-student-status");
+ if(pendingDrop&&Date.now()-pendingDrop.at>3500)pendingDrop=null;
+ if(pendingDrop&&status)status.textContent="Dropping disc in column "+(pendingDrop.col+1)+"…";
+ const controls=[...zone.querySelectorAll("[data-fil-drop]")];
+ if(pendingDrop)controls.forEach(b=>b.disabled=true);
+ controls.forEach(button=>button.onclick=()=>{
+  const col=Number(button.dataset.filDrop);
+  if(pendingDrop||seat!==g.turn||!legal(g,col))return;
+  const ident=typeof currentStudentIdentity==="function"?currentStudentIdentity():null;
+  if(typeof networkSocket==="undefined"||networkSocket?.readyState!==WebSocket.OPEN){
+   if(status)status.textContent="Not connected. Reconnect before dropping.";return;
+  }
+  pendingDrop={key,col,at:Date.now()};
+  controls.forEach(b=>b.disabled=true);
+  button.classList.add("fil-dropping");
+  if(status)status.textContent="Dropping disc in column "+(col+1)+"…";
+  try{
+   networkSocket.send(JSON.stringify({
+    type:"four_in_line_action",
+    request:{column:col,runToken:state.activityRun?.runToken,id:"move-"+Date.now()+"-"+Math.random().toString(36).slice(2)},
+    student_token:ident?.student_token||"",student_name:name
+   }));
+  }catch(_){
+   pendingDrop=null;controls.forEach(b=>b.disabled=!legal(g,Number(b.dataset.filDrop)));
+   button.classList.remove("fil-dropping");
+   if(status)status.textContent="Couldn't send. Tap a column to try again.";
+   return;
+  }
+  // A rejected/dropped packet should not permanently lock student input.
+  setTimeout(()=>{
+   if(pendingDrop?.key!==key||pendingDrop?.col!==col)return;
+   pendingDrop=null;
+   const visible=document.querySelector("#studentContent .fil-student-status");
+   if(visible)visible.textContent="No move update yet. Tap a column to try again.";
+   document.querySelectorAll("#studentContent [data-fil-drop]").forEach(b=>{
+    b.disabled=!legal(g,Number(b.dataset.filDrop));
+    b.classList.remove("fil-dropping");
+   });
+  },3500);
  });
 }
 

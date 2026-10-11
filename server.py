@@ -3630,6 +3630,11 @@ def _state_for_role(state: dict, role: str, token: str = "", name: str = "") -> 
     run = out.get("activityRun")
     if isinstance(run, dict) and str(run.get("activityId") or "") == "signal-sequence-game":
         redact_signal_sequence_state(out, role)
+        # Include a server time anchor with each view-only state. Student
+        # devices can align animation frames even when their clock is skewed.
+        game = run.get("signalSequence")
+        if isinstance(game, dict):
+            game["serverTime"] = int(time.time() * 1000)
     if isinstance(run, dict) and str(run.get("activityId") or "") == "cosmic-cards-game":
         redact_cosmic_state(out, role, own_name)
     if isinstance(run, dict) and str(run.get("activityId") or "") == "dominoes-game":
@@ -4929,18 +4934,18 @@ async def index(request: web.Request) -> web.Response:
                         '<link rel="stylesheet" href="/million-studio.css?v=1">'
                         '<link rel="stylesheet" href="/word-grid.css?v=1">'
                         '<link rel="stylesheet" href="/dominoes.css?v=1">'
-                        '<link rel="stylesheet" href="/four-in-line.css?v=1">'
-                        '<link rel="stylesheet" href="/signal-sequence.css?v=3">'
+                        '<link rel="stylesheet" href="/four-in-line.css?v=2">'
+                        '<link rel="stylesheet" href="/signal-sequence.css?v=4">'
                         '<link rel="stylesheet" href="/si-plus-polish.css?v=88"></head>', 1)
     # Insert before the final body close: index.html also contains HTML strings
     # in internal scripts, so replacing the first occurrence would corrupt JS.
     body_close = text.rfind("</body>")
     if body_close >= 0:
         text = (text[:body_close] +
-                '<script src="/four-in-line.js?v=1" defer></script>' +
-                '<script src="/four-in-line-bridge.js?v=1" defer></script>' +
-                '<script src="/signal-sequence.js?v=3" defer></script>' +
-                '<script src="/signal-sequence-bridge.js?v=3" defer></script>' +
+                '<script src="/four-in-line.js?v=2" defer></script>' +
+                '<script src="/four-in-line-bridge.js?v=2" defer></script>' +
+                '<script src="/signal-sequence.js?v=4" defer></script>' +
+                '<script src="/signal-sequence-bridge.js?v=4" defer></script>' +
                 f'<script src="/quick-poll.js?v={QUICK_POLL_ASSET_VERSION}" defer></script>' +
                 '<script src="/dashboard-polish.js?v=80" defer></script>' +
                 '<script src="/million-studio.js?v=1" defer></script>' +

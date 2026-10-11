@@ -67,7 +67,7 @@ function header(){return '<div class="ss-heading"><div><span>SI MOTHERSHIP · ME
 function badge(g){return '<div class="ss-pilot"><b>✦ '+esc(g.pilot)+'</b><span>'+g.round+' ROUND · BEST '+g.best+'</span></div>'}
 function sharedHTML(g,big=false){
  return '<section class="ss-public '+(big?"ss-big":"ss-mirror")+'">'+header()+'<div class="ss-public-main">'+donutHTML(g,{mini:!big})+
- '<aside class="ss-broadcast-side">'+badge(g)+'<div class="ss-status" data-ss-phase="'+esc(g.phase)+'">'+esc(g.phase==="watch"?"MEMORIZE THE LIGHTS":g.phase==="input"?"PILOT REPEATING":g.phase==="success"?"PERFECT ROUND":g.phase==="failed"?"GAME OVER":"READY FOR ROUND ONE")+'</div>'+
+ '<aside class="ss-broadcast-side">'+badge(g)+(big&&g.sound?'<button type="button" class="ss-enable-sound ss-projector-sound" data-ss-audio>♫ Enable sound on projector</button>':'')+'<div class="ss-status" data-ss-phase="'+esc(g.phase)+'">'+esc(g.phase==="watch"?"MEMORIZE THE LIGHTS":g.phase==="input"?"PILOT REPEATING":g.phase==="success"?"PERFECT ROUND":g.phase==="failed"?"GAME OVER":"READY FOR ROUND ONE")+'</div>'+
  '<p class="ss-message">'+esc(g.message)+'</p><div class="ss-legend">'+COLORS.map(([c,s,label])=>'<span style="--ss-segment:'+c+'"><b>'+s+'</b>'+label+'</span>').join("")+'</div></aside></div></section>';
 }
 function studentHTML(g,name=""){

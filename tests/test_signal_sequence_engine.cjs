@@ -4,6 +4,9 @@ const S=require("../signal-sequence.js");
 const run=(name,fn)=>{fn();console.log("PASS "+name)};
 run("four-symbol donut matches student and projector geometry",()=>{
  const g=S.make({pilot:"Ava"}),shared=S.sharedHTML(g,true),student=S.studentHTML(g,"Ava");
+ assert.equal(g.sound,true);
+ assert.match(shared,/data-ss-audio/);
+ assert.match(student,/data-ss-audio/);
  assert.equal((shared.match(/data-ss-pad=/g)||[]).length,4);
  assert.equal((student.match(/data-ss-pad=/g)||[]).length,4);
  assert.equal((shared.match(/data-ss-press=/g)||[]).length,0);

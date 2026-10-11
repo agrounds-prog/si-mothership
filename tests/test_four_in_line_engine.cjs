@@ -70,5 +70,7 @@ run("student preview controls are not exposed on projector",()=>{
  assert.doesNotMatch(F.publicHTML(g,true),/data-fil-confirm|data-fil-cancel/);
  assert.doesNotMatch(F.studentHTML(g,"Sam"),/data-fil-confirm/);
  assert.match(F.studentHTML(g,"Alex"),/data-fil-drop="0"/);
+ assert.doesNotMatch(F.studentHTML(g,"Alex"),/data-fil-confirm|data-fil-cancel/);
+ assert.match(F.studentHTML(g,"Alex"),/Tap a numbered column once/);
 });
 console.log("FOUR IN LINE engine regression complete");

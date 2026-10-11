@@ -93,3 +93,13 @@
 .ss-student-status.ss-status-error{color:#ffb5ba}
 .ss-student-status{font-size:14px;line-height:1.55;padding:8px;min-height:45px}
 @media(max-width:480px){.ss-student-buttons{gap:9px}.ss-touch-key{min-height:74px;font-size:13px;gap:7px}.ss-touch-key b{font-size:34px}.ss-student .ss-donut{max-height:42vh}}
+
+/* Student playback now mirrors projector light pulses and matching tones. */
+.ss-student .ss-pad.ss-lit path,.ss-student .ss-pad.ss-pressed path{filter:brightness(1.75) drop-shadow(0 0 21px var(--ss-segment));}
+.ss-student .ss-touch-key.ss-lit{background:color-mix(in srgb,var(--ss-segment) 55%,#122d46);box-shadow:0 0 22px var(--ss-segment),inset 0 0 18px #ffffff25;transform:scale(1.025)}
+.ss-audio-dock{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin:9px auto 8px;text-align:center}
+.ss-enable-sound{min-height:48px;padding:10px 18px;border-radius:12px;border:1px solid #ffd78d;background:linear-gradient(135deg,#9d682b,#583b2a);color:#fff9e4;font:950 13px system-ui;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.ss-enable-sound.ss-audio-ready{border-color:#77f5d2;background:linear-gradient(135deg,#136a69,#0a3f59);color:#d9ffee}
+.ss-sound-help{font:750 11px/1.4 system-ui;color:#b5e0ea}
+.ss-student .ss-pad[data-ss-press]{touch-action:none}
+@media(prefers-reduced-motion:reduce){.ss-student .ss-touch-key{transition:none!important}}

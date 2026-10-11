@@ -94,9 +94,7 @@
 @keyframes filChampionIntro{from{opacity:0;transform:translate(-50%,-45%) scale(.92)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 @media(prefers-reduced-motion:reduce){.fil-public.fil-big .fil-victory{animation:none!important}}
 
-/* Student preview-confirm interaction: distinct from committed discs. */
-.fil-preview-status{margin:11px 0 0;display:flex;gap:9px;align-items:center;justify-content:center;flex-wrap:wrap;padding:11px;border:1px solid #80daed;border-radius:11px;background:#0a3148;color:#fff0c6;font:900 12px system-ui;text-align:center}
-.fil-preview-status button{min-height:42px;padding:9px 13px;background:linear-gradient(145deg,#246f89,#153c61);border:1px solid #9be3f4;color:#f9feff;border-radius:9px;font:900 12px system-ui;cursor:pointer}
-.fil-preview-status [data-fil-confirm]{background:linear-gradient(145deg,#0f8d86,#0a6161);border-color:#94ffdc}
-.fil-drop-button.fil-preview-selected{outline:3px solid #ffe699!important;outline-offset:2px;background:#367fa0!important}
-.fil-student .fil-cell.fil-preview-cell{outline:4px dashed #ffde82;outline-offset:-4px;box-shadow:0 0 15px #f0ca7d66,inset 0 0 12px #ebc16c77}
+/* FOUR IN LINE — single-tap student column controls */
+.fil-student .fil-drop-button{min-height:49px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;cursor:pointer}
+.fil-student .fil-drop-button.fil-dropping{border-color:#fddf8b!important;background:linear-gradient(135deg,#bb9d46,#216a8e)!important;box-shadow:0 0 18px #eac46b99}
+.fil-student-status{min-height:34px}

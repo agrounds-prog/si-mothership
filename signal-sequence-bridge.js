@@ -3,7 +3,48 @@
 "use strict";
 const ID="signal-sequence-game",APP="signal-sequence";
 let watchTimer=null,visualTimer=null,lastToneKey="",audio=null;
-let studentPending=null,studentFeedback="",studentFeedbackType="",signalSocket=null,ignoreSyntheticClickUntil=0;
+let studentPending=null,studentFeedback="",studentFeedbackType="",signalSocket=null;
+let soundEnabled=false,soundTurnedOn=false,lastServerStamp=0,serverOffset=0;
+let tapFlash=null;
+function getPlayTime(g){
+ const stamp=Number(g?.serverTime||0);
+ if(stamp>0&&stamp!==lastServerStamp){lastServerStamp=stamp;serverOffset=Date.now()-stamp}
+ return Date.now()-(stamp>0?serverOffset:0);
+}
+function lightSignal(signal,active){
+ document.querySelectorAll(".ss-student [data-ss-pad],.ss-student .ss-touch-key").forEach(el=>{
+  const i=Number(el.dataset.ssPad??el.dataset.ssPress);
+  el.classList.toggle("ss-lit",active&&i===signal);
+  el.classList.toggle("ss-pressed",active&&i===signal);
+ });
+}
+function flashTap(index,g){
+ tapFlash={index,until:Date.now()+280};
+ lightSignal(index,true);
+ if(g.sound){if(!soundEnabled)enableAudio();tone(index,g)}
+ if(typeof navigator!=="undefined"&&typeof navigator.vibrate==="function")try{navigator.vibrate(22)}catch(_){}
+}
+function enableAudio(){
+ try{
+  const Audio=window.AudioContext||window.webkitAudioContext;
+  if(!Audio)return false;
+  audio=audio||new Audio();
+  soundEnabled=true;soundTurnedOn=true;
+  if(audio.state==="suspended")audio.resume().catch(()=>{soundEnabled=false});
+  return true;
+ }catch(_){soundEnabled=false;return false}
+}
+function wireAudioButtons(g){
+ document.querySelectorAll("#studentContent [data-ss-audio],#sharedContent [data-ss-audio]").forEach(btn=>{
+  const paint=()=>{
+   btn.textContent=soundEnabled?"♫ Sound enabled":"♫ Tap to enable sound";
+   btn.classList.toggle("ss-audio-ready",soundEnabled);
+   btn.setAttribute("aria-pressed",String(soundEnabled));
+  };
+  btn.onclick=()=>{if(enableAudio()){paint();tone(0,g)}else btn.textContent="Sound unavailable on this device"};
+  paint();
+ });
+}
 function studentNotice(message,kind=""){
  studentFeedback=String(message||"");studentFeedbackType=kind;
  const node=document.querySelector("#studentContent .ss-student-status");
@@ -29,6 +70,9 @@ function ensure(){
 }
 function tone(index,g){
  if(!g?.sound||typeof window==="undefined")return;
+ // Mobile Safari/Chrome need a real gesture to create/resume AudioContext.
+ // Do not create a blocked context on the animation timer.
+ if(typeof SESSION_ROLE!=="undefined"&&SESSION_ROLE!=="teacher"&&!soundEnabled)return;
  try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();if(audio.state==="suspended")audio.resume().catch(()=>{});
   const t=audio.currentTime,o=audio.createOscillator(),volume=audio.createGain();
   o.type="sine";o.frequency.value=[285,359,452,570][index];volume.gain.setValueAtTime(.0001,t);volume.gain.exponentialRampToValueAtTime(.055,t+.015);volume.gain.exponentialRampToValueAtTime(.0001,t+.19);
@@ -39,11 +83,23 @@ function visuals(){
  if(visualTimer)clearInterval(visualTimer);
  function tick(){
   const g=live();if(!g)return;
-  const signal=SignalSequence.cue(g);
-  document.querySelectorAll(".ss-pad[data-ss-pad]").forEach(p=>p.classList.toggle("ss-lit",Number(p.dataset.ssPad)===signal));
-  if(signal>=0){const key=g.id+"|"+g.round+"|"+Math.floor((Date.now()-g.playbackAt)/SignalSequence.interval(g));if(key!==lastToneKey){lastToneKey=key;/* browser gesture policies may mute projector audio */ if(document.querySelector("#teacher .ss-teacher"))tone(signal,g)}}
+  const now=getPlayTime(g),signal=SignalSequence.cue(g,now);
+  const studentRole=typeof SESSION_ROLE!=="undefined"&&SESSION_ROLE==="student";
+  const showingTap=studentRole&&tapFlash&&Date.now()<tapFlash.until;
+  document.querySelectorAll(".ss-pad[data-ss-pad]").forEach(p=>p.classList.toggle("ss-lit",Number(p.dataset.ssPad)===(showingTap?tapFlash.index:signal)));
+  document.querySelectorAll(".ss-student .ss-touch-key").forEach(p=>p.classList.toggle("ss-lit",Number(p.dataset.ssPress)===(showingTap?tapFlash.index:signal)));
+  if(!showingTap)tapFlash=null;
+  if(signal>=0){
+   const key=g.id+"|"+g.round+"|"+Math.floor((now-g.playbackAt)/SignalSequence.interval(g));
+   if(key!==lastToneKey){
+    lastToneKey=key;
+    // Same cue and musical pitch on teacher + opted-in student device.
+    // The student taps the sound button once to satisfy mobile autoplay rules.
+    if((typeof SESSION_ROLE!=="undefined"&&SESSION_ROLE==="teacher")||soundEnabled)tone(signal,g);
+   }
+  }
  }
- tick();visualTimer=setInterval(tick,85);
+ tick();visualTimer=setInterval(tick,45);
 }
 function schedule(){
  // Only Mission Control may open an input phase. A student browser must wait
@@ -99,7 +155,7 @@ function controller(){
  el.innerHTML=SignalSequence.teacherHTML(g);
  el.querySelectorAll("[data-ss-action]").forEach(b=>b.onclick=()=>{
   const a=b.dataset.ssAction;
-  if(a==="next"&&SignalSequence.startRound(g)){render();schedule()}
+  if(a==="next"&&SignalSequence.startRound(g)){if(g.sound)enableAudio();render();schedule()}
   if(a==="input"&&SignalSequence.beginInput(g)){render()}
   if(a==="retry"&&confirm("Retry from round one? Best score is kept.")){SignalSequence.retry(g);render()}
   if(a==="save"){const name=prompt("Save SIGNAL SEQUENCE game as:","Signal Sequence · "+g.pilot);if(name?.trim()){SignalSequence.save(g,name.trim());notice("SIGNAL SEQUENCE saved")}}
@@ -113,7 +169,7 @@ function wireStudent(){
  const g=live();if(!g||typeof SESSION_ROLE==="undefined"||SESSION_ROLE!=="student")return;
  const pilot=typeof selectedStudent==="function"?selectedStudent()?.n||"":"",zone=document.querySelector("#studentContent");
  if(!zone)return;
- watchSignalSocket();
+ watchSignalSocket();wireAudioButtons(g);
  // Rendered student markup is replaced on each classroom update. Keep
  // in-flight requests in the bridge until canonical progress advances.
  if(studentPending&&(studentPending.gameId!==g.id||studentPending.round!==g.round||studentPending.progress!==g.progress||g.phase!=="input")){
@@ -125,7 +181,9 @@ function wireStudent(){
  if(studentPending)studentNotice(studentPending.acknowledged?"✓ Signal received. Updating game…":"Sending signal…","sending");
  else if(studentFeedback)studentNotice(studentFeedback,studentFeedbackType);
  const send=(signal)=>{
-  if(g.phase!=="input"||pilot!==g.pilot||studentPending)return;
+  if(g.phase!=="input"||pilot!==g.pilot)return;
+  flashTap(Number(signal),g);
+  if(studentPending){studentNotice("Waiting for the previous signal to register…","sending");return}
   if(typeof networkSocket==="undefined"||!networkSocket||networkSocket.readyState!==WebSocket.OPEN){
    studentNotice("Not connected to Mission Control. Reconnect before tapping.","error");return
   }
@@ -145,16 +203,14 @@ function wireStudent(){
  };
  zone.querySelectorAll("[data-ss-press]").forEach(control=>{
   const signal=Number(control.dataset.ssPress),svg=control.tagName.toLowerCase()==="g";
-  // touch/pen pointerdown fires before synthetic clicks and before mobile
-  // scrolling can interrupt the gesture; mouse and keyboard use click.
-  if(svg)control.addEventListener("pointerdown",e=>{
+  // Immediate touch feedback for BOTH the SVG segments and the large keys.
+  // Deduplicate only this element's synthetic click, not later real taps.
+  control.addEventListener("pointerdown",e=>{
    if(e.pointerType==="mouse")return;
-   e.preventDefault();ignoreSyntheticClickUntil=Date.now()+750;
-   control.classList.add("ss-pressed");
-   send(signal);
+   e.preventDefault();control.__ssTouchAt=Date.now();send(signal);
   },{passive:false});
   control.addEventListener("click",e=>{
-   if(svg&&Date.now()<ignoreSyntheticClickUntil){e.preventDefault();return}
+   if(Date.now()-(control.__ssTouchAt||0)<450){e.preventDefault();return}
    send(signal);
   });
   if(svg)control.addEventListener("keydown",e=>{
@@ -177,7 +233,7 @@ function install(){
  window.sharedMarkup=function(size){const g=live();if(g)return SignalSequence.sharedHTML(g,size==="big");return oldShared.apply(this,arguments)};
  window.studentMarkup=function(){const g=live();if(g&&typeof studentNeedsJoin==="function"&&!studentNeedsJoin()){const st=typeof selectedStudent==="function"?selectedStudent():null;return SignalSequence.studentHTML(g,st?.n||"")}return oldStudent.apply(this,arguments)};
  if(typeof oldStudentControls==="function")window.renderStudentControls=function(){if(live()){const label=document.getElementById("studentControlLabel"),zone=document.getElementById("studentControls");if(label)label.innerHTML="<b>SIGNAL SEQUENCE</b><span>Watch the lights, then tap the matching donut segments.</span>";if(zone){zone.innerHTML="";zone.className="student-actions"}return}return oldStudentControls.apply(this,arguments)};
- window.renderPublic=function(){const result=oldPublic.apply(this,arguments);if(live()){wireStudent();visuals()}else{studentPending=null;studentFeedback="";studentFeedbackType=""}return result};
+ window.renderPublic=function(){const result=oldPublic.apply(this,arguments);if(live()){wireStudent();wireAudioButtons(live());visuals()}else{studentPending=null;studentFeedback="";studentFeedbackType="";tapFlash=null}return result};
  ensure();try{renderActivities()}catch(e){console.warn("SIGNAL SEQUENCE library unavailable",e)}
  // When loading an active game from browser/session storage, the inline app
  // deliberately held the first render until this wrapper became available.

@@ -42,7 +42,12 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
     selected:state.selectedStudent,students:state.students.map(s=>({name:s.n,token:!!s.studentToken})),pilot:state.activityRun?.signalSequence?.pilot,runId:state.activityRun?.activityId,socket:networkSocket?.readyState,hydrated:networkHydrated
   }))));
   await student.waitForFunction(()=>state.selectedStudent==="Signal Pilot"&&state.activityRun?.signalSequence?.pilot==="Signal Pilot"&&networkSocket?.readyState===WebSocket.OPEN,null,{timeout:10000});
+  const sound=student.locator('#studentContent [data-ss-audio]');
+  await sound.tap();
+  assert.match(await sound.getAttribute("class"),/ss-audio-ready/);
   await teacher.locator('#activityControllerPanel [data-ss-action="next"]').click();
+  await student.waitForFunction(()=>!!document.querySelector("#studentContent .ss-pad.ss-lit"),null,{timeout:8000});
+  assert.equal(await student.evaluate(()=>Number(state.activityRun.signalSequence.serverTime)>0),true);
   await teacher.waitForFunction(()=>state.activityRun.signalSequence.phase==="input",{timeout:14000});
   await student.waitForFunction(()=>state.activityRun?.signalSequence?.phase==="input"&&document.querySelectorAll("#studentContent .ss-touch-key").length===4,{timeout:14000});
   const first=await teacher.evaluate(()=>state.activityRun.signalSequence.sequence[0]);
