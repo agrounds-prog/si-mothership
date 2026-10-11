@@ -24,6 +24,7 @@ from aiohttp import WSMsgType, web
 import qrcode
 
 from cosmic_cards_server import apply_cosmic_action, redact_cosmic_state
+from dominoes_server import apply_dominoes_action, redact_dominoes_state
 from quick_poll_server import QuickPollService
 
 ROOT = Path(__file__).resolve().parent
@@ -3461,6 +3462,7 @@ PERSISTED_STORAGE_KEYS = {
     "siMothership.millionGames.v1",
     "siMothership.millionDraft.v1",
     "siMothership.wordGridLibrary.v1",
+    "siMothership.dominoesGames.v1",
 }
 
 CLIENTS: set[web.WebSocketResponse] = set()
@@ -3625,6 +3627,8 @@ def _state_for_role(state: dict, role: str, token: str = "", name: str = "") -> 
     run = out.get("activityRun")
     if isinstance(run, dict) and str(run.get("activityId") or "") == "cosmic-cards-game":
         redact_cosmic_state(out, role, own_name)
+    if isinstance(run, dict) and str(run.get("activityId") or "") == "dominoes-game":
+        redact_dominoes_state(out, role, own_name)
     if isinstance(run, dict) and str(run.get("activityId") or "") == "starwheel-game":
         sw = run.get("starwheel")
         if isinstance(sw, dict):
@@ -4918,7 +4922,8 @@ async def index(request: web.Request) -> web.Response:
                         f'<link rel="stylesheet" href="/quick-poll.css?v={QUICK_POLL_ASSET_VERSION}">'
                         '<link rel="stylesheet" href="/dashboard-polish.css?v=80">'
                         '<link rel="stylesheet" href="/million-studio.css?v=1">'
-                        '<link rel="stylesheet" href="/word-grid.css?v=1"></head>', 1)
+                        '<link rel="stylesheet" href="/word-grid.css?v=1">'
+                        '<link rel="stylesheet" href="/dominoes.css?v=1"></head>', 1)
     # Insert before the final body close: index.html also contains HTML strings
     # in internal scripts, so replacing the first occurrence would corrupt JS.
     body_close = text.rfind("</body>")
@@ -4928,6 +4933,7 @@ async def index(request: web.Request) -> web.Response:
                 '<script src="/dashboard-polish.js?v=80" defer></script>' +
                 '<script src="/million-studio.js?v=1" defer></script>' +
                 '<script src="/word-grid.js?v=1" defer></script>' +
+                '<script src="/dominoes.js?v=1" defer></script>' +
                 text[body_close:])
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
@@ -5874,6 +5880,24 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                         continue
                     save_runtime_state(current)
                     await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
+                elif mtype == "dominoes_action" and isinstance(data.get("request"), dict):
+                    if role != "student":
+                        continue
+                    meta = CLIENT_META.get(ws, {})
+                    token = str(meta.get("student_token") or data.get("student_token") or "")
+                    name = str(meta.get("student_name") or data.get("student_name") or "")
+                    current = copy.deepcopy(LATEST_STATE) if isinstance(LATEST_STATE, dict) else None
+                    if not isinstance(current, dict) or not token or not name:
+                        continue
+                    identity = _student_by_identity(current, token, "")
+                    if not isinstance(identity, dict) or str(identity.get("n") or "") != name:
+                        continue
+                    run = current.get("activityRun")
+                    if not isinstance(run, dict):
+                        continue
+                    if apply_dominoes_action(current, run, name, data["request"]):
+                        save_runtime_state(current)
+                        await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
                 elif mtype == "cosmic_action" and isinstance(data.get("request"), dict):
                     if role != "student":
                         continue
@@ -5985,6 +6009,8 @@ def create_app() -> web.Application:
     app.router.add_get("/million-studio.css", lambda request: web.FileResponse(Path(__file__).with_name("million-studio.css"), headers={"Cache-Control": "no-store"}))
     app.router.add_get("/word-grid.js", lambda request: web.FileResponse(ROOT / "word-grid.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/word-grid.css", lambda request: web.FileResponse(ROOT / "word-grid.css", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/dominoes.js", lambda request: web.FileResponse(ROOT / "dominoes.js", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/dominoes.css", lambda request: web.FileResponse(ROOT / "dominoes.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/match-arcade.js", match_arcade_script)
     app.router.add_get("/match-arcade.css", match_arcade_style)
     app.router.add_get("/match-builder.js", match_builder_script)
