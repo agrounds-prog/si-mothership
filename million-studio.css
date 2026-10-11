@@ -100,3 +100,5 @@
 #activityControllerPanel .million-teacher-actions button{font-size:14px!important;min-height:46px}
 #activityControllerPanel #millionCorrectBtn{background:linear-gradient(135deg,#ecac42,#f3d88e)!important;color:#162239!important;font-weight:950!important;border-color:#f1cc78!important}
 @media(min-width:1400px){.million-public.big{width:min(98%,1800px)!important;grid-template-columns:215px minmax(0,1fr) 220px!important;gap:16px!important}.million-public.big .million-stage h3{font-size:clamp(29px,3.4vw,57px)!important}.million-public.big .million-choice{min-height:83px!important}}
+
+#activityControllerPanel #millionWrongBtn{display:none!important}
