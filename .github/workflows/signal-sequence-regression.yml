@@ -13,6 +13,7 @@ on:
       - 'tests/test_signal_sequence_mobile_browser.cjs'
       - 'tests/test_signal_sequence_websocket.py'
       - 'server.py'
+      - 'index.html'
       - '.github/workflows/signal-sequence-regression.yml'
   workflow_dispatch:
 permissions: {contents: read}
