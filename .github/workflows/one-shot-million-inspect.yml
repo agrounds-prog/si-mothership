@@ -18,23 +18,10 @@ jobs:
           s=Path('index.html').read_text()
           lines=s.splitlines()
           print('INDEX_BYTES',len(s),'INDEX_LINES',len(lines))
-          keys=['millionDraft','parseMillionQuestions','launchMillion','millionUseLifeline','millionResolve','millionQuestion','millionPollCounts','million-game','millionGame','millionQuestions','million_','million-','MILLION']
-          hits=[(i+1,l) for i,l in enumerate(lines) if any(k in l for k in keys)]
-          print('MILLION_LINE_INDEX',[(i,len(l),l[:185]) for i,l in hits])
-          ranges=[]
-          for i,l in hits:
-            if any(k in l for k in ['function ','const ','let ','id=','case ','if(',"on('",'onclick=','millionDraft','millionQuestions','MILLION']):
-              ranges.append((max(1,i-3),min(len(lines),i+17)))
-          merged=[]
-          for a,b in sorted(ranges):
-            if merged and a<=merged[-1][1]+2:merged[-1]=(merged[-1][0],max(merged[-1][1],b))
-            else:merged.append((a,b))
-          budget=0
-          for a,b in merged:
-            if budget>125000:break
-            part='\n'.join(f'{i+1:>5} {lines[i][:500]}' for i in range(a-1,b))
-            print('=== CONTEXT',a,b,'===\n'+part)
-            budget+=len(part)
+          slices=[(15598,15683),(17448,17536),(18052,18060),(18370,18391),(16450,16485),(17359,17381)]
+          for a,b in slices:
+            print('=== FULL BLOCK',a,b)
+            for i in range(a-1,b):print(f'{i+1:>5} {lines[i]}')
           for path in ['server.py','index.html']:
             ss=Path(path).read_text().splitlines()
             tags=['teacher_preset','teacher-library','preset/save','preset/list','saved_presentation','presentation_library','/api/teacher','teacher-storage']
