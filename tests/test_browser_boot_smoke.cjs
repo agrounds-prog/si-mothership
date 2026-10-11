@@ -210,10 +210,24 @@ const hosts=[
           // The production class and persistent database are never mutated.
           try{
             let simulated=null;
+            let mockSid=await page.evaluate(()=>window.__SI_SESSION_ID__);
+            let mockCode=await page.evaluate(()=>window.__SI_JOIN_CODE__);
+            let stalePollRequests=0;
+            await ctx.route('**/api/session/info',async route=>{
+              await route.fulfill({status:200,contentType:'application/json',
+                body:JSON.stringify({ok:true,session_id:mockSid,code:mockCode})});
+            });
             await ctx.route('**/api/quick-poll/**',async route=>{
               const path=new URL(route.request().url()).pathname;
               const verb=route.request().method();
               const data=verb==='POST'?route.request().postDataJSON():{};
+              const qs=new URL(route.request().url()).searchParams;
+              if(path.endsWith('/state')&&qs.get('role')==='shared'&&qs.get('sid')!==mockSid){
+                stalePollRequests++;
+                await route.fulfill({status:403,contentType:'application/json',
+                  body:JSON.stringify({error:'Invalid shared session'})});
+                return;
+              }
               let result={ok:true};
               if(path.endsWith('/state'))result={active:!!simulated,poll:simulated};
               else if(path.endsWith('/templates'))result={templates:[]};
@@ -288,7 +302,6 @@ const hosts=[
             await page.waitForFunction(()=>document.querySelector('#qpMirrorPreview')?.hidden,null,{timeout:8000});
             await sharedPage.evaluate(()=>window.SIQuickPoll.refresh(true));
             if(!await sharedPage.locator('#qpPublicOverlay').evaluate(el=>el.hidden))failures++;
-            await sharedPage.close();
             await page.locator('#qpDialog [data-qp-control="close"]').click();
             await page.waitForFunction(()=>document.querySelector('#qpTeacherLive')?.textContent?.includes('POLL CLOSED'),null,{timeout:8500});
             page.once('dialog',dialog=>dialog.accept());
@@ -296,6 +309,37 @@ const hosts=[
             await page.waitForFunction(()=>document.querySelector('#qpTeacherLive')?.textContent?.includes('Create and send'),null,{timeout:8500});
             console.log(JSON.stringify({label,role:'poll-dismiss-ui',cleaned:!simulated,pageErrors:errors.slice(-3)}));
             if(simulated||errors.length)failures++;
+
+            // Reset Session rotates the server's session ID while the old
+            // Shared Screen tab remains open; the next poll must reconnect.
+            mockSid='ui-regression-session-after-reset';
+            mockCode='N3W7';
+            await page.locator('#qpDialog [data-qp-new]').click();
+            await page.locator('#qpQuestion').fill('Second poll after session reset');
+            await page.locator('[data-qp-label="0"]').fill('First');
+            await page.locator('[data-qp-label="1"]').fill('Second');
+            await page.locator('#qpDialog [data-qp-launch]').click();
+            await page.waitForFunction(()=>document.querySelector('#qpTeacherLive')?.textContent?.includes('Second poll after session reset'),null,{timeout:9000});
+            await page.locator('#qpDialog [data-qp-display="donut"]').click();
+            await page.locator('#qpDialog [data-qp-share="show"]').click();
+            await page.waitForFunction(()=>!document.getElementById('qpMirrorPreview')?.hidden,null,{timeout:8000});
+            await sharedPage.evaluate(()=>window.SIQuickPoll.refresh(true));
+            await sharedPage.waitForFunction(()=>{
+              const root=document.querySelector('#qpPublicOverlay');
+              return root&&!root.hidden&&root.textContent.includes('Second poll after session reset')&&
+                !!root.querySelector('.qp-donut');
+            },null,{timeout:13000});
+            const secondResult=await sharedPage.evaluate(()=>({
+              currentSession:window.SIQuickPoll?.sessionId,
+              visible:!document.getElementById('qpPublicOverlay').hidden,
+              question:document.querySelector('#qpPublicOverlay h1')?.textContent,
+              donut:!!document.querySelector('#qpPublicOverlay .qp-donut')
+            }));
+            console.log(JSON.stringify({label,role:'quick-poll-after-reset',
+              stalePollRequests,secondResult,projected:!!simulated?.sharedVisible,pageErrors:errors.slice(-3)}));
+            if(stalePollRequests<1||!secondResult.visible||!secondResult.donut||
+               !secondResult.question.includes('Second poll')||errors.length)failures++;
+            await sharedPage.close();
           }catch(e){failures++;console.log(JSON.stringify({label,role:'quick-poll-ui-e2e',error:String(e.stack||e)}));}
 
         }
