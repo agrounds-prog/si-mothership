@@ -14,7 +14,7 @@
   head.appendChild(tools);
   tools.appendChild(status);
   const isPopout=window.name==="si_mothership_student_sidecar" || new URLSearchParams(location.search).get("compact")==="1";
-  if(isPopout){document.body.classList.add("si-student-popout");return;}
+  if(isPopout){document.body.classList.add("si-student-is-popout");return;}
   const button=document.createElement("button");
   button.type="button";
   button.className="si-student-popout";
