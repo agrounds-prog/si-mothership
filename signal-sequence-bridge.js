@@ -117,6 +117,9 @@ function install(){
  if(typeof oldStudentControls==="function")window.renderStudentControls=function(){if(live()){const label=document.getElementById("studentControlLabel"),zone=document.getElementById("studentControls");if(label)label.innerHTML="<b>SIGNAL SEQUENCE</b><span>Watch the lights, then tap the matching donut segments.</span>";if(zone){zone.innerHTML="";zone.className="student-actions"}return}return oldStudentControls.apply(this,arguments)};
  window.renderPublic=function(){const result=oldPublic.apply(this,arguments);if(live()){wireStudent();visuals()}return result};
  ensure();try{renderActivities()}catch(e){console.warn("SIGNAL SEQUENCE library unavailable",e)}
+ // When loading an active game from browser/session storage, the inline app
+ // deliberately held the first render until this wrapper became available.
+ if(live())render();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
 })();
