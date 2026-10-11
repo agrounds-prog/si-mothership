@@ -16787,7 +16787,15 @@ function openTeacherSessionSummary(){
 function closeTeacherSessionSummary(){const box=document.getElementById('sessionSummaryModal');if(box)box.classList.add('hidden')}
 
 function networkWsUrl(){return `${location.protocol==='https:'?'wss':'ws'}://${location.host}/ws?role=${encodeURIComponent(SESSION_ROLE)}&code=${encodeURIComponent(STUDENT_JOIN_CODE)}${STUDENT_SESSION_ID?`&sid=${encodeURIComponent(STUDENT_SESSION_ID)}`:''}`}
-function currentStudentIdentity(){if(SESSION_ROLE!=='student')return null;const s=selectedStudent();return s?{student_token:s.studentToken||'',student_name:s.n||''}:readStudentIdentity()}
+function currentStudentIdentity(){
+  if(SESSION_ROLE!=='student')return null;
+  const s=selectedStudent(),saved=readStudentIdentity();
+  // Student browser storage uses camelCase but WebSocket hello and game
+  // actions require snake_case. Normalize before the initial hello so the
+  // server can identify the student and return their private token/controls.
+  if(s)return {student_token:s.studentToken||(saved?.name===s.n?saved.studentToken:"")||'',student_name:s.n||''};
+  return saved?{student_token:saved.studentToken||'',student_name:saved.name||''}:null;
+}
 function updateNetworkStatus(mode){const ns=document.getElementById('networkStatus');if(!ns||!NETWORK_SYNC)return;ns.classList.remove('online','offline');if(mode==='online'){ns.textContent='● Connected';ns.classList.add('online')}else if(mode==='reconnecting'){ns.textContent='◌ Reconnecting';ns.classList.add('offline')}else{ns.textContent='○ Offline';ns.classList.add('offline')}}
 function scheduleNetworkReconnect(){
   if(!NETWORK_SYNC||networkSessionReset)return;
