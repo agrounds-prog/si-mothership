@@ -89,8 +89,8 @@
     empty.setAttribute("role","status");
     empty.textContent="No matching avatars. Try another name.";
     empty.hidden=true;
-    grid.insertAdjacentElement("beforebegin",empty);
     grid.insertAdjacentElement("beforebegin",nav);
+    grid.insertAdjacentElement("beforebegin",empty);
     const search=nav.querySelector("input");
     search.value=view.query;
     search.addEventListener("input",()=>{
