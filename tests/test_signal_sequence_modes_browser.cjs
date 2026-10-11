@@ -42,6 +42,16 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await teacher.locator('[data-ss-action="next"]').click();
   await teacher.waitForFunction(()=>state.activityRun?.signalSequence?.phase==="input",null,{timeout:12000});
   for(const {page} of clients)await page.waitForFunction(()=>state.activityRun?.signalSequence?.phase==="input"&&document.querySelectorAll("#studentContent .ss-touch-key").length===6,null,{timeout:12000});
+  // Six colors / Survival in a desktop-sized Zoom companion window.
+  for(const {page} of clients){
+    await page.setViewportSize({width:440,height:760});
+    const ui=await page.evaluate(()=>({
+      overflow:document.documentElement.scrollWidth-innerWidth,
+      ring:document.querySelector("#studentContent .ss-donut")?.getBoundingClientRect().width,
+      keys:[...document.querySelectorAll("#studentContent .ss-touch-key")].map(x=>({w:x.getBoundingClientRect().width,h:x.getBoundingClientRect().height}))
+    }));
+    assert.ok(ui.overflow<=2&&ui.ring>=120&&ui.keys.length===6&&ui.keys.every(k=>k.h>=44&&k.w>=65),JSON.stringify(ui));
+  }
   const answer=await teacher.evaluate(()=>state.activityRun.signalSequence.sequence[0]);
   await nova.locator('#studentContent .ss-touch-key[data-ss-press="'+answer+'"]').tap();
   await teacher.waitForFunction(()=>state.activityRun?.signalSequence?.entries?.Nova?.status==="cleared",null,{timeout:12000});
@@ -60,6 +70,12 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await teacher.locator('[data-ss-action="next"]').click();
   await teacher.waitForFunction(()=>state.activityRun?.signalSequence?.phase==="input",null,{timeout:12000});
   await nova.waitForFunction(()=>state.activityRun?.signalSequence?.phase==="input",null,{timeout:12000});
+  // Eight colors / Team Relay: check pilot's complete pad layout.
+  const ui8=await nova.evaluate(()=>({
+    overflow:document.documentElement.scrollWidth-innerWidth,
+    keys:[...document.querySelectorAll("#studentContent .ss-touch-key")].map(x=>({w:x.getBoundingClientRect().width,h:x.getBoundingClientRect().height}))
+  }));
+  assert.ok(ui8.overflow<=2&&ui8.keys.length===8&&ui8.keys.every(k=>k.h>=44&&k.w>=65),JSON.stringify(ui8));
   const one=await teacher.evaluate(()=>state.activityRun.signalSequence.sequence[0]);
   await nova.locator('#studentContent .ss-touch-key[data-ss-press="'+one+'"]').tap();
   await teacher.waitForFunction(()=>state.activityRun?.signalSequence?.phase==="success",null,{timeout:12000});
