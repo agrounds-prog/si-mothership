@@ -385,7 +385,7 @@ const hosts=[
               selected:document.querySelectorAll('#qpDialog .qp-v4-display-tile.on').length
             }));
             console.log(JSON.stringify({label,role:'quick-poll-graphics-selector-v4',...graphicStyleGallery}));
-            if(!graphicStyleGallery.version.includes('4.2')||graphicStyleGallery.options!==4||
+            if(!graphicStyleGallery.version.includes('4.3')||graphicStyleGallery.options!==4||
               graphicStyleGallery.symbols!==4||graphicStyleGallery.selected!==1)failures++;
 
             // Teacher-only full-screen chart preview, with demo data strictly
