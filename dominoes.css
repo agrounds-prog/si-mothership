@@ -155,3 +155,12 @@
 @media(max-width:800px){.dm-public-body{grid-template-columns:1fr}.dm-table-sidebar{display:grid;grid-template-columns:1fr 150px;gap:12px}.dm-player-list{grid-template-columns:1fr 1fr}.dm-sidebar-heading{grid-column:1/-1}.dm-bag-count{margin:0}.dm-display-tiles{display:none}}
 @media(max-width:540px){.dm-public-body{padding:10px}.dm-banner{padding:11px}.dm-brand-row h2{font-size:28px}.dm-mark{width:42px;height:42px;flex-basis:42px;font-size:27px}.dm-table-sidebar{grid-template-columns:1fr}.dm-player-list{grid-template-columns:1fr 1fr}.dm-chain-head{flex-wrap:wrap;justify-content:center}.dm-chain-head>span:nth-child(2){order:3;width:100%}.dm-board-shell{border-width:4px;padding:6px}.dm-chain{min-height:190px;padding:6px;gap:3px}.dm-played-tile .dm-tile{width:56px;height:30px}.dm-played-tile .dm-pip-matrix{width:18px;height:18px}.dm-played-tile .dm-pip-matrix>i{width:4px;height:4px}.dm-hand{gap:6px;padding:9px}.dm-hand-item .dm-tile{width:66px;height:36px}.dm-hand-item .dm-pip-matrix{width:23px;height:23px}.dm-hand-item .dm-pip-matrix>i{width:5px;height:5px}}
 @media(prefers-reduced-motion:reduce){.dm-tile,.dm-player,.dm-turn-banner{animation:none!important;transition:none!important}}
+
+
+/* Student avatars share Cosmic Cards' real selected artwork, not initials. */
+.dm-avatar{overflow:hidden;border-radius:13px}
+.dm-avatar .cc-avatar-orbit{display:grid;place-items:center;width:100%;height:100%;max-width:100%;aspect-ratio:1;border:1px solid var(--cc-avatar-accent,var(--dm-seat-color));border-radius:12px;background:radial-gradient(circle at 30% 22%,#316587,#092238);box-shadow:inset 0 0 9px #0005;color:var(--cc-avatar-accent,var(--dm-seat-color))}
+.dm-avatar .cc-player-avatar-img{width:100%;height:100%;display:block;border-radius:11px;object-fit:cover}
+.dm-avatar .cc-player-avatar-glyph{display:block;font:normal 27px/1 system-ui;filter:drop-shadow(0 0 5px var(--cc-avatar-accent,var(--dm-seat-color)))}
+.dm-player.active .dm-avatar .cc-avatar-orbit{box-shadow:0 0 17px #8af7d955;border-color:#c4ffe9}
+.dm-avatar-fallback{font:1000 14px system-ui}
