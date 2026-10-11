@@ -388,8 +388,8 @@ const hosts=[
             const initiallyHidden=await sharedPage.locator('#qpPublicOverlay').evaluate(el=>el.hidden);
             const initialMirrorHidden=await page.locator('#qpMirrorPreview').evaluate(el=>el.hidden);
             if(!initiallyHidden||!initialMirrorHidden)failures++;
-            for(const [mode,chart] of [['bars','.qp-bar-chart'],['donut','.qp-donut'],
-                                       ['showdown','.qp-showdown'],['cards','.qp-results']]){
+            for(const [mode,chart] of [['bars','.qp-v4-bars'],['donut','.qp-v4-ring'],
+                                       ['showdown','.qp-v4-versus'],['cards','.qp-v4-cards']]){
               await page.locator('#qpDialog [data-qp-display="'+mode+'"]').click();
               await page.waitForFunction(mode=>document.querySelector('#qpTeacherLive button.on[data-qp-display="'+mode+'"]'),mode,{timeout:8000});
               if(mode==='bars')await page.locator('#qpDialog [data-qp-share="show"]').click();
@@ -432,13 +432,13 @@ const hosts=[
             await sharedPage.waitForFunction(()=>{
               const root=document.querySelector('#qpPublicOverlay');
               return root&&!root.hidden&&root.textContent.includes('Second poll after session reset')&&
-                !!root.querySelector('.qp-donut');
+                !!root.querySelector('.qp-v4-ring');
             },null,{timeout:13000});
             const secondResult=await sharedPage.evaluate(()=>({
               currentSession:window.SIQuickPoll?.sessionId,
               visible:!document.getElementById('qpPublicOverlay').hidden,
               question:document.querySelector('#qpPublicOverlay h1')?.textContent,
-              donut:!!document.querySelector('#qpPublicOverlay .qp-donut')
+              donut:!!document.querySelector('#qpPublicOverlay .qp-v4-ring')
             }));
             console.log(JSON.stringify({label,role:'quick-poll-after-reset',
               stalePollRequests,secondResult,projected:!!simulated?.sharedVisible,pageErrors:errors.slice(-3)}));
