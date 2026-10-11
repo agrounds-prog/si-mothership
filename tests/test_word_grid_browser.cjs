@@ -70,6 +70,14 @@ const base=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.deepEqual(state1.players,["Crew Alpha","Crew Beta"]);
   assert.equal(state1.root,"word-grid");assert.equal(state1.live,"running");
   assert.equal(await page.evaluate(()=>state.activityRun.wordGrid.teacherSeat),0,"Teacher joins team 1");
+  // Test assignment controls on the real Mission Control game panel.
+  await page.evaluate(()=>{
+    const g=state.activityRun.wordGrid;
+    WordGrid.assignStudent(g,"Alex",0);WordGrid.assignStudent(g,"Sam",1);render();
+  });
+  await page.locator('#activityControllerPanel [data-wg-assign="Alex"]').selectOption("1");
+  assert.equal(await page.evaluate(()=>state.activityRun.wordGrid.assignments.Alex),1);
+  await page.locator('#activityControllerPanel [data-wg-assign="Alex"]').selectOption("0");
   await page.evaluate(()=>{
    const W=window.WordGrid,g=state.activityRun.wordGrid;
    g.players[0].rack=[..."CATDOGS"].map((letter,i)=>({id:"fixture-"+i,letter,value:W.POINTS[letter],blank:false}));
