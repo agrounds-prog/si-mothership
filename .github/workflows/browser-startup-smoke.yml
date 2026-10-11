@@ -14,6 +14,13 @@ on:
       - 'dominoes.js'
       - 'dominoes.css'
       - 'dominoes_server.py'
+      - 'four-in-line.js'
+      - 'four-in-line.css'
+      - 'four-in-line-bridge.js'
+      - 'four_in_line_server.py'
+      - 'tests/test_four_in_line_engine.cjs'
+      - 'tests/test_four_in_line_server.py'
+      - 'tests/test_four_in_line_browser.cjs'
       - 'tests/test_dominoes_engine.cjs'
       - 'tests/test_dominoes_server.py'
       - 'tests/test_dominoes_browser.cjs'
@@ -108,6 +115,13 @@ jobs:
           node tests/test_dominoes_engine.cjs
           python -m unittest discover -s tests -p 'test_dominoes_server.py' -v
           node tests/test_dominoes_browser.cjs
+      - name: FOUR IN LINE teacher, student controls and projector regression
+        run: |
+          node --check four-in-line.js
+          node --check four-in-line-bridge.js
+          node tests/test_four_in_line_engine.cjs
+          python -m unittest discover -s tests -p 'test_four_in_line_server.py' -v
+          node tests/test_four_in_line_browser.cjs
       - name: SI+ shared video remains mounted during unrelated classroom updates
         run: node tests/test_si_plus_video_stability.cjs
       - name: SI+ media editor polish and stable YouTube projector visuals

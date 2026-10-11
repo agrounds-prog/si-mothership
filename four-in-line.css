@@ -1,0 +1,88 @@
+/* FOUR IN LINE · Mothership arcade hardware, scoped to the new game */
+.fil-public,.fil-teacher,.fil-student,.fil-setup{--fil-cyan:#65e4f7;--fil-gold:#f8c17a;color:#ecf8ff;font-family:Inter,"Segoe UI",system-ui,sans-serif}
+.fil-public *,.fil-teacher *,.fil-student *,.fil-setup *{box-sizing:border-box}
+.fil-public{position:relative;isolation:isolate;width:100%;min-width:0;overflow:hidden;border:1px solid #397aaf;border-radius:22px;padding:clamp(12px,1.7vw,22px);background:radial-gradient(ellipse at 50% 100%,#084e7690,transparent 70%),radial-gradient(ellipse at 3% 0%,#2c5b9960,transparent 50%),linear-gradient(145deg,#081529,#091f37 70%,#111a34);box-shadow:inset 0 1px #bde9ff26,0 18px 40px #0006}
+.fil-space{position:absolute;inset:0;z-index:-1;opacity:.4;pointer-events:none;background-image:radial-gradient(#b4ecff 1px,transparent 1.7px),radial-gradient(#e8b584 1px,transparent 1.7px);background-size:85px 105px,173px 191px;background-position:11px 32px,75px 75px}
+.fil-title{text-align:center;margin:0 0 13px;line-height:1.1}
+.fil-title>span{display:block;color:#79dcff;font:950 clamp(9px,.9vw,12px)/1.4 system-ui;letter-spacing:.17em}
+.fil-title h2{font:1000 clamp(29px,4vw,62px)/1.07 system-ui;letter-spacing:-.055em;color:#fff;margin:2px 0;text-shadow:0 3px 13px #0009}
+.fil-title h2 em{font-style:normal;color:#ffc582;text-shadow:0 0 24px #e9a45765}
+.fil-title p{color:#a6e9f0;font:950 clamp(10px,.9vw,13px) system-ui;letter-spacing:.16em;margin:7px 0 0}
+.fil-score-strip{display:flex;justify-content:center;gap:12px;margin:8px auto 14px;max-width:990px}
+.fil-team{display:flex;align-items:center;gap:10px;min-width:0;padding:10px 15px;border:1px solid #366381;border-radius:13px;background:linear-gradient(140deg,#10334e,#132038);box-shadow:inset 0 1px #ffffff16}
+.fil-score-strip .fil-team{flex:1;max-width:400px}
+.fil-team.active{border-color:var(--fil-team);box-shadow:inset 0 1px #ffffff35,0 0 21px color-mix(in srgb,var(--fil-team) 20%,transparent)}
+.fil-team.victor{border-color:#ffe49b;background:linear-gradient(140deg,#4a493d,#24384e)}
+.fil-team-icon{flex:0 0 43px;display:grid;place-items:center;height:43px;width:43px;border-radius:50%;background:var(--fil-team);border:3px solid #fff8;color:#09263e;font:1000 25px system-ui;box-shadow:0 4px 11px #0008}
+.fil-team>div{min-width:0;display:grid;gap:3px}
+.fil-team strong{font:1000 clamp(13px,1.1vw,21px) system-ui;color:#f1f9ff;overflow-wrap:anywhere}
+.fil-team small{font:900 clamp(9px,.8vw,12px) system-ui;letter-spacing:.09em;color:var(--fil-team)}
+.fil-screen-stage{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(215px,.55fr);gap:clamp(12px,1.8vw,26px);align-items:center;max-width:1340px;margin:auto}
+.fil-info{min-width:0;display:grid;gap:10px;align-content:start;border:1px solid #3c6d87;border-radius:16px;padding:clamp(13px,1.5vw,22px);background:linear-gradient(135deg,#142f4a,#101d36);box-shadow:0 10px 25px #0005}
+.fil-info .fil-signal{font:950 clamp(9px,.95vw,13px) system-ui;color:#f9c87f;letter-spacing:.1em}
+.fil-info h3{font:1000 clamp(20px,2.7vw,43px)/1.06 system-ui;color:#ffead0;margin:0;overflow-wrap:anywhere}
+.fil-info p{font:750 clamp(12px,1.1vw,17px)/1.45 system-ui;color:#d1e6f5;margin:0;overflow-wrap:anywhere}
+.fil-stats{display:flex;flex-wrap:wrap;gap:8px}
+.fil-stats span{padding:7px 10px;border-radius:8px;background:#163c55;border:1px solid #477592;color:#b6edfb;font:900 10px system-ui}
+.fil-arena{width:100%;min-width:0;max-width:875px;margin:auto;padding:8px 11px 10px;border:3px solid #22527b;border-radius:15px;background:linear-gradient(165deg,#132c51,#061930);box-shadow:inset 0 2px #7fcaff3c,0 18px 24px #0008,0 0 30px #268aff3d}
+.fil-board{display:grid;grid-template-columns:repeat(var(--fil-cols),minmax(0,1fr));gap:clamp(3px,.45vw,8px);padding:clamp(7px,1vw,14px);border:3px solid #5497c3;border-radius:12px;background:linear-gradient(143deg,#1984cd,#1a4e9c 57%,#0e326d);box-shadow:inset 0 2px 11px #072f71,inset 0 1px 1px #d0efff87,0 6px 0 #082a58}
+.fil-cell{position:relative;display:grid;place-items:center;aspect-ratio:1;min-width:0;border-radius:50%;border:3px solid #1d5486;background:radial-gradient(ellipse at 35% 32%,#0b284f,#061e3e 70%);box-shadow:inset 0 3px 9px #000b,0 1px 2px #70c9ff55}
+.fil-cell.disc-1{background:radial-gradient(circle at 33% 28%,#d8feff,#70e8fa 29%,#0992da 65%,#035483);border-color:#b8fdff}
+.fil-cell.disc-2{background:radial-gradient(circle at 33% 28%,#fff0be,#ffc575 29%,#e47c37 65%,#8b3b30);border-color:#fff1b9}
+.fil-cell.disc-1,.fil-cell.disc-2{box-shadow:inset 0 3px 6px #ffffff70,inset 0 -5px 8px #0006,0 3px 5px #0009}
+.fil-cell span{font:1000 clamp(11px,2vw,28px) system-ui;color:#082b49;text-shadow:0 1px #fff8}
+.fil-cell.last-disc{animation:filDrop .55s cubic-bezier(.2,.85,.29,1) both}
+.fil-cell.win-line{outline:4px solid #fff6b8;outline-offset:1px;box-shadow:0 0 23px #ffe88cc4,inset 0 2px 6px #fff8;animation:filWinPulse 1.4s ease-in-out infinite alternate}
+.fil-columns{display:grid;grid-template-columns:repeat(var(--fil-cols),minmax(0,1fr));gap:clamp(3px,.45vw,8px);padding:11px clamp(7px,1vw,14px) 0}
+.fil-drop-button{border:1px solid #85d4fa;border-radius:8px;background:linear-gradient(145deg,#226ba0,#173754);min-width:0;min-height:36px;color:#e9fbff;font:1000 clamp(10px,1.2vw,17px) system-ui;cursor:pointer;box-shadow:inset 0 1px #ffffff42,0 3px 4px #0004}
+.fil-drop-button:hover:not(:disabled),.fil-drop-button:focus-visible{background:#2e9abf;outline:2px solid #fff1b1}
+.fil-drop-button:disabled{opacity:.32;cursor:default}
+.fil-public .fil-drop-button{display:none}
+.fil-mini{padding:4px!important;border-radius:7px}
+.fil-mini .fil-title{margin:0 0 3px}
+.fil-mini .fil-title h2{font-size:11px}
+.fil-mini .fil-title span,.fil-mini .fil-title p,.fil-mini .fil-info,.fil-mini .fil-team small{display:none}
+.fil-mini .fil-team{padding:3px;gap:3px}
+.fil-mini .fil-team-icon{width:13px;height:13px;flex-basis:13px;border:0;font-size:9px}
+.fil-mini .fil-team strong{font-size:7px}
+.fil-mini .fil-screen-stage{display:block}
+.fil-mini .fil-arena{padding:2px;border:1px solid #22527b;border-radius:5px;box-shadow:none}
+.fil-mini .fil-board{padding:2px;gap:1px;border:1px solid #4287c0;border-radius:3px}
+.fil-mini .fil-cell{border-width:1px}
+.fil-mini .fil-cell span{font-size:6px}
+.fil-mini .fil-score-strip{margin:2px auto 4px;gap:3px}
+.fil-student{padding:12px;border:1px solid #396b96;background:radial-gradient(ellipse at 50% 0,#174d7777,transparent 70%),#0b1c30;border-radius:17px;max-width:760px;margin:0 auto}
+.fil-student .fil-title h2{font-size:clamp(25px,5vw,40px)}
+.fil-student .fil-team{margin:5px 0}
+.fil-student-status{color:#f5d5a4;font:1000 clamp(16px,3vw,24px) system-ui;text-align:center;padding:12px}
+.fil-student p{color:#aed1e6;text-align:center;font:750 13px/1.5 system-ui}
+.fil-teacher{width:100%;min-width:0;padding:12px;border:1px solid #3e78a0;border-radius:17px;background:linear-gradient(145deg,#0b2a45,#0a182f)}
+.fil-teacher-head{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-bottom:12px}
+.fil-teacher-head span{color:#6fddf5;font:950 10px system-ui;letter-spacing:.15em}
+.fil-teacher-head h2{font:1000 clamp(22px,2.5vw,35px) system-ui;letter-spacing:-.05em;margin:2px 0}
+.fil-teacher-head p{font:700 12px system-ui;margin:0;color:#badde7}
+.fil-teacher-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(220px,.8fr);gap:15px;align-items:start}
+.fil-teacher-side{display:grid;gap:8px;min-width:0}
+.fil-teacher-side p{color:#bed8e5;font:700 12px/1.5 system-ui}
+.fil-actions,.fil-controller-safety{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.fil-actions button,.fil-controller-safety button,.fil-primary,.fil-saves button{min-height:41px;cursor:pointer;border-radius:9px;border:1px solid #609abc;background:linear-gradient(150deg,#225879,#16374f);color:#f0f9ff;font:900 11px system-ui;padding:9px}
+.fil-actions button:disabled{opacity:.38}
+.fil-controller-safety .fil-danger{border-color:#a46c7f;background:#512838}
+.fil-setup{padding:10px;min-width:0;width:100%}
+.fil-setup-cards{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:15px}
+.fil-setup-card{background:linear-gradient(150deg,#11344e,#0a1a31);border:1px solid #447b9b;border-radius:15px;padding:17px;min-width:0}
+.fil-setup-card h3{color:#ffdfa6;font:1000 19px system-ui;margin:0 0 15px}
+.fil-setup-card p{color:#b6d9e7;font:700 12px/1.6 system-ui}
+.fil-setup-card label{display:grid;gap:7px;margin:9px 0;color:#a5e5fa;font:900 11px system-ui}
+.fil-setup-card input,.fil-setup-card select,.fil-crew-row select{padding:10px;border:1px solid #568daa;border-radius:9px;background:#091c31;color:#f4faff;width:100%;min-width:0;font:800 13px system-ui}
+.fil-crew-row{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(115px,.65fr);align-items:center;gap:8px}
+.fil-setup .fil-primary{width:100%;min-height:53px;color:#ffffff;background:linear-gradient(145deg,#0caa94,#0e647f);border-color:#7df4dc}
+.fil-setup-error{font:800 12px system-ui;color:#ffc8c8;min-height:20px;margin-top:8px}
+.fil-saves{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:6px;margin-top:10px}
+.fil-library-card .act-icon{display:grid;place-items:center;background:linear-gradient(145deg,#195b9a,#081f49)!important;border:1px solid #68e1ff!important;box-shadow:inset 0 1px #ffffff49,0 9px 18px #0007}
+.fil-library-card .fil-library-symbol{font:1000 39px system-ui;letter-spacing:-.17em;color:#ffc06f;text-shadow:0 3px 10px #000c}
+@keyframes filDrop{0%{opacity:.5;transform:translateY(-60%) scale(.82)}65%{opacity:1;transform:translateY(8%) scale(1.04)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes filWinPulse{from{filter:brightness(1)}to{filter:brightness(1.3)}}
+@media(max-width:900px){.fil-screen-stage,.fil-teacher-grid,.fil-setup-cards{grid-template-columns:minmax(0,1fr)}.fil-public.fil-big .fil-arena{max-width:min(100%,70vh)}.fil-info{max-width:100%}}
+@media(max-width:540px){.fil-public{padding:9px}.fil-team{padding:6px;gap:6px}.fil-team-icon{width:29px;height:29px;flex-basis:29px;font-size:16px}.fil-team strong{font-size:12px}.fil-arena{padding:5px}.fil-board{padding:6px;gap:3px;border-width:2px}.fil-cell{border-width:2px}.fil-student{padding:6px}.fil-teacher{padding:7px}.fil-actions{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){.fil-cell.last-disc,.fil-cell.win-line{animation:none!important}}

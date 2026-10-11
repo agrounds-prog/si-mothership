@@ -1,0 +1,35 @@
+name: Four In Line Regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'four-in-line.js'
+      - 'four-in-line.css'
+      - 'four-in-line-bridge.js'
+      - 'four_in_line_server.py'
+      - 'tests/test_four_in_line_engine.cjs'
+      - 'tests/test_four_in_line_server.py'
+      - 'tests/test_four_in_line_browser.cjs'
+      - '.github/workflows/four-in-line-regression.yml'
+      - 'server.py'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  four-in-line:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: FOUR IN LINE rules, server security and asset syntax
+        run: |
+          node --check four-in-line.js
+          node --check four-in-line-bridge.js
+          node tests/test_four_in_line_engine.cjs
+          python -m unittest discover -s tests -p 'test_four_in_line_server.py' -v
+          python -m py_compile server.py four_in_line_server.py
+      - name: Existing Mothership release gate
+        run: python scripts/release_gate.py --require-node
