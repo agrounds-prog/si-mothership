@@ -3451,6 +3451,8 @@ PERSISTED_STORAGE_KEYS = {
     "siMothership.bingoSets.v1",
     "siMothership.crewSurveyBoards.v1",
     "siMothership.crewSurveyGames.v1",
+    "siMothership.millionGames.v1",
+    "siMothership.millionDraft.v1",
 }
 
 CLIENTS: set[web.WebSocketResponse] = set()
@@ -4894,7 +4896,8 @@ async def index(request: web.Request) -> web.Response:
     # Quick Poll loads alongside existing games. It does not modify activityRun.
     text = text.replace("</head>",
                         '<link rel="stylesheet" href="/quick-poll.css?v=1">'
-                        '<link rel="stylesheet" href="/dashboard-polish.css?v=80"></head>', 1)
+                        '<link rel="stylesheet" href="/dashboard-polish.css?v=80">'
+                        '<link rel="stylesheet" href="/million-studio.css?v=1"></head>', 1)
     # Insert before the final body close: index.html also contains HTML strings
     # in internal scripts, so replacing the first occurrence would corrupt JS.
     body_close = text.rfind("</body>")
@@ -4902,6 +4905,7 @@ async def index(request: web.Request) -> web.Response:
         text = (text[:body_close] +
                 '<script src="/quick-poll.js?v=1" defer></script>' +
                 '<script src="/dashboard-polish.js?v=80" defer></script>' +
+                '<script src="/million-studio.js?v=1" defer></script>' +
                 text[body_close:])
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
@@ -5955,6 +5959,8 @@ def create_app() -> web.Application:
     app["quick_poll"] = quick_poll
     app.router.add_get("/", index)
     app.router.add_get("/index.html", index)
+    app.router.add_get("/million-studio.js", lambda request: web.FileResponse(Path(__file__).with_name("million-studio.js"), headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/million-studio.css", lambda request: web.FileResponse(Path(__file__).with_name("million-studio.css"), headers={"Cache-Control": "no-store"}))
     app.router.add_get("/match-arcade.js", match_arcade_script)
     app.router.add_get("/match-arcade.css", match_arcade_style)
     app.router.add_get("/match-builder.js", match_builder_script)
