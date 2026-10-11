@@ -5,7 +5,7 @@ const COLORS=[["#ff4266","△","RED"],["#39a8ff","○","BLUE"],["#36e89e","□",
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const SPEED={slow:1150,normal:850,fast:620};
 const LIB="siMothership.signalSequenceGames.v1";
-function make({pilot="Teacher",speed="normal",sound=false}={}){
+function make({pilot="Teacher",speed="normal",sound=true}={}){
  const name=String(pilot||"Teacher").trim().slice(0,80)||"Teacher";
  return {version:1,id:"ss-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,6),
   mode:"classic",pilot:name,speed:SPEED[speed]?speed:"normal",sound:!!sound,
@@ -74,6 +74,7 @@ function studentHTML(g,name=""){
  const pilot=String(name||"")===g.pilot,active=pilot&&g.phase==="input";
  return '<section class="ss-student">'+header()+'<div class="ss-student-meta"><strong>'+esc(pilot?"YOUR MISSION": "SPECTATOR MODE")+'</strong><span>'+esc(g.phase==="watch"?"Watch and memorize":active?"Your turn — tap the signals":g.phase==="input"?"Watch the pilot respond":g.message)+'</span></div>'+
  donutHTML(g,{interactive:active})+
+ (g.sound?'<div class="ss-audio-dock"><button type="button" class="ss-enable-sound" data-ss-audio aria-live="polite">♫ Enable synchronized sound</button><span class="ss-sound-help">Tap once to hear the same tones as the projector.</span></div>':'')+
  (active?'<div class="ss-student-buttons" aria-label="Large touch controls">'+COLORS.map(([color,symbol,label],i)=>'<button type="button" class="ss-touch-key" data-ss-press="'+i+'" style="--ss-segment:'+color+'" aria-label="'+label+' '+symbol+'"><b aria-hidden="true">'+symbol+'</b><span>'+label+'</span></button>').join("")+'</div>':'')+
  '<div class="ss-student-status" role="status" aria-live="polite">'+(active?'YOUR TURN · TAP THE SIGNALS IN ORDER':esc(g.message))+'</div></section>';
 }
@@ -94,7 +95,7 @@ function setupHTML(students=[]){
  const opts=['Teacher',...new Set(students.map(n=>String(n||"").trim()).filter(Boolean))].map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join("");
  const savedGames=readLibrary().slice(0,8);
  return '<section class="ss-setup">'+header()+'<div class="ss-setup-main"><div class="ss-setup-card"><span>01 · CLASSIC GAME</span><h3>Choose your pilot</h3><label>Pilot / student<select id="ssPilot">'+opts+'</select></label><label>Playback speed<select id="ssSpeed"><option value="slow">Slow · extra time</option><option value="normal" selected>Normal</option><option value="fast">Fast · challenge</option></select></label>'+
- '<label class="ss-checkbox"><input id="ssSound" type="checkbox"> Sound cues (optional)</label>'+
+ '<label class="ss-checkbox"><input id="ssSound" type="checkbox" checked> Synchronized color tones (on by default)</label>'+
  '<p>Four symbols: red triangle, blue circle, green square and yellow star. Teacher starts each round and approves the switch from watching to responding.</p><button id="ssLaunch" class="ss-primary">▶ LAUNCH SIGNAL SEQUENCE</button></div>'+
  '<div class="ss-setup-card"><span>02 · STORED MISSIONS</span><h3>Game library</h3><p>Return to a saved round without resetting any other Mothership activities.</p>'+
  (savedGames.length?savedGames.map((x,i)=>'<button class="ss-saved" data-ss-load="'+i+'">▣ '+esc(x.name)+'</button>').join(""):'<div class="ss-empty">No saved signals yet.</div>')+
