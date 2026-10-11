@@ -1,0 +1,32 @@
+name: Inspect SI Plus Polish Targets
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-si-plus-polish.yml']
+permissions: {contents: read}
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect presentation UI and active slide DOM
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text().splitlines()
+          needles=['function siPlusVideoPreview','function siPlus','si-plus-video-','presentation-slide','presentation-frame','youtube-frame','presentation-media','renderPresentationBuilder(){','function sharedMarkup','function presentationSlide','function presentationHTML','function teacherPresentation','renderSiPlusStable','function wirePresentation','function renderPublic','slideYoutube','siPlusSaveStatus','function savePresentation','function renderPresentationLibrary','presentation-slide-controls']
+          for needle in needles:
+           hits=[i for i,line in enumerate(s) if needle in line]
+           print('###',needle,'COUNT',len(hits),'LINES',[i+1 for i in hits[:40]])
+           for i in hits[-3:]:
+            for j in range(max(0,i-4),min(len(s),i+8)):
+             print(f'{j+1}: {s[j][:1600]}')
+          print('### SI+ presentation JS 18705-18796')
+          for i in range(18704,18796):
+           print(f'{i+1}: {s[i][:1700]}')
+          print('### SI+ reconcile 19224-19285')
+          for i in range(19223,19285):
+           print(f'{i+1}: {s[i][:1700]}')
+          PY
