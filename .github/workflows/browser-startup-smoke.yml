@@ -14,6 +14,10 @@ on:
       - 'dashboard-polish.js'
       - 'dashboard-polish.css'
       - 'quick_poll_server.py'
+      - 'million-studio.js'
+      - 'million-studio.css'
+      - 'tests/test_million_studio_browser.cjs'
+      - 'tests/test_million_multiplayer.py'
   workflow_dispatch:
 
 permissions:
@@ -47,9 +51,15 @@ jobs:
           cat /tmp/mothership-browser.log
           exit 1
       - name: Verify dashboard presentation JavaScript syntax
-        run: node --check dashboard-polish.js
+        run: |
+          node --check dashboard-polish.js
+          node --check million-studio.js
       - name: Quick Poll server integration and vote lifecycle
         run: python -m unittest discover -s tests -p 'test_quick_poll.py' -v
+      - name: MILLION synthetic multiplayer and privacy rules
+        run: python -m unittest discover -s tests -p 'test_million_multiplayer.py' -v
+      - name: MILLION local Chromium saved games and mobile controls
+        run: node tests/test_million_studio_browser.cjs
       - name: Browser bootstrap on local and production
         run: node tests/test_browser_boot_smoke.cjs
       - name: Print app startup diagnostics on failure
