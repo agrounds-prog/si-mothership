@@ -149,7 +149,7 @@ function teacherWire(root,g,rerender,onReload,onReselect,onRematch){
   if(act==="left"||act==="right")result=apply(g,who,"play",selectedTile,act);else result=apply(g,who,act);
   if(result?.error){alert(result.error);return}
   redraw();
- }));
+ });
 }
 function studentSend(kind,id="",side="right"){
  const s=selectedStudent(),name=s?.n||"",run=state.activityRun;if(!run||run.phase!=="running"||!name)return;
