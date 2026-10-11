@@ -49,7 +49,7 @@ const mark=seat=>seat===0?"◆":"✦";
 function boardHTML(g,{big=false,student=false,teacher=false,name=""}={}){
  const active=seatOf(g,name)===g.turn&&g.status==="playing";
  const board='<div class="fil-board" role="grid" aria-label="'+g.cols+' column by '+g.rows+' row four in line board" style="--fil-cols:'+g.cols+'">'+
- g.board.map((disc,i)=>'<div class="fil-cell '+(disc?"fil-disc disc-"+disc:"empty")+(g.winning.includes(i)?" win-line":"")+(g.lastMove&&g.lastMove.row*g.cols+g.lastMove.col===i?" last-disc":"")+'" role="gridcell" aria-label="Row '+(Math.floor(i/g.cols)+1)+' column '+(i%g.cols+1)+' '+(disc?g.players[disc-1]:"empty")+'">'+(disc?'<span>'+mark(disc-1)+'</span>':'<i></i>')+'</div>').join("")+'</div>';
+ g.board.map((disc,i)=>'<div class="fil-cell '+(disc?"fil-disc disc-"+disc:"empty")+(g.winning.includes(i)?" win-line":"")+(g.lastMove&&Date.now()-Number(g.lastMove.at)<1100&&g.lastMove.row*g.cols+g.lastMove.col===i?" last-disc":"")+'" role="gridcell" aria-label="Row '+(Math.floor(i/g.cols)+1)+' column '+(i%g.cols+1)+' '+(disc?g.players[disc-1]:"empty")+'">'+(disc?'<span>'+mark(disc-1)+'</span>':'<i></i>')+'</div>').join("")+'</div>';
  const controls=Array.from({length:g.cols},(_,i)=>{
   const enabled=(teacher||active)&&legal(g,i);
   return '<button type="button" class="fil-drop-button" data-fil-drop="'+i+'" '+(enabled?'':'disabled')+' aria-label="Drop disc in column '+(i+1)+'">'+(i+1)+'</button>'
@@ -61,7 +61,7 @@ function avatars(g,students=[]){
 }
 function publicHTML(g,big=false){
  const title=g.status==="won"?esc(g.players[g.winner])+" WINS!":g.status==="draw"?"DRAW GAME":esc(g.players[g.turn])+" TO MOVE";
- return '<section class="fil-public '+(big?"fil-big":"fil-mini")+'"><div class="fil-space"></div><div class="fil-title"><span>SI MOTHERSHIP · COSMIC STRATEGY</span><h2>FOUR <em>IN LINE</em></h2><p>DROP · CONNECT · WIN</p></div><div class="fil-score-strip">'+avatars(g)+'</div><div class="fil-screen-stage"><div class="fil-board-wrap">'+boardHTML(g,{big})+'</div><aside class="fil-info"><div class="fil-signal">'+(g.status==="won"?"✦ FOUR CONNECTED ✦":g.status==="draw"?"GRID COMPLETE":"NOW PLAYING")+'</div><h3>'+title+'</h3><p>'+esc(g.message)+'</p><div class="fil-stats"><span>'+g.moves+' MOVES</span><span>'+g.cols+' × '+g.rows+' GRID</span></div></aside></div></section>';
+ return '<section class="fil-public '+(big?"fil-big":"fil-mini")+'"><div class="fil-space"></div><div class="fil-title"><span>SI MOTHERSHIP · COSMIC STRATEGY</span><h2>FOUR <em>IN LINE</em></h2><p>DROP · CONNECT · WIN</p></div><div class="fil-score-strip">'+avatars(g)+'</div><div class="fil-screen-stage"><div class="fil-board-wrap">'+boardHTML(g,{big})+'</div><aside class="fil-info"><div class="fil-signal">'+(g.status==="won"?"✦ FOUR CONNECTED ✦":g.status==="draw"?"GRID COMPLETE":"NOW PLAYING")+'</div><h3>'+title+'</h3><p>'+esc(g.message)+'</p><div class="fil-stats"><span>'+g.moves+' MOVES</span><span>'+g.cols+' × '+g.rows+' GRID</span></div></aside></div>'+(big&&g.status==="won"?'<div class="fil-victory" role="status"><span>✦ FOUR CONNECTED ✦</span><strong>'+esc(g.players[g.winner])+' WINS</strong></div>':big&&g.status==="draw"?'<div class="fil-victory" role="status"><strong>DRAW MATCH</strong></div>':'')+'</section>';
 }
 function studentHTML(g,name){
  const seat=seatOf(g,name),mine=seat===g.turn&&g.status==="playing",watch=seat<0;
