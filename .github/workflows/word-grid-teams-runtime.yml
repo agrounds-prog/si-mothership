@@ -1,0 +1,49 @@
+name: Word Grid Teams Runtime Integration
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/word-grid-teams-runtime.yml']
+permissions: {contents: write}
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wire teacher setup, connected roster, student rack, and game hints
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          sfile=Path('index.html')
+          s=sfile.read_text()
+          def once(old,new):
+           global s
+           assert s.count(old)==1,('Expected exactly one Word Grid integration anchor',s.count(old),old[:100])
+           s=s.replace(old,new,1)
+          once('window.WordGrid.studentHTML(state.activityRun.wordGrid)','window.WordGrid.studentHTML(state.activityRun.wordGrid,selectedStudent())')
+          once('box.innerHTML=window.WordGrid.teacherHTML(run.wordGrid);','box.innerHTML=window.WordGrid.teacherHTML(run.wordGrid,connected.map(st=>st.n));')
+          start=s.index('window.WordGrid.wireTeacher(box,run.wordGrid,()=>render(),loaded=>{')
+          end=s.index('});',start)+3
+          original=s[start:end]
+          assert 'run.wordGrid=deepClone(loaded);window.WordGrid.resetDraft();render();' in original
+          replacement=original[:-3]+'},connected.map(st=>st.n));'
+          s=s[:start]+replacement+s[end:]
+          once('window.WordGrid.setupHTML(connectedStudents().map(s=>s.n).slice(0,4))','window.WordGrid.setupHTML(connectedStudents().map(s=>s.n))')
+          start=s.index("    $('#wgStart').onclick=()=>{")
+          end=s.index('    return;',start)
+          original=s[start:end]
+          assert "data-wg-load" in original and 'launchWordGridGame' in original
+          replacement="    window.WordGrid.wireSetup(grid,connectedStudents().map(st=>st.n),launchWordGridGame,launchWordGridGame);\n"
+          s=s[:start]+replacement+s[end:]
+          sfile.write_text(s)
+          print('Connected Word Grid team picker, teacher participation, student hint rack and live team assignment.')
+          PY
+          git diff --check
+          python scripts/release_gate.py --require-node
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'feat(word-grid): connect student team placement, teacher participation and letter hints'
+          git push
