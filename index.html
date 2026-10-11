@@ -15753,14 +15753,43 @@ function joinLobbyMarkup(big=false,eyebrow='CLASS LOBBY'){
 
 const PRESENTATION_STORE='siMothership.presentations.v1';
 function deepClone(v){return JSON.parse(JSON.stringify(v))}
-function loadSavedPresentations(){try{const raw=localStorage.getItem(PRESENTATION_STORE);const x=raw?JSON.parse(raw):[];return Array.isArray(x)?x:[]}catch(e){return []}}
+function loadSavedPresentations(){
+  try{
+    // Railway's teacher library is authoritative. Local storage is a fallback
+    // for standalone/offline Mothership sessions and historical decks.
+    const snapshot=window.__SI_STORAGE_SNAPSHOT__;
+    const serverRaw=snapshot&&Object.prototype.hasOwnProperty.call(snapshot,PRESENTATION_STORE)
+      ? snapshot[PRESENTATION_STORE] : null;
+    const raw=serverRaw!==null?serverRaw:localStorage.getItem(PRESENTATION_STORE);
+    const x=raw?JSON.parse(raw):[];
+    return Array.isArray(x)?x.filter(a=>a&&a.type==='presentation'&&Array.isArray(a.slides)):[];
+  }catch(e){return []}
+}
 function hydratedActivities(){
   const base=deepClone(activitySeed),saved=loadSavedPresentations();
   for(const p of saved){const i=base.findIndex(a=>String(a.id)===String(p.id));if(i>=0)base[i]=p;else base.unshift(p)}
   return base;
 }
-function persistPresentations(){
-  try{localStorage.setItem(PRESENTATION_STORE,JSON.stringify(state.activities.filter(a=>a.type==='presentation')));return true}catch(e){toast('Presentation saved for this session, but browser storage is full');return false}
+async function persistPresentations(){
+  const payload=JSON.stringify(state.activities.filter(a=>a.type==='presentation'));
+  if(NETWORK_SYNC){
+    // Confirm the server's SQLite /data write before claiming that Save worked.
+    // Browser localStorage has a smaller quota and must never be the sole copy.
+    const response=await fetch('/api/storage',{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({key:PRESENTATION_STORE,value:payload})});
+    if(!response.ok){
+      const detail=await response.text().catch(()=>'');
+      throw new Error(response.status===413?'Presentation library is too large; reduce image sizes before saving.':
+        response.status===401?'Teacher sign-in expired. Sign in again before saving.':
+        'Railway did not save the presentation ('+response.status+'): '+detail.slice(0,95));
+    }
+    if(!window.__SI_STORAGE_SNAPSHOT__)window.__SI_STORAGE_SNAPSHOT__={};
+    window.__SI_STORAGE_SNAPSHOT__[PRESENTATION_STORE]=payload;
+  }else{
+    localStorage.setItem(PRESENTATION_STORE,payload);
+  }
+  return true;
 }
 function freshSlide(type='instruction'){
   if(type==='question')return {type:'question',listTitle:'New Question',title:'Enter your question',text:'',image:'',youtube:'',choices:[{key:'A',text:'Answer A',image:''},{key:'B',text:'Answer B',image:''},{key:'C',text:'Answer C',image:''},{key:'D',text:'Answer D',image:''}],correct:'A'};
@@ -16814,6 +16843,14 @@ function mergeSyncedState(remote){
   if(keepEditor)state.screen='activities';
   state.view=local.view;state.rosterPage=local.rosterPage;
   state.presentationEditor=local.presentationEditor;state.editorSlide=local.editorSlide;
+  if(SESSION_ROLE==='teacher'){
+    // A classroom reset or stale remote-state packet cannot erase teacher decks.
+    const saved=loadSavedPresentations();
+    if(saved.length){
+      const existing=new Set(saved.map(a=>String(a.id)));
+      state.activities=[...saved,...(state.activities||[]).filter(a=>a.type!=='presentation'||!existing.has(String(a.id)))];
+    }
+  }
   state.customRosterOpen=local.customRosterOpen;
   state.rosterSetEditorId=local.rosterSetEditorId||state.activeRosterSetId||'default';
   state.avatarUploadPreview=local.avatarUploadPreview;state.avatarUploadName=local.avatarUploadName;
@@ -18576,15 +18613,18 @@ function openEditPresentation(id){
   const a=state.activities.find(x=>String(x.id)===String(id));if(!a||a.type!=='presentation')return;
   state.presentationEditor={originalId:a.id,draft:deepClone(a)};state.editorSlide=0;state.screen='activities';render();
 }
-function deleteSavedPresentation(id){
+async function deleteSavedPresentation(id){
   if(state.activityRun)return toast('Return to Classroom before deleting presentations');
   const a=state.activities.find(x=>String(x.id)===String(id));
   if(!a||a.type!=='presentation')return;
   if(!a.userCreated)return toast('Included SI+ presentations are protected');
   const name=a.deckTitle||a.name||'this presentation';
   if(!confirm(`Delete "${name}"? This cannot be undone.`))return;
+  const before=state.activities;
   state.activities=state.activities.filter(x=>String(x.id)!==String(id));
-  persistPresentations();
+  try{await persistPresentations();}catch(err){
+    state.activities=before;toast('Delete not saved: '+err.message);return;
+  }
   state.presentationEditor=null;
   state.editorSlide=0;
   state.presentationLibraryOpen=true;
@@ -18592,11 +18632,31 @@ function deleteSavedPresentation(id){
   toast('SI+ presentation deleted');
 }
 function closePresentationEditor(){state.presentationEditor=null;state.editorSlide=0;state.presentationLibraryOpen=false;state.activeApp='si-plus';render()}
-function savePresentation(){
-  const ed=state.presentationEditor;if(!ed)return;const d=ed.draft;
-  d.deckTitle=(d.deckTitle||'').trim()||'Untitled Presentation';d.name=d.deckTitle;d.text=`${d.slides.length}-slide interactive presentation`;d.icon='▣';d.type='presentation';
-  const i=state.activities.findIndex(a=>String(a.id)===String(ed.originalId??d.id));if(i>=0)state.activities[i]=deepClone(d);else state.activities.unshift(deepClone(d));
-  persistPresentations();state.presentationEditor=null;state.editorSlide=0;state.activeApp='si-plus';state.presentationLibraryOpen=false;render();toast('Presentation saved');
+async function savePresentation(){
+  const ed=state.presentationEditor;if(!ed)return;
+  const button=$('#savePresentationBtn');
+  if(button?.disabled)return;
+  if(button){button.disabled=true;button.textContent='Saving to Library…'}
+  const d=deepClone(ed.draft);
+  d.deckTitle=(d.deckTitle||'').trim()||'Untitled Presentation';d.name=d.deckTitle;
+  d.text=`${d.slides.length}-slide interactive presentation`;d.icon='▣';d.type='presentation';d.userCreated=true;
+  const previous=state.activities;
+  const next=previous.slice();
+  const i=next.findIndex(a=>String(a.id)===String(ed.originalId??d.id));
+  if(i>=0)next[i]=d;else next.unshift(d);
+  state.activities=next;
+  try{
+    await persistPresentations();
+  }catch(err){
+    state.activities=previous;
+    if(button){button.disabled=false;button.textContent='💾 Retry Save Presentation'}
+    const note=$('#siPlusSaveStatus');
+    if(note)note.textContent='Save failed: '+err.message;
+    toast('SI+ save failed — presentation not yet stored');
+    return;
+  }
+  state.presentationEditor=null;state.editorSlide=0;state.activeApp='si-plus';
+  state.presentationLibraryOpen=false;render();toast('Presentation saved to Railway library');
 }
 function addPresentationSlide(type){const ed=state.presentationEditor;if(!ed)return;ed.draft.slides.push(freshSlide(type));state.editorSlide=ed.draft.slides.length-1;render()}
 function moveEditorSlide(delta){const ed=state.presentationEditor;if(!ed)return;const slides=ed.draft.slides,i=state.editorSlide,j=i+delta;if(j<0||j>=slides.length)return;[slides[i],slides[j]]=[slides[j],slides[i]];state.editorSlide=j;render()}
@@ -18607,7 +18667,7 @@ function renderPresentationBuilder(){
   const d=ed.draft,slide=d.slides[state.editorSlide]||d.slides[0];state.editorSlide=Math.max(0,Math.min(state.editorSlide,d.slides.length-1));
   const choices=slide.choices||[];
   const answerHTML=['A','B','C','D'].map(key=>{const c=choices.find(x=>x.key===key)||{key,text:'',image:''};return `<div class="answer-editor"><button class="answer-dot choice-${key} ${slide.type==='question'&&slide.correct===key?'correct':''}" data-correct="${key}" title="${slide.type==='question'?'Mark correct answer':'Poll option'}">${key}</button><input type="text" data-choice-text="${key}" value="${esc(c.text)}" placeholder="${slide.type==='question'?'Answer':'Option'} ${key}"><div class="answer-image-tools">${c.image?`<img class="choice-thumb" src="${c.image}" alt="Choice ${key}"><button class="remove-media" data-remove-choice-image="${key}">×</button>`:''}<label class="file-label">＋ image<input type="file" accept="image/*" data-choice-image="${key}"></label></div></div>`}).join('');
-  box.innerHTML=`<div class="builder-top"><div class="builder-title-group"><span class="eyebrow">PRESENTATION BUILDER</span><input id="presentationTitleInput" class="builder-title-input" value="${esc(d.deckTitle||d.name)}" aria-label="Presentation title"></div><div class="builder-top-actions"><button id="cancelPresentationEdit">← Library</button><button class="builder-load-btn" id="loadSavedFromBuilder">▣ Load Saved</button><button class="save" id="savePresentationBtn">💾 Save Presentation</button></div></div>
+  box.innerHTML=`<div class="builder-top"><div class="builder-title-group"><span class="eyebrow">PRESENTATION BUILDER</span><input id="presentationTitleInput" class="builder-title-input" value="${esc(d.deckTitle||d.name)}" aria-label="Presentation title"></div><div class="builder-top-actions"><button id="cancelPresentationEdit">← Library</button><button class="builder-load-btn" id="loadSavedFromBuilder">▣ Load Saved</button><button class="save" id="savePresentationBtn">💾 Save Presentation</button></div></div><div id="siPlusSaveStatus" class="si-plus-save-status" role="status">Saved presentations stay in your Railway library after Reset Session.</div>
   <div class="builder-layout"><div class="builder-box"><h3>Slides (${d.slides.length})</h3><div class="slide-nav">${d.slides.map((s,i)=>`<button class="slide-nav-item ${i===state.editorSlide?'active':''}" data-editor-slide="${i}"><b>${i+1}. ${esc(s.listTitle||s.title||'Slide')}</b><small class="slide-badge ${s.type}">${s.type.toUpperCase()}</small></button>`).join('')}</div></div>
   <div class="builder-box"><div class="editor-form"><span class="slide-badge ${slide.type}">${slide.type.toUpperCase()}</span><label>Slide List Title<input id="slideListTitle" type="text" value="${esc(slide.listTitle||'')}" placeholder="Example: Warm-Up Question"></label><label>${slide.type==='instruction'?'Slide Title':'Question / Prompt'}<input id="slideTitle" type="text" value="${esc(slide.title||'')}"></label><label>${slide.type==='instruction'?'Text / Prompt':'Supporting text'}<textarea id="slideText">${esc(slide.text||'')}</textarea></label>
   <div class="editor-row"><div class="editor-media"><b style="font-size:10px">Slide Image</b><div style="margin-top:7px"><label class="file-label">＋ Attach Image<input id="slideImageInput" type="file" accept="image/*"></label>${slide.image?' <button class="remove-media" id="removeSlideImage">Remove</button>':''}</div><div class="editor-media-preview">${slide.image?`<img src="${slide.image}" alt="Slide preview"><span>Image attached</span>`:'No image attached'}</div></div><div class="editor-media"><b style="font-size:10px">YouTube</b><input id="slideYoutube" type="url" value="${esc(slide.youtube||'')}" placeholder="Paste YouTube link"><div class="editor-media-preview">${ytId(slide.youtube)?'<span style="color:#5be8ff">✓ YouTube link recognized</span>':'Optional'}</div></div></div>
