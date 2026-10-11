@@ -8,6 +8,13 @@ let sid=window.__SI_SESSION_ID__||"",code=window.__SI_JOIN_CODE__||"";
 let lastSessionCheck=0,sessionCheck=null;
 const colors=["#5ce8ff","#89ef9c","#bc87ff","#ffb96b","#ff79a4","#ffe180"];
 const styles={cards:"Image Leaderboard",bars:"Bar Chart",donut:"Donut Chart",showdown:"Two-Sided Showdown"};
+const graphicVersion="SHOW GRAPHICS 4.1";
+const styleArt={
+ bars:'<span class="qp-style-art qp-style-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>',
+ donut:'<span class="qp-style-art qp-style-donut" aria-hidden="true"><i></i></span>',
+ showdown:'<span class="qp-style-art qp-style-versus" aria-hidden="true"><b>A</b><em>VS</em><b>B</b></span>',
+ cards:'<span class="qp-style-art qp-style-cards" aria-hidden="true"><i></i><i></i><i></i><i></i></span>'
+};
 const sample=[
  ["This or That","Which do you prefer?",["Option A","Option B"],false],
  ["Understanding Check","How well do you understand?",["Got it","Almost","Need help"],true],
@@ -375,8 +382,8 @@ function liveHtml(p){
  if(!p)return '<div class="qp-teacher-live qp-nopoll">Create and send a question to your existing classroom session.</div>';
  return '<div class="qp-teacher-live"><div><b>'+esc(p.question)+'</b><span>'+(p.phase==="open"?"VOTING OPEN":"POLL CLOSED")+'</span></div>'+
  '<p>'+p.voters+' of '+p.eligible+' voted · Round '+p.round+'</p><div class="qp-mini-results">'+p.choices.map(c=>'<span>'+esc(c.label)+' <b>'+Number(p.counts?.[c.id]||0)+'</b></span>').join("")+'</div>'+
- '<div class="qp-display-hint">SHARED SCREEN DISPLAY · Select a chart layout</div>'+
- '<div class="qp-display-buttons">'+Object.entries(styles).filter(([k])=>k!=="showdown"||p.choices.length===2).map(([k,l])=>'<button type="button" class="'+(p.display===k?"on":"")+'" data-qp-display="'+k+'" aria-pressed="'+(p.display===k)+'">'+esc(l)+'</button>').join("")+'</div>'+
+ '<div class="qp-display-hint qp-v4-graphics-label"><strong>◈ SHOW GRAPHICS 4.1</strong><span>SELECT A PROJECTOR PRESENTATION</span></div>'+
+ '<div class="qp-display-buttons qp-v4-display-gallery">'+Object.entries(styles).filter(([k])=>k!=="showdown"||p.choices.length===2).map(([k,l])=>'<button type="button" class="qp-v4-display-tile '+(p.display===k?"on":"")+'" data-qp-display="'+k+'" aria-label="'+esc(l)+' projector view" aria-pressed="'+(p.display===k)+'">'+styleArt[k]+'<span class="qp-style-info"><b>'+esc(l)+'</b><small>'+(k==="bars"?"Big glowing vote bars":k==="donut"?"Live circular breakdown":k==="showdown"?"Two-team face-off":"Illustrated answer leaderboard")+'</small></span>'+(p.display===k?'<span class="qp-style-picked">✓ ACTIVE</span>':'')+'</button>').join("")+'</div>'+
  '<div class="qp-share-row"><button type="button" data-qp-share="'+(p.sharedVisible?"hide":"show")+'" class="'+(p.sharedVisible?"qp-share-on":"qp-share-off")+'">'+
  (p.sharedVisible?"◼ Hide from Shared Screen":"↗ Show on Shared Screen")+'</button>'+
  '<span class="qp-share-status '+(p.sharedVisible?"live":"")+'">'+(p.sharedVisible?"● LIVE ON SHARED SCREEN":"○ Preview only · Not displayed to class")+'</span></div>'+
