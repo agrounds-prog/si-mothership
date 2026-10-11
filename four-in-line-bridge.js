@@ -40,9 +40,16 @@ function showSetup(){
 function decorateCatalog(){
  const root=document.querySelector("#activitiesPanel .activity-catalog-grid")||document.getElementById("activityGrid");
  if(!root||root.querySelector(".fil-library-card"))return;
+ const selection=document.querySelector("#activitiesPanel .activity-library-filters button.active")?.dataset.activityCategory||"all";
+ const search=(document.getElementById("activityLibrarySearch")?.value||"").toLowerCase().trim();
+ // The new app participates in the existing library's category and search filters.
+ if(selection!=="all"&&selection!=="games")return;
+ if(search&&!("four in line connect four strategy game drop discs team battle".includes(search)))return;
  const card=document.createElement("div");
- card.className="activity-card real-app-card fil-library-card";
- card.innerHTML='<span class="app-status">CLASSROOM GAME · LIVE</span><div class="act-icon"><span class="fil-library-symbol">◉◉</span></div><h3>FOUR IN LINE</h3><div class="app-meta">Connect Four-style strategy · 2–4 modes / sizes</div><p>Drop glowing discs into a suspended grid. Student devices make moves, while the projector shows the whole arena.</p><div class="real-app-actions"><button type="button" class="fil-open">Open FOUR IN LINE</button></div>';
+ card.className="activity-card real-app-card fil-library-card si-v86-icon-ready";
+ card.dataset.activityCategory="games";
+ card.dataset.siV86Accent="cyan";
+ card.innerHTML='<span class="app-status">CLASSROOM GAME · LIVE</span><div class="act-icon"><svg class="si-v86-library-glyph" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="5" width="38" height="38" rx="8"/><path d="M17 6v36M30 6v36M6 18h36M6 31h36" opacity=".45"/><circle cx="11" cy="12" r="5" fill="currentColor"/><circle cx="24" cy="25" r="5" fill="currentColor"/><circle cx="37" cy="37" r="5" fill="currentColor"/></svg></div><h3>FOUR IN LINE</h3><div class="app-meta">Strategy · Team Battle · Mini / Classic / Mega</div><p>Drop glowing discs into a suspended grid. Student devices make moves, while the projector shows the arena.</p><div class="real-app-actions"><button type="button" class="fil-open" data-open-app="four-in-line">Open FOUR IN LINE</button></div>';
  card.querySelector(".fil-open").onclick=()=>{state.activeApp=APP;renderActivities()};
  root.appendChild(card);
 }
