@@ -126,6 +126,73 @@ function installShortcutArtwork(){
 }
 
 
+
+/* v86 Activity Library — share the Mission Control icon language without
+   replacing existing cards or touching their click handlers and data. */
+function installLibraryArtwork(){
+ const root=$('#activitiesPanel'),grid=$('#activityGrid'),favorites=$('#favoriteGrid');
+ if(!root||!grid||!favorites)return;
+ const colors={
+  "SI+":"cyan","COSMIC CARDS":"green","MINEFIELD":"pink",
+  "VECTOR":"blue","BOARD":"blue","SKETCH SIGNAL":"cyan",
+  "ORBIT":"purple","PIXEL REVEAL":"pink","STARWHEEL":"amber",
+  "CREW SURVEY":"purple","MILLION":"amber","MATCH":"purple",
+  "BINGO":"cyan","SCIENTIFIC CALCULATOR":"purple"
+ };
+ const aliases={
+  "PRESENTATION":"SI+","SI+ INTERACTIVE PRESENTATION":"SI+",
+  "SKETCH":"SKETCH SIGNAL","PIXEL":"PIXEL REVEAL",
+  "CREW SURVEY GAME":"CREW SURVEY","SCIENTIFIC":"SCIENTIFIC CALCULATOR",
+  "INTERACTIVE PRESENTATION":"SI+"
+ };
+ function normalized(value){
+   const n=String(value||"").replace(/\s*·.*$/,"").trim().toUpperCase();
+   return aliases[n]||n;
+ }
+ function appGlyph(name){
+   const glyph=SHORTCUT_GLYPHS[name];
+   return glyph?'<svg class="si-v86-library-glyph" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true">'+glyph+'</svg>':null;
+ }
+ function paintCard(card,iconSelector,name,scheme){
+   const icon=card.querySelector(iconSelector);
+   const key=normalized(name);
+   const svg=appGlyph(key);
+   if(!icon||!svg||icon.dataset.siV86Name===key)return;
+   icon.innerHTML=svg;
+   icon.dataset.siV86Name=key;
+   card.dataset.siV86Accent=colors[key]||scheme||"cyan";
+   card.classList.add("si-v86-icon-ready");
+ }
+ const render=()=>{
+   // The class is limited to the browsing view so SI+ editors and games
+   // retain their own established presentation behavior.
+   const browsing=!!grid.querySelector(".activity-library-toolbar");
+   root.classList.toggle("si-v86-library",browsing);
+   if(!browsing&&!root.classList.contains('shortcut-manager-view'))return;
+   for(const card of grid.querySelectorAll(".activity-catalog-grid .real-app-card")){
+     paintCard(card,'.act-icon',card.querySelector('h3')?.textContent);
+   }
+   for(const card of grid.querySelectorAll(".preset-recent-card")){
+     paintCard(card,'.recent-app-icon',card.querySelector('.recent-card-top small')?.textContent);
+   }
+   for(const card of grid.querySelectorAll(".preset-card")){
+     paintCard(card,'.preset-card-icon',card.querySelector('.preset-app')?.textContent);
+   }
+   for(const card of favorites.querySelectorAll('.shortcut-manage-card:not(.empty)')){
+     paintCard(card,'.shortcut-manage-icon',card.querySelector('.shortcut-manage-copy b')?.textContent);
+   }
+ };
+ let scheduled=false;
+ const schedule=()=>{
+   if(scheduled)return;
+   scheduled=true;
+   requestAnimationFrame(()=>{scheduled=false;render()});
+ };
+ render();
+ new MutationObserver(schedule).observe(grid,{childList:true});
+ new MutationObserver(schedule).observe(favorites,{childList:true});
+}
+
 /* v85: Put alert panels into one actual grid item, not four independently
    positioned grid cells. Existing elements, IDs, events and their state stay
    intact. This structural container makes the alert rail a single flowing
@@ -172,7 +239,7 @@ function init(){
  if(document.body.classList.contains('role-student')||document.body.classList.contains('role-shared'))return;
  if(!$('#teacherControlBar')||!$('#endBtn')||!$('#resetBtn'))return;
  if(!installHeader())return;
- addTheme();tunePanels();installShortcutArtwork();
+ addTheme();tunePanels();installShortcutArtwork();installLibraryArtwork();
  document.body.classList.add('si-v80-dashboard');
  installAlertStack();
 }
