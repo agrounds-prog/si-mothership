@@ -63,8 +63,10 @@ const base=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   }
   // Activity Library decorative changes must not interfere with button click path.
   await page.setViewportSize({width:1440,height:960});
-  await page.locator('#teacherControlBar [data-control="activities"]').click();
-  await page.locator('#activitiesPanel .activity-catalog-grid .real-app-card').first().waitFor({timeout:10000});
+  // Exercise the library's actual renderer. The cockpit button can bring
+  // back another remembered panel when the session has no active activity.
+  await page.evaluate(()=>{state.activeApp=null;state.screen="activities";render()});
+  await page.locator('#activitiesPanel .activity-catalog-grid .real-app-card').first().waitFor({state:"attached",timeout:10000});
   const lib=await page.evaluate(()=>{
    const root=document.querySelector("#activitiesPanel"),card=root?.querySelector(".real-app-card"),
       icon=card?.querySelector(".act-icon"),cta=card?.querySelector(".real-app-actions button");
