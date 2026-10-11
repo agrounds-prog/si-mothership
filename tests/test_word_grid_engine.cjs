@@ -111,7 +111,7 @@ run("polished shared-screen carries turn spotlight, bonus key, arcade emblem and
  assert.equal((shared.match(/data-wg-bonus=/g)||[]).length,225);
  assert.equal((mirror.match(/data-wg-cell=/g)||[]).length,225);
  assert.match(shared,/data-wg-bonus="center"/);
- g.lastMove={words:[{tiles:[112],text:"A",points:2}],score:2};
+ g.lastMove={words:[{tiles:[112],text:"A",points:2}],score:2,at:Date.now()};
  g.board[112]={id:"demo",letter:"A",value:1,blank:false};
  assert.match(W.sharedHTML(g,true),/locked recent center/);
 });
@@ -123,6 +123,41 @@ run("projection and student view render tiles, not a private teacher rack",()=>{
  assert.match(W.setupHTML([]),/START WORD GRID/);
 });
 
+
+run("scoring animation marks only newly placed tiles and never animates old intersections",()=>{
+ const g=W.make(["Alpha","Bravo"]);
+ g.players[0].rack=given("CATDOGS");
+ W.commit(g,{111:g.players[0].rack[0],112:g.players[0].rack[1],113:g.players[0].rack[2]});
+ assert.deepEqual(g.lastMove.newTiles.sort((a,b)=>a-b),[111,112,113]);
+ g.players[1].rack=given("BEELKRS");
+ W.commit(g,{97:g.players[1].rack[0]});
+ assert.deepEqual(g.lastMove.newTiles,[97]);
+ const publicScreen=W.sharedHTML(g,true);
+ assert.match(publicScreen,/data-wg-cell="97"[^>]*wg-play-reveal/);
+ assert.doesNotMatch(publicScreen,/data-wg-cell="112"[^>]*wg-play-reveal/);
+ assert.equal((publicScreen.match(/class="wg-spark"/g)||[]).length,8);
+ assert.doesNotMatch(W.sharedHTML(g,false),/wg-spark-burst|wg-play-reveal/);
+});
+run("replay celebration does not award points or alter the turn, rack or bag",()=>{
+ const g=W.make(["Alpha","Bravo"]);g.players[0].rack=given("CATDOGS");
+ assert.equal(W.replayLastScore(g),false,"cannot replay before a word was scored");
+ W.commit(g,{111:g.players[0].rack[0],112:g.players[0].rack[1],113:g.players[0].rack[2]});
+ const before={scores:g.players.map(p=>p.score),turn:g.turn,bag:g.bag.length,board:g.board.filter(Boolean).length,history:g.history.length};
+ g.lastMove.at-=11000;g.publicCue.at-=11000;
+ assert.doesNotMatch(W.sharedHTML(g,true),/wg-score-celebration/);
+ assert.equal(W.replayLastScore(g),true);
+ assert.match(W.sharedHTML(g,true),/wg-score-celebration/);
+ assert.match(W.sharedHTML(g,true),/wg-spark-burst/);
+ assert.match(W.sharedHTML(g,true),/wg-play-reveal/);
+ assert.deepEqual({scores:g.players.map(p=>p.score),turn:g.turn,bag:g.bag.length,board:g.board.filter(Boolean).length,history:g.history.length},before);
+ assert.doesNotMatch(W.sharedHTML(g,false),/wg-score-celebration|wg-spark-burst/);
+});
+run("game-ending scoring play can still celebrate without extending the match",()=>{
+ const g=W.make(["Alpha","Bravo"]);g.players[0].rack=given("CATDOGS");
+ W.commit(g,{111:g.players[0].rack[0],112:g.players[0].rack[1],113:g.players[0].rack[2]});
+ g.finished=true;
+ assert.match(W.sharedHTML(g,true),/wg-score-celebration/);
+});
 run("projector celebrations are temporary, preserve privacy, and respect turn actions",()=>{
  const g=W.make(["Team Aurora","Team Comet"]);g.players[0].rack=given("CATDOGS");
  assert.equal(W.commit(g,{111:g.players[0].rack[0],112:g.players[0].rack[1],113:g.players[0].rack[2]}).score,10);
