@@ -58,6 +58,42 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.equal(first.noKey,true);
   assert.equal(await screen.locator('.ms-studio').count(),0,'game editor is teacher only');
 
+  // Live teacher action must visibly remove exactly two wrong choices on
+  // projector and student rendering, not merely disable invisible hit targets.
+  await teacher.locator('[data-million-teacher-life="reduce"]').click();
+  await teacher.waitForFunction(()=>state.activityRun.million.eliminated.length===2,{timeout:10000});
+  await screen.waitForFunction(()=>state.activityRun?.million?.eliminated?.length===2,{timeout:12000});
+  const fifty=await screen.evaluate(()=>{
+   const root=document.querySelector('.million-public.big')||document.querySelector('.million-public');
+   return {removed:root.querySelectorAll('.million-choice.eliminated').length,
+    labels:[...root.querySelectorAll('.million-choice.eliminated span')].map(x=>x.textContent),
+    banner:root.querySelector('.million-5050-banner')?.textContent||'',
+    remaining:[...root.querySelectorAll('.million-choice:not(.eliminated) b')].map(x=>x.textContent),
+    noKey:!('correct' in state.activityRun.millionConfig.questions[0])};
+  });
+  const pilot50=await teacher.evaluate(()=>{
+   const shell=document.createElement('div');
+   shell.innerHTML=millionStudentMarkup(state.activityRun,studentByName('Pilot'));
+   return {removed:shell.querySelectorAll('.million-student-choice.eliminated').length,
+    removedText:[...shell.querySelectorAll('.million-student-choice.eliminated span')].map(x=>x.textContent),
+    banner:shell.querySelector('.million-5050-banner')?.textContent||'',
+    teacherRemoved:document.querySelectorAll('.million-teacher-choices>div.eliminated').length,
+    teacherBanner:document.querySelector('.million-teacher-5050-banner')?.textContent||'',
+    remainingInventory:state.activityRun.million.inventory.reduce};
+  });
+  assert.equal(fifty.removed,2,'projector exactly two choices marked removed');
+  assert.equal(fifty.remaining.length,2,'two playable choices remain');
+  assert.deepEqual(fifty.labels,['SIGNAL REMOVED','SIGNAL REMOVED']);
+  assert.match(fifty.banner,/50\/50 ACTIVATED/);
+  assert.equal(fifty.noKey,true,'no correct answer leaked to shared screen');
+  assert.equal(pilot50.removed,2,'pilot visibly sees eliminated choices');
+  assert.deepEqual(pilot50.removedText,['SIGNAL REMOVED','SIGNAL REMOVED']);
+  assert.match(pilot50.banner,/50\/50 ACTIVE/);
+  assert.equal(pilot50.teacherRemoved,2,'teacher sees removed choices');
+  assert.match(pilot50.teacherBanner,/50\/50 ACTIVE/);
+  assert.equal(pilot50.remainingInventory,0);
+  assert.equal(await teacher.locator('[data-million-teacher-life="reduce"]').isDisabled(),true,'used 50/50 is disabled');
+
   // Examine a genuine projector role, including 720p-style Zoom layouts.
   const layout=[];
   for(const [width,height] of [[1920,1080],[1366,768],[880,720]]){
@@ -128,7 +164,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.equal(ended.before,ended.after,'classic risk game cannot advance');
   assert.equal(ended.nextDisabled,true);
   assert.equal(errors.length,0,'browser JS errors: '+JSON.stringify(errors));
-  console.log(JSON.stringify({test:'MILLION five-question teacher/projector multiplayer and classic-risk stop',first,layout,ended,pageErrors:errors}));
+  console.log(JSON.stringify({test:'MILLION five-question teacher/projector multiplayer, 50/50 and classic-risk stop',first,fifty,pilot50,layout,ended,pageErrors:errors}));
   // Leave the isolated app clean so unrelated SI+ and Activity Library smoke
   // tests never inherit a synthetic MILLION session.
   await teacher.evaluate(()=>{state.activityRun=null;state.screen='classroom';state.activeApp=null;render()});
