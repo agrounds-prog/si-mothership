@@ -18343,7 +18343,23 @@ function renderActivities(){
     $('#backToAppsBtn').onclick=backToAppLibrary;
     if(!window.WordGrid){grid.innerHTML='<div class="wg-setup"><h3>Word Grid is loading…</h3></div>';return}
     grid.innerHTML=window.WordGrid.setupHTML(connectedStudents().map(s=>s.n).slice(0,4));
-    $('#wgStart').onclick=()=>{const list=$('#wgPlayers').value.split(/\n|,/).map(s=>s.trim()).filter(Boolean);try{launchWordGridGame(window.WordGrid.make(list))}catch(e){toast(String(e.message||e))}};
+    $('#wgStart').onclick=()=>{
+    const names=$('#wgPlayers').value.split(/\n|,/).map(s=>s.trim()).filter(Boolean);
+    const feedback=$('#wgSetupStatus');
+    if(feedback)feedback.textContent='';
+    if(names.length<2||names.length>4||new Set(names.map(n=>n.toLowerCase())).size!==names.length){
+      const msg='Enter two to four different player or team names to start.';
+      if(feedback)feedback.textContent=msg;
+      $('#wgPlayers').focus();
+      return;
+    }
+    try{launchWordGridGame(window.WordGrid.make(names))}
+    catch(e){
+      const msg=String(e?.message||e||'Word Grid could not start.');
+      if(feedback)feedback.textContent=msg;
+      toast(msg);
+    }
+  };
     $$('[data-wg-load]').forEach(b=>b.onclick=()=>{const item=window.WordGrid.readLibrary().find(a=>a.id===b.dataset.wgLoad);if(item&&confirm('Load '+item.name+'?'))launchWordGridGame(item.game)});
     return;
   }
