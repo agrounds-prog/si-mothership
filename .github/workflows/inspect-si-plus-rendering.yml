@@ -1,0 +1,26 @@
+name: Inspect SI Plus Rendering
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-si-plus-rendering.yml']
+permissions: {contents: read}
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Locate SI+ deck rendering and flicker-sensitive operations
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          x=Path('index.html').read_text().splitlines()
+          needles=[r'function renderSlide',r'function renderPresentation',r'function renderSi',r'function renderSI',r'function presentationShared',r'function presentationStudent',r'function presentationTeacher',r'savedPresentations',r'siMothership.presentations.v1',r'function loadPresentations',r'function savePresentation',r'slidePreview',r'function slideMarkup',r'function currentSlide',r'function renderShared',r'function render\(']
+          for term in needles:
+           indexes=[i for i,line in enumerate(x) if re.search(term,line,re.I)]
+           print('## QUERY',term,'COUNT',len(indexes),'LINES',[i+1 for i in indexes[:18]])
+           for i in indexes[:3]:
+            for j in range(max(i-3,0),min(i+15,len(x))):
+             print(f'{j+1}: {x[j][:1050]}')
+          PY
