@@ -23,6 +23,7 @@ on:
       - 'bingo-board-studio.js'
       - 'dashboard-polish.js'
       - 'dashboard-polish.css'
+      - 'tests/test_dashboard_avatar_reskin.cjs'
       - 'quick_poll_server.py'
       - 'million-studio.js'
       - 'million-studio.css'
@@ -94,6 +95,8 @@ jobs:
           node --check word-grid.js
           node tests/test_word_grid_engine.cjs
           node tests/test_word_grid_browser.cjs
+      - name: Avatar-inspired Home and Activity Library layout fidelity
+        run: node tests/test_dashboard_avatar_reskin.cjs
       - name: Dominoes student private hands, teacher controls and projector browser test
         run: |
           node --check dominoes.js
