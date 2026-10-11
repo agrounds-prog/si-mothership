@@ -1,4 +1,5 @@
 name: One-shot MILLION Live Gameplay Polish
+# Re-run after shared-stage JS syntax correction.
 on:
   push:
     branches: [main]
