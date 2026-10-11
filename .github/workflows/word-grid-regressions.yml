@@ -1,0 +1,23 @@
+name: Word Grid Regression
+on:
+  push:
+    branches: [main]
+    paths: ['word-grid.js','word-grid.css','tests/test_word_grid_engine.cjs','tests/test_word_grid_browser.cjs','.github/workflows/word-grid-regressions.yml','index.html','server.py']
+permissions: {contents: read}
+jobs:
+  word-grid:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Validate Word Grid source and scoring model
+        run: |
+          node --check word-grid.js
+          node tests/test_word_grid_engine.cjs
+      - name: Validate application syntax and release checks
+        run: |
+          node --check dashboard-polish.js
+          python -m py_compile server.py
+          python scripts/release_gate.py --require-node
