@@ -39,6 +39,12 @@ jobs:
             for j in range(max(0,i-2),min(len(src),i+9)):
               print(f'{j+1}: {src[j][:550]}')
             count+=1
+          print('BUILTIN CHARACTER ARTWORK AND PALETTE:')
+          for j in range(14886-1,min(len(src),14947)):
+            print(f'{j+1}: {src[j][:900]}')
+          print('STUDENT AVATAR SELECTION GRAPHICS:')
+          for j in list(range(4264-1,4318))+list(range(11247-1,11256)):
+            print(f'{j+1}: {src[j][:600]}')
           print('DOCUMENT STYLE ANCHORS:')
           for line in src:
             if ('--avatar' in line or '--crew-' in line or 'avatar-' in line) and ('background:' in line or 'border-radius:' in line):
