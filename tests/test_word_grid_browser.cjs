@@ -81,6 +81,15 @@ const base=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const hintTile=await page.evaluate(()=>state.activityRun.wordGrid.players[0].rack[0].id);
   await page.locator(`#activityControllerPanel [data-wg-tile="${hintTile}"]`).click();
   await page.locator(`#activityControllerPanel [data-wg-action="hint"]`).click();
+  const hintState=await page.evaluate(()=>({
+    teacherHint:!!state.activityRun.wordGrid.hint,
+    activeStudent:WordGrid.studentHTML(state.activityRun.wordGrid,{n:"Alex"}).includes("wg-highlight"),
+    otherStudent:WordGrid.studentHTML(state.activityRun.wordGrid,{n:"Sam"}).includes("wg-highlight"),
+    publicHint:document.getElementById("sharedContent").innerHTML.includes("wg-highlight")
+  }));
+  assert.deepEqual(hintState,{teacherHint:true,activeStudent:true,otherStudent:false,publicHint:false});
+  await page.locator('#activityControllerPanel [data-wg-action="hint"]').click();
+  assert.equal(await page.evaluate(()=>state.activityRun.wordGrid.hint),null);
   await page.evaluate(()=>{
    const W=window.WordGrid,g=state.activityRun.wordGrid;
    g.players[0].rack=[..."CATDOGS"].map((letter,i)=>({id:"fixture-"+i,letter,value:W.POINTS[letter],blank:false}));
