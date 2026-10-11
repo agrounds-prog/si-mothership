@@ -111,3 +111,126 @@
 @media(max-width:900px){.wg-public-main{grid-template-columns:minmax(0,1fr)}.wg-public .wg-board{width:min(100%,70vh)}.wg-public-side .wg-scores{grid-template-columns:1fr 1fr}}
 @media(max-width:670px){.wg-setup-columns{grid-template-columns:1fr}.wg-actions{grid-template-columns:1fr 1fr}.wg-teacher-main{gap:9px}.wg-teacher-side{padding:10px}.wg-board{border-width:3px;padding:2px;gap:1px}.wg-cell{font-size:6px}.wg-cell.occupied{font-size:11px}.wg-cell small{font-size:6px}.wg-public-side .wg-scores{grid-template-columns:1fr 1fr}.wg-public .wg-heading h2{font-size:24px}.wg-public .wg-phase{font-size:8px}.wg-rack{gap:3px}.wg-tile{width:35px}}
 @media(prefers-reduced-motion:reduce){.wg-tile,.wg-actions button,.wg-setup button{transition:none!important;animation:none!important}}
+
+/* WORD GRID v1.1 — isolated game canvas; never inherits the library's
+   multi-column card grid or stretches the normal Activities workspace. */
+#teacher #activitiesPanel #activityGrid:has(> .wg-setup){
+ display:block!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ grid-auto-flow:row!important;
+ align-items:start!important;
+ width:100%!important;
+ max-width:100%!important;
+ min-width:0!important;
+ overflow-x:clip!important;
+}
+#teacher #activitiesPanel #activityGrid>.wg-setup{
+ grid-column:1 / -1!important;
+ display:block!important;
+ box-sizing:border-box!important;
+ min-width:0!important;
+ width:100%!important;
+ max-width:100%!important;
+ padding:6px 2px 14px!important;
+ overflow-x:clip!important;
+}
+#teacher #activitiesPanel .wg-setup-columns{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:clamp(10px,1.4vw,18px)!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:100%!important;
+ align-items:stretch!important;
+}
+#teacher #activitiesPanel .wg-setup-card{
+ min-width:0!important;
+ max-width:100%!important;
+ width:auto!important;
+ overflow-wrap:anywhere;
+}
+#teacher #activitiesPanel .wg-setup-card textarea{
+ display:block;
+ width:100%!important;
+ max-width:100%!important;
+ min-width:0!important;
+}
+#teacher #activitiesPanel .wg-save-list{
+ min-width:0!important;
+ max-width:100%!important;
+}
+#teacher #activitiesPanel .wg-save-list button{
+ min-width:0!important;
+ max-width:100%!important;
+}
+#teacher #activitiesPanel .wg-save-list button b{
+ min-width:0!important;
+}
+#teacher #activityControllerPanel:has(.wg-teacher){
+ min-width:0!important;
+ max-width:100%!important;
+ overflow-x:clip!important;
+}
+#teacher #activityControllerPanel .wg-teacher{
+ padding:4px!important;
+ min-width:0!important;
+ max-width:100%!important;
+ overflow-x:clip!important;
+}
+#teacher #activityControllerPanel .wg-teacher-main{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ min-width:0!important;
+ max-width:100%!important;
+ gap:12px!important;
+}
+#teacher #activityControllerPanel .wg-board{
+ width:min(100%,600px)!important;
+ max-width:100%!important;
+ min-width:0!important;
+ margin-inline:auto!important;
+}
+#teacher #activityControllerPanel .wg-teacher-side{
+ min-width:0!important;
+ max-width:100%!important;
+}
+#teacher #activityControllerPanel .wg-actions{
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+#teacher #activityControllerPanel .controller-safety{
+ flex-wrap:wrap!important;
+}
+.wg-setup-error{
+ display:block;
+ min-height:22px;
+ padding:7px 0;
+ color:#ffd89f;
+ font:800 12px/1.45 system-ui;
+}
+.wg-setup-error:not(:empty){
+ margin-top:8px;
+ padding:10px 12px;
+ border:1px solid #c79050;
+ border-radius:10px;
+ background:#493424;
+}
+.wg-setup .wg-heading{min-width:0}
+@media(max-width:780px){
+ #teacher #activitiesPanel .wg-setup-columns{
+   grid-template-columns:minmax(0,1fr)!important;
+ }
+ #teacher #activitiesPanel .wg-setup-card{
+   padding:clamp(11px,2vw,18px)!important;
+ }
+ #teacher #activityControllerPanel .wg-actions{
+   grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+}
+@media(max-width:480px){
+ #teacher #activitiesPanel .wg-heading{
+  padding:11px!important;
+  gap:6px!important;
+ }
+ #teacher #activitiesPanel .wg-heading h2{font-size:25px!important}
+ #teacher #activitiesPanel .wg-phase{font-size:8px!important;padding:7px!important}
+}
