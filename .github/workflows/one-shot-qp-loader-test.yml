@@ -1,0 +1,42 @@
+name: One-shot Quick Poll Loader Regression
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-qp-loader-test.yml']
+permissions:
+  contents: write
+jobs:
+  update-test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Safely update asset-fingerprint assertion
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path("tests/test_quick_poll.py")
+          source=p.read_text()
+          old='loader = \'<script src="/quick-poll.js?v=1" defer></script>\''
+          new='loader = f\'<script src="/quick-poll.js?v={app.QUICK_POLL_ASSET_VERSION}" defer></script>\''
+          css_old='self.assertIn(\'<link rel="stylesheet" href="/quick-poll.css?v=1">\', html)'
+          css_new='self.assertIn(f\'<link rel="stylesheet" href="/quick-poll.css?v={app.QUICK_POLL_ASSET_VERSION}">\', html)'
+          assert source.count(old)==1 and source.count(css_old)==1,"Abort: loader test source changed"
+          p.write_text(source.replace(old,new).replace(css_old,css_new))
+          print("Test tracks the live fingerprinted Quick Poll asset URLs.")
+          PY
+      - name: Install tests and prove current behavior
+        run: |
+          pip install -r requirements.txt
+          python -m unittest discover -s tests -p 'test_quick_poll.py' -v
+      - name: Commit test update to main
+        run: |
+          set -euo pipefail
+          git config user.name "mothership-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add tests/test_quick_poll.py
+          git diff --cached --exit-code && { echo "No changes"; exit 1; } || true
+          git commit -m "test(quick-poll): follow fingerprinted JS/CSS URLs"
+          git push origin HEAD:main
