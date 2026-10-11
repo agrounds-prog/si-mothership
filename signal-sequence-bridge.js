@@ -75,7 +75,7 @@ function tone(index,g){
  if(typeof SESSION_ROLE!=="undefined"&&SESSION_ROLE!=="teacher"&&!soundEnabled)return;
  try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();if(audio.state==="suspended")audio.resume().catch(()=>{});
   const t=audio.currentTime,o=audio.createOscillator(),volume=audio.createGain();
-  o.type="sine";o.frequency.value=[285,359,452,570][index];volume.gain.setValueAtTime(.0001,t);volume.gain.exponentialRampToValueAtTime(.055,t+.015);volume.gain.exponentialRampToValueAtTime(.0001,t+.19);
+  o.type="sine";o.frequency.value=[261.63,329.63,392,523.25,587.33,659.25,783.99,987.77][index]||440;volume.gain.setValueAtTime(.0001,t);volume.gain.exponentialRampToValueAtTime(.055,t+.015);volume.gain.exponentialRampToValueAtTime(.0001,t+.19);
   o.connect(volume);volume.connect(audio.destination);o.start(t);o.stop(t+.22);
  }catch(_){}
 }
