@@ -385,8 +385,50 @@ const hosts=[
               selected:document.querySelectorAll('#qpDialog .qp-v4-display-tile.on').length
             }));
             console.log(JSON.stringify({label,role:'quick-poll-graphics-selector-v4',...graphicStyleGallery}));
-            if(!graphicStyleGallery.version.includes('4.1')||graphicStyleGallery.options!==4||
+            if(!graphicStyleGallery.version.includes('4.2')||graphicStyleGallery.options!==4||
               graphicStyleGallery.symbols!==4||graphicStyleGallery.selected!==1)failures++;
+
+            // Teacher-only full-screen chart preview, with demo data strictly
+            // local to this device; it MUST NOT send fake votes to students.
+            const votesBeforePreview=JSON.stringify(simulated.counts);
+            const pollShownBeforePreview=!!simulated.sharedVisible;
+            const actualChoiceVotes=simulated.voters;
+            await page.locator('#qpDialog [data-qp-preview-open]').click();
+            await page.waitForFunction(()=>!!document.querySelector('#qpPublicOverlay.qp-v5-preview-mode .qp-v4-cards'),null,{timeout:8000});
+            const previewDemo=await page.evaluate(()=>({
+              header:document.querySelector('.qp-v5-preview-note')?.textContent||'',
+              sampleVotes:[...document.querySelectorAll('#qpPublicOverlay .qp-v4-choice-numbers')]
+                .map(node=>node.textContent.trim()),
+              chartStyle:!!document.querySelector('#qpPublicOverlay .qp-v4-cards'),
+              teacherOnly:!!document.querySelector('#qpPublicOverlay[aria-label*="Teacher-only"]'),
+              showing:!!document.querySelector('#qpPublicOverlay .qp-v5-preview-modes button.active[data-qp-preview-mode="demo"]')
+            }));
+            console.log(JSON.stringify({label,role:'poll-teacher-only-fullscreen-demo',...previewDemo}));
+            if(!previewDemo.header.includes('SAMPLE COUNTS')||!previewDemo.chartStyle||
+              !previewDemo.teacherOnly||!previewDemo.showing||
+              votesBeforePreview!==JSON.stringify(simulated.counts)||
+              pollShownBeforePreview!==!!simulated.sharedVisible||simulated.voters!==actualChoiceVotes)failures++;
+            await page.locator('#qpPublicOverlay [data-qp-preview-mode="live"]').click();
+            const actualPreview=await page.evaluate(()=>({
+              status:document.querySelector('.qp-v5-preview-note')?.textContent||'',
+              votes:document.querySelector('.qp-v4-heading-totals')?.textContent||'',
+              selected:document.querySelector('#qpPublicOverlay [data-qp-preview-mode="live"]')?.getAttribute('aria-pressed')
+            }));
+            if(!actualPreview.status.includes('LIVE CLASSROOM DATA')||
+              !actualPreview.votes.includes('0')||actualPreview.selected!=='true')failures++;
+            // Re-fetching unchanged poll data should preserve the DOM instance.
+            await page.evaluate(()=>document.querySelector('#qpPublicOverlay .qp-v4-stage').dataset.stable='yes');
+            await page.evaluate(()=>document.querySelector('#qpTeacherLive').dataset.stable='yes');
+            await page.evaluate(()=>window.SIQuickPoll.refresh());
+            if(await page.locator('#qpPublicOverlay .qp-v4-stage').getAttribute('data-stable')!=='yes'||
+              await page.locator('#qpTeacherLive').getAttribute('data-stable')!=='yes')failures++;
+            await page.keyboard.press('Escape');
+            if(await page.locator('#qpPublicOverlay.qp-v5-preview-mode').count()!==0||
+              !await page.locator('#qpDialog').isVisible())failures++;
+            console.log(JSON.stringify({label,role:'poll-preview-close-no-side-effects',
+              countsUnchanged:votesBeforePreview===JSON.stringify(simulated.counts),
+              sharedUnchanged:pollShownBeforePreview===!!simulated.sharedVisible,
+              actualPreview,pageErrors:errors.slice(-3)}));
             // The same chart must be visible in the teacher mirror and in the
             // independent second-screen role. The test's route interception
             // prevents any writes to Railway's real classroom.
