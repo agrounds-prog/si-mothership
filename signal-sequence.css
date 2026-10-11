@@ -103,3 +103,35 @@
 .ss-sound-help{font:750 11px/1.4 system-ui;color:#b5e0ea}
 .ss-student .ss-pad[data-ss-press]{touch-action:none}
 @media(prefers-reduced-motion:reduce){.ss-student .ss-touch-key{transition:none!important}}
+
+/* Phase 2 · 4/6/8-color controllers, Crew Survival, Team Relay */
+.ss-advanced-crew[hidden],.ss-classic-pilot[hidden]{display:none!important}
+.ss-roster-title{display:block;color:#87dff7;letter-spacing:.095em;font:950 12px system-ui;margin:13px 0 8px}
+.ss-roster-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;max-height:225px;overflow:auto}
+.ss-roster-list label{display:flex;gap:10px;align-items:center;margin:0!important;min-height:43px;padding:10px 12px;background:#102d46;border:1px solid #3e7794;border-radius:10px;color:#effaff;font:850 13px system-ui;overflow-wrap:anywhere}
+.ss-roster-list label input{width:18px;height:18px;accent-color:#6debd0;flex:none}
+.ss-setup-error{color:#ffbabb;font:850 13px system-ui;min-height:20px;margin:7px 0}
+.ss-crew-board{display:grid;gap:6px;background:#0c2138;border:1px solid #4189ad;border-radius:12px;padding:12px;max-height:320px;overflow:auto;min-width:0}
+.ss-crew-title{font:950 11px system-ui;letter-spacing:.12em;color:#ffe1a9;margin-bottom:3px}
+.ss-crew-member{display:flex;align-items:center;justify-content:space-between;gap:8px;border-radius:8px;padding:7px 9px;border:1px solid #315e83;background:#133753;font:800 12px system-ui;min-width:0}
+.ss-crew-member>span{overflow-wrap:anywhere}
+.ss-crew-member strong{font:950 10px system-ui;letter-spacing:.075em;color:#84f0fa}
+.ss-crew-member small{color:#ffe1b1;font:900 10px system-ui}
+.ss-crew-member.ss-crew-out{opacity:.63;background:#423346}
+.ss-crew-member.ss-crew-out strong{color:#f3a4af}
+.ss-crew-member.ss-crew-cleared{border-color:#41ad92;background:#17473f}
+.ss-crew-member.ss-crew-cleared strong{color:#acfce3}
+.ss-relay-order{font:850 12px/1.5 system-ui;color:#ffdda6;padding:11px;border:1px solid #927045;background:#332b27;border-radius:10px}
+.ss-personal-progress{text-align:center;font:950 13px system-ui;color:#8df6e7;letter-spacing:.12em;padding:9px}
+.ss-student .ss-console{width:min(100%,460px)}
+.ss-student .ss-donut{overflow:visible}
+.ss-legend{grid-template-columns:repeat(auto-fit,minmax(105px,1fr))}
+.ss-student-buttons{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));max-width:560px}
+.ss-student .ss-touch-key{min-height:70px}
+@media(max-width:500px){
+ .ss-roster-list{grid-template-columns:1fr}
+ .ss-student .ss-touch-key{min-height:68px}
+ .ss-student-buttons{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .ss-student .ss-donut{max-height:43vh}
+ .ss-crew-member{font-size:11px}
+}

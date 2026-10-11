@@ -123,12 +123,27 @@ function showSetup(){
  if(head){head.innerHTML='<button type="button" id="ssBack">← Activity Library</button>';head.querySelector("#ssBack").onclick=()=>{state.activeApp=null;renderActivities()}}
  const connected=typeof connectedStudents==="function"?connectedStudents().map(s=>s.n):[];
  root.innerHTML=SignalSequence.setupHTML(connected);root.classList.remove("hidden");
+ const modeSelect=root.querySelector("#ssMode"),advanced=root.querySelector(".ss-advanced-crew"),pilotField=root.querySelector(".ss-classic-pilot");
+ if(modeSelect)modeSelect.onchange=()=>{
+  const isClassic=modeSelect.value==="classic";
+  if(advanced)advanced.hidden=isClassic;
+  if(pilotField)pilotField.hidden=!isClassic;
+ };
+ modeSelect?.dispatchEvent(new Event("change"));
  document.getElementById("savedActivityPicker")?.classList.add("hidden");
  const start=root.querySelector("#ssLaunch");
  if(start)start.onclick=()=>{
-  const g=SignalSequence.make({pilot:root.querySelector("#ssPilot").value,speed:root.querySelector("#ssSpeed").value,sound:root.querySelector("#ssSound").checked});
+  const selected=[...root.querySelectorAll("[data-ss-member]:checked")].map(el=>el.dataset.ssMember);
+  let g;
+  try{
+   g=SignalSequence.make({
+    mode:modeSelect.value,signals:Number(root.querySelector("#ssSignals").value),
+    pilot:root.querySelector("#ssPilot").value,participants:selected,
+    speed:root.querySelector("#ssSpeed").value,sound:root.querySelector("#ssSound").checked
+   });
+  }catch(err){const box=root.querySelector("#ssSetupError");if(box)box.textContent=err.message;return}
   state.activityRun={activityId:ID,phase:"running",runToken:"ss-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2),signalSequence:g};
-  state.activeApp=null;state.ended=false;state.screen="classroom";render();notice("SIGNAL SEQUENCE ready");
+  state.activeApp=null;state.ended=false;state.screen="classroom";render();notice("SIGNAL SEQUENCE · "+SignalSequence.MODES[g.mode]+" ready");
  };
  root.querySelectorAll("[data-ss-load]").forEach(btn=>btn.onclick=()=>{
   const g=SignalSequence.readLibrary()[Number(btn.dataset.ssLoad)]?.game;
@@ -172,16 +187,17 @@ function wireStudent(){
  watchSignalSocket();wireAudioButtons(g);
  // Rendered student markup is replaced on each classroom update. Keep
  // in-flight requests in the bridge until canonical progress advances.
- if(studentPending&&(studentPending.gameId!==g.id||studentPending.round!==g.round||studentPending.progress!==g.progress||g.phase!=="input")){
+ if(studentPending&&(studentPending.gameId!==g.id||studentPending.round!==g.round||studentPending.progress!==SignalSequence.playerProgress(g,pilot)||g.phase!=="input"||!SignalSequence.canPlay(g,pilot))){
   studentPending=null;
   studentFeedback=g.phase==="failed"?"Signal missed. Watch Mission Control for a retry.":g.phase==="success"?"✓ Round complete!":"✓ Signal registered.";
   studentFeedbackType=g.phase==="failed"?"error":"ok";
  }
- if(g.phase!=="input"||pilot!==g.pilot){studentPending=null;studentFeedback="";studentFeedbackType=""}
+ if(!SignalSequence.canPlay(g,pilot)){studentPending=null;studentFeedback="";studentFeedbackType=""}
+ if(studentPending&&Date.now()-studentPending.at>4500){studentPending=null;studentNotice("No response received. Tap again to retry.","error")}
  if(studentPending)studentNotice(studentPending.acknowledged?"✓ Signal received. Updating game…":"Sending signal…","sending");
  else if(studentFeedback)studentNotice(studentFeedback,studentFeedbackType);
  const send=(signal)=>{
-  if(g.phase!=="input"||pilot!==g.pilot)return;
+  if(!SignalSequence.canPlay(g,pilot))return;
   flashTap(Number(signal),g);
   if(studentPending){studentNotice("Waiting for the previous signal to register…","sending");return}
   if(typeof networkSocket==="undefined"||!networkSocket||networkSocket.readyState!==WebSocket.OPEN){
@@ -194,11 +210,10 @@ function wireStudent(){
   const token=current?.student_token||(stored?.name===pilot?stored.studentToken:"")||"";
   if(!token){studentNotice("Student identity is still syncing. Reconnect this device.","error");return}
   const number=Number(signal),req={signal:number,runToken:state.activityRun?.runToken,id:"ssmove-"+Date.now()+"-"+Math.random().toString(36).slice(2)};
-  studentPending={id:req.id,signal:number,gameId:g.id,round:g.round,progress:g.progress,acknowledged:false};
+  studentPending={id:req.id,signal:number,gameId:g.id,round:g.round,progress:SignalSequence.playerProgress(g,pilot),acknowledged:false,at:Date.now()};
   studentNotice("Sending "+SignalSequence.COLORS[number][2]+" signal…","sending");
   try{
    networkSocket.send(JSON.stringify({type:"signal_sequence_action",request:req,student_token:token,student_name:pilot}));
-   tone(number,g);
   }catch(_){studentPending=null;studentNotice("Couldn't send. Check your classroom connection.","error")}
  };
  zone.querySelectorAll("[data-ss-press]").forEach(control=>{

@@ -8,6 +8,9 @@ on:
       - 'signal-sequence-bridge.js'
       - 'signal_sequence_server.py'
       - 'tests/test_signal_sequence_engine.cjs'
+      - 'tests/test_signal_sequence_modes_engine.cjs'
+      - 'tests/test_signal_sequence_modes_server.py'
+      - 'tests/test_signal_sequence_modes_browser.cjs'
       - 'tests/test_signal_sequence_server.py'
       - 'tests/test_signal_sequence_browser.cjs'
       - 'tests/test_signal_sequence_mobile_browser.cjs'
@@ -20,7 +23,7 @@ permissions: {contents: read}
 jobs:
   signal-sequence:
     runs-on: ubuntu-24.04
-    timeout-minutes: 12
+    timeout-minutes: 18
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -32,7 +35,9 @@ jobs:
           node --check signal-sequence.js
           node --check signal-sequence-bridge.js
           node tests/test_signal_sequence_engine.cjs
+          node tests/test_signal_sequence_modes_engine.cjs
           python -m unittest discover -s tests -p 'test_signal_sequence_server.py' -v
+          python -m unittest discover -s tests -p 'test_signal_sequence_modes_server.py' -v
           python -m py_compile server.py signal_sequence_server.py
       - name: Existing release gate
         run: python scripts/release_gate.py --require-node
@@ -56,6 +61,8 @@ jobs:
         run: node tests/test_signal_sequence_browser.cjs
       - name: Real student mobile touch and multiplayer round progression
         run: node tests/test_signal_sequence_mobile_browser.cjs
+      - name: Crew Survival and Team Relay real mobile gameplay
+        run: node tests/test_signal_sequence_modes_browser.cjs
       - name: Local diagnostics on failure
         if: failure()
         run: tail -90 /tmp/signal-sequence.log || true
