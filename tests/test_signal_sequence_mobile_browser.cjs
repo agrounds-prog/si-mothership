@@ -31,7 +31,17 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const student=await sc.newPage();
   student.on("pageerror",e=>errors.push("student "+String(e)));
   await student.goto(BASE+"/?role=student&code="+encodeURIComponent(join.code)+"&sid="+encodeURIComponent(join.sid),{waitUntil:"domcontentloaded",timeout:40000});
-  await student.waitForFunction(()=>state.selectedStudent==="Signal Pilot"&&state.activityRun?.signalSequence?.pilot==="Signal Pilot"&&networkSocket?.readyState===WebSocket.OPEN,{timeout:16000});
+  await student.waitForTimeout(1300);
+  console.log("SIGNAL STUDENT JOIN DIAG",JSON.stringify(await student.evaluate(()=>({
+    role:SESSION_ROLE,selected:state.selectedStudent,students:state.students.map(s=>({name:s.n,token:!!s.studentToken})),pilot:state.activityRun?.signalSequence?.pilot||"",
+    runId:state.activityRun?.activityId||"",socket:networkSocket?.readyState??-1,hydrated:networkHydrated,
+    stored:!!readStudentIdentity(),needsJoin:studentNeedsJoin(),bridge:!!window.__signalSequenceBridge,
+    boot:document.getElementById("bootErrorText")?.textContent?.slice(0,300)||""
+  }))));
+  console.log("SIGNAL TEACHER JOIN DIAG",JSON.stringify(await teacher.evaluate(()=>({
+    selected:state.selectedStudent,students:state.students.map(s=>({name:s.n,token:!!s.studentToken})),pilot:state.activityRun?.signalSequence?.pilot,runId:state.activityRun?.activityId,socket:networkSocket?.readyState,hydrated:networkHydrated
+  }))));
+  await student.waitForFunction(()=>state.selectedStudent==="Signal Pilot"&&state.activityRun?.signalSequence?.pilot==="Signal Pilot"&&networkSocket?.readyState===WebSocket.OPEN,null,{timeout:10000});
   await teacher.locator('#activityControllerPanel [data-ss-action="next"]').click();
   await teacher.waitForFunction(()=>state.activityRun.signalSequence.phase==="input",{timeout:14000});
   await student.waitForFunction(()=>state.activityRun?.signalSequence?.phase==="input"&&document.querySelectorAll("#studentContent .ss-touch-key").length===4,{timeout:14000});
