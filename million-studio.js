@@ -154,8 +154,9 @@ function wire(){
   if(readyCount()>0&&!confirm('Replace this draft with example questions?'))return;
   const parsed=typeof parseMillionQuestions==='function'?parseMillionQuestions(MILLION_SAMPLE_TEXT):[];
   draft=fresh();draft.name='Sample Mission';
-  parsed.slice(0,15).forEach((q,i)=>{draft.questions[i]={prompt:q.prompt,choices:q.choices.map(c=>c.text),correct:q.correct,mothershipClue:q.mothershipClue||'',explanation:q.explanation||''}});
-  draft.count=parsed.length<=5?5:parsed.length<=10?10:15;
+  if(!parsed.length){toast('No examples available');return}
+  for(let i=0;i<5;i++){const q=parsed[i%parsed.length];draft.questions[i]={prompt:q.prompt,choices:q.choices.map(c=>c.text),correct:q.correct,mothershipClue:q.mothershipClue||'',explanation:q.explanation||''}}
+  draft.count=5;
   loadedId='';selected=0;persistDraft();redraw()
  });
  on('#msLibraryStart','click',()=>{tab='create';redraw()});
@@ -187,4 +188,5 @@ function updateStatus(){
 syncEngine();
 window.MillionStudio={markup,wire,questions,ladder,checkpoints:n=>n===5?[3]:n===10?[5]:[5,10],
  currentName:()=>draft.name||'MILLION',inspection:()=>({count:draft.count,ready:readyCount(),saved:listGames().length,loadedId})};
+if(typeof state!=='undefined'&&state.activeApp==='million'&&typeof renderActivities==='function')renderActivities();
 })();
