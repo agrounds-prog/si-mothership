@@ -97,6 +97,24 @@ run("match setup includes student team dropdowns and teacher participation",()=>
  assert.match(html,/START WORD GRID/);
  assert.equal(typeof W.wireSetup,"function");
 });
+run("polished shared-screen carries turn spotlight, bonus key, arcade emblem and recent tiles",()=>{
+ const g=W.make(["Crew Alpha","Crew Beta"]);
+ const shared=W.sharedHTML(g,true);
+ const mirror=W.sharedHTML(g,false);
+ assert.match(shared,/wg-emblem/);
+ assert.match(shared,/wg-turn-spotlight/);
+ assert.match(shared,/NOW PLAYING/);
+ assert.match(shared,/TRIPLE WORD/);
+ assert.match(shared,/DOUBLE LETTER/);
+ assert.match(shared,/wg-premium-legend/);
+ assert.match(mirror,/wg-mirror/);
+ assert.equal((shared.match(/data-wg-bonus=/g)||[]).length,225);
+ assert.equal((mirror.match(/data-wg-cell=/g)||[]).length,225);
+ assert.match(shared,/data-wg-bonus="center"/);
+ g.lastMove={words:[{tiles:[112],text:"A",points:2}],score:2};
+ g.board[112]={id:"demo",letter:"A",value:1,blank:false};
+ assert.match(W.sharedHTML(g,true),/locked recent center/);
+});
 run("projection and student view render tiles, not a private teacher rack",()=>{
  const g=W.make(["Alpha","Bravo"]);const shared=W.sharedHTML(g,true),student=W.studentHTML(g);
  assert.equal((shared.match(/data-wg-cell=/g)||[]).length,225);
