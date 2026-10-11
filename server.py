@@ -4943,6 +4943,7 @@ async def index(request: web.Request) -> web.Response:
     body_close = text.rfind("</body>")
     if body_close >= 0:
         text = (text[:body_close] +
+                '<script src="/student-companion.js?v=2" defer></script>' +
                 '<script src="/four-in-line.js?v=2" defer></script>' +
                 '<script src="/four-in-line-bridge.js?v=2" defer></script>' +
                 '<script src="/signal-sequence.js?v=5" defer></script>' +
@@ -4953,7 +4954,6 @@ async def index(request: web.Request) -> web.Response:
                 '<script src="/word-grid.js?v=1" defer></script>' +
                 '<script src="/dominoes.js?v=1" defer></script>' +
                 '<script src="/si-plus-polish.js?v=88" defer></script>' +
-                '<script src="/student-companion.js?v=1" defer></script>' +
                 text[body_close:])
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
