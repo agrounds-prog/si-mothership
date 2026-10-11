@@ -1,0 +1,46 @@
+name: Inspect Student Avatar Visual Language
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-avatar-visual-language.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract actual avatar markup palette and relevant CSS
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          src=Path('index.html').read_text().splitlines()
+          needles=['const AVATAR','const avatars','AVATARS','avatarUrl','avatarData','avatarSvg','avatarSVG','avatarOptions','avatarRoster','avatarStyle','function avatar','function renderAvatar','function avatarMarkup','avatar-picker','avatar-choice','avatar-card','avatar-grid','avatar-icon','avatar-tile','avatarArt','avatarRegistry','avatar-visual','crew-avatar','avatar-set']
+          hits=[]
+          for j,line in enumerate(src):
+            if any(n.lower() in line.lower() for n in needles):
+              hits.append(j)
+          print('NUMBER OF AVATAR HITS:',len(hits))
+          print('FIRST 50 AVATAR LINES:')
+          for i in hits[:50]:
+            print(f'{i+1}: {src[i][:360]}')
+          print('SELECTED DECLARATION AND STYLE CONTEXT:')
+          selected=[]
+          for i in hits:
+            line=src[i]
+            if any(x in line for x in ['avatar','AVATAR']):
+              if any(x in line for x in ['function ','const ','AVATAR','avatar-card','avatar-tile','avatar-grid','avatar-choice','avatar-art','avatar-img','avatar-picker','avatar-frame','avatarSvg','avatarSVG']):
+                selected.append(i)
+          count=0
+          for i in selected:
+            if count>=30:break
+            print(f'=== {i+1}: {src[i][:180]} ===')
+            for j in range(max(0,i-2),min(len(src),i+9)):
+              print(f'{j+1}: {src[j][:550]}')
+            count+=1
+          print('DOCUMENT STYLE ANCHORS:')
+          for line in src:
+            if ('--avatar' in line or '--crew-' in line or 'avatar-' in line) and ('background:' in line or 'border-radius:' in line):
+              print(line[:450])
+          PY
