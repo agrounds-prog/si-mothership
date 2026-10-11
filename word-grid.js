@@ -15,7 +15,42 @@ const cellName=i=>String.fromCharCode(65+i%15)+(Math.floor(i/15)+1);
 const pts=t=>t?.blank?0:Number(t?.value||0);
 function makeBag(){let n=0;const arr=[];for(const [letter,count] of Object.entries(DISTRIBUTION))for(let i=0;i<count;i++)arr.push({id:"t"+(++n),letter,value:POINTS[letter],blank:letter==="?"});for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr}
 function draw(g,p){while(p.rack.length<7&&g.bag.length)p.rack.push(g.bag.pop())}
-function make(players=["Crew Alpha","Crew Beta"]){const names=[...new Set(players.map(n=>String(n).trim().slice(0,35)).filter(Boolean))].slice(0,4);if(names.length<2)throw Error("Choose two to four players or teams.");const g={version:1,id:"wg-"+Date.now().toString(36),board:Array(225).fill(null),players:names.map(name=>({name,score:0,rack:[]})),bag:makeBag(),turn:0,round:1,passes:0,finished:false,lastMove:null,history:[],message:"Word Grid ready! First word must pass through the center ★."};for(const p of g.players)draw(g,p);return g}
+function make(players=["Crew Alpha","Crew Beta"],options={}){
+ const names=(Array.isArray(players)?players:[]).map(n=>String(n||"").trim().slice(0,35)).filter(Boolean);
+ if(names.length<2||names.length>4||new Set(names.map(n=>n.toLowerCase())).size!==names.length)throw Error("Choose two to four different players or teams.");
+ const assignments={};
+ for(const [name,seat] of Object.entries(options.assignments||{})){
+   const n=String(name).trim().slice(0,60),slot=Number(seat);
+   if(n&&Number.isInteger(slot)&&slot>=0&&slot<names.length)assignments[n]=slot;
+ }
+ const teacherSeat=options.teacherSeat===null||options.teacherSeat===undefined?null:Number(options.teacherSeat);
+ const g={version:2,id:"wg-"+Date.now().toString(36),board:Array(225).fill(null),
+  players:names.map(name=>({name,score:0,rack:[]})),assignments,
+  teacherSeat:Number.isInteger(teacherSeat)&&teacherSeat>=0&&teacherSeat<names.length?teacherSeat:null,
+  hint:null,bag:makeBag(),turn:0,round:1,passes:0,finished:false,lastMove:null,history:[],
+  message:"Word Grid ready! First word must pass through the center ★."};
+ for(const p of g.players)draw(g,p);return g
+}
+function assignStudent(g,name,seat){
+ const key=String(name||"").trim();if(!key)return false;
+ if(!g.assignments||typeof g.assignments!=="object")g.assignments={};
+ if(seat===null||seat===""||seat===undefined){delete g.assignments[key];return true}
+ const v=Number(seat);if(!Number.isInteger(v)||v<0||v>=g.players.length)return false;
+ g.assignments[key]=v;return true;
+}
+function teamMembers(g,seat){
+ const names=Object.entries(g.assignments||{}).filter(([,i])=>Number(i)===seat).map(([name])=>name);
+ if(g.teacherSeat===seat)names.push("Teacher");
+ return names;
+}
+function setHint(g,tileId){
+ if(g.finished)return false;
+ const t=g.players[g.turn]?.rack.find(x=>x.id===tileId);
+ if(!t)return false;
+ if(g.hint&&g.hint.seat===g.turn&&g.hint.tileId===tileId){g.hint=null;return true}
+ g.hint={seat:g.turn,tileId:t.id,letter:t.blank?"BLANK":t.letter};
+ return true;
+}
 function advance(g){g.turn=(g.turn+1)%g.players.length;if(g.turn===0)g.round++}
 function isNewMapValid(g,pending){
  const indices=Object.keys(pending||{}).map(Number);if(!indices.length)return {error:"Place one or more letter tiles on the board."};
@@ -47,18 +82,23 @@ function isNewMapValid(g,pending){
 function snapshot(g){const {history,...rest}=g;return JSON.parse(JSON.stringify(rest))}
 function commit(g,pending){if(g.finished)return {error:"The game is finished."};const check=isNewMapValid(g,pending);if(check.error)return check;g.history.push(snapshot(g));if(g.history.length>20)g.history.shift();const p=g.players[g.turn];const who=p.name;const ids=new Set();for(const [key,t] of Object.entries(pending)){const i=Number(key);g.board[i]={...t};ids.add(t.id)}
  p.rack=p.rack.filter(t=>!ids.has(t.id));p.score+=check.score;draw(g,p);g.passes=0;g.lastMove={player:who,...check,at:Date.now()};g.message=who+" scored "+check.score+" points for "+check.words.map(w=>w.text).join(" + ")+".";
- if(!g.bag.length&&!p.rack.length){g.finished=true;finish(g)}else advance(g);return check;
+ g.hint=null;if(!g.bag.length&&!p.rack.length){g.finished=true;finish(g)}else advance(g);return check;
 }
-function pass(g){if(g.finished)return;g.history.push(snapshot(g));const who=g.players[g.turn].name;g.passes++;g.message=who+" passed their turn.";advance(g);if(g.passes>=g.players.length*2){g.finished=true;finish(g)}}
-function exchange(g,indices){if(g.finished)return {error:"Game already finished."};const ids=new Set(indices);const p=g.players[g.turn];if(g.bag.length<7)return {error:"At least seven tiles must remain in the bag to exchange."};if(!ids.size)return {error:"Select a tile to exchange."};const picked=p.rack.filter(t=>ids.has(t.id));if(picked.length!==ids.size)return {error:"Choose tiles from the current rack."};g.history.push(snapshot(g));p.rack=p.rack.filter(t=>!ids.has(t.id));const shuffled=picked.map(t=>({...t,as:undefined}));draw(g,p);g.bag.push(...shuffled);for(let i=g.bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[g.bag[i],g.bag[j]]=[g.bag[j],g.bag[i]];}g.message=p.name+" exchanged "+picked.length+" tile"+(picked.length===1?"":"s")+".";g.passes++;advance(g);return {ok:true}}
+function pass(g){if(g.finished)return;g.history.push(snapshot(g));const who=g.players[g.turn].name;g.hint=null;g.passes++;g.message=who+" passed their turn.";advance(g);if(g.passes>=g.players.length*2){g.finished=true;finish(g)}}
+function exchange(g,indices){if(g.finished)return {error:"Game already finished."};const ids=new Set(indices);const p=g.players[g.turn];if(g.bag.length<7)return {error:"At least seven tiles must remain in the bag to exchange."};if(!ids.size)return {error:"Select a tile to exchange."};const picked=p.rack.filter(t=>ids.has(t.id));if(picked.length!==ids.size)return {error:"Choose tiles from the current rack."};g.history.push(snapshot(g));p.rack=p.rack.filter(t=>!ids.has(t.id));const shuffled=picked.map(t=>({...t,as:undefined}));draw(g,p);g.bag.push(...shuffled);for(let i=g.bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[g.bag[i],g.bag[j]]=[g.bag[j],g.bag[i]];}g.message=p.name+" exchanged "+picked.length+" tile"+(picked.length===1?"":"s")+".";g.hint=null;g.passes++;advance(g);return {ok:true}}
 function finish(g){const finisher=g.players.find(p=>!p.rack.length);let bank=0;for(const p of g.players){const minus=p.rack.reduce((x,t)=>x+pts(t),0);p.score-=minus;bank+=minus}if(finisher)finisher.score+=bank;const lead=[...g.players].sort((a,b)=>b.score-a.score);g.message="Final score: "+lead[0].name+" leads with "+lead[0].score+" points. Game complete!"}
-function undo(g){const previous=g.history.pop();if(!previous)return false;const remain=g.history;Object.keys(g).forEach(k=>delete g[k]);Object.assign(g,previous,{history:remain,message:"Last turn undone. "+previous.players[previous.turn].name+" is up."});return true}
+function undo(g){const previous=g.history.pop();if(!previous)return false;const remain=g.history;Object.keys(g).forEach(k=>delete g[k]);Object.assign(g,previous,{history:remain,hint:null,message:"Last turn undone. "+previous.players[previous.turn].name+" is up."});return true}
 const boardHTML=(g,editable=false,pending={},selection="")=>'<div class="wg-board" role="grid" aria-label="15 by 15 Word Grid">'+g.board.map((t,i)=>{const p=pending[i],val=p||t,bonus=premium(i),label=val?(val.blank?val.as:val.letter):bonus==="center"?"★":bonus==="tw"?"3W":bonus==="dw"?"2W":bonus==="tl"?"3L":bonus==="dl"?"2L":"";return '<button type="button" role="gridcell" data-wg-cell="'+i+'" aria-label="'+esc(cellName(i)+" "+(val?label+" "+pts(val)+" points":bonus||"empty"))+'" class="wg-cell '+(val?"occupied ":"")+(p?"draft ":"")+(t?"locked ":"")+(bonus||"")+'" '+(!editable||g.finished?'disabled':'')+'><span>'+esc(label)+'</span>'+(val?'<small>'+pts(val)+'</small>':'')+'</button>'}).join("")+'</div>';
-const leaderboard=g=>'<div class="wg-scores">'+g.players.map((p,i)=>'<div class="wg-score '+(i===g.turn&&!g.finished?"active":"")+'" style="--wg-player:'+["#71eaff","#ffc979","#c59dff","#7ef2bd"][i]+'"><span class="wg-player-dot"></span><strong>'+esc(p.name)+'</strong><b>'+p.score+'</b>'+(i===g.turn&&!g.finished?'<small>PLAYING</small>':'')+'</div>').join("")+'</div>';
+const leaderboard=g=>'<div class="wg-scores">'+g.players.map((p,i)=>'<div class="wg-score '+(i===g.turn&&!g.finished?"active":"")+'" style="--wg-player:'+["#71eaff","#ffc979","#c59dff","#7ef2bd"][i]+'"><span class="wg-player-dot"></span><strong>'+esc(p.name)+'</strong><b>'+p.score+'</b>'+(teamMembers(g,i).length?'<span class="wg-score-members">'+esc(teamMembers(g,i).join(" · "))+'</span>':'')+(i===g.turn&&!g.finished?'<small>PLAYING</small>':'')+'</div>').join("")+'</div>';
 const info=g=>'<div class="wg-meta"><span>ROUND '+g.round+'</span><span>'+g.bag.length+' TILES IN BAG</span><span>'+g.board.filter(Boolean).length+' ON BOARD</span></div>';
 const header=g=>'<div class="wg-heading"><div><span>SI MOTHERSHIP · WORD ARCADE</span><h2>WORD <em>GRID</em></h2></div><b class="wg-phase">'+(g.finished?"GAME COMPLETE":"LIVE MATCH")+'</b></div>';
 function sharedHTML(g,big=false){return '<div class="wg-public '+(big?'wg-big':'wg-mirror')+'">'+header(g)+'<div class="wg-public-main">'+boardHTML(g)+ '<aside class="wg-public-side">'+leaderboard(g)+info(g)+'<div class="wg-message">'+esc(g.message)+'</div>'+(g.lastMove?'<div class="wg-last"><span>LAST WORD</span><b>'+esc(g.lastMove.words.map(w=>w.text).join(" · "))+'</b><strong>+'+g.lastMove.score+' PTS</strong></div>':'')+'<div class="wg-premium-legend"><span>3W TRIPLE WORD</span><span>2W DOUBLE WORD</span><span>3L TRIPLE LETTER</span><span>2L DOUBLE LETTER</span></div></aside></div></div>'}
-function studentHTML(g){return '<div class="wg-student">'+header(g)+leaderboard(g)+'<h3>'+esc(g.finished?"Match complete":g.players[g.turn]?.name+"'s turn")+'</h3><p>Follow the word board on the shared screen. Suggest words to your teacher when it’s your turn.</p><div class="wg-student-board">'+boardHTML(g)+'</div><p>'+esc(g.message)+'</p></div>'}
+function studentHTML(g,student=null){
+ const who=String(student?.n||student?.name||"").trim(),seat=Object.prototype.hasOwnProperty.call(g.assignments||{},who)?Number(g.assignments[who]):-1;
+ const mine=seat===g.turn&&!g.finished,player=g.players[seat],hint=mine&&g.hint?.seat===seat?g.hint:null;
+ const rack=mine&&player?'<div class="wg-student-rack"><span class="wg-rack-label">YOUR TEAM · LETTER RACK</span><div class="wg-rack">'+player.rack.map(t=>'<span class="wg-tile wg-readonly-tile '+(hint?.tileId===t.id?"wg-highlight":"")+'"><b>'+esc(t.blank?"?":t.letter)+'</b><small>'+pts(t)+'</small></span>').join("")+'</div>'+(hint?'<div class="wg-student-hint">★ TEACHER HINT · LOOK FOR THE GLOWING '+esc(hint.letter)+' TILE</div>':'<p>Your teacher can highlight a helpful letter.</p>')+'</div>':'';
+ return '<div class="wg-student">'+header(g)+leaderboard(g)+'<h3>'+esc(g.finished?"Match complete":g.players[g.turn]?.name+"'s turn")+'</h3><p>'+esc(mine?"It's your team's turn! Look at your rack, then share your word with the teacher.":seat>=0?"Watch the board. Your team is up when highlighted.":"Watch the shared board. Ask your teacher to assign you to a team.")+'</p>'+rack+'<div class="wg-student-board">'+boardHTML(g)+'</div><p>'+esc(g.message)+'</p></div>'
+}
 let draft={},selected="",exchangeMode=false,status="";
 function resetDraft(){draft={};selected="";exchangeMode=false;status=""}
 const rackButton=t=>'<button class="wg-tile '+(selected===t.id?"selected":"")+'" data-wg-tile="'+esc(t.id)+'" type="button"><b>'+esc(t.blank?"?":t.letter)+'</b><small>'+pts(t)+'</small></button>';
