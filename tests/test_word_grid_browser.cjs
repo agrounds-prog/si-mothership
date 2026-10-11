@@ -15,8 +15,49 @@ const base=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await page.waitForFunction(()=>!!window.WordGrid&&typeof render==="function",{timeout:15000});
   assert.equal(await page.locator('script[src^="/word-grid.js"]').count(),1);
   assert.equal(await page.locator('link[href^="/word-grid.css"]').count(),1);
-  await page.evaluate(()=>{state.activityRun=null;state.ended=false;state.screen="activities";state.activeApp="word-grid";render()});
+  // User-path regression: open the game from the actual Activities button
+  // and Word Grid's library card, not by injecting the target state.
+  await page.evaluate(()=>{state.activityRun=null;state.ended=false;state.screen="classroom";state.activeApp=null;render()});
+  await page.locator('#teacherControlBar [data-control="activities"]').click();
+  const wordCard=page.locator('#activitiesPanel .activity-catalog-grid .real-app-card').filter({
+    has:page.locator('h3',{hasText:'WORD GRID'})
+  });
+  await wordCard.locator('[data-open-app]').first().click();
   await page.waitForSelector("#wgPlayers",{timeout:10000});
+  assert.equal(await page.locator('#activitiesPanel #wgStart').isVisible(),true,
+    'Word Grid opens through the actual Activity Library card');
+  for(const width of [1440,768,430]){
+    await page.setViewportSize({width,height:960});
+    await page.waitForTimeout(160);
+    const geometry=await page.evaluate(()=>{
+      const modal=document.getElementById('activitiesPanel'),
+        grid=document.getElementById('activityGrid'),setup=grid.querySelector('.wg-setup');
+      const mr=modal.getBoundingClientRect(),gr=grid.getBoundingClientRect(),sr=setup.getBoundingClientRect();
+      return {modalWidth:mr.width,gridWidth:gr.width,setupWidth:sr.width,
+        rightOverhang:Math.round(sr.right-mr.right),
+        gridOverflow:grid.scrollWidth-grid.clientWidth,
+        columns:getComputedStyle(setup.querySelector('.wg-setup-columns')).gridTemplateColumns,
+        modalVisible:!modal.classList.contains('hidden')};
+    });
+    console.log(JSON.stringify({test:"Word Grid Activities layout",width,...geometry}));
+    assert.ok(geometry.modalVisible);
+    assert.ok(geometry.setupWidth<=geometry.gridWidth+3,'Setup fits its Activity workspace');
+    assert.ok(geometry.rightOverhang<=3,'Setup stays inside the Activities modal');
+    assert.ok(geometry.gridOverflow<=3,'No horizontal Activities stretching');
+    if(width<=768)assert.equal(geometry.columns.split(' ').filter(Boolean).length,1,
+      'Single-column Word Grid setup on narrow displays');
+  }
+  await page.setViewportSize({width:1440,height:960});
+  const defaults=await page.evaluate(()=>{
+    const tmp=document.createElement('div');tmp.innerHTML=WordGrid.setupHTML(['Solo Student']);
+    return tmp.querySelector('#wgPlayers').value;
+  });
+  assert.match(defaults,/Crew Alpha\nCrew Beta/,'one-student roster defaults to two playable teams');
+  await page.locator("#wgPlayers").fill("Solo Student");
+  await page.locator("#wgStart").click();
+  assert.match(await page.locator("#wgSetupStatus").textContent(),/two to four/i,
+    'invalid player count shows a visible correction');
+  assert.equal(await page.evaluate(()=>!!state.activityRun),false);
   await page.locator("#wgPlayers").fill("Crew Alpha\nCrew Beta");
   await page.locator("#wgStart").click();
   await page.waitForFunction(()=>!!state.activityRun?.wordGrid&&!!document.querySelector("#activityControllerPanel .wg-board"),{timeout:12000});
