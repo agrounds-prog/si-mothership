@@ -58,6 +58,10 @@ jobs:
         run: |
           node tests/test_dominoes_browser.cjs
           node tests/test_quick_poll_projector_browser.cjs
+      - name: Million teacher and projector regression
+        run: node tests/test_million_projector_browser.cjs
+      - name: Cosmic Cards turn rules and privacy
+        run: python -m unittest discover -s tests -p 'test_cosmic_cards_turn_rules.py'
       - name: Local failure diagnostics
         if: failure()
         run: tail -100 /tmp/student-companion.log || true
