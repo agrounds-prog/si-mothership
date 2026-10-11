@@ -47,11 +47,11 @@ const observerScript='document.getElementById("qpPublicOverlay")';
    },expectedClass);
    assert.equal(stats.choices,style==='showdown'?2:count,'correct options: '+style);
    assert.ok(stats.stage.w>300 && stats.stage.h>120,'chart dimensions '+style);
-   assert.ok(stats.pageWidth<=innerWidth+20,'horizontal overflow '+style+' '+stats.pageWidth);
+   assert.ok(stats.pageWidth<=stats.width+20,'horizontal overflow '+style+' '+stats.pageWidth);
    assert.ok(stats.boxes.every(b=>b.w>42&&b.h>30),'nonzero option boxes '+style);
    assert.match(stats.renderedQuestion,/Which classroom/);
    assert.equal(errorEvents.length,0,'JS page error '+errorEvents.join('|'));
-   readings.push({style,count,screen:innerWidth+'x'+innerHeight,width:stats.stage.w,
+   readings.push({style,count,screen:stats.width+'x'+stats.height,width:stats.stage.w,
      height:stats.stage.h,options:stats.choices});
    return stats;
   }
