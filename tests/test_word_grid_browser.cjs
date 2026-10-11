@@ -156,6 +156,23 @@ const base=process.env.LOCAL_URL||"http://127.0.0.1:8877";
     return !banner||getComputedStyle(banner).display==="none";
   }),true,"Reduced motion hides the moving banner without hiding scoreboard");
   await page.emulateMedia({reducedMotion:"no-preference"});
+  const beforeReplay=await page.evaluate(()=>{
+    const g=state.activityRun.wordGrid;
+    return {turn:g.turn,score:g.players.map(p=>p.score),bag:g.bag.length,board:g.board.filter(Boolean).length,history:g.history.length};
+  });
+  await page.locator('#activityControllerPanel [data-wg-action="replay"]').click();
+  const replay=await page.evaluate(()=>{
+    const g=state.activityRun.wordGrid,shared=document.querySelector("#sharedContent");
+    return {turn:g.turn,score:g.players.map(p=>p.score),bag:g.bag.length,board:g.board.filter(Boolean).length,history:g.history.length,
+      cue:g.publicCue?.kind,overlay:!!shared.querySelector(".wg-score-celebration"),
+      sparks:shared.querySelectorAll(".wg-spark").length,placed:shared.querySelectorAll(".wg-play-reveal").length};
+  });
+  assert.deepEqual({turn:replay.turn,score:replay.score,bag:replay.bag,board:replay.board,history:replay.history},
+    beforeReplay,"Replaying the celebration must not change gameplay or scores");
+  assert.equal(replay.cue,"score");
+  assert.equal(replay.overlay,true);
+  assert.equal(replay.sparks,8);
+  assert.equal(replay.placed,3);
   await page.locator('#activityControllerPanel [data-wg-action="save"]').click();
   const saved=await page.evaluate(()=>WordGrid.readLibrary());
   assert.ok(saved.some(x=>x.name==="Word Grid Browser Test"),"Game saved in teacher library");
