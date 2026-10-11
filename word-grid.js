@@ -106,17 +106,89 @@ function teacherHTML(g){const p=g.players[g.turn],used=new Set(Object.values(dra
 const LIB="siMothership.wordGridLibrary.v1";
 function readLibrary(){try{const arr=JSON.parse(localStorage.getItem(LIB)||"[]");return Array.isArray(arr)?arr:[]}catch(_){return []}}
 function saveGame(g,name){const arr=readLibrary().filter(x=>x.id!==g.id);arr.unshift({id:g.id,name:String(name||"Word Grid").slice(0,75),savedAt:Date.now(),game:JSON.parse(JSON.stringify(g))});localStorage.setItem(LIB,JSON.stringify(arr.slice(0,25)));return arr.length}
-function setupHTML(names=[]){
- const list=readLibrary();
- // A single connected student is not enough for a match. Default to two
- // classroom crews instead of silently preparing a game that cannot start.
- const participants=[...new Set((Array.isArray(names)?names:[]).map(n=>String(n||"").trim()).filter(Boolean))].slice(0,4);
- const suggested=participants.length>=2?participants:["Crew Alpha","Crew Beta"];
- return '<div class="wg-setup"><div class="wg-heading"><div><span>MOTHERSHIP · WORD ARCADE</span><h2>WORD <em>GRID</em></h2></div><b class="wg-phase">NEW ACTIVITY</b></div><div class="wg-setup-columns"><div class="wg-setup-card"><h3>Start a new word match</h3><p>A classic 15×15 letter board, seven-letter racks, premium scoring, and up to four players or teams.</p><label>PLAYER / TEAM NAMES <small>(one per line)</small><textarea id="wgPlayers" rows="4" spellcheck="false">'+esc(suggested.join("\n"))+'</textarea></label><button type="button" class="primary-action" id="wgStart">▶ CREATE WORD GRID</button><div class="wg-setup-error" id="wgSetupStatus" role="status" aria-live="polite"></div><p>Teacher-hosted: students see the shared board. Mission Control approves words and advances turns.</p></div><div class="wg-setup-card"><h3>Saved Word Grid games</h3><div class="wg-save-list">'+(list.length?list.map(a=>'<button type="button" data-wg-load="'+esc(a.id)+'"><b>'+esc(a.name)+'</b><small>'+new Date(a.savedAt).toLocaleDateString()+'</small><span>LOAD →</span></button>').join(""):'<p>No saved games yet. Save a game during play to resume later.</p>')+'</div><p>Dictionary checks are teacher-approved to support classroom vocabulary and AAC adaptations.</p></div></div></div>'}
+let setupDraft=null;
+function setupNames(raw){return String(raw||"").split(/\n|,/).map(s=>s.trim().slice(0,35)).filter(Boolean)}
+function ensureSetupDraft(students=[]){
+ if(!setupDraft)setupDraft={teams:"Crew Alpha\nCrew Beta",assignments:{},teacherMode:"host"};
+ const known=[...new Set((Array.isArray(students)?students:[]).map(n=>String(n||"").trim()).filter(Boolean))].slice(0,60);
+ for(const [i,name] of known.entries()){
+   if(!Object.prototype.hasOwnProperty.call(setupDraft.assignments,name))setupDraft.assignments[name]=i%2;
+ }
+ return setupDraft;
+}
+function seatOptions(names,active){return '<option value="">Watching / not assigned</option>'+names.map((name,i)=>'<option value="'+i+'" '+(Number(active)===i&&active!==""&&active!==null&&active!==undefined?"selected":"")+'>'+esc(name)+'</option>').join("")}
+function teacherOptions(names,mode){return '<option value="host" '+(mode==="host"?"selected":"")+'>Teacher hosts (not playing)</option><option value="solo" '+(mode==="solo"?"selected":"")+'>Teacher plays as own player</option>'+names.map((n,i)=>'<option value="team-'+i+'" '+(mode==="team-"+i?"selected":"")+'>Teacher plays on '+esc(n)+'</option>').join("")}
+function setupHTML(students=[]){
+ const list=readLibrary(),d=ensureSetupDraft(students),names=setupNames(d.teams);
+ const roster=[...new Set((Array.isArray(students)?students:[]).map(n=>String(n||"").trim()).filter(Boolean))].slice(0,60);
+ return '<div class="wg-setup"><div class="wg-heading"><div><span>MOTHERSHIP · WORD ARCADE</span><h2>WORD <em>GRID</em></h2></div><b class="wg-phase">NEW ACTIVITY</b></div>'+
+ '<div class="wg-setup-columns"><div class="wg-setup-card"><span class="wg-setup-step">01 / MATCH SETTINGS</span><h3>Choose teams or players</h3><p>Two to four playable seats. Each seat gets its own letter rack and score. Several students can share a team.</p>'+
+ '<label>PLAYER / TEAM NAMES <small>(one per line)</small><textarea id="wgPlayers" rows="4" spellcheck="false">'+esc(d.teams)+'</textarea></label>'+
+ '<label>TEACHER PARTICIPATION<select id="wgTeacherMode" class="wg-select">'+teacherOptions(names,d.teacherMode)+'</select></label>'+
+ '<p class="wg-setup-note">Choose <strong>Teacher plays</strong> for Teacher vs. Students or assign the teacher to an existing crew.</p>'+
+ '<button type="button" class="primary-action" id="wgStart">▶ START WORD GRID</button>'+
+ '<div class="wg-setup-error" id="wgSetupStatus" role="status" aria-live="polite"></div></div>'+
+ '<div class="wg-setup-card"><span class="wg-setup-step">02 / CREW ASSIGNMENTS</span><h3>Place students on teams</h3>'+
+ '<p>Select where each connected student plays. You can change team assignments during the match.</p>'+
+ '<div class="wg-assignment-list" id="wgSetupAssignments">'+(roster.length?roster.map(n=>
+ '<label class="wg-assign-row"><span class="wg-assign-name">'+esc(n)+'</span><select class="wg-select" data-wg-setup-student="'+esc(n)+'">'+seatOptions(names,d.assignments[n])+'</select></label>').join(""):'<div class="wg-assign-empty">No students connected yet. You can create a game and assign them after joining.</div>')+'</div>'+
+ '<div class="wg-team-note">Students on the active team will see that team’s letters on their own devices. Others see only the board.</div></div>'+
+ '<div class="wg-setup-card wg-setup-saves"><span class="wg-setup-step">03 / GAME LIBRARY</span><h3>Resume a saved game</h3>'+
+ '<div class="wg-save-list">'+(list.length?list.map(a=>'<button type="button" data-wg-load="'+esc(a.id)+'"><b>'+esc(a.name)+'</b><small>'+new Date(a.savedAt).toLocaleDateString()+'</small><span>LOAD →</span></button>').join(""):'<p>No saved games yet. Save a game during play to resume later.</p>')+'</div></div></div></div>'
+}
+function wireSetup(rootEl,students,onStart,onLoad){
+ const d=ensureSetupDraft(students),namesEl=rootEl?.querySelector("#wgPlayers"),teacherEl=rootEl?.querySelector("#wgTeacherMode");
+ if(!rootEl||!namesEl||!teacherEl)return;
+ const feedback=rootEl.querySelector("#wgSetupStatus"),say=msg=>{if(feedback)feedback.textContent=msg||""};
+ const updateOptions=()=>{
+   const names=setupNames(namesEl.value);
+   const old=teacherEl.value;teacherEl.innerHTML=teacherOptions(names,old);
+   if(![...teacherEl.options].some(o=>o.value===old))teacherEl.value="host";
+   d.teacherMode=teacherEl.value;
+   rootEl.querySelectorAll("[data-wg-setup-student]").forEach(sel=>{
+     const person=sel.dataset.wgSetupStudent;
+     const prior=d.assignments[person];
+     sel.innerHTML=seatOptions(names,prior);
+     if(prior!==""&&prior!==null&&prior!==undefined&&prior>=names.length){sel.value="";d.assignments[person]=null}
+   })
+ };
+ namesEl.addEventListener("input",()=>{d.teams=namesEl.value;say("");updateOptions()});
+ teacherEl.addEventListener("change",()=>{d.teacherMode=teacherEl.value;say("")});
+ rootEl.querySelectorAll("[data-wg-setup-student]").forEach(sel=>sel.addEventListener("change",()=>{
+   d.assignments[sel.dataset.wgSetupStudent]=sel.value===""?null:Number(sel.value);say("");
+ }));
+ rootEl.querySelector("#wgStart").addEventListener("click",()=>{
+   const names=setupNames(namesEl.value),teacherMode=teacherEl.value;
+   if(names.length<2||names.length>4||new Set(names.map(n=>n.toLowerCase())).size!==names.length){
+     say("Enter two to four different player or team names.");namesEl.focus();return;
+   }
+   const finalNames=[...names],assignments={};
+   for(const sel of rootEl.querySelectorAll("[data-wg-setup-student]")){
+     if(sel.value!=="")assignments[sel.dataset.wgSetupStudent]=Number(sel.value);
+   }
+   let teacherSeat=null;
+   if(teacherMode==="solo"){
+     if(finalNames.length>=4){say("Teacher needs an open fourth player seat. Use two or three teams, or select a team for Teacher.");teacherEl.focus();return}
+     teacherSeat=finalNames.length;finalNames.push("Teacher");
+   }else if(teacherMode.startsWith("team-")){
+     const n=Number(teacherMode.slice(5));if(n>=0&&n<names.length)teacherSeat=n;
+   }
+   if(new Set(finalNames.map(n=>n.toLowerCase())).size!==finalNames.length){
+     say("Teacher is already a team name. Rename that team or choose Teacher joins team.");return;
+   }
+   try{const game=make(finalNames,{assignments,teacherSeat});game.setupMode=teacherMode;onStart(game)}
+   catch(e){say(String(e?.message||e||"Could not start Word Grid."))}
+ });
+ rootEl.querySelectorAll("[data-wg-load]").forEach(b=>b.addEventListener("click",()=>{
+   const item=readLibrary().find(x=>x.id===b.dataset.wgLoad);
+   if(item&&confirm("Load "+item.name+"?"))onLoad(item.game);
+ }));
+}
+
 function wireTeacher(rootEl,g,save,show){if(!rootEl||!g)return;const refresh=()=>{rootEl.innerHTML=teacherHTML(g);wireTeacher(rootEl,g,save,show)};
  rootEl.querySelectorAll("[data-wg-tile]").forEach(b=>b.addEventListener("click",()=>{selected=b.dataset.wgTile;status="Letter selected. Choose an empty square.";refresh()}));
  rootEl.querySelectorAll("[data-wg-cell]").forEach(b=>b.addEventListener("click",()=>{const i=Number(b.dataset.wgCell);if(g.board[i])return;if(draft[i]){selected=draft[i].id;delete draft[i];status="Tile returned to rack.";refresh();return}const tile=g.players[g.turn].rack.find(x=>x.id===selected);if(!tile)return;const clone={...tile};if(clone.blank){const letter=prompt("Blank tile: what letter does it represent?","A");if(!letter||!/^[A-Z]$/.test(letter.trim().toUpperCase())){status="Blank tile needs a letter A–Z.";refresh();return}clone.as=letter.trim().toUpperCase()}draft[i]=clone;selected="";status="";refresh()}));
  rootEl.querySelectorAll("[data-wg-action]").forEach(b=>b.addEventListener("click",()=>{const action=b.dataset.wgAction;if(action==="clear"){resetDraft();refresh();return}if(action==="commit"){const check=isNewMapValid(g,draft);if(check.error){status=check.error;refresh();return}if(!confirm("Approve "+check.words.map(w=>w.text).join(" + ")+" for "+check.score+" points?"))return;const r=commit(g,draft);resetDraft();if(r.error){status=r.error;refresh()}else save();return}if(action==="pass"){if(!confirm("Pass this turn?"))return;pass(g);resetDraft();save();return}if(action==="exchange"){if(g.bag.length<7){status="At least seven bag tiles required to exchange.";refresh();return}const letters=prompt("Enter letters from your rack to exchange (use ? for blanks).","");if(letters===null)return;const remaining=[...g.players[g.turn].rack],chosen=[];for(const c of letters.toUpperCase().replace(/\s/g,"")){const i=remaining.findIndex(t=>t.letter===c);if(i<0){status="That rack does not contain all selected letters.";refresh();return}chosen.push(...remaining.splice(i,1))}const r=exchange(g,chosen.map(t=>t.id));if(r?.error){status=r.error;refresh()}else{resetDraft();save()}return}if(action==="undo"){if(!confirm("Undo the previous turn?"))return;if(undo(g)){resetDraft();save()}return}if(action==="finish"){if(!confirm("End the Word Grid match and calculate final scores?"))return;g.history.push(snapshot(g));g.finished=true;finish(g);resetDraft();save();return}if(action==="save"){const n=prompt("Save this Word Grid game as:",g.name||"Word Grid · "+new Date().toLocaleDateString());if(n?.trim()){g.name=n.trim();saveGame(g,n.trim());status="Game saved to library.";refresh()}return}if(action==="load"){const list=readLibrary();if(!list.length){status="No saved Word Grid games.";refresh();return}const name=prompt("Type the number of the saved game to load:\n"+list.map((x,i)=>(i+1)+". "+x.name).join("\n"),"1");const idx=Number(name)-1;if(!Number.isInteger(idx)||!list[idx])return;if(!confirm("Replace this active board with "+list[idx].name+"?"))return;show(list[idx].game);return}}));
 }
-return {make,makeBag,premium,isNewMapValid,commit,pass,exchange,undo,finish,snapshot,boardHTML,teacherHTML,sharedHTML,studentHTML,setupHTML,wireTeacher,readLibrary,saveGame,resetDraft,LIB,SIZE,POINTS,DISTRIBUTION};
+return {make,makeBag,assignStudent,teamMembers,setHint,premium,isNewMapValid,commit,pass,exchange,undo,finish,snapshot,boardHTML,teacherHTML,sharedHTML,studentHTML,setupHTML,wireSetup,wireTeacher,readLibrary,saveGame,resetDraft,LIB,SIZE,POINTS,DISTRIBUTION};
 });
