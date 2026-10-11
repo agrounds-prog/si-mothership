@@ -1,0 +1,88 @@
+name: One-shot Word Grid Integration
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-word-grid-integration.yml']
+permissions: {contents: write}
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Patch main application activity integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path("index.html");s=p.read_text(encoding="utf-8")
+          assert "window.WordGrid.setupHTML" not in s,"Word Grid already installed"
+          def once(a,b):
+           global s
+           n=s.count(a)
+           assert n==1,("anchor mismatch",n,a[:160])
+           s=s.replace(a,b,1)
+          once("const APP_REGISTRY=[",'''const APP_REGISTRY=[
+            {id:'word-grid',name:'WORD GRID',icon:'▦',subtitle:'Word Tiles · Premium Squares · Classroom Teams',status:'WORD ARCADE',description:'15 × 15 word-building game with seven-letter racks, two to four players, teacher-approved words, turn scoring, and saved boards.'},''')
+          once("['minefield','sketch','pixel','starwheel','crew-survey','million','match','bingo','cosmic-cards'].includes(id)","['minefield','sketch','pixel','starwheel','crew-survey','million','match','bingo','cosmic-cards','word-grid'].includes(id)")
+          once("  if(id==='si-plus'||id==='presentation')return",'''  if(id==='word-grid'||id==='word-grid-game')return '<svg '+common+'><rect x="6" y="6" width="52" height="52" rx="10" fill="none" stroke="currentColor" stroke-width="3"/><path d="M23 6v52M41 6v52M6 23h52M6 41h52" stroke="currentColor" opacity=".35" stroke-width="2"/><path d="M14 15h17v22H14z" fill="currentColor" opacity=".4"/><text x="22" y="31" text-anchor="middle" fill="currentColor" font-size="17" font-family="sans-serif" font-weight="bold">W</text><path d="m48 44 2 6-6-2-5 2 2-5-2-5 5 2z" fill="currentColor"/></svg>';
+            if(id==='si-plus'||id==='presentation')return''')
+          once("function sharedMarkup(size='normal'){",'''function sharedMarkup(size='normal'){
+            if(state.activityRun?.wordGrid && window.WordGrid)return window.WordGrid.sharedHTML(state.activityRun.wordGrid,size==='big');''')
+          once("function studentMarkup(){",'''function studentMarkup(){''')
+          # Student must join before any game content is shown; the game branch belongs after the join guard.
+          once("  if(studentNeedsJoin())return studentJoinMarkup();",'''  if(studentNeedsJoin())return studentJoinMarkup();
+            if(state.activityRun?.wordGrid && window.WordGrid)return window.WordGrid.studentHTML(state.activityRun.wordGrid);''')
+          once("function renderActivityController(){",'''function renderActivityController(){''')
+          once("  if(run.phase==='lobby'){",'''  if(run.wordGrid && window.WordGrid){
+              box.innerHTML=window.WordGrid.teacherHTML(run.wordGrid);
+              window.WordGrid.wireTeacher(box,run.wordGrid,()=>render(),loaded=>{
+                if(!loaded||!Array.isArray(loaded.board)||loaded.board.length!==225){toast('Saved Word Grid is not valid');return}
+                run.wordGrid=deepClone(loaded);window.WordGrid.resetDraft();render();
+              });
+            } else if(run.phase==='lobby'){''')
+          # The common controller footer (Finish / Pause / Emergency) binds after this branch.
+          once("function renderActivities(){",'''function launchWordGridGame(game){
+            if(state.activityRun)return toast('Finish the active classroom activity first.');
+            if(!game||!Array.isArray(game.board)||game.board.length!==225)return toast('Word Grid board is invalid.');
+            if(!state.activities.some(a=>a.id==='word-grid-game'))
+              state.activities.push({id:'word-grid-game',type:'word-grid',name:'WORD GRID',slides:[],userCreated:false});
+            state.activityRun={activityId:'word-grid-game',runToken:newActivityRunToken(),phase:'running',responses:{},wordGrid:deepClone(game)};
+            window.WordGrid.resetDraft();
+            state.screen='activity';state.promptActive=false;state.assigningSlot=null;
+            recordActivityLaunch('word-grid','WORD GRID');render();toast('WORD GRID loaded on the shared screen');
+          }
+          function renderActivities(){''')
+          once("  const presentations=state.activities.filter(a=>a.type==='presentation');",'''  const presentations=state.activities.filter(a=>a.type==='presentation');
+            if(state.activeApp==='word-grid'&&!state.activityRun && !state.assigningSlot){
+              note.classList.add('hidden');picker.classList.add('hidden');grid.classList.remove('hidden');wrap.classList.add('hidden');
+              title.textContent='WORD GRID';subtitle.textContent='Place · Spell · Score · Play Again';
+              header.innerHTML='<button type="button" id="backToAppsBtn">← Activity Library</button>';
+              $('#backToAppsBtn').onclick=backToAppLibrary;
+              if(!window.WordGrid){grid.innerHTML='<div class="wg-setup"><h3>Word Grid is loading…</h3></div>';return}
+              grid.innerHTML=window.WordGrid.setupHTML(connectedStudents().map(s=>s.n).slice(0,4));
+              $('#wgStart').onclick=()=>{const list=$('#wgPlayers').value.split(/\\n|,/).map(s=>s.trim()).filter(Boolean);try{launchWordGridGame(window.WordGrid.make(list))}catch(e){toast(String(e.message||e))}};
+              $$('[data-wg-load]').forEach(b=>b.onclick=()=>{const item=window.WordGrid.readLibrary().find(a=>a.id===b.dataset.wgLoad);if(item&&confirm('Load '+item.name+'?'))launchWordGridGame(item.game)});
+              return;
+            }''')
+          # Word Grid student controls are intentionally observational in the teacher-led MVP.
+          once("    if(a.type==='cosmic-cards'){",'''    if(a.type==='word-grid'){
+                label.innerHTML='<b>WORD GRID</b><span>Look at the shared board and suggest your word to the teacher.</span>';
+                zone.className='student-actions';zone.innerHTML='';return;
+              }
+              if(a.type==='cosmic-cards'){''')
+          p.write_text(s,encoding="utf-8")
+          print("Word Grid integrated",p.stat().st_size,"bytes")
+          
+          PY
+          git diff --check
+          node --check word-grid.js
+          python -m py_compile server.py
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'feat(word-grid): integrate into Mothership Activity Library and shared/student screens'
+          git push
