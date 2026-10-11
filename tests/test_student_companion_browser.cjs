@@ -45,6 +45,38 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
     assert.ok(g.main.height>=200,JSON.stringify({width,height,g}));
     console.log("STUDENT COMPANION join geometry "+JSON.stringify({width,height,device:g.panel,columns:g.cols,mainScroll:g.mainScroll,mainHeight:g.mainHeight}));
   }
+
+  // Avatar navigation must avoid the former 24-tile vertical scroll.
+  // Search and pagination keep all original avatar buttons reachable.
+  await student.setViewportSize({width:440,height:760});
+  const avatarNav=student.locator("#studentContent .si-avatar-navigator");
+  await avatarNav.waitFor({timeout:6000});
+  const allChoices=student.locator("#studentContent [data-join-avatar]");
+  assert.ok(await allChoices.count()>=12,"full class roster is still present");
+  assert.equal(await student.locator("#studentContent [data-join-avatar]:visible").count(),9,"regular companion uses three rows");
+  await avatarNav.locator("[data-si-avatar-next]").click();
+  assert.equal(await avatarNav.locator(".si-avatar-page-count").textContent().then(s=>s.trim().startsWith("2 /")),true);
+  assert.equal(await student.locator("#studentContent [data-join-avatar]:visible").count(),9);
+  await avatarNav.locator("[data-si-avatar-prev]").click();
+  const firstAvatarName=await allChoices.first().locator("strong").innerText();
+  const avatarSearch=avatarNav.locator("input[type=search]");
+  await avatarSearch.fill(firstAvatarName);
+  assert.ok(await student.locator("#studentContent [data-join-avatar]:visible").count()>=1,"filter matches a real avatar");
+  await avatarSearch.fill("zzzz-unlikely-avatar-99999");
+  assert.equal(await student.locator("#studentContent [data-join-avatar]:visible").count(),0);
+  assert.equal(await student.locator("#studentContent .si-avatar-no-match").isVisible(),true);
+  await avatarSearch.fill("");
+  assert.equal(await student.locator("#studentContent [data-join-avatar]:visible").count(),9);
+  for(const [w,h,expected] of [[390,670,6],[330,610,6],[320,580,6],[480,610,6],[440,760,9]]){
+    await student.setViewportSize({width:w,height:h});
+    const g=await student.evaluate(()=>({overflow:document.documentElement.scrollWidth-innerWidth,main:document.querySelector("#studentContent").clientHeight}));
+    assert.ok(g.overflow<=2&&g.main>150,JSON.stringify({w,h,g}));
+    assert.equal(await student.locator("#studentContent [data-join-avatar]:visible").count(),expected,"avatar page size stays compact");
+    const first=student.locator("#studentContent [data-join-avatar]:visible").first();
+    const box=await first.boundingBox();
+    assert.ok(box&&box.width>=80,JSON.stringify({w,h,box}));
+  }
+
   await student.setViewportSize({width:440,height:760});
   await student.locator("#studentContent [data-join-avatar]").first().click();
   await student.waitForSelector("#studentContent #joinClassBtn",{timeout:5000});
@@ -69,6 +101,12 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.ok(joined.controlsHeight<=760*.4,JSON.stringify(joined));
   assert.ok(joined.mainHeight>=180,JSON.stringify(joined));
   assert.equal(await student.locator("#studentConnectionLabel").textContent().then(s=>s.includes("Connected")),true);
+
+
+  // In class, the footer remains reachable for home controls; game screens
+  // that place responses above must not reserve an empty footer.
+  assert.ok(await student.locator(".student-control-zone").isVisible());
+  assert.ok(await student.locator("#studentControls button").count()>0);
 
   // Pop-out is a separate student window using the actual session URL.
   // It must not change role or lose local student identity.

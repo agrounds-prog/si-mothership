@@ -324,3 +324,120 @@ body.role-student .toast{max-width:calc(100vw - 24px)!important;white-space:norm
 @media(pointer:coarse) {
   body.role-student .si-student-popout{display:none}
 }
+
+
+/* Zoom companion v2 — paged roster, confident touch targets and useful game area.
+   Scope every rule to the student role; teacher/shared views stay untouched. */
+body.role-student #studentContent{
+  scrollbar-color:#37728b #061725;
+  scrollbar-width:thin;
+}
+body.role-student .si-avatar-navigator{
+  position:sticky;
+  top:-10px;
+  z-index:5;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:8px;
+  margin:0 0 10px;
+  padding:8px;
+  border:1px solid #326985;
+  border-radius:12px;
+  background:linear-gradient(135deg,#0a2a40,#061a2b);
+  box-shadow:0 7px 18px #0008;
+}
+body.role-student .si-avatar-search{display:block;min-width:0;margin:0!important}
+body.role-student .si-avatar-search input{
+  display:block;
+  width:100%!important;min-width:0!important;
+  min-height:42px!important;height:42px!important;
+  padding:8px 10px!important;margin:0!important;
+  border:1px solid #4385a5!important;
+  border-radius:9px!important;
+  background:#051625!important;color:#f0fbff!important;
+  font:650 12px/1.25 system-ui!important;
+  letter-spacing:0!important;
+}
+body.role-student .si-avatar-search input::placeholder{color:#97b9cb;opacity:1}
+body.role-student .si-avatar-page-buttons{
+  display:flex;align-items:center;justify-content:flex-end;gap:4px;white-space:nowrap;
+}
+body.role-student .si-avatar-page-buttons button{
+  display:inline-flex!important;align-items:center;justify-content:center;
+  flex:0 0 auto;min-width:39px!important;min-height:42px!important;
+  padding:4px!important;
+  border:1px solid #5b9bb6!important;border-radius:9px!important;
+  color:#e8fbff!important;background:#124159!important;
+  font:900 22px/1 system-ui!important;
+  touch-action:manipulation;
+}
+body.role-student .si-avatar-page-buttons button:disabled{
+  opacity:.38!important;cursor:not-allowed!important;
+}
+body.role-student .si-avatar-page-count{
+  min-width:43px;text-align:center;color:#c9eefa;
+  font:800 11px/1.2 system-ui;
+  font-variant-numeric:tabular-nums;
+}
+body.role-student .si-avatar-search input:focus-visible,
+body.role-student .si-avatar-page-buttons button:focus-visible{
+  outline:3px solid #ffda84!important;outline-offset:2px!important;
+}
+body.role-student .join-avatar-choice[hidden],
+body.role-student .si-avatar-no-match[hidden]{display:none!important}
+body.role-student .si-avatar-no-match{
+  padding:14px!important;margin:0 0 8px!important;
+  border:1px dashed #6797ac;border-radius:11px;
+  color:#d4eefa!important;font-size:13px!important;
+  text-align:center!important;
+}
+body.role-student .join-avatar-grid{gap:7px!important;padding-bottom:3px!important}
+body.role-student .join-avatar-choice{
+  min-height:108px!important;
+  padding:7px 4px!important;
+  border-radius:11px!important;
+}
+body.role-student .join-avatar-choice .avatar-art{
+  width:60px!important;height:60px!important;margin-bottom:4px!important;
+}
+body.role-student .join-avatar-choice strong{font-size:11px!important}
+body.role-student .join-avatar-choice:active{
+  border-color:#ffcc78!important;background:#154564!important;
+}
+body.role-student .si-student-popout{
+  min-height:40px!important;padding:7px 10px!important;
+}
+body.role-student .si-student-is-popout .device-head{border-bottom-color:#53a4c4!important}
+body.role-student .student-control-zone[data-app]:not([data-app="home"]):has(#studentControls:empty){
+  display:none!important;
+}
+body.role-student #studentControls button,
+body.role-student .student-prompt button,
+body.role-student .response-grid button{
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:rgba(104,220,255,.23);
+}
+body.role-student #studentControls button:focus-visible,
+body.role-student .student-prompt button:focus-visible,
+body.role-student .response-grid button:focus-visible{
+  outline:3px solid #ffdc89!important;outline-offset:2px!important;
+}
+@media(max-width:359px){
+  body.role-student .si-avatar-navigator{gap:5px;padding:6px}
+  body.role-student .si-avatar-search input{padding:6px 7px!important;font-size:11px!important}
+  body.role-student .si-avatar-page-buttons button{min-width:37px!important}
+  body.role-student .si-avatar-page-count{min-width:34px;font-size:10px}
+  body.role-student .join-avatar-choice{min-height:99px!important}
+  body.role-student .join-avatar-choice .avatar-art{width:57px!important;height:57px!important}
+}
+@media(max-height:650px){
+  body.role-student .student-join-card{padding:9px!important}
+  body.role-student .join-avatar-toolbar{margin-bottom:4px!important}
+  body.role-student .join-avatar-toolbar h2{font-size:20px!important}
+  body.role-student .join-avatar-choice{min-height:98px!important}
+  body.role-student .join-avatar-choice .avatar-art{width:55px!important;height:55px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  body.role-student .join-avatar-choice{transition:none!important}
+}

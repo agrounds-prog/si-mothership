@@ -37,3 +37,85 @@
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
  else install();
 })();
+
+
+/* Zoom companion v2: enhance the EXISTING avatar choices (no replacement
+   of the join workflow, click handlers, student identity or roster data). */
+(function(){
+  "use strict";
+  if(new URLSearchParams(location.search).get("role")!=="student")return;
+  const view={query:"",page:0};
+  let activeGrid=null;
+  function pageSize(){
+    return window.innerWidth<360||window.innerHeight<730?6:9;
+  }
+  function paint(){
+    if(!activeGrid||!activeGrid.isConnected)return;
+    const nav=activeGrid.previousElementSibling?.classList.contains("si-avatar-no-match")
+      ?activeGrid.previousElementSibling.previousElementSibling
+      :activeGrid.previousElementSibling;
+    if(!nav?.classList.contains("si-avatar-navigator"))return;
+    const all=Array.from(activeGrid.querySelectorAll("[data-join-avatar]"));
+    const q=view.query.trim().toLocaleLowerCase();
+    const matches=all.filter(el=>!q||(el.textContent+" "+(el.dataset.joinAvatar||"")).toLocaleLowerCase().includes(q));
+    const size=pageSize();
+    const pages=Math.max(1,Math.ceil(matches.length/size));
+    view.page=Math.min(Math.max(0,view.page),pages-1);
+    const start=view.page*size;
+    const visible=new Set(matches.slice(start,start+size));
+    for(const tile of all)tile.hidden=!visible.has(tile);
+    const count=nav.querySelector(".si-avatar-page-count");
+    if(count){
+      count.textContent=matches.length?(view.page+1)+" / "+pages:"0 / 0";
+      count.title=matches.length?"Showing "+(start+1)+"–"+Math.min(start+size,matches.length)+" of "+matches.length+" avatars":"No matching avatars";
+    }
+    nav.querySelector("[data-si-avatar-prev]").disabled=view.page===0||!matches.length;
+    nav.querySelector("[data-si-avatar-next]").disabled=view.page>=pages-1||!matches.length;
+    const empty=nav.nextElementSibling;
+    if(empty?.classList.contains("si-avatar-no-match"))empty.hidden=matches.length!==0;
+  }
+  function mount(){
+    const grid=document.querySelector("body.role-student #studentContent .join-avatar-grid");
+    if(!grid){activeGrid=null;return;}
+    if(grid===activeGrid&&grid.dataset.siAvatarEnhanced==="1")return;
+    activeGrid=grid;
+    const nav=document.createElement("div");
+    nav.className="si-avatar-navigator";
+    nav.setAttribute("aria-label","Find or browse classroom avatars");
+    nav.innerHTML='<label class="si-avatar-search"><span class="sr-only">Find avatar by name</span><input type="search" autocomplete="off" placeholder="Find an avatar…" aria-label="Find avatar by name"></label>'
+      +'<div class="si-avatar-page-buttons"><button type="button" data-si-avatar-prev aria-label="Previous avatars">‹</button><output class="si-avatar-page-count" aria-live="polite">1 / 1</output><button type="button" data-si-avatar-next aria-label="Next avatars">›</button></div>';
+    const empty=document.createElement("p");
+    empty.className="si-avatar-no-match";
+    empty.setAttribute("role","status");
+    empty.textContent="No matching avatars. Try another name.";
+    empty.hidden=true;
+    grid.insertAdjacentElement("beforebegin",empty);
+    grid.insertAdjacentElement("beforebegin",nav);
+    const search=nav.querySelector("input");
+    search.value=view.query;
+    search.addEventListener("input",()=>{
+      view.query=search.value;
+      view.page=0;
+      paint();
+    });
+    for(const [selector,delta] of [["[data-si-avatar-prev]",-1],["[data-si-avatar-next]",1]]){
+      nav.querySelector(selector).addEventListener("click",()=>{
+        view.page+=delta;
+        paint();
+        const scroller=document.querySelector("body.role-student #studentContent");
+        if(scroller)scroller.scrollTop=0;
+      });
+    }
+    grid.dataset.siAvatarEnhanced="1";
+    paint();
+  }
+  function install(){
+    const content=document.querySelector("body.role-student #studentContent");
+    if(!content)return;
+    new MutationObserver(mount).observe(content,{childList:true});
+    window.addEventListener("resize",paint,{passive:true});
+    mount();
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
+  else install();
+})();
