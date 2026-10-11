@@ -94,6 +94,76 @@ const hosts=[
           if(!dashboard.installed||!dashboard.status||!dashboard.endInTop||
             !dashboard.resetInTop||!dashboard.pollOnlyInRow||!dashboard.heroHidden||
             dashboard.icons!==9||JSON.stringify(dashboard.visible)!==JSON.stringify(expected))failures++;
+          // Activity Library v86 visual harmonization regression. Only run on
+          // the isolated localhost: no writes or roster changes in production.
+          await page.evaluate(()=>{
+            state.activityRun=null;
+            state.screen='activities';
+            state.activeApp=null;
+            state.presentationLibraryOpen=false;
+            state.assigningSlot=null;
+            render();
+          });
+          await page.waitForFunction(()=>{
+            const panel=document.querySelector('#activitiesPanel');
+            return panel?.classList.contains('si-v86-library')&&
+              panel.querySelectorAll('.activity-catalog-grid .si-v86-icon-ready svg.si-v86-library-glyph').length===14;
+          },null,{timeout:12000});
+          const lib=await page.evaluate(()=>{
+            const panel=document.querySelector('#activitiesPanel');
+            const cards=[...panel.querySelectorAll('.activity-catalog-grid .real-app-card')];
+            const recent=[...panel.querySelectorAll('.preset-recent-card')];
+            const presets=[...panel.querySelectorAll('.preset-card')];
+            const fs=Number.parseFloat(getComputedStyle(cards[0].querySelector('h3')).fontSize);
+            const left=cards[0].querySelector('.act-icon');
+            const iconBox=left.getBoundingClientRect();
+            const css=getComputedStyle(panel.querySelector('.activity-catalog-grid'));
+            const colCount=css.gridTemplateColumns.split(' ').filter(Boolean).length;
+            return {visible:!panel.classList.contains('hidden'),
+              allCards:cards.length,
+              vectorCards:cards.filter(c=>!!c.querySelector('.act-icon svg.si-v86-library-glyph')).length,
+              recentCount:recent.length,
+              recentVectors:recent.filter(c=>!!c.querySelector('.recent-app-icon svg.si-v86-library-glyph')).length,
+              presetCount:presets.length,
+              presetVectors:presets.filter(c=>!!c.querySelector('.preset-card-icon svg.si-v86-library-glyph')).length,
+              iconHeight:Math.round(iconBox.height),fontSize:fs,columns:colCount,
+              search:!!panel.querySelector('#activityLibrarySearch'),
+              filters:panel.querySelectorAll('.activity-library-filters button').length,
+              primaryActions:cards.filter(c=>!!c.querySelector('[data-open-app]')).length};
+          });
+          console.log(JSON.stringify({label,role:'activity-library-v86',...lib,pageErrors:errors.slice(-3)}));
+          if(!lib.visible||lib.allCards!==14||lib.vectorCards!==14||
+             lib.fontSize<15||lib.iconHeight<75||lib.columns<3||
+             lib.filters!==5||lib.primaryActions!==14||
+             lib.recentVectors!==lib.recentCount||lib.presetVectors!==lib.presetCount||errors.length)failures++;
+          await page.locator('#activitiesPanel .activity-library-filters [data-activity-category="games"]').click();
+          const gameFilter=await page.evaluate(()=>{
+            const nodes=[...document.querySelectorAll('#activitiesPanel .activity-catalog-grid .real-app-card')];
+            return {count:nodes.length,categories:nodes.map(n=>n.dataset.activityCategory),
+              icons:nodes.filter(n=>!!n.querySelector('svg.si-v86-library-glyph')).length};
+          });
+          console.log(JSON.stringify({label,role:'activity-library-filter',...gameFilter}));
+          if(gameFilter.count!==9||gameFilter.icons!==9||
+             gameFilter.categories.some(x=>x!=='games'))failures++;
+          await page.locator('#activitiesPanel .activity-library-filters [data-activity-category="all"]').click();
+          await page.evaluate(()=>{
+            const button=document.getElementById('toggleShortcutManagerBtn');
+            if(!button)throw Error('Shortcut manager button missing');
+            button.click();
+          });
+          await page.waitForTimeout(130);
+          const manager=await page.evaluate(()=>({
+            open:document.querySelector('#activitiesPanel')?.classList.contains('shortcut-manager-view'),
+            slots:document.querySelectorAll('#favoriteGrid .shortcut-manage-card').length,
+            iconCount:document.querySelectorAll('#favoriteGrid .shortcut-manage-card.si-v86-icon-ready svg.si-v86-library-glyph').length,
+            actions:document.querySelectorAll('#favoriteGrid [data-shortcut-replace]').length
+          }));
+          console.log(JSON.stringify({label,role:'activity-shortcut-manager-v86',...manager}));
+          if(!manager.open||manager.slots!==9||manager.iconCount<7||manager.actions!==9||errors.length)failures++;
+          await page.evaluate(()=>{
+            document.querySelector('#toggleShortcutManagerBtn')?.click();
+            state.screen='classroom';state.activityRun=null;render();
+          });
           // Dashboard layout and icon integration must not regress at desktop sizes.
           // The production class is never modified: geometry checks run local only.
           for(const width of [1920,1440,1280,768]){
