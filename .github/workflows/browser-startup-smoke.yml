@@ -26,6 +26,9 @@ on:
       - 'tests/test_dashboard_avatar_reskin.cjs'
       - 'tests/test_si_plus_persistence.py'
       - 'tests/test_si_plus_video_stability.cjs'
+      - 'tests/test_si_plus_polish_browser.cjs'
+      - 'si-plus-polish.js'
+      - 'si-plus-polish.css'
       - 'quick_poll_server.py'
       - 'million-studio.js'
       - 'million-studio.css'
@@ -107,6 +110,10 @@ jobs:
           node tests/test_dominoes_browser.cjs
       - name: SI+ shared video remains mounted during unrelated classroom updates
         run: node tests/test_si_plus_video_stability.cjs
+      - name: SI+ media editor polish and stable YouTube projector visuals
+        run: |
+          node --check si-plus-polish.js
+          node tests/test_si_plus_polish_browser.cjs
       - name: SI+ presentations and classroom libraries survive Reset Session
         run: python -m unittest discover -s tests -p 'test_si_plus_persistence.py' -v
       - name: Quick Poll server integration and vote lifecycle
