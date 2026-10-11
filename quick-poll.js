@@ -8,7 +8,7 @@ let sid=window.__SI_SESSION_ID__||"",code=window.__SI_JOIN_CODE__||"";
 let lastSessionCheck=0,sessionCheck=null;
 const colors=["#5ce8ff","#89ef9c","#bc87ff","#ffb96b","#ff79a4","#ffe180"];
 const styles={cards:"Image Leaderboard",bars:"Bar Chart",donut:"Donut Chart",showdown:"Two-Sided Showdown"};
-const graphicVersion="SHOW GRAPHICS 4.1";
+const graphicVersion="SHOW GRAPHICS 4.2";
 const styleArt={
  bars:'<span class="qp-style-art qp-style-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>',
  donut:'<span class="qp-style-art qp-style-donut" aria-hidden="true"><i></i></span>',
@@ -28,7 +28,7 @@ const clone=v=>JSON.parse(JSON.stringify(v));
 const fresh=()=>({question:"",description:"",choices:[{label:"Yes",image:""},{label:"No",image:""}],identity:"anonymous",visibility:"live",allowChange:true,multiple:false,limit:2,duration:0,display:"cards",sensitive:false});
 let draft=fresh(),poll=null,library=[],selected=[],open=false,list=false,busy=false,loading=false,previousStudent="",serverOffset=0,studioTab="create";
 let root=null,dialog=null,launcher=null,notice="";
-let sharedRenderedSignature="";
+let sharedRenderedSignature="",teacherPreview=null,teacherPreviewMode="live",teacherPreviewSignature="";
 /* The existing shared screen stays open when Reset Session rotates its ID.
    Re-check the authoritative session only when a stale-ID request is rejected.
    Old student identity is NEVER promoted to a new class: the server still
@@ -378,12 +378,82 @@ function editorHtml(){
   '<div class="qp-teacher-scroll" id="qpStudioContent" role="tabpanel" aria-labelledby="qpTab-'+studioTab+'">'+pane+'</div></div>';
 }
 
+
+// Teacher-only chart showcase. Never writes to the poll API, the shared screen,
+// or student votes. The sample is explicitly labeled as DEMO on the overlay.
+function previewSamplePoll(p){
+ const model=clone(p),choiceCount=p.choices.length;
+ const samples={
+  2:[12,8],3:[10,6,4],4:[9,6,3,2],
+  5:[8,5,3,2,2],6:[7,5,3,2,2,1]
+ };
+ const amounts=samples[choiceCount]||[12,8];
+ model.counts=Object.fromEntries(model.choices.map((c,i)=>[c.id,amounts[i]||0]));
+ model.voters=20;model.eligible=24;model.before=null;model.endAt=null;
+ model.phase="open";
+ return model;
+}
+function closeTeacherPreview(){
+ if(teacherPreview){teacherPreview.remove();teacherPreview=null;}
+ teacherPreviewSignature="";
+}
+function syncTeacherPreview(force=false){
+ if(role!=="teacher"||!teacherPreview)return;
+ if(!poll){closeTeacherPreview();return;}
+ const demo=teacherPreviewMode==="demo";
+ const sig=JSON.stringify([poll.id,poll.question,poll.description,poll.display,poll.phase,
+  poll.choices,poll.voters,poll.counts,poll.eligible,poll.multiple,poll.round,poll.before,demo]);
+ if(!force&&teacherPreviewSignature===sig)return;
+ teacherPreviewSignature=sig;
+ const view=demo?previewSamplePoll(poll):poll;
+ teacherPreview.innerHTML='<div class="qp-v5-preview-toolbar">'+
+  '<div class="qp-v5-preview-identity"><span class="qp-v5-preview-icon">◈</span>'+
+   '<div><b>QUICK POLL · SCREEN PREVIEW</b><small>TEACHER ONLY · NEVER SENT TO STUDENTS</small></div></div>'+
+  '<div class="qp-v5-preview-modes" role="group" aria-label="Preview result data">'+
+   '<button type="button" data-qp-preview-mode="live" aria-pressed="'+(!demo)+'" class="'+(!demo?'active':'')+'">◉ Actual Results</button>'+
+   '<button type="button" data-qp-preview-mode="demo" aria-pressed="'+demo+'" class="'+(demo?'active':'')+'">✦ Demo Results</button></div>'+
+  '<button type="button" class="qp-v5-preview-close" data-qp-preview-close aria-label="Close preview">× <span>CLOSE</span></button>'+
+ '</div>'+
+ '<div class="qp-v5-preview-note '+(demo?'demo':'actual')+'">'+
+  (demo?'✦ DEMONSTRATION · SAMPLE COUNTS ONLY · NO LIVE VOTES CHANGED':
+   '◉ LIVE CLASSROOM DATA · TEACHER PREVIEW · NOT PROJECTED')+
+ '</div>'+
+ sharedView(view);
+ timer();
+}
+function openTeacherPreview(){
+ if(role!=="teacher"||!poll)return;
+ closeTeacherPreview();
+ teacherPreviewMode=poll.voters?"live":"demo";
+ teacherPreview=document.createElement("div");
+ teacherPreview.id="qpPublicOverlay";
+ teacherPreview.className="qp-v5-preview-mode";
+ teacherPreview.setAttribute("role","dialog");
+ teacherPreview.setAttribute("aria-modal","true");
+ teacherPreview.setAttribute("aria-label","Teacher-only Quick Poll full-screen preview");
+ teacherPreview.addEventListener("click",e=>{
+  const b=e.target.closest("button");
+  if(!b)return;
+  if(b.hasAttribute("data-qp-preview-close")){closeTeacherPreview();return;}
+  if(b.dataset.qpPreviewMode){
+   teacherPreviewMode=b.dataset.qpPreviewMode==="demo"?"demo":"live";
+   syncTeacherPreview(true);
+  }
+ });
+ document.body.append(teacherPreview);
+ syncTeacherPreview(true);
+ const close=teacherPreview.querySelector("[data-qp-preview-close]");
+ if(close)close.focus({preventScroll:true});
+}
+
 function liveHtml(p){
  if(!p)return '<div class="qp-teacher-live qp-nopoll">Create and send a question to your existing classroom session.</div>';
  return '<div class="qp-teacher-live"><div><b>'+esc(p.question)+'</b><span>'+(p.phase==="open"?"VOTING OPEN":"POLL CLOSED")+'</span></div>'+
  '<p>'+p.voters+' of '+p.eligible+' voted · Round '+p.round+'</p><div class="qp-mini-results">'+p.choices.map(c=>'<span>'+esc(c.label)+' <b>'+Number(p.counts?.[c.id]||0)+'</b></span>').join("")+'</div>'+
- '<div class="qp-display-hint qp-v4-graphics-label"><strong>◈ SHOW GRAPHICS 4.1</strong><span>SELECT A PROJECTOR PRESENTATION</span></div>'+
+ '<div class="qp-display-hint qp-v4-graphics-label"><strong>◈ SHOW GRAPHICS 4.2</strong><span>SELECT A PROJECTOR PRESENTATION</span></div>'+
  '<div class="qp-display-buttons qp-v4-display-gallery">'+Object.entries(styles).filter(([k])=>k!=="showdown"||p.choices.length===2).map(([k,l])=>'<button type="button" class="qp-v4-display-tile '+(p.display===k?"on":"")+'" data-qp-display="'+k+'" aria-label="'+esc(l)+' projector view" aria-pressed="'+(p.display===k)+'">'+styleArt[k]+'<span class="qp-style-info"><b>'+esc(l)+'</b><small>'+(k==="bars"?"Big glowing vote bars":k==="donut"?"Live circular breakdown":k==="showdown"?"Two-team face-off":"Illustrated answer leaderboard")+'</small></span>'+(p.display===k?'<span class="qp-style-picked">✓ ACTIVE</span>':'')+'</button>').join("")+'</div>'+
+ '<div class="qp-v5-preview-cta"><div><b>◈ SEE THE FULL EXPERIENCE</b><span>Preview this chart on your screen. Try demo votes without changing the classroom.</span></div>'+
+ '<button type="button" data-qp-preview-open>▣ PREVIEW FULL SCREEN <span>↗</span></button></div>'+
  '<div class="qp-share-row"><button type="button" data-qp-share="'+(p.sharedVisible?"hide":"show")+'" class="'+(p.sharedVisible?"qp-share-on":"qp-share-off")+'">'+
  (p.sharedVisible?"◼ Hide from Shared Screen":"↗ Show on Shared Screen")+'</button>'+
  '<span class="qp-share-status '+(p.sharedVisible?"live":"")+'">'+(p.sharedVisible?"● LIVE ON SHARED SCREEN":"○ Preview only · Not displayed to class")+'</span></div>'+
@@ -393,12 +463,23 @@ function liveHtml(p){
 }
 function updateLive(){
  if(role!=="teacher")return;
- const box=$("#qpTeacherLive");if(box)box.innerHTML=liveHtml(poll);
+ const box=$("#qpTeacherLive");
+ if(box){
+  const sig=poll?JSON.stringify([poll.id,poll.phase,poll.question,poll.display,poll.voters,
+   poll.eligible,poll.choices,poll.counts,poll.round,poll.sharedVisible,poll.identifiedVotes]):"none";
+  // Preserve the currently focused chart button, scroll position, and input
+  // while API polling reports unchanged state every 2.2 seconds.
+  if(box.dataset.qpLiveSignature!==sig){
+   box.innerHTML=liveHtml(poll);
+   box.dataset.qpLiveSignature=sig;
+  }
+ }
  const status=$("#qpStudioStatus",dialog),heading=$("#qpStudioCurrentQuestion",dialog),screen=$("#qpStudioScreenState",dialog);
  if(status)status.textContent=poll?.phase==="open"?"VOTING OPEN":poll?"POLL CLOSED":"NO ACTIVE POLL";
  if(heading)heading.textContent=poll?.question||"Ready for a new question";
  if(screen)screen.textContent=poll?.sharedVisible?"● SHARED SCREEN LIVE":"Shared screen idle";
  if(launcher)launcher.classList.toggle("active",poll?.phase==="open");
+ syncTeacherPreview();
 }
 function renderEditor(){
  if(role!=="teacher")return;
@@ -519,6 +600,7 @@ async function teacherClick(e){
   await post("/api/quick-poll/launch",clone(draft));
   return;
  }
+ if(b.hasAttribute("data-qp-preview-open")){openTeacherPreview();return;}
  if(b.dataset.qpDisplay!==undefined){await post("/api/quick-poll/control",{action:"display",display:b.dataset.qpDisplay});return;}
  if(b.dataset.qpShare!==undefined){await post("/api/quick-poll/control",{action:"share",visible:b.dataset.qpShare==="show"});return;}
  if(b.dataset.qpControl!==undefined){const action=b.dataset.qpControl;
@@ -568,7 +650,10 @@ function init(){
   launcher.title="Create, launch or manage a Quick Poll";launcher.setAttribute("aria-expanded","false");
   launcher.onclick=()=>{try{if(!open)studioTab=poll?"live":"create";open=!open;renderEditor();}catch(err){open=false;error(err);}};
   document.body.append(launcher);libraryLoad();
-  window.addEventListener("keydown",e=>{if(open&&e.key==="Escape"){open=false;renderEditor();}});
+  window.addEventListener("keydown",e=>{
+    if(e.key==="Escape"&&teacherPreview){closeTeacherPreview();e.preventDefault();return;}
+    if(open&&e.key==="Escape"){open=false;renderEditor();}
+   });
   syncMirror();
  }else{
   root=document.createElement("div");root.id="qpPublicOverlay";root.hidden=true;document.body.append(root);
