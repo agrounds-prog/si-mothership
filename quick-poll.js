@@ -153,14 +153,14 @@ function results(p){
    '<span class="qp-v4-legend-dot"></span><div><strong>'+esc(v.c.label)+'</strong><small>'+v.n+' '+(v.n===1?'selection':'selections')+'</small></div>'+
    '<b>'+v.share+'<small>%</small></b></div>').join('');
   return '<section class="qp-v4-stage qp-v4-donut">'+ribbon+'<div class="qp-v4-donut-composition">'+
-   '<div class="qp-v4-ring-frame"><div class="qp-v4-ring-glow"></div><div class="qp-v4-ring" role="img" aria-label="Vote share donut chart, '+selections+' selections" style="background:'+bg+'"><div class="qp-v4-ring-hole"><small>CREW RESPONSES</small><b>'+selections+'</b><span>TOTAL SELECTIONS</span></div></div><span class="qp-v4-ring-annotation">◇ SIGNAL BREAKDOWN</span></div>'+
+   '<div class="qp-v4-ring-frame"><div class="qp-v4-ring-glow"></div><div class="qp-v6-ring-deco" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="qp-v4-ring" role="img" aria-label="Vote share donut chart, '+selections+' selections" style="background:'+bg+'"><div class="qp-v4-ring-hole"><small>CREW RESPONSES</small><b>'+selections+'</b><span>TOTAL SELECTIONS</span></div></div><span class="qp-v4-ring-annotation">◇ SIGNAL BREAKDOWN</span></div>'+
    '<div class="qp-v4-legend"><div class="qp-v4-legend-head"><strong>THE CREW CHOSE</strong><span>SHARE OF SELECTIONS</span></div>'+legend+
-   '<div class="qp-v4-legend-summary">'+winner+'</div></div></div>'+footer+'</section>';
+   '<div class="qp-v4-legend-summary qp-v6-legend-banner">'+(leaders.length?qpV6Crest():'<span>◉</span>')+'<span>'+winner+'</span></div></div></div>'+footer+'</section>';
  }
  if(p.display==='showdown'&&values.length===2){
   const a=values[0],b=values[1],isTie=a.n===b.n,leading=a.n>b.n?a:b;
   const sides=values.map((v,i)=>'<div class="qp-v4-versus-side '+(v.isLeader?'is-leader':'')+'" style="--qp-color:'+colors[v.i%6]+'">'+
-   '<div class="qp-v4-vs-corner"><span>'+(['ALPHA','BRAVO'][i])+' SIGNAL</span><strong>'+(v.isLeader?(isTie&&v.n?'TIED LEAD':'IN THE LEAD'):'CREW PICK')+'</strong></div>'+
+   '<div class="qp-v4-vs-corner"><span>'+(['ALPHA','BRAVO'][i])+' SIGNAL</span><strong>'+(v.isLeader?(isTie&&v.n?'TIED LEAD':'IN THE LEAD'):'CREW PICK')+'</strong></div>'+(v.isLeader?'<div class="qp-v6-vs-winner">'+qpV6Crest()+'</div>':'')+
    '<div class="qp-v4-vs-art">'+media(v.c,v.i)+'</div><h2>'+esc(v.c.label)+'</h2>'+
    '<div class="qp-v4-vs-score"><b>'+v.percent+'</b><span>%</span></div>'+
    '<div class="qp-v4-vs-votes"><b>'+v.n+'</b> '+(v.n===1?'VOTE':'VOTES')+'</div></div>').join('<span class="qp-v4-versus-medal" aria-hidden="true"><em>VS</em></span>');
@@ -171,7 +171,7 @@ function results(p){
    '<div class="qp-v4-vs-bottom"><div><span>HEAD-TO-HEAD</span><strong>'+(!selections?'AWAITING FIRST VOTE':isTie?'NECK AND NECK':esc(leading.c.label)+' LEADS BY '+Math.abs(a.n-b.n))+'</strong></div>'+split+'</div>'+footer+'</section>';
  }
  const cards=values.map(v=>'<div class="qp-v4-choice-tile '+(v.isLeader?'is-leader':'')+'" style="--qp-color:'+colors[v.i%6]+'">'+
-  '<div class="qp-v4-choice-header"><span>CHOICE '+String(v.i+1).padStart(2,'0')+'</span>'+(v.isLeader?'<b>◆ '+(leaders.length>1?'TIED LEAD':'TOP CHOICE')+'</b>':'<b>CREW SIGNAL</b>')+'</div>'+
+  '<div class="qp-v4-choice-header"><span>CHOICE '+String(v.i+1).padStart(2,'0')+'</span>'+(v.isLeader?'<b class="qp-v6-card-winner">'+qpV6Crest()+' '+(leaders.length>1?'TIED LEAD':'TOP CHOICE')+'</b>':'<b>CREW SIGNAL</b>')+'</div>'+
   '<div class="qp-v4-choice-art">'+media(v.c,v.i)+'</div><strong class="qp-v4-choice-name">'+esc(v.c.label)+'</strong>'+
   '<div class="qp-v4-choice-numbers"><div><b>'+v.percent+'<small>%</small></b><span>OF VOTERS</span></div><div><b>'+v.n+'</b><span>VOTES</span></div></div>'+
   '<div class="qp-v4-choice-meter"><span style="width:'+v.percent+'%"></span></div></div>').join('');
@@ -226,13 +226,13 @@ function syncMirror(){
   }
  }
 }
-function sharedView(p){
+function sharedView(p,flash=false){
  const comparison=p.before&&p.counts?'<aside class="qp-v4-comparison"><div class="qp-v4-comparison-head"><span>◉ TWO-ROUND COMPARISON</span><strong>BEFORE → AFTER</strong></div><div class="qp-v4-comparison-items">'+p.choices.map((c,i)=>{
   const before=Math.max(0,Number(p.before[c.id])||0),after=Math.max(0,Number(p.counts[c.id])||0),delta=after-before;
   return '<div class="qp-v4-comparison-item" style="--qp-color:'+colors[i%6]+'"><b>'+esc(c.label)+'</b><span>'+before+'</span><i>→</i><strong>'+after+'</strong><em class="'+(delta>=0?'positive':'negative')+'">'+(delta>=0?'+':'')+delta+'</em></div>';
  }).join('')+'</div></aside>':'';
- return '<div class="qp-projector qp-v4-projector"><header class="qp-v4-header"><div class="qp-v4-brand"><span class="qp-v4-brand-orbit">✦</span><div><small>SI MOTHERSHIP / LIVE CLASSROOM</small><b>QUICK <em>POLL</em></b></div></div><div class="qp-v4-header-right"><span class="qp-v4-header-live">◉ '+(p.phase==='open'?'LIVE RESULTS':'POLL CLOSED')+'</span><small>ASK · VOTE · CONNECT</small></div></header>'+
- '<div class="qp-v4-question"><span>◈ THE BIG QUESTION</span><h1>'+esc(p.question)+'</h1>'+(p.description?'<p>'+esc(p.description)+'</p>':'')+'</div>'+
+ return '<div class="qp-projector qp-v4-projector qp-v6-broadcast '+(flash?'qp-v6-new-signal':'')+'"><span class="qp-v6-background-beam" aria-hidden="true"></span><header class="qp-v4-header"><div class="qp-v4-brand"><span class="qp-v4-brand-orbit"><span class="qp-v6-beacon-core">✦</span><i></i><i></i></span><div><small>SI MOTHERSHIP / LIVE CLASSROOM</small><b>QUICK <em>POLL</em></b></div></div><div class="qp-v4-header-right"><span class="qp-v4-header-live">◉ '+(p.phase==='open'?'LIVE RESULTS':'POLL CLOSED')+'</span><small>ASK · VOTE · CONNECT</small></div></header>'+
+ '<div class="qp-v4-question"><span class="qp-v6-question-label">◇ <i></i> THE BIG QUESTION <i></i> ◇</span><h1>'+esc(p.question)+'</h1>'+(p.description?'<p>'+esc(p.description)+'</p>':'')+'</div>'+
  badge(p)+results(p)+comparison+
  '<footer class="qp-v4-footer"><span>◈ EVERY VOICE COUNTS</span><strong>ROUND '+Number(p.round||1)+'</strong><span>MOTHERSHIP · CLASSROOM LIVE</span></footer></div>';
 }
@@ -645,7 +645,11 @@ async function refresh(force=false){
    root.hidden=!poll||(role==="shared"&&!poll.sharedVisible);
    if(poll){if(role==="shared"){if(poll.sharedVisible){
       const signature=JSON.stringify([poll.id,poll.phase,poll.display,poll.question,poll.description,poll.voters,poll.eligible,poll.counts,poll.round,poll.visibility,poll.before,poll.choices,poll.multiple]);
-      if(force||sharedRenderedSignature!==signature){root.innerHTML=sharedView(poll);sharedRenderedSignature=signature;root.dataset.qpSignature=signature;}
+      if(force||sharedRenderedSignature!==signature){
+       const freshVotes=!!old&&old.id===poll.id&&Number(poll.voters)>Number(old.voters)&&!!poll.counts;
+       root.innerHTML=sharedView(poll,freshVotes);
+       sharedRenderedSignature=signature;root.dataset.qpSignature=signature;
+      }
      }}
      else renderStudent(force||!old||old.id!==poll.id);}
    else previousStudent="";
