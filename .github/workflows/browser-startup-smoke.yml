@@ -64,10 +64,10 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_million_websocket_live.py' -v
       - name: MILLION local Chromium saved games and mobile controls
         run: node tests/test_million_studio_browser.cjs
-      - name: MILLION five-question projector, Zoom resolutions and classic-risk game flow
-        run: node tests/test_million_projector_browser.cjs
       - name: Browser bootstrap on local and production
         run: node tests/test_browser_boot_smoke.cjs
+      - name: MILLION five-question projector, Zoom resolutions and classic-risk game flow
+        run: node tests/test_million_projector_browser.cjs
       - name: Print app startup diagnostics on failure
         if: failure()
         run: tail -80 /tmp/mothership-browser.log
