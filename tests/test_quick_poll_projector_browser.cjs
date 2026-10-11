@@ -127,13 +127,15 @@ const observerScript='document.getElementById("qpPublicOverlay")';
 
   // Teacher mirror uses the same display mode as the real projector.
   const teacherContext=await browser.newContext({viewport:{width:1440,height:900}});
+  const login=await teacherContext.request.post(base+'/api/teacher/login',{data:{key:'5030',remember:false}});
+  assert.equal(login.status(),200,'isolated teacher login');
   const teacher=await teacherContext.newPage();
   teacher.on('pageerror',e=>errorEvents.push('teacher '+String(e)));
   await teacher.route('**/api/quick-poll/state?*',route=>route.fulfill({
    status:200,contentType:'application/json',body:JSON.stringify({active:true,poll:current})
   }));
   await teacher.goto(base+'/?role=teacher',{waitUntil:'domcontentloaded',timeout:40000});
-  await teacher.waitForFunction(()=>!!document.querySelector('#qpMirrorPreview .qp-v4-mirror-bars'),{timeout:12000});
+  await teacher.waitForFunction(()=>!!document.querySelector('#qpMirrorPreview .qp-v4-mirror-bars'),null,{timeout:12000});
   assert.equal(await teacher.locator('#qpMirrorPreview .qp-mirror-bar').count(),3);
   await teacherContext.close();
 
