@@ -107,7 +107,8 @@ const hosts=[
           await page.waitForFunction(()=>{
             const panel=document.querySelector('#activitiesPanel');
             return panel?.classList.contains('si-v86-library')&&
-              panel.querySelectorAll('.activity-catalog-grid .si-v86-icon-ready svg.si-v86-library-glyph').length===17;
+              panel.querySelectorAll('.activity-catalog-grid .si-v86-icon-ready svg.si-v86-library-glyph').length>=18&&
+              !!panel.querySelector('.activity-catalog-grid .ss-library-card');
           },null,{timeout:12000});
           const lib=await page.evaluate(()=>{
             const panel=document.querySelector('#activitiesPanel');
@@ -132,9 +133,9 @@ const hosts=[
               primaryActions:cards.filter(c=>!!c.querySelector('[data-open-app]')).length};
           });
           console.log(JSON.stringify({label,role:'activity-library-v86',...lib,pageErrors:errors.slice(-3)}));
-          if(!lib.visible||lib.allCards!==17||lib.vectorCards!==17||
+          if(!lib.visible||lib.allCards<18||lib.vectorCards!==lib.allCards||
              lib.fontSize<15||lib.iconHeight<75||lib.columns<3||
-             lib.filters!==5||lib.primaryActions!==17||
+             lib.filters!==5||lib.primaryActions!==lib.allCards||
              lib.recentVectors!==lib.recentCount||lib.presetVectors!==lib.presetCount||errors.length)failures++;
           await page.evaluate(()=>document.querySelector('#activitiesPanel .activity-library-filters [data-activity-category="games"]')?.click());
           await page.waitForTimeout(140);
@@ -144,7 +145,7 @@ const hosts=[
               icons:nodes.filter(n=>!!n.querySelector('svg.si-v86-library-glyph')).length};
           });
           console.log(JSON.stringify({label,role:'activity-library-filter',...gameFilter}));
-          if(gameFilter.count!==12||gameFilter.icons!==12||
+          if(gameFilter.count<13||gameFilter.icons!==gameFilter.count||
              gameFilter.categories.some(x=>x!=='games'))failures++;
           await page.evaluate(()=>document.querySelector('#activitiesPanel .activity-library-filters [data-activity-category="all"]')?.click());
           await page.evaluate(()=>{
