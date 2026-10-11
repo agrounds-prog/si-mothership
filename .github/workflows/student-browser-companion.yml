@@ -6,6 +6,7 @@ on:
       - 'student-companion.css'
       - 'student-companion.js'
       - 'tests/test_student_companion_browser.cjs'
+      - 'tests/test_zoom_student_activities_browser.cjs'
       - 'tests/test_signal_sequence_mobile_browser.cjs'
       - 'tests/test_signal_sequence_modes_browser.cjs'
       - 'tests/test_four_in_line_mobile_browser.cjs'
@@ -51,6 +52,12 @@ jobs:
           node tests/test_signal_sequence_modes_browser.cjs
       - name: Four In Line one-tap student controller
         run: LOCAL_URL=http://127.0.0.1:8877 node tests/test_four_in_line_mobile_browser.cjs
+      - name: Zoom Quick Poll, Million, Cosmic Cards and Dominoes browser layout
+        run: node tests/test_zoom_student_activities_browser.cjs
+      - name: Existing Dominoes and Quick Poll browser regressions
+        run: |
+          node tests/test_dominoes_browser.cjs
+          node tests/test_quick_poll_projector_browser.cjs
       - name: Local failure diagnostics
         if: failure()
         run: tail -100 /tmp/student-companion.log || true
