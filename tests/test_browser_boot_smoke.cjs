@@ -376,6 +376,79 @@ const hosts=[
             await sharedPage.close();
           }catch(e){failures++;console.log(JSON.stringify({label,role:'quick-poll-ui-e2e',error:String(e.stack||e)}));}
 
+          // SI+ persistence and stable YouTube media. Runs ONLY against local
+          // isolated SQLite storage; never reset or save to live production.
+          try{
+            const siCtx=await browser.newContext({viewport:{width:1440,height:900}});
+            try{
+              const auth=await siCtx.request.post(url+'/api/teacher/login',{
+                data:{key:'5030',remember:false}});
+              if(auth.status()!==200)throw Error('SI+ local login failed '+auth.status());
+              const si=await siCtx.newPage(),siErrors=[];
+              si.on('pageerror',e=>siErrors.push(String(e.message||e)));
+              await si.goto(url+'/?role=teacher',{waitUntil:'domcontentloaded'});
+              await si.waitForTimeout(300);
+              const deckId=await si.evaluate(()=>{
+                if(typeof openNewPresentation!=='function')throw Error('SI+ builder unavailable');
+                openNewPresentation();
+                const ed=state.presentationEditor;
+                ed.draft.deckTitle='SI+ Browser Persistence Regression';
+                ed.draft.name=ed.draft.deckTitle;
+                ed.draft.slides[0].title='YouTube Player Stability';
+                ed.draft.slides[0].text='Text stays legible during updates';
+                ed.draft.slides[0].youtube='https://youtu.be/dQw4w9WgXcQ';
+                renderPresentationBuilder();
+                return ed.draft.id;
+              });
+              const videoPreview=await si.locator('#siPlusVideoPreview .si-plus-video-preview-card').count();
+              if(videoPreview!==1)failures++;
+              await si.locator('#savePresentationBtn').click();
+              await si.waitForFunction(id=>{
+                return !state.presentationEditor&&state.activities.some(a=>String(a.id)===String(id));
+              },deckId,{timeout:12000});
+              const key='siMothership.presentations.v1';
+              const store=await (await siCtx.request.get(url+'/api/storage')).json();
+              const persisted=JSON.parse(store.items?.[key]||'[]');
+              const match=persisted.find(a=>String(a.id)===String(deckId));
+              const saveVerified=!!match&&match.slides[0].youtube.includes('youtu.be');
+              console.log(JSON.stringify({label,role:'si-plus-save-confirmed',
+                saveVerified,remoteDeckCount:persisted.length,videoPreview,errors:siErrors.slice(-2)}));
+              if(!saveVerified||siErrors.length)failures++;
+              await si.evaluate(()=>document.getElementById('resetBtn').click());
+              await si.waitForFunction(id=>
+                !state.activityRun&&state.activities.some(a=>String(a.id)===String(id)),deckId,
+                {timeout:12000});
+              await si.reload({waitUntil:'domcontentloaded'});
+              await si.waitForTimeout(450);
+              const recovery=await si.evaluate(id=>{
+                return {deck:state.activities.find(a=>String(a.id)===String(id))?.deckTitle||'',
+                  server:JSON.parse(window.__SI_STORAGE_SNAPSHOT__?.['siMothership.presentations.v1']||'[]').some(a=>String(a.id)===String(id))};
+              },deckId);
+              console.log(JSON.stringify({label,role:'si-plus-after-reset-reload',...recovery}));
+              if(!recovery.deck.includes('Browser Persistence')||!recovery.server)failures++;
+              // The projection is rendered without autoplay and without
+              // navigating to YouTube; only verify DOM node stability.
+              const stable=await si.evaluate(id=>{
+                state.activityRun={activityId:id,phase:'active',runToken:'si-plus-test',slideIndex:0,responses:{},showResults:false};
+                state.screen='activity';
+                renderPublic();
+                const old=document.querySelector('#sharedContent .si-plus-video-frame iframe');
+                if(!old)return {present:false};
+                state.students.push({n:'Test Student',offline:false});
+                for(let i=0;i<6;i++)renderPublic();
+                const current=document.querySelector('#sharedContent .si-plus-video-frame iframe');
+                const fallback=document.querySelector('#sharedContent .si-plus-video-fallback');
+                const videoBox=document.querySelector('#sharedContent .si-plus-video-frame');
+                return {present:true,sameIframe:old===current,
+                  fallback:!!fallback?.href?.includes('youtube.com/watch'),
+                  aspect:getComputedStyle(videoBox).aspectRatio,
+                  title:current?.title};
+              },deckId);
+              console.log(JSON.stringify({label,role:'si-plus-player-no-flicker',...stable,errors:siErrors.slice(-2)}));
+              if(!stable.present||!stable.sameIframe||!stable.fallback||siErrors.length)failures++;
+            }finally{await siCtx.close();}
+          }catch(e){failures++;console.log(JSON.stringify({label,role:'si-plus-persistence-e2e',error:String(e.stack||e)}));}
+
         }
       }
     }catch(e){failures++;console.log(JSON.stringify({label,role,error:String(e.stack||e)}));}
