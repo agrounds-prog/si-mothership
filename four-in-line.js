@@ -54,7 +54,7 @@ function boardHTML(g,{big=false,student=false,teacher=false,name=""}={}){
   const enabled=(teacher||active)&&legal(g,i);
   return '<button type="button" class="fil-drop-button" data-fil-drop="'+i+'" '+(enabled?'':'disabled')+' aria-label="Drop disc in column '+(i+1)+'">'+(i+1)+'</button>'
  }).join("");
- return '<div class="fil-arena">'+board+'<div class="fil-columns" style="--fil-cols:'+g.cols+'">'+controls+'</div></div>';
+ return '<div class="fil-arena">'+board+((teacher||student)?'<div class="fil-columns" style="--fil-cols:'+g.cols+'">'+controls+'</div>':'')+'</div>';
 }
 function avatars(g,students=[]){
  return g.players.map((name,i)=>'<div class="fil-team '+(g.turn===i&&g.status==="playing"?"active ":"")+(g.winner===i?"victor":"")+'" style="--fil-team:'+COLORS[i]+'"><span class="fil-team-icon">'+mark(i)+'</span><div><strong>'+esc(name)+'</strong><small>'+(g.status==="won"&&g.winner===i?"CHAMPION":g.turn===i&&g.status==="playing"?"YOUR MOVE":g.status==="playing"?"STANDBY":"MATCH COMPLETE")+'</small></div></div>').join("");
