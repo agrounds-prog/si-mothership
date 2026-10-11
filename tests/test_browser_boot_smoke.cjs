@@ -210,6 +210,7 @@ const hosts=[
           // The production class and persistent database are never mutated.
           try{
             let simulated=null;
+            let savedTemplates=[];
             let mockSid=await page.evaluate(()=>window.__SI_SESSION_ID__);
             let mockCode=await page.evaluate(()=>window.__SI_JOIN_CODE__);
             let stalePollRequests=0;
@@ -230,7 +231,16 @@ const hosts=[
               }
               let result={ok:true};
               if(path.endsWith('/state'))result={active:!!simulated,poll:simulated};
-              else if(path.endsWith('/templates'))result={templates:[]};
+              else if(path.endsWith('/templates/delete')){
+                savedTemplates=savedTemplates.filter(x=>x.id!==data.id);
+              }
+              else if(path.endsWith('/templates')){
+                if(verb==='POST'){
+                  const id='studio-saved-'+(savedTemplates.length+1);
+                  savedTemplates.unshift({id,name:data.name,poll:data.poll});
+                  result={ok:true,id};
+                }else result={templates:savedTemplates};
+              }
               else if(path.endsWith('/launch')){
                 simulated={...data,id:'ui-regression-poll',phase:'open',round:1,
                   choices:data.choices.map((c,i)=>({...c,id:String(i)})),
@@ -260,18 +270,42 @@ const hosts=[
               if(!button)throw Error('Quick Poll Home Row button missing');
               button.click();
             });
+            const tabs=await page.locator('#qpDialog [role="tab"]').count();
+            const initialTab=await page.locator('#qpDialog [role="tab"][aria-selected="true"]').getAttribute('data-qp-tab');
+            const initialForm=await page.locator('#qpQuestion').count();
+            console.log(JSON.stringify({label,role:'poll-studio-tabs',tabs,initialTab,initialForm}));
+            if(tabs!==3||initialTab!=='create'||initialForm!==1)failures++;
             await page.locator('#qpDialog [data-qp-launch]').click();
             const warning=await page.locator('#qpTopError').textContent();
             const visible=await page.locator('#qpTopError').isVisible();
             console.log(JSON.stringify({label,role:'poll-form-validation',visible,warning}));
             if(!visible||!warning.includes('Enter your question'))failures++;
             await page.locator('#qpQuestion').fill('Choose our next classroom activity');
+            await page.locator('#qpDialog [data-qp-tab="library"]').click();
+            const starterCount=await page.locator('#qpDialog [data-qp-template]').count();
+            await page.locator('#qpDialog [data-qp-tab="create"]').click();
+            const keptQuestion=await page.locator('#qpQuestion').inputValue();
+            console.log(JSON.stringify({label,role:'poll-studio-navigation',starterCount,keptQuestion}));
+            if(starterCount!==5||keptQuestion!=='Choose our next classroom activity')failures++;
             await page.locator('[data-qp-label="0"]').fill('Bingo');
             await page.locator('[data-qp-label="1"]').fill('Starwheel');
+            page.once('dialog',prompt=>prompt.accept('Favorite Classroom Poll'));
+            await page.locator('#qpDialog [data-qp-save]').click();
+            await page.waitForFunction(()=>document.querySelector('#qpDialog [data-qp-save]')!==null,null,{timeout:9000});
+            await page.locator('#qpDialog [data-qp-tab="library"]').click();
+            await page.waitForFunction(()=>!!document.querySelector('#qpDialog [data-qp-load]'),null,{timeout:9000});
+            const savedCount=await page.locator('#qpDialog [data-qp-load]').count();
+            await page.locator('#qpDialog [data-qp-load]').click();
+            const loadedQuestion=await page.locator('#qpQuestion').inputValue();
+            console.log(JSON.stringify({label,role:'poll-studio-saved-library',savedCount,loadedQuestion}));
+            if(savedCount!==1||loadedQuestion!=='Choose our next classroom activity')failures++;
             await page.locator('#qpDialog [data-qp-launch]').click();
             await page.waitForFunction(()=>document.querySelector('#qpTeacherLive')?.textContent?.includes('VOTING OPEN'),null,{timeout:8500});
+            const currentTab=await page.locator('#qpDialog [role="tab"][aria-selected="true"]').getAttribute('data-qp-tab');
+            const creationHidden=await page.locator('#qpQuestion').count()===0;
             console.log(JSON.stringify({label,role:'poll-launch-ui',
-              active:!!simulated,question:simulated?.question,choices:simulated?.choices?.map(x=>x.label)}));
+              currentTab,creationHidden,active:!!simulated,question:simulated?.question,choices:simulated?.choices?.map(x=>x.label)}));
+            if(currentTab!=='live'||!creationHidden)failures++;
             if(!simulated||simulated.question!=='Choose our next classroom activity')failures++;
             // The same chart must be visible in the teacher mirror and in the
             // independent second-screen role. The test's route interception
