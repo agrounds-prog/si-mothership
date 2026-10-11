@@ -11,6 +11,12 @@ on:
       - 'quick-poll.js'
       - 'quick-poll.css'
       - 'word-grid.js'
+      - 'dominoes.js'
+      - 'dominoes.css'
+      - 'dominoes_server.py'
+      - 'tests/test_dominoes_engine.cjs'
+      - 'tests/test_dominoes_server.py'
+      - 'tests/test_dominoes_browser.cjs'
       - 'word-grid.css'
       - 'tests/test_word_grid_engine.cjs'
       - 'tests/test_word_grid_browser.cjs'
@@ -88,6 +94,12 @@ jobs:
           node --check word-grid.js
           node tests/test_word_grid_engine.cjs
           node tests/test_word_grid_browser.cjs
+      - name: Dominoes student private hands, teacher controls and projector browser test
+        run: |
+          node --check dominoes.js
+          node tests/test_dominoes_engine.cjs
+          python -m unittest discover -s tests -p 'test_dominoes_server.py' -v
+          node tests/test_dominoes_browser.cjs
       - name: Quick Poll server integration and vote lifecycle
         run: python -m unittest discover -s tests -p 'test_quick_poll.py' -v
       - name: Quick Poll four projector graphic layouts, shared reveal, mirror and Zoom resolutions
