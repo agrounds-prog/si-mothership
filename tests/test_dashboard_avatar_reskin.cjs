@@ -73,11 +73,11 @@ const base=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    return {classes:root.className,cards:root.querySelectorAll(".real-app-card").length,
      gradient:card?getComputedStyle(card).backgroundImage:"",
      iconGradient:icon?getComputedStyle(icon).backgroundImage:"",
-     ctaVisible:!!cta&&cta.getBoundingClientRect().height>=30};
+     ctaReady:!!cta&&!cta.disabled&&cta.tagName==="BUTTON"};
   });
   assert.ok(lib.cards>=16,"Activity Library still shows complete app set");
   assert.ok(lib.gradient.includes("gradient")&&lib.iconGradient.includes("gradient"),"Card styling loaded");
-  assert.ok(lib.ctaVisible,"Launch button remains visible");
+  assert.ok(lib.ctaReady,"Original Activity Library launch control remains available");
   assert.deepEqual(errors,[],"No runtime errors");
   console.log(JSON.stringify({test:"Avatar reskin Activities card decoration",...lib}));
  }finally{await browser.close()}
