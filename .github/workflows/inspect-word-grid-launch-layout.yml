@@ -1,0 +1,29 @@
+name: Inspect Word Grid Launch Layout
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-word-grid-launch-layout.yml']
+permissions: {contents: read}
+jobs:
+  scan:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Print relevant CSS and app launch
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path("index.html").read_text().splitlines()
+          import re
+          needles=[r'\.activity-grid\s*\{',r'#activityGrid',r'activitiesPanel',r'#activityControllerPanel',r'word-grid',r'function renderActivities\(',r'function launchWordGridGame',r'function renderActivityController\(',r'function launchActivityById',r'function startOrResumeActivityRun',r'#teacher.*activity-grid',r'\.activities-panel\s*\{']
+          for pat in needles:
+            hit=[i for i,line in enumerate(s) if re.search(pat,line)]
+            print('### QUERY',pat,'HITS',len(hit),'LINES',[i+1 for i in hit[:25]])
+            if pat in [r'\.activity-grid\s*\{',r'function launchWordGridGame',r'word-grid',r'function renderActivities\(',r'function renderActivityController\(']:
+              for i in hit[:5]:
+                for j in range(max(0,i-2),min(len(s),i+12)):print(f'{j+1}: {s[j][:1400]}')
+          print('### ACTIVITY GRID FULL STYLES')
+          for i,line in enumerate(s):
+            if any(x in line for x in ['.activity-grid{','.activity-grid {','#activityGrid{','#activityGrid {','activity-grid{','activity-grid {','activitiesPanel .activity-grid','word-grid']):
+              print(f'{i+1}: {line[:900]}')
+          PY
