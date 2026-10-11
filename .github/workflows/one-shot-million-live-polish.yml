@@ -1,0 +1,32 @@
+name: One-shot MILLION Live Gameplay Polish
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-million-live-polish.yml']
+permissions:
+  contents: write
+jobs:
+  guarded-patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: true}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Guarded MILLION-only gameplay patch and release regression
+        run: |
+          set -euo pipefail
+          python scripts/apply_million_live_polish.py
+          node --check million-studio.js
+          python scripts/release_gate.py --require-node
+      - name: Commit safe patch to main
+        run: |
+          set -euo pipefail
+          git config user.name "mothership-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          git diff --cached --exit-code && { echo 'No index change'; exit 1; } || true
+          git commit -m "fix(million): correct game-over, milestone ladder and lock/reveal display"
+          git push origin HEAD:main
