@@ -16,7 +16,7 @@ const pts=t=>t?.blank?0:Number(t?.value||0);
 function makeBag(){let n=0;const arr=[];for(const [letter,count] of Object.entries(DISTRIBUTION))for(let i=0;i<count;i++)arr.push({id:"t"+(++n),letter,value:POINTS[letter],blank:letter==="?"});for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr}
 function draw(g,p){while(p.rack.length<7&&g.bag.length)p.rack.push(g.bag.pop())}
 function make(players=["Crew Alpha","Crew Beta"],options={}){
- const names=(Array.isArray(players)?players:[]).map(n=>String(n||"").trim().slice(0,35)).filter(Boolean);
+ const names=(Array.isArray(players)?players:[]).map(n=>String(n||"").trim().slice(0,35)).filter(Boolean).slice(0,4);
  if(names.length<2||names.length>4||new Set(names.map(n=>n.toLowerCase())).size!==names.length)throw Error("Choose two to four different players or teams.");
  const assignments={};
  for(const [name,seat] of Object.entries(options.assignments||{})){
