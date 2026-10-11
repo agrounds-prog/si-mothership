@@ -134,7 +134,7 @@ const hosts=[
           console.log(JSON.stringify({label,role:'activity-library-v86',...lib,pageErrors:errors.slice(-3)}));
           if(!lib.visible||lib.allCards!==15||lib.vectorCards!==15||
              lib.fontSize<15||lib.iconHeight<75||lib.columns<3||
-             lib.filters!==5||lib.primaryActions!==14||
+             lib.filters!==5||lib.primaryActions!==15||
              lib.recentVectors!==lib.recentCount||lib.presetVectors!==lib.presetCount||errors.length)failures++;
           await page.evaluate(()=>document.querySelector('#activitiesPanel .activity-library-filters [data-activity-category="games"]')?.click());
           await page.waitForTimeout(140);
