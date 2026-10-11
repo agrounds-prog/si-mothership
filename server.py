@@ -3460,6 +3460,7 @@ PERSISTED_STORAGE_KEYS = {
     "siMothership.crewSurveyGames.v1",
     "siMothership.millionGames.v1",
     "siMothership.millionDraft.v1",
+    "siMothership.wordGridLibrary.v1",
 }
 
 CLIENTS: set[web.WebSocketResponse] = set()
@@ -4916,7 +4917,8 @@ async def index(request: web.Request) -> web.Response:
     text = text.replace("</head>",
                         f'<link rel="stylesheet" href="/quick-poll.css?v={QUICK_POLL_ASSET_VERSION}">'
                         '<link rel="stylesheet" href="/dashboard-polish.css?v=80">'
-                        '<link rel="stylesheet" href="/million-studio.css?v=1"></head>', 1)
+                        '<link rel="stylesheet" href="/million-studio.css?v=1">'
+                        '<link rel="stylesheet" href="/word-grid.css?v=1"></head>', 1)
     # Insert before the final body close: index.html also contains HTML strings
     # in internal scripts, so replacing the first occurrence would corrupt JS.
     body_close = text.rfind("</body>")
@@ -4925,6 +4927,7 @@ async def index(request: web.Request) -> web.Response:
                 f'<script src="/quick-poll.js?v={QUICK_POLL_ASSET_VERSION}" defer></script>' +
                 '<script src="/dashboard-polish.js?v=80" defer></script>' +
                 '<script src="/million-studio.js?v=1" defer></script>' +
+                '<script src="/word-grid.js?v=1" defer></script>' +
                 text[body_close:])
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
@@ -5980,6 +5983,8 @@ def create_app() -> web.Application:
     app.router.add_get("/index.html", index)
     app.router.add_get("/million-studio.js", lambda request: web.FileResponse(Path(__file__).with_name("million-studio.js"), headers={"Cache-Control": "no-store"}))
     app.router.add_get("/million-studio.css", lambda request: web.FileResponse(Path(__file__).with_name("million-studio.css"), headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/word-grid.js", lambda request: web.FileResponse(ROOT / "word-grid.js", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/word-grid.css", lambda request: web.FileResponse(ROOT / "word-grid.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/match-arcade.js", match_arcade_script)
     app.router.add_get("/match-arcade.css", match_arcade_style)
     app.router.add_get("/match-builder.js", match_builder_script)
