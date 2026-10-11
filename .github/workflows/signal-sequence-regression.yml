@@ -32,13 +32,13 @@ jobs:
           node --check signal-sequence-bridge.js
           node tests/test_signal_sequence_engine.cjs
           python -m unittest discover -s tests -p 'test_signal_sequence_server.py' -v
-          python -m unittest discover -s tests -p 'test_signal_sequence_websocket.py' -v
           python -m py_compile server.py signal_sequence_server.py
       - name: Existing release gate
         run: python scripts/release_gate.py --require-node
       - name: Install local browser dependencies
         run: |
           pip install -r requirements.txt
+          python -m unittest discover -s tests -p 'test_signal_sequence_websocket.py' -v
           npm install --no-save --ignore-scripts playwright@1.56.1
           npx playwright install --with-deps chromium
       - name: Launch isolated Mothership
