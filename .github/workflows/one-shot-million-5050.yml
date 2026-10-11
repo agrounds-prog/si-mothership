@@ -1,0 +1,32 @@
+name: One-shot MILLION 50-50 Fix
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-million-5050.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Apply guarded patch and validate
+        run: |
+          set -euo pipefail
+          python scripts/apply_million_5050_fix.py
+          python -m py_compile server.py
+          node --check million-studio.js
+          python scripts/release_gate.py --require-node
+      - name: Push tested MILLION UI patch
+        run: |
+          set -euo pipefail
+          git config user.name "mothership-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          git diff --cached --exit-code && { echo "Missing patch"; exit 1; } || true
+          git commit -m "fix(million): 50/50 removes options visibly for teacher, students and projector"
+          git push origin HEAD:main
