@@ -1644,3 +1644,345 @@ body #teacher .qp-v4-mirror-cards>div{
  #qpDialog .qp-v5-preview-cta>button,
  #qpPublicOverlay.qp-v5-preview-mode button{transition:none!important}
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   QUICK POLL 4.3 · MOTHERSHIP BROADCAST GRAPHICS
+   Self-contained vector artwork, accessible tallies, restrained reveal motion.
+   All projector rules are scoped to Quick Poll; no other game affected.
+   ═══════════════════════════════════════════════════════════════════════════ */
+#qpPublicOverlay .qp-v6-broadcast{position:relative;}
+#qpPublicOverlay .qp-v6-background-beam{
+ position:absolute;z-index:-1;pointer-events:none;
+ inset:-4% 1% 0;
+ background:
+  radial-gradient(ellipse 23% 26% at 2% 48%,#36a9ef1c 0%,transparent 100%),
+  radial-gradient(ellipse 28% 30% at 98% 45%,#8675ff17 0%,transparent 100%);
+}
+#qpPublicOverlay .qp-v6-broadcast .qp-v4-header{
+ position:relative;overflow:hidden;
+ background:
+  radial-gradient(ellipse 37% 180% at 4% 50%,#164b6b8e,transparent 75%),
+  radial-gradient(ellipse 45% 145% at 100% 70%,#3b306566,transparent 80%),
+  linear-gradient(105deg,#112e4f,#061728 65%,#151b35);
+}
+#qpPublicOverlay .qp-v6-broadcast .qp-v4-header::after{
+ content:"";position:absolute;z-index:0;pointer-events:none;
+ inset:0;
+ background:repeating-linear-gradient(90deg,transparent 0 59px,#a7edff08 60px,transparent 61px);
+}
+#qpPublicOverlay .qp-v6-broadcast .qp-v4-header>*{position:relative;z-index:1}
+#qpPublicOverlay .qp-v4-brand-orbit{position:relative;isolation:isolate;overflow:visible!important}
+#qpPublicOverlay .qp-v6-beacon-core{position:relative;z-index:2}
+#qpPublicOverlay .qp-v4-brand-orbit>i{
+ position:absolute;display:block;pointer-events:none;
+ inset:-7px;border:1px solid #b3ffff60;border-radius:50%;
+ box-shadow:0 0 12px #68d6ff33;
+}
+#qpPublicOverlay .qp-v4-brand-orbit>i:last-child{
+ inset:-13px;border-color:#6ca7fb2b;
+}
+#qpPublicOverlay .qp-v6-question-label{
+ display:flex;align-items:center;justify-content:center;gap:13px;
+ color:#95eaff!important;font-weight:950;
+}
+#qpPublicOverlay .qp-v6-question-label>i{
+ display:block;width:clamp(20px,4vw,74px);height:1px;
+ background:linear-gradient(90deg,transparent,#66dfff9a);flex:0 1 auto;
+}
+#qpPublicOverlay .qp-v6-question-label>i:last-of-type{
+ transform:rotate(180deg);
+}
+#qpPublicOverlay .qp-v6-broadcast .qp-v4-stage{
+ background:
+  radial-gradient(circle at 9% 13%,#a4eaff37 0 1px,transparent 2px),
+  radial-gradient(circle at 83% 17%,#b5beff30 0 1px,transparent 2px),
+  radial-gradient(circle at 45% 82%,#71cbff36 0 1px,transparent 2px),
+  radial-gradient(circle at 18% 73%,#a4eaff22 0 1px,transparent 2px),
+  radial-gradient(ellipse at 18% 10%,#1b4c6a65 0%,transparent 42%),
+  radial-gradient(ellipse at 85% 95%,#3034686f 0%,transparent 43%),
+  linear-gradient(140deg,#0a243c,#09182f 57%,#0b142a);
+ border-color:#578cac;
+ box-shadow:inset 0 1px 0 #ecffff32,inset 0 0 0 5px #061b3048,0 24px 74px #0009;
+}
+#qpPublicOverlay .qp-v6-broadcast .qp-v4-stage::after{
+ border-color:#7ddcf81d;
+ background:linear-gradient(135deg,#53e1ff15 0 1px,transparent 1px) top left/80px 80px no-repeat;
+}
+#qpPublicOverlay .qp-v6-broadcast .qp-v4-results-heading{
+ gap:clamp(9px,1.25vw,22px);
+ flex-wrap:nowrap;
+}
+#qpPublicOverlay .qp-v6-broadcast .qp-v6-title-block{flex:1 1 0;min-width:0;}
+#qpPublicOverlay .qp-v6-participation{
+ flex:0 1 auto;display:flex;align-items:center;gap:12px;
+ min-width:0;padding:7px clamp(9px,1vw,16px);
+ border:1px solid #3a647f;border-radius:14px;
+ background:
+   radial-gradient(circle at 8% 45%,#48d4ce1a,transparent 65%),
+   linear-gradient(115deg,#102d41,#0a2037);
+ box-shadow:inset 0 1px 0 #d8faff20;
+}
+#qpPublicOverlay .qp-v6-turnout-wheel{
+ position:relative;flex:0 0 clamp(49px,4.15vw,65px);
+ display:grid;place-items:center;width:clamp(49px,4.15vw,65px);
+ aspect-ratio:1;
+}
+#qpPublicOverlay .qp-v6-turnout-wheel svg{
+ display:block;width:100%;height:100%;
+ filter:drop-shadow(0 0 7px #61eddd33);
+}
+#qpPublicOverlay .qp-v6-turnout-wheel>b{
+ display:flex;align-items:baseline;justify-content:center;
+ position:absolute;inset:0;align-self:center;justify-self:center;
+ height:fit-content;
+ font:1000 clamp(14px,1.1vw,19px)/1 system-ui;
+ color:#f1fffc;font-variant-numeric:tabular-nums;
+ text-shadow:0 0 8px #70fae355;
+}
+#qpPublicOverlay .qp-v6-turnout-wheel b small{font-size:.62em;color:#a0f7e5}
+#qpPublicOverlay .qp-v6-participation-copy{
+ display:flex;flex-direction:column;gap:5px;min-width:0;
+}
+#qpPublicOverlay .qp-v6-participation-copy strong{
+ color:#92f8e2;font:950 clamp(10px,.85vw,13px)/1.1 system-ui;
+ letter-spacing:.10em;white-space:nowrap;
+}
+#qpPublicOverlay .qp-v6-participation-copy small{
+ color:#bdd8e8;font:800 clamp(9px,.73vw,12px)/1.2 system-ui;
+ white-space:nowrap;
+}
+#qpPublicOverlay .qp-v6-broadcast .qp-v4-heading-totals{
+ flex:0 0 auto;
+ background:linear-gradient(130deg,#16314c,#0a1b31);
+ border-color:#447d9e;
+}
+#qpPublicOverlay .qp-v6-emblem{
+ display:grid;place-items:center;position:relative;isolation:isolate;
+ width:100%;height:100%;min-width:0;min-height:0;
+ border-radius:inherit;color:var(--qp-color,#75dffc);
+ background:
+   radial-gradient(ellipse 68% 55% at 52% 42%,color-mix(in srgb,var(--qp-color) 28%,transparent),transparent 90%),
+   linear-gradient(148deg,#123456,#07182e);
+}
+#qpPublicOverlay .qp-v6-emblem::before,
+#qpPublicOverlay .qp-v6-emblem::after{
+ content:"";position:absolute;pointer-events:none;
+ width:73%;aspect-ratio:1;border-radius:50%;border:1px solid currentColor;opacity:.28;
+}
+#qpPublicOverlay .qp-v6-emblem::after{
+ width:88%;opacity:.12;border-style:dashed;transform:rotate(25deg);
+}
+#qpPublicOverlay .qp-v6-emblem svg{
+ display:block;position:relative;z-index:1;
+ width:64%;height:64%;max-height:150px;
+ stroke:currentColor;filter:drop-shadow(0 0 10px currentColor);
+}
+#qpPublicOverlay .qp-v4-choice-art .qp-v6-emblem svg{width:min(53%,132px);height:83%}
+#qpPublicOverlay .qp-v4-vs-art .qp-v6-emblem svg{width:64%;height:73%}
+#qpPublicOverlay .qp-v4-bar-symbol .qp-v6-emblem svg{width:77%;height:77%}
+#qpPublicOverlay .qp-v4-bar-symbol .qp-v6-emblem::after{display:none}
+#qpPublicOverlay .qp-voter .qp-v6-emblem svg{width:70%;height:70%}
+
+/* Option bars: glowing color-coded spine, identifiable winner and clear counts. */
+#qpPublicOverlay .qp-v4-bar-row{
+ border-left-width:4px;border-left-color:var(--qp-color);
+ box-shadow:inset 6px 0 12px color-mix(in srgb,var(--qp-color) 8%,transparent),inset 0 1px 0 #c4ebff0e;
+}
+#qpPublicOverlay .qp-v4-bar-row.is-leader{
+ border-left-color:#f9d98f;
+ box-shadow:0 0 20px color-mix(in srgb,var(--qp-color) 16%,transparent),
+  inset 6px 0 19px color-mix(in srgb,var(--qp-color) 16%,transparent),
+  inset 0 1px 0 #edffff20;
+}
+#qpPublicOverlay .qp-v6-bar-laurel{
+ display:grid;place-items:center;flex:0 0 38px;
+ border-radius:50%;aspect-ratio:1;
+ border:1px solid #d5b16b;background:linear-gradient(140deg,#4b402a,#1a2335);
+ color:#ffe4a0;box-shadow:0 0 18px #ffc5674d;
+}
+#qpPublicOverlay .qp-v6-crest{display:block;width:28px;height:28px;flex:0 0 auto}
+#qpPublicOverlay .qp-v4-bar-rail{
+ background:linear-gradient(90deg,#081c32,#071527);
+ border-color:#3a6482;box-shadow:inset 0 2px 6px #0008;
+}
+#qpPublicOverlay .qp-v4-bar-fill{
+ background:linear-gradient(180deg,color-mix(in srgb,var(--qp-color) 85%,#fff),var(--qp-color) 46%,
+  color-mix(in srgb,var(--qp-color) 64%,#08213f));
+ border-radius:inherit;
+ box-shadow:0 0 20px color-mix(in srgb,var(--qp-color) 48%,transparent),inset 0 1px 0 #fff8;
+}
+#qpPublicOverlay .qp-v6-leader-banner{
+ position:relative;justify-content:center;gap:14px;
+ color:#fee1a2;
+ background:
+   radial-gradient(ellipse 60% 250% at 50% 80%,#79603545,transparent 80%),
+   linear-gradient(100deg,#1b334c,#18283b 65%,#243047);
+ border-color:#967c54;
+ box-shadow:inset 0 1px 0 #fce3b42b;
+}
+#qpPublicOverlay .qp-v6-leader-banner .qp-v6-crest{
+ width:32px;height:32px;filter:drop-shadow(0 0 8px #ffd6869a);
+}
+#qpPublicOverlay .qp-v6-leader-banner .qp-v6-leader-line{
+ position:absolute;inset:auto 18% 0;height:1px;
+ background:linear-gradient(90deg,transparent,#ffe6a5a1,transparent);
+}
+#qpPublicOverlay .qp-v6-leader-banner.pending{
+ border-color:#4b6f88;color:#a8d4eb;
+}
+#qpPublicOverlay .qp-v6-wait-icon{color:#7eacc4;font-size:19px}
+#qpPublicOverlay .qp-v6-leader-banner.has-tie{
+ border-color:#9e90c2;color:#ead7ff;
+ background:linear-gradient(110deg,#202d4b,#302845,#1b3653);
+}
+
+/* Donut: compass-styled vector orbit, brighter center and a clear top signal. */
+#qpPublicOverlay .qp-v6-ring-deco{
+ position:absolute;display:block;pointer-events:none;
+ width:min(34vw,58vh,525px);aspect-ratio:1;border-radius:50%;
+ border:1px solid #7aeaff1c;
+ box-shadow:0 0 0 8px #6fc4fa09,0 0 0 27px #6fc4fa06,
+  inset 0 0 0 1px #bbffff10;
+}
+#qpPublicOverlay .qp-v6-ring-deco>i{
+ position:absolute;display:block;
+ width:clamp(4px,.55vw,8px);height:clamp(4px,.55vw,8px);
+ background:#8be9ff;border-radius:50%;box-shadow:0 0 9px #7be8ffb3;
+ left:50%;top:-4px;
+}
+#qpPublicOverlay .qp-v6-ring-deco>i:nth-child(2){left:auto;right:-4px;top:50%}
+#qpPublicOverlay .qp-v6-ring-deco>i:nth-child(3){left:50%;top:auto;bottom:-4px}
+#qpPublicOverlay .qp-v6-ring-deco>i:nth-child(4){left:-4px;top:50%}
+#qpPublicOverlay .qp-v4-ring{position:relative}
+#qpPublicOverlay .qp-v4-ring-hole{
+ background:
+  radial-gradient(circle at 52% 12%,#1b4f70,#092040 62%,#041528);
+ border-color:#6ca4c0;box-shadow:inset 0 0 0 6px #07192afa,inset 0 0 30px #071326,0 0 19px #03162baa;
+}
+#qpPublicOverlay .qp-v6-legend-banner{
+ display:flex;align-items:center;justify-content:center;gap:12px;
+ color:#fce5ae;
+ border-color:#9c875e;
+ background:linear-gradient(110deg,#2a3f51,#1a2c45);
+}
+#qpPublicOverlay .qp-v6-legend-banner .qp-v6-crest{
+ filter:drop-shadow(0 0 7px #ffcc8088);
+}
+
+/* Versus: cinematic metallic side panels, leader award and illuminated VS. */
+#qpPublicOverlay .qp-v4-versus-side{position:relative}
+#qpPublicOverlay .qp-v4-versus-side::before{
+ content:"";position:absolute;z-index:0;pointer-events:none;
+ inset:10px;border:1px solid color-mix(in srgb,var(--qp-color) 27%,transparent);
+ border-radius:15px;
+}
+#qpPublicOverlay .qp-v4-versus-side>*{position:relative;z-index:1}
+#qpPublicOverlay .qp-v6-vs-winner{
+ position:absolute!important;z-index:2!important;
+ right:clamp(8px,1.2vw,21px);top:clamp(39px,3.5vw,61px);
+ display:grid;place-items:center;
+ width:clamp(30px,3.2vw,52px);height:clamp(30px,3.2vw,52px);
+ color:#ffe4a1;border:1px solid #dbb777;border-radius:50%;
+ background:linear-gradient(125deg,#554124,#1d2837);
+ box-shadow:0 0 16px #ecc06b61;
+}
+#qpPublicOverlay .qp-v4-versus-medal{
+ border-color:#f0cf91!important;
+ background:radial-gradient(circle at 35% 28%,#b5844e,#563847 54%,#211b36)!important;
+ box-shadow:0 0 28px #f6d6885c,inset 0 0 12px #fff4c83b;
+}
+#qpPublicOverlay .qp-v4-vs-meter{border-color:#84aac1}
+
+/* Leaderboard: answer art remains dominant, with crisp metallic podium badge. */
+#qpPublicOverlay .qp-v4-choice-tile{
+ position:relative;
+ background:
+   radial-gradient(circle at 50% 25%,color-mix(in srgb,var(--qp-color) 18%,transparent),transparent 53%),
+   linear-gradient(145deg,#11334e,#0a1931);
+}
+#qpPublicOverlay .qp-v4-choice-tile::before{
+ content:"";position:absolute;z-index:0;inset:8px;pointer-events:none;
+ border:1px solid color-mix(in srgb,var(--qp-color) 18%,transparent);
+ border-radius:12px;
+}
+#qpPublicOverlay .qp-v4-choice-tile>*{position:relative;z-index:1}
+#qpPublicOverlay .qp-v4-choice-tile.is-leader{
+ border-color:#f5d99d;
+ box-shadow:0 0 26px color-mix(in srgb,var(--qp-color) 28%,transparent),
+  inset 0 1px 0 #fff8;
+}
+#qpPublicOverlay .qp-v6-card-winner{
+ display:inline-flex;align-items:center;gap:4px;
+ color:#ffe5ae!important;
+}
+#qpPublicOverlay .qp-v6-card-winner .qp-v6-crest{
+ width:clamp(17px,1.5vw,23px);height:clamp(17px,1.5vw,23px);
+}
+#qpPublicOverlay .qp-v4-choice-meter span{
+ background:linear-gradient(180deg,color-mix(in srgb,var(--qp-color) 80%,#fff),var(--qp-color));
+ box-shadow:0 0 17px color-mix(in srgb,var(--qp-color) 45%,transparent);
+}
+
+/* One-shot incoming vote feedback, not an incessant pulsing redraw. */
+@keyframes qpV6SignalIn{
+ 0%{opacity:.0;transform:translateX(-65%) skewX(-18deg)}
+ 56%{opacity:.5}
+ 100%{opacity:0;transform:translateX(105%) skewX(-18deg)}
+}
+#qpPublicOverlay .qp-v6-new-signal .qp-v4-stage::before{
+ content:"";position:absolute;pointer-events:none;z-index:3;
+ top:0;bottom:0;left:0;width:38%;
+ background:linear-gradient(90deg,transparent,#83faff10,#b5f7ff22,transparent);
+ animation:qpV6SignalIn 1.05s ease-out 1 both;
+}
+@keyframes qpV6CrestIn{
+ 0%{opacity:.4;transform:scale(.88)}
+ 60%{opacity:1;transform:scale(1.08)}
+ 100%{opacity:1;transform:none}
+}
+@media(prefers-reduced-motion:no-preference){
+ #qpPublicOverlay .qp-v4-stage .qp-v6-crest{animation:qpV6CrestIn .58s ease-out both}
+ #qpPublicOverlay .qp-v4-brand-orbit>i{animation:qpV6CrestIn 1.15s ease-out both}
+}
+
+/* Zoom layouts: prevent turnout readouts and awards from covering chart data. */
+@media(max-width:1150px){
+ #qpPublicOverlay .qp-v6-participation-copy{display:none}
+ #qpPublicOverlay .qp-v6-participation{
+  padding:5px 7px;border-radius:50%;gap:0;
+ }
+ #qpPublicOverlay .qp-v6-turnout-wheel{
+  flex-basis:clamp(45px,5vw,56px);
+  width:clamp(45px,5vw,56px);
+ }
+ #qpPublicOverlay .qp-v6-bar-laurel{flex-basis:31px}
+ #qpPublicOverlay .qp-v6-bar-laurel .qp-v6-crest{width:24px;height:24px}
+}
+@media(max-width:680px){
+ #qpPublicOverlay .qp-v6-broadcast .qp-v4-results-heading{flex-wrap:wrap}
+ #qpPublicOverlay .qp-v6-participation{order:2}
+ #qpPublicOverlay .qp-v6-broadcast .qp-v4-heading-totals{order:3}
+ #qpPublicOverlay .qp-v6-title-block{flex:1 1 100%}
+ #qpPublicOverlay .qp-v6-bar-laurel{flex-basis:27px}
+ #qpPublicOverlay .qp-v6-leader-banner .qp-v6-crest{width:24px;height:24px}
+ #qpPublicOverlay .qp-v6-ring-deco{width:min(84vw,44vh,320px)}
+ #qpPublicOverlay .qp-v6-vs-winner{width:28px;height:28px;right:4px;top:32px}
+ #qpPublicOverlay .qp-v6-vs-winner .qp-v6-crest{width:21px;height:21px}
+ #qpPublicOverlay .qp-v6-card-winner .qp-v6-crest{width:16px;height:16px}
+}
+@media(max-height:770px){
+ #qpPublicOverlay .qp-v6-ring-deco{width:min(31vw,47vh,390px)}
+ #qpPublicOverlay .qp-v6-participation{padding:4px 9px}
+ #qpPublicOverlay .qp-v6-turnout-wheel{
+  flex-basis:42px;width:42px;
+ }
+ #qpPublicOverlay .qp-v6-participation-copy strong{font-size:10px}
+ #qpPublicOverlay .qp-v6-participation-copy small{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){
+ #qpPublicOverlay .qp-v6-new-signal .qp-v4-stage::before{animation:none!important;display:none}
+ #qpPublicOverlay .qp-v6-broadcast *,#qpPublicOverlay .qp-v6-broadcast *::before,#qpPublicOverlay .qp-v6-broadcast *::after{
+  animation:none!important;transition:none!important;
+ }
+}
