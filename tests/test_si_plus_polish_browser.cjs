@@ -71,12 +71,21 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   for(const [width,height] of [[1920,1080],[1280,720],[768,1024]]){
    await page.setViewportSize({width,height});
    const dims=await page.evaluate(()=>{
-    const frame=document.querySelector("#sharedContent .presentation-public .si-plus-video-frame");
+    // Teacher's shared output tab is hidden by default. Render the *same* live
+    // sharedMarkup inside a visible temporary projector shell to measure layout.
+    const shell=document.createElement("div");
+    shell.style.cssText="position:fixed;inset:0;z-index:999999;background:#061629;padding:12px;box-sizing:border-box;overflow:auto";
+    const content=document.createElement("div");content.id="sharedContent";
+    content.style.cssText="display:block;width:100%;height:auto";
+    content.innerHTML=sharedMarkup("big");shell.appendChild(content);document.body.appendChild(shell);
+    const frame=content.querySelector(".presentation-public .si-plus-video-frame");
     const video=frame?.querySelector("iframe");
-    if(!frame||!video)return {exists:false};
+    if(!frame||!video){shell.remove();return {exists:false};}
     const f=frame.getBoundingClientRect(),v=video.getBoundingClientRect();
-    return {exists:true,width:f.width,height:f.height,videoWidth:v.width,
-      ratio:f.height?f.width/f.height:0,fullscreen:video.hasAttribute("allowfullscreen")};
+    const result={exists:true,width:f.width,height:f.height,videoWidth:v.width,
+      ratio:f.height?f.width/f.height:0,fullscreen:video.hasAttribute("allowfullscreen"),
+      overflow:Math.max(0,content.scrollWidth-content.clientWidth)};
+    shell.remove();return result;
    });
    console.log(JSON.stringify({test:"SI+ shared video layout",width,height,...dims}));
    assert.equal(dims.exists,true);
@@ -84,6 +93,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    assert.ok(Math.abs(dims.ratio-16/9)<.08,"Video must keep 16:9 geometry");
    assert.ok(Math.abs(dims.width-dims.videoWidth)<4,"Video occupies media frame");
    assert.equal(dims.fullscreen,true);
+   assert.ok(dims.overflow<=4,"Projector must not overflow horizontally");
    sizes.push(dims);
   }
   const before=await page.evaluate(()=>{
