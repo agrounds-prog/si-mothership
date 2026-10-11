@@ -25,6 +25,7 @@ on:
       - 'dashboard-polish.css'
       - 'tests/test_dashboard_avatar_reskin.cjs'
       - 'tests/test_si_plus_persistence.py'
+      - 'tests/test_si_plus_video_stability.cjs'
       - 'quick_poll_server.py'
       - 'million-studio.js'
       - 'million-studio.css'
@@ -104,6 +105,8 @@ jobs:
           node tests/test_dominoes_engine.cjs
           python -m unittest discover -s tests -p 'test_dominoes_server.py' -v
           node tests/test_dominoes_browser.cjs
+      - name: SI+ shared video remains mounted during unrelated classroom updates
+        run: node tests/test_si_plus_video_stability.cjs
       - name: SI+ presentations and classroom libraries survive Reset Session
         run: python -m unittest discover -s tests -p 'test_si_plus_persistence.py' -v
       - name: Quick Poll server integration and vote lifecycle
