@@ -8,6 +8,8 @@ const base=process.env.LOCAL_URL||"http://127.0.0.1:8877";
  page.on("pageerror",e=>errors.push(String(e.stack||e)));
  page.on("dialog",async d=>{if(d.type()==="prompt")await d.accept("Word Grid Browser Test");else await d.accept()});
  try{
+  const auth=await page.request.post(base+"/api/teacher/login",{data:{key:"5030"}});
+  assert.equal(auth.status(),200,"isolated local test teacher login");
   let response=await page.goto(base+"/?role=teacher",{waitUntil:"domcontentloaded",timeout:40000});
   assert.equal(response.status(),200);
   await page.waitForFunction(()=>!!window.WordGrid&&typeof render==="function",{timeout:15000});
