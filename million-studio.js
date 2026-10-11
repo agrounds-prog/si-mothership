@@ -224,15 +224,9 @@ function installMillionStageCues(){
   let headline='',detail='',duration=0;
   if(stageName==='question'){headline='NEW QUESTION';detail='QUESTION '+(q+1)+' OF '+(cfg.questions?.length||15);duration=950}
   if(stageName==='locked'){headline='FINAL ANSWER LOCKED';detail='MISSION CONTROL · REVEAL PENDING';duration=1350}
-  if(stageName==='correct'){headline='SIGNAL CONFIRMED';detail='MILESTONE REACHED · ,checkpoints:n=>n===5?[3]:n===10?[5]:[5,10],
- currentName:()=>draft.name||'MILLION',inspection:()=>({count:draft.count,ready:readyCount(),saved:listGames().length,loadedId})};
-if(typeof state!=='undefined'&&state.activeApp==='million'&&typeof renderActivities==='function')renderActivities();
-})();+prize.toLocaleString('en-US');duration=2050}
+  if(stageName==='correct'){headline='SIGNAL CONFIRMED';detail='MILESTONE REACHED: '+String.fromCharCode(36)+prize.toLocaleString('en-US');duration=2050}
   if(stageName==='wrong'){headline='SIGNAL LOST';detail=m.over?'RUN COMPLETE':'ANSWER REVEALED';duration=2000}
-  if(stageName==='complete'){headline='MILLION COMPLETE';detail='FINAL MILESTONE · ,checkpoints:n=>n===5?[3]:n===10?[5]:[5,10],
- currentName:()=>draft.name||'MILLION',inspection:()=>({count:draft.count,ready:readyCount(),saved:listGames().length,loadedId})};
-if(typeof state!=='undefined'&&state.activeApp==='million'&&typeof renderActivities==='function')renderActivities();
-})();+Number(ladder.at(-1)||1000000).toLocaleString('en-US');duration=2800}
+  if(stageName==='complete'){headline='MILLION COMPLETE';detail='FINAL MILESTONE: '+String.fromCharCode(36)+Number(ladder.at(-1)||1000000).toLocaleString('en-US');duration=2800}
   const node=ensureCue();
   node.className='ms-million-cue '+stageName;
   const title=document.createElement('strong');title.textContent=headline;
