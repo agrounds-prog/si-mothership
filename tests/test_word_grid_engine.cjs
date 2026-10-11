@@ -68,6 +68,35 @@ run("a single connected learner defaults to a valid two-team setup",()=>{
  assert.match(html,/id="wgSetupStatus"/);
  assert.equal(W.make(["Crew Alpha","Crew Beta"]).players.length,2);
 });
+run("student team assignment, teacher player and private letter hint",()=>{
+ const g=W.make(["Crew Alpha","Crew Beta","Teacher"],{assignments:{"Alex":0,"Sam":1},teacherSeat:2});
+ assert.deepEqual(g.assignments,{Alex:0,Sam:1});
+ assert.deepEqual(W.teamMembers(g,2),["Teacher"]);
+ const rackTile=g.players[0].rack[0];
+ assert.equal(W.setHint(g,rackTile.id),true);
+ const alpha=W.studentHTML(g,{n:"Alex"}),beta=W.studentHTML(g,{n:"Sam"}),screen=W.sharedHTML(g,true);
+ assert.match(alpha,/wg-student-rack/);
+ assert.match(alpha,/wg-highlight/);
+ assert.match(alpha,/TEACHER HINT/);
+ assert.doesNotMatch(beta,/wg-student-rack/);
+ assert.doesNotMatch(beta,/TEACHER HINT/);
+ assert.doesNotMatch(screen,/wg-student-rack/);
+ assert.equal(W.setHint(g,rackTile.id),true);
+ assert.equal(g.hint,null);
+ assert.equal(W.assignStudent(g,"Alex",1),true);
+ assert.doesNotMatch(W.studentHTML(g,{n:"Alex"}),/wg-student-rack/);
+ assert.equal(W.assignStudent(g,"Alex",""),true);
+ assert.equal(g.assignments.Alex,undefined);
+});
+run("match setup includes student team dropdowns and teacher participation",()=>{
+ const html=W.setupHTML(["Alex","Sam"]);
+ assert.match(html,/data-wg-setup-student="Alex"/);
+ assert.match(html,/data-wg-setup-student="Sam"/);
+ assert.match(html,/wgTeacherMode/);
+ assert.match(html,/Teacher plays as own player/);
+ assert.match(html,/START WORD GRID/);
+ assert.equal(typeof W.wireSetup,"function");
+});
 run("projection and student view render tiles, not a private teacher rack",()=>{
  const g=W.make(["Alpha","Bravo"]);const shared=W.sharedHTML(g,true),student=W.studentHTML(g);
  assert.equal((shared.match(/data-wg-cell=/g)||[]).length,225);
