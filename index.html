@@ -16913,6 +16913,23 @@ function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show'
 function ytId(value){try{let raw=(value||'').trim();if(!raw)return null;if(!/^https?:\/\//i.test(raw))raw='https://'+raw;const u=new URL(raw);const h=u.hostname.replace(/^www\./,'');if(h==='youtu.be')return u.pathname.split('/').filter(Boolean)[0]||null;if(h.endsWith('youtube.com')){if(u.searchParams.get('v'))return u.searchParams.get('v');const m=u.pathname.match(/\/(?:shorts|embed|live)\/([^/?#]+)/);return m&&m[1]}return null}catch(e){return null}}
 function ytEmbed(id,autoplay=false){return `https://www.youtube-nocookie.com/embed/${id}?rel=0&playsinline=1${autoplay?'&autoplay=1&mute=1':''}`}
 function ytWatch(id){return `https://www.youtube.com/watch?v=${id}`}
+function siPlusVideoPreview(value){
+ const id=ytId(value);
+ if(!value?.trim())return '<span class="si-plus-video-empty">Paste a YouTube link to attach a video to this slide.</span>';
+ if(!id)return '<span class="si-plus-video-invalid">This is not a recognized YouTube link. Paste a standard watch, shorts, or youtu.be URL.</span>';
+ return '<div class="si-plus-video-preview-card"><div class="si-plus-video-thumb">'+
+  '<img src="https://i.ytimg.com/vi/'+encodeURIComponent(id)+'/hqdefault.jpg" alt="YouTube video thumbnail">'+
+  '<span aria-hidden="true">▶</span></div><div class="si-plus-video-copy">'+
+  '<b>Video ready</b><span>Plays in the classroom presentation. Some videos restrict embedding.</span>'+
+  '<a href="'+ytWatch(id)+'" target="_blank" rel="noopener noreferrer">Open on YouTube ↗</a></div></div>';
+}
+function siPlusVideoMarkup(value){
+ const id=ytId(value);if(!id)return '';
+ return '<div class="si-plus-video-unit"><div class="si-plus-video-frame"><iframe src="'+ytEmbed(id,false)+
+  '" title="YouTube video" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" '+
+  'allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>'+
+  '<a class="si-plus-video-fallback" href="'+ytWatch(id)+'" target="_blank" rel="noopener noreferrer">Video not playing? Open on YouTube ↗</a></div>';
+}
 function studentByName(name){return state.students.find(s=>s.n===name)}
 function selectedStudent(){return studentByName(state.selectedStudent)}
 function connectedStudents(){return state.students.filter(s=>!s.offline)}
@@ -17561,7 +17578,7 @@ function activitySharedMarkup(big=false){
     if(slide.type==='instruction'){
       const imageOnly=!!slide.image&&!ytId(slide.youtube);
       if(imageOnly)return `<div class="si-plus-viewport-image" style="width:100vw;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:0;padding:0;box-sizing:border-box"><img src="${slide.image}" alt="Slide image" style="display:block;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;object-position:center;margin:auto;border-radius:12px"></div>`;
-      const media=`<div class="presentation-media-stack">${slide.image?`<img src="${slide.image}" alt="Slide image">`:''}${ytId(slide.youtube)?`<iframe src="${ytEmbed(ytId(slide.youtube),false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`:''}</div>`;
+      const media=`<div class="presentation-media-stack">${slide.image?`<img src="${slide.image}" alt="Slide image">`:''}${siPlusVideoMarkup(slide.youtube)}</div>`;
       return `<div class="presentation-public"><div class="slide-count">Slide ${run.slideIndex+1} of ${a.slides.length}</div><h3 style="font-size:${big?54:34}px">${esc(slide.title)}</h3>${media}<p style="font-size:${big?27:18}px">${esc(slide.text)}</p></div>`;
     }
     return responseSlideMarkup(slide,big);
@@ -17591,7 +17608,7 @@ function responseSlideMarkup(slide,big=false){
     const correct=reveal&&c.key===slide.correct, dim=reveal&&c.key!==slide.correct;
     return `<div class="public-answer ${correct?'correct':''} ${dim?'dim':''}"><span class="answer-key key-${c.key}">${c.key}</span><span class="answer-copy">${esc(c.text)}${c.image?`<img class="public-choice-image" src="${c.image}" alt="Answer ${c.key} image">`:''}</span>${show?`<span class="result-count">${counts[c.key]||0} · ${pct}%</span><span class="result-bar"><i style="width:${pct}%"></i></span>`:''}${correct?'<span class="correct-check">✓</span>':''}</div>`
   }).join('');
-  const video=ytId(slide.youtube)?`<div class="presentation-media-stack"><iframe src="${ytEmbed(ytId(slide.youtube),false)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`:'';const imageFocus=!!slide.image&&!hasAnswerOptions&&!ytId(slide.youtube);return `<div class="presentation-public response-slide ${hasAnswerOptions?'':'no-answer-options'} ${imageFocus?'image-focus-slide':''}"><div class="slide-meta"><span class="slide-badge ${slide.type}">${slide.type.toUpperCase()}</span><span>${count} of ${connected.length} responded</span></div>${image}<h3 style="font-size:${big?42:29}px">${esc(slide.title)}</h3>${video}${slide.text?`<p class="supporting" style="font-size:${big?21:15}px">${esc(slide.text)}</p>`:''}<div class="public-answer-list">${rows}</div></div>`;
+  const video=ytId(slide.youtube)?`<div class="presentation-media-stack">${siPlusVideoMarkup(slide.youtube)}</div>`:'';const imageFocus=!!slide.image&&!hasAnswerOptions&&!ytId(slide.youtube);return `<div class="presentation-public response-slide ${hasAnswerOptions?'':'no-answer-options'} ${imageFocus?'image-focus-slide':''}"><div class="slide-meta"><span class="slide-badge ${slide.type}">${slide.type.toUpperCase()}</span><span>${count} of ${connected.length} responded</span></div>${image}<h3 style="font-size:${big?42:29}px">${esc(slide.title)}</h3>${video}${slide.text?`<p class="supporting" style="font-size:${big?21:15}px">${esc(slide.text)}</p>`:''}<div class="public-answer-list">${rows}</div></div>`;
 }
 
 function sharedMarkup(size='normal'){
@@ -18670,12 +18687,16 @@ function renderPresentationBuilder(){
   box.innerHTML=`<div class="builder-top"><div class="builder-title-group"><span class="eyebrow">PRESENTATION BUILDER</span><input id="presentationTitleInput" class="builder-title-input" value="${esc(d.deckTitle||d.name)}" aria-label="Presentation title"></div><div class="builder-top-actions"><button id="cancelPresentationEdit">← Library</button><button class="builder-load-btn" id="loadSavedFromBuilder">▣ Load Saved</button><button class="save" id="savePresentationBtn">💾 Save Presentation</button></div></div><div id="siPlusSaveStatus" class="si-plus-save-status" role="status">Saved presentations stay in your Railway library after Reset Session.</div>
   <div class="builder-layout"><div class="builder-box"><h3>Slides (${d.slides.length})</h3><div class="slide-nav">${d.slides.map((s,i)=>`<button class="slide-nav-item ${i===state.editorSlide?'active':''}" data-editor-slide="${i}"><b>${i+1}. ${esc(s.listTitle||s.title||'Slide')}</b><small class="slide-badge ${s.type}">${s.type.toUpperCase()}</small></button>`).join('')}</div></div>
   <div class="builder-box"><div class="editor-form"><span class="slide-badge ${slide.type}">${slide.type.toUpperCase()}</span><label>Slide List Title<input id="slideListTitle" type="text" value="${esc(slide.listTitle||'')}" placeholder="Example: Warm-Up Question"></label><label>${slide.type==='instruction'?'Slide Title':'Question / Prompt'}<input id="slideTitle" type="text" value="${esc(slide.title||'')}"></label><label>${slide.type==='instruction'?'Text / Prompt':'Supporting text'}<textarea id="slideText">${esc(slide.text||'')}</textarea></label>
-  <div class="editor-row"><div class="editor-media"><b style="font-size:10px">Slide Image</b><div style="margin-top:7px"><label class="file-label">＋ Attach Image<input id="slideImageInput" type="file" accept="image/*"></label>${slide.image?' <button class="remove-media" id="removeSlideImage">Remove</button>':''}</div><div class="editor-media-preview">${slide.image?`<img src="${slide.image}" alt="Slide preview"><span>Image attached</span>`:'No image attached'}</div></div><div class="editor-media"><b style="font-size:10px">YouTube</b><input id="slideYoutube" type="url" value="${esc(slide.youtube||'')}" placeholder="Paste YouTube link"><div class="editor-media-preview">${ytId(slide.youtube)?'<span style="color:#5be8ff">✓ YouTube link recognized</span>':'Optional'}</div></div></div>
+  <div class="editor-row"><div class="editor-media"><b style="font-size:10px">Slide Image</b><div style="margin-top:7px"><label class="file-label">＋ Attach Image<input id="slideImageInput" type="file" accept="image/*"></label>${slide.image?' <button class="remove-media" id="removeSlideImage">Remove</button>':''}</div><div class="editor-media-preview">${slide.image?`<img src="${slide.image}" alt="Slide preview"><span>Image attached</span>`:'No image attached'}</div></div><div class="editor-media si-plus-video-editor"><div class="si-plus-video-label"><b>YouTube Video</b><span>Optional · 16:9 widescreen</span></div><input id="slideYoutube" type="url" value="${esc(slide.youtube||'')}" placeholder="Paste a YouTube watch or share link"><div class="si-plus-video-preview" id="siPlusVideoPreview">${siPlusVideoPreview(slide.youtube)}</div></div></div>
   ${['question','poll'].includes(slide.type)?`<div><label style="display:block;margin-bottom:5px">Answer Choices${slide.type==='question'?' · click A/B/C/D circle to mark correct':''}</label>${answerHTML}</div>`:''}
   <div class="slide-tools"><button id="moveSlideUp">↑ Move Up</button><button id="moveSlideDown">↓ Move Down</button><button class="delete" id="deleteSlideBtn">Delete Slide</button></div></div></div>
   <div class="builder-box"><h3>Add a New Slide</h3><div class="add-slide-grid"><button class="add-instruction" data-add-slide="instruction">▤ Instruction Slide<small>Text, image, or YouTube</small></button><button class="add-question" data-add-slide="question">? Question Slide<small>A/B/C/D + correct answer</small></button><button class="add-poll" data-add-slide="poll">▥ Poll Slide<small>A/B/C/D with no correct answer</small></button></div><p class="builder-note">Saved presentations appear back in the Activity Library and can be assigned to any Favorite button.</p></div></div>`;
   $('#presentationTitleInput').oninput=e=>{d.deckTitle=e.target.value;d.name=e.target.value};
-  $('#slideListTitle').oninput=e=>slide.listTitle=e.target.value;$('#slideTitle').oninput=e=>slide.title=e.target.value;$('#slideText').oninput=e=>slide.text=e.target.value;$('#slideYoutube').oninput=e=>slide.youtube=e.target.value;
+  $('#slideListTitle').oninput=e=>slide.listTitle=e.target.value;$('#slideTitle').oninput=e=>slide.title=e.target.value;$('#slideText').oninput=e=>slide.text=e.target.value;$('#slideYoutube').oninput=e=>{
+    slide.youtube=e.target.value;
+    const preview=$('#siPlusVideoPreview');
+    if(preview)preview.innerHTML=siPlusVideoPreview(slide.youtube);
+  };
   $('#slideImageInput').onchange=e=>readEditorImage(e.target.files?.[0],data=>{slide.image=data;renderPresentationBuilder()});const rem=$('#removeSlideImage');if(rem)rem.onclick=()=>{slide.image='';renderPresentationBuilder()};
   $$('[data-editor-slide]').forEach(b=>b.onclick=()=>{state.editorSlide=Number(b.dataset.editorSlide);renderPresentationBuilder()});$$('[data-add-slide]').forEach(b=>b.onclick=()=>addPresentationSlide(b.dataset.addSlide));
   $('#moveSlideUp').onclick=()=>moveEditorSlide(-1);$('#moveSlideDown').onclick=()=>moveEditorSlide(1);$('#deleteSlideBtn').onclick=deleteEditorSlide;$('#cancelPresentationEdit').onclick=closePresentationEditor;$('#savePresentationBtn').onclick=savePresentation;$('#loadSavedFromBuilder').onclick=()=>{state.presentationEditor=null;state.activeApp='si-plus';state.presentationLibraryOpen=true;render()};
@@ -19081,7 +19102,7 @@ body.role-student .cinematic-message-console p{margin-left:0!important;text-alig
   }catch(e){}
   try{secondScreenWindow.focus()}catch(e){}toast('2nd screen launched with student login');
 }
-function updateSecondScreen(){if(!secondScreenWindow||secondScreenWindow.closed)return;try{const c=secondScreenWindow.document.getElementById('secondContent'),l=secondScreenWindow.document.getElementById('secondLabel');if(c)c.innerHTML=sharedMarkup('big');const label=state.ended?'ENDED':state.activityRun?(activeActivity()?.type==='board'?'BOARD LIVE':state.activityRun.phase==='lobby'?'ACTIVITY LOBBY':'ACTIVITY LIVE'):state.screen==='brb'?'WE’LL BE RIGHT BACK':state.screen.toUpperCase();if(l)l.textContent=label;requestAnimationFrame(paintPixelFocusCanvases)}catch(e){}}
+function updateSecondScreen(){if(!secondScreenWindow||secondScreenWindow.closed)return;try{const c=secondScreenWindow.document.getElementById('secondContent'),l=secondScreenWindow.document.getElementById('secondLabel');if(c)renderSiPlusStable(c,sharedMarkup('big'));const label=state.ended?'ENDED':state.activityRun?(activeActivity()?.type==='board'?'BOARD LIVE':state.activityRun.phase==='lobby'?'ACTIVITY LOBBY':'ACTIVITY LIVE'):state.screen==='brb'?'WE’LL BE RIGHT BACK':state.screen.toUpperCase();if(l)l.textContent=label;requestAnimationFrame(paintPixelFocusCanvases)}catch(e){}}
 
 function applyJoinCode(code,studentUrl=null,qrData=null,sessionId=null,sharedUrl=null){
   if(!code)return;
@@ -19144,8 +19165,52 @@ function animateStarwheelWheels(){
   });
   starwheelLastAnimatedNonce=nonce;
 }
+/* SI+ stable slide reconciliation: classroom presence, roster and vote updates
+   should not destroy the current media elements or reload YouTube playback. */
+function reconcileSiPlusNode(live,desired){
+  if(!live||!desired)return;
+  if(live.nodeType!==desired.nodeType||
+     live.nodeType===1&&live.tagName!==desired.tagName){
+    live.replaceWith(desired.cloneNode(true));return;
+  }
+  if(live.nodeType===3){
+    if(live.nodeValue!==desired.nodeValue)live.nodeValue=desired.nodeValue;
+    return;
+  }
+  if(live.nodeType!==1)return;
+  if((live.tagName==='IFRAME'||live.tagName==='IMG')&&
+     live.getAttribute('src')===desired.getAttribute('src'))return;
+  for(const attr of [...live.attributes]){
+    if(!desired.hasAttribute(attr.name))live.removeAttribute(attr.name);
+  }
+  for(const attr of [...desired.attributes]){
+    if(live.getAttribute(attr.name)!==attr.value)live.setAttribute(attr.name,attr.value);
+  }
+  const older=[...live.childNodes],newer=[...desired.childNodes];
+  if(older.length!==newer.length){live.replaceChildren(...newer.map(n=>n.cloneNode(true)));return;}
+  for(let i=0;i<older.length;i++)reconcileSiPlusNode(older[i],newer[i]);
+}
+function renderSiPlusStable(target,markup){
+  if(!target)return;
+  const isSiPlus=state.activityRun&&activeActivity()?.type==='presentation'&&state.activityRun.phase!=='lobby';
+  const signature=isSiPlus?
+    String(state.activityRun.runToken||state.activityRun.activityId)+'|'+String(state.activityRun.slideIndex||0):'';
+  if(target.__siPlusMarkup===markup&&target.__siPlusSignature===signature)return;
+  if(isSiPlus&&target.__siPlusSignature===signature&&target.firstChild){
+    const template=document.createElement('template');
+    template.innerHTML=markup;
+    const existing=[...target.childNodes],updated=[...template.content.childNodes];
+    if(existing.length===updated.length){
+      for(let i=0;i<existing.length;i++)reconcileSiPlusNode(existing[i],updated[i]);
+    }else target.replaceChildren(template.content);
+  }else target.innerHTML=markup;
+  target.__siPlusSignature=signature;
+  target.__siPlusMarkup=markup;
+}
 function renderPublic(){
-  $('#mirrorContent').innerHTML=sharedMarkup('normal');$('#sharedContent').innerHTML=sharedMarkup('big');$('#studentContent').innerHTML=studentMarkup();wireStudentJoin();wireStudentCalculator();wireStudentResponses();wireMinefieldStudent();wireVectorStudent();wireBoardStudent();wireSketchStudent();wireOrbitStudent();wireStarwheelStudent();wireCrewSurveyStudent();wireMillionStudent();wireMatchStudent();wireBingoStudent();cosmicWireStudent();renderStudentControls();animateStarwheelWheels();scheduleMatchResolution();matchArcadeRefreshAtExpiry();requestAnimationFrame(paintPixelFocusCanvases);
+  renderSiPlusStable($('#mirrorContent'),sharedMarkup('normal'));
+  renderSiPlusStable($('#sharedContent'),sharedMarkup('big'));
+  $('#studentContent').innerHTML=studentMarkup();wireStudentJoin();wireStudentCalculator();wireStudentResponses();wireMinefieldStudent();wireVectorStudent();wireBoardStudent();wireSketchStudent();wireOrbitStudent();wireStarwheelStudent();wireCrewSurveyStudent();wireMillionStudent();wireMatchStudent();wireBingoStudent();cosmicWireStudent();renderStudentControls();animateStarwheelWheels();scheduleMatchResolution();matchArcadeRefreshAtExpiry();requestAnimationFrame(paintPixelFocusCanvases);
   const conn=$('#studentConnectionLabel');if(conn)conn.innerHTML=studentNeedsJoin()?'<span style="width:9px;height:9px;border-radius:50%;display:inline-block;background:#ffc35d;box-shadow:0 0 12px #ffc35d88"></span>&nbsp; Join Class':'<span class="pulse"></span>&nbsp; Connected';
   const label=state.ended?'ENDED':state.activityRun?(activeActivity()?.type==='board'?'BOARD LIVE':state.activityRun.phase==='lobby'?'ACTIVITY LOBBY':'ACTIVITY LIVE'):state.screen==='brb'?'WE’LL BE RIGHT BACK':state.screen.toUpperCase();$('#mirrorLabel').textContent=label;$('#sharedLabel').textContent=label;updateSecondScreen();
 }
