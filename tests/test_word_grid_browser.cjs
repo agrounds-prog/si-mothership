@@ -6,7 +6,7 @@ const base=process.env.LOCAL_URL||"http://127.0.0.1:8877";
  const browser=await chromium.launch({headless:true,args:["--no-sandbox","--disable-dev-shm-usage"]});
  const page=await browser.newPage({viewport:{width:1440,height:960}}),errors=[];
  page.on("pageerror",e=>errors.push(String(e.stack||e)));
- page.on("dialog",async d=>{if(d.type()==="prompt")await d.accept("Word Grid Browser Test");else await d.accept()});
+ page.on("dialog",async d=>{if(d.type()==="prompt")await d.accept(/number of the saved game/i.test(d.message())?"1":"Word Grid Browser Test");else await d.accept()});
  try{
   const auth=await page.request.post(base+"/api/teacher/login",{data:{key:"5030"}});
   assert.equal(auth.status(),200,"isolated local test teacher login");
