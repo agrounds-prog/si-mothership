@@ -179,4 +179,46 @@ run("projector celebrations are temporary, preserve privacy, and respect turn ac
  W.undo(g);assert.equal(g.publicCue.kind,"undo");
  assert.match(W.sharedHTML(g,true),/TURN REWOUND/);
 });
+
+run("final rankings show every team, competition ties, and persistent saved-game-compatible view",()=>{
+ const g=W.make(["Aurora","Comet","Meteor","Nebula"]);
+ g.players.forEach((p,i)=>{p.rack=[];p.score=[42,23,23,-4][i]});
+ assert.equal(W.replayFinale(g),false);
+ g.finished=true;W.finish(g);
+ const standings=W.finalStandings(g);
+ assert.deepEqual(standings.map(p=>p.rank),[1,2,2,4]);
+ assert.deepEqual(standings.map(p=>p.score),[42,23,23,-4]);
+ let view=W.sharedHTML(g,true);
+ assert.match(view,/WORD GRID CHAMPIONSHIP/);
+ assert.match(view,/CHAMPIONS/);
+ assert.match(view,/Aurora/);
+ assert.equal((view.match(/class="wg-final-standing /g)||[]).length,4);
+ assert.match(view,/data-wg-rank="4"/);
+ assert.equal((view.match(/data-wg-cell=/g)||[]).length,225);
+ assert.doesNotMatch(view,/wg-student-rack|data-wg-tile=/);
+ assert.doesNotMatch(W.sharedHTML(g,false),/wg-finale/,"mirror stays compact");
+ const before=JSON.stringify({board:g.board,players:g.players,bag:g.bag,turn:g.turn,history:g.history});
+ assert.equal(W.replayFinale(g),true);
+ assert.match(W.sharedHTML(g,true),/wg-finale-entrance/);
+ assert.equal(JSON.stringify({board:g.board,players:g.players,bag:g.bag,turn:g.turn,history:g.history}),before);
+ const loaded=JSON.parse(JSON.stringify(g));delete loaded.finalCue;
+ assert.match(W.sharedHTML(loaded,true),/wg-final-standing/,"older finished saves show results without a replay timestamp");
+ g.players[1].score=42;W.finish(g);
+ assert.match(g.message,/tie with 42 points/i);
+ view=W.sharedHTML(g,true);
+ assert.match(view,/CO-CHAMPIONS/);
+ assert.equal((view.match(/data-wg-rank="1"/g)||[]).length,2);
+});
+run("automatic last-tile victory follows scoring animation rather than obscuring it",()=>{
+ const g=W.make(["Aurora","Comet"]);
+ g.players[0].rack=given("CAT");g.bag=[];
+ W.commit(g,{111:g.players[0].rack[0],112:g.players[0].rack[1],113:g.players[0].rack[2]});
+ assert.equal(g.finished,true);
+ assert.equal(g.publicCue.kind,"score");
+ assert.ok(g.finalCue.at>=g.publicCue.at+3200,"finale begins after winning word animation");
+ assert.match(W.sharedHTML(g,true),/wg-score-celebration/);
+ assert.match(W.sharedHTML(g,true),/wg-finale/);
+ assert.equal(W.replayFinale(g),true);
+ assert.ok(Math.abs(g.finalCue.at-Date.now())<2000);
+});
 console.log("WORD GRID engine regression complete");

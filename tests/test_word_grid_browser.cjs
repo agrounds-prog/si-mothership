@@ -186,6 +186,52 @@ const base=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const projection=await page.evaluate(()=>WordGrid.studentHTML(state.activityRun.wordGrid));
   assert.match(projection,/wg-student/);
   assert.doesNotMatch(projection,/data-wg-action/);
+  // End match through the teacher controller, show all final ranks, and replay safely.
+  await page.locator('#activityControllerPanel [data-wg-action="finish"]').click();
+  const finalView=await page.evaluate(()=>{
+    const g=state.activityRun.wordGrid,screen=document.querySelector("#sharedContent");
+    return {finished:g.finished,rankCards:screen.querySelectorAll(".wg-final-standing").length,
+      result:!!screen.querySelector(".wg-finale"),rack:screen.innerHTML.includes("wg-student-rack"),
+      rankScores:WordGrid.finalStandings(g).map(p=>p.score)};
+  });
+  assert.equal(finalView.finished,true);
+  assert.equal(finalView.rankCards,2);
+  assert.equal(finalView.result,true);
+  assert.equal(finalView.rack,false);
+  assert.equal(await page.locator('#activityControllerPanel [data-wg-action="replay-finale"]').count(),1);
+  const beforeFinalReplay=await page.evaluate(()=>{
+    const g=state.activityRun.wordGrid;
+    return {scores:g.players.map(p=>p.score),bag:g.bag.length,board:g.board.filter(Boolean).length,turn:g.turn,history:g.history.length};
+  });
+  await page.locator('#activityControllerPanel [data-wg-action="replay-finale"]').click();
+  const afterFinalReplay=await page.evaluate(()=>{
+    const g=state.activityRun.wordGrid;
+    return {scores:g.players.map(p=>p.score),bag:g.bag.length,board:g.board.filter(Boolean).length,turn:g.turn,history:g.history.length,
+      replay:document.querySelector("#sharedContent .wg-finale-entrance")!==null};
+  });
+  assert.equal(afterFinalReplay.replay,true);
+  assert.deepEqual(Object.fromEntries(Object.entries(afterFinalReplay).filter(([k])=>k!=="replay")),beforeFinalReplay);
+  await page.locator('#activityControllerPanel [data-wg-action="save"]').click();
+  await page.locator('#activityControllerPanel [data-wg-action="undo"]').click();
+  assert.equal(await page.evaluate(()=>state.activityRun.wordGrid.finished),false,"Undo restores the unfinalized game");
+  await page.locator('#activityControllerPanel [data-wg-action="load"]').click();
+  assert.equal(await page.evaluate(()=>state.activityRun.wordGrid.finished),true,"Saved completed game restores as finished");
+  assert.equal(await page.locator('#sharedContent .wg-final-standing').count(),2);
+  for(const [width,height] of [[1280,720],[768,1024],[430,960]]){
+    await page.setViewportSize({width,height});
+    const dimensions=await page.evaluate(()=>{
+      const host=document.createElement("div");host.style.cssText="position:fixed;inset:0;overflow:auto;padding:8px;box-sizing:border-box;z-index:999999;background:#061626";
+      host.innerHTML=WordGrid.sharedHTML(state.activityRun.wordGrid,true);document.body.appendChild(host);
+      const panel=host.querySelector(".wg-public"),finale=host.querySelector(".wg-finale");
+      const result={overflow:host.scrollWidth-host.clientWidth,finalWidth:finale.getBoundingClientRect().width,
+        panelWidth:panel.getBoundingClientRect().width,tiles:host.querySelectorAll(".wg-cell").length};
+      host.remove();return result;
+    });
+    assert.ok(dimensions.overflow<=5,"Championship view must not scroll horizontally");
+    assert.ok(dimensions.panelWidth<=width,"Championship projection fits screen");
+    assert.equal(dimensions.tiles,225);
+  }
+  await page.setViewportSize({width:1440,height:960});
   await page.reload({waitUntil:"domcontentloaded"});
   await page.waitForFunction(()=>!!window.WordGrid,{timeout:12000});
   assert.ok(await page.evaluate(()=>WordGrid.readLibrary().some(x=>x.name==="Word Grid Browser Test")),"Teacher game survives app reload");
