@@ -57,6 +57,14 @@ const observerScript='document.getElementById("qpPublicOverlay")';
   }
   let bars=await pollVisual('bars',4,[12,8,4,2],'.qp-v4-bars');
   assert.equal(await page.locator('.qp-v4-bar-fill').count(),4);
+  assert.equal(await page.locator('.qp-v6-participation').count(),1,'public turnout gauge exists');
+  assert.match(await page.locator('.qp-v6-participation').getAttribute('aria-label'),/43 percent classroom participation/);
+  assert.match(await page.locator('.qp-v6-participation-copy').textContent(),/12 OF 28 CHECKED IN/);
+  assert.equal(await page.locator('.qp-v6-turnout-wheel svg circle').count(),2,'SVG progress rings');
+  assert.equal(await page.locator('.qp-v6-bar-laurel svg').count(),1,'leader displays a crest');
+  assert.equal(await page.locator('.qp-v4-bar-symbol .qp-v6-emblem svg').count(),4,'four vector symbols');
+  assert.equal(await page.locator('.qp-v6-broadcast .qp-v6-beacon-core').count(),1,'broadcast beacon');
+
   const widths=await page.locator('.qp-v4-bar-fill').evaluateAll(nodes=>nodes.map(n=>n.style.width));
   assert.deepEqual(widths,['100%','67%','33%','17%']);
   assert.equal(await page.locator('.qp-v4-bar-row.is-leader').count(),1);
@@ -71,23 +79,36 @@ const observerScript='document.getElementById("qpPublicOverlay")';
   await page.evaluate(()=>window.SIQuickPoll.refresh());
   assert.equal(await page.locator('.qp-v4-stage').getAttribute('data-keep-me'),null);
   assert.equal(await page.locator('.qp-v4-bar-row.is-leader').count(),1);
+  assert.equal(await page.locator('.qp-v6-new-signal').count(),1,
+    'a fresh incoming vote receives a single unobtrusive flash');
 
   await pollVisual('donut',4,[12,8,4,2],'.qp-v4-donut');
   assert.equal(await page.locator('.qp-v4-legend-row').count(),4);
+  assert.equal(await page.locator('.qp-v6-ring-deco i').count(),4,'orbit graphic includes compass points');
+  assert.equal(await page.locator('.qp-v6-legend-banner .qp-v6-crest').count(),1,'donut leading signal crest');
+
   assert.match(await page.locator('.qp-v4-ring').getAttribute('style'),/conic-gradient/);
   await pollVisual('donut',4,[12,8,4,2],'.qp-v4-donut',{multiple:true});
   assert.match(await page.locator('.qp-v4-data-footer').textContent(),/share of students/);
 
   await pollVisual('showdown',2,[10,6],'.qp-v4-versus');
   assert.equal(await page.locator('.qp-v4-versus-medal').textContent(),'VS');
+  assert.equal(await page.locator('.qp-v6-vs-winner svg').count(),1,'one leader crest in a decisive showdown');
+
   assert.match(await page.locator('.qp-v4-vs-bottom').textContent(),/LEADS BY 4/);
   await pollVisual('showdown',2,[0,0],'.qp-v4-versus',{voters:0});
   assert.equal(await page.locator('.qp-v4-vs-empty').count(),1);
+  assert.equal(await page.locator('.qp-v6-vs-winner').count(),0,'empty poll awards no winner');
+  assert.match(await page.locator('.qp-v6-participation').getAttribute('aria-label'),/0 percent/);
+
   assert.match(await page.locator('.qp-v4-vs-bottom').textContent(),/AWAITING FIRST VOTE/);
 
   await pollVisual('cards',2,[10,6],'.qp-v4-cards');
   await pollVisual('cards',6,[12,11,8,7,5,3],'.qp-v4-cards');
   assert.equal(await page.locator('.qp-v4-choice-tile').count(),6);
+  assert.equal(await page.locator('.qp-v4-choice-tile .qp-v6-emblem svg').count(),6,
+    'the six-choice leaderboard includes six custom illustrated SVG emblems');
+
 
   // Projector / Zoom resolutions, including the crowded six-choice bar view.
   await page.setViewportSize({width:1366,height:768});
@@ -115,6 +136,11 @@ const observerScript='document.getElementById("qpPublicOverlay")';
   await page.evaluate(()=>window.SIQuickPoll.refresh());
   assert.equal(await page.locator('.qp-v4-secret').count(),1);
   assert.equal(await page.locator('.qp-v4-ring').count(),0);
+  assert.equal(await page.locator('.qp-v6-participation').count(),0,
+    'reveal-only results cannot leak turnout or vote shares through visual graphics');
+  assert.equal(await page.locator('.qp-v6-crest').count(),0,
+    'reveal-only results never mark a leading answer');
+
   current=make('bars',3,[2,5,1],{id:'new-round',round:2,before:{1:5,2:1,3:2}});
   await page.evaluate(()=>window.SIQuickPoll.refresh());
   assert.equal(await page.locator('.qp-v4-comparison-item').count(),3);
