@@ -1,0 +1,90 @@
+name: Integrate Dominoes Into Mothership
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-dominoes-integration.yml']
+permissions: {contents: write}
+jobs:
+  integrate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Register DOMINOES with Home, Activities, teacher/student and shared screens
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html');s=p.read_text(encoding='utf-8')
+          def one(a,b):
+           global s
+           n=s.count(a)
+           assert n==1,("DOMINOES guarded anchor",n,a[:110])
+           s=s.replace(a,b,1)
+          assert "launchDominoesGame(" not in s,"Already integrated"
+          one("const APP_REGISTRY=[", """const APP_REGISTRY=[
+  {id:'dominoes',name:'DOMINOES',icon:'⚁',subtitle:'Private Hands · Draw · Match · Connect',status:'COSMIC TABLETOP',description:'Original double-six Draw Dominoes for 2–4 connected players or teacher vs. class. Private student hands, a live projected chain, and a shared draw pile.'},""")
+          one("['minefield','sketch','pixel','starwheel','crew-survey','million','match','bingo','cosmic-cards','word-grid'].includes(id)",
+              "['minefield','sketch','pixel','starwheel','crew-survey','million','match','bingo','cosmic-cards','word-grid','dominoes'].includes(id)")
+          one("  if(id==='word-grid'||id==='word-grid-game')return",
+              """  if(id==='dominoes'||id==='dominoes-game')return '<svg '+common+'><rect x="7" y="17" width="50" height="30" rx="7" fill="currentColor" opacity=".2" stroke="currentColor" stroke-width="2"/><path d="M32 17v30" stroke="currentColor" stroke-width="3"/><g fill="currentColor"><circle cx="20" cy="27" r="3"/><circle cx="20" cy="37" r="3"/><circle cx="43" cy="27" r="3"/><circle cx="43" cy="37" r="3"/><circle cx="39" cy="32" r="3"/></g></svg>';
+  if(id==='word-grid'||id==='word-grid-game')return""")
+          one("function sharedMarkup(size='normal'){",
+              """function sharedMarkup(size='normal'){
+  if(state.activityRun?.dominoes && window.Dominoes)return window.Dominoes.tableHTML(state.activityRun.dominoes,size==='big');""")
+          one("  if(state.activityRun?.wordGrid && window.WordGrid)return window.WordGrid.studentHTML(state.activityRun.wordGrid,selectedStudent());",
+              """  if(state.activityRun?.dominoes && window.Dominoes)return window.Dominoes.studentHTML(state.activityRun.dominoes,selectedStudent());
+  if(state.activityRun?.wordGrid && window.WordGrid)return window.WordGrid.studentHTML(state.activityRun.wordGrid,selectedStudent());""")
+          one(" if(run.wordGrid && window.WordGrid){",
+              """ if(run.dominoes && window.Dominoes){
+    box.innerHTML=window.Dominoes.teacherHTML(run.dominoes,connected.map(st=>st.n));
+    window.Dominoes.teacherWire(box,run.dominoes,()=>render(),
+      loaded=>{if(!loaded||!Array.isArray(loaded.chain)||!Array.isArray(loaded.players)||loaded.players.length<2){toast('Saved Dominoes game invalid');return}run.dominoes=deepClone(loaded);window.Dominoes.reset();render()},
+      ()=>{state.activityRun=null;state.activeApp='dominoes';state.screen='activities';window.Dominoes.reset();render()},
+      game=>{run.dominoes=deepClone(game);window.Dominoes.reset();render()});
+  } else if(run.wordGrid && window.WordGrid){""")
+          one("function launchWordGridGame(game){",
+              """function launchDominoesGame(game){
+  if(state.activityRun)return toast('Finish the active classroom activity first.');
+  if(!game||!Array.isArray(game.chain)||!Array.isArray(game.players)||game.players.length<2||game.players.length>4)return toast('Invalid Dominoes game.');
+  if(!state.activities.some(a=>a.id==='dominoes-game'))
+    state.activities.push({id:'dominoes-game',type:'dominoes',name:'DOMINOES',slides:[],userCreated:false});
+  state.activityRun={activityId:'dominoes-game',runToken:newActivityRunToken(),phase:'running',responses:{},dominoes:deepClone(game)};
+  window.Dominoes.reset();state.screen='activity';state.promptActive=false;state.assigningSlot=null;
+  recordActivityLaunch('dominoes','DOMINOES');render();toast('DOMINOES live — private hands delivered to student devices.');
+}
+function launchWordGridGame(game){""")
+          one("  const presentations=state.activities.filter(a=>a.type==='presentation');",
+              """  const presentations=state.activities.filter(a=>a.type==='presentation');
+  if(state.activeApp==='dominoes'&&!state.activityRun && !state.assigningSlot){
+    note.classList.add('hidden');picker.classList.add('hidden');grid.classList.remove('hidden');wrap.classList.add('hidden');
+    title.textContent='DOMINOES';subtitle.textContent='Draw · Match · Connect · Win';
+    header.innerHTML='<button type="button" id="backToAppsBtn">← Activity Library</button>';
+    $('#backToAppsBtn').onclick=backToAppLibrary;
+    if(!window.Dominoes){grid.innerHTML='<div class="dm-setup">Dominoes is loading…</div>';return}
+    const names=connectedStudents().map(st=>st.n);
+    grid.innerHTML=window.Dominoes.setupHTML(names);
+    window.Dominoes.setupWire(grid,names,launchDominoesGame,launchDominoesGame,()=>renderActivities());
+    return;
+  }""")
+          one("     if(a.type==='word-grid'){",
+              """     if(a.type==='dominoes'){
+       label.innerHTML='<b>DOMINOES</b><span>Play from your private domino rack above.</span>';
+       zone.className='student-actions';zone.innerHTML='';return;
+     }
+     if(a.type==='word-grid'){""")
+          # Wire private hand clicks using the same student lifecycle as Cosmic Cards.
+          if s.count("cosmicWireStudent();")==1:
+           one("cosmicWireStudent();","cosmicWireStudent();\n  if(window.Dominoes)window.Dominoes.studentWire();")
+          else:
+           raise AssertionError(("Cosmic Cards student wiring not unique",s.count("cosmicWireStudent();")))
+          p.write_text(s,encoding='utf-8')
+          print('DOMINOES Activity Library, host controls, private student hands and shared projection integrated.')
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'feat(dominoes): wire Cosmic Cards-style multiplayer game into Mothership Activity Library'
+          git push
