@@ -65,4 +65,10 @@ run("projector champion overlay stays off the miniature mirror",()=>{
  assert.match(F.publicHTML(g,true),/Blue WINS/);
  assert.doesNotMatch(F.publicHTML(g,false),/fil-victory/);
 });
+run("student preview controls are not exposed on projector",()=>{
+ const g=F.make(["A","B"],{seats:{Alex:0}});
+ assert.doesNotMatch(F.publicHTML(g,true),/data-fil-confirm|data-fil-cancel/);
+ assert.doesNotMatch(F.studentHTML(g,"Sam"),/data-fil-confirm/);
+ assert.match(F.studentHTML(g,"Alex"),/data-fil-drop="0"/);
+});
 console.log("FOUR IN LINE engine regression complete");
