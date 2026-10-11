@@ -46,12 +46,13 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   await teacher.evaluate(()=>startOrResumeActivityRun());
   await teacher.waitForFunction(()=>state.activityRun?.phase==='running',{timeout:10000});
   await screen.waitForFunction(()=>document.querySelector('.million-public')?.querySelectorAll('.million-choice').length===4,{timeout:12000});
-  const first=await screen.evaluate(()=>({
-   rungCount:document.querySelectorAll('.million-public .million-rung').length,
-   prize:document.querySelector('.million-stakes-amount')?.textContent,
-   noKey:state.activityRun.millionConfig.questions.every(q=>!('correct' in q)),
-   role:document.body.className
-  }));
+  const first=await screen.evaluate(()=>{
+   const root=document.querySelector('.million-public.big')||document.querySelector('.million-public');
+   return {rungCount:root.querySelectorAll('.million-rung').length,
+    prize:root.querySelector('.million-stakes-amount')?.textContent,
+    stageCount:document.querySelectorAll('.million-public').length,
+    noKey:state.activityRun.millionConfig.questions.every(q=>!('correct' in q)),role:document.body.className};
+  });
   assert.equal(first.rungCount,5);
   assert.equal(first.prize,'$100');
   assert.equal(first.noKey,true);
@@ -63,14 +64,15 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
    await screen.setViewportSize({width,height});
    await screen.waitForTimeout(80);
    const rect=await screen.evaluate(()=>{
-    const box=sel=>{const r=document.querySelector(sel)?.getBoundingClientRect();
+    const root=document.querySelector('.million-public.big')||document.querySelector('.million-public');
+    const box=sel=>{const r=root.querySelector(sel)?.getBoundingClientRect();
       return r?{x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom}:null};
     return {width:innerWidth,documentWidth:document.documentElement.scrollWidth,
-      stage:box('.million-public .million-stage'),
-      ladder:box('.million-public .million-ladder'),
-      life:box('.million-public .million-lifelines'),
-      parent:box('.million-public'),
-      answers:[...document.querySelectorAll('.million-choice')].map(el=>{const r=el.getBoundingClientRect();return {x:r.x,right:r.right,width:r.width}})};
+      stage:box('.million-stage'),
+      ladder:box('.million-ladder'),
+      life:box('.million-lifelines'),
+      parent:(()=>{const r=root.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom}})(),
+      answers:[...root.querySelectorAll('.million-choice')].map(el=>{const r=el.getBoundingClientRect();return {x:r.x,right:r.right,width:r.width}})};
    });
    layout.push({size:width+'x'+height,...rect});
    assert.ok(rect.stage&&rect.ladder&&rect.life,'projector main and sidebars present');
@@ -90,14 +92,15 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
    await screen.waitForFunction(idx=>!!state.activityRun?.million?.lockedAnswer&&state.activityRun.million.questionIndex===idx,i,{timeout:10000});
    await teacher.evaluate(()=>millionResolve(true));
    await screen.waitForFunction(idx=>!!state.activityRun?.million?.revealed&&state.activityRun.million.questionIndex===idx,i,{timeout:10000});
-   const result=await screen.evaluate(()=>({
-    correct:document.querySelectorAll('.million-public .million-choice.correct').length,
-    earned:document.querySelectorAll('.million-public .million-rung.earned').length,
-    publicCorrect:state.activityRun.million.publicCorrect,
-    noKey:state.activityRun.millionConfig.questions.every(q=>!('correct' in q)),
-    complete:!!state.activityRun.million.complete,
-    stake:document.querySelector('.million-stakes-amount')?.textContent
-   }));
+   const result=await screen.evaluate(()=>{
+    const root=document.querySelector('.million-public.big')||document.querySelector('.million-public');
+    return {correct:root.querySelectorAll('.million-choice.correct').length,
+      earned:root.querySelectorAll('.million-rung.earned').length,
+      publicCorrect:state.activityRun.million.publicCorrect,
+      noKey:state.activityRun.millionConfig.questions.every(q=>!('correct' in q)),
+      complete:!!state.activityRun.million.complete,
+      stake:root.querySelector('.million-stakes-amount')?.textContent};
+   });
    assert.equal(result.correct,1,'answer reveal '+i);
    assert.equal(result.earned,i+1,'earned rung count '+i);
    assert.equal(result.noKey,true);
