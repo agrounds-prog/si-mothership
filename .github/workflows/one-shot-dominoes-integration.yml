@@ -36,7 +36,7 @@ jobs:
           one("  if(state.activityRun?.wordGrid && window.WordGrid)return window.WordGrid.studentHTML(state.activityRun.wordGrid,selectedStudent());",
               """  if(state.activityRun?.dominoes && window.Dominoes)return window.Dominoes.studentHTML(state.activityRun.dominoes,selectedStudent());
             if(state.activityRun?.wordGrid && window.WordGrid)return window.WordGrid.studentHTML(state.activityRun.wordGrid,selectedStudent());""")
-          one(" if(run.wordGrid && window.WordGrid){",
+          one("if(run.wordGrid && window.WordGrid){",
               """ if(run.dominoes && window.Dominoes){
               box.innerHTML=window.Dominoes.teacherHTML(run.dominoes,connected.map(st=>st.n));
               window.Dominoes.teacherWire(box,run.dominoes,()=>render(),
