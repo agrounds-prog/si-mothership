@@ -13,6 +13,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const response=await page.goto(BASE+"/?role=teacher",{waitUntil:"domcontentloaded",timeout:40000});
   assert.equal(response.status(),200);
   await page.waitForFunction(()=>window.__siPlusMediaPolish88===true&&typeof renderPresentationBuilder==="function",{timeout:12000});
+  await page.waitForFunction(()=>!NETWORK_SYNC||networkHydrated,{timeout:15000});
   assert.equal(await page.locator('script[src^="/si-plus-polish.js"]').count(),1);
   assert.equal(await page.locator('link[href^="/si-plus-polish.css"]').count(),1);
   await page.evaluate(()=>{
