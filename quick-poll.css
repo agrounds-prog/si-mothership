@@ -1368,12 +1368,12 @@ body #teacher .qp-v4-mirror-cards>div{
 }
 @media (prefers-reduced-motion:no-preference){
  #qpPublicOverlay .qp-v4-projector .qp-v4-stage{animation:qpV4StageIn .38s cubic-bezier(.15,.8,.3,1) both}
- #qpPublicOverlay .qp-v4-projector .qp-v4-bar-fill{animation:qpV4Fill .64s cubic-bezier(.21,.81,.27,1) both}
- #qpPublicOverlay .qp-v4-projector .qp-v4-choice-meter span{animation:qpV4Fill .65s cubic-bezier(.21,.81,.27,1) both}
+ #qpPublicOverlay .qp-v4-projector .qp-v4-bar-fill{transform-origin:left center;animation:qpV4Fill .64s cubic-bezier(.21,.81,.27,1) both}
+ #qpPublicOverlay .qp-v4-projector .qp-v4-choice-meter span{transform-origin:left center;animation:qpV4Fill .65s cubic-bezier(.21,.81,.27,1) both}
  #qpPublicOverlay .qp-v4-projector .qp-v4-versus-side{animation:qpV4StageIn .36s ease both}
  #qpPublicOverlay .qp-v4-projector .qp-v4-ring{animation:qpV4DonutIn .62s ease both}
  @keyframes qpV4StageIn{from{opacity:.68;transform:translateY(8px)}to{opacity:1;transform:none}}
- @keyframes qpV4Fill{from{width:0}to{width:var(--qp-ending-width,100%)}}
+ @keyframes qpV4Fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
  @keyframes qpV4DonutIn{from{opacity:.6;transform:scale(.94) rotate(-9deg)}to{opacity:1;transform:none}}
 }
 @media(prefers-reduced-motion:reduce){
