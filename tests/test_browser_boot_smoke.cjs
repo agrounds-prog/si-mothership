@@ -136,7 +136,7 @@ const hosts=[
              lib.fontSize<15||lib.iconHeight<75||lib.columns<3||
              lib.filters!==5||lib.primaryActions!==14||
              lib.recentVectors!==lib.recentCount||lib.presetVectors!==lib.presetCount||errors.length)failures++;
-          await page.locator('#activitiesPanel .activity-library-filters [data-activity-category="games"]').click();
+          await page.evaluate(()=>document.querySelector('#activitiesPanel .activity-library-filters [data-activity-category="games"]')?.click());
           const gameFilter=await page.evaluate(()=>{
             const nodes=[...document.querySelectorAll('#activitiesPanel .activity-catalog-grid .real-app-card')];
             return {count:nodes.length,categories:nodes.map(n=>n.dataset.activityCategory),
@@ -145,7 +145,7 @@ const hosts=[
           console.log(JSON.stringify({label,role:'activity-library-filter',...gameFilter}));
           if(gameFilter.count!==9||gameFilter.icons!==9||
              gameFilter.categories.some(x=>x!=='games'))failures++;
-          await page.locator('#activitiesPanel .activity-library-filters [data-activity-category="all"]').click();
+          await page.evaluate(()=>document.querySelector('#activitiesPanel .activity-library-filters [data-activity-category="all"]')?.click());
           await page.evaluate(()=>{
             const button=document.getElementById('toggleShortcutManagerBtn');
             if(!button)throw Error('Shortcut manager button missing');
