@@ -59,6 +59,7 @@ const base=process.env.LOCAL_URL||"http://127.0.0.1:8877";
     'invalid player count shows a visible correction');
   assert.equal(await page.evaluate(()=>!!state.activityRun),false);
   await page.locator("#wgPlayers").fill("Crew Alpha\nCrew Beta");
+  await page.locator("#wgTeacherMode").selectOption("team-0");
   await page.locator("#wgStart").click();
   await page.waitForFunction(()=>!!state.activityRun?.wordGrid&&!!document.querySelector("#activityControllerPanel .wg-board"),{timeout:12000});
   assert.equal(await page.locator("#activityControllerPanel .wg-cell").count(),225);
@@ -68,6 +69,7 @@ const base=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    root:activeActivity()?.type}));
   assert.deepEqual(state1.players,["Crew Alpha","Crew Beta"]);
   assert.equal(state1.root,"word-grid");assert.equal(state1.live,"running");
+  assert.equal(await page.evaluate(()=>state.activityRun.wordGrid.teacherSeat),0,"Teacher joins team 1");
   await page.evaluate(()=>{
    const W=window.WordGrid,g=state.activityRun.wordGrid;
    g.players[0].rack=[..."CATDOGS"].map((letter,i)=>({id:"fixture-"+i,letter,value:W.POINTS[letter],blank:false}));
