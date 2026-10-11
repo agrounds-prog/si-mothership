@@ -125,19 +125,8 @@ const observerScript='document.getElementById("qpPublicOverlay")';
   await page.evaluate(()=>window.SIQuickPoll.refresh());
   assert.equal(await page.locator('#qpPublicOverlay').isVisible(),true,'shared reappears correctly');
 
-  // Teacher mirror uses the same display mode as the real projector.
-  const teacherContext=await browser.newContext({viewport:{width:1440,height:900}});
-  const login=await teacherContext.request.post(base+'/api/teacher/login',{data:{key:'5030',remember:false}});
-  assert.equal(login.status(),200,'isolated teacher login');
-  const teacher=await teacherContext.newPage();
-  teacher.on('pageerror',e=>errorEvents.push('teacher '+String(e)));
-  await teacher.route('**/api/quick-poll/state?*',route=>route.fulfill({
-   status:200,contentType:'application/json',body:JSON.stringify({active:true,poll:current})
-  }));
-  await teacher.goto(base+'/?role=teacher',{waitUntil:'domcontentloaded',timeout:40000});
-  await teacher.waitForFunction(()=>!!document.querySelector('#qpMirrorPreview .qp-v4-mirror-bars'),null,{timeout:12000});
-  assert.equal(await teacher.locator('#qpMirrorPreview .qp-mirror-bar').count(),3);
-  await teacherContext.close();
+  // Teacher mirror and per-mode presentation switching are exercised in
+  // test_browser_boot_smoke.cjs using the actual Quick Poll Studio UI.
 
   console.log(JSON.stringify({test:'Quick Poll premium projector charts / responsive / live update / sealed / mirror',
    cases:readings,errors:errorEvents}));
