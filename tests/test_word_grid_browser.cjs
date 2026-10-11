@@ -65,6 +65,39 @@ const base=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await page.locator("#activityControllerPanel .wg-cell").count(),225);
   assert.equal(await page.locator("#mirrorContent .wg-cell").count(),225);
   assert.equal(await page.locator("#sharedContent .wg-cell").count(),225);
+  // Check the actual projected 15×15 board at Zoom, desktop and tablet widths.
+  for(const [width,height] of [[1280,720],[1920,1080],[768,1024]]){
+    await page.setViewportSize({width,height});
+    const visual=await page.evaluate(()=>{
+      const host=document.createElement("div");
+      host.style.cssText="position:fixed;inset:0;overflow:auto;padding:8px;box-sizing:border-box;z-index:999999;background:#071528";
+      host.innerHTML=WordGrid.sharedHTML(state.activityRun.wordGrid,true);
+      document.body.appendChild(host);
+      const board=host.querySelector(".wg-board");
+      const panel=host.querySelector(".wg-public");
+      const res={
+        tiles:host.querySelectorAll(".wg-cell").length,
+        turn:!!host.querySelector(".wg-turn-spotlight"),
+        legend:host.querySelectorAll(".wg-legend-swatch").length,
+        emblem:!!host.querySelector(".wg-emblem"),
+        boardWidth:Math.round(board.getBoundingClientRect().width),
+        panelWidth:Math.round(panel.getBoundingClientRect().width),
+        horizontalOverflow:Math.max(0,host.scrollWidth-host.clientWidth),
+        projectorX:Math.round(panel.getBoundingClientRect().left)
+      };
+      host.remove();
+      return res;
+    });
+    console.log(JSON.stringify({test:"WORD GRID projected artwork responsive",width,height,...visual}));
+    assert.equal(visual.tiles,225);
+    assert.equal(visual.turn,true);
+    assert.equal(visual.legend,4);
+    assert.equal(visual.emblem,true);
+    assert.ok(visual.boardWidth>=300,"Projector board remains legible");
+    assert.ok(visual.panelWidth<=width,"Projection fits screen");
+    assert.ok(visual.horizontalOverflow<=5,"No sideways scrolling in projection");
+  }
+  await page.setViewportSize({width:1440,height:960});
   const state1=await page.evaluate(()=>({players:state.activityRun.wordGrid.players.map(p=>p.name),live:state.activityRun.phase,
    root:activeActivity()?.type}));
   assert.deepEqual(state1.players,["Crew Alpha","Crew Beta"]);
