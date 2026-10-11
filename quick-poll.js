@@ -21,6 +21,7 @@ const clone=v=>JSON.parse(JSON.stringify(v));
 const fresh=()=>({question:"",description:"",choices:[{label:"Yes",image:""},{label:"No",image:""}],identity:"anonymous",visibility:"live",allowChange:true,multiple:false,limit:2,duration:0,display:"cards",sensitive:false});
 let draft=fresh(),poll=null,library=[],selected=[],open=false,list=false,busy=false,loading=false,previousStudent="",serverOffset=0,studioTab="create";
 let root=null,dialog=null,launcher=null,notice="";
+let sharedRenderedSignature="";
 /* The existing shared screen stays open when Reset Session rotates its ID.
    Re-check the authoritative session only when a stale-ID request is rejected.
    Old student identity is NEVER promoted to a new class: the server still
@@ -40,7 +41,7 @@ async function reconcileSession(){
    if(!newSid||!newCode||(newSid===sid&&newCode===code))return false;
    sid=newSid;code=newCode;
    poll=null;selected=[];previousStudent="";
-   if(root){root.hidden=true;root.innerHTML="";}
+   if(root){root.hidden=true;root.innerHTML="";root.dataset.qpSignature="";sharedRenderedSignature="";}
    if(role==="teacher"){updateLive();syncMirror();}
    return true;
   }catch{return false;}
@@ -80,57 +81,95 @@ function timer(){
  document.querySelectorAll("[data-quick-poll-timer]").forEach(el=>{if(el.textContent!==label)el.textContent=label;});
 }
 const pct=(n,d)=>d?Math.round(n/d*100):0;
+function pollVizData(p){
+ const voters=Math.max(0,Number(p.voters)||0);
+ const values=p.choices.map((c,i)=>({c,i,n:Math.max(0,Number(p.counts?.[c.id])||0)}));
+ const selections=values.reduce((n,v)=>n+v.n,0);
+ const top=Math.max(0,...values.map(v=>v.n));
+ const leaders=top>0?values.filter(v=>v.n===top):[];
+ values.forEach(v=>{v.percent=pct(v.n,voters);v.share=pct(v.n,selections);v.isLeader=top>0&&v.n===top});
+ return {values,voters,selections,top,leaders};
+}
 const media=(c,i)=>'<div class="qp-image" style="--qp-color:'+colors[i%6]+'">'+
  (c.image?'<img alt="'+esc(c.label)+'" src="'+c.image+'">':'<span aria-hidden="true">'+["✦","◈","◆","✿","⬡","◉"][i%6]+'</span>')+'</div>';
 const badge=p=>'<div class="qp-status"><strong>'+(p.phase==="open"?"● VOTING OPEN":"✓ VOTING CLOSED")+'</strong><b data-quick-poll-timer>—</b><span>'+(p.voters==null?"PRIVATE":p.voters+" of "+(p.eligible??0))+' VOTED</span></div>';
 function results(p){
- if(!p.counts)return '<div class="qp-secret"><span>◈</span><h2>Waiting for the reveal</h2><p>Students are voting. The teacher will reveal the results.</p></div>';
- const total=p.voters||0,values=p.choices.map((c,i)=>({c,i,n:Number(p.counts[c.id]||0),percent:pct(p.counts[c.id]||0,total)}));
- const top=Math.max(0,...values.map(v=>v.n));
- if(p.display==="donut"){
-  // In multiple-choice polls the pie measures selections, not participants.
-  const selectedTotal=values.reduce((n,v)=>n+v.n,0);
-  let from=0;const parts=values.map(v=>{const to=from+(selectedTotal?v.n/selectedTotal*100:0),s=colors[v.i%6]+" "+from+"% "+to+"%";from=to;return s;});
-  return '<div class="qp-donut-area"><div class="qp-donut" style="background:'+(selectedTotal?"conic-gradient("+parts.join(",")+")":"#24445d")+'"><span><b>'+total+'</b> students</span></div><div class="qp-legend">'+values.map(v=>'<div><i style="background:'+colors[v.i%6]+'"></i><span>'+esc(v.c.label)+'</span><b>'+pct(v.n,selectedTotal)+'%</b></div>').join("")+'</div></div>';
+ if(!p.counts)return '<div class="qp-secret qp-v4-secret"><div class="qp-v4-secret-orbit"><span>◈</span></div><small>RESULTS SEALED</small><h2>Waiting for the reveal</h2><p>Votes are coming in. Mission Control will reveal the results.</p><div class="qp-v4-secret-bars"><i></i><i></i><i></i><i></i><i></i></div></div>';
+ const {values,voters,selections,leaders}=pollVizData(p);
+ const sub=p.multiple?'Percentages show the share of students selecting each answer.':'Percentages show the share of students voting.';
+ const winner=leaders.length===1?'LEADING SIGNAL · '+esc(leaders[0].c.label):leaders.length>1?'TIED LEAD · '+leaders.length+' ANSWERS':selections?'RESULTS LIVE':'AWAITING FIRST VOTE';
+ const ribbon='<div class="qp-v4-results-heading"><div><span class="qp-v4-overline">◈ LIVE DATA VISUALIZATION</span><strong>'+esc(styles[p.display]||'Results')+'</strong></div><div class="qp-v4-heading-totals"><b>'+voters+'</b><span>STUDENTS VOTED</span></div></div>';
+ const footer='<div class="qp-v4-data-footer"><span>'+sub+'</span><b>'+selections+' TOTAL '+(selections===1?'SELECTION':'SELECTIONS')+'</b></div>';
+ if(p.display==='bars'){
+  const rows=values.map((v)=>'<div class="qp-v4-bar-row '+(v.isLeader?'is-leader':'')+'" style="--qp-color:'+colors[v.i%6]+'">'+
+    '<div class="qp-v4-bar-meta"><span class="qp-v4-bar-index">'+String(v.i+1).padStart(2,'0')+'</span>'+
+    '<div class="qp-v4-bar-symbol">'+(v.c.image?'<img src="'+v.c.image+'" alt="">':'<span>'+['◆','◈','✦','✿','⬡','◉'][v.i%6]+'</span>')+'</div>'+
+    '<div class="qp-v4-bar-title"><strong>'+esc(v.c.label)+'</strong><span>'+(v.isLeader?'◆ CURRENT LEADER':v.n+' '+(v.n===1?'VOTE':'VOTES'))+'</span></div>'+
+    '<b class="qp-v4-bar-percent">'+v.percent+'<small>%</small></b></div>'+
+    '<div class="qp-v4-bar-rail" role="img" aria-label="'+esc(v.c.label)+': '+v.percent+' percent, '+v.n+' votes"><div class="qp-v4-bar-fill" style="width:'+v.percent+'%"></div><span class="qp-v4-bar-value">'+v.n+' VOTES</span></div></div>').join('');
+  return '<section class="qp-v4-stage qp-v4-bars">'+ribbon+'<div class="qp-v4-bar-list">'+rows+'</div><div class="qp-v4-leadline"><span>◆</span><strong>'+winner+'</strong></div>'+footer+'</section>';
  }
- if(p.display==="bars"){
-  return '<div class="qp-bar-chart">'+[...values].sort((a,b)=>b.n-a.n).map(v=>'<div class="qp-chart-row">'+(v.c.image?'<img src="'+v.c.image+'" alt="">':'<span style="background:'+colors[v.i%6]+'">✦</span>')+
-   '<strong>'+esc(v.c.label)+'</strong><div class="qp-track"><i style="width:'+v.percent+'%;background:'+colors[v.i%6]+'"></i></div><b>'+v.percent+'% ('+v.n+')</b></div>').join("")+'</div>';
+ if(p.display==='donut'){
+  let from=0;
+  const stops=values.map(v=>{
+   const share=selections?v.n/selections*100:0,begin=from,finish=from+share;from=finish;
+   const gap=share>1.5?0.65:0;
+   return colors[v.i%6]+' '+(begin+gap).toFixed(3)+'% '+Math.max(begin+gap,finish-gap).toFixed(3)+'%';
+  });
+  // Keep slices numerically accurate; a .65% seam simply separates colored
+  // sections visually, while the legend always uses the actual vote totals.
+  const bg=selections?'conic-gradient(from -90deg,'+stops.join(',')+')':'conic-gradient(#24445f 0% 100%)';
+  const legend=values.map(v=>'<div class="qp-v4-legend-row '+(v.isLeader?'is-leader':'')+'" style="--qp-color:'+colors[v.i%6]+'">'+
+   '<span class="qp-v4-legend-dot"></span><div><strong>'+esc(v.c.label)+'</strong><small>'+v.n+' '+(v.n===1?'selection':'selections')+'</small></div>'+
+   '<b>'+v.share+'<small>%</small></b></div>').join('');
+  return '<section class="qp-v4-stage qp-v4-donut">'+ribbon+'<div class="qp-v4-donut-composition">'+
+   '<div class="qp-v4-ring-frame"><div class="qp-v4-ring-glow"></div><div class="qp-v4-ring" role="img" aria-label="Vote share donut chart, '+selections+' selections" style="background:'+bg+'"><div class="qp-v4-ring-hole"><small>CREW RESPONSES</small><b>'+selections+'</b><span>TOTAL SELECTIONS</span></div></div><span class="qp-v4-ring-annotation">◇ SIGNAL BREAKDOWN</span></div>'+
+   '<div class="qp-v4-legend"><div class="qp-v4-legend-head"><strong>THE CREW CHOSE</strong><span>SHARE OF SELECTIONS</span></div>'+legend+
+   '<div class="qp-v4-legend-summary">'+winner+'</div></div></div>'+footer+'</section>';
  }
- if(p.display==="showdown"&&values.length===2)return '<div class="qp-showdown">'+values.map(v=>'<div class="qp-show-side" style="--qp-color:'+colors[v.i%6]+'">'+media(v.c,v.i)+'<strong>'+esc(v.c.label)+'</strong><b>'+v.percent+'%</b><span>'+v.n+' votes</span></div>').join('<span class="qp-vs">VS</span>')+'</div>';
- return '<div class="qp-results">'+values.map(v=>'<div class="qp-result '+(v.n===top&&top>0?"qp-top":"")+'" style="--qp-color:'+colors[v.i%6]+'">'+
- (v.n===top&&top>0?'<span class="qp-star" title="Leading answer">★</span>':"")+media(v.c,v.i)+'<strong>'+esc(v.c.label)+'</strong>'+
- '<b>'+v.n+' <small>VOTES</small></b><em>'+v.percent+'%</em><div class="qp-track"><i style="width:'+v.percent+'%"></i></div></div>').join("")+'</div>';
+ if(p.display==='showdown'&&values.length===2){
+  const a=values[0],b=values[1],isTie=a.n===b.n,leading=a.n>b.n?a:b;
+  const sides=values.map((v,i)=>'<div class="qp-v4-versus-side '+(v.isLeader?'is-leader':'')+'" style="--qp-color:'+colors[v.i%6]+'">'+
+   '<div class="qp-v4-vs-corner"><span>'+(['ALPHA','BRAVO'][i])+' SIGNAL</span><strong>'+(v.isLeader?(isTie&&v.n?'TIED LEAD':'IN THE LEAD'):'CREW PICK')+'</strong></div>'+
+   '<div class="qp-v4-vs-art">'+media(v.c,v.i)+'</div><h2>'+esc(v.c.label)+'</h2>'+
+   '<div class="qp-v4-vs-score"><b>'+v.percent+'</b><span>%</span></div>'+
+   '<div class="qp-v4-vs-votes"><b>'+v.n+'</b> '+(v.n===1?'VOTE':'VOTES')+'</div></div>').join('<span class="qp-v4-versus-medal" aria-hidden="true"><em>VS</em></span>');
+  const split=selections?
+   '<div class="qp-v4-vs-meter" role="img" aria-label="'+esc(a.c.label)+': '+a.n+'; '+esc(b.c.label)+': '+b.n+' votes"><span style="width:'+(a.n/selections*100)+'%;background:'+colors[a.i%6]+'"></span><span style="width:'+(b.n/selections*100)+'%;background:'+colors[b.i%6]+'"></span></div>':
+   '<div class="qp-v4-vs-meter qp-v4-vs-empty"><span>AWAITING VOTES</span></div>';
+  return '<section class="qp-v4-stage qp-v4-versus">'+ribbon+'<div class="qp-v4-versus-tiles">'+sides+'</div>'+
+   '<div class="qp-v4-vs-bottom"><div><span>HEAD-TO-HEAD</span><strong>'+(!selections?'AWAITING FIRST VOTE':isTie?'NECK AND NECK':esc(leading.c.label)+' LEADS BY '+Math.abs(a.n-b.n))+'</strong></div>'+split+'</div>'+footer+'</section>';
+ }
+ const cards=values.map(v=>'<div class="qp-v4-choice-tile '+(v.isLeader?'is-leader':'')+'" style="--qp-color:'+colors[v.i%6]+'">'+
+  '<div class="qp-v4-choice-header"><span>CHOICE '+String(v.i+1).padStart(2,'0')+'</span>'+(v.isLeader?'<b>◆ '+(leaders.length>1?'TIED LEAD':'TOP CHOICE')+'</b>':'<b>CREW SIGNAL</b>')+'</div>'+
+  '<div class="qp-v4-choice-art">'+media(v.c,v.i)+'</div><strong class="qp-v4-choice-name">'+esc(v.c.label)+'</strong>'+
+  '<div class="qp-v4-choice-numbers"><div><b>'+v.percent+'<small>%</small></b><span>OF VOTERS</span></div><div><b>'+v.n+'</b><span>VOTES</span></div></div>'+
+  '<div class="qp-v4-choice-meter"><span style="width:'+v.percent+'%"></span></div></div>').join('');
+ return '<section class="qp-v4-stage qp-v4-cards">'+ribbon+'<div class="qp-v4-cards-grid qp-v4-count-'+values.length+'">'+cards+'</div>'+footer+'</section>';
 }
 /* Compact, accurate chart rendering for the teacher's existing Shared Screen
    preview. The full projector view uses sharedView() on ?role=shared. */
 function mirrorResults(p){
- if(!p.counts)return '<div class="qp-mirror-private">Waiting for the teacher to reveal results</div>';
- const rows=p.choices.map((c,i)=>({label:c.label,image:c.image,i,n:Number(p.counts[c.id]||0)}));
- const votes=rows.reduce((total,x)=>total+x.n,0);
- const pctVotes=x=>pct(x.n,p.multiple?votes:(p.voters||0));
- if(p.display==="donut"){
-  let from=0;
-  const wedges=rows.map(x=>{
-   const to=from+(votes?x.n/votes*100:0);
-   const wedge=colors[x.i%6]+" "+from+"% "+to+"%";
-   from=to;return wedge;
-  });
-  return '<div class="qp-mirror-donut-layout"><div class="qp-mirror-donut" style="background:'+
-   (votes?'conic-gradient('+wedges.join(',')+')':'#25506a')+'"><span>'+Number(p.voters||0)+'<small>voters</small></span></div>'+
-   '<div class="qp-mirror-legend">'+rows.map(x=>'<div><i style="background:'+colors[x.i%6]+'"></i><b>'+esc(x.label)+'</b><span>'+pct(x.n,votes)+'%</span></div>').join('')+'</div></div>';
+ if(!p.counts)return '<div class="qp-mirror-private">◈ RESULTS SEALED · WAITING FOR REVEAL</div>';
+ const {values,voters,selections,leaders}=pollVizData(p);
+ if(p.display==='bars'){
+  return '<div class="qp-mirror-bars qp-v4-mirror-bars">'+values.map(v=>'<div class="qp-mirror-bar" style="--qp-color:'+colors[v.i%6]+'">'+
+   '<span>'+esc(v.c.label)+'</span><div class="qp-mirror-track"><i style="width:'+v.percent+'%;background:var(--qp-color)"></i></div>'+
+   '<b>'+v.percent+'%</b></div>').join('')+'</div>';
  }
- if(p.display==="bars"){
-  return '<div class="qp-mirror-bars">'+rows.map(x=>'<div class="qp-mirror-bar"><span>'+esc(x.label)+'</span>'+
-   '<div class="qp-mirror-track"><i style="width:'+pctVotes(x)+'%;background:'+colors[x.i%6]+'"></i></div>'+
-   '<b>'+pctVotes(x)+'%</b></div>').join('')+'</div>';
+ if(p.display==='donut'){
+  let from=0;const stops=values.map(v=>{const t=from+(selections?v.n/selections*100:0),css=colors[v.i%6]+' '+from+'% '+t+'%';from=t;return css;});
+  return '<div class="qp-mirror-donut-layout qp-v4-mirror-donut"><div class="qp-mirror-donut" style="background:'+
+   (selections?'conic-gradient(from -90deg,'+stops.join(',')+')':'#24445f')+'"><span>'+selections+'<small>selections</small></span></div>'+
+   '<div class="qp-mirror-legend">'+values.map(v=>'<div><i style="background:'+colors[v.i%6]+'"></i><b>'+esc(v.c.label)+'</b><span>'+v.share+'%</span></div>').join('')+'</div></div>';
  }
- if(p.display==="showdown"&&rows.length===2){
-  return '<div class="qp-mirror-showdown">'+rows.map((x,i)=>'<div style="--qp-color:'+colors[x.i%6]+'"><b>'+esc(x.label)+'</b><strong>'+pctVotes(x)+'%</strong><span>'+x.n+' votes</span></div>'+
+ if(p.display==='showdown'&&values.length===2){
+  return '<div class="qp-mirror-showdown qp-v4-mirror-vs">'+values.map((v,i)=>'<div style="--qp-color:'+colors[v.i%6]+'">'+
+   '<b>'+esc(v.c.label)+'</b><strong>'+v.percent+'%</strong><span>'+v.n+' votes</span></div>'+
    (i===0?'<em>VS</em>':'')).join('')+'</div>';
  }
- return '<div class="qp-mirror-cards">'+rows.map(x=>'<div style="--qp-color:'+colors[x.i%6]+'">'+
-  (x.image?'<img src="'+x.image+'" alt="">':'<i>✦</i>')+'<b>'+esc(x.label)+'</b><strong>'+x.n+' <small>votes</small></strong></div>').join('')+'</div>';
+ return '<div class="qp-mirror-cards qp-v4-mirror-cards">'+values.map(v=>'<div style="--qp-color:'+colors[v.i%6]+'">'+
+  (v.c.image?'<img src="'+v.c.image+'" alt="">':'<i>✦</i>')+'<b>'+esc(v.c.label)+'</b><strong>'+v.percent+'% <small>· '+v.n+' votes</small></strong></div>').join('')+'</div>';
 }
 function mirrorView(p){
  return '<div class="qp-mirror-scene"><div class="qp-mirror-heading"><span>✦ QUICK POLL</span><b>'+esc(styles[p.display]||styles.cards)+'</b></div>'+
@@ -158,10 +197,14 @@ function syncMirror(){
  }
 }
 function sharedView(p){
- const comparison=p.before&&p.counts?'<aside class="qp-comparison"><b>BEFORE → AFTER</b>'+p.choices.map(c=>'<span>'+esc(c.label)+': '+(p.before[c.id]||0)+' → '+(p.counts[c.id]||0)+'</span>').join("")+'</aside>':"";
- return '<div class="qp-projector"><header><b>🚀 MOTHERSHIP <span>QUICK POLL</span></b><small>ASK • VOTE • SEE • DISCUSS</small></header>'+
- '<h1>'+esc(p.question)+'</h1>'+(p.description?'<p>'+esc(p.description)+'</p>':"")+badge(p)+results(p)+comparison+
- '<footer>Same Mothership. New ways to listen. <span>ROUND '+p.round+'</span></footer></div>';
+ const comparison=p.before&&p.counts?'<aside class="qp-v4-comparison"><div class="qp-v4-comparison-head"><span>◉ TWO-ROUND COMPARISON</span><strong>BEFORE → AFTER</strong></div><div class="qp-v4-comparison-items">'+p.choices.map((c,i)=>{
+  const before=Math.max(0,Number(p.before[c.id])||0),after=Math.max(0,Number(p.counts[c.id])||0),delta=after-before;
+  return '<div class="qp-v4-comparison-item" style="--qp-color:'+colors[i%6]+'"><b>'+esc(c.label)+'</b><span>'+before+'</span><i>→</i><strong>'+after+'</strong><em class="'+(delta>=0?'positive':'negative')+'">'+(delta>=0?'+':'')+delta+'</em></div>';
+ }).join('')+'</div></aside>':'';
+ return '<div class="qp-projector qp-v4-projector"><header class="qp-v4-header"><div class="qp-v4-brand"><span class="qp-v4-brand-orbit">✦</span><div><small>SI MOTHERSHIP / LIVE CLASSROOM</small><b>QUICK <em>POLL</em></b></div></div><div class="qp-v4-header-right"><span class="qp-v4-header-live">◉ '+(p.phase==='open'?'LIVE RESULTS':'POLL CLOSED')+'</span><small>ASK · VOTE · CONNECT</small></div></header>'+
+ '<div class="qp-v4-question"><span>◈ THE BIG QUESTION</span><h1>'+esc(p.question)+'</h1>'+(p.description?'<p>'+esc(p.description)+'</p>':'')+'</div>'+
+ badge(p)+results(p)+comparison+
+ '<footer class="qp-v4-footer"><span>◈ EVERY VOICE COUNTS</span><strong>ROUND '+Number(p.round||1)+'</strong><span>MOTHERSHIP · CLASSROOM LIVE</span></footer></div>';
 }
 function studentView(p){
  const readonly=!!p.ownVote&&!p.allowChange||p.phase!=="open";
@@ -488,7 +531,10 @@ async function refresh(force=false){
   if(role==="teacher"){updateLive();syncMirror();}
   else{
    root.hidden=!poll||(role==="shared"&&!poll.sharedVisible);
-   if(poll){if(role==="shared"){if(poll.sharedVisible)root.innerHTML=sharedView(poll);}
+   if(poll){if(role==="shared"){if(poll.sharedVisible){
+      const signature=JSON.stringify([poll.id,poll.phase,poll.display,poll.question,poll.description,poll.voters,poll.eligible,poll.counts,poll.round,poll.visibility,poll.before,poll.choices,poll.multiple]);
+      if(force||sharedRenderedSignature!==signature){root.innerHTML=sharedView(poll);sharedRenderedSignature=signature;root.dataset.qpSignature=signature;}
+     }}
      else renderStudent(force||!old||old.id!==poll.id);}
    else previousStudent="";
   }
