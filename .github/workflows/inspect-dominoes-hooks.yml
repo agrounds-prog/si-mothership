@@ -1,0 +1,29 @@
+name: Inspect Dominoes Activity Hooks
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-dominoes-hooks.yml']
+permissions: {contents: read}
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect existing WORD GRID activity integration
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text().splitlines()
+          probes=['const APP_REGISTRY=[',"id==='word-grid'","word-grid-game","function launchWordGridGame(", "if(state.activeApp==='word-grid'",'if(run.wordGrid && window.WordGrid)',"if(state.activityRun?.wordGrid && window.WordGrid)","if(a.type==='word-grid')","function studentMarkup()","function sharedMarkup(size=","const presentations=state.activities.filter","function renderActivityController()"]
+          for needle in probes:
+           hits=[i for i,x in enumerate(s) if needle in x]
+           print('###',needle,'hits',[i+1 for i in hits[:5]])
+           for i in hits[:2]:
+            for j in range(max(0,i-2),min(len(s),i+22)):
+             print(f'{j+1}: {s[j][:1200]}')
+          print('### Existing WORD GRID references')
+          for i,line in enumerate(s):
+           if 'word-grid' in line or 'WordGrid' in line:
+            print(f'{i+1}: {line[:1200]}')
+          PY
