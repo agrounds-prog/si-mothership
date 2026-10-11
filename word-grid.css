@@ -722,3 +722,57 @@
  .wg-public.wg-big .wg-score-celebration,.wg-public.wg-big .wg-turn-ribbon{display:none!important}
 }
 /* The permanent score and last-play panels remain visible when motion is reduced. */
+
+
+/* v1.4.1 · Score-signal particles: lightweight projector-only visual effect.
+   Phases use the synced negative delay already provided by WORD GRID. */
+.wg-public.wg-big .wg-score-celebration{isolation:isolate}
+.wg-public.wg-big .wg-score-celebration>:not(.wg-spark-burst){position:relative;z-index:2}
+.wg-public.wg-big .wg-spark-burst{
+ position:absolute;inset:0;z-index:1;overflow:visible;
+ pointer-events:none;user-select:none;
+}
+.wg-public.wg-big .wg-spark{
+ --wg-dx:0px;--wg-dy:0px;
+ position:absolute;left:50%;top:49%;width:8px;height:13px;
+ border-radius:2px 6px 2px 6px;
+ border:1px solid #fff9c0a8;
+ background:linear-gradient(155deg,#f8e7a6,#e2a85e);
+ box-shadow:0 0 13px #fac67b89;
+ opacity:0;
+ transform:translate(-50%,-50%) scale(.25);
+ animation:wgScoreSpark 2.4s cubic-bezier(.17,.68,.2,1) both;
+ animation-delay:var(--wg-fx-offset,0ms);
+ will-change:transform,opacity;
+}
+.wg-public.wg-big .wg-spark:nth-child(1){--wg-dx:-145px;--wg-dy:-88px;animation-delay:calc(var(--wg-fx-offset,0ms) + 80ms)}
+.wg-public.wg-big .wg-spark:nth-child(2){--wg-dx:132px;--wg-dy:-94px;animation-delay:calc(var(--wg-fx-offset,0ms) + 150ms);background:#9bf6e6}
+.wg-public.wg-big .wg-spark:nth-child(3){--wg-dx:-188px;--wg-dy:15px;animation-delay:calc(var(--wg-fx-offset,0ms) + 125ms);background:#9bdcf6}
+.wg-public.wg-big .wg-spark:nth-child(4){--wg-dx:196px;--wg-dy:24px;animation-delay:calc(var(--wg-fx-offset,0ms) + 110ms)}
+.wg-public.wg-big .wg-spark:nth-child(5){--wg-dx:-112px;--wg-dy:103px;animation-delay:calc(var(--wg-fx-offset,0ms) + 170ms);background:#bba3ff}
+.wg-public.wg-big .wg-spark:nth-child(6){--wg-dx:118px;--wg-dy:116px;animation-delay:calc(var(--wg-fx-offset,0ms) + 115ms)}
+.wg-public.wg-big .wg-spark:nth-child(7){--wg-dx:-64px;--wg-dy:-122px;animation-delay:calc(var(--wg-fx-offset,0ms) + 150ms);background:#a6f0f2}
+.wg-public.wg-big .wg-spark:nth-child(8){--wg-dx:73px;--wg-dy:-126px;animation-delay:calc(var(--wg-fx-offset,0ms) + 180ms)}
+@keyframes wgScoreSpark{
+ 0%,8%{opacity:0;transform:translate(-50%,-50%) rotate(-12deg) scale(.3)}
+ 18%{opacity:.95;transform:translate(-50%,-50%) rotate(0deg) scale(1)}
+ 83%{opacity:.8}
+ 100%{opacity:0;transform:translate(calc(-50% + var(--wg-dx)),calc(-50% + var(--wg-dy))) rotate(185deg) scale(.58)}
+}
+.wg-teacher-side .wg-actions button[data-wg-action="replay"]{
+ background:linear-gradient(142deg,#72512f,#3f3d44)!important;
+ border-color:#d3ad6c!important;
+ color:#fff0c7!important;
+}
+.wg-teacher-side .wg-actions button[data-wg-action="replay"]:not(:disabled):hover{
+ box-shadow:0 0 0 1px #ffd089,0 0 18px #d8a96549;
+}
+/* Projector celebration text remains readable if effects are disabled. */
+@media(prefers-reduced-motion:reduce){
+ .wg-public.wg-big .wg-spark-burst{display:none!important}
+ .wg-public.wg-big .wg-spark{animation:none!important}
+}
+@media(max-width:670px){
+ .wg-public.wg-big .wg-spark{width:5px;height:8px;opacity:.8}
+ .wg-public.wg-big .wg-score-celebration{max-width:84%}
+}
