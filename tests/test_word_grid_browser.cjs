@@ -78,6 +78,9 @@ const base=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await page.locator('#activityControllerPanel [data-wg-assign="Alex"]').selectOption("1");
   assert.equal(await page.evaluate(()=>state.activityRun.wordGrid.assignments.Alex),1);
   await page.locator('#activityControllerPanel [data-wg-assign="Alex"]').selectOption("0");
+  const hintTile=await page.evaluate(()=>state.activityRun.wordGrid.players[0].rack[0].id);
+  await page.locator(`#activityControllerPanel [data-wg-tile="${hintTile}"]`).click();
+  await page.locator(`#activityControllerPanel [data-wg-action="hint"]`).click();
   await page.evaluate(()=>{
    const W=window.WordGrid,g=state.activityRun.wordGrid;
    g.players[0].rack=[..."CATDOGS"].map((letter,i)=>({id:"fixture-"+i,letter,value:W.POINTS[letter],blank:false}));
