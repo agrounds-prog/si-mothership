@@ -71,6 +71,8 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
     await student.setViewportSize({width:w,height:h});
     const g=await student.evaluate(()=>({overflow:document.documentElement.scrollWidth-innerWidth,main:document.querySelector("#studentContent").clientHeight}));
     assert.ok(g.overflow<=2&&g.main>150,JSON.stringify({w,h,g}));
+    // The viewport resize event can arrive a frame after setViewportSize.
+    await student.waitForFunction(n=>document.querySelectorAll("#studentContent [data-join-avatar]:not([hidden])").length===n,expected,{timeout:4000});
     assert.equal(await student.locator("#studentContent [data-join-avatar]:visible").count(),expected,"avatar page size stays compact");
     const first=student.locator("#studentContent [data-join-avatar]:visible").first();
     const box=await first.boundingBox();
