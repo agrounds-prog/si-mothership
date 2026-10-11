@@ -1092,3 +1092,523 @@ body.role-shared .shared-screen .presentation-public .presentation-media-stack .
  aspect-ratio:auto!important;border-radius:0!important;
  box-shadow:none!important;
 }
+
+
+/* v86 · Activity Library / Mission Control visual continuity.
+   Only the Library browsing/shortcut manager surface is styled here.
+   Existing search, filter, launch, preset and shortcut events are untouched. */
+#teacher #activitiesPanel.si-v86-library{
+ --si-v86-cyan:#6feaff;
+ --si-v86-line:#28638e;
+ --si-v86-glass:#09213a;
+ --si-v86-muted:#aecbdc;
+ width:min(94vw,1520px)!important;
+ max-width:calc(100vw - 24px)!important;
+ max-height:calc(100dvh - 36px)!important;
+ box-sizing:border-box!important;
+ overflow-y:auto!important;
+ overflow-x:hidden!important;
+ padding:clamp(16px,1.85vw,27px)!important;
+ border:1px solid #308ac2!important;
+ border-radius:20px!important;
+ color:#e8f8ff!important;
+ background:
+  radial-gradient(ellipse at 50% 0%,#103e6b73,transparent 52%),
+  linear-gradient(145deg,#091c34 0%,#06172b 65%,#071c31 100%)!important;
+ box-shadow:0 25px 100px #000c,inset 0 1px 0 #b7f4ff28!important;
+ scrollbar-color:#3381a7 #08192c!important;
+ scrollbar-width:thin!important;
+}
+#teacher #activitiesPanel.si-v86-library .mode-title{
+ display:flex!important;
+ flex-wrap:wrap!important;
+ align-items:center!important;
+ justify-content:space-between!important;
+ gap:20px!important;
+ min-height:88px!important;
+ padding:2px 125px 17px 0!important;
+ margin:0 0 18px!important;
+ border-bottom:1px solid #28577e!important;
+}
+#teacher #activitiesPanel.si-v86-library .mode-title>div{min-width:0!important}
+#teacher #activitiesPanel.si-v86-library .mode-title .eyebrow{
+ color:#72defb!important;
+ font:950 11px/1.3 system-ui!important;
+ letter-spacing:.15em!important;
+}
+#teacher #activitiesPanel.si-v86-library #activitiesTitle{
+ margin:5px 0 8px!important;
+ font:950 clamp(25px,2.5vw,35px)/1.08 system-ui!important;
+ letter-spacing:-.025em!important;
+ color:#f0fbff!important;
+ text-shadow:0 2px 20px #6fcfff20!important;
+}
+#teacher #activitiesPanel.si-v86-library #activitiesSubtitle{
+ margin:0!important;max-width:720px!important;
+ color:#b7d0e1!important;
+ font:600 clamp(12px,.91vw,14px)/1.45 system-ui!important;
+}
+#teacher #activitiesPanel.si-v86-library .activity-workspace-close{
+ position:sticky!important;
+ top:0!important;
+ float:right!important;
+ z-index:16!important;
+ margin:0!important;
+ min-height:46px!important;
+ min-width:108px!important;
+ padding:10px 17px!important;
+ border:1px solid #50bce8!important;
+ border-radius:11px!important;
+ background:linear-gradient(155deg,#12547b,#0b304e)!important;
+ color:#eafcff!important;font:900 13px/1.25 system-ui!important;
+ box-shadow:0 0 14px #278ff436!important;
+}
+#teacher #activitiesPanel.si-v86-library .library-header-actions button,
+#teacher #activitiesPanel.si-v86-library #toggleShortcutManagerBtn{
+ min-height:44px!important;
+ padding:10px 16px!important;
+ background:linear-gradient(140deg,#113a5c,#0a2d4b)!important;
+ border:1px solid #478eb9!important;
+ border-radius:10px!important;
+ color:#e8faff!important;
+ font:850 13px/1.2 system-ui!important;
+}
+#teacher #activitiesPanel.si-v86-library button:hover{
+ filter:brightness(1.14);
+}
+#teacher #activitiesPanel.si-v86-library button:focus-visible{
+ outline:3px solid #9df6ff!important;
+ outline-offset:2px!important;
+}
+#teacher #activitiesPanel.si-v86-library .activity-library-toolbar{
+ display:grid!important;
+ grid-template-columns:minmax(265px,.8fr) minmax(0,1.65fr)!important;
+ align-items:center!important;
+ gap:15px!important;
+ padding:13px!important;
+ margin:0 0 18px!important;
+ border:1px solid #347ca9!important;
+ border-radius:16px!important;
+ background:linear-gradient(145deg,#102c48f2,#092139f2)!important;
+ box-shadow:inset 0 1px 0 #bbf6ff1d,0 8px 22px #0004!important;
+ position:relative!important;top:auto!important;
+}
+#teacher #activitiesPanel.si-v86-library .activity-library-search-wrap{
+ min-width:0!important;
+ min-height:48px!important;
+ display:flex!important;
+ align-items:center!important;
+ gap:10px!important;
+ padding:0 13px!important;
+ border:1px solid #366f97!important;
+ border-radius:11px!important;
+ background:#061728!important;
+}
+#teacher #activitiesPanel.si-v86-library .activity-library-search-wrap>span{
+ font-size:24px!important;
+ color:#78e9ff!important;
+}
+#teacher #activitiesPanel.si-v86-library #activityLibrarySearch{
+ min-height:44px!important;
+ width:100%!important;
+ background:transparent!important;
+ border:none!important;
+ color:#f2fbff!important;
+ font:650 13px/1.4 system-ui!important;
+ outline:none!important;
+}
+#teacher #activitiesPanel.si-v86-library #activityLibrarySearch::placeholder{
+ color:#91b6cb!important;opacity:1!important;
+}
+#teacher #activitiesPanel.si-v86-library .activity-library-filters{
+ min-width:0!important;
+ display:flex!important;
+ align-items:stretch!important;
+ gap:7px!important;
+}
+#teacher #activitiesPanel.si-v86-library .activity-library-filters button{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:space-between!important;
+ gap:9px!important;
+ min-width:0!important;
+ min-height:48px!important;
+ padding:8px 11px!important;
+ border:1px solid #326587!important;
+ border-radius:10px!important;
+ background:linear-gradient(160deg,#0a273e,#0b2237)!important;
+ color:#c4dce9!important;
+ font:850 12px/1.2 system-ui!important;
+}
+#teacher #activitiesPanel.si-v86-library .activity-library-filters button.active{
+ color:#ecffff!important;
+ border-color:#65d8ee!important;
+ background:linear-gradient(160deg,#11506b,#0b354e)!important;
+ box-shadow:inset 0 1px 0 #a8f9ff4d,0 0 12px #25b3fa30!important;
+}
+#teacher #activitiesPanel.si-v86-library .activity-library-filters button b{
+ flex:0 0 auto!important;
+ padding:4px 7px!important;
+ border-radius:999px!important;
+ background:#23526b!important;color:#c5f6ff!important;
+ font:900 11px/1 system-ui!important;
+}
+#teacher #activitiesPanel.si-v86-library .activity-library-shelves{
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:16px!important;
+ margin:0 0 21px!important;
+}
+#teacher #activitiesPanel.si-v86-library .preset-section,
+#teacher #activitiesPanel.si-v86-library .activity-catalog{
+ min-width:0!important;
+ border:1px solid #2d709c!important;
+ border-radius:16px!important;
+ padding:16px!important;
+ background:linear-gradient(150deg,#0b283f,#071e32 83%)!important;
+ box-shadow:inset 0 1px 0 #cbf8ff17,0 7px 18px #0003!important;
+}
+#teacher #activitiesPanel.si-v86-library .preset-section-head,
+#teacher #activitiesPanel.si-v86-library .activity-catalog-head{
+ display:flex!important;
+ justify-content:space-between!important;
+ align-items:end!important;
+ gap:12px!important;
+ margin:0 0 13px!important;
+ padding:0!important;
+}
+#teacher #activitiesPanel.si-v86-library .library-kicker{
+ display:block!important;
+ color:#72dcef!important;
+ font:950 10px/1.3 system-ui!important;
+ letter-spacing:.12em!important;
+ margin-bottom:5px!important;
+}
+#teacher #activitiesPanel.si-v86-library .preset-section h3,
+#teacher #activitiesPanel.si-v86-library .activity-catalog h3{
+ margin:0!important;
+ color:#f1fbff!important;
+ font:950 clamp(18px,1.55vw,22px)/1.15 system-ui!important;
+}
+#teacher #activitiesPanel.si-v86-library .preset-section-head>span,
+#teacher #activitiesPanel.si-v86-library .activity-catalog-head>span{
+ color:#a5c6d9!important;
+ font:750 12px system-ui!important;
+}
+#teacher #activitiesPanel.si-v86-library .preset-recent{
+ display:flex!important;
+ flex-direction:column!important;
+ gap:9px!important;
+ max-height:255px!important;
+ overflow-y:auto!important;
+ padding-right:4px!important;
+ scrollbar-color:#35799c transparent!important;
+}
+#teacher #activitiesPanel.si-v86-library .preset-recent-card{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) auto!important;
+ align-items:center!important;
+ gap:12px!important;
+ min-height:78px!important;
+ padding:10px 12px!important;
+ border:1px solid #306688!important;
+ border-radius:12px!important;
+ background:linear-gradient(150deg,#0f314b,#0a2238)!important;
+}
+#teacher #activitiesPanel.si-v86-library .recent-card-top{
+ display:flex!important;
+ align-items:center!important;
+ gap:11px!important;
+ min-width:0!important;
+}
+#teacher #activitiesPanel.si-v86-library .recent-card-top>div{
+ min-width:0!important;
+ display:flex!important;flex-direction:column!important;gap:5px!important;
+}
+#teacher #activitiesPanel.si-v86-library .recent-card-top b{
+ color:#f0fbff!important;
+ font:900 14px/1.24 system-ui!important;
+ white-space:nowrap!important;
+ overflow:hidden!important;
+ text-overflow:ellipsis!important;
+}
+#teacher #activitiesPanel.si-v86-library .recent-card-top small{
+ color:#afd0e1!important;
+ font:700 11px/1.25 system-ui!important;
+}
+#teacher #activitiesPanel.si-v86-library .preset-recent-actions{
+ display:flex!important;flex-direction:row!important;gap:7px!important;
+}
+#teacher #activitiesPanel.si-v86-library .preset-recent-actions button,
+#teacher #activitiesPanel.si-v86-library .preset-actions button{
+ min-height:37px!important;
+ border-radius:8px!important;
+ padding:7px 12px!important;
+ border:1px solid #4a99c1!important;
+ background:#134464!important;
+ color:#f0faff!important;
+ font:850 12px/1.2 system-ui!important;
+ white-space:nowrap!important;
+}
+#teacher #activitiesPanel.si-v86-library .preset-recent-actions button:last-child,
+#teacher #activitiesPanel.si-v86-library .preset-actions button:first-child{
+ border-color:#66cde5!important;
+ background:linear-gradient(145deg,#1d6687,#134663)!important;
+}
+#teacher #activitiesPanel.si-v86-library .saved-shelf .preset-grid{
+ display:grid!important;
+ grid-template-columns:repeat(auto-fit,minmax(230px,1fr))!important;
+ gap:10px!important;
+ max-height:255px!important;overflow-y:auto!important;
+}
+#teacher #activitiesPanel.si-v86-library .preset-card{
+ display:flex!important;flex-direction:column!important;gap:8px!important;
+ padding:12px!important;
+ min-width:0!important;
+ border:1px solid #316b91!important;
+ border-radius:12px!important;
+ background:linear-gradient(145deg,#0e314d,#092238)!important;
+}
+#teacher #activitiesPanel.si-v86-library .preset-card h4{
+ color:#f4fdff!important;font:900 14px/1.25 system-ui!important;margin:0!important;
+}
+#teacher #activitiesPanel.si-v86-library .preset-card p{
+ color:#b8d4e2!important;font:650 12px/1.4 system-ui!important;
+}
+#teacher #activitiesPanel.si-v86-library .preset-section .empty{
+ display:grid!important;place-items:center!important;
+ min-height:145px!important;max-height:none!important;
+ padding:22px!important;
+ border:1px dashed #285f86!important;border-radius:11px!important;
+ background:#06192b!important;
+ color:#a8c8dc!important;
+ font:700 13px/1.45 system-ui!important;
+ text-align:center!important;
+}
+#teacher #activitiesPanel.si-v86-library .activity-catalog{
+ margin:0!important;
+}
+#teacher #activitiesPanel.si-v86-library .activity-catalog-grid{
+ display:grid!important;
+ grid-template-columns:repeat(auto-fit,minmax(255px,1fr))!important;
+ gap:15px!important;
+ align-items:stretch!important;
+}
+#teacher #activitiesPanel.si-v86-library .activity-catalog-grid .real-app-card{
+ --si-v86-accent:#6eeaff;
+ display:flex!important;flex-direction:column!important;
+ align-items:stretch!important;justify-content:flex-start!important;
+ min-width:0!important;min-height:345px!important;height:auto!important;
+ padding:14px!important;gap:8px!important;
+ position:relative!important;overflow:hidden!important;
+ border:1px solid #326e94!important;
+ border-radius:14px!important;
+ background:linear-gradient(155deg,#0e2c47,#081d33 70%)!important;
+ box-shadow:inset 0 1px 0 #b1f1ff27,0 10px 24px #0003!important;
+}
+#teacher #activitiesPanel.si-v86-library .real-app-card:hover{
+ border-color:var(--si-v86-accent)!important;
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--si-v86-accent) 30%,transparent),0 10px 27px #0008!important;
+ transform:translateY(-2px)!important;
+}
+#teacher #activitiesPanel.si-v86-library .real-app-card .activity-card-badges{
+ min-width:0!important;
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:5px!important;
+ order:0!important;
+}
+#teacher #activitiesPanel.si-v86-library .real-app-card .app-status,
+#teacher #activitiesPanel.si-v86-library .real-app-card .activity-category-pill{
+ border-radius:999px!important;
+ padding:5px 8px!important;
+ border:1px solid #3b7fa4!important;
+ font:900 10px/1.18 system-ui!important;
+ letter-spacing:.035em!important;
+ color:#a7e8ff!important;
+ background:#092c42!important;
+ white-space:normal!important;
+}
+#teacher #activitiesPanel.si-v86-library .real-app-card .activity-category-pill{
+ color:#b8d6e4!important;
+ background:#0b2439!important;
+ border-color:#285778!important;
+}
+#teacher #activitiesPanel.si-v86-library .real-app-card .act-icon{
+ box-sizing:border-box!important;
+ display:grid!important;place-items:center!important;
+ width:100%!important;height:108px!important;
+ margin:5px 0 2px!important;
+ padding:13px!important;
+ border:1px solid var(--si-v86-accent)!important;
+ border-radius:12px!important;
+ color:var(--si-v86-accent)!important;
+ background:
+  radial-gradient(ellipse at 50% 48%,color-mix(in srgb,var(--si-v86-accent) 23%,transparent),transparent 67%),
+  linear-gradient(145deg,#0d304d,#0a1b31)!important;
+ box-shadow:inset 0 1px 0 #ffffff2b,0 0 12px color-mix(in srgb,var(--si-v86-accent) 20%,transparent)!important;
+ overflow:hidden!important;
+}
+#teacher #activitiesPanel.si-v86-library .real-app-card .act-icon .si-v86-library-glyph{
+ width:61px!important;height:61px!important;
+ filter:drop-shadow(0 0 7px var(--si-v86-accent))!important;
+}
+#teacher #activitiesPanel.si-v86-library .real-app-card h3{
+ margin:3px 0 0!important;
+ color:#f4fbff!important;
+ font:950 clamp(16px,1.2vw,19px)/1.12 system-ui!important;
+ letter-spacing:-.018em!important;
+ overflow-wrap:break-word!important;
+}
+#teacher #activitiesPanel.si-v86-library .real-app-card .app-meta{
+ margin:0!important;
+ color:#93e9ff!important;
+ font:800 11px/1.35 system-ui!important;
+ letter-spacing:.01em!important;
+}
+#teacher #activitiesPanel.si-v86-library .real-app-card p{
+ margin:0 0 9px!important;
+ flex:1 1 auto!important;
+ color:#bfd8e7!important;
+ font:600 12px/1.48 system-ui!important;
+ line-height:1.48!important;
+ display:-webkit-box!important;
+ -webkit-box-orient:vertical!important;
+ -webkit-line-clamp:3!important;
+ overflow:hidden!important;
+}
+#teacher #activitiesPanel.si-v86-library .real-app-card .real-app-actions{
+ display:flex!important;
+ flex-direction:column!important;
+ gap:8px!important;
+ margin-top:auto!important;
+}
+#teacher #activitiesPanel.si-v86-library .real-app-card .real-app-actions button{
+ box-sizing:border-box!important;
+ width:100%!important;
+ min-height:43px!important;
+ border-radius:10px!important;
+ padding:9px 11px!important;
+ font:900 12px/1.2 system-ui!important;
+}
+#teacher #activitiesPanel.si-v86-library .real-app-card .real-app-actions button:first-child{
+ border:1px solid var(--si-v86-accent)!important;
+ color:#071b2f!important;
+ background:var(--si-v86-accent)!important;
+ box-shadow:0 0 15px color-mix(in srgb,var(--si-v86-accent) 23%,transparent)!important;
+}
+#teacher #activitiesPanel.si-v86-library .real-app-card .real-app-actions button.secondary{
+ border:1px solid #4488b2!important;
+ color:#d9f5ff!important;background:#10334f!important;
+}
+#teacher #activitiesPanel.si-v86-library .activity-library-empty{
+ min-height:225px!important;border:1px dashed #2d789b!important;
+ border-radius:12px!important;background:#061c31!important;
+ color:#d5efff!important;
+}
+#teacher #activitiesPanel.si-v86-library .si-v86-icon-ready[data-si-v86-accent="cyan"]{--si-v86-accent:#6ae7ff}
+#teacher #activitiesPanel.si-v86-library .si-v86-icon-ready[data-si-v86-accent="blue"]{--si-v86-accent:#78baff}
+#teacher #activitiesPanel.si-v86-library .si-v86-icon-ready[data-si-v86-accent="purple"]{--si-v86-accent:#bf92ff}
+#teacher #activitiesPanel.si-v86-library .si-v86-icon-ready[data-si-v86-accent="pink"]{--si-v86-accent:#ff85bf}
+#teacher #activitiesPanel.si-v86-library .si-v86-icon-ready[data-si-v86-accent="green"]{--si-v86-accent:#70ffc5}
+#teacher #activitiesPanel.si-v86-library .si-v86-icon-ready[data-si-v86-accent="amber"]{--si-v86-accent:#ffc77a}
+#teacher #activitiesPanel.si-v86-library .recent-app-icon,
+#teacher #activitiesPanel.si-v86-library .preset-card-icon,
+#teacher #activitiesPanel.si-v86-library .shortcut-manage-icon{
+ box-sizing:border-box!important;
+ display:grid!important;place-items:center!important;
+ flex:0 0 55px!important;
+ width:55px!important;height:55px!important;
+ padding:8px!important;
+ color:var(--si-v86-accent,#70e8ff)!important;
+ border:1px solid var(--si-v86-accent,#3889bc)!important;
+ border-radius:11px!important;
+ background:radial-gradient(circle,#123e63,#071d33 90%)!important;
+ box-shadow:0 0 11px color-mix(in srgb,var(--si-v86-accent,#70e8ff) 17%,transparent)!important;
+}
+#teacher #activitiesPanel.si-v86-library .recent-app-icon .si-v86-library-glyph,
+#teacher #activitiesPanel.si-v86-library .preset-card-icon .si-v86-library-glyph,
+#teacher #activitiesPanel.si-v86-library .shortcut-manage-icon .si-v86-library-glyph{
+ display:block!important;width:35px!important;height:35px!important;
+ filter:drop-shadow(0 0 5px currentColor)!important;
+}
+#teacher #activitiesPanel.si-v86-library .shortcut-manage-card{
+ min-height:90px!important;
+ border:1px solid #366f98!important;
+ border-radius:13px!important;
+ background:linear-gradient(145deg,#0f304b,#0a223a)!important;
+}
+#teacher #activitiesPanel.si-v86-library .shortcut-manage-copy b{
+ color:#effaff!important;
+ font:900 15px/1.2 system-ui!important;
+}
+#teacher #activitiesPanel.si-v86-library .shortcut-manage-copy span{
+ color:#b7d4e4!important;
+ font:650 12px/1.35 system-ui!important;
+}
+#teacher #activitiesPanel.si-v86-library .favorite-grid{
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:12px!important;
+}
+@media(max-width:1180px){
+ #teacher #activitiesPanel.si-v86-library .activity-library-toolbar{
+  grid-template-columns:1fr!important;
+ }
+ #teacher #activitiesPanel.si-v86-library .activity-library-filters{
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ }
+ #teacher #activitiesPanel.si-v86-library .activity-library-shelves{
+  grid-template-columns:1fr 1fr!important;
+ }
+}
+@media(max-width:850px){
+ #teacher #activitiesPanel.si-v86-library .activity-library-shelves{
+  grid-template-columns:1fr!important;
+ }
+ #teacher #activitiesPanel.si-v86-library .activity-catalog-grid{
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr))!important;
+ }
+ #teacher #activitiesPanel.si-v86-library .favorite-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+}
+@media(max-width:620px){
+ #teacher #activitiesPanel.si-v86-library{
+  width:calc(100vw - 12px)!important;max-width:none!important;
+  max-height:calc(100dvh - 10px)!important;
+  padding:13px!important;
+  border-radius:15px!important;
+ }
+ #teacher #activitiesPanel.si-v86-library .mode-title{
+  padding:9px 0 12px!important;
+ }
+ #teacher #activitiesPanel.si-v86-library .activity-workspace-close{
+  min-width:78px!important;padding:8px 9px!important;min-height:39px!important;
+ }
+ #teacher #activitiesPanel.si-v86-library .activity-library-toolbar{
+  padding:9px!important;
+ }
+ #teacher #activitiesPanel.si-v86-library .activity-library-filters{
+  display:flex!important;overflow-x:auto!important;gap:7px!important;
+  padding-bottom:3px!important;
+ }
+ #teacher #activitiesPanel.si-v86-library .activity-library-filters button{
+  flex:0 0 auto!important;min-width:95px!important;
+ }
+ #teacher #activitiesPanel.si-v86-library .activity-catalog-grid{
+  grid-template-columns:1fr!important;
+ }
+ #teacher #activitiesPanel.si-v86-library .preset-recent-card{
+  grid-template-columns:1fr!important;
+ }
+ #teacher #activitiesPanel.si-v86-library .preset-recent-actions{
+  justify-content:flex-end!important;
+ }
+ #teacher #activitiesPanel.si-v86-library .favorite-grid{
+  grid-template-columns:1fr!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #teacher #activitiesPanel.si-v86-library .real-app-card{
+  transform:none!important;transition:none!important;
+ }
+}
