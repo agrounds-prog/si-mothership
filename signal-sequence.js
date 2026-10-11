@@ -116,7 +116,7 @@ function donutHTML(g,{interactive=false,mini=false}={}){
  '<div class="ss-progress" aria-label="Input progress">'+esc(String(progress))+'</div></div>';
 }
 function header(){return '<div class="ss-heading"><div><span>SI MOTHERSHIP · MEMORY ARCADE</span><h2>SIGNAL <em>SEQUENCE</em></h2><p>WATCH · REMEMBER · REPEAT</p></div><div class="ss-heading-emblem" aria-hidden="true">✧</div></div>'}
-function badge(g){return '<div class="ss-pilot"><b>✦ '+esc(modeOf(g)==="survival"?"CREW SURVIVAL":g.pilot)+'</b><span>ROUND '+g.round+' · BEST '+g.best+' · '+count(g)+' COLORS</span></div>'}
+function badge(g){return '<div class="ss-pilot"><b>✦ '+esc(modeOf(g)==="survival"?"CREW SURVIVAL":modeOf(g)==="relay"?"TEAM RELAY · "+g.pilot:g.pilot)+'</b><span>ROUND '+g.round+' · BEST '+g.best+' · '+count(g)+' COLORS</span></div>'}
 function crewStatus(g,{privateView=false}={}){
  if(modeOf(g)!=="survival")return "";
  const entries=roster(g),players=members(g);
