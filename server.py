@@ -28,6 +28,13 @@ from quick_poll_server import QuickPollService
 
 ROOT = Path(__file__).resolve().parent
 INDEX_PATH = ROOT / "index.html"
+# Asset fingerprint is tied to the deployed Quick Poll files, rather than
+# a permanently fixed ?v=1. Browser caches and open shared-screen tabs
+# receive the latest graphics when the page is reloaded after deployment.
+QUICK_POLL_ASSET_VERSION = hashlib.sha256(
+    (ROOT / "quick-poll.js").read_bytes()
+    + (ROOT / "quick-poll.css").read_bytes()
+).hexdigest()[:14]
 CALCULATOR_DIR = ROOT / "scientific-calculator"
 CALCULATOR_INDEX_GZ = CALCULATOR_DIR / "index.html.gz"
 CALCULATOR_ENGINE_GZ = CALCULATOR_DIR / "engine.js.gz"
@@ -4907,7 +4914,7 @@ async def index(request: web.Request) -> web.Response:
     text = text.replace("<head>", "<head>" + injected, 1)
     # Quick Poll loads alongside existing games. It does not modify activityRun.
     text = text.replace("</head>",
-                        '<link rel="stylesheet" href="/quick-poll.css?v=1">'
+                        f'<link rel="stylesheet" href="/quick-poll.css?v={QUICK_POLL_ASSET_VERSION}">'
                         '<link rel="stylesheet" href="/dashboard-polish.css?v=80">'
                         '<link rel="stylesheet" href="/million-studio.css?v=1"></head>', 1)
     # Insert before the final body close: index.html also contains HTML strings
@@ -4915,7 +4922,7 @@ async def index(request: web.Request) -> web.Response:
     body_close = text.rfind("</body>")
     if body_close >= 0:
         text = (text[:body_close] +
-                '<script src="/quick-poll.js?v=1" defer></script>' +
+                f'<script src="/quick-poll.js?v={QUICK_POLL_ASSET_VERSION}" defer></script>' +
                 '<script src="/dashboard-polish.js?v=80" defer></script>' +
                 '<script src="/million-studio.js?v=1" defer></script>' +
                 text[body_close:])
