@@ -1,0 +1,326 @@
+/* SI Mothership · student browser companion / Zoom sidecar
+   Scoped exclusively to role=student. Loaded after the original 130+ styles.
+   Treat the desktop student page as a resizable device rather than a poster. */
+body.role-student {
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:100dvh!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:12px!important;
+  overflow:hidden!important;
+  background:radial-gradient(ellipse at 50% 12%,#142c45 0%,#06111e 58%,#020811 100%)!important;
+}
+body.role-student,body.role-student *,body.role-student *::before,body.role-student *::after {box-sizing:border-box}
+body.role-student #student {
+  display:block!important;
+  flex:0 1 auto!important;
+  width:min(100%,440px)!important;
+  height:min(850px,calc(100dvh - 24px))!important;
+  max-height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  margin:0 auto!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+body.role-student .student-shell {
+  width:100%!important;max-width:440px!important;
+  height:100%!important;max-height:100%!important;
+  min-height:0!important;min-width:0!important;
+  padding:0!important;margin:0!important;
+}
+body.role-student .device {
+  display:flex!important;flex-direction:column!important;
+  width:100%!important;height:100%!important;
+  min-height:0!important;max-height:100%!important;
+  overflow:hidden!important;
+  border:1px solid #346984!important;border-radius:22px!important;
+  background:#03111d!important;
+  box-shadow:0 22px 65px #0009,0 0 0 1px #93dfff10 inset!important;
+}
+body.role-student .device-head {
+  flex:0 0 auto!important;min-height:49px!important;height:49px!important;
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  gap:7px!important;padding:7px 11px!important;
+  border-bottom:1px solid #315d76!important;
+  background:linear-gradient(135deg,#0d2940,#071522)!important;
+}
+body.role-student .device-head>span:first-child{
+  white-space:nowrap!important;font-size:12px!important;letter-spacing:.015em!important;
+}
+body.role-student .si-student-header-tools{display:flex;align-items:center;justify-content:flex-end;gap:7px;min-width:0}
+body.role-student #studentConnectionLabel{
+  flex:0 0 auto!important;font-size:10px!important;
+  padding:5px 8px!important;min-height:29px!important;white-space:nowrap!important;
+}
+body.role-student .si-student-popout{
+  flex:0 0 auto;min-width:0;min-height:31px;
+  display:inline-flex;align-items:center;justify-content:center;gap:4px;
+  padding:5px 9px;color:#e3faff;background:linear-gradient(135deg,#0b4664,#123c53);
+  border:1px solid #66afcf;border-radius:9px;cursor:pointer;
+  font:850 11px/1.1 system-ui;touch-action:manipulation;
+}
+body.role-student .si-student-popout:hover{background:#195773;border-color:#a9e8ff}
+body.role-student .si-student-popout:focus-visible{outline:3px solid #ffda85;outline-offset:2px}
+body.role-student .device-main,body.role-student #studentContent {
+  flex:1 1 auto!important;
+  width:100%!important;
+  min-width:0!important;min-height:0!important;
+  max-height:none!important;
+  overflow-x:hidden!important;overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch;
+  align-items:stretch!important;justify-content:flex-start!important;
+  text-align:left!important;
+  padding:10px!important;
+}
+body.role-student .device-main:has(.student-join-flow) {
+  min-height:0!important;padding:9px!important;
+  align-items:stretch!important;justify-content:flex-start!important;
+}
+body.role-student .student-join-flow{
+  width:100%!important;max-width:100%!important;
+  min-height:0!important;margin:0!important;padding:0!important;
+  display:block!important;
+}
+body.role-student .student-join-card {
+  width:100%!important;max-width:100%!important;
+  min-height:0!important;
+  padding:12px!important;
+  border-radius:15px!important;
+  border:1px solid #3799bd!important;
+  background:linear-gradient(180deg,#0c3149,#071b2b)!important;
+  box-shadow:inset 0 1px #b9f5ff1b,0 8px 20px #0005!important;
+  overflow:visible!important;
+}
+body.role-student .student-join-card::before{
+  content:none!important;display:none!important;
+}
+body.role-student .student-join-card::after{display:none!important}
+body.role-student .student-join-card h2{
+  font-size:25px!important;line-height:1.12!important;
+  letter-spacing:-.035em!important;text-shadow:none!important;
+  margin:4px 0 3px!important;
+}
+body.role-student .student-join-card p{
+  margin:4px 0 9px!important;
+  font-size:12px!important;line-height:1.42!important;
+  color:#c4dce9!important;
+}
+body.role-student .student-join-card .eyebrow{font-size:10px!important;letter-spacing:.12em!important}
+body.role-student .join-progress{justify-content:flex-start!important;gap:6px!important;margin:2px 0 10px!important}
+body.role-student .join-progress span{height:4px!important}
+body.role-student .join-avatar-toolbar{
+  display:flex!important;align-items:flex-start!important;
+  gap:8px!important;margin:0 0 8px!important;text-align:left!important;
+}
+body.role-student .join-avatar-toolbar>div{flex:1 1 auto;min-width:0}
+body.role-student .join-avatar-toolbar h2{
+  font-size:clamp(20px,5vw,25px)!important;
+  line-height:1.08!important;max-width:none!important;
+}
+body.role-student .join-avatar-toolbar p{font-size:11px!important;max-width:260px;margin:4px 0!important}
+body.role-student .join-avatar-toolbar button{
+  flex:0 0 auto!important;min-height:39px!important;
+  padding:6px 9px!important;font-size:11px!important;
+}
+body.role-student .join-avatar-meta{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  gap:10px!important;margin:0 0 7px!important;
+  font-size:10px!important;
+}
+body.role-student .join-avatar-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:8px!important;
+  max-height:none!important;
+  width:100%!important;
+  padding:0 1px 8px!important;
+  margin:0!important;
+  overflow:visible!important;
+}
+body.role-student .join-avatar-choice{
+  min-height:116px!important;min-width:0!important;
+  padding:8px 5px!important;
+  display:flex!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;
+  border:1px solid #3586ac!important;border-radius:12px!important;
+  box-shadow:inset 0 1px #ddfaff12,0 5px 13px #0004!important;
+  transform:none!important;
+  touch-action:manipulation;
+}
+body.role-student .join-avatar-choice:focus-visible{outline:3px solid #ffdd88;outline-offset:2px}
+body.role-student .join-avatar-choice .avatar-art{
+  width:64px!important;height:64px!important;
+  max-width:100%!important;
+  margin:0 auto 5px!important;
+  border-radius:14px!important;font-size:29px!important;
+}
+body.role-student .join-avatar-choice .avatar-art img{width:100%!important;height:100%!important;object-fit:cover!important}
+body.role-student .join-avatar-choice strong{
+  display:block!important;max-width:100%!important;
+  font-size:11px!important;line-height:1.2!important;
+  overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+}
+body.role-student .join-avatar-choice small{font-size:9px!important;line-height:1.2!important;margin-top:1px!important}
+body.role-student .join-avatar-choice .taken-badge{font-size:8px!important;z-index:2}
+body.role-student .student-control-zone:has(#studentControls:empty),
+body.role-student .device:has(.student-join-flow) .student-control-zone{
+  display:none!important;
+}
+body.role-student .student-join-step.code-join-card {
+  min-height:0!important;
+  max-width:100%!important;
+  padding:16px 13px!important;
+  display:flex!important;flex-direction:column!important;
+  align-items:stretch!important;justify-content:flex-start!important;
+}
+body.role-student .code-join-card .join-step-icon{
+  width:46px!important;height:46px!important;
+  font-size:25px!important;line-height:1!important;
+  margin:4px auto 8px!important;
+}
+body.role-student .join-code-field{
+  display:flex!important;flex-direction:row!important;
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  gap:7px!important;margin:12px 0!important;
+}
+body.role-student #joinCodeInput{
+  flex:1 1 auto!important;min-width:0!important;
+  height:49px!important;min-height:49px!important;
+  font-size:20px!important;letter-spacing:.12em!important;
+}
+body.role-student #joinCodeBtn{
+  flex:0 0 auto!important;width:auto!important;
+  min-height:49px!important;height:49px!important;
+  padding:8px 13px!important;border-radius:10px!important;
+  font-size:12px!important;
+}
+body.role-student .confirm-join-flow{min-height:0!important;display:block!important}
+body.role-student .confirm-join-card{max-width:100%!important;min-height:0!important;padding:14px!important}
+body.role-student .join-confirm-hero{
+  display:grid!important;grid-template-columns:74px minmax(0,1fr)!important;
+  gap:10px!important;align-items:center!important;
+  padding:9px!important;margin:10px 0!important;
+  border-radius:12px!important;
+}
+body.role-student .join-confirm-avatar{
+  width:70px!important;height:70px!important;
+  margin:0!important;border-radius:13px!important;
+}
+body.role-student .join-confirm-avatar .avatar-art{
+  width:64px!important;height:64px!important;
+  border-radius:12px!important;font-size:30px!important;
+}
+body.role-student .join-confirm-copy b{font-size:16px!important}
+body.role-student .join-own-name input{height:46px!important;min-height:46px!important}
+body.role-student #joinClassBtn{
+  min-height:48px!important;padding:8px 14px!important;font-size:13px!important;
+  border-radius:10px!important;
+}
+body.role-student .join-confirm-actions{
+  position:static!important;margin:10px 0 0!important;
+  padding:0!important;gap:8px!important;
+  grid-template-columns:minmax(86px,.65fr) minmax(0,1.35fr)!important;
+  background:none!important;
+}
+body.role-student .join-confirm-actions button{min-height:46px!important}
+body.role-student .student-control-zone{
+  flex:0 0 auto!important;min-height:0!important;
+  max-height:36dvh!important;
+  overflow-y:auto!important;
+  padding:7px 9px!important;
+}
+body.role-student .student-control-label{
+  min-height:0!important;padding:0 2px 6px!important;
+}
+body.role-student .student-control-label b{font-size:10px!important;letter-spacing:.11em!important}
+body.role-student .student-actions.home-controls{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:6px!important;padding:0!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action]{
+  display:flex!important;align-items:center!important;
+  flex-direction:row!important;justify-content:flex-start!important;
+  min-height:56px!important;height:auto!important;
+  padding:8px!important;gap:8px!important;
+  border-radius:11px!important;
+  grid-template-columns:none!important;
+}
+body.role-student .student-actions.home-controls button[data-class-action="picture"]{grid-column:auto!important}
+body.role-student .student-actions.home-controls .student-command-icon{
+  flex:0 0 32px!important;width:32px!important;height:32px!important;
+  font-size:17px!important;border-radius:50%!important;
+  box-shadow:inset 0 0 8px #ffffff18!important;
+}
+body.role-student .student-actions.home-controls .student-command-copy b{
+  font-size:12px!important;line-height:1.2!important;
+}
+body.role-student .student-actions.home-controls .student-command-copy small{font-size:9px!important;line-height:1.2!important}
+body.role-student .student-actions:not(.home-controls) button{
+  min-width:0;min-height:46px;
+}
+body.role-student .device-main:has(.cinematic-lobby){min-height:0!important;padding:10px!important}
+body.role-student .cinematic-student-window.cinematic-lobby{
+  padding:12px!important;min-height:0!important;border-radius:16px!important;
+}
+body.role-student .cinematic-lobby>h2{
+  font-size:clamp(24px,6vw,31px)!important;line-height:1.1!important;
+}
+body.role-student .cinematic-lobby>p{font-size:12px!important;line-height:1.4!important}
+body.role-student .cinematic-lobby>.cinematic-pilot-card{
+  width:min(100%,260px)!important;
+  margin:8px auto!important;padding:10px!important;
+  gap:6px!important;border-radius:16px!important;
+}
+body.role-student .cinematic-lobby .cinematic-pilot-card .student-avatar-mini{
+  width:clamp(95px,27vw,148px)!important;
+  height:clamp(95px,27vw,148px)!important;
+  border-radius:14px!important;
+}
+body.role-student .cinematic-lobby .cinematic-pilot-card .student-avatar-mini img{border-radius:11px!important}
+body.role-student .cinematic-lobby .cinematic-pilot-card>.student-avatar-mini+span{
+  font-size:20px!important;
+}
+body.role-student .student-prompt{max-width:100%!important}
+body.role-student .student-prompt h2{font-size:clamp(22px,6vw,30px)!important;line-height:1.15!important}
+body.role-student .student-prompt p{font-size:clamp(12px,3vw,15px)!important}
+body.role-student .response-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:100%;gap:8px;margin:12px auto}
+body.role-student .student-prompt button{min-height:44px}
+body.role-student .toast{max-width:calc(100vw - 24px)!important;white-space:normal!important}
+/* Narrow companion window = full-bleed controller. On large desktop, keep the
+   device frame so it visually mimics the student's physical device. */
+@media(max-width:560px) {
+  body.role-student{padding:0!important;background:#03111d!important}
+  body.role-student #student{width:100%!important;height:100dvh!important;max-height:100dvh!important}
+  body.role-student .student-shell{max-width:none!important;height:100%!important}
+  body.role-student .device{border:0!important;border-radius:0!important;box-shadow:none!important}
+}
+@media(max-width:359px) {
+  body.role-student .join-avatar-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  body.role-student .device-head>span:first-child{font-size:10px!important}
+  body.role-student .si-student-popout{display:none}
+  body.role-student #studentConnectionLabel{font-size:9px!important}
+}
+@media(max-height:680px) {
+  body.role-student .device-head{height:45px!important;min-height:45px!important}
+  body.role-student .student-control-zone{max-height:32dvh!important}
+  body.role-student .student-actions.home-controls{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  body.role-student .student-actions.home-controls button[data-class-action]{
+    min-height:52px!important;padding:6px!important;gap:5px!important;
+  }
+  body.role-student .student-actions.home-controls .student-command-icon{
+    width:27px!important;height:27px!important;flex-basis:27px!important;font-size:14px!important;
+  }
+  body.role-student .student-actions.home-controls .student-command-copy b{font-size:10px!important}
+  body.role-student .student-actions.home-controls .student-command-copy small{display:none!important}
+}
+@media(pointer:coarse) {
+  body.role-student .si-student-popout{display:none}
+}

@@ -1,0 +1,47 @@
+name: Student Browser Companion Regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'student-companion.css'
+      - 'student-companion.js'
+      - 'tests/test_student_companion_browser.cjs'
+      - 'server.py'
+      - '.github/workflows/student-browser-companion.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  student-companion:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Check student companion JS, server, and release gate
+        run: |
+          node --check student-companion.js
+          python -m py_compile server.py
+          python scripts/release_gate.py --require-node
+      - name: Install browser and app dependencies
+        run: |
+          pip install -r requirements.txt
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Run isolated classroom
+        run: |
+          mkdir -p /tmp/mothership-companion-test
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-companion-test PORT=8877 python server.py >/tmp/student-companion.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8877/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          tail -60 /tmp/student-companion.log
+          exit 1
+      - name: Student device desktop, Zoom window, join, controls and popup
+        run: node tests/test_student_companion_browser.cjs
+      - name: Local failure diagnostics
+        if: failure()
+        run: tail -100 /tmp/student-companion.log || true

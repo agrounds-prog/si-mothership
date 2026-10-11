@@ -4936,7 +4936,8 @@ async def index(request: web.Request) -> web.Response:
                         '<link rel="stylesheet" href="/dominoes.css?v=1">'
                         '<link rel="stylesheet" href="/four-in-line.css?v=2">'
                         '<link rel="stylesheet" href="/signal-sequence.css?v=5">'
-                        '<link rel="stylesheet" href="/si-plus-polish.css?v=88"></head>', 1)
+                        '<link rel="stylesheet" href="/si-plus-polish.css?v=88">'
+                         '<link rel="stylesheet" href="/student-companion.css?v=1"></head>', 1)
     # Insert before the final body close: index.html also contains HTML strings
     # in internal scripts, so replacing the first occurrence would corrupt JS.
     body_close = text.rfind("</body>")
@@ -4952,6 +4953,7 @@ async def index(request: web.Request) -> web.Response:
                 '<script src="/word-grid.js?v=1" defer></script>' +
                 '<script src="/dominoes.js?v=1" defer></script>' +
                 '<script src="/si-plus-polish.js?v=88" defer></script>' +
+                '<script src="/student-companion.js?v=1" defer></script>' +
                 text[body_close:])
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
@@ -6080,6 +6082,8 @@ def create_app() -> web.Application:
     app.router.add_get("/signal-sequence.js", lambda request: web.FileResponse(ROOT / "signal-sequence.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/signal-sequence-bridge.js", lambda request: web.FileResponse(ROOT / "signal-sequence-bridge.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/signal-sequence.css", lambda request: web.FileResponse(ROOT / "signal-sequence.css", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/student-companion.css", lambda request: web.FileResponse(ROOT / "student-companion.css", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/student-companion.js", lambda request: web.FileResponse(ROOT / "student-companion.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/si-plus-polish.js", lambda request: web.FileResponse(ROOT / "si-plus-polish.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/si-plus-polish.css", lambda request: web.FileResponse(ROOT / "si-plus-polish.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/match-arcade.js", match_arcade_script)
