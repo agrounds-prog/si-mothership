@@ -107,7 +107,7 @@ const hosts=[
           await page.waitForFunction(()=>{
             const panel=document.querySelector('#activitiesPanel');
             return panel?.classList.contains('si-v86-library')&&
-              panel.querySelectorAll('.activity-catalog-grid .si-v86-icon-ready svg.si-v86-library-glyph').length===15;
+              panel.querySelectorAll('.activity-catalog-grid .si-v86-icon-ready svg.si-v86-library-glyph').length===16;
           },null,{timeout:12000});
           const lib=await page.evaluate(()=>{
             const panel=document.querySelector('#activitiesPanel');
@@ -132,9 +132,9 @@ const hosts=[
               primaryActions:cards.filter(c=>!!c.querySelector('[data-open-app]')).length};
           });
           console.log(JSON.stringify({label,role:'activity-library-v86',...lib,pageErrors:errors.slice(-3)}));
-          if(!lib.visible||lib.allCards!==15||lib.vectorCards!==15||
+          if(!lib.visible||lib.allCards!==16||lib.vectorCards!==16||
              lib.fontSize<15||lib.iconHeight<75||lib.columns<3||
-             lib.filters!==5||lib.primaryActions!==15||
+             lib.filters!==5||lib.primaryActions!==16||
              lib.recentVectors!==lib.recentCount||lib.presetVectors!==lib.presetCount||errors.length)failures++;
           await page.evaluate(()=>document.querySelector('#activitiesPanel .activity-library-filters [data-activity-category="games"]')?.click());
           await page.waitForTimeout(140);
@@ -144,7 +144,7 @@ const hosts=[
               icons:nodes.filter(n=>!!n.querySelector('svg.si-v86-library-glyph')).length};
           });
           console.log(JSON.stringify({label,role:'activity-library-filter',...gameFilter}));
-          if(gameFilter.count!==10||gameFilter.icons!==10||
+          if(gameFilter.count!==11||gameFilter.icons!==11||
              gameFilter.categories.some(x=>x!=='games'))failures++;
           await page.evaluate(()=>document.querySelector('#activitiesPanel .activity-library-filters [data-activity-category="all"]')?.click());
           await page.evaluate(()=>{
