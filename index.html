@@ -17691,7 +17691,7 @@ function studentAgendaMarkup(){
 function studentMarkup(){
   if(state.ended)return sharedMarkup('big');
   if(studentNeedsJoin())return studentJoinMarkup();
-  if(state.activityRun?.wordGrid && window.WordGrid)return window.WordGrid.studentHTML(state.activityRun.wordGrid);
+  if(state.activityRun?.wordGrid && window.WordGrid)return window.WordGrid.studentHTML(state.activityRun.wordGrid,selectedStudent());
   const s=selectedStudent();
   const calculatorLaunch=state.calculatorLaunch;
   if(calculatorLaunch&&String(calculatorLaunch.id||'')!==String(studentCalculatorDismissedLaunchId||'')){const cfg=scientificCalculatorSettings(calculatorLaunch.settings),base=scientificCalculatorUrl(cfg),src=base+(base.includes('?')?'&':'?')+'embed=1';return `<div class="student-calculator-shell"><div class="student-calculator-head"><div><b>SI Scientific Calculator</b><small>${cfg.angle.toUpperCase()} · ${cfg.format==='scientific'?'Scientific':'Normal'} · your work stays on this device</small></div><button id="studentCalculatorBackBtn" type="button">← Back to Classroom</button></div><iframe class="student-calculator-frame" src="${esc(src)}" title="SI Scientific Calculator"></iframe></div>`}
@@ -18039,11 +18039,11 @@ function renderActivityController(){
   const box=$('#activityControllerPanel');if(!box||!state.activityRun)return;
   const a=activeActivity(),run=state.activityRun,connected=connectedStudents();
 if(run.wordGrid && window.WordGrid){
-    box.innerHTML=window.WordGrid.teacherHTML(run.wordGrid);
+    box.innerHTML=window.WordGrid.teacherHTML(run.wordGrid,connected.map(st=>st.n));
     window.WordGrid.wireTeacher(box,run.wordGrid,()=>render(),loaded=>{
       if(!loaded||!Array.isArray(loaded.board)||loaded.board.length!==225){toast('Saved Word Grid is not valid');return}
       run.wordGrid=deepClone(loaded);window.WordGrid.resetDraft();render();
-    });
+    },connected.map(st=>st.n));
   } else if(run.phase==='lobby'){
     const resuming=!!run.resumePending,label=a.type==='presentation'?'Presentation':a.type==='crew-survey'?'CREW SURVEY':a.type==='million'?'MILLION':a.type==='minefield'?'MINEFIELD':a.type==='vector'?'VECTOR':a.type==='board'?'BOARD':a.type==='orbit'?'ORBIT':a.type==='pixel'?'PIXEL REVEAL':a.type==='sketch'?'SKETCH SIGNAL':a.type==='starwheel'?'STARWHEEL':a.type==='match'?'MATCH':a.type==='bingo'?'BINGO':a.type==='cosmic-cards'?'COSMIC CARDS':'Activity';
     box.innerHTML=`<div class="activity-controller-head"><div><span class="eyebrow">${resuming?'ACTIVITY PAUSED':'ACTIVITY LOADED'}</span><h2>${esc(a.name)}</h2><p>${resuming?'Progress is saved. Resume when the class is ready.':'Students are in the Activity Lobby. Start when you\'re ready.'}</p></div><span class="controller-chip">${connected.length} students</span></div><div class="controller-grid lobby-controller"><button class="primary-action" id="startActivityBtn">▶ ${resuming?'Resume':'Start'} ${label}</button><button id="returnClassBtn">✓ Finish & Return</button><button class="minefield-send-lobby" id="sendActivityLobbyBtn" disabled>Ⅱ Progress Paused</button><button class="danger-action" id="emergencyActivityBtn">⚠ Emergency Return</button></div>`;
@@ -18342,25 +18342,8 @@ function renderActivities(){
     header.innerHTML='<button type="button" id="backToAppsBtn">← Activity Library</button>';
     $('#backToAppsBtn').onclick=backToAppLibrary;
     if(!window.WordGrid){grid.innerHTML='<div class="wg-setup"><h3>Word Grid is loading…</h3></div>';return}
-    grid.innerHTML=window.WordGrid.setupHTML(connectedStudents().map(s=>s.n).slice(0,4));
-    $('#wgStart').onclick=()=>{
-    const names=$('#wgPlayers').value.split(/\n|,/).map(s=>s.trim()).filter(Boolean);
-    const feedback=$('#wgSetupStatus');
-    if(feedback)feedback.textContent='';
-    if(names.length<2||names.length>4||new Set(names.map(n=>n.toLowerCase())).size!==names.length){
-      const msg='Enter two to four different player or team names to start.';
-      if(feedback)feedback.textContent=msg;
-      $('#wgPlayers').focus();
-      return;
-    }
-    try{launchWordGridGame(window.WordGrid.make(names))}
-    catch(e){
-      const msg=String(e?.message||e||'Word Grid could not start.');
-      if(feedback)feedback.textContent=msg;
-      toast(msg);
-    }
-  };
-    $$('[data-wg-load]').forEach(b=>b.onclick=()=>{const item=window.WordGrid.readLibrary().find(a=>a.id===b.dataset.wgLoad);if(item&&confirm('Load '+item.name+'?'))launchWordGridGame(item.game)});
+    grid.innerHTML=window.WordGrid.setupHTML(connectedStudents().map(s=>s.n));
+    window.WordGrid.wireSetup(grid,connectedStudents().map(st=>st.n),launchWordGridGame,launchWordGridGame);
     return;
   }
   wrap.classList.add('hidden');
