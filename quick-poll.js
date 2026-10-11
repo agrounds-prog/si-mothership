@@ -246,8 +246,31 @@ function createPaneHtml(){
  pane.querySelector("#qpTeacherLive")?.remove();
  pane.querySelector(".qp-actionbar")?.remove();
  pane.querySelector(".qp-library")?.remove();
+ const question=pane.querySelector("#qpQuestion")?.closest(".qp-field");
+ const directions=pane.querySelector("#qpDescription")?.closest(".qp-field");
+ const headings=[...pane.querySelectorAll(".qp-subhead")];
+ const choices=pane.querySelector(".qp-edit-grid");
+ const settings=pane.querySelector(".qp-settings");
+ const checks=pane.querySelector(".qp-checks");
+ const maximum=pane.querySelector("#qpLimit")?.closest(".qp-field");
+ const warning=pane.querySelector("#qpTopError");
+ const bottomError=pane.querySelector("#qpError");
  const sendbar=pane.querySelector(".qp-sendbar");
+ const wrap=(title,note,klass,nodes)=>{
+  const section=document.createElement("section");
+  section.className="qp-studio-section "+klass;
+  section.innerHTML='<div class="qp-section-heading"><b>'+title+'</b><span>'+note+'</span></div>';
+  nodes.forEach(node=>{if(node)section.appendChild(node);});
+  return section;
+ };
+ const questionSection=wrap("01 · YOUR QUESTION","What should the crew answer?","qp-question-section",[question,directions]);
+ const choiceSection=wrap("02 · ANSWER CHOICES","Select 2–6 answers","qp-choice-section",[headings[0],choices]);
+ const settingsSection=wrap("03 · POLL SETTINGS","Voting and presentation","qp-settings-section",[settings,checks,maximum]);
+ headings[1]?.remove();
+ if(headings[0])headings[0].classList.add("qp-choices-toolbar");
  if(sendbar)sendbar.classList.add("qp-studio-footer");
+ pane.replaceChildren();
+ [warning,questionSection,choiceSection,settingsSection,sendbar,bottomError].forEach(node=>{if(node)pane.appendChild(node);});
  return '<section class="qp-studio-pane qp-create-pane">'+
   '<div class="qp-pane-heading"><div><span class="qp-eyebrow">DESIGN YOUR NEXT QUESTION</span>'+
   '<h3>Create Poll</h3><p>Build a question, choose answers, and send it to the current class.</p></div>'+
