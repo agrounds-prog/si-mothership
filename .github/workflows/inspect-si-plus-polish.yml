@@ -23,6 +23,12 @@ jobs:
            for i in hits[-3:]:
             for j in range(max(0,i-4),min(len(s),i+8)):
              print(f'{j+1}: {s[j][:1600]}')
+          for term in ['siPlusVideoMarkup(', 'si-plus-video-unit', 'si-plus-video-editor', 'presentation-media', 'si-plus-video-frame', 'presentation-playback', 'slide-stage', 'slide-content', 'slide-image','slide-prev','previousSlide','nextSlide','presentation-prev','presentation-next']:
+           hits=[i for i,line in enumerate(s) if term in line]
+           print('### EXTRA',term,'COUNT',len(hits),'LINES',[i+1 for i in hits[:20]])
+           for i in hits[-2:]:
+            for j in range(max(0,i-3),min(len(s),i+8)):
+             print(f'{j+1}: {s[j][:2600]}')
           print('### SI+ presentation JS 18705-18796')
           for i in range(18704,18796):
            print(f'{i+1}: {s[i][:1700]}')
