@@ -19,7 +19,7 @@ const $=(s,r=document)=>r.querySelector(s);
 const esc=v=>String(v??"").replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[x]));
 const clone=v=>JSON.parse(JSON.stringify(v));
 const fresh=()=>({question:"",description:"",choices:[{label:"Yes",image:""},{label:"No",image:""}],identity:"anonymous",visibility:"live",allowChange:true,multiple:false,limit:2,duration:0,display:"cards",sensitive:false});
-let draft=fresh(),poll=null,library=[],selected=[],open=false,list=false,busy=false,loading=false,previousStudent="",serverOffset=0;
+let draft=fresh(),poll=null,library=[],selected=[],open=false,list=false,busy=false,loading=false,previousStudent="",serverOffset=0,studioTab="create";
 let root=null,dialog=null,launcher=null,notice="";
 /* The existing shared screen stays open when Reset Session rotates its ID.
    Re-check the authoritative session only when a stale-ID request is rejected.
@@ -215,7 +215,7 @@ function editChoice(c,i){
  '<label class="qp-upload">↑ '+(c.image?"Replace":"Add")+' picture<input type="file" accept="image/png,image/jpeg,image/webp" data-qp-image="'+i+'"></label>'+
  (c.image?'<button type="button" data-qp-clear-image="'+i+'">Remove picture</button>':"")+'</div>';
 }
-function editorHtml(){
+function legacyEditorHtml(){
  const gallery=list?'<div class="qp-library"><strong>QUICK TEMPLATES</strong><div>'+sample.map((t,i)=>'<button type="button" data-qp-template="'+i+'">'+esc(t[0])+'</button>').join("")+'</div><strong>YOUR SAVED PROMPTS</strong>'+
  (library.length?'<div>'+library.map(t=>'<span><button type="button" data-qp-load="'+esc(t.id)+'">'+esc(t.name)+'</button><button type="button" class="qp-del" data-qp-delete="'+esc(t.id)+'">×</button></span>').join("")+'</div>':'<p>No saved prompts yet.</p>')+'</div>':"";
  return '<div class="qp-teacher"><header><div><small>🚀 MOTHERSHIP</small><h2>QUICK <em>POLL</em></h2><span>Ask · Vote · See · Discuss · Repeat</span></div><button type="button" data-qp-close aria-label="Close Poll Studio">×</button></header>'+
@@ -237,6 +237,74 @@ function editorHtml(){
  '<div class="qp-sendbar"><button type="button" data-qp-save>▣ Save Prompt</button><button type="button" class="qp-green" data-qp-launch>➤ SEND TO CLASS</button></div>'+
  '<div id="qpError" role="alert">'+esc(notice)+'</div></div></div>';
 }
+
+function createPaneHtml(){
+ // Reuse every existing input, choice, setting and upload handler unchanged.
+ const source=document.createElement("div");
+ source.innerHTML=legacyEditorHtml();
+ const pane=source.querySelector(".qp-teacher-scroll");
+ pane.querySelector("#qpTeacherLive")?.remove();
+ pane.querySelector(".qp-actionbar")?.remove();
+ pane.querySelector(".qp-library")?.remove();
+ const sendbar=pane.querySelector(".qp-sendbar");
+ if(sendbar)sendbar.classList.add("qp-studio-footer");
+ return '<section class="qp-studio-pane qp-create-pane">'+
+  '<div class="qp-pane-heading"><div><span class="qp-eyebrow">DESIGN YOUR NEXT QUESTION</span>'+
+  '<h3>Create Poll</h3><p>Build a question, choose answers, and send it to the current class.</p></div>'+
+  '<button type="button" data-qp-gallery>▣ Browse Library</button></div>'+
+  pane.innerHTML+'</section>';
+}
+function libraryPaneHtml(){
+ const starters=sample.map((item,i)=>
+  '<button type="button" class="qp-template-card" data-qp-template="'+i+'">'+
+  '<span class="qp-template-symbol">'+["✦","✓","♡","⌁","◉"][i]+'</span>'+
+  '<span class="qp-template-copy"><small>QUICK STARTER '+(i+1)+'</small><b>'+esc(item[0])+'</b>'+
+  '<em>'+esc(item[1])+'</em></span><span class="qp-template-arrow">↗</span></button>').join("");
+ const saved=library.length?library.map(item=>
+  '<div class="qp-saved-card"><span class="qp-saved-icon">▣</span>'+
+  '<div class="qp-saved-copy"><small>SAVED PROMPT</small><b>'+esc(item.name)+'</b>'+
+  '<span>'+esc(item.poll?.question||"Ready to edit")+'</span></div>'+
+  '<div class="qp-saved-actions"><button type="button" data-qp-load="'+esc(item.id)+'">Load & Edit</button>'+
+  '<button type="button" class="qp-del" data-qp-delete="'+esc(item.id)+'" aria-label="Delete '+esc(item.name)+'">×</button></div></div>').join(""):
+  '<div class="qp-library-empty"><span>▣</span><b>No saved prompts yet</b>'+
+  '<p>Create a poll and use Save Prompt to keep it for another class.</p>'+
+  '<button type="button" data-qp-tab="create">Create a Poll</button></div>';
+ return '<section class="qp-studio-pane qp-library-pane"><div class="qp-pane-heading">'+
+  '<div><span class="qp-eyebrow">YOUR TEACHING TOOLS</span><h3>Poll Library</h3>'+
+  '<p>Reuse a starter or open a saved question without interrupting the live poll.</p></div>'+
+  '<button type="button" data-qp-new>＋ New Poll</button></div>'+
+  '<div class="qp-library-section"><div class="qp-section-heading"><b>QUICK STARTERS</b><span>5 customizable prompts</span></div>'+
+  '<div class="qp-template-grid">'+starters+'</div></div>'+
+  '<div class="qp-library-section"><div class="qp-section-heading"><b>SAVED PROMPTS</b><span>'+library.length+' saved</span></div>'+
+  '<div class="qp-saved-grid">'+saved+'</div></div></section>';
+}
+function livePaneHtml(){
+ return '<section class="qp-studio-pane qp-live-pane"><div class="qp-pane-heading">'+
+  '<div><span class="qp-eyebrow">MISSION CONTROL · LIVE RESULTS</span><h3>Live Poll</h3>'+
+  '<p>Control voting, chart styles and the shared-screen presentation.</p></div>'+
+  '<button type="button" data-qp-new>＋ New Poll</button></div>'+
+  '<div id="qpTeacherLive">'+liveHtml(poll)+'</div></section>';
+}
+function editorHtml(){
+ const items=[["live","◉","Live Poll"],["create","✎","Create Poll"],["library","▣","Poll Library"]];
+ const tabs=items.map(([id,glyph,label])=>
+  '<button type="button" role="tab" id="qpTab-'+id+'" data-qp-tab="'+id+'" '+
+  'aria-selected="'+(studioTab===id)+'" aria-controls="qpStudioContent" class="qp-studio-tab '+
+  (studioTab===id?"active":"")+'"><span class="qp-tab-icon">'+glyph+'</span><span>'+label+'</span>'+
+  (id==="live"&&poll?.phase==="open"?'<i class="qp-tab-live-dot"></i>':"")+'</button>').join("");
+ const pane=studioTab==="live"?livePaneHtml():studioTab==="library"?libraryPaneHtml():createPaneHtml();
+ return '<div class="qp-teacher qp-studio-v2"><header><div>'+
+  '<small>🚀 MOTHERSHIP · MISSION CONTROL</small><h2>QUICK <em>POLL</em></h2>'+
+  '<span>Ask · Vote · See · Discuss · Repeat</span></div>'+
+  '<button type="button" data-qp-close aria-label="Close Poll Studio">×</button></header>'+
+  '<nav class="qp-studio-tabs" role="tablist" aria-label="Quick Poll Studio views">'+tabs+'</nav>'+
+  '<div class="qp-studio-context"><span class="qp-context-pulse '+(poll?.phase==="open"?"live":"")+'"></span>'+
+  '<b>'+(poll?.phase==="open"?"VOTING OPEN":poll?"POLL CLOSED":"NO ACTIVE POLL")+'</b>'+
+  '<span>'+esc(poll?.question||"Ready for a new question")+'</span>'+
+  '<span class="qp-context-link">'+(poll?.sharedVisible?"● SHARED SCREEN LIVE":"Shared screen idle")+'</span></div>'+
+  '<div class="qp-teacher-scroll" id="qpStudioContent" role="tabpanel" aria-labelledby="qpTab-'+studioTab+'">'+pane+'</div></div>';
+}
+
 function liveHtml(p){
  if(!p)return '<div class="qp-teacher-live qp-nopoll">Create and send a question to your existing classroom session.</div>';
  return '<div class="qp-teacher-live"><div><b>'+esc(p.question)+'</b><span>'+(p.phase==="open"?"VOTING OPEN":"POLL CLOSED")+'</span></div>'+
