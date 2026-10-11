@@ -28,4 +28,13 @@ jobs:
            if filename=='index.html':
             for a,b in [(11800,11870)]:
              for j in range(a-1,min(b,len(s))):print(f'{j+1}: {s[j][:300]}')
+          print('=== TARGETED CLIENT AND SERVER ===')
+          src=Path('index.html').read_text().splitlines()
+          for a,b in [(15520,15552),(15645,15690),(16795,16832),(16880,16915),(17995,18070),(18338,18368),(18393,18455),(18475,18515),(19150,19190),(19203,19220)]:
+           print('### INDEX',a,b)
+           for j in range(a-1,b):print(f'{j+1}: {src[j][:550]}')
+          ss=Path('server.py').read_text().splitlines()
+          for a,b in [(4865,4922),(5970,6032)]:
+           print('### SERVER',a,b)
+           for j in range(a-1,b):print(f'{j+1}: {ss[j][:550]}')
           PY
