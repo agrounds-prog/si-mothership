@@ -1,0 +1,31 @@
+name: Inspect Word Grid Integration
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-word-grid-integration.yml']
+permissions: {contents: read}
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect game registry hooks and state model
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          for filename,needles in {
+           'index.html':['const APPS','const APP','ACTIVITY_REGISTRY','APP_REGISTRY','function startActivity','function renderActivity','function renderActivities','function renderShared','function renderStudent','function renderHome','function sendGameShowAction','function renderActivityController','function launchMillion','function renderTeacher','function render()','function wire','function saveState','function publishSyncedState','const state=','const state =','const APP_LIBRARY','function normalizeState','app-shortcut-label','ACTIVITY_CATALOG'],
+           'server.py':['app.router.add','async def index','async def handle_index','async def state','async def api','quick_poll','QuickPollService','def create_app','@web.middleware','async def start','async def teacher','def session','async def websocket']
+          }.items():
+           s=Path(filename).read_text().splitlines()
+           print('=== FILE',filename,len(s),'LINES ===')
+           for needle in needles:
+            hits=[i for i,x in enumerate(s) if needle in x and not x.strip().startswith('//')]
+            print('##',needle, 'HITS:',len(hits),'LINES:',[i+1 for i in hits[:9]])
+            for i in hits[:2]:
+             for j in range(max(0,i-3),min(i+12,len(s))):
+              print(f'{j+1}: {s[j][:280]}')
+           if filename=='index.html':
+            for a,b in [(11800,11870)]:
+             for j in range(a-1,min(b,len(s))):print(f'{j+1}: {s[j][:300]}')
+          PY
