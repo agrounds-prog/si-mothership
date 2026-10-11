@@ -1,0 +1,36 @@
+name: One-shot MILLION Studio Upgrade
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-million-studio-apply.yml']
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Guarded MILLION-only source patch
+        run: |
+          set -euo pipefail
+          node --check million-studio.js
+          python -m py_compile server.py
+          python scripts/apply_million_upgrade.py
+          python scripts/release_gate.py --require-node
+      - name: Commit patched source to main
+        run: |
+          set -euo pipefail
+          git config user.name "mothership-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          git diff --cached --exit-code && { echo 'No source change'; exit 1; } || true
+          git commit -m "feat(million): replace pipe editor with saved question-slide studio and safe reveal"
+          git push origin HEAD:main
