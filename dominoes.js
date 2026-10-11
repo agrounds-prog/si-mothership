@@ -72,7 +72,12 @@ function tileHTML(t,opt={}){
  return '<span class="dm-tile '+(opt.small?"small ":"")+(opt.newest?"latest ":"")+(a===b?"double ":"")+'" aria-hidden="true">'+side(a)+'<i class="dm-divider"></i>'+side(b)+'</span>';
 }
 function scene(){return '<div class="dm-space" aria-hidden="true"><div class="dm-stars"></div><div class="dm-orbit"></div><div class="dm-planet"></div><div class="dm-horizon"></div></div>'}
-function avatar(n,i,g){const label=esc(String(n||"?").slice(0,2).toUpperCase());return '<span class="dm-avatar" style="--dm-seat-color:'+["#8feaff","#fdd199","#b4a3ff","#7af1c7"][i%4]+'">'+label+'</span>'}
+function avatar(n,i,g){
+ const label=esc(String(n||"?").slice(0,2).toUpperCase());
+ const icon=typeof cosmicPlayerAvatarMarkup==="function"?
+   cosmicPlayerAvatarMarkup(n,i):'<span class="dm-avatar-fallback">'+label+'</span>';
+ return '<span class="dm-avatar" style="--dm-seat-color:'+["#8feaff","#fdd199","#b4a3ff","#7af1c7"][i%4]+'">'+icon+'</span>';
+}
 function row(g,n,i,shared=true){const mine=active(g)===n&&g.status==="playing";return '<div class="dm-player '+(mine?"active ":"")+(g.winner===n?"winner":"")+'">'+avatar(n,i,g)+'<span class="dm-player-name"><b>'+esc(n)+'</b><small>'+(mine?"● YOUR TURN":g.status==="won"&&g.winner===n?"★ WINNER":count(g,n)+" DOMINOES")+'</small></span><strong>'+Number(g.scores?.[n]||0)+'</strong></div>'}
 function banner(g,context="shared"){return '<div class="dm-banner"><span class="dm-kicker">SI MOTHERSHIP · COSMIC TABLETOP</span><div class="dm-brand-row"><div class="dm-mark">⚁</div><div><h2>DOMINOES</h2><p>DRAW · MATCH · CONNECT</p></div></div></div>'}
 function chainHTML(g,large=false){
