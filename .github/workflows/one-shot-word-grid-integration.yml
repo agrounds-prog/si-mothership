@@ -38,7 +38,7 @@ jobs:
             if(state.activityRun?.wordGrid && window.WordGrid)return window.WordGrid.studentHTML(state.activityRun.wordGrid);''')
           once("function renderActivityController(){",'''function renderActivityController(){''')
           once("  const a=activeActivity(),run=state.activityRun,connected=connectedStudents();\n  if(run.phase==='lobby'){",'''  const a=activeActivity(),run=state.activityRun,connected=connectedStudents();
-  if(run.wordGrid && window.WordGrid){
+          if(run.wordGrid && window.WordGrid){
               box.innerHTML=window.WordGrid.teacherHTML(run.wordGrid);
               window.WordGrid.wireTeacher(box,run.wordGrid,()=>render(),loaded=>{
                 if(!loaded||!Array.isArray(loaded.board)||loaded.board.length!==225){toast('Saved Word Grid is not valid');return}
