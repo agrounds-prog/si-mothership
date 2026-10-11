@@ -283,7 +283,7 @@ const hosts=[
             await page.locator('#qpQuestion').fill('Choose our next classroom activity');
             await page.locator('#qpDialog [data-qp-tab="library"]').click();
             const starterCount=await page.locator('#qpDialog [data-qp-template]').count();
-            await page.locator('#qpDialog [data-qp-tab="create"]').click();
+            await page.locator('#qpDialog .qp-studio-tab[data-qp-tab="create"]').click();
             const keptQuestion=await page.locator('#qpQuestion').inputValue();
             console.log(JSON.stringify({label,role:'poll-studio-navigation',starterCount,keptQuestion}));
             if(starterCount!==5||keptQuestion!=='Choose our next classroom activity')failures++;
