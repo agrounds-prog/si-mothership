@@ -1,0 +1,34 @@
+name: One-shot Word Grid Actual UI Regression
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/one-shot-word-grid-actual-ui-test.yml']
+permissions: {contents: write}
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Include real Activity Library user flow and responsive geometry
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('tests/test_word_grid_browser.cjs')
+          s=p.read_text()
+          old="  await page.evaluate(()=>{state.activityRun=null;state.ended=false;state.screen=\"activities\";state.activeApp=\"word-grid\";render()});\n  await page.waitForSelector(\"#wgPlayers\",{timeout:10000});\n  await page.locator(\"#wgPlayers\").fill(\"Crew Alpha\\nCrew Beta\");\n  await page.locator(\"#wgStart\").click();"
+          updated="  // User-path regression: open the game from the actual Activities button\n  // and Word Grid's library card, not by injecting the target state.\n  await page.evaluate(()=>{state.activityRun=null;state.ended=false;state.screen=\"classroom\";state.activeApp=null;render()});\n  await page.locator('#teacherControlBar [data-control=\"activities\"]').click();\n  const wordCard=page.locator('#activitiesPanel .activity-catalog-grid .real-app-card').filter({\n    has:page.locator('h3',{hasText:'WORD GRID'})\n  });\n  await wordCard.locator('[data-open-app]').first().click();\n  await page.waitForSelector(\"#wgPlayers\",{timeout:10000});\n  assert.equal(await page.locator('#activitiesPanel #wgStart').isVisible(),true,\n    'Word Grid opens through the actual Activity Library card');\n  for(const width of [1440,768,430]){\n    await page.setViewportSize({width,height:960});\n    await page.waitForTimeout(160);\n    const geometry=await page.evaluate(()=>{\n      const modal=document.getElementById('activitiesPanel'),\n        grid=document.getElementById('activityGrid'),setup=grid.querySelector('.wg-setup');\n      const mr=modal.getBoundingClientRect(),gr=grid.getBoundingClientRect(),sr=setup.getBoundingClientRect();\n      return {modalWidth:mr.width,gridWidth:gr.width,setupWidth:sr.width,\n        rightOverhang:Math.round(sr.right-mr.right),\n        gridOverflow:grid.scrollWidth-grid.clientWidth,\n        columns:getComputedStyle(setup.querySelector('.wg-setup-columns')).gridTemplateColumns,\n        modalVisible:!modal.classList.contains('hidden')};\n    });\n    console.log(JSON.stringify({test:\"Word Grid Activities layout\",width,...geometry}));\n    assert.ok(geometry.modalVisible);\n    assert.ok(geometry.setupWidth<=geometry.gridWidth+3,'Setup fits its Activity workspace');\n    assert.ok(geometry.rightOverhang<=3,'Setup stays inside the Activities modal');\n    assert.ok(geometry.gridOverflow<=3,'No horizontal Activities stretching');\n    if(width<=768)assert.equal(geometry.columns.split(' ').filter(Boolean).length,1,\n      'Single-column Word Grid setup on narrow displays');\n  }\n  await page.setViewportSize({width:1440,height:960});\n  const defaults=await page.evaluate(()=>{\n    const tmp=document.createElement('div');tmp.innerHTML=WordGrid.setupHTML(['Solo Student']);\n    return tmp.querySelector('#wgPlayers').value;\n  });\n  assert.match(defaults,/Crew Alpha\\nCrew Beta/,'one-student roster defaults to two playable teams');\n  await page.locator(\"#wgPlayers\").fill(\"Solo Student\");\n  await page.locator(\"#wgStart\").click();\n  assert.match(await page.locator(\"#wgSetupStatus\").textContent(),/two to four/i,\n    'invalid player count shows a visible correction');\n  assert.equal(await page.evaluate(()=>!!state.activityRun),false);\n  await page.locator(\"#wgPlayers\").fill(\"Crew Alpha\\nCrew Beta\");\n  await page.locator(\"#wgStart\").click();"
+          assert s.count(old)==1,('Word Grid test source changed',s.count(old))
+          s=s.replace(old,updated,1)
+          p.write_text(s)
+          print('Added real user navigation and geometry checks, bytes:',p.stat().st_size)
+          PY
+          node --check tests/test_word_grid_browser.cjs
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add tests/test_word_grid_browser.cjs
+          git commit -m 'test(word-grid): real Activity Library navigation and responsive launch layout'
+          git push
