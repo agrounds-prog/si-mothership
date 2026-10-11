@@ -15,6 +15,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(auth.status(),200);
   await page.goto(BASE+"/?role=teacher",{waitUntil:"domcontentloaded",timeout:40000});
   await page.waitForFunction(()=>typeof render==="function"&&typeof renderPublic==="function",{timeout:12000});
+  await page.waitForFunction(()=>!NETWORK_SYNC||networkHydrated,{timeout:15000});
   const initial=await page.evaluate(()=>{
     const id="si-plus-no-flicker-regression";
     const deck={id,type:"presentation",name:"SI+ stable video test",deckTitle:"SI+ stable video test",
