@@ -76,6 +76,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
    });
    layout.push({size:width+'x'+height,...rect});
    assert.ok(rect.stage&&rect.ladder&&rect.life,'projector main and sidebars present');
+   assert.ok(rect.ladder.w>85,'visible money ladder required at '+width+' (width='+rect.ladder.w+')');
    assert.ok(rect.documentWidth<=width+36,'projector horizontal clipping '+width+' '+rect.documentWidth);
    if(width>=1000){
     assert.ok(rect.stage.x>=rect.ladder.right-3,'ladder overlap at '+width);
@@ -128,6 +129,10 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.equal(ended.nextDisabled,true);
   assert.equal(errors.length,0,'browser JS errors: '+JSON.stringify(errors));
   console.log(JSON.stringify({test:'MILLION five-question teacher/projector multiplayer and classic-risk stop',first,layout,ended,pageErrors:errors}));
+  // Leave the isolated app clean so unrelated SI+ and Activity Library smoke
+  // tests never inherit a synthetic MILLION session.
+  await teacher.evaluate(()=>{state.activityRun=null;state.screen='classroom';state.activeApp=null;render()});
+  await teacher.waitForTimeout(350);
  }finally{
   await browser.close();
  }
