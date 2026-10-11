@@ -18656,7 +18656,7 @@ async function savePresentation(){
   if(button){button.disabled=true;button.textContent='Saving to Library…'}
   const d=deepClone(ed.draft);
   d.deckTitle=(d.deckTitle||'').trim()||'Untitled Presentation';d.name=d.deckTitle;
-  d.text=`${d.slides.length}-slide interactive presentation`;d.icon='▣';d.type='presentation';d.userCreated=true;
+  d.text=`${d.slides.length}-slide interactive presentation`;d.icon='▣';d.type='presentation';d.userCreated=ed.draft.userCreated!==false;
   const previous=state.activities;
   const next=previous.slice();
   const i=next.findIndex(a=>String(a.id)===String(ed.originalId??d.id));
