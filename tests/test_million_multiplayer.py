@@ -1,0 +1,78 @@
+"""MILLION multiplayer request and teacher/shared/student privacy regressions.
+Uses synthetic classroom state only; never connects to production or /data.
+"""
+import copy
+import unittest
+
+import server
+
+def fixture():
+    questions=[
+        {"prompt":"Which is the correct answer?","choices":[{"key":k,"text":"Choice "+k} for k in "ABCD"],
+         "correct":"B","mothershipClue":"Think of the second letter","explanation":"B is second"},
+        {"prompt":"Private second question","choices":[{"key":k,"text":"Choice "+k} for k in "ABCD"],
+         "correct":"D","mothershipClue":"Second clue","explanation":"Second explanation"},
+    ]
+    m={"questionIndex":0,"pilot":"Pilot","pilotIndex":0,"ladderLevel":0,"inventory":{"poll":1,"reduce":1,"clue":1,"tryAgain":1},
+       "selectedAnswer":"","lockedAnswer":"","crewPredictions":{},"eliminated":[],"publicClue":"",
+       "pollOpen":False,"pollVisible":False,"revealed":False,"result":"","complete":False,"over":False,"message":"Ready"}
+    run={"activityId":"million-game","phase":"playing","millionConfig":{"questions":questions,"ladder":[100,1000000],"checkpoints":[],"gameName":"Social Skills Challenge"},"million":m}
+    state={"students":[{"n":"Pilot","studentToken":"pilot-token"},{"n":"Crew","studentToken":"crew-token"}],"activityRun":run}
+    return state,run,m
+
+class MillionPrivacy(unittest.TestCase):
+    def test_crew_and_teacher_lock_visibility(self):
+        state,run,m=fixture()
+        def req(name,action,value="",key=1):
+            server._million_apply_request(state,run,name,{"id":str(key)+"-"+action+"-"+name,
+                "name":name,"type":action,"value":value})
+        req("Crew","predict","A")
+        req("Pilot","select","B")
+        req("Pilot","lock",key=2)
+        self.assertEqual(m["crewPredictions"],{"Crew":"A"})
+        self.assertEqual(m["lockedAnswer"],"B")
+        self.assertEqual(server._state_for_role(state,"teacher")["activityRun"]["millionConfig"]["questions"][0]["correct"],"B")
+        shared=server._state_for_role(state,"shared")["activityRun"]
+        student=server._state_for_role(state,"student",token="crew-token")["activityRun"]
+        pilot=server._state_for_role(state,"student",token="pilot-token")["activityRun"]
+        for view in [shared,student,pilot]:
+            self.assertNotIn("correct",view["millionConfig"]["questions"][0])
+            self.assertNotIn("mothershipClue",view["millionConfig"]["questions"][0])
+            self.assertNotIn("explanation",view["millionConfig"]["questions"][0])
+            self.assertEqual(view["millionConfig"]["questions"][1]["prompt"],"")
+        self.assertEqual(shared["million"]["crewPredictions"],{})
+        self.assertEqual(student["million"]["crewPredictions"],{"Crew":"A"})
+        self.assertEqual(student["million"]["selectedAnswer"],"")
+        self.assertEqual(pilot["million"]["selectedAnswer"],"B")
+
+    def test_all_lifelines_and_no_spoilers(self):
+        state,run,m=fixture()
+        def req(action,val,key):
+            server._million_apply_request(state,run,"Pilot",{"name":"Pilot","id":str(key),
+                "type":action,"value":val})
+        req("lifeline","poll",1)
+        self.assertTrue(m["pollOpen"])
+        req("lifeline","reduce",2)
+        self.assertNotIn("B",m["eliminated"])
+        self.assertEqual(len(m["eliminated"]),2)
+        req("lifeline","clue",3)
+        self.assertEqual(m["publicClue"],"Think of the second letter")
+        public=server._state_for_role(state,"shared")["activityRun"]
+        self.assertNotIn("correct",public["millionConfig"]["questions"][0])
+        self.assertEqual(public["million"]["publicClue"],"Think of the second letter")
+        req("select","B",4)
+        req("lock","",5)
+        req("lifeline","tryAgain",6)
+        self.assertFalse(m["lockedAnswer"])
+        self.assertEqual(m["inventory"]["tryAgain"],0)
+
+    def test_crew_cannot_lock_or_use_pilot_lifelines(self):
+        state,run,m=fixture()
+        server._million_apply_request(state,run,"Crew",{"name":"Crew","id":"p1","type":"select","value":"C"})
+        server._million_apply_request(state,run,"Crew",{"name":"Crew","id":"p2","type":"lock"})
+        server._million_apply_request(state,run,"Crew",{"name":"Crew","id":"p3","type":"lifeline","value":"reduce"})
+        self.assertEqual(m["lockedAnswer"],"")
+        self.assertEqual(m["inventory"]["reduce"],1)
+
+if __name__=="__main__":
+    unittest.main()
