@@ -15522,6 +15522,7 @@ const activitySeed=[
 ];
 
 const APP_REGISTRY=[
+  {id:'word-grid',name:'WORD GRID',icon:'▦',subtitle:'Word Tiles · Premium Squares · Classroom Teams',status:'WORD ARCADE',description:'15 × 15 word-building game with seven-letter racks, two to four players, teacher-approved words, turn scoring, and saved boards.'},
  {id:'si-plus',name:'SI+',icon:'SI+',subtitle:'Interactive Presentation',status:'APP IN PROGRESS',description:'Build and run interactive presentations with instruction, question, and poll slides.'},
  {id:'cosmic-cards',name:'COSMIC CARDS',icon:'✦',subtitle:'2–8 Players · Private Hands · Audience',status:'REWARDS ARCADE',description:'Individual multiplayer color-and-number matching card game. Teacher assigns players from the connected roster; everyone else watches.'},
  {id:'minefield',name:'MINEFIELD',icon:'✦',subtitle:'Crew · Teams · Teacher vs Class',status:'APP IN PROGRESS',description:'Navigate hidden sectors as one crew, competing teams, or Teacher vs Class with alternating turns. One Navigator controls each class move.'},
@@ -15553,7 +15554,7 @@ function activityLibraryCategoryFor(appId){
   const id=String(appId||'');
   if(id==='si-plus')return 'presentation';
   if(['vector','board','orbit'].includes(id))return 'collaboration';
-  if(['minefield','sketch','pixel','starwheel','crew-survey','million','match','bingo','cosmic-cards'].includes(id))return 'games';
+  if(['minefield','sketch','pixel','starwheel','crew-survey','million','match','bingo','cosmic-cards','word-grid'].includes(id))return 'games';
   if(id==='scientific-calculator')return 'tools';
   return 'all';
 }
@@ -15703,6 +15704,7 @@ function appIconMarkup(idOrType){
   if(id==='minefield'||id==='minefield-game')return '<img class="cc-app-icon mf-app-icon" src="/minefield-app-icon.webp?v=1" alt="" aria-hidden="true" loading="lazy">';
   if(id==='cosmic-cards'||id==='cosmic-cards-game')return '<img class="cc-app-icon" src="/cosmic-cards-app.svg?v=1" alt="" aria-hidden="true" loading="lazy">';
   const common='viewBox="0 0 64 64" aria-hidden="true" focusable="false"';
+  if(id==='word-grid'||id==='word-grid-game')return '<svg '+common+'><rect x="6" y="6" width="52" height="52" rx="10" fill="none" stroke="currentColor" stroke-width="3"/><path d="M23 6v52M41 6v52M6 23h52M6 41h52" stroke="currentColor" opacity=".35" stroke-width="2"/><path d="M14 15h17v22H14z" fill="currentColor" opacity=".4"/><text x="22" y="31" text-anchor="middle" fill="currentColor" font-size="17" font-family="sans-serif" font-weight="bold">W</text><path d="m48 44 2 6-6-2-5 2 2-5-2-5 5 2z" fill="currentColor"/></svg>';
   if(id==='si-plus'||id==='presentation')return `<svg ${common}><rect x="10" y="10" width="44" height="44" rx="13" fill="none" stroke="currentColor" stroke-width="3"/><path d="M19 23h26M19 31h15" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="23" cy="43" r="4" fill="currentColor"/><circle cx="33" cy="43" r="4" fill="currentColor" opacity=".72"/><circle cx="43" cy="43" r="4" fill="currentColor" opacity=".45"/></svg>`;
   if(id==='minefield'||id==='minefield-game')return `<svg ${common}><rect x="9" y="9" width="46" height="46" rx="12" fill="none" stroke="currentColor" stroke-width="3"/><path d="M24 9v46M40 9v46M9 24h46M9 40h46" stroke="currentColor" stroke-width="2" opacity=".45"/><path d="M32 18l3.6 7.3 8.1 1.2-5.9 5.7 1.4 8.1-7.2-3.8-7.2 3.8 1.4-8.1-5.9-5.7 8.1-1.2z" fill="currentColor"/></svg>`;
   if(id==='vector'||id==='vector-game')return `<svg ${common}><defs><filter id="vGlow"><feGaussianBlur stdDeviation="1.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path d="M32 57C21 44 15 35 15 25.5C15 16.1 22.6 8.5 32 8.5S49 16.1 49 25.5C49 35 43 44 32 57Z" fill="currentColor" opacity=".18" stroke="currentColor" stroke-width="3.4" stroke-linejoin="round" filter="url(#vGlow)"/><circle cx="32" cy="25.5" r="10" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="32" cy="25.5" r="3.8" fill="currentColor"/><path d="M32 12v5M32 34v5M18.5 25.5h5M40.5 25.5h5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>`;
@@ -17614,6 +17616,7 @@ function responseSlideMarkup(slide,big=false){
 }
 
 function sharedMarkup(size='normal'){
+  if(state.activityRun?.wordGrid && window.WordGrid)return window.WordGrid.sharedHTML(state.activityRun.wordGrid,size==='big');
   const big=size==='big';
   if(state.ended)return `<div><span class="eyebrow">SESSION ENDED</span><h3 style="font-size:${big?60:34}px">Mission complete</h3><p>Thanks, Explorers.</p></div>`;
   if(state.activityRun)return activitySharedMarkup(big);
@@ -17688,6 +17691,7 @@ function studentAgendaMarkup(){
 function studentMarkup(){
   if(state.ended)return sharedMarkup('big');
   if(studentNeedsJoin())return studentJoinMarkup();
+  if(state.activityRun?.wordGrid && window.WordGrid)return window.WordGrid.studentHTML(state.activityRun.wordGrid);
   const s=selectedStudent();
   const calculatorLaunch=state.calculatorLaunch;
   if(calculatorLaunch&&String(calculatorLaunch.id||'')!==String(studentCalculatorDismissedLaunchId||'')){const cfg=scientificCalculatorSettings(calculatorLaunch.settings),base=scientificCalculatorUrl(cfg),src=base+(base.includes('?')?'&':'?')+'embed=1';return `<div class="student-calculator-shell"><div class="student-calculator-head"><div><b>SI Scientific Calculator</b><small>${cfg.angle.toUpperCase()} · ${cfg.format==='scientific'?'Scientific':'Normal'} · your work stays on this device</small></div><button id="studentCalculatorBackBtn" type="button">← Back to Classroom</button></div><iframe class="student-calculator-frame" src="${esc(src)}" title="SI Scientific Calculator"></iframe></div>`}
@@ -18034,7 +18038,13 @@ function setMissionPanel(){
 function renderActivityController(){
   const box=$('#activityControllerPanel');if(!box||!state.activityRun)return;
   const a=activeActivity(),run=state.activityRun,connected=connectedStudents();
-  if(run.phase==='lobby'){
+if(run.wordGrid && window.WordGrid){
+    box.innerHTML=window.WordGrid.teacherHTML(run.wordGrid);
+    window.WordGrid.wireTeacher(box,run.wordGrid,()=>render(),loaded=>{
+      if(!loaded||!Array.isArray(loaded.board)||loaded.board.length!==225){toast('Saved Word Grid is not valid');return}
+      run.wordGrid=deepClone(loaded);window.WordGrid.resetDraft();render();
+    });
+  } else if(run.phase==='lobby'){
     const resuming=!!run.resumePending,label=a.type==='presentation'?'Presentation':a.type==='crew-survey'?'CREW SURVEY':a.type==='million'?'MILLION':a.type==='minefield'?'MINEFIELD':a.type==='vector'?'VECTOR':a.type==='board'?'BOARD':a.type==='orbit'?'ORBIT':a.type==='pixel'?'PIXEL REVEAL':a.type==='sketch'?'SKETCH SIGNAL':a.type==='starwheel'?'STARWHEEL':a.type==='match'?'MATCH':a.type==='bingo'?'BINGO':a.type==='cosmic-cards'?'COSMIC CARDS':'Activity';
     box.innerHTML=`<div class="activity-controller-head"><div><span class="eyebrow">${resuming?'ACTIVITY PAUSED':'ACTIVITY LOADED'}</span><h2>${esc(a.name)}</h2><p>${resuming?'Progress is saved. Resume when the class is ready.':'Students are in the Activity Lobby. Start when you\'re ready.'}</p></div><span class="controller-chip">${connected.length} students</span></div><div class="controller-grid lobby-controller"><button class="primary-action" id="startActivityBtn">▶ ${resuming?'Resume':'Start'} ${label}</button><button id="returnClassBtn">✓ Finish & Return</button><button class="minefield-send-lobby" id="sendActivityLobbyBtn" disabled>Ⅱ Progress Paused</button><button class="danger-action" id="emergencyActivityBtn">⚠ Emergency Return</button></div>`;
   } else if(a.type==='cosmic-cards'){
@@ -18312,10 +18322,31 @@ function matchStudioRefreshPreview(){
   const title=document.querySelector('.match-studio-hero-title');
   if(title)title.textContent=matchDraft.name||'MATCH';
 }
+function launchWordGridGame(game){
+  if(state.activityRun)return toast('Finish the active classroom activity first.');
+  if(!game||!Array.isArray(game.board)||game.board.length!==225)return toast('Word Grid board is invalid.');
+  if(!state.activities.some(a=>a.id==='word-grid-game'))
+    state.activities.push({id:'word-grid-game',type:'word-grid',name:'WORD GRID',slides:[],userCreated:false});
+  state.activityRun={activityId:'word-grid-game',runToken:newActivityRunToken(),phase:'running',responses:{},wordGrid:deepClone(game)};
+  window.WordGrid.resetDraft();
+  state.screen='activity';state.promptActive=false;state.assigningSlot=null;
+  recordActivityLaunch('word-grid','WORD GRID');render();toast('WORD GRID loaded on the shared screen');
+}
 function renderActivities(){
   const grid=$('#activityGrid'),fav=$('#favoriteGrid'),note=$('#assignNote'),picker=$('#savedPresentationPicker'),wrap=$('#favoriteAppsWrap'),title=$('#activitiesTitle'),subtitle=$('#activitiesSubtitle'),header=$('#activitiesHeaderActions');
   if(!grid||!fav||!picker||!wrap||!title||!subtitle||!header)return;
   const presentations=state.activities.filter(a=>a.type==='presentation');
+  if(state.activeApp==='word-grid'&&!state.activityRun && !state.assigningSlot){
+    note.classList.add('hidden');picker.classList.add('hidden');grid.classList.remove('hidden');wrap.classList.add('hidden');
+    title.textContent='WORD GRID';subtitle.textContent='Place · Spell · Score · Play Again';
+    header.innerHTML='<button type="button" id="backToAppsBtn">← Activity Library</button>';
+    $('#backToAppsBtn').onclick=backToAppLibrary;
+    if(!window.WordGrid){grid.innerHTML='<div class="wg-setup"><h3>Word Grid is loading…</h3></div>';return}
+    grid.innerHTML=window.WordGrid.setupHTML(connectedStudents().map(s=>s.n).slice(0,4));
+    $('#wgStart').onclick=()=>{const list=$('#wgPlayers').value.split(/\n|,/).map(s=>s.trim()).filter(Boolean);try{launchWordGridGame(window.WordGrid.make(list))}catch(e){toast(String(e.message||e))}};
+    $$('[data-wg-load]').forEach(b=>b.onclick=()=>{const item=window.WordGrid.readLibrary().find(a=>a.id===b.dataset.wgLoad);if(item&&confirm('Load '+item.name+'?'))launchWordGridGame(item.game)});
+    return;
+  }
   wrap.classList.add('hidden');
   fav.innerHTML='';
 
@@ -18721,6 +18752,10 @@ function renderStudentControls(){
   if(state.calculatorLaunch&&String(state.calculatorLaunch.id||'')!==String(studentCalculatorDismissedLaunchId||'')){if(zoneWrap)zoneWrap.dataset.app='scientific-calculator';label.innerHTML='<b>SCIENTIFIC CALCULATOR</b><span>Independent session · Back to Classroom is above</span>';zone.className='student-actions';zone.innerHTML='';return}
   if(state.activityRun&&state.activityRun.phase==='running'){
     const a=activeActivity(),slide=currentSlide();if(zoneWrap)zoneWrap.dataset.app=a?.type||'activity';
+    if(a.type==='word-grid'){
+      label.innerHTML='<b>WORD GRID</b><span>Look at the shared board and suggest your word to the teacher.</span>';
+      zone.className='student-actions';zone.innerHTML='';return;
+    }
     if(a.type==='cosmic-cards'){
       label.innerHTML='<b>COSMIC CARDS</b><span>Play from your hand above</span>';
       zone.className='student-actions';zone.innerHTML='';return;
