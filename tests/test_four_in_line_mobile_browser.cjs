@@ -33,6 +33,22 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8878";
   await student.waitForFunction(()=>state.selectedStudent==="Column Pilot"&&state.activityRun?.fourInLine?.moves===0&&networkSocket?.readyState===WebSocket.OPEN,
    null,{timeout:16000});
   assert.equal(await student.locator("#studentContent [data-fil-confirm],#studentContent [data-fil-cancel]").count(),0);
+  // Zoom-sized popout: large one-tap numbered columns must precede board.
+  for(const [w,h] of [[440,760],[390,670],[330,610]]){
+    await student.setViewportSize({width:w,height:h});
+    const g=await student.evaluate(()=>{
+      const board=document.querySelector("#studentContent .fil-board").getBoundingClientRect();
+      const columns=document.querySelector("#studentContent .fil-columns").getBoundingClientRect();
+      const keys=[...document.querySelectorAll("#studentContent .fil-drop-button")];
+      return {overflow:document.documentElement.scrollWidth-innerWidth,boardTop:board.top,controlsTop:columns.top,
+        sizes:keys.map(b=>[b.getBoundingClientRect().width,b.getBoundingClientRect().height]),
+        footer:getComputedStyle(document.querySelector(".student-control-zone")).display};
+    });
+    assert.ok(g.overflow<=2&&g.controlsTop<g.boardTop,JSON.stringify({w,h,g}));
+    assert.ok(g.sizes.length===7&&g.sizes.every(s=>s[0]>=44&&s[1]>=44),JSON.stringify(g));
+    assert.equal(g.footer,"none");
+  }
+  await student.setViewportSize({width:390,height:844});
   await student.locator('#studentContent [data-fil-drop="3"]').tap({timeout:8000});
   await teacher.waitForFunction(()=>state.activityRun?.fourInLine?.moves===1,null,{timeout:11000});
   const result=await teacher.evaluate(()=>({
