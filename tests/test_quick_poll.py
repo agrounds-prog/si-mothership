@@ -82,10 +82,15 @@ class QuickPollSmoke(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(html.count(dashboard_loader), 1)
         self.assertEqual(html.rfind(loader) + len(loader), html.rfind(dashboard_loader),
                          "Dashboard script must follow Quick Poll without entering inline JS")
-        self.assertEqual(html.rfind(dashboard_loader) + len(dashboard_loader), html.rfind("</body>"),
-                         "Last dashboard script must precede the real final body tag")
+        studio_loader = '<script src="/million-studio.js?v=1" defer></script>'
+        self.assertEqual(html.count(studio_loader), 1)
+        self.assertEqual(html.rfind(dashboard_loader) + len(dashboard_loader), html.rfind(studio_loader),
+                         "MILLION Studio should follow dashboard without entering inline JS")
+        self.assertEqual(html.rfind(studio_loader) + len(studio_loader), html.rfind("</body>"),
+                         "Last external script must precede the real final body tag")
         self.assertIn('<link rel="stylesheet" href="/quick-poll.css?v=1">', html)
         self.assertIn('<link rel="stylesheet" href="/dashboard-polish.css?v=80">', html)
+        self.assertIn('<link rel="stylesheet" href="/million-studio.css?v=1">', html)
 
     async def test_anonymous_server_totals_and_private_identity(self):
         poll_id = await self.launch()
