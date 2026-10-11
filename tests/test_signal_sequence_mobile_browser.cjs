@@ -50,6 +50,21 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await student.evaluate(()=>Number(state.activityRun.signalSequence.serverTime)>0),true);
   await teacher.waitForFunction(()=>state.activityRun.signalSequence.phase==="input",{timeout:14000});
   await student.waitForFunction(()=>state.activityRun?.signalSequence?.phase==="input"&&document.querySelectorAll("#studentContent .ss-touch-key").length===4,{timeout:14000});
+  // Zoom sidecar geometry and both touch input methods at common sizes.
+  for(const [width,height] of [[440,760],[390,670],[330,610]]){
+    await student.setViewportSize({width,height});
+    const ui=await student.evaluate(()=>{
+      const ring=document.querySelector("#studentContent .ss-donut").getBoundingClientRect();
+      const keys=[...document.querySelectorAll("#studentContent .ss-touch-key")].map(x=>x.getBoundingClientRect());
+      return {overflow:document.documentElement.scrollWidth-innerWidth,
+        ring:ring.width,keys:keys.map(r=>({w:r.width,h:r.height})),
+        footer:getComputedStyle(document.querySelector(".student-control-zone")).display};
+    });
+    assert.ok(ui.overflow<=2&&ui.ring>=120&&ui.ring<=280,JSON.stringify({width,height,ui}));
+    assert.ok(ui.keys.length===4&&ui.keys.every(b=>b.h>=44&&b.w>=75),JSON.stringify(ui));
+    assert.equal(ui.footer,"none","No empty duplicate lower controls during SIGNAL SEQUENCE");
+  }
+  await student.setViewportSize({width:390,height:844});
   const first=await teacher.evaluate(()=>state.activityRun.signalSequence.sequence[0]);
   await student.locator('#studentContent .ss-pad[data-ss-press="'+first+'"]').tap({timeout:9000});
   await teacher.waitForFunction(()=>state.activityRun?.signalSequence?.phase==="success",{timeout:15000});
