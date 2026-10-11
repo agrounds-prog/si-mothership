@@ -1,0 +1,24 @@
+name: Dominoes Regression
+on:
+  push:
+    branches: [main]
+    paths: ['dominoes.js','dominoes.css','dominoes_server.py','tests/test_dominoes_engine.cjs','tests/test_dominoes_server.py','tests/test_dominoes_browser.cjs','.github/workflows/dominoes-regression.yml','index.html','server.py']
+permissions: {contents: read}
+jobs:
+  dominoes:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Verify Dominoes rules, isolated hands, and asset syntax
+        run: |
+          node --check dominoes.js
+          node tests/test_dominoes_engine.cjs
+          python -m unittest discover -s tests -p 'test_dominoes_server.py' -v
+          python -m py_compile server.py dominoes_server.py
+      - name: Existing Mothership release gate
+        run: python scripts/release_gate.py --require-node
