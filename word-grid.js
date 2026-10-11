@@ -121,7 +121,7 @@ const legend=()=>'<div class="wg-premium-legend" aria-label="Bonus square key">'
 function sharedHTML(g,big=false){
  const cue=g.publicCue,age=Number(cue?.at)?Date.now()-Number(cue.at):Infinity;
  // A negative delay aligns animation phases across re-renders and synced displays.
- const live=big&&!g.finished&&age>=0&&age<3300;
+ const live=big&&age>=0&&age<3300;
  const scoring=live&&cue.kind==="score"&&Array.isArray(g.lastMove?.words)&&g.lastMove.words.length>0;
  const mode=live?' wg-fx-live'+(scoring?' wg-fx-scored':' wg-fx-turned'):'';
  const offset=live?' style="--wg-fx-offset:-'+Math.round(age)+'ms"':'';
