@@ -1,0 +1,113 @@
+/* SI Mothership WORD GRID · teacher-led tile game / shared broadcast / student view */
+.wg-teacher,.wg-public,.wg-student,.wg-setup{--wg-blue:#77dfff;--wg-gold:#ffce7a;--wg-ink:#edf7ff;color:var(--wg-ink);font-family:Inter,"Segoe UI",system-ui,sans-serif}
+.wg-teacher *,.wg-public *,.wg-student *,.wg-setup *{box-sizing:border-box}
+.wg-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 18px;border:1px solid #3f8cac;border-radius:17px;background:radial-gradient(ellipse at 15% -55%,#23577e,transparent 60%),linear-gradient(120deg,#0d2a48,#101a33)}
+.wg-heading span{font-size:10px;color:#82dcff;font-weight:950;letter-spacing:.21em}
+.wg-heading h2{margin:4px 0 0;font-size:clamp(22px,2.3vw,41px);letter-spacing:-.05em;color:white}
+.wg-heading h2 em{font-style:normal;color:#f9d28b}
+.wg-phase{font:950 10px system-ui;letter-spacing:.12em;color:#adffdb;border:1px solid #3b8f78;background:#0a3d40;border-radius:100px;padding:9px 14px;white-space:nowrap}
+.wg-meta{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.wg-meta span{font:900 10px system-ui;letter-spacing:.055em;color:#b8def2;background:#0e3049;border:1px solid #346686;border-radius:999px;padding:7px 10px}
+.wg-scores{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:13px 0}
+.wg-score{display:grid;grid-template-columns:10px minmax(0,1fr) auto;align-items:center;gap:9px;min-width:0;border:1px solid #376079;border-radius:12px;background:linear-gradient(110deg,#102940,#0b1c31);padding:10px 12px;box-shadow:inset 0 1px 0 #ffffff14}
+.wg-score.active{border-color:var(--wg-player);box-shadow:0 0 16px color-mix(in srgb,var(--wg-player) 19%,transparent),inset 0 1px 0 #ffffff32;background:linear-gradient(110deg,#153b4e,#13223a)}
+.wg-score .wg-player-dot{width:10px;height:10px;border-radius:50%;background:var(--wg-player);box-shadow:0 0 12px var(--wg-player)}
+.wg-score strong{font:900 clamp(11px,1vw,17px) system-ui;color:#eefbff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wg-score b{font:1000 clamp(21px,2vw,32px) system-ui;color:white;font-variant-numeric:tabular-nums}
+.wg-score small{grid-column:2/-1;font:950 9px system-ui;letter-spacing:.12em;color:var(--wg-player);margin-top:-5px}
+.wg-board{display:grid;grid-template-columns:repeat(15,minmax(0,1fr));gap:2px;background:#061526;border:5px solid #315d75;border-radius:15px;padding:5px;box-shadow:inset 0 0 15px #000b,0 12px 29px #0007;aspect-ratio:1;min-width:0;width:100%;max-width:100%;min-height:0}
+.wg-cell{appearance:none;-webkit-appearance:none;display:grid;align-content:center;justify-items:center;position:relative;min-width:0;min-height:0;width:100%;aspect-ratio:1;gap:0;border:1px solid #254c5b;border-radius:3px;background:#174047;color:#a0c6d1;font:1000 clamp(7px,.83vw,13px)/1 system-ui;cursor:default;padding:0;user-select:none}
+.wg-cell span{display:block;line-height:1}
+.wg-cell small{position:absolute;bottom:2px;right:2px;font:1000 clamp(6px,.48vw,9px) system-ui;opacity:.85;color:inherit}
+.wg-cell.tw{background:linear-gradient(135deg,#a83852,#642441);border-color:#b95c76;color:#fff2f3}
+.wg-cell.dw,.wg-cell.center{background:linear-gradient(135deg,#f2a3a0,#a85876);border-color:#f1a0b1;color:#271c30}
+.wg-cell.tl{background:linear-gradient(135deg,#358fcd,#224c8e);border-color:#64b5e5;color:#e3f7ff}
+.wg-cell.dl{background:linear-gradient(135deg,#8de0e5,#4a99b3);border-color:#9deafb;color:#143c4b}
+.wg-cell.occupied{background:linear-gradient(145deg,#ffe6b0,#f0c376 53%,#bd874b);border:1px solid #f8deb2;box-shadow:inset 0 1px 0 #fff8,0 1px 3px #0007;color:#2e2430;border-radius:4px;font-size:clamp(11px,1.2vw,20px)}
+.wg-cell.draft{background:linear-gradient(145deg,#fff8d7,#ffd17e 45%,#d68d4b);outline:2px solid #7bffdb;z-index:2;box-shadow:0 0 15px #78ffe078;color:#2c2633}
+.wg-teacher .wg-cell:not(:disabled){cursor:pointer}
+.wg-teacher .wg-cell:not(:disabled):hover{filter:brightness(1.3);outline:2px solid #92f4ff;z-index:2}
+.wg-teacher{width:100%;max-width:100%;padding:8px}
+.wg-teacher-main{display:grid;grid-template-columns:minmax(290px,1.15fr) minmax(240px,.85fr);gap:16px;align-items:start;min-width:0}
+.wg-teacher-main>.wg-board{max-width:720px;margin:0 auto}
+.wg-teacher-side{min-width:0;border:1px solid #3b718b;background:linear-gradient(150deg,#0b2c47,#0a1a2e);border-radius:16px;padding:15px}
+.wg-teacher-side h3{color:#eafaff;font:950 clamp(12px,1.3vw,18px) system-ui;letter-spacing:.04em;margin:0 0 12px}
+.wg-rack{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;min-height:58px;background:linear-gradient(90deg,#482d19,#946744,#432a1b);border:2px solid #c9955a;border-bottom:6px solid #452916;border-radius:9px;padding:6px}
+.wg-tile{width:clamp(33px,3.3vw,52px);height:clamp(39px,3.75vw,57px);background:linear-gradient(145deg,#fff2c7,#eec381 55%,#b97d40);border:2px solid #fff1cf;border-radius:5px;color:#392b2f;box-shadow:inset 0 1px 0 #fff9,0 3px 4px #0007;position:relative;cursor:pointer}
+.wg-tile b{font:1000 clamp(16px,1.75vw,28px) system-ui}
+.wg-tile small{position:absolute;right:3px;bottom:1px;font-size:10px;font-weight:900}
+.wg-tile.selected{transform:translateY(-6px);outline:3px solid #79e5ff;box-shadow:0 0 17px #62eaffad}
+.wg-help{font:700 12px/1.5 system-ui;color:#bdd7e5}
+.wg-validation,.wg-hint{display:flex;flex-direction:column;gap:5px;border:1px solid #457f83;border-radius:12px;padding:11px 12px;color:#def5e9;background:#113b3d;margin:10px 0;overflow-wrap:anywhere}
+.wg-validation.error{background:#42232f;border-color:#ad6572;color:#ffe8e7}
+.wg-validation strong{font:950 21px system-ui;color:#adffd8}
+.wg-validation small{font:750 10px system-ui}
+.wg-hint{color:#a8d9ec;background:#103046;border-color:#347a9e}
+.wg-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}
+.wg-actions button,.wg-setup button{min-height:42px;border:1px solid #4c91b2;border-radius:10px;background:linear-gradient(135deg,#165078,#103355);color:#e8faff;padding:8px 10px;font:950 11px system-ui;cursor:pointer}
+.wg-actions button:hover:not(:disabled),.wg-setup button:hover:not(:disabled){filter:brightness(1.22)}
+.wg-actions button:disabled{opacity:.38;cursor:not-allowed}
+.wg-actions .primary-action,.wg-setup .primary-action{background:linear-gradient(135deg,#167d7b,#0f545c)!important;color:#effffb;border-color:#7ff2d0}
+.wg-actions button.wg-danger{border-color:#a85a68;background:#482b38;color:#ffc3c4}
+.wg-status{color:#b7e4ee;font:750 12px/1.5 system-ui}
+.wg-public{width:100%;max-width:100%;padding:clamp(8px,1.2vw,20px);margin:0 auto;border:1px solid #3f8ba5;border-radius:20px;background:radial-gradient(ellipse at 4% 4%,#0e436a55,transparent 44%),linear-gradient(145deg,#071f39,#071528);overflow:hidden}
+.wg-public-main{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr);align-items:start;gap:clamp(10px,1.4vw,26px);min-width:0;margin-top:12px}
+.wg-public-side{display:flex;flex-direction:column;gap:10px;min-width:0}
+.wg-public-side .wg-scores{grid-template-columns:1fr;gap:8px;margin:0}
+.wg-public-side .wg-meta{margin:0}
+.wg-public .wg-board{width:min(100%,min(76vh,940px));margin:0 auto}
+.wg-public .wg-cell{font-size:clamp(6px,.83vw,17px)}
+.wg-public .wg-cell.occupied{font-size:clamp(9px,1.6vw,24px)}
+.wg-message{background:#09273c;border:1px solid #3b779b;border-radius:12px;padding:14px;color:#cfe9f8;font:800 clamp(12px,1vw,17px)/1.4 system-ui;overflow-wrap:anywhere}
+.wg-last{display:grid;gap:7px;border:1px solid #c19855;border-radius:15px;background:linear-gradient(145deg,#493a2c,#1b293c);padding:13px;text-align:center}
+.wg-last span{font:950 10px system-ui;letter-spacing:.13em;color:#fbd395}
+.wg-last b{font:1000 clamp(20px,2.3vw,40px) system-ui;color:white;overflow-wrap:anywhere}
+.wg-last strong{font:1000 clamp(21px,2vw,35px) system-ui;color:#ffe1a9}
+.wg-premium-legend{display:grid;grid-template-columns:1fr 1fr;gap:7px;font:800 10px system-ui;color:#abcee5}
+.wg-premium-legend span{border:1px solid #335b7a;background:#0d2a43;padding:8px;border-radius:7px}
+.wg-public.wg-mirror{padding:5px;border-radius:8px}
+.wg-mirror .wg-heading{padding:4px 6px;border-radius:6px}
+.wg-mirror .wg-heading h2{font-size:12px}
+.wg-mirror .wg-heading span,.wg-mirror .wg-phase,.wg-mirror .wg-premium-legend{display:none}
+.wg-mirror .wg-public-main{gap:4px;margin-top:5px}
+.wg-mirror .wg-board{border-width:2px;padding:2px;gap:1px;border-radius:3px}
+.wg-mirror .wg-cell{font-size:3px;border-width:0}
+.wg-mirror .wg-cell.occupied{font-size:5px}
+.wg-mirror .wg-cell small{display:none}
+.wg-mirror .wg-scores{gap:3px}
+.wg-mirror .wg-score{grid-template-columns:4px 1fr auto;padding:2px;gap:3px;border-radius:3px}
+.wg-mirror .wg-score .wg-player-dot{width:4px;height:4px}
+.wg-mirror .wg-score strong{font-size:5px}
+.wg-mirror .wg-score b{font-size:9px}
+.wg-mirror .wg-score small{font-size:4px}
+.wg-mirror .wg-message{padding:4px;font-size:5px;border-radius:3px}
+.wg-mirror .wg-meta{gap:2px}
+.wg-mirror .wg-meta span{font-size:4px;padding:2px}
+.wg-mirror .wg-last{padding:3px;border-radius:5px}
+.wg-mirror .wg-last span{font-size:4px}
+.wg-mirror .wg-last b,.wg-mirror .wg-last strong{font-size:9px}
+.wg-student{width:100%;max-width:760px;margin:0 auto;padding:12px}
+.wg-student h3{text-align:center;font-size:clamp(19px,4vw,32px);color:#fff}
+.wg-student p{text-align:center;font-size:14px;line-height:1.5;color:#bcdbe8}
+.wg-student-board .wg-board{margin:auto;max-width:430px}
+.wg-student-board .wg-cell{font-size:8px}
+.wg-student-board .wg-cell.occupied{font-size:12px}
+.wg-student-board .wg-cell small{font-size:6px}
+.wg-setup{width:100%;padding:12px}
+.wg-setup-columns{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:15px 0}
+.wg-setup-card{border:1px solid #477795;border-radius:15px;background:linear-gradient(140deg,#0c2944,#071b30);padding:19px}
+.wg-setup-card h3{font:950 21px system-ui;color:#fff;margin:4px 0 9px}
+.wg-setup-card p{color:#b7d5e8;font:700 13px/1.6 system-ui}
+.wg-setup-card label{display:grid;gap:9px;font:900 12px system-ui;color:#88d9f4;letter-spacing:.09em;margin:15px 0}
+.wg-setup-card label small{font-weight:650;letter-spacing:0}
+.wg-setup-card textarea{width:100%;min-height:126px;resize:vertical;background:#06182d;color:white;border:1px solid #4897ad;border-radius:10px;padding:13px;font:750 16px/1.45 system-ui}
+.wg-setup-card .primary-action{width:100%;font-size:14px;min-height:52px}
+.wg-save-list{display:grid;gap:7px;margin:13px 0}
+.wg-save-list button{display:flex;align-items:center;gap:8px;text-align:left;min-height:55px}
+.wg-save-list button b{flex:1;overflow-wrap:anywhere;font-size:13px}
+.wg-save-list button small{color:#9ac8dc}
+.wg-save-list button span{color:#8affdf}
+@media(max-width:1120px){.wg-teacher-main{grid-template-columns:1fr}.wg-teacher-main .wg-board{width:min(100%,650px)}.wg-actions{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:900px){.wg-public-main{grid-template-columns:minmax(0,1fr)}.wg-public .wg-board{width:min(100%,70vh)}.wg-public-side .wg-scores{grid-template-columns:1fr 1fr}}
+@media(max-width:670px){.wg-setup-columns{grid-template-columns:1fr}.wg-actions{grid-template-columns:1fr 1fr}.wg-teacher-main{gap:9px}.wg-teacher-side{padding:10px}.wg-board{border-width:3px;padding:2px;gap:1px}.wg-cell{font-size:6px}.wg-cell.occupied{font-size:11px}.wg-cell small{font-size:6px}.wg-public-side .wg-scores{grid-template-columns:1fr 1fr}.wg-public .wg-heading h2{font-size:24px}.wg-public .wg-phase{font-size:8px}.wg-rack{gap:3px}.wg-tile{width:35px}}
+@media(prefers-reduced-motion:reduce){.wg-tile,.wg-actions button,.wg-setup button{transition:none!important;animation:none!important}}
