@@ -26,6 +26,7 @@ import qrcode
 from cosmic_cards_server import apply_cosmic_action, redact_cosmic_state
 from dominoes_server import apply_dominoes_action, redact_dominoes_state
 from four_in_line_server import apply_four_in_line_action
+from signal_sequence_server import apply_signal_sequence_action, redact_signal_sequence_state
 from quick_poll_server import QuickPollService
 
 ROOT = Path(__file__).resolve().parent
@@ -3627,6 +3628,8 @@ def _state_for_role(state: dict, role: str, token: str = "", name: str = "") -> 
                 st.pop("understanding", None)
 
     run = out.get("activityRun")
+    if isinstance(run, dict) and str(run.get("activityId") or "") == "signal-sequence-game":
+        redact_signal_sequence_state(out, role)
     if isinstance(run, dict) and str(run.get("activityId") or "") == "cosmic-cards-game":
         redact_cosmic_state(out, role, own_name)
     if isinstance(run, dict) and str(run.get("activityId") or "") == "dominoes-game":
@@ -4927,6 +4930,7 @@ async def index(request: web.Request) -> web.Response:
                         '<link rel="stylesheet" href="/word-grid.css?v=1">'
                         '<link rel="stylesheet" href="/dominoes.css?v=1">'
                         '<link rel="stylesheet" href="/four-in-line.css?v=1">'
+                        '<link rel="stylesheet" href="/signal-sequence.css?v=1">'
                         '<link rel="stylesheet" href="/si-plus-polish.css?v=88"></head>', 1)
     # Insert before the final body close: index.html also contains HTML strings
     # in internal scripts, so replacing the first occurrence would corrupt JS.
@@ -4935,6 +4939,8 @@ async def index(request: web.Request) -> web.Response:
         text = (text[:body_close] +
                 '<script src="/four-in-line.js?v=1" defer></script>' +
                 '<script src="/four-in-line-bridge.js?v=1" defer></script>' +
+                '<script src="/signal-sequence.js?v=1" defer></script>' +
+                '<script src="/signal-sequence-bridge.js?v=1" defer></script>' +
                 f'<script src="/quick-poll.js?v={QUICK_POLL_ASSET_VERSION}" defer></script>' +
                 '<script src="/dashboard-polish.js?v=80" defer></script>' +
                 '<script src="/million-studio.js?v=1" defer></script>' +
@@ -5887,6 +5893,24 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                         continue
                     save_runtime_state(current)
                     await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
+                elif mtype == "signal_sequence_action" and isinstance(data.get("request"), dict):
+                    if role != "student":
+                        continue
+                    meta = CLIENT_META.get(ws, {})
+                    token = str(meta.get("student_token") or data.get("student_token") or "")
+                    name = str(meta.get("student_name") or data.get("student_name") or "")
+                    current = copy.deepcopy(LATEST_STATE) if isinstance(LATEST_STATE, dict) else None
+                    if not isinstance(current, dict) or not token or not name:
+                        continue
+                    identity = _student_by_identity(current, token, "")
+                    if not isinstance(identity, dict) or str(identity.get("n") or "") != name:
+                        continue
+                    run = current.get("activityRun")
+                    if not isinstance(run, dict):
+                        continue
+                    if apply_signal_sequence_action(current, run, name, data["request"]):
+                        save_runtime_state(current)
+                        await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
                 elif mtype == "four_in_line_action" and isinstance(data.get("request"), dict):
                     if role != "student":
                         continue
@@ -6039,6 +6063,9 @@ def create_app() -> web.Application:
     app.router.add_get("/four-in-line.js", lambda request: web.FileResponse(ROOT / "four-in-line.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/four-in-line-bridge.js", lambda request: web.FileResponse(ROOT / "four-in-line-bridge.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/four-in-line.css", lambda request: web.FileResponse(ROOT / "four-in-line.css", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/signal-sequence.js", lambda request: web.FileResponse(ROOT / "signal-sequence.js", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/signal-sequence-bridge.js", lambda request: web.FileResponse(ROOT / "signal-sequence-bridge.js", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/signal-sequence.css", lambda request: web.FileResponse(ROOT / "signal-sequence.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/si-plus-polish.js", lambda request: web.FileResponse(ROOT / "si-plus-polish.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/si-plus-polish.css", lambda request: web.FileResponse(ROOT / "si-plus-polish.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/match-arcade.js", match_arcade_script)
