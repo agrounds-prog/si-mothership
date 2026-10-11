@@ -299,9 +299,9 @@ function editorHtml(){
   '<button type="button" data-qp-close aria-label="Close Poll Studio">×</button></header>'+
   '<nav class="qp-studio-tabs" role="tablist" aria-label="Quick Poll Studio views">'+tabs+'</nav>'+
   '<div class="qp-studio-context"><span class="qp-context-pulse '+(poll?.phase==="open"?"live":"")+'"></span>'+
-  '<b>'+(poll?.phase==="open"?"VOTING OPEN":poll?"POLL CLOSED":"NO ACTIVE POLL")+'</b>'+
-  '<span>'+esc(poll?.question||"Ready for a new question")+'</span>'+
-  '<span class="qp-context-link">'+(poll?.sharedVisible?"● SHARED SCREEN LIVE":"Shared screen idle")+'</span></div>'+
+  '<b id="qpStudioStatus">'+(poll?.phase==="open"?"VOTING OPEN":poll?"POLL CLOSED":"NO ACTIVE POLL")+'</b>'+
+  '<span id="qpStudioCurrentQuestion">'+esc(poll?.question||"Ready for a new question")+'</span>'+
+  '<span class="qp-context-link" id="qpStudioScreenState">'+(poll?.sharedVisible?"● SHARED SCREEN LIVE":"Shared screen idle")+'</span></div>'+
   '<div class="qp-teacher-scroll" id="qpStudioContent" role="tabpanel" aria-labelledby="qpTab-'+studioTab+'">'+pane+'</div></div>';
 }
 
@@ -318,7 +318,15 @@ function liveHtml(p){
  '<button type="button" data-qp-control="revote">↻ Revote</button><button type="button" class="qp-red" data-qp-control="dismiss">Dismiss</button></div>'+
  (p.identifiedVotes?'<details><summary>Teacher-only responses</summary>'+p.identifiedVotes.map(v=>'<p>'+esc(v.name)+': '+esc(v.choices.map(id=>p.choices.find(c=>c.id===id)?.label||"").join(", "))+'</p>').join("")+'</details>':"")+'</div>';
 }
-function updateLive(){if(role!=="teacher")return;const box=$("#qpTeacherLive");if(box)box.innerHTML=liveHtml(poll);if(launcher)launcher.classList.toggle("active",poll?.phase==="open");}
+function updateLive(){
+ if(role!=="teacher")return;
+ const box=$("#qpTeacherLive");if(box)box.innerHTML=liveHtml(poll);
+ const status=$("#qpStudioStatus",dialog),heading=$("#qpStudioCurrentQuestion",dialog),screen=$("#qpStudioScreenState",dialog);
+ if(status)status.textContent=poll?.phase==="open"?"VOTING OPEN":poll?"POLL CLOSED":"NO ACTIVE POLL";
+ if(heading)heading.textContent=poll?.question||"Ready for a new question";
+ if(screen)screen.textContent=poll?.sharedVisible?"● SHARED SCREEN LIVE":"Shared screen idle";
+ if(launcher)launcher.classList.toggle("active",poll?.phase==="open");
+}
 function renderEditor(){
  if(role!=="teacher")return;
  if(!dialog){
@@ -406,20 +414,25 @@ async function post(url,body){
   // Even if the regular background poll is in flight, the next tick will
   // reconcile the state. Don't lose errors or silently discard the request.
   await refresh(true);
+  if(url==="/api/quick-poll/launch"){studioTab="live";renderEditor();}
   return true;
  }catch(e){error(e);return false;}
  finally{busy=false;}
 }
 async function teacherClick(e){
  const b=e.target.closest("button");if(!b)return;
+ if(b.dataset.qpTab!==undefined){
+  if(["live","create","library"].includes(b.dataset.qpTab)){studioTab=b.dataset.qpTab;clearError();renderEditor();}
+  return;
+ }
  if(b.hasAttribute("data-qp-close")){open=false;renderEditor();return;}
- if(b.hasAttribute("data-qp-new")){draft=fresh();renderEditor();return;}
- if(b.hasAttribute("data-qp-gallery")){list=!list;renderEditor();return;}
+ if(b.hasAttribute("data-qp-new")){draft=fresh();studioTab="create";clearError();renderEditor();return;}
+ if(b.hasAttribute("data-qp-gallery")){studioTab="library";clearError();renderEditor();return;}
  if(b.hasAttribute("data-qp-add")){if(draft.choices.length<6){draft.choices.push({label:"",image:""});renderEditor();}return;}
  if(b.dataset.qpRemove!==undefined){if(draft.choices.length>2){draft.choices.splice(Number(b.dataset.qpRemove),1);draft.limit=Math.min(draft.limit,draft.choices.length);if(draft.choices.length!==2&&draft.display==="showdown")draft.display="cards";renderEditor();}return;}
  if(b.dataset.qpClearImage!==undefined){draft.choices[Number(b.dataset.qpClearImage)].image="";renderEditor();return;}
- if(b.dataset.qpTemplate!==undefined){const t=sample[Number(b.dataset.qpTemplate)];draft={...fresh(),question:t[1],choices:t[2].map(label=>({label,image:""})),sensitive:t[3],visibility:t[3]?"reveal":"live"};renderEditor();return;}
- if(b.dataset.qpLoad!==undefined){const t=library.find(x=>x.id===b.dataset.qpLoad);if(t){draft={...fresh(),...clone(t.poll)};list=false;renderEditor();}return;}
+ if(b.dataset.qpTemplate!==undefined){const t=sample[Number(b.dataset.qpTemplate)];draft={...fresh(),question:t[1],choices:t[2].map(label=>({label,image:""})),sensitive:t[3],visibility:t[3]?"reveal":"live"};studioTab="create";clearError();renderEditor();return;}
+ if(b.dataset.qpLoad!==undefined){const t=library.find(x=>x.id===b.dataset.qpLoad);if(t){draft={...fresh(),...clone(t.poll)};studioTab="create";clearError();renderEditor();}return;}
  if(b.dataset.qpDelete!==undefined){if(confirm("Delete this saved Quick Poll prompt?")){await post("/api/quick-poll/templates/delete",{id:b.dataset.qpDelete});await libraryLoad();}return;}
  if(b.hasAttribute("data-qp-save")){
   if(!validateDraft())return;
@@ -477,7 +490,7 @@ function init(){
  if(role==="teacher"){
   launcher=document.createElement("button");launcher.id="qpLauncher";launcher.innerHTML="⚡ QUICK POLL";
   launcher.title="Create, launch or manage a Quick Poll";launcher.setAttribute("aria-expanded","false");
-  launcher.onclick=()=>{try{open=!open;renderEditor();}catch(err){open=false;error(err);}};
+  launcher.onclick=()=>{try{if(!open)studioTab=poll?"live":"create";open=!open;renderEditor();}catch(err){open=false;error(err);}};
   document.body.append(launcher);libraryLoad();
   window.addEventListener("keydown",e=>{if(open&&e.key==="Escape"){open=false;renderEditor();}});
   syncMirror();
@@ -491,6 +504,6 @@ function init(){
  }
  refresh();setInterval(refresh,2200);setInterval(timer,500);
 }
-window.SIQuickPoll={refresh,open:()=>{if(role==="teacher"){open=true;renderEditor();}}};
+window.SIQuickPoll={refresh,open:()=>{if(role==="teacher"){studioTab=poll?"live":"create";open=true;renderEditor();}}};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
