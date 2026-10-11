@@ -137,6 +137,7 @@ const hosts=[
              lib.filters!==5||lib.primaryActions!==14||
              lib.recentVectors!==lib.recentCount||lib.presetVectors!==lib.presetCount||errors.length)failures++;
           await page.evaluate(()=>document.querySelector('#activitiesPanel .activity-library-filters [data-activity-category="games"]')?.click());
+          await page.waitForTimeout(140);
           const gameFilter=await page.evaluate(()=>{
             const nodes=[...document.querySelectorAll('#activitiesPanel .activity-catalog-grid .real-app-card')];
             return {count:nodes.length,categories:nodes.map(n=>n.dataset.activityCategory),
