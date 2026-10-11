@@ -76,7 +76,7 @@ class QuickPollSmoke(unittest.IsolatedAsyncioTestCase):
         page = await self.client.get("/")
         self.assertEqual(page.status, 200)
         html = await page.text()
-        loader = '<script src="/quick-poll.js?v=1" defer></script>'
+        loader = f'<script src="/quick-poll.js?v={app.QUICK_POLL_ASSET_VERSION}" defer></script>'
         self.assertEqual(html.count(loader), 1)
         dashboard_loader = '<script src="/dashboard-polish.js?v=80" defer></script>'
         self.assertEqual(html.count(dashboard_loader), 1)
@@ -88,7 +88,7 @@ class QuickPollSmoke(unittest.IsolatedAsyncioTestCase):
                          "MILLION Studio should follow dashboard without entering inline JS")
         self.assertEqual(html.rfind(studio_loader) + len(studio_loader), html.rfind("</body>"),
                          "Last external script must precede the real final body tag")
-        self.assertIn('<link rel="stylesheet" href="/quick-poll.css?v=1">', html)
+        self.assertIn(f'<link rel="stylesheet" href="/quick-poll.css?v={app.QUICK_POLL_ASSET_VERSION}">', html)
         self.assertIn('<link rel="stylesheet" href="/dashboard-polish.css?v=80">', html)
         self.assertIn('<link rel="stylesheet" href="/million-studio.css?v=1">', html)
 
