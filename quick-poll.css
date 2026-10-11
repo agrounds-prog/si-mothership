@@ -1498,3 +1498,149 @@ body #teacher .qp-v4-mirror-cards>div{
 @media(prefers-reduced-motion:reduce){
  #qpDialog .qp-v4-display-gallery .qp-v4-display-tile{transition:none!important}
 }
+
+
+/* Quick Poll 4.2: presenter preview polish. All data and preview
+   interactions are local to authenticated teacher, not projected. */
+#qpDialog .qp-v5-preview-cta{
+ display:flex;align-items:center;justify-content:space-between;gap:18px;
+ margin:17px 0 5px;padding:17px 18px;
+ border:1px solid #508aaa;border-radius:14px;
+ background:
+  radial-gradient(circle at 83% 12%,#2c6a8a40,transparent 44%),
+  linear-gradient(115deg,#102b4c,#101f40);
+ box-shadow:inset 0 1px 0 #e3ffff29,0 10px 22px #0002;
+}
+#qpDialog .qp-v5-preview-cta>div{
+ display:flex;flex-direction:column;gap:5px;min-width:0;
+}
+#qpDialog .qp-v5-preview-cta>div>b{
+ font:950 clamp(12px,1.03vw,16px)/1.2 system-ui;
+ color:#8febff;letter-spacing:.095em;
+}
+#qpDialog .qp-v5-preview-cta>div>span{
+ color:#c0d9e7;font:700 clamp(11px,.95vw,14px)/1.35 system-ui;
+}
+#qpDialog .qp-v5-preview-cta>button{
+ display:flex;align-items:center;justify-content:center;gap:15px;
+ min-height:51px;min-width:202px;padding:10px 18px;
+ border:2px solid #99e9fd;border-radius:12px;
+ color:#f5fcff;background:linear-gradient(145deg,#17769e,#0b456a);
+ box-shadow:inset 0 1px 0 #e3ffff69,0 6px 16px #0006,0 0 20px #41c7ee2b;
+ font:950 clamp(12px,1vw,15px)/1.2 system-ui;
+ letter-spacing:.045em;cursor:pointer;
+ transition:background .17s,border-color .17s,transform .17s;
+ white-space:nowrap;
+}
+#qpDialog .qp-v5-preview-cta>button>span{font-size:22px;font-weight:650}
+#qpDialog .qp-v5-preview-cta>button:hover{
+ background:linear-gradient(145deg,#239bc8,#0e577a);
+ border-color:#e1fdff;transform:translateY(-1px);
+}
+#qpDialog .qp-v5-preview-cta>button:focus-visible{
+ outline:3px solid #ffe49d;outline-offset:4px;
+}
+#qpPublicOverlay.qp-v5-preview-mode{
+ z-index:30000;background:#020a1b;
+ scroll-padding-top:110px;
+}
+#qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-toolbar{
+ position:sticky;top:0;z-index:10;
+ display:flex;justify-content:space-between;align-items:center;gap:16px;
+ min-height:80px;padding:10px clamp(12px,2vw,30px);
+ border-bottom:2px solid #4daccb;
+ background:linear-gradient(105deg,#0b2541f5,#072b40f8 57%,#10213bf9);
+ box-shadow:0 8px 27px #0009,inset 0 1px 0 #b8f7ff22;
+ backdrop-filter:blur(20px);
+}
+#qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-identity{
+ display:flex;align-items:center;gap:12px;min-width:0;
+}
+#qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-icon{
+ display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;
+ border-radius:11px;border:1px solid #73e7ff;
+ background:linear-gradient(135deg,#155d7c,#112d4a);
+ font:900 27px system-ui;color:#a6f0ff;
+ box-shadow:0 0 14px #4bdcfb43;
+}
+#qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-identity>div{
+ display:flex;flex-direction:column;gap:5px;min-width:0;
+}
+#qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-identity b{
+ font:1000 clamp(12px,1.05vw,17px)/1.2 system-ui;
+ color:#f3fdff;letter-spacing:.08em;
+}
+#qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-identity small{
+ font:900 clamp(9px,.72vw,12px)/1.2 system-ui;
+ color:#9bd0e2;letter-spacing:.07em;
+}
+#qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-modes{
+ display:flex;align-items:center;gap:5px;padding:5px;
+ border:1px solid #386686;border-radius:12px;
+ background:#06192e;
+}
+#qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-modes>button{
+ min-width:134px;min-height:40px;
+ padding:8px 14px;color:#b4d0e4;border:1px solid transparent;
+ border-radius:9px;background:transparent;
+ font:900 12px/1.2 system-ui;cursor:pointer;
+ transition:background .15s;
+}
+#qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-modes>button.active{
+ border-color:#7ce6f7;background:linear-gradient(140deg,#15668b,#10354f);
+ box-shadow:inset 0 1px 0 #d2ffff66;color:#fff;
+}
+#qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-close{
+ display:flex;justify-content:center;align-items:center;gap:9px;
+ border:1px solid #bc8b99;border-radius:11px;
+ background:linear-gradient(#4d2a42,#302038);
+ color:#ffedf1;padding:7px 12px;
+ min-height:43px;min-width:91px;
+ font:900 14px/1 system-ui;cursor:pointer;
+}
+#qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-close::first-letter{font-size:18px}
+#qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-close:hover{
+ background:#713849;border-color:#ffc9d6;
+}
+#qpPublicOverlay.qp-v5-preview-mode button:focus-visible{
+ outline:3px solid #ffe59c;outline-offset:3px;
+}
+#qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-note{
+ position:sticky;top:80px;z-index:9;
+ padding:7px 12px;
+ border-bottom:1px solid #428ca4;
+ background:#123d4b;color:#bffbe8;
+ text-align:center;letter-spacing:.09em;
+ font:950 clamp(10px,.89vw,14px)/1.25 system-ui;
+}
+#qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-note.demo{
+ background:linear-gradient(95deg,#5e4423,#4a362f,#503d25);
+ border-color:#b69c5d;color:#ffe8af;
+}
+#qpPublicOverlay.qp-v5-preview-mode .qp-v4-projector{
+ min-height:calc(100dvh - 110px);
+}
+@media(max-width:1000px){
+ #qpDialog .qp-v5-preview-cta{align-items:stretch}
+ #qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-identity small{display:none}
+ #qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-modes>button{min-width:110px;padding:7px}
+}
+@media(max-width:750px){
+ #qpDialog .qp-v5-preview-cta{flex-direction:column}
+ #qpDialog .qp-v5-preview-cta>button{width:100%}
+ #qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-toolbar{
+  flex-wrap:wrap;gap:8px;justify-content:space-between;padding:9px 12px;
+ }
+ #qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-identity{
+  flex:1 1 60%;
+ }
+ #qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-modes{
+  flex:1 1 auto;justify-content:center;order:3;width:100%;
+ }
+ #qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-modes>button{flex:1}
+ #qpPublicOverlay.qp-v5-preview-mode .qp-v5-preview-note{top:112px}
+}
+@media(prefers-reduced-motion:reduce){
+ #qpDialog .qp-v5-preview-cta>button,
+ #qpPublicOverlay.qp-v5-preview-mode button{transition:none!important}
+}
