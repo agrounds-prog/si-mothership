@@ -20,6 +20,7 @@ on:
       - 'tests/test_million_multiplayer.py'
       - 'tests/test_million_websocket_live.py'
       - 'tests/test_million_projector_browser.cjs'
+      - 'tests/test_quick_poll_projector_browser.cjs'
   workflow_dispatch:
 
 permissions:
@@ -58,6 +59,8 @@ jobs:
           node --check million-studio.js
       - name: Quick Poll server integration and vote lifecycle
         run: python -m unittest discover -s tests -p 'test_quick_poll.py' -v
+      - name: Quick Poll four projector graphic layouts, shared reveal, mirror and Zoom resolutions
+        run: node tests/test_quick_poll_projector_browser.cjs
       - name: MILLION synthetic multiplayer and privacy rules
         run: python -m unittest discover -s tests -p 'test_million_multiplayer.py' -v
       - name: MILLION real multi-client WebSocket and reset test
