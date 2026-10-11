@@ -234,3 +234,41 @@
  #teacher #activitiesPanel .wg-heading h2{font-size:25px!important}
  #teacher #activitiesPanel .wg-phase{font-size:8px!important;padding:7px!important}
 }
+
+/* WORD GRID v1.2 · classroom team assignment & teacher-led hint */
+#teacher #activitiesPanel .wg-setup-saves{grid-column:1/-1}
+#teacher #activitiesPanel .wg-setup-step{display:inline-block;margin-bottom:5px;font:950 10px system-ui;letter-spacing:.16em;color:#85dffc}
+#teacher #activitiesPanel .wg-setup-card label:has(> .wg-select){display:flex;flex-direction:column;gap:8px}
+.wg-select{appearance:auto;display:block;box-sizing:border-box;min-width:0;width:100%;max-width:100%;min-height:42px;border:1px solid #5191ac;border-radius:10px;background:#0b263e;color:#f6fbff;padding:9px 12px;font:850 13px/1.3 system-ui;color-scheme:dark}
+.wg-select:focus-visible{outline:2px solid #9dedff;outline-offset:2px}
+.wg-setup-note{font-size:12px!important;line-height:1.55!important;color:#b5d7ec}
+.wg-setup-note strong{color:#fff}
+.wg-assignment-list{display:flex;flex-direction:column;gap:10px;min-width:0}
+.wg-assign-row{display:grid!important;grid-template-columns:minmax(85px,.8fr) minmax(0,1.2fr);gap:10px;align-items:center;min-width:0;margin:0!important;padding:9px 12px;border:1px solid #315d7a;border-radius:12px;background:linear-gradient(130deg,#102e4a,#081e36)}
+.wg-assign-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff;font:900 13px system-ui;letter-spacing:0}
+.wg-assign-row .wg-select{margin:0;min-width:0;min-height:38px;font-size:12px}
+.wg-assign-empty{padding:20px 15px;border:1px dashed #3e6985;border-radius:10px;color:#a8d4e7;font:750 13px/1.5 system-ui}
+.wg-team-note{padding:12px 14px;margin-top:12px;border-radius:12px;background:#153a45;border:1px solid #477984;color:#bbf4ec;font:750 12px/1.55 system-ui}
+.wg-score-members{grid-column:2/-1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#accddd;font:800 clamp(9px,.85vw,12px) system-ui}
+.wg-score.active .wg-score-members{color:#f5fcff}
+.wg-mirror .wg-score-members{font-size:4px}
+.wg-live-teams{margin:16px 0 10px;padding:13px;border:1px solid #355f7c;border-radius:14px;background:linear-gradient(160deg,#102b43,#081e33)}
+.wg-live-teams h4{margin:0 0 5px;color:#bbecff;font:950 12px system-ui;letter-spacing:.12em}
+.wg-live-teams p{color:#a9cadc;font:750 11px/1.5 system-ui}
+.wg-live-teams .wg-assign-row{padding:7px 8px}
+.wg-teacher-participation{margin:11px 0 0;color:#ffd99d!important}
+.wg-hint-control{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:13px 0 7px}
+.wg-hint-control button{padding:10px 13px;min-height:43px;border:1px solid #c49c53;border-radius:10px;background:linear-gradient(145deg,#856031,#4a382b);color:#fff0c7;font:950 12px system-ui;cursor:pointer}
+.wg-hint-control button:disabled{opacity:.42;cursor:not-allowed}
+.wg-hint-live{color:#ffdea0;font:950 11px system-ui;letter-spacing:.05em}
+.wg-rack .wg-tile.wg-highlight,.wg-student .wg-tile.wg-highlight{outline:3px solid #ffe77e;outline-offset:2px;border-color:#fff4b2;box-shadow:0 0 0 5px #ffe77e26,0 0 25px #ffd84e;transform:translateY(-4px)}
+.wg-student-rack{width:100%;max-width:620px;margin:14px auto 20px;padding:16px;border-radius:15px;border:2px solid #4b8d9b;background:linear-gradient(120deg,#163b52,#0b2038)}
+.wg-student-rack .wg-rack{margin:10px 0;justify-content:center}
+.wg-student-rack .wg-tile{display:grid;place-content:center;flex:0 1 52px;position:relative}
+.wg-student-rack .wg-tile b{font-size:clamp(19px,5vw,32px)}
+.wg-student-rack .wg-tile small{bottom:3px;right:5px}
+.wg-rack-label{color:#9de8ff;font:950 11px system-ui;letter-spacing:.13em}
+.wg-student-hint{margin:12px 0 4px;border-radius:12px;border:1px solid #f4d487;background:#4c3a25;color:#fff1c3;padding:11px;font:950 clamp(12px,2.5vw,18px)/1.4 system-ui;text-align:center}
+.wg-student-rack p{font-size:12px;margin:12px 0 0}
+@media(max-width:580px){.wg-assign-row{grid-template-columns:1fr!important;gap:5px}.wg-setup-card .wg-assign-row{padding:10px}.wg-student-rack .wg-rack{gap:4px}.wg-student-rack{padding:10px}}
+@media(prefers-reduced-motion:reduce){.wg-rack .wg-tile.wg-highlight,.wg-student .wg-tile.wg-highlight{transform:none}}
