@@ -1080,3 +1080,15 @@ body.role-shared .shared-screen .presentation-public .si-plus-video-unit,
  #presentationBuilderPanel .si-plus-video-copy span{display:none}
  .presentation-public .si-plus-video-frame{border-radius:10px}
 }
+
+/* SI+ video frame projection overrides old generic iframe constraints. */
+#shared .shared-screen .presentation-public .presentation-media-stack .si-plus-video-frame iframe,
+body.role-shared .shared-screen .presentation-public .presentation-media-stack .si-plus-video-frame iframe,
+#teacher .mirror-screen .presentation-public .presentation-media-stack .si-plus-video-frame iframe{
+ display:block!important;width:100%!important;height:100%!important;
+ max-width:none!important;max-height:none!important;
+ min-width:0!important;min-height:0!important;
+ position:absolute!important;inset:0!important;
+ aspect-ratio:auto!important;border-radius:0!important;
+ box-shadow:none!important;
+}
