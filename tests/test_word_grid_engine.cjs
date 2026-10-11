@@ -122,4 +122,26 @@ run("projection and student view render tiles, not a private teacher rack",()=>{
  assert.doesNotMatch(student,/data-wg-action/);
  assert.match(W.setupHTML([]),/START WORD GRID/);
 });
+
+run("projector celebrations are temporary, preserve privacy, and respect turn actions",()=>{
+ const g=W.make(["Team Aurora","Team Comet"]);g.players[0].rack=given("CATDOGS");
+ assert.equal(W.commit(g,{111:g.players[0].rack[0],112:g.players[0].rack[1],113:g.players[0].rack[2]}).score,10);
+ assert.equal(g.publicCue.kind,"score");
+ let broadcast=W.sharedHTML(g,true);
+ assert.match(broadcast,/wg-score-celebration/);
+ assert.match(broadcast,/wg-play-reveal/);
+ assert.match(broadcast,/wg-turn-coming/);
+ assert.match(broadcast,/\+10 <small>POINTS<\/small>/);
+ assert.doesNotMatch(broadcast,/wg-student-rack|data-wg-tile=/);
+ assert.doesNotMatch(W.sharedHTML(g,false),/wg-score-celebration|wg-play-reveal/);
+ g.publicCue.at-=4000;g.lastMove.at-=4000;
+ broadcast=W.sharedHTML(g,true);
+ assert.doesNotMatch(broadcast,/wg-score-celebration|wg-play-reveal|wg-fx-live/);
+ g.lastMove.at-=4000;
+ assert.doesNotMatch(W.sharedHTML(g,true),/locked recent center/);
+ W.pass(g);assert.equal(g.publicCue.kind,"pass");
+ assert.match(W.sharedHTML(g,true),/TURN PASSED/);
+ W.undo(g);assert.equal(g.publicCue.kind,"undo");
+ assert.match(W.sharedHTML(g,true),/TURN REWOUND/);
+});
 console.log("WORD GRID engine regression complete");

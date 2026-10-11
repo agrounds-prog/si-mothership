@@ -143,6 +143,19 @@ const base=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    publicBoard:document.querySelectorAll("#sharedContent .wg-cell.occupied").length}));
   assert.equal(after.score,10);assert.equal(after.turn,1);assert.deepEqual(after.words,["CAT"]);
   assert.equal(after.publicBoard,3);
+  const fx=await page.evaluate(()=>{
+    const g=state.activityRun.wordGrid,shared=document.getElementById("sharedContent");
+    return {kind:g.publicCue?.kind,overlay:shared.innerHTML.includes("wg-score-celebration"),
+      placed:shared.querySelectorAll(".wg-play-reveal").length,
+      rack:shared.innerHTML.includes("wg-student-rack")};
+  });
+  assert.deepEqual(fx,{kind:"score",overlay:true,placed:3,rack:false},"Scoring broadcast only shows placed tiles, never private racks");
+  await page.emulateMedia({reducedMotion:"reduce"});
+  assert.equal(await page.evaluate(()=>{
+    const banner=document.querySelector("#sharedContent .wg-score-celebration");
+    return !banner||getComputedStyle(banner).display==="none";
+  }),true,"Reduced motion hides the moving banner without hiding scoreboard");
+  await page.emulateMedia({reducedMotion:"no-preference"});
   await page.locator('#activityControllerPanel [data-wg-action="save"]').click();
   const saved=await page.evaluate(()=>WordGrid.readLibrary());
   assert.ok(saved.some(x=>x.name==="Word Grid Browser Test"),"Game saved in teacher library");

@@ -652,3 +652,73 @@
 @media(prefers-reduced-motion:reduce){
  .wg-tile,.wg-teacher-side button{transition:none!important;transform:none!important}
 }
+
+/* v1.4 — synchronized, time-boxed and projector-only scoring / next-turn motion. */
+.wg-public.wg-big .wg-score-celebration,.wg-public.wg-big .wg-turn-ribbon{
+ position:absolute;z-index:7;pointer-events:none;text-align:center;
+ left:clamp(26px,6%,90px);top:clamp(95px,12%,160px);
+ max-width:min(52%,510px);width:max-content;
+ border:1px solid #ffe2a9;border-radius:18px;
+ background:radial-gradient(ellipse at 50% 0%,#947044b0,transparent 66%),linear-gradient(150deg,#233f51f5,#111e36f5);
+ box-shadow:0 0 0 2px #0a213e,0 18px 42px #000a,0 0 42px #edbc7959;
+ animation:wgVictory 3.3s ease-in-out both;animation-delay:var(--wg-fx-offset,0ms);
+}
+.wg-public.wg-big .wg-score-celebration{
+ display:flex;flex-direction:column;align-items:center;gap:3px;
+ padding:clamp(12px,2vw,26px) clamp(18px,2.7vw,37px);
+}
+.wg-celebration-eyebrow{font:1000 clamp(10px,1.1vw,15px) system-ui;letter-spacing:.16em;color:#ffe2a6}
+.wg-score-celebration strong{
+ display:block;white-space:nowrap;font:1000 clamp(40px,5.2vw,76px)/1.03 system-ui;
+ letter-spacing:-.07em;color:#fff5cf;text-shadow:0 3px #9d632f,0 8px 18px #0009;font-variant-numeric:tabular-nums;
+}
+.wg-score-celebration strong small{font:950 clamp(12px,1.1vw,17px) system-ui;letter-spacing:.1em;color:#ffe5aa}
+.wg-score-celebration b{max-width:100%;font:1000 clamp(19px,2.5vw,33px)/1.15 system-ui;overflow-wrap:anywhere;color:#fff}
+.wg-celebration-team{font:900 clamp(11px,1vw,14px) system-ui;color:#a7f7fa;overflow-wrap:anywhere}
+.wg-public.wg-big .wg-turn-ribbon{
+ top:clamp(102px,13%,165px);padding:14px 22px;max-width:45%;
+ font:1000 clamp(12px,1.2vw,17px) system-ui;letter-spacing:.09em;color:#fff2c7;
+}
+.wg-public.wg-big .wg-play-reveal{
+ transform-origin:center;
+ animation:wgTileLand 1.08s cubic-bezier(.18,.78,.24,1) both;
+ animation-delay:calc(var(--wg-fx-offset,0ms) + var(--wg-tile-stagger,0ms));
+}
+.wg-public.wg-big .wg-turn-coming{
+ animation:wgTurnArrival 1.75s ease-out both;animation-delay:var(--wg-fx-offset,0ms);
+}
+.wg-public.wg-big.wg-fx-live .wg-score.active{
+ animation:wgCurrentTeam 2.3s ease-out both;animation-delay:var(--wg-fx-offset,0ms);
+}
+@keyframes wgVictory{
+ 0%{opacity:0;transform:translateY(15px) scale(.92)}
+ 12%{opacity:1;transform:translateY(0) scale(1.025)}
+ 20%,68%{opacity:1;transform:translateY(0) scale(1)}
+ 93%,100%{opacity:0;transform:translateY(-12px) scale(.98)}
+}
+@keyframes wgTileLand{
+ 0%{transform:translateY(-13px) scale(1.23);filter:brightness(1.5)}
+ 45%{transform:translateY(2px) scale(.97);filter:brightness(1.23)}
+ 70%{transform:translateY(-2px) scale(1.02);filter:brightness(1.09)}
+ 100%{transform:translateY(0) scale(1);filter:brightness(1)}
+}
+@keyframes wgTurnArrival{
+ 0%{filter:brightness(1.5);transform:translateX(8px)}
+ 50%{filter:brightness(1.22);transform:translateX(0)}
+ 100%{filter:brightness(1);transform:translateX(0)}
+}
+@keyframes wgCurrentTeam{
+ 0%{filter:brightness(1.5)}
+ 40%{filter:brightness(1.18)}
+ 100%{filter:brightness(1)}
+}
+@media(max-width:900px){
+ .wg-public.wg-big .wg-score-celebration,.wg-public.wg-big .wg-turn-ribbon{top:90px;left:8%;max-width:84%}
+ .wg-public.wg-big .wg-score-celebration{padding:13px 20px}
+}
+@media(prefers-reduced-motion:reduce){
+ .wg-public.wg-big .wg-play-reveal,.wg-public.wg-big .wg-turn-coming,
+ .wg-public.wg-big.wg-fx-live .wg-score.active{animation:none!important;transform:none!important;filter:none!important}
+ .wg-public.wg-big .wg-score-celebration,.wg-public.wg-big .wg-turn-ribbon{display:none!important}
+}
+/* The permanent score and last-play panels remain visible when motion is reduced. */
