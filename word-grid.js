@@ -96,10 +96,12 @@ function replayLastScore(g){
 function undo(g){const previous=g.history.pop();if(!previous)return false;const remain=g.history;Object.keys(g).forEach(k=>delete g[k]);Object.assign(g,previous,{history:remain,hint:null,message:"Last turn undone. "+previous.players[previous.turn].name+" is up.",publicCue:{kind:"undo",at:Date.now(),player:previous.players[previous.turn].name}});return true}
 const boardHTML=(g,editable=false,pending={},selection="",reveal=false)=>{
  // Older saved scoring events expire visually; the board itself remains intact.
- const at=Number(g.lastMove?.at);
- const replayAt=g.publicCue?.kind==="score"?Number(g.publicCue.at):0;
- const latest=Math.max(Number.isFinite(at)?at:0,Number.isFinite(replayAt)?replayAt:0);
- const recent=latest>0&&Date.now()-latest>=0&&Date.now()-latest<6500;
+ const at=Number(g.lastMove?.at),cueAt=g.publicCue?.kind==="score"?Number(g.publicCue.at):0,now=Date.now();
+ // Newly placed tiles glow briefly after a normal scoring move. A replay
+ // re-lights them only for the same short projector celebration window.
+ const moveRecent=Number.isFinite(at)&&at>0&&now-at>=0&&now-at<6500;
+ const replayRecent=Number.isFinite(cueAt)&&cueAt>at&&now-cueAt>=0&&now-cueAt<3300;
+ const recent=moveRecent||replayRecent;
  const last=new Set(recent?(Array.isArray(g.lastMove?.newTiles)?g.lastMove.newTiles:(g.lastMove?.words||[]).flatMap(w=>Array.isArray(w.tiles)?w.tiles:[])):[]);
  const tileOrder=[...last];
  return '<div class="wg-board" role="grid" aria-label="15 by 15 Word Grid">'+g.board.map((t,i)=>{
