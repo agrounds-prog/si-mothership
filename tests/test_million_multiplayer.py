@@ -66,6 +66,35 @@ class MillionPrivacy(unittest.TestCase):
         self.assertFalse(m["lockedAnswer"])
         self.assertEqual(m["inventory"]["tryAgain"],0)
 
+    def test_5050_eliminates_exactly_two_wrong_answers_once_and_preserves_selection(self):
+        state,run,m=fixture()
+        m["inventory"]["reduce"]=2
+        # Student has already tentatively chosen A (an incorrect option).
+        server._million_apply_request(state,run,"Pilot",
+            {"name":"Pilot","id":"choose-wrong","type":"select","value":"A"})
+        server._million_apply_request(state,run,"Pilot",
+            {"name":"Pilot","id":"first-5050","type":"lifeline","value":"reduce"})
+        self.assertEqual(set(m["eliminated"]),{"C","D"})
+        self.assertEqual(m["selectedAnswer"],"A")
+        self.assertEqual(m["inventory"]["reduce"],1)
+        self.assertIn("50/50 ACTIVATED",m["message"])
+        for role,token in (("teacher",""),("student","pilot-token"),("shared","")):
+            result=server._state_for_role(state,role,token=token)["activityRun"]["million"]
+            self.assertEqual(set(result["eliminated"]),{"C","D"})
+        server._million_apply_request(state,run,"Pilot",
+            {"name":"Pilot","id":"repeat-5050","type":"lifeline","value":"reduce"})
+        self.assertEqual(set(m["eliminated"]),{"C","D"})
+        self.assertEqual(m["inventory"]["reduce"],1,"duplicate use must not consume another charge")
+        server._million_apply_request(state,run,"Pilot",
+            {"name":"Pilot","id":"lock-after-5050","type":"lock"})
+        self.assertEqual(m["lockedAnswer"],"A")
+        # A 50/50 cannot be used after the pilot locks a final answer.
+        m["eliminated"]=[]
+        server._million_apply_request(state,run,"Pilot",
+            {"name":"Pilot","id":"locked-5050","type":"lifeline","value":"reduce"})
+        self.assertEqual(m["eliminated"],[])
+        self.assertEqual(m["inventory"]["reduce"],1)
+
     def test_crew_cannot_lock_or_use_pilot_lifelines(self):
         state,run,m=fixture()
         server._million_apply_request(state,run,"Crew",{"name":"Crew","id":"p1","type":"select","value":"C"})
