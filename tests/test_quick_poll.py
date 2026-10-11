@@ -90,12 +90,17 @@ class QuickPollSmoke(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(html.count(word_grid_loader), 1)
         self.assertEqual(html.rfind(studio_loader) + len(studio_loader), html.rfind(word_grid_loader),
                          "Word Grid should follow MILLION Studio without entering inline JS")
-        self.assertEqual(html.rfind(word_grid_loader) + len(word_grid_loader), html.rfind("</body>"),
+        dominoes_loader = '<script src="/dominoes.js?v=1" defer></script>'
+        self.assertEqual(html.count(dominoes_loader), 1)
+        self.assertEqual(html.rfind(word_grid_loader) + len(word_grid_loader), html.rfind(dominoes_loader),
+                         "Dominoes must follow Word Grid, outside inline JavaScript")
+        self.assertEqual(html.rfind(dominoes_loader) + len(dominoes_loader), html.rfind("</body>"),
                          "Last external script must precede the real final body tag")
         self.assertIn(f'<link rel="stylesheet" href="/quick-poll.css?v={app.QUICK_POLL_ASSET_VERSION}">', html)
         self.assertIn('<link rel="stylesheet" href="/dashboard-polish.css?v=80">', html)
         self.assertIn('<link rel="stylesheet" href="/million-studio.css?v=1">', html)
         self.assertIn('<link rel="stylesheet" href="/word-grid.css?v=1">', html)
+        self.assertIn('<link rel="stylesheet" href="/dominoes.css?v=1">', html)
 
     async def test_anonymous_server_totals_and_private_identity(self):
         poll_id = await self.launch()
