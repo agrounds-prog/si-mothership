@@ -53,6 +53,27 @@ jobs:
           done
           cat /tmp/mothership-browser.log
           exit 1
+      - name: Verify fresh Quick Poll assets and visible projector graphics
+        run: |
+          set -e
+          node --check quick-poll.js
+          python - <<'PY'
+          import hashlib,re,urllib.request
+          from pathlib import Path
+          base="http://127.0.0.1:8877"
+          with urllib.request.urlopen(base+"/") as response:
+              html=response.read().decode()
+          actual=hashlib.sha256(Path("quick-poll.js").read_bytes()+Path("quick-poll.css").read_bytes()).hexdigest()[:14]
+          js=re.search(r'/quick-poll[.]js[?]v=([a-z0-9]+)',html)
+          css=re.search(r'/quick-poll[.]css[?]v=([a-z0-9]+)',html)
+          assert js and css and js.group(1)==css.group(1)==actual,(js,css,actual)
+          for kind,marker in (("js","qp-v4-projector"),("css","QUICK POLL · SHARED-SCREEN SHOW GRAPHICS v4")):
+              with urllib.request.urlopen(base+"/quick-poll."+kind+"?v="+actual) as response:
+                  content=response.read().decode("utf-8")
+                  assert "no-store" in response.headers.get("Cache-Control","")
+                  assert marker in content,(kind,marker)
+          print("Quick Poll JS and CSS loaded with matching SHA256 fingerprint",actual)
+          PY
       - name: Verify dashboard presentation JavaScript syntax
         run: |
           node --check dashboard-polish.js
