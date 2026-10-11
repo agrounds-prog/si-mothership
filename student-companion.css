@@ -581,3 +581,313 @@ body.role-student #studentContent .fil-drop-button:focus-visible{
  body.role-student #studentContent .ss-touch-key{min-height:56px!important}
  body.role-student #studentContent .ss-student-meta{padding:4px 2px!important}
 }
+
+
+/* Zoom Companion v4 — student-only Quick Poll, MILLION, Cosmic Cards, Dominoes.
+   No global game markup, teacher styles, API requests, or saved state changes. */
+body.role-student #studentContent:has(.million-student),
+body.role-student #studentContent:has(.cc-device),
+body.role-student #studentContent:has(.dm-device){
+ padding:7px!important;
+}
+body.role-student #studentContent .million-student,
+body.role-student #studentContent .cc-device,
+body.role-student #studentContent .dm-device{
+ width:100%!important;max-width:100%!important;min-width:0!important;
+ box-sizing:border-box!important;margin:0 auto!important;
+}
+body.role-student:has(#studentContent .million-student) .student-control-zone:has(#studentControls:empty),
+body.role-student:has(#studentContent .cc-device) .student-control-zone:has(#studentControls:empty),
+body.role-student:has(#studentContent .dm-device) .student-control-zone:has(#studentControls:empty){
+ display:none!important;
+}
+/* Quick Poll is a direct-child overlay, not a game inside #studentContent.
+   Center a complete compact voting device; don't expose a closed poll. */
+body.role-student #qpPublicOverlay{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:100%!important;height:100dvh!important;max-height:100dvh!important;
+ padding:12px!important;overflow:hidden!important;
+ background:radial-gradient(ellipse at 50% 12%,#14334e,#03101c 67%)!important;
+}
+body.role-student #qpPublicOverlay[hidden]{display:none!important}
+body.role-student #qpPublicOverlay .qp-voter{
+ flex:0 1 440px!important;display:flex!important;flex-direction:column!important;
+ width:min(100%,440px)!important;max-width:440px!important;min-width:0!important;
+ height:auto!important;min-height:0!important;
+ max-height:calc(100dvh - 24px)!important;
+ gap:9px!important;padding:12px!important;margin:0 auto!important;
+ overflow-x:hidden!important;overflow-y:auto!important;
+ overscroll-behavior:contain!important;
+ border:1px solid #367b9d!important;border-radius:20px!important;
+ background:linear-gradient(160deg,#0b2c46,#061626)!important;
+ box-shadow:0 20px 50px #0009!important;
+ scrollbar-width:thin;scrollbar-color:#36728e #092238;
+}
+body.role-student #qpPublicOverlay .qp-voter>header{
+ min-height:42px!important;padding:8px 10px!important;
+ font-size:15px!important;border-radius:10px!important;
+}
+body.role-student #qpPublicOverlay .qp-voter h1{
+ margin:0!important;font-size:clamp(20px,5vw,27px)!important;line-height:1.14!important;
+ overflow-wrap:anywhere!important;
+}
+body.role-student #qpPublicOverlay .qp-voter>p{
+ margin:0!important;font-size:12px!important;line-height:1.4!important;
+}
+body.role-student #qpPublicOverlay .qp-voter .qp-status{
+ gap:5px!important;margin:0!important;
+}
+body.role-student #qpPublicOverlay .qp-voter .qp-status>*{
+ padding:5px 7px!important;font-size:10px!important;border-radius:8px!important;
+}
+body.role-student #qpPublicOverlay .qp-vote-choices{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:8px!important;width:100%!important;
+}
+body.role-student #qpPublicOverlay .qp-vote-card{
+ min-width:0!important;min-height:108px!important;
+ padding:7px!important;gap:5px!important;border-radius:12px!important;
+ touch-action:manipulation!important;
+}
+body.role-student #qpPublicOverlay .qp-vote-card .qp-image{
+ min-height:0!important;max-height:82px!important;aspect-ratio:1.4!important;
+}
+body.role-student #qpPublicOverlay .qp-vote-card strong{
+ font-size:clamp(12px,3.4vw,15px)!important;line-height:1.25!important;
+ overflow-wrap:anywhere!important;
+}
+body.role-student #qpPublicOverlay .qp-submit{
+ position:sticky!important;bottom:0!important;z-index:3!important;
+ min-height:49px!important;padding:9px!important;margin:1px 0!important;
+ border-radius:10px!important;font-size:16px!important;touch-action:manipulation!important;
+}
+body.role-student #qpPublicOverlay .qp-received{
+ padding:9px!important;font-size:12px!important;
+}
+body.role-student #qpPublicOverlay .qp-received b{font-size:17px!important}
+body.role-student #qpPublicOverlay .qp-received p{font-size:14px!important}
+body.role-student #qpPublicOverlay .qp-vote-card:focus-visible,
+body.role-student #qpPublicOverlay .qp-submit:focus-visible{
+ outline:3px solid #ffdd8c!important;outline-offset:2px!important;
+}
+/* MILLION: two clear answer columns and a reachable lock/lifeline dock. */
+body.role-student #studentContent .million-student{
+ padding:12px!important;border-radius:14px!important;
+}
+body.role-student #studentContent .million-student h2{
+ font-size:clamp(21px,5.4vw,28px)!important;line-height:1.17!important;
+ overflow-wrap:anywhere!important;
+}
+body.role-student #studentContent .million-student-choices{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ width:100%!important;gap:8px!important;margin:9px 0!important;
+}
+body.role-student #studentContent .million-student-choice{
+ display:grid!important;grid-template-columns:33px minmax(0,1fr)!important;
+ align-items:stretch!important;gap:0!important;
+ min-width:0!important;min-height:75px!important;
+ padding:0!important;border-radius:11px!important;
+ text-align:left!important;touch-action:manipulation!important;
+ overflow-wrap:anywhere!important;
+}
+body.role-student #studentContent .million-student-choice b{
+ display:grid!important;place-items:center!important;min-width:0!important;
+ font-size:16px!important;
+}
+body.role-student #studentContent .million-student-choice span{
+ display:flex!important;align-items:center!important;
+ min-width:0!important;padding:8px!important;
+ font-size:clamp(11px,3vw,14px)!important;line-height:1.28!important;
+ white-space:normal!important;overflow-wrap:anywhere!important;
+}
+body.role-student #studentContent .million-student-actions{
+ position:sticky!important;bottom:-10px!important;z-index:4!important;
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:7px!important;padding:9px 0!important;margin:5px 0 0!important;
+ background:linear-gradient(180deg,#0a1829eb,#091523)!important;
+}
+body.role-student #studentContent .million-student-actions button{
+ min-width:0!important;min-height:48px!important;padding:8px 5px!important;
+ font-size:clamp(11px,2.9vw,14px)!important;line-height:1.2!important;
+ touch-action:manipulation!important;
+}
+body.role-student #studentContent .million-student-lifelines{
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:6px!important;
+}
+body.role-student #studentContent .million-student-lifelines button{
+ min-width:0!important;min-height:45px!important;padding:8px!important;
+ font-size:12px!important;touch-action:manipulation!important;
+}
+/* Cosmic Cards: preserve avatar/card art while exposing the private hand
+   much sooner, with cards in an actual compact 3-column grid. */
+body.role-student #studentContent .cc-device.cc-cinematic{
+ gap:7px!important;padding:0 9px 10px!important;
+}
+body.role-student #studentContent .cc-scene-mobile{
+ flex:0 0 auto!important;height:74px!important;min-height:0!important;
+ width:calc(100% + 18px)!important;margin:0 -9px!important;
+ border-bottom-width:2px!important;
+}
+body.role-student #studentContent .cc-device>.eyebrow{
+ margin:1px auto!important;font-size:10px!important;letter-spacing:.11em!important;
+}
+body.role-student #studentContent .cc-device h2{
+ font-size:clamp(19px,5vw,25px)!important;line-height:1.1!important;
+ margin:0!important;overflow-wrap:anywhere!important;
+}
+body.role-student #studentContent .cc-device-rule{
+ padding:5px 7px!important;font-size:10px!important;margin:0 auto!important;
+ border-radius:9px!important;
+}
+body.role-student #studentContent .cc-device-status{
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;
+ margin:0!important;width:100%!important;
+}
+body.role-student #studentContent .cc-device-status>span{
+ min-width:0!important;min-height:45px!important;
+ padding:5px 3px!important;gap:3px!important;border-width:1px!important;
+ font-size:10px!important;line-height:1.2!important;
+}
+body.role-student #studentContent .cc-device-status>span b{
+ font-size:11px!important;white-space:normal!important;overflow-wrap:anywhere!important;
+}
+body.role-student #studentContent .cc-color-lamp{flex-basis:13px!important;width:13px!important;height:13px!important}
+body.role-student #studentContent .cc-stat-icon{font-size:13px!important}
+body.role-student #studentContent .cc-hand-heading{
+ padding:3px!important;margin:0!important;font-size:11px!important;
+}
+body.role-student #studentContent .cc-hand.cc-hand-dock{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ justify-items:center!important;align-items:start!important;align-content:start!important;
+ width:100%!important;min-width:0!important;min-height:0!important;
+ gap:8px!important;padding:9px 5px!important;
+ border-width:1px!important;border-radius:15px!important;
+ box-shadow:inset 0 0 0 3px #1c5275,0 5px 15px #0006!important;
+}
+body.role-student #studentContent .cc-hand-button{
+ width:100%!important;min-width:0!important;
+ display:grid!important;place-items:center!important;
+ padding:3px!important;touch-action:manipulation!important;
+}
+body.role-student #studentContent .cc-hand-button .cc-card{
+ width:min(100%,75px)!important;height:101px!important;
+ border-width:2px!important;border-radius:9px!important;
+}
+body.role-student #studentContent .cc-hand-button .cc-card small{
+ font-size:11px!important;
+}
+body.role-student #studentContent .cc-device-actions{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ width:100%!important;gap:7px!important;margin:4px 0!important;
+}
+body.role-student #studentContent .cc-device-actions button{
+ flex:none!important;min-width:0!important;min-height:49px!important;
+ padding:8px!important;border-width:2px!important;border-radius:10px!important;
+ font-size:clamp(12px,3.4vw,15px)!important;
+ touch-action:manipulation!important;
+}
+body.role-student #studentContent .cc-device-actions>span{
+ grid-column:1/-1;font-size:12px!important;text-align:center;
+}
+body.role-student #studentContent .cc-help{
+ padding:8px!important;gap:6px!important;
+ font-size:11px!important;line-height:1.3!important;
+}
+body.role-student #studentContent .cc-info-mark{flex-basis:23px!important;width:23px!important;height:23px!important;font-size:14px!important}
+body.role-student #studentContent .cc-device-bottom{display:none!important}
+/* Dominoes: compact roster banner, selectable tiles in readable rows,
+   and at least 44px for left/right, draw and pass actions. */
+body.role-student #studentContent .dm-device{
+ padding-bottom:12px!important;border-radius:13px!important;
+}
+body.role-student #studentContent .dm-device .dm-banner{
+ padding:8px!important;
+}
+body.role-student #studentContent .dm-device .dm-brand-row h2{
+ font-size:clamp(20px,5vw,27px)!important;
+}
+body.role-student #studentContent .dm-device .dm-brand-row p{
+ font-size:10px!important;
+}
+body.role-student #studentContent .dm-device .dm-mark{
+ width:35px!important;height:35px!important;flex-basis:35px!important;
+ font-size:23px!important;
+}
+body.role-student #studentContent .dm-device-center{
+ padding:8px!important;
+}
+body.role-student #studentContent .dm-device-center h3{
+ margin:4px 0!important;font-size:clamp(19px,5vw,25px)!important;
+ line-height:1.15!important;overflow-wrap:anywhere!important;
+}
+body.role-student #studentContent .dm-device-center p{
+ font-size:11px!important;line-height:1.3!important;
+}
+body.role-student #studentContent .dm-hand-head{
+ margin:3px 10px 5px!important;font-size:11px!important;
+}
+body.role-student #studentContent .dm-hand{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ justify-items:stretch!important;align-items:start!important;
+ gap:6px!important;margin:0 7px!important;padding:8px!important;
+ border-bottom-width:4px!important;border-radius:12px!important;
+}
+body.role-student #studentContent .dm-hand-item{
+ width:100%!important;min-width:0!important;gap:5px!important;
+ padding:6px 3px!important;
+}
+body.role-student #studentContent .dm-hand-item .dm-tile{
+ width:min(95px,100%)!important;max-width:100%!important;
+}
+body.role-student #studentContent .dm-pick-actions{
+ width:100%!important;gap:4px!important;
+}
+body.role-student #studentContent .dm-pick-actions button{
+ min-width:0!important;min-height:44px!important;
+ padding:5px 2px!important;border-radius:8px!important;
+ font-size:10px!important;touch-action:manipulation!important;
+}
+body.role-student #studentContent .dm-device-controls{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:7px!important;margin:9px!important;
+}
+body.role-student #studentContent .dm-device-controls button{
+ min-width:0!important;min-height:48px!important;
+ padding:8px!important;font-size:12px!important;touch-action:manipulation!important;
+}
+body.role-student #studentContent .dm-device-controls>span{
+ grid-column:1/-1;text-align:center;
+}
+body.role-student #studentContent .dm-device-help{
+ margin:0 9px!important;font-size:11px!important;line-height:1.3!important;
+}
+body.role-student #studentContent .cc-hand-button:focus-visible,
+body.role-student #studentContent .cc-device-actions button:focus-visible,
+body.role-student #studentContent .dm-pick-actions button:focus-visible,
+body.role-student #studentContent .dm-device-controls button:focus-visible,
+body.role-student #studentContent .million-student-choice:focus-visible,
+body.role-student #studentContent .million-student-actions button:focus-visible{
+ outline:3px solid #ffe2a0!important;outline-offset:2px!important;
+}
+@media(min-width:410px){
+ body.role-student #studentContent .dm-hand{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ }
+}
+@media(max-width:560px){
+ body.role-student #qpPublicOverlay{padding:0!important}
+ body.role-student #qpPublicOverlay .qp-voter{
+  flex-basis:100%!important;width:100%!important;max-width:none!important;
+  max-height:100dvh!important;min-height:100dvh!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important;
+ }
+}
+@media(max-height:660px){
+ body.role-student #studentContent .cc-scene-mobile{height:55px!important}
+ body.role-student #studentContent .cc-device.cc-cinematic{gap:5px!important}
+ body.role-student #studentContent .dm-device-center{padding:6px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ body.role-student #studentContent .cc-hand-button{transition:none!important}
+}
