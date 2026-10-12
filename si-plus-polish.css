@@ -425,3 +425,109 @@
  #teacher #presentationBuilderPanel .si-org-header{padding:13px}
  #teacher #presentationBuilderPanel .si-org-header h3{font-size:20px}
 }
+
+
+/* Teacher-only SI+ slide preview. Projector and student screens remain unchanged. */
+body.sipreview-open{overflow:hidden!important}
+#teacher #presentationBuilderPanel #siPlusPreviewBtn{
+ border-color:#a7efd9!important;background:linear-gradient(145deg,#1b7e79,#12505c)!important;
+ color:#f5fffa!important;
+}
+.sipreview-overlay{
+ position:fixed;inset:0;z-index:110000;display:grid;place-items:center;
+ padding:clamp(6px,1.2vw,18px);box-sizing:border-box;
+ background:rgba(2,8,21,.94);color:#eaf7ff;font-family:system-ui,sans-serif;
+}
+.sipreview-dialog{
+ display:flex;flex-direction:column;min-width:0;
+ width:100%;height:100%;max-width:1800px;max-height:1100px;
+ border:1px solid #508cae;border-radius:16px;overflow:hidden;
+ background:linear-gradient(160deg,#102942,#071523);
+ box-shadow:0 20px 85px #000b,inset 0 1px #b5edff24;
+}
+.sipreview-header{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ padding:12px clamp(12px,1.6vw,22px);flex:0 0 auto;
+ border-bottom:1px solid #396984;background:linear-gradient(130deg,#16405b,#0a213b);
+}
+.sipreview-heading{min-width:0}
+.sipreview-eyebrow{color:#9ce8ee;letter-spacing:.12em;font:900 10px/1.2 system-ui}
+.sipreview-heading h2{margin:4px 0 2px;font:900 clamp(16px,1.7vw,23px)/1.2 system-ui;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sipreview-heading p{margin:0;font:700 11px/1.4 system-ui;color:#b3d9e6}
+.sipreview-overlay button{
+ min-height:44px;padding:8px 13px;border:1px solid #5f9abb;border-radius:10px;
+ background:linear-gradient(145deg,#1b506b,#0b2c46);
+ color:#f4faff;font:850 12px/1.2 system-ui;cursor:pointer;
+}
+.sipreview-overlay button:focus-visible{outline:3px solid #ffe9ae;outline-offset:2px}
+.sipreview-overlay button:disabled{opacity:.35;cursor:not-allowed}
+.sipreview-close{flex:0 0 auto}
+.sipreview-viewport{
+ flex:1 1 auto;min-height:0;min-width:0;display:flex;align-items:center;
+ justify-content:center;overflow:hidden;padding:clamp(6px,1.3vw,18px);
+ background:radial-gradient(ellipse at center,#15283c,#06101f 75%);
+}
+.sipreview-stage{
+ position:relative;flex:0 1 auto;aspect-ratio:16/9;
+ width:min(100%,calc((100dvh - 190px)*16/9));
+ max-height:100%;overflow:hidden;box-sizing:border-box;
+ background:#07152a;box-shadow:0 9px 35px #000b,0 0 0 1px #4b7894;
+}
+.sipreview-stage>.si-plus-slide-stage{
+ width:100%!important;height:100%!important;aspect-ratio:16/9!important;
+ margin:0!important;overflow:hidden!important;display:flex!important;
+ align-items:stretch!important;justify-content:center!important;
+ box-sizing:border-box!important;background:#07152a!important;
+ animation:none!important;transform:none!important;transition:none!important;
+}
+.sipreview-stage .si-plus-viewport-image{
+ width:100%;height:100%;min-width:0;min-height:0;
+ display:flex;align-items:center;justify-content:center;overflow:hidden;
+ background:#07152a;
+}
+.sipreview-stage .si-plus-viewport-image>img{
+ width:100%;height:100%;max-width:100%;max-height:100%;
+ object-fit:contain!important;object-position:center;display:block;
+ border:0!important;border-radius:0!important;margin:0!important;
+}
+.sipreview-stage .si-plus-slide-stage>.presentation-public{
+ box-sizing:border-box!important;width:100%!important;height:100%!important;
+ max-width:none!important;min-width:0!important;min-height:0!important;
+ margin:0!important;padding:clamp(10px,2vw,28px)!important;
+ overflow:auto!important;
+}
+.sipreview-stage .presentation-public h3{
+ font-size:clamp(17px,3vw,50px)!important;line-height:1.2!important;
+}
+.sipreview-stage .presentation-public>p{font-size:clamp(11px,1.8vw,23px)!important}
+.sipreview-stage .presentation-media-stack{max-width:100%;margin:8px auto!important}
+.sipreview-stage .presentation-media-stack>img{
+ display:block;max-width:100%;max-height:38vh;object-fit:contain;margin:auto;
+}
+.sipreview-stage .public-answer-list{gap:clamp(3px,.7vw,9px);margin-top:clamp(4px,.9vw,12px)}
+.sipreview-stage .public-answer{min-height:0;padding:clamp(3px,.7vw,10px)}
+.sipreview-stage .si-plus-video-unit{min-width:0;max-width:min(100%,950px);margin:auto}
+.sipreview-stage .si-plus-video-frame{position:relative;aspect-ratio:16/9;overflow:hidden;width:100%;max-height:48vh}
+.sipreview-stage .si-plus-video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.sipreview-toolbar{
+ flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:clamp(9px,2vw,25px);
+ padding:10px 15px;border-top:1px solid #375c7c;background:#0d283d;
+}
+.sipreview-toolbar button{min-width:115px}
+.sipreview-details{min-width:95px;max-width:35vw;display:grid;gap:2px;text-align:center}
+.sipreview-count{font:950 13px/1.3 system-ui;color:#d8ffff}
+.sipreview-slide-label{font:700 11px/1.3 system-ui;color:#b3d4e5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sipreview-tip{flex:0 0 auto;padding:0 8px 9px;text-align:center;font:650 10px/1.25 system-ui;color:#91b6cc;background:#0d283d}
+@media(max-width:620px){
+ .sipreview-heading p{display:none}
+ .sipreview-header{padding:8px 10px}
+ .sipreview-dialog{border-radius:9px}
+ .sipreview-overlay{padding:4px}
+ .sipreview-viewport{padding:6px}
+ .sipreview-stage{width:min(100%,calc((100dvh - 164px)*16/9))}
+ .sipreview-toolbar{gap:7px;padding:8px}
+ .sipreview-toolbar button{min-width:95px;padding:8px 6px}
+ .sipreview-details{min-width:65px}
+ .sipreview-tip{padding-bottom:5px}
+ .sipreview-stage .answer-copy{font-size:clamp(10px,2.4vw,16px)}
+}
