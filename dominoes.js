@@ -6,7 +6,7 @@
 "use strict";
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const DOTS={0:[],1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
-let selectedNames=[],teacherIncluded=false,revealHands=false,selectedTile="",doubleVertical=true;
+let selectedNames=[],teacherIncluded=false,revealHands=false,selectedTile="",doubleVertical=false;
 const escID=x=>esc(x);
 function makeBag(){const tiles=[];for(let a=0;a<=6;a++)for(let b=a;b<=6;b++)tiles.push({id:"d-"+a+"-"+b,a,b});for(let i=tiles.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[tiles[i],tiles[j]]=[tiles[j],tiles[i]]}return tiles}
 function pips(t){return Number(t?.a||0)+Number(t?.b||0)}
@@ -31,7 +31,7 @@ function winner(g,who,blocked=false){
  g.scores[who]=(g.scores[who]||0)+other;g.message=who+" wins "+(blocked?"the blocked round":"the round")+"! +"+other+" pips.";
 }
 function checkBlocked(g){if(g.consecutivePasses<g.players.length||g.bag.length)return false;let scores=g.players.map(name=>({name,p:(g.hands[name]||[]).reduce((s,t)=>s+pips(t),0)}));scores.sort((a,b)=>a.p-b.p);winner(g,scores[0].name,true);return true}
-function apply(g,name,type,id="",side="right",vertical=true){
+function apply(g,name,type,id="",side="right",vertical=false){
  if(!g||g.status!=="playing"||active(g)!==name)return {error:"It is not this player's turn."};
  const hand=g.hands[name];if(!Array.isArray(hand))return {error:"No hand assigned."};
  if(type==="play"){
@@ -42,7 +42,7 @@ function apply(g,name,type,id="",side="right",vertical=true){
   const face=!g.chain.length?{left:t.a,right:t.b}:
     left?(t.a===match?{left:t.b,right:t.a}:{left:t.a,right:t.b}):
     (t.a===match?{left:t.a,right:t.b}:{left:t.b,right:t.a});
-  hand.splice(k,1);const placed={id:t.id,a:t.a,b:t.b,...face,vertical:t.a===t.b?vertical!==false:false};
+  hand.splice(k,1);const placed={id:t.id,a:t.a,b:t.b,...face,vertical:t.a===t.b?vertical===true:false};
   if(left)g.chain.unshift(placed);else g.chain.push(placed);
   g.consecutivePasses=0;g.lastPlay={tileId:t.id,player:name,side,at:Date.now()};g.lastAction={kind:"play",at:Date.now(),player:name};
   g.message=name+" placed "+t.a+" · "+t.b+(first?" to start the chain.":" on the "+(left?"left":"right")+" end.");
@@ -167,7 +167,7 @@ function studentSend(kind,id="",side="right",vertical=true){
  }
  const r=apply(run.dominoes,name,kind,id,side,vertical);if(r.error)toast(r.error);else render()
 }
-function studentWire(){document.querySelectorAll("[data-dm-rotate]").forEach(b=>b.onclick=()=>{const item=b.closest(".dm-hand-item");item?.classList.toggle("dm-double-horizontal");b.textContent=item?.classList.contains("dm-double-horizontal")?"⟳ HORIZONTAL":"⟳ VERTICAL"});document.querySelectorAll("[data-dm-play]").forEach(b=>b.onclick=()=>studentSend("play",b.dataset.dmPlay,b.dataset.dmSide,!b.closest(".dm-double-horizontal")));const draw=document.querySelector("#dmDraw"),pass=document.querySelector("#dmPass");if(draw)draw.onclick=()=>studentSend("draw");if(pass)pass.onclick=()=>studentSend("pass")}
-function reset(){selectedTile="";revealHands=false;doubleVertical=true}
+function studentWire(){document.querySelectorAll("[data-dm-rotate]").forEach(b=>b.onclick=()=>{const item=b.closest(".dm-hand-item");item?.classList.toggle("dm-double-vertical");b.textContent=item?.classList.contains("dm-double-vertical")?"⟳ VERTICAL":"⟳ HORIZONTAL"});document.querySelectorAll("[data-dm-play]").forEach(b=>b.onclick=()=>studentSend("play",b.dataset.dmPlay,b.dataset.dmSide,!!b.closest(".dm-double-vertical")));const draw=document.querySelector("#dmDraw"),pass=document.querySelector("#dmPass");if(draw)draw.onclick=()=>studentSend("draw");if(pass)pass.onclick=()=>studentSend("pass")}
+function reset(){selectedTile="";revealHands=false;doubleVertical=false}
 return {make,makeBag,pips,active,ends,canPlay,playable,apply,winner,snapshot,tileHTML,tableHTML,studentHTML,teacherHTML,setupHTML,setupWire,teacherWire,studentWire,reset,saveGame,library,LIB};
 });
