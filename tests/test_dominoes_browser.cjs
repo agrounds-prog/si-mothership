@@ -38,7 +38,9 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.ok(await page.locator("#sharedContent .dm-chain").count());
   const first=await page.locator("#activityControllerPanel [data-dm-select]").first().getAttribute("data-dm-select");
   await page.locator('#activityControllerPanel [data-dm-select="'+first+'"]').click();
-  await page.locator('#activityControllerPanel [data-dm-teacher="right"]').click();
+  assert.equal(await page.locator('#activityControllerPanel [data-dm-teacher="right"]').count(),0);
+  assert.equal(await page.locator('#activityControllerPanel [data-dm-teacher="left"]').count(),0);
+  await page.locator('#activityControllerPanel [data-dm-teacher="first"]').click();
   const played=await page.evaluate(()=>{
    const g=state.activityRun.dominoes;
    return {size:g.chain.length,turn:g.turn,last:g.lastPlay?.tileId,shared:document.querySelector("#sharedContent .dm-chain")?.textContent.length,
