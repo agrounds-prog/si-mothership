@@ -6,7 +6,7 @@
 "use strict";
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const DOTS={0:[],1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
-let selectedNames=[],teacherIncluded=false,revealHands=false,selectedTile="";
+let selectedNames=[],teacherIncluded=false,revealHands=false,selectedTile="",doubleVertical=true;
 const escID=x=>esc(x);
 function makeBag(){const tiles=[];for(let a=0;a<=6;a++)for(let b=a;b<=6;b++)tiles.push({id:"d-"+a+"-"+b,a,b});for(let i=tiles.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[tiles[i],tiles[j]]=[tiles[j],tiles[i]]}return tiles}
 function pips(t){return Number(t?.a||0)+Number(t?.b||0)}
@@ -31,21 +31,21 @@ function winner(g,who,blocked=false){
  g.scores[who]=(g.scores[who]||0)+other;g.message=who+" wins "+(blocked?"the blocked round":"the round")+"! +"+other+" pips.";
 }
 function checkBlocked(g){if(g.consecutivePasses<g.players.length||g.bag.length)return false;let scores=g.players.map(name=>({name,p:(g.hands[name]||[]).reduce((s,t)=>s+pips(t),0)}));scores.sort((a,b)=>a.p-b.p);winner(g,scores[0].name,true);return true}
-function apply(g,name,type,id="",side="right"){
+function apply(g,name,type,id="",side="right",vertical=true){
  if(!g||g.status!=="playing"||active(g)!==name)return {error:"It is not this player's turn."};
  const hand=g.hands[name];if(!Array.isArray(hand))return {error:"No hand assigned."};
  if(type==="play"){
   const k=hand.findIndex(t=>t.id===id);if(k<0)return {error:"That tile is not in the active player's hand."};
-  const t=hand[k];if(!["left","right"].includes(side))return {error:"Select the left or right end."};
+  const t=hand[k],first=!g.chain.length;if(!["left","right","first"].includes(side)||(!first&&side==="first"))return {error:"Select the left or right end."};
   if(!canPlay(g,name,t,side))return {error:"The tile must match the open number at that end."};
-  const e=ends(g),left=side==="left",match=left?e.left:e.right;
+  const e=ends(g),left=side==="left"&&!first,match=left?e.left:e.right;
   const face=!g.chain.length?{left:t.a,right:t.b}:
     left?(t.a===match?{left:t.b,right:t.a}:{left:t.a,right:t.b}):
     (t.a===match?{left:t.a,right:t.b}:{left:t.b,right:t.a});
-  hand.splice(k,1);const placed={id:t.id,a:t.a,b:t.b,...face};
+  hand.splice(k,1);const placed={id:t.id,a:t.a,b:t.b,...face,vertical:t.a===t.b?vertical!==false:false};
   if(left)g.chain.unshift(placed);else g.chain.push(placed);
   g.consecutivePasses=0;g.lastPlay={tileId:t.id,player:name,side,at:Date.now()};g.lastAction={kind:"play",at:Date.now(),player:name};
-  g.message=name+" placed "+t.a+" · "+t.b+" on the "+(left?"left":"right")+" end.";
+  g.message=name+" placed "+t.a+" · "+t.b+(first?" to start the chain.":" on the "+(left?"left":"right")+" end.");
   if(!hand.length)winner(g,name);else advance(g);
   return {ok:true,played:placed};
  }
@@ -82,7 +82,7 @@ function row(g,n,i,shared=true){const mine=active(g)===n&&g.status==="playing";r
 function banner(g,context="shared"){return '<div class="dm-banner"><span class="dm-kicker">SI MOTHERSHIP · COSMIC TABLETOP</span><div class="dm-brand-row"><div class="dm-mark">⚁</div><div><h2>DOMINOES</h2><p>DRAW · MATCH · CONNECT</p></div></div></div>'}
 function chainHTML(g,large=false){
  const left=ends(g).left,right=ends(g).right;
- return '<div class="dm-board-shell"><div class="dm-chain-head"><span class="dm-end-chip">◂ LEFT <b>'+(left===null?"—":left)+'</b></span><span>CONNECTED DOMINO CHAIN · '+g.chain.length+' PLAYED</span><span class="dm-end-chip">RIGHT ▸ <b>'+(right===null?"—":right)+'</b></span></div><div class="dm-chain '+(g.chain.length?"filled":"empty")+'">'+(g.chain.length?g.chain.map(t=>'<span class="dm-played-tile">'+tileHTML(t,{newest:g.lastPlay?.tileId===t.id})+'</span>').join(""):'<div class="dm-first"><b>PLACE THE FIRST DOMINO</b><span>Match the open number at either end to continue the chain.</span></div>')+'</div></div>'
+ return '<div class="dm-board-shell"><div class="dm-chain-head"><span class="dm-end-chip">◂ LEFT <b>'+(left===null?"—":left)+'</b></span><span>CONNECTED DOMINO CHAIN · '+g.chain.length+' PLAYED</span><span class="dm-end-chip">RIGHT ▸ <b>'+(right===null?"—":right)+'</b></span></div><div class="dm-chain '+(g.chain.length?"filled":"empty")+'">'+(g.chain.length?g.chain.map(t=>'<span class="dm-played-tile">'+tileHTML(t,{newest:g.lastPlay?.tileId===t.id})+'</span>').join(""):'<div class="dm-first"><b>PLACE THE FIRST DOMINO</b><span>Choose any domino to start. No left/right selection needed.</span></div>')+'</div></div>'
 }
 function tableHTML(g,big=false){const live=g.status==="playing";const players=g.players||[],current=active(g);return '<div class="dm-public '+(big?"dm-big":"dm-preview")+'">'+scene()+banner(g)+'<div class="dm-public-body">'+
  '<div class="dm-table-main"><div class="dm-turn-banner">'+(live?'<span>◉ CURRENT TURN</span><strong>'+esc(current)+'</strong>':'<span>✦ ROUND COMPLETE</span><strong>'+esc(g.winner||"Complete")+' WINS!</strong>')+'</div>'+chainHTML(g,big)+'<div class="dm-transmission"><span>◉ TRANSMISSION</span><p>'+esc(g.message)+'</p></div></div>'+
