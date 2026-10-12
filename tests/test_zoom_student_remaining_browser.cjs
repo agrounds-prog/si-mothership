@@ -73,6 +73,11 @@ const minefieldFixture=(cols=8)=>{
    assert.equal(word.footer,"none");
    await page.evaluate(html=>{
     const root=document.querySelector("#studentContent");root.innerHTML=html;
+    // The real Minefield response uses the separate footer to confirm a square.
+    // Emulate that control so the unjoined fixture does not hide an empty footer.
+    const footer=document.querySelector(".student-control-zone");
+    footer.dataset.app="minefield";
+    document.querySelector("#studentControls").innerHTML='<button id="si-mf-test-confirm" type="button">Confirm sector</button>';
     window.__siMinefieldSelections=0;
     root.querySelectorAll("[data-mf-cell]").forEach(b=>b.addEventListener("click",()=>window.__siMinefieldSelections++));
    },minefieldFixture(8));
