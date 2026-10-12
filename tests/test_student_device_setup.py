@@ -1,0 +1,54 @@
+"""Regress the Windows student shortcut installer without executing Windows code."""
+import asyncio
+import unittest
+from pathlib import Path
+
+from aiohttp.test_utils import TestClient, TestServer
+import server
+
+
+class StudentDeviceSetupTests(unittest.IsolatedAsyncioTestCase):
+    async def asyncSetUp(self):
+        self.client = TestClient(TestServer(server.create_app()))
+        await self.client.start_server()
+
+    async def asyncTearDown(self):
+        await self.client.close()
+
+    async def test_windows_shortcut_is_downloadable_and_contains_only_public_student_entry(self):
+        response = await self.client.get("/student-device-setup.cmd")
+        self.assertEqual(response.status, 200)
+        self.assertIn("application/octet-stream", response.headers["Content-Type"])
+        self.assertIn("attachment;", response.headers["Content-Disposition"])
+        self.assertIn("SI-Mothership-Student-Setup.cmd", response.headers["Content-Disposition"])
+        self.assertEqual(response.headers["X-Content-Type-Options"], "nosniff")
+        data = (await response.read()).decode("utf-8")
+        self.assertIn("--app=https://mothership-web-production.up.railway.app/?role=student", data)
+        self.assertIn("--window-size=440,830", data)
+        self.assertIn("SI Mothership Student.lnk", data)
+        self.assertIn("CreateShortcut", data)
+        self.assertIn("Start-Process", data)
+        self.assertIn("Google\\Chrome", data)
+        self.assertIn("Microsoft\\Edge", data)
+        self.assertIn("SI-Mothership-Student", data)
+        self.assertNotIn("role=teacher", data)
+        self.assertNotIn("--start-maximized", data)
+        self.assertNotIn("ExecutionPolicy Bypass", data)
+        self.assertNotIn("http://", data)
+        self.assertNotIn("studentToken", data)
+        self.assertNotIn("sid=", data)
+        self.assertNotIn("code=", data)
+
+    async def test_teacher_sees_download_but_student_has_no_second_choice(self):
+        teacher = await self.client.get("/?role=teacher")
+        self.assertEqual(teacher.status, 200)
+        t = await teacher.text()
+        self.assertIn('id="copyCode"', t)
+        self.assertIn('class="si-student-setup-link" href="/student-device-setup.cmd"', t)
+        student = await self.client.get("/?role=student")
+        self.assertEqual(student.status, 200)
+        s = await student.text()
+        # The teacher toolbar is in the common HTML but hidden in student mode.
+        self.assertIn('id="teacher" class="view', s)
+        self.assertIn('id="student" class="view"', s)
+        self.assertEqual((await self.client.get("/api/health")).status, 200)

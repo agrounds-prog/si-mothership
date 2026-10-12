@@ -4967,6 +4967,21 @@ async def index(request: web.Request) -> web.Response:
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
 
+async def student_device_setup(request: web.Request) -> web.Response:
+    """One-time Windows shortcut installer for the separate student app window.
+
+    Does not embed classroom credentials, session IDs, or private roster data.
+    Installer creates a normal Desktop .lnk to the public student join page.
+    """
+    path = ROOT / "student-device-setup.cmd"
+    return web.FileResponse(path, headers={
+        "Content-Type": "application/octet-stream",
+        "Content-Disposition": 'attachment; filename="SI-Mothership-Student-Setup.cmd"',
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "X-Content-Type-Options": "nosniff",
+    })
+
+
 async def scientific_calculator(request: web.Request) -> web.Response:
     """Serve the SI Scientific Calculator with the classroom-modeling visual skin."""
     if not CALCULATOR_INDEX_GZ.exists():
@@ -6079,6 +6094,7 @@ def create_app() -> web.Application:
     app["quick_poll"] = quick_poll
     app.router.add_get("/", index)
     app.router.add_get("/index.html", index)
+    app.router.add_get("/student-device-setup.cmd", student_device_setup)
     app.router.add_get("/million-studio.js", lambda request: web.FileResponse(Path(__file__).with_name("million-studio.js"), headers={"Cache-Control": "no-store"}))
     app.router.add_get("/million-studio.css", lambda request: web.FileResponse(Path(__file__).with_name("million-studio.css"), headers={"Cache-Control": "no-store"}))
     app.router.add_get("/word-grid.js", lambda request: web.FileResponse(ROOT / "word-grid.js", headers={"Cache-Control": "no-store"}))

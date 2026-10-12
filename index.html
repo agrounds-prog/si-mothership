@@ -14754,12 +14754,23 @@ body.role-student .minefield-cell.simple.revealed.empty::after{
 @media(max-width:820px){#teacher .bingo-studio-main .bingo-slot-editor{grid-template-columns:minmax(0,1fr)}#teacher .bingo-studio-main .bingo-slot-picker{grid-column:1;grid-row:3}#teacher .bingo-studio-main .bingo-bulk-panel{grid-column:1;grid-row:4}#teacher .bingo-studio-main .bingo-slot-fields:not(.hidden){grid-column:1;grid-row:5}}
 @media(max-width:540px){#teacher .bingo-studio-logo{width:45px;height:45px;flex-basis:45px;font-size:29px}#teacher .bingo-studio-status{width:100%}#teacher .bingo-studio-main .bingo-slot-editor{padding:10px!important}#teacher .bingo-studio-main .bingo-bulk-panel{padding:10px!important}}
 @media(prefers-reduced-motion:reduce){#teacher .bingo-studio-main .bingo-slot-tile,#teacher .bingo-studio-main .bingo-bulk-presets button{transition:none}}
+.si-student-setup-link{
+ display:inline-flex;align-items:center;justify-content:center;
+ min-height:30px;padding:5px 10px;border:1px solid #408b9c;
+ background:linear-gradient(130deg,#164452,#102737);
+ color:#c4f9f7!important;text-decoration:none!important;
+ border-radius:9px;font:850 11px/1 system-ui,sans-serif;
+ white-space:nowrap;letter-spacing:.01em;
+}
+.si-student-setup-link:hover{border-color:#9cefe6;filter:brightness(1.15)}
+.si-student-setup-link:focus-visible{outline:3px solid #ffdf8a;outline-offset:2px}
+@media(max-width:900px){.si-student-setup-link{font-size:10px;padding:5px 7px}}
 </style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
 
-<header class="topbar v56-topbar v566-topbar"><div class="brand"><span class="brand-mark v566-brand-mark"><span class="v562-art v562-app-si-plus" aria-hidden="true"></span></span><span class="brand-copy"><b>SI Mothership</b><small>MISSION CONTROL</small></span></div><div class="session-pill v566-live-pill"><span class="pulse"></span><span><small>STATUS</small><b>Classroom LIVE</b></span></div><div class="top-actions"><span class="class-context"><small>CLASS</small><b>Explorers · Period 2</b></span><div class="class-code"><small>JOIN CODE</small><strong>7K3M</strong><button class="copy-code" id="copyCode" title="Copy join code">⧉</button></div><button class="outline v566-reset" id="resetBtn"><span>↺</span><b>Reset Session</b></button></div></header>
+<header class="topbar v56-topbar v566-topbar"><div class="brand"><span class="brand-mark v566-brand-mark"><span class="v562-art v562-app-si-plus" aria-hidden="true"></span></span><span class="brand-copy"><b>SI Mothership</b><small>MISSION CONTROL</small></span></div><div class="session-pill v566-live-pill"><span class="pulse"></span><span><small>STATUS</small><b>Classroom LIVE</b></span></div><div class="top-actions"><span class="class-context"><small>CLASS</small><b>Explorers · Period 2</b></span><div class="class-code"><small>JOIN CODE</small><strong>7K3M</strong><button class="copy-code" id="copyCode" title="Copy join code">⧉</button><a class="si-student-setup-link" href="/student-device-setup.cmd" download="SI-Mothership-Student-Setup.cmd" title="Download the Windows student desktop app shortcut setup">↓ Student App</a></div><button class="outline v566-reset" id="resetBtn"><span>↺</span><b>Reset Session</b></button></div></header>
 
 <section id="teacher" class="view active"><div class="workspace"><div class="mission-grid">
 
