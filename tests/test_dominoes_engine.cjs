@@ -61,4 +61,15 @@ run("setup includes Cosmic Cards-style connected student seats, teacher option a
  assert.match(html,/data-dm-teacher-seat/);assert.match(html,/id="dmStart"/);
  assert.equal(typeof D.setupWire,"function");assert.equal(typeof D.teacherWire,"function");
 });
+run("opening controls show one place action and doubles can rotate",()=>{
+ const g=D.make(["A","B"]);g.hands.A=[{id:"five",a:5,b:5},{id:"two",a:1,b:2}];
+ const html=D.studentHTML(g,{n:"A"});
+ assert.match(html,/data-dm-side="first"/);
+ assert.doesNotMatch(html,/data-dm-side="left"/);
+ assert.match(html,/data-dm-rotate="five"/);
+ assert.equal(D.apply(g,"A","play","five","first",true).ok,true);
+ assert.equal(g.chain[0].vertical,true);
+ assert.deepEqual(D.ends(g),{left:5,right:5});
+ assert.match(D.tableHTML(g,true),/double vertical/);
+});
 console.log("DOMINOES ENGINE REGRESSION COMPLETE");
