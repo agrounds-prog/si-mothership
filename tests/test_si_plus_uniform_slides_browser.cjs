@@ -61,10 +61,20 @@ const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
        imageBox:imgBox?{w:imgBox.width,h:imgBox.height}:null,
        objectFit:image?getComputedStyle(image).objectFit:null,
        overflowX:root.scrollWidth>root.clientWidth+3,
-       slideType:state.activities.find(a=>a.id===state.activityRun.activityId).slides[state.activityRun.slideIndex].type
+       slideType:state.activities.find(a=>a.id===state.activityRun.activityId).slides[state.activityRun.slideIndex].type,
+       chrome:{sidebar:getComputedStyle(document.querySelector('#shared .mirror-top')).display,
+         footer:getComputedStyle(document.querySelector('#shared .mirror-footer')).display,
+         join:getComputedStyle(document.querySelector('#shared'),'::after').content,
+         joinDisplay:getComputedStyle(document.querySelector('#shared'),'::after').display,
+         rootWidth:root.getBoundingClientRect().width}
       };
     });
     assert.equal(info.visible,true);
+    assert.equal(info.chrome.sidebar,'none','SI+ slides should hide shared-screen left navigation sidebar');
+    assert.equal(info.chrome.footer,'none','SI+ slides should hide shared-screen footer');
+    assert.ok(info.chrome.join==='none'||info.chrome.joinDisplay==='none',
+      'SI+ slides should hide floating Join code');
+    assert.ok(Math.abs(info.chrome.rootWidth-width)<3,'presentation content must span viewport');
     assert.ok(info.stage.w>0&&info.stage.h>0,'stage must be visible');
     assert.ok(Math.abs(info.stage.w/info.stage.h-16/9)<.015,'slide stage must remain 16:9');
     assert.ok(Math.abs(info.stage.w-Math.min(width,height*16/9))<3,
@@ -85,6 +95,11 @@ const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
      'ALL image, poll, question and instruction slides must occupy equal-size stages');
    screenshots.push({width,height,stage:first,slides:dims.length});
   }
+  const otherActivityChrome=await page.evaluate(()=>{
+    state.activityRun=null;state.screen='classroom';renderPublic();
+    return getComputedStyle(document.querySelector('#shared .mirror-top')).display;
+  });
+  assert.notEqual(otherActivityChrome,'none','only SI+ slide playback removes the shared-screen sidebar');
   assert.deepEqual(errors,[],'no page runtime errors');
   console.log('SI+ UNIFORM SLIDE STAGE PASSED',JSON.stringify({screenshots,names,errors}));
  }finally{await browser.close()}
