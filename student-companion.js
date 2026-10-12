@@ -37,6 +37,15 @@
    });
    document.body.appendChild(handoff);
    document.body.classList.add("si-student-window-handed-off");
+   // Some browsers keep the original tab backgrounded and never emit its
+   // focus event when the popup closes. Restore the original login promptly
+   // regardless, so students are never stranded on the handoff screen.
+   const closedCheck=setInterval(()=>{
+     if(!deviceLaunched || !activeWindow || activeWindow.closed){
+       clearInterval(closedCheck);
+       if(deviceLaunched)endHandoff();
+     }
+   },500);
  }
  window.addEventListener("focus",()=>{
    if(deviceLaunched && activeWindow?.closed)endHandoff();
