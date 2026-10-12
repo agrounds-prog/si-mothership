@@ -1,7 +1,7 @@
 """Regress the Windows student shortcut installer without executing Windows code."""
-import asyncio
 import unittest
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from aiohttp.test_utils import TestClient, TestServer
 import server
@@ -9,11 +9,17 @@ import server
 
 class StudentDeviceSetupTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
+        self.directory = TemporaryDirectory(prefix="mothership-launcher-test-")
+        self.previous_db_path = server.DB_PATH
+        server.DB_PATH = Path(self.directory.name) / "test.sqlite3"
+        server.init_db()  # The real app initializes the database before startup.
         self.client = TestClient(TestServer(server.create_app()))
         await self.client.start_server()
 
     async def asyncTearDown(self):
         await self.client.close()
+        server.DB_PATH = self.previous_db_path
+        self.directory.cleanup()
 
     async def test_windows_shortcut_is_downloadable_and_contains_only_public_student_entry(self):
         response = await self.client.get("/student-device-setup.cmd")
