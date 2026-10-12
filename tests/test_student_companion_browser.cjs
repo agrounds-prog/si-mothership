@@ -127,6 +127,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await launched.locator(".si-student-popout").count(),0);
   assert.equal(await launched.locator("#siStudentDeviceLauncher").count(),0);
   await launched.close();
+  await student.setViewportSize({width:440,height:760});
   await student.waitForSelector("#studentContent #joinClassBtn",{timeout:5000});
   const confirmation=await student.evaluate(()=>({
     header:document.querySelector("#studentContent .confirm-join-card h2")?.textContent,
