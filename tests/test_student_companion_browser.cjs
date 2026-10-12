@@ -92,6 +92,8 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
 
   await student.setViewportSize({width:440,height:760});
   await avatarSearch.fill(firstAvatarName);
+  // Desktop popups are intentionally not triggered on phone-sized viewports.
+  await student.setViewportSize({width:1380,height:910});
   const defaultWindowPromise=student.waitForEvent("popup",{timeout:10000});
   await avatarSearch.press("Enter");
   const launched=await defaultWindowPromise;
