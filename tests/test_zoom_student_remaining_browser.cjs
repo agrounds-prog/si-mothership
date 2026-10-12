@@ -21,6 +21,7 @@ const minefieldFixture=(cols=8)=>{
   '<div class="minefield-narrator-latest">Choose a hidden square.</div></div>'+
   '<div class="minefield-board minefield-student-board" style="grid-template-columns:22px repeat('+cols+',1fr)">'+header+body+'</div>'+
   '<div class="prompt-caption">Choose a hidden square, then confirm below.</div></div>';
+};
 (async()=>{
  const browser=await chromium.launch({headless:true,args:["--no-sandbox","--disable-dev-shm-usage"]});
  const ctx=await browser.newContext({viewport:{width:440,height:760}});
