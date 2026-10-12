@@ -18690,7 +18690,7 @@ function renderActivities(){
 }
 function openNewPresentation(){
   if(state.activityRun)return toast('Return to Classroom before editing presentations');
-  siPlusBatchImportStatus='';
+  siPlusBatchImportStatus='';siPlusOrganizerReset();
   state.presentationLibraryOpen=false;state.activeApp='si-plus';
   const id=Date.now();
   state.presentationEditor={originalId:null,draft:{id,name:'Untitled Presentation',deckTitle:'Untitled Presentation',icon:'▣',type:'presentation',text:'Interactive presentation',slides:[freshSlide('instruction')],userCreated:true}};
@@ -18698,7 +18698,7 @@ function openNewPresentation(){
 }
 function openEditPresentation(id){
   if(state.activityRun)return toast('Return to Classroom before editing presentations');
-  siPlusBatchImportStatus='';
+  siPlusBatchImportStatus='';siPlusOrganizerReset();
   state.presentationLibraryOpen=false;state.activeApp='si-plus';
   const a=state.activities.find(x=>String(x.id)===String(id));if(!a||a.type!=='presentation')return;
   state.presentationEditor={originalId:a.id,draft:deepClone(a)};state.editorSlide=0;state.screen='activities';render();
@@ -18838,12 +18838,142 @@ async function siPlusImportImageSlides(files){
   }
 }
 
+
+/* SI+ Slide Organizer — changes apply only to the active presentation draft. */
+let siPlusOrganizerOpen=false,siPlusOrganizerDrag=null;
+const siPlusOrganizerSelection=new Set();
+function siPlusOrganizerReset(){siPlusOrganizerOpen=false;siPlusOrganizerSelection.clear()}
+function siPlusOrganizerThumbnail(s,i){
+  const img=s.image||(s.choices||[]).find(c=>c.image)?.image||'';
+  if(img)return `<img src="${esc(img)}" alt="Preview slide ${i+1}" loading="lazy">`;
+  return `<div class="si-org-empty ${esc(s.type||'instruction')}"><span>${s.youtube?'▶':s.type==='question'?'?':s.type==='poll'?'▥':'▤'}</span><b>${s.youtube?'VIDEO':(s.type||'INSTRUCTION').toUpperCase()}</b></div>`;
+}
+function siPlusOrganizerHTML(deck){
+  const slides=deck.slides;
+  return `<section class="si-org" aria-label="Slide Organizer">
+  <header class="si-org-header"><div><span>SLIDE ORGANIZER</span><h3>${slides.length} slides</h3>
+    <p>Drag to reorder, or use Earlier and Later on a touch screen.</p></div>
+    <div class="si-org-bulk">
+      <strong role="status" aria-live="polite">${siPlusOrganizerSelection.size} selected</strong>
+      <button id="siOrgSelectAll" type="button">Select All</button>
+      <button id="siOrgClear" type="button" ${siPlusOrganizerSelection.size?'':'disabled'}>Clear</button>
+      <button id="siOrgDelete" type="button" ${siPlusOrganizerSelection.size===0||siPlusOrganizerSelection.size>=slides.length?'disabled':''}>Delete Selected</button>
+    </div>
+  </header>
+  <div class="si-org-grid">${slides.map((s,i)=>{
+    const title=s.listTitle||s.title||'Slide';
+    const category=s.type==='instruction'&&s.image&&!s.title&&!s.text?'IMAGE':(s.type||'instruction').toUpperCase();
+    return `<article class="si-org-card ${siPlusOrganizerSelection.has(i)?'selected':''} ${i===state.editorSlide?'current':''}" draggable="true" data-org-drag="${i}">
+      <div class="si-org-card-top"><b>SLIDE ${i+1}</b>
+      <label><input type="checkbox" data-org-select="${i}" aria-label="Select slide ${i+1}: ${esc(title)}" ${siPlusOrganizerSelection.has(i)?'checked':''}> Select</label></div>
+      <button type="button" class="si-org-preview" data-org-edit="${i}" aria-label="Edit slide ${i+1}: ${esc(title)}">
+        <div class="si-org-thumb">${siPlusOrganizerThumbnail(s,i)}</div>
+        <strong>${esc(title)}</strong><small>${esc(category)} · Open to edit</small>
+      </button>
+      <div class="si-org-card-actions">
+        <button type="button" data-org-before="${i}" ${i===0?'disabled':''} aria-label="Move slide ${i+1} earlier">← Earlier</button>
+        <button type="button" data-org-after="${i}" ${i===slides.length-1?'disabled':''} aria-label="Move slide ${i+1} later">Later →</button>
+        <button type="button" class="si-org-dup" data-org-copy="${i}">⊕ Duplicate</button>
+      </div>
+    </article>`;
+  }).join('')}</div>
+  <p class="si-org-foot">Slides are only changed in this draft until you choose Save Presentation.</p>
+  </section>`;
+}
+function siPlusOrganizerMove(from,to){
+  const ed=state.presentationEditor;if(!ed||siPlusBatchImportBusy)return;
+  const a=ed.draft.slides;
+  if(!Number.isInteger(from)||!Number.isInteger(to)||from<0||to<0||from>=a.length||to>=a.length||from===to)return;
+  const current=a[state.editorSlide];
+  a.splice(to,0,a.splice(from,1)[0]);
+  state.editorSlide=Math.max(0,a.indexOf(current));
+  siPlusOrganizerSelection.clear();
+  renderPresentationBuilder();
+}
+function siPlusOrganizerCopy(i){
+  const ed=state.presentationEditor;if(!ed||siPlusBatchImportBusy)return;
+  const a=ed.draft.slides;if(!Number.isInteger(i)||i<0||i>=a.length)return;
+  const duplicate=deepClone(a[i]);
+  const elsewhere=state.activities.filter(x=>x.type==='presentation'&&String(x.id)!==String(ed.originalId??ed.draft.id));
+  if(JSON.stringify(elsewhere).length+JSON.stringify(ed.draft).length+JSON.stringify(duplicate).length>20*1024*1024){
+    return toast('Presentation size limit reached. Remove large images before duplicating.');
+  }
+  duplicate.listTitle=(duplicate.listTitle||duplicate.title||'Slide')+' (Copy)';
+  if(duplicate.id)duplicate.id='slide-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7);
+  a.splice(i+1,0,duplicate);state.editorSlide=i+1;
+  siPlusOrganizerSelection.clear();renderPresentationBuilder();toast('Slide duplicated in draft.');
+}
+function siPlusOrganizerDelete(){
+  const ed=state.presentationEditor;if(!ed||siPlusBatchImportBusy)return;
+  const selected=new Set(siPlusOrganizerSelection),a=ed.draft.slides;
+  if(!selected.size)return;
+  if(selected.size>=a.length)return toast('A presentation needs at least one slide.');
+  if(!confirm('Delete '+selected.size+' selected slide'+(selected.size===1?'':'s')+'? Changes are not permanent until you save.'))return;
+  const active=a[state.editorSlide],oldIndex=state.editorSlide;
+  ed.draft.slides=a.filter((x,i)=>!selected.has(i));
+  const preserved=ed.draft.slides.indexOf(active);
+  state.editorSlide=preserved>=0?preserved:Math.min(oldIndex,ed.draft.slides.length-1);
+  siPlusOrganizerSelection.clear();renderPresentationBuilder();
+  toast(selected.size+' slide'+(selected.size===1?'':'s')+' removed from draft.');
+}
+function siPlusOrganizerWire(){
+  const toggle=$('#siOrgToggle');
+  if(toggle)toggle.onclick=()=>{
+    if(siPlusBatchImportBusy)return toast('Finish importing images before organizing.');
+    siPlusOrganizerOpen=!siPlusOrganizerOpen;siPlusOrganizerSelection.clear();
+    renderPresentationBuilder();
+  };
+  if(!siPlusOrganizerOpen)return;
+  const all=$('#siOrgSelectAll');
+  if(all)all.onclick=()=>{
+    siPlusOrganizerSelection.clear();
+    for(let i=0;i<state.presentationEditor.draft.slides.length;i++)siPlusOrganizerSelection.add(i);
+    renderPresentationBuilder();
+  };
+  const clear=$('#siOrgClear');if(clear)clear.onclick=()=>{siPlusOrganizerSelection.clear();renderPresentationBuilder()};
+  const del=$('#siOrgDelete');if(del)del.onclick=siPlusOrganizerDelete;
+  $('[data-org-select]').forEach(b=>b.onchange=e=>{
+    const index=Number(b.dataset.orgSelect);
+    if(e.target.checked)siPlusOrganizerSelection.add(index);
+    else siPlusOrganizerSelection.delete(index);
+    renderPresentationBuilder();
+  });
+  $('[data-org-edit]').forEach(b=>b.onclick=()=>{
+    state.editorSlide=Number(b.dataset.orgEdit);siPlusOrganizerReset();renderPresentationBuilder();
+  });
+  $('[data-org-before]').forEach(b=>b.onclick=()=>siPlusOrganizerMove(Number(b.dataset.orgBefore),Number(b.dataset.orgBefore)-1));
+  $('[data-org-after]').forEach(b=>b.onclick=()=>siPlusOrganizerMove(Number(b.dataset.orgAfter),Number(b.dataset.orgAfter)+1));
+  $('[data-org-copy]').forEach(b=>b.onclick=()=>siPlusOrganizerCopy(Number(b.dataset.orgCopy)));
+  $('[data-org-drag]').forEach(card=>{
+    card.ondragstart=e=>{
+      if(siPlusBatchImportBusy){e.preventDefault();return}
+      siPlusOrganizerDrag=Number(card.dataset.orgDrag);
+      e.dataTransfer.effectAllowed='move';
+      e.dataTransfer.setData('text/plain',String(siPlusOrganizerDrag));
+      card.classList.add('dragging');
+    };
+    card.ondragover=e=>{e.preventDefault();e.dataTransfer.dropEffect='move';card.classList.add('drop-target')};
+    card.ondragleave=e=>{if(!card.contains(e.relatedTarget))card.classList.remove('drop-target')};
+    card.ondrop=e=>{
+      e.preventDefault();
+      const from=siPlusOrganizerDrag;siPlusOrganizerDrag=null;
+      siPlusOrganizerMove(from,Number(card.dataset.orgDrag));
+    };
+    card.ondragend=()=>{
+      siPlusOrganizerDrag=null;
+      $('[data-org-drag]').forEach(x=>x.classList.remove('dragging','drop-target'));
+    };
+  });
+}
+
 function renderPresentationBuilder(){
   const box=$('#presentationBuilderPanel'),ed=state.presentationEditor;if(!box||!ed)return;
   const d=ed.draft,slide=d.slides[state.editorSlide]||d.slides[0];state.editorSlide=Math.max(0,Math.min(state.editorSlide,d.slides.length-1));
+  box.classList.toggle('si-plus-organizing',siPlusOrganizerOpen);
   const choices=slide.choices||[];
   const answerHTML=['A','B','C','D'].map(key=>{const c=choices.find(x=>x.key===key)||{key,text:'',image:''};return `<div class="answer-editor"><button class="answer-dot choice-${key} ${slide.type==='question'&&slide.correct===key?'correct':''}" data-correct="${key}" title="${slide.type==='question'?'Mark correct answer':'Poll option'}">${key}</button><input type="text" data-choice-text="${key}" value="${esc(c.text)}" placeholder="${slide.type==='question'?'Answer':'Option'} ${key}"><div class="answer-image-tools">${c.image?`<img class="choice-thumb" src="${c.image}" alt="Choice ${key}"><button class="remove-media" data-remove-choice-image="${key}">×</button>`:''}<label class="file-label">＋ image<input type="file" accept="image/*" data-choice-image="${key}"></label></div></div>`}).join('');
-  box.innerHTML=`<div class="builder-top"><div class="builder-title-group"><span class="eyebrow">PRESENTATION BUILDER</span><input id="presentationTitleInput" class="builder-title-input" value="${esc(d.deckTitle||d.name)}" aria-label="Presentation title"></div><div class="builder-top-actions"><button id="cancelPresentationEdit">← Library</button><button class="builder-load-btn" id="loadSavedFromBuilder">▣ Load Saved</button><button class="save" id="savePresentationBtn">💾 Save Presentation</button></div></div><div id="siPlusSaveStatus" class="si-plus-save-status" role="status">Saved presentations stay in your Railway library after Reset Session.</div>
+  box.innerHTML=`<div class="builder-top"><div class="builder-title-group"><span class="eyebrow">PRESENTATION BUILDER</span><input id="presentationTitleInput" class="builder-title-input" value="${esc(d.deckTitle||d.name)}" aria-label="Presentation title"></div><div class="builder-top-actions"><button id="cancelPresentationEdit">← Library</button><button type="button" id="siOrgToggle" aria-pressed="${siPlusOrganizerOpen}">${siPlusOrganizerOpen?'← Back to Editor':'▦ Organize Slides'}</button><button class="builder-load-btn" id="loadSavedFromBuilder">▣ Load Saved</button><button class="save" id="savePresentationBtn">💾 Save Presentation</button></div></div><div id="siPlusSaveStatus" class="si-plus-save-status" role="status">Saved presentations stay in your Railway library after Reset Session.</div>
+  ${siPlusOrganizerOpen?siPlusOrganizerHTML(d):''}
   <div class="builder-layout"><div class="builder-box"><h3>Slides (${d.slides.length})</h3><div class="slide-nav">${d.slides.map((s,i)=>`<button class="slide-nav-item ${i===state.editorSlide?'active':''}" data-editor-slide="${i}"><b>${i+1}. ${esc(s.listTitle||s.title||'Slide')}</b><small class="slide-badge ${s.type}">${s.type==='instruction'&&s.image&&!s.title&&!s.text?'IMAGE':s.type.toUpperCase()}</small></button>`).join('')}</div></div>
   <div class="builder-box"><div class="editor-form"><span class="slide-badge ${slide.type}">${slide.type.toUpperCase()}</span><label>Slide List Title<input id="slideListTitle" type="text" value="${esc(slide.listTitle||'')}" placeholder="Example: Warm-Up Question"></label><label>${slide.type==='instruction'?'Slide Title':'Question / Prompt'}<input id="slideTitle" type="text" value="${esc(slide.title||'')}"></label><label>${slide.type==='instruction'?'Text / Prompt':'Supporting text'}<textarea id="slideText">${esc(slide.text||'')}</textarea></label>
   <div class="editor-row"><div class="editor-media"><b style="font-size:10px">Slide Image</b><div style="margin-top:7px"><label class="file-label">＋ Attach Image<input id="slideImageInput" type="file" accept="image/*"></label>${slide.image?' <button class="remove-media" id="removeSlideImage">Remove</button>':''}</div><div class="editor-media-preview">${slide.image?`<img src="${slide.image}" alt="Slide preview"><span>Image attached</span>`:'No image attached'}</div></div><div class="editor-media si-plus-video-editor"><div class="si-plus-video-label"><b>YouTube Video</b><span>Optional · 16:9 widescreen</span></div><input id="slideYoutube" type="url" value="${esc(slide.youtube||'')}" placeholder="Paste a YouTube watch or share link"><div class="si-plus-video-preview" id="siPlusVideoPreview">${siPlusVideoPreview(slide.youtube)}</div></div></div>
@@ -18855,6 +18985,7 @@ function renderPresentationBuilder(){
   <small>Appends slides to this presentation · Up to 100 at a time · Images optimized for saving.</small>
   <p id="siPlusBatchStatus" role="status" aria-live="polite">${esc(siPlusBatchImportStatus)}</p></div>
   <div class="add-slide-grid"><button class="add-instruction" data-add-slide="instruction">▤ Instruction Slide<small>Text, image, or YouTube</small></button><button class="add-question" data-add-slide="question">? Question Slide<small>A/B/C/D + correct answer</small></button><button class="add-poll" data-add-slide="poll">▥ Poll Slide<small>A/B/C/D with no correct answer</small></button></div><p class="builder-note">Saved presentations appear back in the Activity Library and can be assigned to any Favorite button.</p></div></div>`;
+  siPlusOrganizerWire();
   const batchImages=$('#siPlusBatchImages');
   if(batchImages)batchImages.onchange=e=>{
     const files=Array.from(e.target.files||[]);
