@@ -32,6 +32,11 @@ const minefieldFixture=(cols=8)=>{
   await page.waitForFunction(()=>!!window.WordGrid&&!!document.querySelector("#studentContent"),null,{timeout:15000});
   for(const [width,height] of [[440,760],[390,670],[330,610]]){
    await page.setViewportSize({width,height});
+   // Reset synthetic Minefield controls between simulated device sizes.
+   await page.evaluate(()=>{
+     document.querySelector("#studentControls").innerHTML="";
+     document.querySelector(".student-control-zone").dataset.app="home";
+   });
    const match=await page.evaluate(markup=>{
     const root=document.querySelector("#studentContent");
     root.innerHTML=markup;
