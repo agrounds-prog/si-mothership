@@ -35,12 +35,13 @@ jobs:
           node --check student-companion.js
           python -m py_compile server.py
           python scripts/release_gate.py --require-node
-          python -m unittest discover -s tests -p 'test_student_device_setup.py'
       - name: Install browser and app dependencies
         run: |
           pip install -r requirements.txt
           npm install --no-save --ignore-scripts playwright@1.56.1
           npx playwright install --with-deps chromium
+      - name: Windows student shortcut download regression
+        run: python -m unittest discover -s tests -p 'test_student_device_setup.py'
       - name: Run isolated classroom
         run: |
           mkdir -p /tmp/mothership-companion-test
