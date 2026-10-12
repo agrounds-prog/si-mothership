@@ -69,7 +69,8 @@ def apply_dominoes_action(state: dict, run: dict, name: str, req: dict) -> bool:
     if kind == "play":
         tile_id = str(req.get("tileId") or "")
         side = str(req.get("side") or "")
-        if side not in ("left", "right"):
+        first = not g.get("chain")
+        if side not in ("left", "right", "first") or (not first and side == "first"):
             return False
         found = [(i, t) for i, t in enumerate(hand) if isinstance(t, dict) and str(t.get("id") or "") == tile_id]
         if len(found) != 1:
@@ -86,7 +87,10 @@ def apply_dominoes_action(state: dict, run: dict, name: str, req: dict) -> bool:
         else:
             x, y = (a, b) if a == right else (b, a)
         chain = g.setdefault("chain", [])
-        placed = {"id": tile_id, "a": a, "b": b, "left": x, "right": y}
+        vertical = req.get("vertical", True)
+        if type(vertical) is not bool:
+            return False
+        placed = {"id": tile_id, "a": a, "b": b, "left": x, "right": y, "vertical": a == b and vertical}
         if side == "left":
             chain.insert(0, placed)
         else:
@@ -95,7 +99,7 @@ def apply_dominoes_action(state: dict, run: dict, name: str, req: dict) -> bool:
         g["consecutivePasses"] = 0
         g["lastPlay"] = {"tileId": tile_id, "player": name, "side": side}
         g["lastAction"] = {"kind": "play", "player": name}
-        g["message"] = f"{name} placed {a} · {b} on the {side} end."
+        g["message"] = f"{name} placed {a} · {b} {'to start the chain.' if first else 'on the ' + side + ' end.'}"
         if not hand:
             _finish(g, name)
         else:
