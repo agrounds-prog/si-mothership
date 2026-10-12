@@ -119,3 +119,35 @@
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
   else install();
 })();
+
+
+/* Zoom companion v5: student-only Minefield swipe viewport.
+   Work strictly with the existing button nodes so click handlers, sector
+   coordinates, confirmation and server-side gameplay are unchanged. */
+(function(){
+  "use strict";
+  if(new URLSearchParams(location.search).get("role")!=="student")return;
+  function enhance(){
+    const root=document.querySelector("body.role-student #studentContent");
+    const board=root?.querySelector(".minefield-student-board");
+    if(!board||board.closest(".si-mf-scroll"))return;
+    const columns=board.querySelectorAll(".minefield-axis.col").length;
+    if(!columns)return;
+    const viewport=document.createElement("div");
+    viewport.className="si-mf-scroll";
+    viewport.setAttribute("role","region");
+    viewport.setAttribute("aria-label","Minefield map. Swipe horizontally to reach all sectors.");
+    viewport.tabIndex=0;
+    board.parentNode.insertBefore(viewport,board);
+    viewport.appendChild(board);
+    board.style.setProperty("grid-template-columns","22px repeat("+columns+", 44px)","important");
+  }
+  function install(){
+    const root=document.querySelector("body.role-student #studentContent");
+    if(!root)return;
+    new MutationObserver(enhance).observe(root,{childList:true});
+    enhance();
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
+  else install();
+})();
