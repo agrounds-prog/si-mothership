@@ -9,10 +9,18 @@
  const params=new URLSearchParams(location.search);
  const isPopout=window.name===POPOUT_NAME || params.get("compact")==="1";
  function desktopWindow(){return innerWidth>=800 && matchMedia("(pointer:fine)").matches;}
- function openDeviceWindow(button){
+ let deviceLaunched=false;
+ function openDeviceWindow(options={}){
+   if(deviceLaunched || isPopout || !desktopWindow())return null;
+   const {code,avatarKey}=options;
    // Only invoke this from a real user click: browsers prohibit resizing an existing tab.
    const url=new URL(location.href);
    url.searchParams.set("compact","1");
+   if(code)url.searchParams.set("code",code);
+   if(typeof STUDENT_SESSION_ID!=="undefined" && STUDENT_SESSION_ID)
+      url.searchParams.set("sid",STUDENT_SESSION_ID);
+   if(avatarKey)url.searchParams.set("pickAvatar",avatarKey);
+   else url.searchParams.delete("pickAvatar");
    const maxWidth=screen.availWidth||DEVICE_WIDTH;
    const maxHeight=screen.availHeight||DEVICE_HEIGHT;
    const desiredWidth=Math.min(DEVICE_WIDTH,maxWidth);
@@ -22,9 +30,14 @@
    const features="popup=yes,width="+desiredWidth+",height="+desiredHeight
      +",left="+left+",top="+top+",resizable=yes,scrollbars=yes,toolbar=no,menubar=no,status=no";
    const popup=window.open(url.toString(),POPOUT_NAME,features);
-   if(popup){try{popup.focus()}catch(e){};return popup}
-   if(button){button.title="Pop-up blocked. Allow pop-ups for SI Mothership.";}
-   if(typeof toast==="function")toast("Pop-up blocked. Allow pop-ups for Mothership, then click Open Device Window.");
+   if(popup){
+     deviceLaunched=true;
+     try{popup.focus()}catch(e){}
+     return popup;
+   }
+   // If a browser disallows this user-initiated popup, keep the normal
+   // classroom join fully functional instead of showing an extra option.
+   if(typeof toast==="function")toast("Chrome blocked the classroom device window. Allow pop-ups for SI Mothership.");
    return null;
  }
  // Browser chrome takes up part of a popup's outer height. The window is
@@ -44,19 +57,32 @@
      }
    });
  }
- function addSideLauncher(){
-   if(isPopout || document.querySelector("#siStudentDeviceLauncher"))return;
-   const guide=document.createElement("aside");
-   guide.id="siStudentDeviceLauncher";
-   guide.className="si-student-device-launcher";
-   guide.setAttribute("aria-label","Open a classroom device window");
-   guide.innerHTML='<div class="si-device-guide-icon" aria-hidden="true">↗</div>'
-     +'<b>STUDENT DEVICE WINDOW</b>'
-     +'<p>Use SI Mothership beside Zoom without a full-screen browser.</p>'
-     +'<button type="button" id="siLaunchDeviceWindow">Open Device Window</button>'
-     +'<small>440 × 780 · Resizable<br>Also opens after Join Class on desktop.</small>';
-   guide.querySelector("button").addEventListener("click",event=>openDeviceWindow(event.currentTarget));
-   document.body.appendChild(guide);
+ // When a classroom QR link already contains the session code, the first
+ // avatar tap opens the sized window and selects that same avatar there.
+ // This uses the existing join controls, not a second pop-out choice.
+ function selectAvatarInDevice(){
+   const requested=params.get("pickAvatar");
+   if(!isPopout||!requested)return;
+   const choose=()=>{
+     if(typeof studentNeedsJoin==="function" && !studentNeedsJoin()){
+       history.replaceState(null,"",location.pathname+location.search.replace(/([&?])pickAvatar=[^&]*/,"$1").replace(/[?&]$/,""));
+       return true;
+     }
+     if(typeof networkHydrated!=="undefined" && !networkHydrated)return false;
+     const avatar=[...document.querySelectorAll("#studentContent [data-join-avatar]")]
+       .find(btn=>btn.dataset.joinAvatar===requested);
+     if(!avatar)return false;
+     avatar.click();
+     const u=new URL(location.href);
+     u.searchParams.delete("pickAvatar");
+     history.replaceState(null,"",u.pathname+u.search);
+     return true;
+   };
+   if(choose())return;
+   const content=document.querySelector("#studentContent");
+   if(!content)return;
+   const observer=new MutationObserver(()=>{if(choose())observer.disconnect()});
+   observer.observe(content,{childList:true,subtree:true});
  }
  function install(){
   const head=document.querySelector("body.role-student #student .device-head");
@@ -70,25 +96,33 @@
   if(isPopout){
     document.body.classList.add("si-student-is-popout");
     fitPopupViewport();
+    selectAvatarInDevice();
     return;
   }
-  addSideLauncher();
-  // The Join Class button already saves the student identity synchronously.
-  // Handle its bubble phase, AFTER the original handler, to launch a
-  // registered device window with the same code, session and student token.
+  // A normal tab cannot be resized by a website. On desktop, the normal
+  // Join Class or avatar selection gesture becomes the automatic launch.
+  // Nothing is added to the screen to choose a second mode.
   document.addEventListener("click",event=>{
-    if(!desktopWindow() || !event.target.closest("#joinClassBtn"))return;
-    if(typeof studentNeedsJoin!=="function" || studentNeedsJoin())return;
-    openDeviceWindow(event.target);
-  });
-  const button=document.createElement("button");
-  button.type="button";
-  button.className="si-student-popout";
-  button.textContent="↗ Device Window";
-  button.setAttribute("aria-label","Open student controller in a device-sized browser window beside Zoom");
-  button.title="Open the 440 × 780 resizable classroom device window beside Zoom";
-  button.addEventListener("click",()=>openDeviceWindow(button));
-  tools.appendChild(button);
+    if(deviceLaunched || !desktopWindow())return;
+    const codeButton=event.target.closest("#joinCodeBtn");
+    const avatarButton=event.target.closest("#studentContent [data-join-avatar]");
+    const finalButton=event.target.closest("#joinClassBtn");
+    if(!codeButton&&!avatarButton&&!finalButton)return;
+    if(typeof studentNeedsJoin!=="function" || !studentNeedsJoin())return;
+    if(codeButton){
+      const code=(document.querySelector("#joinCodeInput")?.value||"").trim().toUpperCase();
+      if(code.length!==4 || typeof STUDENT_JOIN_CODE==="undefined"||code!==STUDENT_JOIN_CODE)return;
+      openDeviceWindow({code});
+    }else if(avatarButton){
+      openDeviceWindow({code:typeof STUDENT_JOIN_CODE!=="undefined"?STUDENT_JOIN_CODE:"",
+        avatarKey:avatarButton.dataset.joinAvatar});
+    }else if(finalButton){
+      // Fallback for unusual flows where neither earlier step opened a window.
+      const name=document.querySelector("#joinStudentName")?.value?.trim();
+      if(name && typeof joinAvatarDraft!=="undefined" && joinAvatarDraft)
+        openDeviceWindow({code:STUDENT_JOIN_CODE,avatarKey:joinAvatarDraft});
+    }
+  },true);
  }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
  else install();
