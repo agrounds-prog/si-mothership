@@ -164,3 +164,9 @@
 .dm-avatar .cc-player-avatar-glyph{display:block;font:normal 27px/1 system-ui;filter:drop-shadow(0 0 5px var(--cc-avatar-accent,var(--dm-seat-color)))}
 .dm-player.active .dm-avatar .cc-avatar-orbit{box-shadow:0 0 17px #8af7d955;border-color:#c4ffe9}
 .dm-avatar-fallback{font:1000 14px system-ui}
+
+/* Opening move and double tile orientation */
+.dm-played-tile .dm-tile.double.vertical{transform:rotate(90deg);margin:22px 16px}
+.dm-hand-item.dm-double-horizontal .dm-tile.double{transform:rotate(90deg);margin:19px 10px}
+.dm-rotate{grid-column:1/-1;min-height:35px;border:1px solid #c5a875;border-radius:8px;background:#293e56;color:#ffe6ae;font-weight:900;cursor:pointer}
+.dm-teacher-moves [data-dm-teacher="first"]{grid-column:1/-1;background:#12675e;border-color:#68e5c4}
