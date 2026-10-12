@@ -7,6 +7,7 @@ on:
       - 'student-companion.js'
       - 'tests/test_student_companion_browser.cjs'
       - 'tests/test_zoom_student_activities_browser.cjs'
+      - 'tests/test_dominoes_multiplayer_browser.cjs'
       - 'tests/test_zoom_student_remaining_browser.cjs'
       - 'tests/test_zoom_student_bingo_starwheel_survey_browser.cjs'
       - 'tests/test_signal_sequence_mobile_browser.cjs'
@@ -60,6 +61,8 @@ jobs:
         run: |
           node tests/test_dominoes_browser.cjs
           node tests/test_quick_poll_projector_browser.cjs
+      - name: Dominoes real student, teacher, and shared-screen sync
+        run: node tests/test_dominoes_multiplayer_browser.cjs
       - name: Million teacher and projector regression
         run: node tests/test_million_projector_browser.cjs
       - name: Cosmic Cards turn rules and privacy
