@@ -8,6 +8,7 @@ on:
       - 'tests/test_student_companion_browser.cjs'
       - 'tests/test_zoom_student_activities_browser.cjs'
       - 'tests/test_zoom_student_remaining_browser.cjs'
+      - 'tests/test_zoom_student_bingo_starwheel_survey_browser.cjs'
       - 'tests/test_signal_sequence_mobile_browser.cjs'
       - 'tests/test_signal_sequence_modes_browser.cjs'
       - 'tests/test_four_in_line_mobile_browser.cjs'
@@ -67,6 +68,8 @@ jobs:
         run: node tests/test_zoom_student_remaining_browser.cjs
       - name: Existing Word Grid multiplayer browser regression
         run: node tests/test_word_grid_browser.cjs
+      - name: Zoom Bingo, Starwheel and Crew Survey student layout
+        run: node tests/test_zoom_student_bingo_starwheel_survey_browser.cjs
       - name: Local failure diagnostics
         if: failure()
         run: tail -100 /tmp/student-companion.log || true
