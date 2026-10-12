@@ -1154,3 +1154,227 @@ body.role-student #studentContent .minefield-cell.selectable:focus-visible{
   animation:none!important;transition:none!important;
  }
 }
+
+
+/* Zoom Companion v6 · BINGO, STARWHEEL, CREW SURVEY.
+   Student-only view improvements; all existing classroom actions remain unchanged. */
+body.role-student #studentContent:has(.bingo-student-board),
+body.role-student #studentContent:has(.starwheel-student-grid),
+body.role-student #studentContent:has(.crew-survey-student){
+ padding:6px!important;
+}
+/* BINGO: prioritize readable card cells and the claim button, not a 92vh poster.
+   The informational footer duplicates "marked" state already shown by the card. */
+body.role-student #studentContent .student-game-foundation:has(.bingo-student-board){
+ width:100%!important;max-width:100%!important;min-width:0!important;
+ min-height:0!important;margin:0!important;padding:5px!important;
+ border-radius:13px!important;
+}
+body.role-student #studentContent .student-game-foundation:has(.bingo-student-board) .student-game-card{
+ width:100%!important;max-width:100%!important;min-width:0!important;
+ padding:9px!important;border-width:1px!important;border-radius:14px!important;
+}
+body.role-student #studentContent .student-game-foundation:has(.bingo-student-board) .student-game-card::before{
+ margin:0 auto 3px!important;font-size:clamp(25px,6.8vw,33px)!important;
+ line-height:1.1!important;letter-spacing:.12em!important;
+}
+body.role-student #studentContent .student-game-foundation:has(.bingo-student-board) .student-game-card>h2{
+ margin:3px auto!important;font-size:clamp(16px,4.5vw,21px)!important;
+}
+body.role-student #studentContent .student-game-foundation:has(.bingo-student-board) .student-game-card>p{
+ margin:4px auto 7px!important;font-size:11px!important;line-height:1.32!important;
+}
+body.role-student #studentContent .bingo-student-board{
+ display:grid!important;min-width:0!important;width:100%!important;
+ max-width:100%!important;gap:4px!important;
+ margin:7px auto!important;padding:5px!important;
+ border-radius:12px!important;
+}
+body.role-student #studentContent .bingo-student-cell{
+ min-width:0!important;min-height:0!important;aspect-ratio:1!important;
+ padding:3px!important;border-width:1px!important;border-radius:7px!important;
+ font-size:clamp(10px,2.7vw,13px)!important;line-height:1.12!important;
+ touch-action:manipulation!important;-webkit-tap-highlight-color:#86e9ff66;
+ overflow-wrap:anywhere!important;
+}
+body.role-student #studentContent .bingo-student-cell img{
+ width:100%!important;height:100%!important;object-fit:contain!important;
+}
+body.role-student #studentContent .student-game-foundation:has(.bingo-student-board) .prompt-caption{
+ margin:5px 0!important;font-size:11px!important;
+}
+body.role-student #studentContent #studentBingoClaimBtn{
+ position:sticky!important;bottom:0!important;z-index:3!important;
+ display:block!important;width:100%!important;
+ min-height:52px!important;margin:7px auto 2px!important;
+ padding:8px!important;border-radius:12px!important;
+ font-size:clamp(18px,5vw,23px)!important;
+ touch-action:manipulation!important;
+}
+body.role-student #studentContent .bingo-claim-status{
+ padding:8px!important;margin-top:6px!important;
+ font-size:12px!important;line-height:1.3!important;
+}
+body.role-student:has(#studentContent .bingo-student-board) .student-control-zone{
+ display:none!important;
+}
+/* STARWHEEL: expose the main Spin command without a second footer Spin,
+   and arrange 21 consonants and 5 vowels in thumb-sized five-column grids. */
+body.role-student #studentContent .response-device:has(.starwheel-student-grid){
+ width:100%!important;max-width:100%!important;min-width:0!important;
+ margin:0!important;padding:10px!important;border-radius:14px!important;
+}
+body.role-student #studentContent .response-device:has(.starwheel-student-grid)>.eyebrow{
+ font-size:10px!important;line-height:1.3!important;letter-spacing:.08em!important;
+}
+body.role-student #studentContent .response-device:has(.starwheel-student-grid)>h2{
+ margin:5px 0!important;font-size:clamp(19px,4.9vw,25px)!important;
+ line-height:1.13!important;overflow-wrap:anywhere!important;
+}
+body.role-student #studentContent .response-device:has(.starwheel-student-grid)>p{
+ margin:4px 0!important;font-size:11px!important;line-height:1.32!important;
+}
+body.role-student #studentContent .response-device:has(.starwheel-student-grid)>.submitted-banner{
+ padding:7px!important;margin:5px 0!important;font-size:12px!important;
+}
+body.role-student #studentContent .starwheel-turn-instruction{
+ margin:6px 0!important;padding:8px 5px!important;border-radius:9px!important;
+ font-size:11px!important;line-height:1.2!important;letter-spacing:.025em!important;
+}
+body.role-student #studentContent .starwheel-pilot-banner{
+ padding:7px!important;margin:5px 0!important;border-radius:10px!important;
+}
+body.role-student #studentContent .starwheel-pilot-banner strong{
+ font-size:18px!important;line-height:1.15!important;
+}
+body.role-student #studentContent .response-device:has(.starwheel-student-grid)>h3{
+ margin:7px 0 4px!important;font-size:13px!important;line-height:1.25!important;
+}
+body.role-student #studentContent .starwheel-main-spin{
+ display:block!important;width:100%!important;min-height:62px!important;
+ margin:6px 0!important;padding:8px!important;
+ border-width:2px!important;border-radius:12px!important;
+ font-size:clamp(16px,4.5vw,20px)!important;
+ touch-action:manipulation!important;
+}
+body.role-student #studentContent .starwheel-student-grid{
+ display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ width:100%!important;gap:5px!important;margin:6px 0!important;
+}
+body.role-student #studentContent .starwheel-student-grid button{
+ min-width:0!important;min-height:48px!important;
+ padding:5px 2px!important;border-radius:8px!important;
+ font-size:clamp(15px,4vw,19px)!important;
+ touch-action:manipulation!important;
+}
+body.role-student #studentContent .starwheel-student-grid button:disabled{
+ opacity:.34!important;cursor:not-allowed!important;
+}
+body.role-student #studentContent .starwheel-solve-box{
+ display:grid!important;grid-template-columns:minmax(0,1fr) 105px!important;
+ gap:6px!important;width:100%!important;margin:9px 0!important;
+}
+body.role-student #studentContent #starwheelSolveInput{
+ display:block!important;min-width:0!important;width:100%!important;
+ min-height:48px!important;padding:9px!important;font-size:14px!important;
+}
+body.role-student #studentContent #starwheelSendSolve{
+ min-width:0!important;min-height:48px!important;
+ padding:7px 5px!important;font-size:12px!important;line-height:1.15!important;
+ touch-action:manipulation!important;
+}
+body.role-student #studentContent .response-device:has(.starwheel-student-grid)>.prompt-caption{
+ font-size:11px!important;line-height:1.3!important;margin:5px 0!important;
+}
+body.role-student:has(#studentContent .starwheel-student-grid) .student-control-zone{
+ display:none!important;
+}
+/* CREW SURVEY: a single deliberate face-off buzzer and a fast AAC/typing
+   response surface, without duplicating controls in the companion footer. */
+body.role-student #studentContent .crew-survey-student{
+ width:100%!important;max-width:100%!important;min-width:0!important;
+ padding:12px!important;margin:0!important;
+ border-radius:15px!important;
+}
+body.role-student #studentContent .crew-survey-student>.eyebrow{
+ font-size:10px!important;letter-spacing:.09em!important;
+}
+body.role-student #studentContent .crew-survey-student>h2{
+ margin:4px 0!important;font-size:clamp(21px,5.3vw,29px)!important;
+ line-height:1.15!important;overflow-wrap:anywhere!important;
+}
+body.role-student #studentContent .crew-survey-student>p{
+ margin:6px auto!important;font-size:13px!important;line-height:1.4!important;
+ overflow-wrap:anywhere!important;
+}
+body.role-student #studentContent .crew-survey-big-buzz{
+ display:grid!important;place-items:center!important;
+ width:min(220px,70vw)!important;height:auto!important;
+ aspect-ratio:1!important;min-width:0!important;
+ margin:12px auto!important;border-width:5px!important;
+ touch-action:manipulation!important;
+}
+body.role-student #studentContent .crew-survey-big-buzz span{
+ margin-top:-3px!important;font-size:clamp(26px,7vw,34px)!important;
+}
+body.role-student #studentContent .crew-survey-aac{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ width:100%!important;gap:7px!important;margin:9px 0!important;
+}
+body.role-student #studentContent .crew-survey-aac button{
+ min-width:0!important;min-height:55px!important;
+ padding:8px!important;border-radius:11px!important;
+ font-size:clamp(12px,3.6vw,16px)!important;line-height:1.2!important;
+ white-space:normal!important;overflow-wrap:anywhere!important;
+ touch-action:manipulation!important;
+}
+body.role-student #studentContent .crew-survey-type{
+ display:grid!important;grid-template-columns:minmax(0,1fr) 83px!important;
+ width:100%!important;gap:6px!important;margin:8px 0!important;
+}
+body.role-student #studentContent #crewSurveyAnswerInput{
+ width:100%!important;min-width:0!important;min-height:48px!important;
+ padding:9px!important;font-size:15px!important;
+}
+body.role-student #studentContent #crewSurveyAnswerSend{
+ min-width:0!important;min-height:48px!important;
+ padding:8px!important;font-size:13px!important;
+ touch-action:manipulation!important;
+}
+body.role-student #studentContent .crew-survey-student>.submitted-banner{
+ margin-top:8px!important;padding:9px!important;font-size:12px!important;
+ overflow-wrap:anywhere!important;
+}
+body.role-student:has(#studentContent .crew-survey-student) .student-control-zone:has(#studentControls:empty){
+ display:none!important;
+}
+body.role-student #studentContent .bingo-student-cell:focus-visible,
+body.role-student #studentContent .starwheel-main-spin:focus-visible,
+body.role-student #studentContent .starwheel-student-grid button:focus-visible,
+body.role-student #studentContent #starwheelSendSolve:focus-visible,
+body.role-student #studentContent #starwheelSolveInput:focus-visible,
+body.role-student #studentContent .crew-survey-big-buzz:focus-visible,
+body.role-student #studentContent .crew-survey-aac button:focus-visible,
+body.role-student #studentContent #crewSurveyAnswerSend:focus-visible,
+body.role-student #studentContent #crewSurveyAnswerInput:focus-visible,
+body.role-student #studentContent #studentBingoClaimBtn:focus-visible{
+ outline:3px solid #ffe097!important;outline-offset:2px!important;
+}
+@media(max-width:360px){
+ body.role-student #studentContent .starwheel-solve-box{
+  grid-template-columns:minmax(0,1fr)!important;
+ }
+ body.role-student #studentContent .crew-survey-type{
+  grid-template-columns:minmax(0,1fr) 75px!important;
+ }
+ body.role-student #studentContent .starwheel-student-grid button{
+  min-height:47px!important;font-size:15px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body.role-student #studentContent .crew-survey-big-buzz,
+ body.role-student #studentContent .bingo-student-cell,
+ body.role-student #studentContent .starwheel-main-spin{
+  animation:none!important;transition:none!important;
+ }
+}
