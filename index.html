@@ -9154,41 +9154,6 @@ body.role-shared #shared .shared-screen > .mirror-content:has(> .si-plus-slide-s
 }
 </style>
 
-<style id="v56-7-clean-shared-projector">
-/* Full-window shared screen: no permanently visible join-code/sidebar rail.
-   Applies only to the shared-screen view, never teacher Mission Control. */
-#shared .shared-shell{
-  width:100vw!important;height:100dvh!important;
-  min-height:100dvh!important;max-width:100vw!important;
-  overflow:hidden!important;padding:0!important;margin:0!important;
-}
-#shared .shared-screen{
-  display:flex!important;flex-direction:column!important;
-  grid-template-columns:none!important;grid-template-rows:none!important;
-  width:100vw!important;height:100dvh!important;min-height:100dvh!important;
-  max-width:100vw!important;margin:0!important;padding:0!important;
-  overflow:hidden!important;border:0!important;border-radius:0!important;
-}
-/* Hide the left-side "SI Mothership / JOIN CODE" rail and its footer. */
-#shared .shared-screen > .mirror-top,
-#shared .shared-screen > .mirror-footer{
-  display:none!important;
-}
-/* Standby, activity lobbies, and other shared tools also get the whole screen.
-   SI+ slide-stage content keeps its separate exact 16:9 sizing rules. */
-#shared .shared-screen > .mirror-content:not(:has(> .si-plus-slide-stage)){
-  position:relative!important;inset:auto!important;
-  grid-column:auto!important;grid-row:auto!important;
-  display:flex!important;flex:1 1 100%!important;
-  align-items:center!important;justify-content:center!important;
-  width:100%!important;height:100%!important;
-  min-width:0!important;min-height:0!important;
-  max-width:none!important;max-height:none!important;
-  padding:clamp(8px,1.5vw,22px)!important;
-  overflow:hidden!important;box-sizing:border-box!important;
-}
-</style>
-
 <style id="v56-3-activity-library-visual-integration">
 /* v56.3 — carry the illustrated Mothership visual language through the Activity Library. */
 #teacher .single-mission-controls .control .ico.v562-art{
