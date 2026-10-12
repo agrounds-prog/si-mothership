@@ -68,7 +68,7 @@ const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
     assert.ok(info.stage.w>0&&info.stage.h>0,'stage must be visible');
     assert.ok(Math.abs(info.stage.w/info.stage.h-16/9)<.015,'slide stage must remain 16:9');
     assert.ok(Math.abs(info.stage.w-Math.min(width,height*16/9))<3,
-      'stage should take the largest possible 16:9 area');
+      'stage should take the largest possible 16:9 area: '+JSON.stringify({viewport:[width,height],info}));
     assert.ok(info.stage.x>=-2&&info.stage.y>=-2&&info.stage.x+info.stage.w<=width+2
       &&info.stage.y+info.stage.h<=height+2,'stage remains entirely on screen');
     assert.equal(info.overflowX,false,'projector should not overflow sideways');
