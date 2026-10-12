@@ -18932,19 +18932,19 @@ function siPlusOrganizerWire(){
   };
   const clear=$('#siOrgClear');if(clear)clear.onclick=()=>{siPlusOrganizerSelection.clear();renderPresentationBuilder()};
   const del=$('#siOrgDelete');if(del)del.onclick=siPlusOrganizerDelete;
-  $('[data-org-select]').forEach(b=>b.onchange=e=>{
+  $$('[data-org-select]').forEach(b=>b.onchange=e=>{
     const index=Number(b.dataset.orgSelect);
     if(e.target.checked)siPlusOrganizerSelection.add(index);
     else siPlusOrganizerSelection.delete(index);
     renderPresentationBuilder();
   });
-  $('[data-org-edit]').forEach(b=>b.onclick=()=>{
+  $$('[data-org-edit]').forEach(b=>b.onclick=()=>{
     state.editorSlide=Number(b.dataset.orgEdit);siPlusOrganizerReset();renderPresentationBuilder();
   });
-  $('[data-org-before]').forEach(b=>b.onclick=()=>siPlusOrganizerMove(Number(b.dataset.orgBefore),Number(b.dataset.orgBefore)-1));
-  $('[data-org-after]').forEach(b=>b.onclick=()=>siPlusOrganizerMove(Number(b.dataset.orgAfter),Number(b.dataset.orgAfter)+1));
-  $('[data-org-copy]').forEach(b=>b.onclick=()=>siPlusOrganizerCopy(Number(b.dataset.orgCopy)));
-  $('[data-org-drag]').forEach(card=>{
+  $$('[data-org-before]').forEach(b=>b.onclick=()=>siPlusOrganizerMove(Number(b.dataset.orgBefore),Number(b.dataset.orgBefore)-1));
+  $$('[data-org-after]').forEach(b=>b.onclick=()=>siPlusOrganizerMove(Number(b.dataset.orgAfter),Number(b.dataset.orgAfter)+1));
+  $$('[data-org-copy]').forEach(b=>b.onclick=()=>siPlusOrganizerCopy(Number(b.dataset.orgCopy)));
+  $$('[data-org-drag]').forEach(card=>{
     card.ondragstart=e=>{
       if(siPlusBatchImportBusy){e.preventDefault();return}
       siPlusOrganizerDrag=Number(card.dataset.orgDrag);
@@ -18961,7 +18961,7 @@ function siPlusOrganizerWire(){
     };
     card.ondragend=()=>{
       siPlusOrganizerDrag=null;
-      $('[data-org-drag]').forEach(x=>x.classList.remove('dragging','drop-target'));
+      $$('[data-org-drag]').forEach(x=>x.classList.remove('dragging','drop-target'));
     };
   });
 }
