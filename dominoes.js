@@ -69,7 +69,7 @@ function count(g,n){const arr=g.hands?.[n];return Array.isArray(arr)?arr.length:
 function tileHTML(t,opt={}){
  const a=Number(t?.left??t?.a??0),b=Number(t?.right??t?.b??0);
  const side=(n)=>'<span class="dm-face dm-face-'+n+'" aria-label="'+n+' dots"><span class="dm-pip-matrix">'+Array.from({length:9},(_,i)=>'<i class="'+(DOTS[n]?.includes(i)?"dot":"")+'"></i>').join("")+'</span></span>';
- return '<span class="dm-tile '+(opt.small?"small ":"")+(opt.newest?"latest ":"")+(a===b?"double ":"")+'" aria-hidden="true">'+side(a)+'<i class="dm-divider"></i>'+side(b)+'</span>';
+ return '<span class="dm-tile '+(opt.small?"small ":"")+(opt.newest?"latest ":"")+(a===b?"double ":"")+(a===b&&t?.vertical!==false&&!opt.small?"vertical ":"")+'" aria-hidden="true">'+side(a)+'<i class="dm-divider"></i>'+side(b)+'</span>';
 }
 function scene(){return '<div class="dm-space" aria-hidden="true"><div class="dm-stars"></div><div class="dm-orbit"></div><div class="dm-planet"></div><div class="dm-horizon"></div></div>'}
 function avatar(n,i,g){
@@ -92,9 +92,9 @@ function studentHTML(g,student){
  const name=String(student?.n||student?.name||"");if(!g.players?.includes(name))return '<div class="dm-device dm-observer">'+scene()+banner(g)+'<div class="dm-device-center"><span class="dm-kicker">MISSION OBSERVER</span><h3>WATCH THE TABLE</h3><p>You are in the audience for this round. Cheer on your classmates!</p></div></div>';
  const mine=active(g)===name&&g.status==="playing",hand=g.hands?.[name]||[],e=ends(g);
  return '<div class="dm-device">'+scene()+banner(g)+'<div class="dm-device-center"><span class="dm-kicker">'+(mine?"YOUR TURN":"PRIVATE HAND")+'</span><h3>'+(g.status==="won"?(g.winner===name?"✦ YOU WIN!":esc(g.winner)+" WINS!"):mine?"YOUR MOVE, "+esc(name):"WAIT FOR "+esc(active(g)))+'</h3><p>'+esc(g.message)+'</p></div>'+
- '<div class="dm-hand-head"><b>YOUR DOMINOES</b><span>'+hand.length+' TILES</span></div><div class="dm-hand">'+hand.map(t=>{const left=mine&&canPlay(g,name,t,"left"),right=mine&&canPlay(g,name,t,"right");return '<div class="dm-hand-item '+((left||right)?"playable":"locked")+'">'+tileHTML(t)+'<div class="dm-pick-actions"><button data-dm-play="'+escID(t.id)+'" data-dm-side="left" '+(!left?'disabled':'')+' aria-label="Play '+t.a+' '+t.b+' on left">◂ LEFT</button><button data-dm-play="'+escID(t.id)+'" data-dm-side="right" '+(!right?'disabled':'')+' aria-label="Play '+t.a+' '+t.b+' on right">RIGHT ▸</button></div></div>'}).join("")+'</div>'+
+ '<div class="dm-hand-head"><b>YOUR DOMINOES</b><span>'+hand.length+' TILES</span></div><div class="dm-hand">'+hand.map(t=>{const first=!g.chain.length,left=mine&&canPlay(g,name,t,"left"),right=mine&&canPlay(g,name,t,"right");return '<div class="dm-hand-item '+((left||right)?"playable":"locked")+'">'+tileHTML(t)+'<div class="dm-pick-actions">'+(first?'<button data-dm-play="'+escID(t.id)+'" data-dm-side="first" '+(!mine?'disabled':'')+'>▶ PLACE TILE</button>':'<button data-dm-play="'+escID(t.id)+'" data-dm-side="left" '+(!left?'disabled':'')+'>◂ LEFT</button><button data-dm-play="'+escID(t.id)+'" data-dm-side="right" '+(!right?'disabled':'')+'>RIGHT ▸</button>')+(t.a===t.b?'<button type="button" class="dm-rotate" data-dm-rotate="'+escID(t.id)+'">⟳ ROTATE DOUBLE</button>':'')+'</div></div>'}).join("")+'</div>'+
  '<div class="dm-device-controls">'+(mine?'<button id="dmDraw" '+(playable(g,name)||!g.bag.length?"disabled":"")+'>＋ DRAW DOMINO</button><button id="dmPass" '+(playable(g,name)||g.bag.length?"disabled":"")+'>PASS TURN →</button>':'<span>Only the active player can play or draw.</span>')+'</div>'+
- '<div class="dm-device-help">Play a matching tile on the left or right end. If none match, draw a domino until you can play—or pass when the pile is empty.</div></div>'
+ '<div class="dm-device-help">First tile: tap PLACE. Later, match left or right. Rotate doubles if desired. If none match, draw a domino until you can play—or pass when the pile is empty.</div></div>'
 }
 function teacherHTML(g,roster=[]){
  const player=active(g),hand=g.hands?.[player]||[],latest=g.lastPlay?.tileId;
