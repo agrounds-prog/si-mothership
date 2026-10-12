@@ -309,3 +309,41 @@
  #teacher #presentationBuilderPanel button,
  #activityControllerPanel .presentation-controls button{animation:none!important;transition:none!important}
 }
+
+/* SI+ batch import images: integrated with current Presentation Builder. */
+#teacher #presentationBuilderPanel .si-plus-batch-import{
+ display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+ margin:0 0 14px;padding:14px;border:1px solid #578ea9;
+ border-radius:12px;background:linear-gradient(125deg,#123f57,#0b263e);
+}
+#teacher #presentationBuilderPanel .si-plus-batch-copy{
+ flex:1 1 230px;display:grid;gap:5px;min-width:0;
+}
+#teacher #presentationBuilderPanel .si-plus-batch-copy b{
+ color:#f2faff;font:950 15px/1.3 system-ui;
+}
+#teacher #presentationBuilderPanel .si-plus-batch-copy span{
+ color:#bcdce8;font:700 12px/1.45 system-ui;
+}
+#teacher #presentationBuilderPanel .si-plus-batch-button{
+ display:inline-flex;align-items:center;justify-content:center;
+ min-height:48px;padding:11px 16px;border-radius:10px;
+ border:1px solid #90f6d7;background:linear-gradient(135deg,#207f74,#125362);
+ color:#f4fffa;font:900 13px/1.2 system-ui;cursor:pointer;
+}
+#teacher #presentationBuilderPanel .si-plus-batch-button:focus-within{
+ outline:3px solid #ffe3a5;outline-offset:2px;
+}
+#teacher #presentationBuilderPanel .si-plus-batch-button input{
+ position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;
+}
+#teacher #presentationBuilderPanel .si-plus-batch-import>small,
+#teacher #presentationBuilderPanel #siPlusBatchStatus{
+ width:100%;margin:0;color:#b4d7e4;font:750 11px/1.4 system-ui;
+}
+#teacher #presentationBuilderPanel #siPlusBatchStatus:not(:empty){
+ border-top:1px solid #386b7e;padding-top:8px;color:#b4ffdd;
+}
+@media(max-width:580px){
+ #teacher #presentationBuilderPanel .si-plus-batch-button{width:100%}
+}
