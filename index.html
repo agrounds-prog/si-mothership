@@ -9044,58 +9044,69 @@ body.role-shared .image-focus-slide > .question-visual{
 </style>
 
 <style id="v56-6-viewport-image-direct-render">
-/* Direct-render image-only SI+ slides: no card or old presentation sizing can limit them. */
-body.role-shared .shared-screen .mirror-content:has(> .si-plus-viewport-image),
-#shared .shared-screen .mirror-content:has(> .si-plus-viewport-image){
-  position:fixed!important;
-  inset:0!important;
-  width:100vw!important;
-  height:100dvh!important;
-  max-width:none!important;
-  max-height:none!important;
-  padding:0!important;
-  margin:0!important;
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  overflow:hidden!important
+/* Every SI+ slide occupies the same 16:9 canvas. Images letterbox, never stretch. */
+#shared .shared-screen:has(> .mirror-content > .si-plus-slide-stage){
+  position:relative!important;display:block!important;
+  width:100vw!important;height:100dvh!important;min-height:100dvh!important;
+  border:0!important;padding:0!important;margin:0!important;
+  overflow:hidden!important;background:#060e1c!important;
 }
-body.role-shared .shared-screen:has(.si-plus-viewport-image) > .mirror-top,
-body.role-shared .shared-screen:has(.si-plus-viewport-image) > .mirror-footer,
-#shared .shared-screen:has(.si-plus-viewport-image) > .mirror-top,
-#shared .shared-screen:has(.si-plus-viewport-image) > .mirror-footer{
-  display:none!important
+#shared .shared-screen:has(> .mirror-content > .si-plus-slide-stage) > .mirror-top,
+#shared .shared-screen:has(> .mirror-content > .si-plus-slide-stage) > .mirror-footer{display:none!important}
+#shared .shared-screen > .mirror-content:has(> .si-plus-slide-stage){
+  position:fixed!important;inset:0!important;
+  width:100vw!important;height:100dvh!important;min-width:0!important;
+  max-width:none!important;max-height:none!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  overflow:hidden!important;padding:0!important;margin:0!important;
+  box-sizing:border-box!important;background:#060e1c!important;
 }
-body.role-shared .shared-screen:has(.si-plus-viewport-image),
-#shared .shared-screen:has(.si-plus-viewport-image){
-  display:block!important;
-  width:100vw!important;
-  height:100dvh!important;
-  min-height:100dvh!important;
-  padding:0!important;
-  margin:0!important;
-  border:0!important;
-  overflow:hidden!important
+#shared .shared-screen > .mirror-content:has(> .si-plus-slide-stage)::before{display:none!important}
+#shared .si-plus-slide-stage{
+  position:relative;display:flex!important;align-items:stretch!important;justify-content:center!important;
+  flex:0 0 auto!important;width:min(100vw,177.77778dvh)!important;height:auto!important;
+  aspect-ratio:16/9!important;max-width:100vw!important;max-height:100dvh!important;
+  margin:auto!important;padding:0!important;overflow:hidden!important;
+  box-sizing:border-box!important;background:#07152a!important;
 }
-body.role-shared .si-plus-viewport-image{
-  width:100vw!important;
-  height:100dvh!important;
-  min-width:100vw!important;
-  min-height:100dvh!important;
-  max-width:none!important;
-  max-height:none!important
+#shared .si-plus-slide-stage > .si-plus-viewport-image{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  width:100%!important;height:100%!important;
+  min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;
+  overflow:hidden!important;margin:0!important;padding:0!important;box-sizing:border-box!important;
 }
-/* Teacher's tiny monitor must never inherit the viewport-sized presentation. */
-#teacher .mirror-screen .si-plus-viewport-image{
-  width:100%!important;
-  height:100%!important;
-  min-width:0!important;
-  min-height:0!important;
-  padding:2px!important
+#shared .si-plus-slide-stage > .si-plus-viewport-image > img{
+  display:block!important;width:100%!important;height:100%!important;
+  min-width:0!important;min-height:0!important;max-width:100%!important;max-height:100%!important;
+  object-fit:contain!important;object-position:center!important;margin:0!important;border-radius:0!important;
 }
-#teacher .mirror-screen .si-plus-viewport-image img{
-  max-width:100%!important;
-  max-height:100%!important
+#shared .si-plus-slide-stage > .presentation-public{
+  width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+  max-width:none!important;max-height:none!important;overflow:auto!important;
+  margin:0!important;padding:clamp(12px,2vw,36px)!important;box-sizing:border-box!important;
+}
+#shared .si-plus-slide-stage .presentation-media-stack img{
+  max-height:min(48dvh,500px)!important;
+}
+/* Teacher's miniature mirror retains the same proportions, never viewport sizing. */
+#teacher .mirror-screen .si-plus-slide-stage{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  width:100%!important;height:auto!important;aspect-ratio:16/9!important;
+  max-width:100%!important;overflow:hidden!important;margin:auto!important;
+  background:#07152a!important;
+}
+#teacher .mirror-screen .si-plus-slide-stage > .si-plus-viewport-image{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+  padding:0!important;margin:0!important;
+}
+#teacher .mirror-screen .si-plus-slide-stage > .si-plus-viewport-image > img{
+  width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;
+  object-fit:contain!important;border-radius:0!important;
+}
+#teacher .mirror-screen .si-plus-slide-stage > .presentation-public{
+  width:100%!important;max-width:100%!important;max-height:100%!important;
+  margin:0!important;overflow:hidden!important;
 }
 </style>
 
@@ -17554,6 +17565,12 @@ function wireMillionStudent(){
   document.querySelectorAll('[data-million-life-use]').forEach(b=>b.onclick=()=>sendGameShowAction('million','lifeline',b.dataset.millionLifeUse));
 }
 
+function siPlusSlideFrame(markup){
+  return `<div class="si-plus-slide-stage">${markup}</div>`;
+}
+function siPlusImageSlideMarkup(slide){
+  return `<div class="si-plus-viewport-image"><img src="${esc(slide.image)}" alt="Slide image"></div>`;
+}
 function activitySharedMarkup(big=false){
   const a=activeActivity(),run=state.activityRun;if(!a||!run)return '';
   const h=big?60:34, p=big?28:18;
@@ -17597,11 +17614,11 @@ function activitySharedMarkup(big=false){
     const slide=currentSlide();if(!slide)return '';
     if(slide.type==='instruction'){
       const imageOnly=!!slide.image&&!ytId(slide.youtube);
-      if(imageOnly)return `<div class="si-plus-viewport-image" style="width:100vw;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:0;padding:0;box-sizing:border-box"><img src="${slide.image}" alt="Slide image" style="display:block;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;object-position:center;margin:auto;border-radius:12px"></div>`;
+      if(imageOnly)return siPlusSlideFrame(siPlusImageSlideMarkup(slide));
       const media=`<div class="presentation-media-stack">${slide.image?`<img src="${slide.image}" alt="Slide image">`:''}${siPlusVideoMarkup(slide.youtube)}</div>`;
-      return `<div class="presentation-public"><div class="slide-count">Slide ${run.slideIndex+1} of ${a.slides.length}</div><h3 style="font-size:${big?54:34}px">${esc(slide.title)}</h3>${media}<p style="font-size:${big?27:18}px">${esc(slide.text)}</p></div>`;
+      return siPlusSlideFrame(`<div class="presentation-public"><div class="slide-count">Slide ${run.slideIndex+1} of ${a.slides.length}</div><h3 style="font-size:${big?54:34}px">${esc(slide.title)}</h3>${media}<p style="font-size:${big?27:18}px">${esc(slide.text)}</p></div>`);
     }
-    return responseSlideMarkup(slide,big);
+    return siPlusSlideFrame(responseSlideMarkup(slide,big));
   }
   if(a.type==='binary'||a.type==='exit'){
     const choices=a.choices||[];return `<div class="presentation-public"><span class="slide-badge poll">ACTIVITY</span><h3 style="font-size:${big?48:32}px">${esc(a.prompt)}</h3><div class="public-choice-list">${choices.map(c=>`<div class="public-choice"><b>${c.key}</b><span>${esc(c.text)}</span></div>`).join('')}</div></div>`;
@@ -17621,7 +17638,7 @@ function responseSlideMarkup(slide,big=false){
     return !!c?.image || (!!text&&!placeholder);
   });
   const imageOnly=!!slide.image&&!hasAnswerOptions&&!ytId(slide.youtube);
-  if(imageOnly)return `<div class="si-plus-viewport-image" style="width:100vw;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:0;padding:0;box-sizing:border-box"><img src="${slide.image}" alt="Slide image" style="display:block;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;object-position:center;margin:auto;border-radius:12px"></div>`;
+  if(imageOnly)return siPlusImageSlideMarkup(slide);
   const image=slide.image?`<img class="question-visual" src="${slide.image}" alt="Question visual">`:'';
   const rows=(slide.choices||[]).map(c=>{
     const pct=count?Math.round((counts[c.key]||0)/count*100):0;
