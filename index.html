@@ -9062,6 +9062,10 @@ body.role-shared .image-focus-slide > .question-visual{
   box-sizing:border-box!important;background:#060e1c!important;
 }
 #shared .shared-screen > .mirror-content:has(> .si-plus-slide-stage)::before{display:none!important}
+/* Disable legacy entrance scaling: presentation slides must not shrink then grow at each advance. */
+#shared .shared-screen .mirror-content > .si-plus-slide-stage{
+  animation:none!important;transform:none!important;transition:none!important;
+}
 #shared .si-plus-slide-stage{
   position:relative;display:flex!important;align-items:stretch!important;justify-content:center!important;
   flex:0 0 auto!important;width:min(100vw,177.77778dvh)!important;height:auto!important;
