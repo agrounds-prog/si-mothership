@@ -1386,4 +1386,4 @@ body.role-student #studentContent .dm-hand-item.dm-double-vertical .dm-tile.doub
 
 /* Zoom device avatar navigation: 44px arrows and readable search on small screens. */
 body.role-student .si-avatar-search input{min-height:44px!important;height:44px!important;font-size:13px!important}
-body.role-student .si-avatar-page-buttons button{min-width:44px!important;min-height:44px!important}
+body.role-student .si-avatar-page-buttons button{min-width:48px!important;min-height:48px!important}
