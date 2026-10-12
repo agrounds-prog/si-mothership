@@ -19,6 +19,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await student.goto(BASE+"/?role=student&code="+encodeURIComponent(session.code)+"&sid="+encodeURIComponent(session.sid),{waitUntil:"domcontentloaded",timeout:40000});
   await student.waitForSelector("#studentContent .avatar-select-card",{timeout:15000});
   await student.waitForSelector(".si-student-popout",{timeout:5000});
+  assert.equal(await student.locator(".si-student-popout").innerText(),"↗ Device Window");
   assert.equal(await student.locator('link[href^="/student-companion.css"]').count(),1);
   assert.equal(await student.locator('script[src^="/student-companion.js"]').count(),1);
 
@@ -100,7 +101,30 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.match(confirmation.header,/Name|Nickname/);
   assert.ok(confirmation.overflow<=2,JSON.stringify(confirmation));
   await student.locator("#joinStudentName").fill("Zoom Companion Student");
+  // On desktop the final Join Class click launches a real browser popup
+  // (not just a narrow device card inside a maximized browser tab).
+  await student.setViewportSize({width:1380,height:910});
+  assert.equal(await student.locator("#siStudentDeviceLauncher").isVisible(),true);
+  const automaticWindow=student.waitForEvent("popup",{timeout:10000});
   await student.locator("#joinClassBtn").click();
+  const launched=await automaticWindow;
+  launched.on("pageerror",e=>errors.push("auto device "+String(e)));
+  await launched.waitForLoadState("domcontentloaded");
+  await launched.waitForFunction(()=>document.body.classList.contains("si-student-is-popout")
+     &&state.selectedStudent==="Zoom Companion Student",null,{timeout:15000});
+  const deviceWindow=await launched.evaluate(()=>{
+    const r=document.querySelector("#student .device").getBoundingClientRect();
+    return {viewport:{w:innerWidth,h:innerHeight},device:{x:r.x,y:r.y,w:r.width,h:r.height},
+      body:document.body.getBoundingClientRect().width, compact:new URLSearchParams(location.search).get("compact")};
+  });
+  assert.equal(deviceWindow.compact,"1");
+  assert.ok(Math.abs(deviceWindow.viewport.w-deviceWindow.device.w)<=2
+    && Math.abs(deviceWindow.viewport.h-deviceWindow.device.h)<=2,
+    "popup fills the actual browser viewport "+JSON.stringify(deviceWindow));
+  assert.ok(deviceWindow.viewport.w<=440+2&&deviceWindow.viewport.h<=780+2,JSON.stringify(deviceWindow));
+  assert.equal(await launched.locator(".si-student-popout").count(),0,"no nested device launchers");
+  await launched.close();
+  await student.setViewportSize({width:440,height:760});
   await student.waitForFunction(()=>state.selectedStudent==="Zoom Companion Student"&&!studentNeedsJoin(),null,{timeout:12000});
   const joined=await student.evaluate(()=>({
     panel:document.querySelector("#student .device").getBoundingClientRect().width,
@@ -128,6 +152,11 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   popup.on("pageerror",e=>errors.push("popout "+String(e)));
   await popup.waitForLoadState("domcontentloaded");
   await popup.waitForFunction(()=>document.body.classList.contains("si-student-is-popout")&&state.selectedStudent==="Zoom Companion Student",null,{timeout:15000});
+  const geom=await popup.evaluate(()=>{
+   const device=document.querySelector("#student .device").getBoundingClientRect();
+   return {width:innerWidth,height:innerHeight,w:device.width,h:device.height};
+  });
+  assert.ok(Math.abs(geom.width-geom.w)<=2&&Math.abs(geom.height-geom.h)<=2,JSON.stringify(geom));
   assert.equal(await popup.locator("button.si-student-popout").count(),0,"popout does not nest popouts");
   assert.match(popup.url(),/role=student/);
   assert.deepEqual(errors,[]);

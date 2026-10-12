@@ -1387,3 +1387,73 @@ body.role-student #studentContent .dm-hand-item.dm-double-vertical .dm-tile.doub
 /* Zoom device avatar navigation: 44px arrows and readable search on small screens. */
 body.role-student .si-avatar-search input{min-height:44px!important;height:44px!important;font-size:13px!important}
 body.role-student .si-avatar-page-buttons button{min-width:48px!important;min-height:48px!important}
+
+/* Device-sized Chrome/Edge popup: the browser window, not a phone
+   surrounded by an unused full-page background. Native browser title and
+   toolbar remain outside the page; the classroom controller fills the
+   available client viewport. All other student tabs remain unchanged. */
+body.role-student.si-student-is-popout {
+ display:flex!important;justify-content:flex-start!important;
+ align-items:stretch!important;
+ width:100vw!important;height:100dvh!important;
+ margin:0!important;padding:0!important;overflow:hidden!important;
+ background:#061522!important;
+}
+body.role-student.si-student-is-popout #student {
+ display:block!important;width:100%!important;max-width:none!important;
+ height:100dvh!important;max-height:100dvh!important;
+ margin:0!important;padding:0!important;flex:1 1 100%!important;
+}
+body.role-student.si-student-is-popout .student-shell {
+ width:100%!important;max-width:none!important;height:100%!important;
+ margin:0!important;padding:0!important;
+}
+body.role-student.si-student-is-popout .device {
+ width:100%!important;height:100%!important;max-height:none!important;
+ margin:0!important;border-radius:0!important;border:0!important;
+ box-shadow:none!important;
+}
+body.role-student.si-student-is-popout .device-head{
+ border-bottom:1px solid #53a4c4!important;
+}
+body.role-student .si-student-device-launcher{
+ position:fixed;left:calc(50% + 245px);top:50%;transform:translateY(-50%);
+ z-index:20;width:256px;padding:18px 16px;
+ display:flex;flex-direction:column;align-items:stretch;gap:9px;
+ background:linear-gradient(145deg,#0c2b41,#051728);
+ border:1px solid #327996;border-radius:17px;
+ color:#dff7ff;box-shadow:0 14px 42px #0008,inset 0 1px #c4edff24;
+ font:500 12px/1.4 system-ui,sans-serif;
+}
+body.role-student .si-student-device-launcher .si-device-guide-icon{
+ display:grid;place-items:center;width:42px;height:42px;
+ border:1px solid #6dc9ed;border-radius:12px;
+ background:linear-gradient(140deg,#205d78,#0c344e);
+ color:#f7fdff;font-size:23px;
+}
+body.role-student .si-student-device-launcher>b{
+ font-size:12px;font-weight:950;letter-spacing:.085em;color:#8de4f6;
+}
+body.role-student .si-student-device-launcher>p{
+ margin:0!important;color:#bfd9e4!important;font-size:13px!important;
+ line-height:1.45!important;
+}
+body.role-student .si-student-device-launcher>button{
+ width:100%;min-height:46px;
+ border:1px solid #8ce8e0;border-radius:11px;
+ background:linear-gradient(140deg,#257f78,#155167);
+ color:#f4ffff;font-size:13px;font-weight:900;cursor:pointer;
+}
+body.role-student .si-student-device-launcher>button:hover{filter:brightness(1.18)}
+body.role-student .si-student-device-launcher>button:focus-visible{
+ outline:3px solid #ffe3a0;outline-offset:3px;
+}
+body.role-student .si-student-device-launcher>small{
+ color:#97b8c9;font-size:11px;line-height:1.6;
+}
+@media(max-width:1050px), (max-height:680px), (pointer:coarse){
+ body.role-student .si-student-device-launcher{display:none!important}
+}
+@media(max-width:699px),(pointer:coarse){
+ body.role-student .si-student-popout{display:none!important}
+}

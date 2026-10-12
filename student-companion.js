@@ -4,6 +4,60 @@
 (function(){
  "use strict";
  if(new URLSearchParams(location.search).get("role")!=="student")return;
+ const DEVICE_WIDTH=440, DEVICE_HEIGHT=780;
+ const POPOUT_NAME="si_mothership_student_sidecar";
+ const params=new URLSearchParams(location.search);
+ const isPopout=window.name===POPOUT_NAME || params.get("compact")==="1";
+ function desktopWindow(){return innerWidth>=800 && matchMedia("(pointer:fine)").matches;}
+ function openDeviceWindow(button){
+   // Only invoke this from a real user click: browsers prohibit resizing an existing tab.
+   const url=new URL(location.href);
+   url.searchParams.set("compact","1");
+   const maxWidth=screen.availWidth||DEVICE_WIDTH;
+   const maxHeight=screen.availHeight||DEVICE_HEIGHT;
+   const desiredWidth=Math.min(DEVICE_WIDTH,maxWidth);
+   const desiredHeight=Math.min(DEVICE_HEIGHT,Math.max(420,maxHeight-65));
+   const left=Math.max(0,(screen.availLeft||0)+Math.round((maxWidth-desiredWidth)/2));
+   const top=Math.max(0,(screen.availTop||0)+Math.round((maxHeight-desiredHeight)/2));
+   const features="popup=yes,width="+desiredWidth+",height="+desiredHeight
+     +",left="+left+",top="+top+",resizable=yes,scrollbars=yes,toolbar=no,menubar=no,status=no";
+   const popup=window.open(url.toString(),POPOUT_NAME,features);
+   if(popup){try{popup.focus()}catch(e){};return popup}
+   if(button){button.title="Pop-up blocked. Allow pop-ups for SI Mothership.";}
+   if(typeof toast==="function")toast("Pop-up blocked. Allow pop-ups for Mothership, then click Open Device Window.");
+   return null;
+ }
+ // Browser chrome takes up part of a popup's outer height. The window is
+ // script-created, so it can be adjusted to make the actual viewport match
+ // the 440 × 780 controller while keeping the popup resizable beside Zoom.
+ function fitPopupViewport(){
+   if(window.name!==POPOUT_NAME || typeof window.resizeTo!=="function")return;
+   requestAnimationFrame(()=>{
+     const chromeW=Math.max(0,outerWidth-innerWidth);
+     const chromeH=Math.max(0,outerHeight-innerHeight);
+     const usableW=(screen.availWidth||DEVICE_WIDTH)-chromeW;
+     const usableH=(screen.availHeight||DEVICE_HEIGHT)-chromeH;
+     const w=Math.max(320,Math.min(DEVICE_WIDTH,usableW));
+     const h=Math.max(440,Math.min(DEVICE_HEIGHT,usableH));
+     if(Math.abs(innerWidth-w)>5||Math.abs(innerHeight-h)>5){
+       try{resizeTo(Math.round(w+chromeW),Math.round(h+chromeH))}catch(e){}
+     }
+   });
+ }
+ function addSideLauncher(){
+   if(isPopout || document.querySelector("#siStudentDeviceLauncher"))return;
+   const guide=document.createElement("aside");
+   guide.id="siStudentDeviceLauncher";
+   guide.className="si-student-device-launcher";
+   guide.setAttribute("aria-label","Open a classroom device window");
+   guide.innerHTML='<div class="si-device-guide-icon" aria-hidden="true">↗</div>'
+     +'<b>STUDENT DEVICE WINDOW</b>'
+     +'<p>Use SI Mothership beside Zoom without a full-screen browser.</p>'
+     +'<button type="button" id="siLaunchDeviceWindow">Open Device Window</button>'
+     +'<small>440 × 780 · Resizable<br>Also opens after Join Class on desktop.</small>';
+   guide.querySelector("button").addEventListener("click",event=>openDeviceWindow(event.currentTarget));
+   document.body.appendChild(guide);
+ }
  function install(){
   const head=document.querySelector("body.role-student #student .device-head");
   if(!head||head.querySelector(".si-student-header-tools"))return;
@@ -13,25 +67,27 @@
   tools.className="si-student-header-tools";
   head.appendChild(tools);
   tools.appendChild(status);
-  const isPopout=window.name==="si_mothership_student_sidecar" || new URLSearchParams(location.search).get("compact")==="1";
-  if(isPopout){document.body.classList.add("si-student-is-popout");return;}
+  if(isPopout){
+    document.body.classList.add("si-student-is-popout");
+    fitPopupViewport();
+    return;
+  }
+  addSideLauncher();
+  // The Join Class button already saves the student identity synchronously.
+  // Handle its bubble phase, AFTER the original handler, to launch a
+  // registered device window with the same code, session and student token.
+  document.addEventListener("click",event=>{
+    if(!desktopWindow() || !event.target.closest("#joinClassBtn"))return;
+    if(typeof studentNeedsJoin!=="function" || studentNeedsJoin())return;
+    openDeviceWindow(event.target);
+  });
   const button=document.createElement("button");
   button.type="button";
   button.className="si-student-popout";
-  button.textContent="↗ Pop out";
-  button.setAttribute("aria-label","Open student controller in a small separate window for Zoom");
-  button.title="Open this student controller in a resizable 440 × 780 window beside Zoom";
-  button.addEventListener("click",()=>{
-   // Reuse the complete authenticated, current-session student URL. Because
-   // this is a real user gesture, Chrome/Edge can allow the popup.
-   const url=new URL(location.href);
-   url.searchParams.set("compact","1");
-   const w=window.open(url.toString(),"si_mothership_student_sidecar",
-     "popup=yes,width=440,height=780,resizable=yes,scrollbars=yes");
-   if(w){w.focus();}
-   else if(typeof toast==="function")toast("Allow pop-ups for Mothership to open the student window.");
-   else button.title="Pop-up blocked. Allow pop-ups for this website.";
-  });
+  button.textContent="↗ Device Window";
+  button.setAttribute("aria-label","Open student controller in a device-sized browser window beside Zoom");
+  button.title="Open the 440 × 780 resizable classroom device window beside Zoom";
+  button.addEventListener("click",()=>openDeviceWindow(button));
   tools.appendChild(button);
  }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
