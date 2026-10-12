@@ -8,6 +8,9 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
  const clients=[];
  try{
   assert.equal((await teacher.request.post(BASE+"/api/teacher/login",{data:{key:"5030"}})).status(),200);
+  // The previous mobile test uses this same isolated CI server. Reset the
+  // local session so the survival/relay checks never inherit a live game.
+  assert.equal((await teacher.request.post(BASE+"/api/session/new",{data:{}})).status(),200);
   await teacher.goto(BASE+"/?role=teacher",{waitUntil:"domcontentloaded",timeout:40000});
   await teacher.waitForFunction(()=>window.__signalSequenceBridge&&networkHydrated===true,null,{timeout:15000});
   await teacher.evaluate(()=>{
