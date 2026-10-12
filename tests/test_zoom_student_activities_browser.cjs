@@ -4,7 +4,7 @@ const assert=require("node:assert/strict");
 const {chromium}=require("playwright");
 const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
 const cards=Array.from({length:8},(_,i)=>'<button class="cc-hand-button" data-cosmic-card="card'+i+'"><span class="cc-card"><b>'+((i%9)+1)+'</b><small>Card</small></span></button>').join("");
-const dominoes=Array.from({length:7},(_,i)=>'<div class="dm-hand-item playable"><span class="dm-tile">'+i+' / '+(i+1)+'</span><div class="dm-pick-actions"><button data-dm-play="'+i+'" data-dm-side="left">◂ LEFT</button><button data-dm-play="'+i+'" data-dm-side="right">RIGHT ▸</button></div></div>').join("");
+const dominoes=Array.from({length:7},(_,i)=>'<div class="dm-hand-item playable"><span class="dm-tile">'+i+' / '+(i+1)+'</span><div class="dm-pick-actions"><button data-dm-play="'+i+'" data-dm-side="first">▶ PLACE TILE</button>'+(i%3===0?'<button class="dm-rotate" data-dm-rotate="'+i+'">⟳ DOUBLE · HORIZONTAL</button>':'')+'</div></div>').join("");
 const samples={
  million:'<div class="student-prompt million-student command-seat"><span class="eyebrow">MILLION · COMMAND SEAT</span><h2>Which choice would keep everyone on the same team?</h2><div class="million-student-choices">'+
   ["A","B","C","D"].map(k=>'<button class="million-student-choice" data-million-choice="'+k+'"><b>'+k+'</b><span>Choose the strongest answer for your classroom mission</span></button>').join("")+
@@ -63,7 +63,7 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
     assert.equal(ui.cols,game==="dominoes"?(w>=410?3:2):game==="cosmic"?3:2);
     assert.ok(ui.grids[0].length>=4&&ui.grids[0].every(x=>x.w>=40),JSON.stringify({w,h,game,ui}));
     if(game==="cosmic")assert.ok(ui.grids[1].every(x=>x.h>=44)&&ui.scene<=75,JSON.stringify(ui));
-    if(game==="dominoes")assert.ok(ui.grids[0].every(x=>x.h>=44)&&ui.grids[1].every(x=>x.h>=44),JSON.stringify(ui));
+    if(game==="dominoes")assert.ok(ui.grids[0].every(x=>x.h>=44&&x.w>=80)&&ui.grids[1].every(x=>x.h>=44),JSON.stringify(ui));
     if(game==="million")assert.ok(ui.grids[0].every(x=>x.h>=70)&&ui.grids[1].every(x=>x.h>=44),JSON.stringify(ui));
     console.log("ZOOM "+game+" "+w+"x"+h+" "+JSON.stringify({columns:ui.cols,buttons:ui.grids[0].length}));
    }

@@ -170,3 +170,9 @@
 .dm-hand-item.dm-double-vertical .dm-tile.double{transform:rotate(90deg);margin:19px 10px}
 .dm-rotate{grid-column:1/-1;min-height:35px;border:1px solid #c5a875;border-radius:8px;background:#293e56;color:#ffe6ae;font-weight:900;cursor:pointer}
 .dm-teacher-moves [data-dm-teacher="first"]{grid-column:1/-1;background:#12675e;border-color:#68e5c4}
+
+/* Full-width first placement and clear teacher double preview. */
+.dm-pick-actions [data-dm-side="first"]{grid-column:1/-1;min-height:44px;background:linear-gradient(135deg,#147c70,#13576c);border-color:#91f4dc;font-size:11px}
+.dm-teacher-pick.dm-double-vertical .dm-tile.double{transform:rotate(90deg);margin:15px 10px}
+.dm-teacher-pick:focus-visible,.dm-rotate:focus-visible{outline:3px solid #ffe4a9;outline-offset:2px}
+.dm-rotate{touch-action:manipulation;min-height:44px}

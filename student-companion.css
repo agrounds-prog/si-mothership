@@ -1378,3 +1378,8 @@ body.role-student #studentContent #studentBingoClaimBtn:focus-visible{
   animation:none!important;transition:none!important;
  }
 }
+
+/* Dominoes opener and rotation: Zoom-sized 2-3 column racks. */
+body.role-student #studentContent .dm-pick-actions [data-dm-side="first"]{grid-column:1/-1!important;min-height:48px!important;font-size:11px!important}
+body.role-student #studentContent .dm-rotate{grid-column:1/-1!important;min-height:48px!important;border-color:#cdb682!important;color:#ffe8b7!important}
+body.role-student #studentContent .dm-hand-item.dm-double-vertical .dm-tile.double{transform:rotate(90deg);margin:19px 10px}

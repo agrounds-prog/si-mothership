@@ -72,4 +72,14 @@ run("opening controls show one place action and doubles can rotate",()=>{
  assert.deepEqual(D.ends(g),{left:5,right:5});
  assert.match(D.tableHTML(g,true),/double vertical/);
 });
+run("saved vertical doubles and legacy horizontal doubles render consistently",()=>{
+ const g=D.make(["A","B"]);g.hands.A=[tile("double",4,4),tile("other",1,2)];
+ assert.equal(D.apply(g,"A","play","double","first",true).ok,true);
+ const restored=D.snapshot(g);
+ assert.match(D.tableHTML(restored,true),/double vertical/);
+ delete restored.chain[0].vertical;
+ assert.doesNotMatch(D.tableHTML(restored,true),/double vertical/);
+ assert.match(D.studentHTML(restored,{n:"B"}),/data-dm-side="left"/);
+ assert.doesNotMatch(D.studentHTML(restored,{n:"B"}),/data-dm-side="first"/);
+});
 console.log("DOMINOES ENGINE REGRESSION COMPLETE");

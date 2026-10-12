@@ -6,7 +6,9 @@
 "use strict";
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const DOTS={0:[],1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
-let selectedNames=[],teacherIncluded=false,revealHands=false,selectedTile="",doubleVertical=false;
+let selectedNames=[],teacherIncluded=false,revealHands=false,selectedTile="",doubleVertical=false,teacherSelectionTurn="";
+const studentRotations=new Map();
+const rotationKey=(g,name,id)=>[g?.id||"legacy",name,id].join("|");
 const escID=x=>esc(x);
 function makeBag(){const tiles=[];for(let a=0;a<=6;a++)for(let b=a;b<=6;b++)tiles.push({id:"d-"+a+"-"+b,a,b});for(let i=tiles.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[tiles[i],tiles[j]]=[tiles[j],tiles[i]]}return tiles}
 function pips(t){return Number(t?.a||0)+Number(t?.b||0)}
@@ -69,7 +71,7 @@ function count(g,n){const arr=g.hands?.[n];return Array.isArray(arr)?arr.length:
 function tileHTML(t,opt={}){
  const a=Number(t?.left??t?.a??0),b=Number(t?.right??t?.b??0);
  const side=(n)=>'<span class="dm-face dm-face-'+n+'" aria-label="'+n+' dots"><span class="dm-pip-matrix">'+Array.from({length:9},(_,i)=>'<i class="'+(DOTS[n]?.includes(i)?"dot":"")+'"></i>').join("")+'</span></span>';
- return '<span class="dm-tile '+(opt.small?"small ":"")+(opt.newest?"latest ":"")+(a===b?"double ":"")+(a===b&&t?.vertical!==false&&!opt.small?"vertical ":"")+'" aria-hidden="true">'+side(a)+'<i class="dm-divider"></i>'+side(b)+'</span>';
+ return '<span class="dm-tile '+(opt.small?"small ":"")+(opt.newest?"latest ":"")+(a===b?"double ":"")+(a===b&&t?.vertical===true&&!opt.small?"vertical ":"")+'" aria-hidden="true">'+side(a)+'<i class="dm-divider"></i>'+side(b)+'</span>';
 }
 function scene(){return '<div class="dm-space" aria-hidden="true"><div class="dm-stars"></div><div class="dm-orbit"></div><div class="dm-planet"></div><div class="dm-horizon"></div></div>'}
 function avatar(n,i,g){
@@ -92,16 +94,19 @@ function studentHTML(g,student){
  const name=String(student?.n||student?.name||"");if(!g.players?.includes(name))return '<div class="dm-device dm-observer">'+scene()+banner(g)+'<div class="dm-device-center"><span class="dm-kicker">MISSION OBSERVER</span><h3>WATCH THE TABLE</h3><p>You are in the audience for this round. Cheer on your classmates!</p></div></div>';
  const mine=active(g)===name&&g.status==="playing",hand=g.hands?.[name]||[],e=ends(g);
  return '<div class="dm-device">'+scene()+banner(g)+'<div class="dm-device-center"><span class="dm-kicker">'+(mine?"YOUR TURN":"PRIVATE HAND")+'</span><h3>'+(g.status==="won"?(g.winner===name?"✦ YOU WIN!":esc(g.winner)+" WINS!"):mine?"YOUR MOVE, "+esc(name):"WAIT FOR "+esc(active(g)))+'</h3><p>'+esc(g.message)+'</p></div>'+
- '<div class="dm-hand-head"><b>YOUR DOMINOES</b><span>'+hand.length+' TILES</span></div><div class="dm-hand">'+hand.map(t=>{const first=!g.chain.length,left=mine&&canPlay(g,name,t,"left"),right=mine&&canPlay(g,name,t,"right");return '<div class="dm-hand-item '+((left||right)?"playable":"locked")+'">'+tileHTML(t)+'<div class="dm-pick-actions">'+(first?'<button data-dm-play="'+escID(t.id)+'" data-dm-side="first" '+(!mine?'disabled':'')+'>▶ PLACE TILE</button>':'<button data-dm-play="'+escID(t.id)+'" data-dm-side="left" '+(!left?'disabled':'')+'>◂ LEFT</button><button data-dm-play="'+escID(t.id)+'" data-dm-side="right" '+(!right?'disabled':'')+'>RIGHT ▸</button>')+(t.a===t.b?'<button type="button" class="dm-rotate" data-dm-rotate="'+escID(t.id)+'">⟳ ROTATE DOUBLE</button>':'')+'</div></div>'}).join("")+'</div>'+
+ '<div class="dm-hand-head"><b>YOUR DOMINOES</b><span>'+hand.length+' TILES</span></div><div class="dm-hand">'+hand.map(t=>{const first=!g.chain.length,left=mine&&canPlay(g,name,t,"left"),right=mine&&canPlay(g,name,t,"right");return '<div class="dm-hand-item '+((left||right)?"playable":"locked")+(t.a===t.b&&studentRotations.get(rotationKey(g,name,t.id))?" dm-double-vertical":"")+'">'+tileHTML(t)+'<div class="dm-pick-actions">'+(first?'<button data-dm-play="'+escID(t.id)+'" data-dm-side="first" '+(!mine?'disabled':'')+'>▶ PLACE TILE</button>':'<button data-dm-play="'+escID(t.id)+'" data-dm-side="left" '+(!left?'disabled':'')+'>◂ LEFT</button><button data-dm-play="'+escID(t.id)+'" data-dm-side="right" '+(!right?'disabled':'')+'>RIGHT ▸</button>')+(t.a===t.b?'<button type="button" class="dm-rotate" data-dm-rotate="'+escID(t.id)+'" aria-pressed="'+(!!studentRotations.get(rotationKey(g,name,t.id)))+'">⟳ DOUBLE · '+(studentRotations.get(rotationKey(g,name,t.id))?"VERTICAL":"HORIZONTAL")+'</button>':'')+'</div></div>'}).join("")+'</div>'+
  '<div class="dm-device-controls">'+(mine?'<button id="dmDraw" '+(playable(g,name)||!g.bag.length?"disabled":"")+'>＋ DRAW DOMINO</button><button id="dmPass" '+(playable(g,name)||g.bag.length?"disabled":"")+'>PASS TURN →</button>':'<span>Only the active player can play or draw.</span>')+'</div>'+
  '<div class="dm-device-help">First tile: tap PLACE. Later, match left or right. Rotate doubles if desired. If none match, draw a domino until you can play—or pass when the pile is empty.</div></div>'
 }
 function teacherHTML(g,roster=[]){
  const player=active(g),hand=g.hands?.[player]||[],latest=g.lastPlay?.tileId;
+ const turnKey=[g.id,g.turn,g.chain?.length,g.status].join("|");
+ if(teacherSelectionTurn!==turnKey){selectedTile="";doubleVertical=false;teacherSelectionTurn=turnKey}
+ if(selectedTile&&!hand.some(t=>t.id===selectedTile)){selectedTile="";doubleVertical=false}
  return '<div class="dm-teacher">'+banner(g)+
  '<div class="dm-teacher-columns"><div>'+tableHTML(g,false)+'</div><aside class="dm-teacher-controls"><span class="dm-kicker">MISSION CONTROL · DOMINOES</span><h3>'+esc(g.status==="won"?g.winner+" WINS!":player+"'s TURN")+'</h3><p>'+esc(g.message)+'</p>'+
  '<div class="dm-instructions">Teacher can play a tile for any student when assistance is needed. Students may also play independently on their devices.</div>'+
- '<div class="dm-teacher-hand"><b>ACTIVE PLAYER HAND</b><div class="dm-teacher-rack">'+hand.map(t=>'<button type="button" class="dm-teacher-pick '+(selectedTile===t.id?"selected":"")+'" data-dm-select="'+escID(t.id)+'">'+tileHTML(t,{small:true})+'</button>').join("")+'</div></div>'+
+ '<div class="dm-teacher-hand"><b>ACTIVE PLAYER HAND</b><div class="dm-teacher-rack">'+hand.map(t=>'<button type="button" class="dm-teacher-pick '+(selectedTile===t.id?"selected":"")+(selectedTile===t.id&&doubleVertical&&t.a===t.b?" dm-double-vertical":"")+'" data-dm-select="'+escID(t.id)+'">'+tileHTML(t,{small:true})+'</button>').join("")+'</div></div>'+
  '<div class="dm-teacher-moves">'+(!g.chain.length?'<button data-dm-teacher="first" '+(!selectedTile?'disabled':'')+'>▶ PLACE TILE</button>':'<button data-dm-teacher="left" '+(!selectedTile||!canPlay(g,player,hand.find(t=>t.id===selectedTile),"left")?'disabled':'')+'>◂ PLAY LEFT</button><button data-dm-teacher="right" '+(!selectedTile||!canPlay(g,player,hand.find(t=>t.id===selectedTile),"right")?'disabled':'')+'>PLAY RIGHT ▸</button>')+(hand.find(t=>t.id===selectedTile)?.a===hand.find(t=>t.id===selectedTile)?.b?'<button data-dm-teacher="rotate">⟳ DOUBLE: '+(doubleVertical?"VERTICAL":"HORIZONTAL")+'</button>':'')+'<button data-dm-teacher="draw" '+(playable(g,player)||!g.bag.length||g.status!=="playing"?"disabled":"")+'>＋ DRAW</button><button data-dm-teacher="pass" '+(playable(g,player)||g.bag.length||g.status!=="playing"?"disabled":"")+'>PASS →</button></div>'+
  '<button data-dm-teacher="reveal" class="dm-secondary">'+(revealHands?"HIDE":"SHOW")+' ALL HANDS · TEACHER ONLY</button>'+
  (revealHands?'<div class="dm-all-hands">'+g.players.map(n=>'<div><strong>'+esc(n)+'</strong><span>'+((g.hands[n]||[]).map(t=>tileHTML(t,{small:true})).join("")||"No tiles")+'</span></div>').join("")+'</div>':'')+
@@ -141,8 +146,8 @@ function setupWire(root,students,onStart,onLoad,rerender){
 }
 function teacherWire(root,g,rerender,onReload,onReselect,onRematch){
  if(!root)return;
- const redraw=()=>{selectedTile="";rerender()};
- root.querySelectorAll("[data-dm-select]").forEach(b=>b.onclick=()=>{selectedTile=b.dataset.dmSelect;rerender()});
+ const redraw=()=>{selectedTile="";doubleVertical=false;rerender()};
+ root.querySelectorAll("[data-dm-select]").forEach(b=>b.onclick=()=>{if(selectedTile!==b.dataset.dmSelect)doubleVertical=false;selectedTile=b.dataset.dmSelect;rerender()});
  root.querySelectorAll("[data-dm-teacher]").forEach(b=>b.onclick=()=>{
   const act=b.dataset.dmTeacher,who=active(g);let result=null;
   if(act==="reveal"){revealHands=!revealHands;rerender();return}
@@ -157,7 +162,7 @@ function teacherWire(root,g,rerender,onReload,onReselect,onRematch){
   redraw();
  });
 }
-function studentSend(kind,id="",side="right",vertical=true){
+function studentSend(kind,id="",side="right",vertical=false){
  const s=selectedStudent(),name=s?.n||"",run=state.activityRun;if(!run||run.phase!=="running"||!name)return;
  const req={id:"dom_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8),runToken:run.runToken,type:kind,tileId:id,side,vertical};
  if(typeof NETWORK_SYNC!=="undefined"&&NETWORK_SYNC){
@@ -167,7 +172,22 @@ function studentSend(kind,id="",side="right",vertical=true){
  }
  const r=apply(run.dominoes,name,kind,id,side,vertical);if(r.error)toast(r.error);else render()
 }
-function studentWire(){document.querySelectorAll("[data-dm-rotate]").forEach(b=>b.onclick=()=>{const item=b.closest(".dm-hand-item");item?.classList.toggle("dm-double-vertical");b.textContent=item?.classList.contains("dm-double-vertical")?"⟳ VERTICAL":"⟳ HORIZONTAL"});document.querySelectorAll("[data-dm-play]").forEach(b=>b.onclick=()=>studentSend("play",b.dataset.dmPlay,b.dataset.dmSide,!!b.closest(".dm-double-vertical")));const draw=document.querySelector("#dmDraw"),pass=document.querySelector("#dmPass");if(draw)draw.onclick=()=>studentSend("draw");if(pass)pass.onclick=()=>studentSend("pass")}
-function reset(){selectedTile="";revealHands=false;doubleVertical=false}
+function studentWire(){
+ const g=state.activityRun?.dominoes,name=selectedStudent()?.n||"";
+ document.querySelectorAll("[data-dm-rotate]").forEach(b=>b.onclick=()=>{
+  const key=rotationKey(g,name,b.dataset.dmRotate),vertical=!studentRotations.get(key);
+  studentRotations.set(key,vertical);
+  b.closest(".dm-hand-item")?.classList.toggle("dm-double-vertical",vertical);
+  b.setAttribute("aria-pressed",String(vertical));
+  b.textContent="⟳ DOUBLE · "+(vertical?"VERTICAL":"HORIZONTAL");
+ });
+ document.querySelectorAll("[data-dm-play]").forEach(b=>b.onclick=()=>{
+  studentSend("play",b.dataset.dmPlay,b.dataset.dmSide,!!studentRotations.get(rotationKey(g,name,b.dataset.dmPlay)));
+ });
+ const draw=document.querySelector("#dmDraw"),pass=document.querySelector("#dmPass");
+ if(draw)draw.onclick=()=>studentSend("draw");
+ if(pass)pass.onclick=()=>studentSend("pass");
+}
+function reset(){selectedTile="";revealHands=false;doubleVertical=false;teacherSelectionTurn="";studentRotations.clear()}
 return {make,makeBag,pips,active,ends,canPlay,playable,apply,winner,snapshot,tileHTML,tableHTML,studentHTML,teacherHTML,setupHTML,setupWire,teacherWire,studentWire,reset,saveGame,library,LIB};
 });

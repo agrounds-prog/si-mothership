@@ -36,8 +36,13 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(initial.type,"dominoes");assert.equal(initial.players.length,2);
   assert.equal(initial.hand,7);assert.equal(initial.tiles,0);assert.equal(initial.bag,14);
   assert.ok(await page.locator("#sharedContent .dm-chain").count());
+  // Use a deterministic double to verify orientation independent of the random deal.
   const first=await page.locator("#activityControllerPanel [data-dm-select]").first().getAttribute("data-dm-select");
+  await page.evaluate(id=>{const g=state.activityRun.dominoes,t=g.hands[g.players[g.turn]].find(t=>t.id===id);t.b=t.a;render()},first);
   await page.locator('#activityControllerPanel [data-dm-select="'+first+'"]').click();
+  assert.equal(await page.locator('#activityControllerPanel [data-dm-teacher="rotate"]').count(),1);
+  await page.locator('#activityControllerPanel [data-dm-teacher="rotate"]').click();
+  assert.equal(await page.locator('#activityControllerPanel .dm-teacher-pick.selected.dm-double-vertical').count(),1);
   assert.equal(await page.locator('#activityControllerPanel [data-dm-teacher="right"]').count(),0);
   assert.equal(await page.locator('#activityControllerPanel [data-dm-teacher="left"]').count(),0);
   await page.locator('#activityControllerPanel [data-dm-teacher="first"]').click();
@@ -48,6 +53,11 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   });
   assert.equal(played.size,1);assert.equal(played.turn,1);assert.equal(played.last,first);
   assert.equal(played.showPrivate,false);
+  assert.equal(await page.evaluate(()=>state.activityRun.dominoes.chain[0].vertical),true);
+  assert.equal(await page.locator("#sharedContent .dm-played-tile .dm-tile.double.vertical").count(),1);
+  assert.equal(await page.locator('#activityControllerPanel [data-dm-teacher="first"]').count(),0);
+  assert.equal(await page.locator('#activityControllerPanel [data-dm-teacher="left"]').count(),1);
+  assert.equal(await page.locator('#activityControllerPanel [data-dm-teacher="right"]').count(),1);
   const views=await page.evaluate(()=>{
     const g=state.activityRun.dominoes;return {
       active:Dominoes.studentHTML(g,{n:g.players[g.turn]}).includes("data-dm-play"),
