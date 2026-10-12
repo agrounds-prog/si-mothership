@@ -102,7 +102,7 @@ function teacherHTML(g,roster=[]){
  '<div class="dm-teacher-columns"><div>'+tableHTML(g,false)+'</div><aside class="dm-teacher-controls"><span class="dm-kicker">MISSION CONTROL · DOMINOES</span><h3>'+esc(g.status==="won"?g.winner+" WINS!":player+"'s TURN")+'</h3><p>'+esc(g.message)+'</p>'+
  '<div class="dm-instructions">Teacher can play a tile for any student when assistance is needed. Students may also play independently on their devices.</div>'+
  '<div class="dm-teacher-hand"><b>ACTIVE PLAYER HAND</b><div class="dm-teacher-rack">'+hand.map(t=>'<button type="button" class="dm-teacher-pick '+(selectedTile===t.id?"selected":"")+'" data-dm-select="'+escID(t.id)+'">'+tileHTML(t,{small:true})+'</button>').join("")+'</div></div>'+
- '<div class="dm-teacher-moves"><button data-dm-teacher="left" '+(!selectedTile||!canPlay(g,player,hand.find(t=>t.id===selectedTile),"left")?'disabled':'')+'>◂ PLAY LEFT</button><button data-dm-teacher="right" '+(!selectedTile||!canPlay(g,player,hand.find(t=>t.id===selectedTile),"right")?'disabled':'')+'>PLAY RIGHT ▸</button><button data-dm-teacher="draw" '+(playable(g,player)||!g.bag.length||g.status!=="playing"?"disabled":"")+'>＋ DRAW</button><button data-dm-teacher="pass" '+(playable(g,player)||g.bag.length||g.status!=="playing"?"disabled":"")+'>PASS →</button></div>'+
+ '<div class="dm-teacher-moves">'+(!g.chain.length?'<button data-dm-teacher="first" '+(!selectedTile?'disabled':'')+'>▶ PLACE TILE</button>':'<button data-dm-teacher="left" '+(!selectedTile||!canPlay(g,player,hand.find(t=>t.id===selectedTile),"left")?'disabled':'')+'>◂ PLAY LEFT</button><button data-dm-teacher="right" '+(!selectedTile||!canPlay(g,player,hand.find(t=>t.id===selectedTile),"right")?'disabled':'')+'>PLAY RIGHT ▸</button>')+(hand.find(t=>t.id===selectedTile)?.a===hand.find(t=>t.id===selectedTile)?.b?'<button data-dm-teacher="rotate">⟳ DOUBLE: '+(doubleVertical?"VERTICAL":"HORIZONTAL")+'</button>':'')+'<button data-dm-teacher="draw" '+(playable(g,player)||!g.bag.length||g.status!=="playing"?"disabled":"")+'>＋ DRAW</button><button data-dm-teacher="pass" '+(playable(g,player)||g.bag.length||g.status!=="playing"?"disabled":"")+'>PASS →</button></div>'+
  '<button data-dm-teacher="reveal" class="dm-secondary">'+(revealHands?"HIDE":"SHOW")+' ALL HANDS · TEACHER ONLY</button>'+
  (revealHands?'<div class="dm-all-hands">'+g.players.map(n=>'<div><strong>'+esc(n)+'</strong><span>'+((g.hands[n]||[]).map(t=>tileHTML(t,{small:true})).join("")||"No tiles")+'</span></div>').join("")+'</div>':'')+
  '<button data-dm-teacher="rematch" class="dm-secondary">↻ NEW ROUND · SAME PLAYERS</button><button data-dm-teacher="reselect" class="dm-secondary">♙ CHANGE PLAYERS</button>'+
@@ -150,23 +150,24 @@ function teacherWire(root,g,rerender,onReload,onReselect,onRematch){
   if(act==="rematch"){if(confirm("Start a new Dominoes round with the same players?"))onRematch(make(g.players,{teacherIncluded:g.teacherIncluded}));return}
   if(act==="save"){const name=prompt("Save Dominoes game as:",g.name||"Dominoes · "+new Date().toLocaleDateString());if(name?.trim()){g.name=name.trim();saveGame(g,name.trim());rerender()}return}
   if(act==="load"){const list=library();if(!list.length){alert("No saved Dominoes games.");return}const i=Number(prompt("Load game number:\\n"+list.map((x,i)=>(i+1)+". "+x.name).join("\\n"),"1"))-1;if(list[i]&&confirm("Load "+list[i].name+"?"))onReload(list[i].game);return}
-  if(!["left","right","draw","pass"].includes(act))return;
-  if(act==="left"||act==="right")result=apply(g,who,"play",selectedTile,act);else result=apply(g,who,act);
+  if(act==="rotate"){doubleVertical=!doubleVertical;rerender();return}
+  if(!["first","left","right","draw","pass"].includes(act))return;
+  if(["first","left","right"].includes(act))result=apply(g,who,"play",selectedTile,act,doubleVertical);else result=apply(g,who,act);
   if(result?.error){alert(result.error);return}
   redraw();
  });
 }
-function studentSend(kind,id="",side="right"){
+function studentSend(kind,id="",side="right",vertical=true){
  const s=selectedStudent(),name=s?.n||"",run=state.activityRun;if(!run||run.phase!=="running"||!name)return;
- const req={id:"dom_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8),runToken:run.runToken,type:kind,tileId:id,side};
+ const req={id:"dom_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8),runToken:run.runToken,type:kind,tileId:id,side,vertical};
  if(typeof NETWORK_SYNC!=="undefined"&&NETWORK_SYNC){
   if(networkHydrated&&networkSocket&&networkSocket.readyState===WebSocket.OPEN){
    networkSocket.send(JSON.stringify({type:"dominoes_action",request:req,student_name:name,student_token:currentStudentIdentity()?.student_token||""}));return;
   }toast("Reconnecting to Mothership — your dominoes are safe.");return
  }
- const r=apply(run.dominoes,name,kind,id,side);if(r.error)toast(r.error);else render()
+ const r=apply(run.dominoes,name,kind,id,side,vertical);if(r.error)toast(r.error);else render()
 }
-function studentWire(){document.querySelectorAll("[data-dm-play]").forEach(b=>b.onclick=()=>studentSend("play",b.dataset.dmPlay,b.dataset.dmSide));const draw=document.querySelector("#dmDraw"),pass=document.querySelector("#dmPass");if(draw)draw.onclick=()=>studentSend("draw");if(pass)pass.onclick=()=>studentSend("pass")}
-function reset(){selectedTile="";revealHands=false}
+function studentWire(){document.querySelectorAll("[data-dm-rotate]").forEach(b=>b.onclick=()=>{const item=b.closest(".dm-hand-item");item?.classList.toggle("dm-double-horizontal");b.textContent=item?.classList.contains("dm-double-horizontal")?"⟳ HORIZONTAL":"⟳ VERTICAL"});document.querySelectorAll("[data-dm-play]").forEach(b=>b.onclick=()=>studentSend("play",b.dataset.dmPlay,b.dataset.dmSide,!b.closest(".dm-double-horizontal")));const draw=document.querySelector("#dmDraw"),pass=document.querySelector("#dmPass");if(draw)draw.onclick=()=>studentSend("draw");if(pass)pass.onclick=()=>studentSend("pass")}
+function reset(){selectedTile="";revealHands=false;doubleVertical=true}
 return {make,makeBag,pips,active,ends,canPlay,playable,apply,winner,snapshot,tileHTML,tableHTML,studentHTML,teacherHTML,setupHTML,setupWire,teacherWire,studentWire,reset,saveGame,library,LIB};
 });
