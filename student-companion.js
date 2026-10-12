@@ -10,6 +10,37 @@
  const isPopout=window.name===POPOUT_NAME || params.get("compact")==="1";
  function desktopWindow(){return innerWidth>=800 && matchMedia("(pointer:fine)").matches;}
  let deviceLaunched=false;
+ let activeWindow=null;
+ function endHandoff(){
+   deviceLaunched=false;
+   activeWindow=null;
+   document.body.classList.remove("si-student-window-handed-off");
+   document.querySelector("#siStudentWindowHandoff")?.remove();
+ }
+ function showHandoff(popup){
+   activeWindow=popup;
+   if(document.querySelector("#siStudentWindowHandoff"))return;
+   const handoff=document.createElement("div");
+   handoff.id="siStudentWindowHandoff";
+   handoff.setAttribute("role","status");
+   handoff.setAttribute("aria-live","polite");
+   handoff.innerHTML='<div class="si-student-handoff-card">'
+     +'<span class="si-handoff-symbol" aria-hidden="true">↗</span>'
+     +'<span class="si-handoff-eyebrow">STUDENT DEVICE CONNECTED</span>'
+     +'<h1>Continue in your classroom device</h1>'
+     +'<p>SI Mothership opened in a compact browser window beside Zoom.</p>'
+     +'<small>This is the extra browser tab. You can close it and continue in your device window.</small>'
+     +'</div>';
+   handoff.addEventListener("click",()=>{
+     if(activeWindow?.closed){endHandoff();return}
+     try{activeWindow?.focus()}catch(e){}
+   });
+   document.body.appendChild(handoff);
+   document.body.classList.add("si-student-window-handed-off");
+ }
+ window.addEventListener("focus",()=>{
+   if(deviceLaunched && activeWindow?.closed)endHandoff();
+ });
  function openDeviceWindow(options={}){
    if(deviceLaunched || isPopout || !desktopWindow())return null;
    const {code,avatarKey}=options;
@@ -32,6 +63,7 @@
    const popup=window.open(url.toString(),POPOUT_NAME,features);
    if(popup){
      deviceLaunched=true;
+     showHandoff(popup);
      try{popup.focus()}catch(e){}
      return popup;
    }
@@ -119,29 +151,30 @@
     selectAvatarInDevice();
     return;
   }
-  // A normal tab cannot be resized by a website. On desktop, the normal
-  // Join Class or avatar selection gesture becomes the automatic launch.
-  // Nothing is added to the screen to choose a second mode.
+  // A browser cannot shrink the existing tab. Instead, a student's FIRST
+  // ordinary click inside the device opens the real compact window. This
+  // covers clicking the avatar, search, join code, or a classroom control;
+  // it never displays an extra mode/launcher button or requires setup.
   document.addEventListener("click",event=>{
-    if(deviceLaunched || !desktopWindow())return;
+    if(deviceLaunched || !desktopWindow() || isPopout || !event.isTrusted)return;
+    if(!event.target.closest("#student .device"))return;
     const codeButton=event.target.closest("#joinCodeBtn");
     const avatarButton=event.target.closest("#studentContent [data-join-avatar]");
-    const finalButton=event.target.closest("#joinClassBtn");
-    if(!codeButton&&!avatarButton&&!finalButton)return;
-    if(typeof studentNeedsJoin!=="function" || !studentNeedsJoin())return;
-    if(codeButton){
-      const code=(document.querySelector("#joinCodeInput")?.value||"").trim().toUpperCase();
-      if(code.length!==4 || typeof STUDENT_JOIN_CODE==="undefined"||code!==STUDENT_JOIN_CODE)return;
-      openDeviceWindow({code});
-    }else if(avatarButton){
-      openDeviceWindow({code:typeof STUDENT_JOIN_CODE!=="undefined"?STUDENT_JOIN_CODE:"",
-        avatarKey:avatarButton.dataset.joinAvatar});
-    }else if(finalButton){
-      // Fallback for unusual flows where neither earlier step opened a window.
-      const name=document.querySelector("#joinStudentName")?.value?.trim();
-      if(name && typeof joinAvatarDraft!=="undefined" && joinAvatarDraft)
-        openDeviceWindow({code:STUDENT_JOIN_CODE,avatarKey:joinAvatarDraft});
+    const codeField=document.querySelector("#joinCodeInput");
+    let code="";
+    if(typeof STUDENT_JOIN_CODE!=="undefined"
+       && typeof studentNeedsJoin==="function" && studentNeedsJoin()){
+      const entered=String(codeField?.value||"").trim().toUpperCase();
+      // Never bypass an incorrect classroom code.
+      if(codeButton && entered!==STUDENT_JOIN_CODE)return;
+      if(!codeField || entered===STUDENT_JOIN_CODE)code=STUDENT_JOIN_CODE;
     }
+    const popup=openDeviceWindow({code,avatarKey:avatarButton?.dataset.joinAvatar});
+    if(!popup)return; // A blocked pop-up leaves normal student login intact.
+    // The first interaction is transferred to the new window. Prevent a
+    // duplicate join, double avatar selection or classroom action in this tab.
+    event.preventDefault();
+    event.stopImmediatePropagation();
   },true);
  }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});

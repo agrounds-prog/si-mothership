@@ -126,8 +126,16 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.ok(defaultWindow.width<=442 &&defaultWindow.height<=782,JSON.stringify(defaultWindow));
   assert.equal(await launched.locator(".si-student-popout").count(),0);
   assert.equal(await launched.locator("#siStudentDeviceLauncher").count(),0);
+  assert.equal(await student.locator("#siStudentWindowHandoff").count(),1,
+    "original full-size tab must become a handoff instead of a duplicate login");
+  assert.match(await student.locator("#siStudentWindowHandoff").innerText(),/Continue in your classroom device/);
+  // The original tab must NOT select the avatar or join a second time.
+  assert.equal(await student.evaluate(()=>joinStep),"avatar");
   await launched.close();
+  await student.bringToFront();
+  await student.waitForSelector("#siStudentWindowHandoff",{state:"detached",timeout:5000});
   await student.setViewportSize({width:440,height:760});
+  await student.locator("#studentContent [data-join-avatar]:visible").first().click();
   await student.waitForSelector("#studentContent #joinClassBtn",{timeout:5000});
   const confirmation=await student.evaluate(()=>({
     header:document.querySelector("#studentContent .confirm-join-card h2")?.textContent,
@@ -173,6 +181,9 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const codeWindow=await codeWindowPromise;
   codeWindow.on("pageerror",e=>errors.push("code device "+String(e)));
   await codeWindow.waitForSelector("#studentContent .avatar-select-card",{timeout:15000});
+  assert.equal(await fresh.locator("#siStudentWindowHandoff").count(),1);
+  assert.equal(await fresh.evaluate(()=>joinStep),"code",
+    "source tab must not continue joining after the popup opens");
   assert.equal(new URL(codeWindow.url()).searchParams.get("code"),session.code);
   assert.equal(new URL(codeWindow.url()).searchParams.get("compact"),"1");
   const codeGeom=await codeWindow.evaluate(()=>{
@@ -182,8 +193,21 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.ok(Math.abs(codeGeom.viewportWidth-codeGeom.width)<=2
     &&Math.abs(codeGeom.viewportHeight-codeGeom.height)<=2,JSON.stringify(codeGeom));
   await freshCtx.close();
+  // Initial QR avatar page: even a first click in the search field
+  // launches the compact controller (not just pressing the avatar).
+  const quickCtx=await browser.newContext({viewport:{width:1380,height:910}});
+  const quick=await quickCtx.newPage();
+  quick.on("pageerror",e=>errors.push("quick-start "+String(e)));
+  await quick.goto(BASE+"/?role=student&code="+session.code+"&sid="+session.sid,{waitUntil:"domcontentloaded"});
+  await quick.waitForSelector("#studentContent .si-avatar-search input");
+  const quickWait=quick.waitForEvent("popup",{timeout:10000});
+  await quick.locator("#studentContent .si-avatar-search input").click();
+  const quickDevice=await quickWait;
+  await quickDevice.waitForSelector("#studentContent .si-avatar-search input",{timeout:15000});
+  assert.equal(await quick.locator("#siStudentWindowHandoff").count(),1);
+  await quickCtx.close();
   assert.deepEqual(errors,[]);
-  console.log("STUDENT COMPANION default device window for code + QR + active controls PASSED");
+  console.log("STUDENT COMPANION no-install first-click device handoff (avatar/search/code) PASSED");
   await ctx.close();
  }finally{await teacherContext.close();await browser.close()}
 })().catch(e=>{console.error(e);process.exit(1)});

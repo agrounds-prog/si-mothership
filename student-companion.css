@@ -1416,5 +1416,39 @@ body.role-student.si-student-is-popout .device {
 body.role-student.si-student-is-popout .device-head{
  border-bottom:1px solid #53a4c4!important;
 }
-
+/* When a desktop student's first action opens the Zoom device window,
+   show a clear handoff rather than leaving a duplicate active login in
+   a maximized browser tab. No install or mode-selection UI. */
+body.role-student.si-student-window-handed-off{overflow:hidden!important}
+body.role-student #siStudentWindowHandoff{
+ position:fixed;inset:0;z-index:9999;
+ display:grid;place-items:center;padding:20px;
+ background:radial-gradient(ellipse at 55% 30%,#143a50,#05101c 76%);
+ color:#eaffff;font:500 15px/1.5 system-ui,sans-serif;
+}
+body.role-student .si-student-handoff-card{
+ width:min(440px,100%);padding:32px 25px;text-align:center;
+ background:linear-gradient(145deg,#10354b,#081c2d);
+ border:1px solid #3889a0;border-radius:20px;
+ box-shadow:0 20px 70px #0008,inset 0 1px 0 #aaf5ff24;
+}
+body.role-student .si-handoff-symbol{
+ display:grid;place-items:center;margin:0 auto 20px;
+ width:64px;height:64px;border-radius:18px;
+ background:#225b70;border:1px solid #73dbec;
+ color:#eaffff;font-size:32px;
+}
+body.role-student .si-handoff-eyebrow{
+ font-size:11px;font-weight:950;letter-spacing:.12em;color:#8de7eb;
+}
+body.role-student .si-student-handoff-card h1{
+ font-size:23px!important;line-height:1.2!important;
+ margin:9px 0 11px!important;color:#fff!important;
+}
+body.role-student .si-student-handoff-card p{
+ margin:0 0 16px!important;font-size:14px!important;
+ color:#c4deeb!important;
+}
+body.role-student .si-student-handoff-card small{
+ display:block;color:#8cbbca!important;font-size:12px!important;
 }
