@@ -465,11 +465,11 @@ body.sipreview-open{overflow:hidden!important}
 .sipreview-viewport{
  flex:1 1 auto;min-height:0;min-width:0;display:flex;align-items:center;
  justify-content:center;overflow:hidden;padding:clamp(6px,1.3vw,18px);
- background:radial-gradient(ellipse at center,#15283c,#06101f 75%);
+ container-type:size;background:radial-gradient(ellipse at center,#15283c,#06101f 75%);
 }
 .sipreview-stage{
  position:relative;flex:0 1 auto;aspect-ratio:16/9;
- width:min(100%,calc((100dvh - 190px)*16/9));
+ width:min(100cqw,calc(100cqh * 16 / 9));
  max-height:100%;overflow:hidden;box-sizing:border-box;
  background:#07152a;box-shadow:0 9px 35px #000b,0 0 0 1px #4b7894;
 }
@@ -524,7 +524,7 @@ body.sipreview-open{overflow:hidden!important}
  .sipreview-dialog{border-radius:9px}
  .sipreview-overlay{padding:4px}
  .sipreview-viewport{padding:6px}
- .sipreview-stage{width:min(100%,calc((100dvh - 164px)*16/9))}
+ .sipreview-stage{width:min(100cqw,calc(100cqh * 16 / 9))}
  .sipreview-toolbar{gap:7px;padding:8px}
  .sipreview-toolbar button{min-width:95px;padding:8px 6px}
  .sipreview-details{min-width:65px}
