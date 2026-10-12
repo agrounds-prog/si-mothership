@@ -4982,6 +4982,18 @@ async def student_device_setup(request: web.Request) -> web.Response:
     })
 
 
+async def teacher_console(request: web.Request) -> web.Response:
+    """Dedicated Mission Control entry point, never inheriting student URL parameters.
+
+    This does not bypass the teacher login or grant teacher permissions.
+    A teacher must still authenticate normally before controls and stored
+    teacher-only material become available.
+    """
+    if request.query_string:
+        raise web.HTTPFound("/teacher")
+    return await index(request)
+
+
 async def scientific_calculator(request: web.Request) -> web.Response:
     """Serve the SI Scientific Calculator with the classroom-modeling visual skin."""
     if not CALCULATOR_INDEX_GZ.exists():
@@ -6094,6 +6106,8 @@ def create_app() -> web.Application:
     app["quick_poll"] = quick_poll
     app.router.add_get("/", index)
     app.router.add_get("/index.html", index)
+    app.router.add_get("/teacher", teacher_console)
+    app.router.add_get("/teacher/", teacher_console)
     app.router.add_get("/student-device-setup.cmd", student_device_setup)
     app.router.add_get("/million-studio.js", lambda request: web.FileResponse(Path(__file__).with_name("million-studio.js"), headers={"Cache-Control": "no-store"}))
     app.router.add_get("/million-studio.css", lambda request: web.FileResponse(Path(__file__).with_name("million-studio.css"), headers={"Cache-Control": "no-store"}))

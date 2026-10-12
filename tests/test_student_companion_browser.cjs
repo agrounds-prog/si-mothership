@@ -18,6 +18,24 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   student.on("pageerror",e=>errors.push("student "+String(e)));
   await student.goto(BASE+"/?role=student&code="+encodeURIComponent(session.code)+"&sid="+encodeURIComponent(session.sid),{waitUntil:"domcontentloaded",timeout:40000});
   await student.waitForSelector("#studentContent .avatar-select-card",{timeout:15000});
+  // Test the new Mission Control link in the very same browser context
+  // where the student screen and local student data are already active.
+  const mission=await ctx.newPage();
+  mission.on("pageerror",e=>errors.push("mission control "+String(e)));
+  await mission.goto(BASE+"/teacher?role=student&code=OLD",{waitUntil:"domcontentloaded",timeout:40000});
+  await mission.waitForFunction(()=>typeof SESSION_ROLE==="string",null,{timeout:15000});
+  const missionState=await mission.evaluate(()=>({
+    path:location.pathname,role:SESSION_ROLE,
+    studentSkin:document.body.classList.contains("role-student"),
+    teacherActive:document.querySelector("#teacher").classList.contains("active"),
+    studentActive:document.querySelector("#student").classList.contains("active")
+  }));
+  assert.equal(missionState.path,"/teacher");
+  assert.equal(missionState.role,"teacher");
+  assert.equal(missionState.teacherActive,true,JSON.stringify(missionState));
+  assert.equal(missionState.studentActive,false,JSON.stringify(missionState));
+  assert.equal(missionState.studentSkin,false);
+  await mission.close();
   assert.equal(await student.locator(".si-student-popout").count(),0,
     "no optional device window button");
   assert.equal(await student.locator("#siStudentDeviceLauncher").count(),0,

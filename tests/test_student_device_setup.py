@@ -21,6 +21,21 @@ class StudentDeviceSetupTests(unittest.IsolatedAsyncioTestCase):
         server.DB_PATH = self.previous_db_path
         self.directory.cleanup()
 
+    async def test_dedicated_teacher_link_cannot_inherit_student_role(self):
+        response = await self.client.get("/teacher")
+        self.assertEqual(response.status, 200)
+        html = await response.text()
+        self.assertIn("SI Mothership", html)
+        self.assertIn("const SESSION_ROLE=new URLSearchParams(location.search).get('role')||'teacher'", html)
+        self.assertIn('id="teacher" class="view active"', html)
+        self.assertIn("window.__SI_TEACHER_AUTHENTICATED__=false", html)
+        # Even a stale student URL suffix must be removed at this dedicated path.
+        stale = await self.client.get("/teacher?role=student&code=BAD1", allow_redirects=False)
+        self.assertEqual(stale.status, 302)
+        self.assertEqual(stale.headers["Location"], "/teacher")
+        slash = await self.client.get("/teacher/")
+        self.assertEqual(slash.status, 200)
+
     async def test_windows_shortcut_is_downloadable_and_contains_only_public_student_entry(self):
         response = await self.client.get("/student-device-setup.cmd")
         self.assertEqual(response.status, 200)
