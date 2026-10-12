@@ -63,26 +63,46 @@
  function selectAvatarInDevice(){
    const requested=params.get("pickAvatar");
    if(!isPopout||!requested)return;
-   const choose=()=>{
-     if(typeof studentNeedsJoin==="function" && !studentNeedsJoin()){
-       history.replaceState(null,"",location.pathname+location.search.replace(/([&?])pickAvatar=[^&]*/,"$1").replace(/[?&]$/,""));
-       return true;
-     }
-     if(typeof networkHydrated!=="undefined" && !networkHydrated)return false;
-     const avatar=[...document.querySelectorAll("#studentContent [data-join-avatar]")]
-       .find(btn=>btn.dataset.joinAvatar===requested);
-     if(!avatar)return false;
-     avatar.click();
+   let observer=null,timer=null,done=false,attempts=0;
+   const finish=()=>{
+     done=true;
+     if(observer)observer.disconnect();
+     if(timer)clearInterval(timer);
      const u=new URL(location.href);
      u.searchParams.delete("pickAvatar");
      history.replaceState(null,"",u.pathname+u.search);
+   };
+   const choose=()=>{
+     if(done)return true;
+     if(typeof studentNeedsJoin==="function" && !studentNeedsJoin()){
+       finish();return true;
+     }
+     if(typeof networkHydrated==="undefined" || !networkHydrated)return false;
+     // A newly opened companion can hydrate after its initial render.
+     // Align the first join stage before applying the original avatar click.
+     if(typeof joinStep!=="undefined" && joinStep==="code"
+       && typeof joinCodeDraft!=="undefined" && joinCodeDraft===STUDENT_JOIN_CODE){
+       joinStep="avatar";
+       if(typeof renderPublic==="function")renderPublic();
+     }
+     const avatar=[...document.querySelectorAll("#studentContent [data-join-avatar]")]
+       .find(btn=>btn.dataset.joinAvatar===requested);
+     if(!avatar)return false;
+     finish(); // Prevent a second click during the synchronous render.
+     avatar.click();
      return true;
    };
    if(choose())return;
    const content=document.querySelector("#studentContent");
    if(!content)return;
-   const observer=new MutationObserver(()=>{if(choose())observer.disconnect()});
+   observer=new MutationObserver(choose);
    observer.observe(content,{childList:true,subtree:true});
+   // Network hydration may finish without mutating #studentContent at
+   // exactly the same instant, so keep a bounded retry in addition.
+   timer=setInterval(()=>{
+     if(++attempts>120)finish();
+     else choose();
+   },100);
  }
  function install(){
   const head=document.querySelector("body.role-student #student .device-head");

@@ -99,7 +99,21 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const launched=await defaultWindowPromise;
   launched.on("pageerror",e=>errors.push("default device "+String(e)));
   await launched.waitForLoadState("domcontentloaded");
-  await launched.waitForSelector("#joinStudentName",{timeout:15000});
+  try{
+    await launched.waitForSelector("#joinStudentName",{timeout:15000});
+  }catch(e){
+    console.log("AUTO AVATAR DEBUG",await launched.evaluate(()=>({
+      joinStep:typeof joinStep==="undefined"?"unavailable":joinStep,
+      hydrated:typeof networkHydrated==="undefined"?"unavailable":networkHydrated,
+      needsJoin:typeof studentNeedsJoin==="function"?studentNeedsJoin():null,
+      requested:new URLSearchParams(location.search).get("pickAvatar"),
+      code:typeof STUDENT_JOIN_CODE==="undefined"?"unavailable":STUDENT_JOIN_CODE,
+      codeDraft:typeof joinCodeDraft==="undefined"?"unavailable":joinCodeDraft,
+      avatars:document.querySelectorAll("#studentContent [data-join-avatar]").length,
+      content:document.querySelector("#studentContent")?.innerText.slice(0,250)
+    })));
+    throw e;
+  }
   const defaultWindow=await launched.evaluate(()=>{
     const rect=document.querySelector("#student .device").getBoundingClientRect();
     return {width:innerWidth,height:innerHeight,deviceWidth:rect.width,
