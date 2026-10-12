@@ -10,6 +10,10 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
  try{
   const login=await teacher.request.post(BASE+"/api/teacher/login",{data:{key:"5030"}});
   assert.equal(login.status(),200);
+  // The preceding browser test leaves a teacher game running on this same local server.
+  // Start a new isolated session before testing the next real-student join.
+  const fresh=await teacher.request.post(BASE+"/api/session/new",{data:{}});
+  assert.equal(fresh.status(),200,"isolated game round begins without the previous activity");
   await teacher.goto(BASE+"/?role=teacher",{waitUntil:"domcontentloaded",timeout:40000});
   await teacher.waitForFunction(()=>!!window.__signalSequenceBridge&&networkHydrated===true,{timeout:15000});
   await teacher.evaluate(()=>{
