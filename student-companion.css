@@ -1383,3 +1383,7 @@ body.role-student #studentContent #studentBingoClaimBtn:focus-visible{
 body.role-student #studentContent .dm-pick-actions [data-dm-side="first"]{grid-column:1/-1!important;min-height:48px!important;font-size:11px!important}
 body.role-student #studentContent .dm-rotate{grid-column:1/-1!important;min-height:48px!important;border-color:#cdb682!important;color:#ffe8b7!important}
 body.role-student #studentContent .dm-hand-item.dm-double-vertical .dm-tile.double{transform:rotate(90deg);margin:19px 10px}
+
+/* Zoom device avatar navigation: 44px arrows and readable search on small screens. */
+body.role-student .si-avatar-search input{min-height:44px!important;height:44px!important;font-size:13px!important}
+body.role-student .si-avatar-page-buttons button{min-width:44px!important;min-height:44px!important}

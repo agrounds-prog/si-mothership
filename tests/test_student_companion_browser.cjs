@@ -70,8 +70,15 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await student.locator("#studentContent [data-join-avatar]:visible").count(),9);
   for(const [w,h,expected] of [[390,670,6],[330,610,6],[320,580,6],[480,610,6],[440,760,9]]){
     await student.setViewportSize({width:w,height:h});
-    const g=await student.evaluate(()=>({overflow:document.documentElement.scrollWidth-innerWidth,main:document.querySelector("#studentContent").clientHeight}));
+    const g=await student.evaluate(()=>({
+      overflow:document.documentElement.scrollWidth-innerWidth,
+      main:document.querySelector("#studentContent").clientHeight,
+      navigation:[...document.querySelectorAll(".si-avatar-page-buttons button")].map(b=>{
+        const r=b.getBoundingClientRect();return {width:r.width,height:r.height};
+      })
+    }));
     assert.ok(g.overflow<=2&&g.main>150,JSON.stringify({w,h,g}));
+    assert.ok(g.navigation.length===2&&g.navigation.every(b=>b.width>=44&&b.height>=44),JSON.stringify({w,h,g}));
     // The viewport resize event can arrive a frame after setViewportSize.
     await student.waitForFunction(n=>document.querySelectorAll("#studentContent [data-join-avatar]:not([hidden])").length===n,expected,{timeout:4000});
     assert.equal(await student.locator("#studentContent [data-join-avatar]:visible").count(),expected,"avatar page size stays compact");
@@ -81,7 +88,8 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   }
 
   await student.setViewportSize({width:440,height:760});
-  await student.locator("#studentContent [data-join-avatar]").first().click();
+  await avatarSearch.fill(firstAvatarName);
+  await avatarSearch.press("Enter");
   await student.waitForSelector("#studentContent #joinClassBtn",{timeout:5000});
   const confirmation=await student.evaluate(()=>({
     header:document.querySelector("#studentContent .confirm-join-card h2")?.textContent,

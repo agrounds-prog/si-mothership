@@ -83,7 +83,7 @@
     nav.className="si-avatar-navigator";
     nav.setAttribute("aria-label","Find or browse classroom avatars");
     nav.innerHTML='<label class="si-avatar-search"><span class="sr-only">Find avatar by name</span><input type="search" autocomplete="off" placeholder="Find an avatar…" aria-label="Find avatar by name"></label>'
-      +'<div class="si-avatar-page-buttons"><button type="button" data-si-avatar-prev aria-label="Previous avatars">‹</button><output class="si-avatar-page-count" aria-live="polite">1 / 1</output><button type="button" data-si-avatar-next aria-label="Next avatars">›</button></div>';
+      +'<div class="si-avatar-page-buttons"><button type="button" data-si-avatar-prev aria-label="Previous avatars">‹</button><output class="si-avatar-page-count" aria-live="polite" aria-label="Avatar page">1 / 1</output><button type="button" data-si-avatar-next aria-label="Next avatars">›</button></div>';
     const empty=document.createElement("p");
     empty.className="si-avatar-no-match";
     empty.setAttribute("role","status");
@@ -97,6 +97,13 @@
       view.query=search.value;
       view.page=0;
       paint();
+      const scroller=document.querySelector("body.role-student #studentContent");
+      if(scroller)scroller.scrollTop=0;
+    });
+    search.addEventListener("keydown",event=>{
+      if(event.key!=="Enter")return;
+      const first=activeGrid?.querySelector("[data-join-avatar]:not([hidden])");
+      if(first&&!first.disabled){event.preventDefault();first.click();}
     });
     for(const [selector,delta] of [["[data-si-avatar-prev]",-1],["[data-si-avatar-next]",1]]){
       nav.querySelector(selector).addEventListener("click",()=>{
