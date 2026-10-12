@@ -85,6 +85,24 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    await page.locator("#siPlusPreviewBtn").click();
    assert.equal(await page.locator(".sipreview-count").innerText(),"Slide 1 of 4");
    await page.locator('[data-sipreview="close"]').click();
+   // Check the user-facing SI+ home, then saved library. No console setup shortcuts.
+   await page.locator("#cancelPresentationEdit").click();
+   await page.locator("#siPreviewLibraryBtn").waitFor({state:"visible"});
+   await page.locator("#siPreviewLibraryBtn").click();
+   await page.locator("#savedPresentationPicker .si-plus-saved-preview").first().waitFor({state:"visible"});
+   const savedCount=await page.locator("#savedPresentationPicker .saved-deck").count();
+   assert.equal(await page.locator("#savedPresentationPicker .si-plus-saved-preview").count(),savedCount);
+   const deckCard=page.locator("#savedPresentationPicker .saved-deck")
+     .filter({has:page.locator('h4:text-is("Private Preview Test")')});
+   await deckCard.locator(".si-plus-saved-preview").click();
+   assert.equal(await page.locator(".sipreview-count").innerText(),"Slide 1 of 4");
+   assert.equal(await page.locator("#shared .si-plus-slide-stage").count(),0);
+   await page.keyboard.press("ArrowRight");
+   assert.match(await page.locator(".sipreview-stage").innerText(),/Test question/);
+   await page.keyboard.press("Escape");
+   assert.equal(await page.locator("#siPlusPreviewOverlay").count(),0);
+   assert.equal(await page.locator("#savedPresentationPicker .saved-deck").count(),savedCount);
+   assert.equal(await page.evaluate(()=>state.activityRun),null,"saved preview must not launch a game");
    assert.deepEqual(errors,[],"no browser JavaScript errors");
    console.log("SI+ TEACHER PREVIEW PASSED",JSON.stringify({sizes,localOnly:true,savedDeck:true,errors}));
  }finally{await browser.close()}

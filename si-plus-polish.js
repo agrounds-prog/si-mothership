@@ -83,18 +83,22 @@
  "use strict";
  if(window.SIPlusPresentationPreview)return;
  const editor=()=>document.querySelector("#presentationBuilderPanel");
- let overlay=null,position=0,returnFocus=null;
- const permitted=()=>typeof state!=="undefined" && !!state.presentationEditor?.draft
-   && !state.activityRun && typeof SESSION_ROLE!=="undefined" && SESSION_ROLE==="teacher";
- const slideCount=()=>state.presentationEditor?.draft.slides?.length||0;
+ let overlay=null,position=0,returnFocus=null,savedDeck=null;
+ const deck=()=>savedDeck||state.presentationEditor?.draft||null;
+ const permitted=()=>typeof state!=="undefined"
+   && typeof SESSION_ROLE!=="undefined" && SESSION_ROLE==="teacher"
+   && state.screen==="activities" && !state.activityRun
+   && ((savedDeck && state.activeApp==="si-plus" && state.presentationLibraryOpen)
+       || !!state.presentationEditor?.draft);
+ const slideCount=()=>deck()?.slides?.length||0;
  // Render using the same presentation markup as the actual projector. The
  // temporary activity exists for this one synchronous render ONLY.
  function projectorMarkup(index){
-   const deck=state.presentationEditor.draft;
+   const selected=deck();
    const activitiesBefore=state.activities,runBefore=state.activityRun;
    const token=Symbol("private-si-plus-preview");
    try{
-     state.activities=[...activitiesBefore,{...deck,id:token,type:"presentation"}];
+     state.activities=[...activitiesBefore,{...selected,id:token,type:"presentation"}];
      state.activityRun={activityId:token,phase:"running",slideIndex:index,
        responses:{},showResults:false,revealAnswer:false};
      return activitySharedMarkup(true);
@@ -107,11 +111,11 @@
    if(!overlay)return;
    if(!permitted()||!slideCount()){close();return}
    position=Math.max(0,Math.min(position,slideCount()-1));
-   const deck=state.presentationEditor.draft;
-   overlay.querySelector(".sipreview-title").textContent=deck.deckTitle||deck.name||"Untitled Presentation";
+   const selected=deck();
+   overlay.querySelector(".sipreview-title").textContent=selected.deckTitle||selected.name||"Untitled Presentation";
    overlay.querySelector(".sipreview-count").textContent="Slide "+(position+1)+" of "+slideCount();
    overlay.querySelector(".sipreview-slide-label").textContent=
-     deck.slides[position].listTitle||deck.slides[position].title||"Slide "+(position+1);
+     selected.slides[position].listTitle||selected.slides[position].title||"Slide "+(position+1);
    overlay.querySelector(".sipreview-stage").innerHTML=projectorMarkup(position);
    overlay.querySelector('[data-sipreview="prev"]').disabled=position===0;
    overlay.querySelector('[data-sipreview="next"]').disabled=position===slideCount()-1;
@@ -141,17 +145,33 @@
  function close(){
    if(!overlay)return;
    const old=returnFocus;
-   overlay.remove();overlay=null;returnFocus=null;
+   overlay.remove();overlay=null;returnFocus=null;savedDeck=null;
    document.body.classList.remove("sipreview-open");
    document.removeEventListener("keydown",onKeys,true);
    if(old?.isConnected)old.focus();
    else editor()?.querySelector("#siPlusPreviewBtn")?.focus();
  }
  function open(){
+   savedDeck=null;
    if(!permitted()||!slideCount())return;
    if(overlay){update();return}
    returnFocus=document.activeElement;
    position=Math.min(Math.max(Number(state.editorSlide)||0,0),slideCount()-1);
+   showPreview();
+ }
+ function openSaved(id){
+   if(typeof state==="undefined" || !state.presentationLibraryOpen
+      || state.activeApp!=="si-plus" || state.activityRun)return;
+   const chosen=state.activities.find(a=>a.type==="presentation"&&String(a.id)===String(id));
+   if(!chosen || !Array.isArray(chosen.slides) || !chosen.slides.length)return;
+   if(overlay)close();
+   savedDeck=chosen;
+   if(!permitted()){savedDeck=null;return}
+   returnFocus=document.activeElement;
+   position=0;
+   showPreview();
+ }
+ function showPreview(){
    overlay=document.createElement("div");
    overlay.id="siPlusPreviewOverlay";
    overlay.className="sipreview-overlay";
@@ -184,29 +204,57 @@
  }
  function mount(){
    if(overlay&&!permitted())close();
-   if(!permitted())return;
+   if(typeof state==="undefined" || state.activeApp!=="si-plus" || state.activityRun)return;
    const actions=editor()?.querySelector(".builder-top-actions");
-   if(!actions||actions.querySelector("#siPlusPreviewBtn"))return;
-   const button=document.createElement("button");
-   button.type="button";button.id="siPlusPreviewBtn";
-   button.textContent="▷ Preview";button.title="Review presentation without sending it to students";
-   button.addEventListener("click",open);
-   const organizer=actions.querySelector("#siOrgToggle");
-   if(organizer)organizer.insertAdjacentElement("afterend",button);
-   else actions.prepend(button);
+   if(actions && !actions.querySelector("#siPlusPreviewBtn") && state.presentationEditor?.draft){
+     const button=document.createElement("button");
+     button.type="button";button.id="siPlusPreviewBtn";
+     button.textContent="◉ Preview Presentation";
+     button.title="Private full-size slide preview. Does not launch or save.";
+     button.setAttribute("aria-label","Preview presentation privately before presenting");
+     button.addEventListener("click",open);
+     const organizer=actions.querySelector("#siOrgToggle");
+     if(organizer)organizer.insertAdjacentElement("afterend",button);
+     else actions.prepend(button);
+   }
+   // Visible entry point on the actual SI+ home, not just inside the editor.
+   const launchSaved=document.querySelector("#siLoadPresentation");
+   if(launchSaved && !document.querySelector("#siPreviewLibraryBtn")){
+     const button=document.createElement("button");
+     button.type="button";button.id="siPreviewLibraryBtn";
+     button.textContent="◉ Preview Saved Slides";
+     button.title="Review any saved presentation without sending it to class";
+     button.onclick=()=>launchSaved.click();
+     launchSaved.insertAdjacentElement("afterend",button);
+   }
+   // Every saved presentation can be previewed without launching or editing.
+   document.querySelectorAll("#savedPresentationPicker .saved-deck-actions").forEach(actions=>{
+     const edit=actions.querySelector("[data-edit-saved]");
+     const load=actions.querySelector("[data-load-saved]");
+     if(!edit||actions.querySelector("[data-si-preview-saved]"))return;
+     const button=document.createElement("button");
+     button.type="button";button.className="si-plus-saved-preview";
+     button.dataset.siPreviewSaved=edit.dataset.editSaved;
+     button.textContent="◉ Preview";
+     button.setAttribute("aria-label","Preview saved presentation without launching");
+     button.onclick=()=>openSaved(button.dataset.siPreviewSaved);
+     if(load)load.insertAdjacentElement("beforebegin",button);
+     else actions.prepend(button);
+   });
  }
  function start(){
-   const root=editor();
-   if(!root)return;
+   const roots=[editor(),document.querySelector("#activitiesPanel")].filter(Boolean);
+   if(!roots.length)return;
    let pending=false;
-   new MutationObserver(()=>{
+   const observer=new MutationObserver(()=>{
      if(pending)return;
      pending=true;
      queueMicrotask(()=>{pending=false;mount()});
-   }).observe(root,{childList:true,subtree:true});
+   });
+   roots.forEach(root=>observer.observe(root,{childList:true,subtree:true}));
    mount();
  }
- window.SIPlusPresentationPreview={open,close,get active(){return !!overlay;}};
+ window.SIPlusPresentationPreview={open,openSaved,close,get active(){return !!overlay;}};
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});
  else start();
 })();

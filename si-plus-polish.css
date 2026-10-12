@@ -531,3 +531,20 @@ body.sipreview-open{overflow:hidden!important}
  .sipreview-tip{padding-bottom:5px}
  .sipreview-stage .answer-copy{font-size:clamp(10px,2.4vw,16px)}
 }
+
+/* SI+ teacher previews are reachable from the home, builder and saved library. */
+#teacher #activitiesPanel #siPreviewLibraryBtn,
+#teacher #savedPresentationPicker .si-plus-saved-preview{
+ min-height:44px!important;border:1px solid #96e9d5!important;border-radius:10px!important;
+ color:#ecfff8!important;background:linear-gradient(140deg,#217e75,#104c59)!important;
+ font-weight:900!important;box-shadow:inset 0 1px #dfffff32,0 4px 12px #0004!important;
+}
+#teacher #activitiesPanel #siPreviewLibraryBtn:focus-visible,
+#teacher #savedPresentationPicker .si-plus-saved-preview:focus-visible{
+ outline:3px solid #ffe7ae!important;outline-offset:2px!important;
+}
+#teacher #presentationBuilderPanel #siPlusPreviewBtn{
+ min-height:46px!important;border:1px solid #c0fadd!important;
+ background:linear-gradient(150deg,#208879,#0a6261)!important;
+ color:#f6fff9!important;font-weight:950!important;
+}
