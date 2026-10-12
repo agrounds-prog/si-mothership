@@ -155,6 +155,19 @@
   // ordinary click inside the device opens the real compact window. This
   // covers clicking the avatar, search, join code, or a classroom control;
   // it never displays an extra mode/launcher button or requires setup.
+  // Keyboard Enter in avatar search triggers a synthetic avatar.click()
+  // in the existing app. Open from the trusted key gesture itself.
+  document.addEventListener("keydown",event=>{
+    if(event.key!=="Enter" || deviceLaunched || isPopout || !desktopWindow()
+      || !event.isTrusted || !event.target.matches("#studentContent .si-avatar-search input"))return;
+    const avatar=[...document.querySelectorAll("#studentContent [data-join-avatar]")].find(el=>!el.hidden);
+    if(!avatar)return;
+    const popup=openDeviceWindow({
+      code:typeof STUDENT_JOIN_CODE!=="undefined"?STUDENT_JOIN_CODE:"",
+      avatarKey:avatar.dataset.joinAvatar
+    });
+    if(popup){event.preventDefault();event.stopImmediatePropagation()}
+  },true);
   document.addEventListener("click",event=>{
     if(deviceLaunched || !desktopWindow() || isPopout || !event.isTrusted)return;
     if(!event.target.closest("#student .device"))return;
