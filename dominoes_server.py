@@ -87,7 +87,7 @@ def apply_dominoes_action(state: dict, run: dict, name: str, req: dict) -> bool:
         else:
             x, y = (a, b) if a == right else (b, a)
         chain = g.setdefault("chain", [])
-        vertical = req.get("vertical", True)
+        vertical = req.get("vertical", False)
         if type(vertical) is not bool:
             return False
         placed = {"id": tile_id, "a": a, "b": b, "left": x, "right": y, "vertical": a == b and vertical}
