@@ -9092,6 +9092,46 @@ body.role-shared .image-focus-slide > .question-visual{
 #shared .si-plus-slide-stage .presentation-media-stack img{
   max-height:min(48dvh,500px)!important;
 }
+/* SI+ projector-only mode: remove all global Mothership chrome while slides play.
+   This is scoped to an active SI+ slide, so other classroom games retain
+   their ordinary shared-screen sidebar and join code. */
+body.role-shared #shared .shared-screen:has(> .mirror-content > .si-plus-slide-stage){
+  display:block!important;
+  grid-template-columns:none!important;
+  grid-template-rows:none!important;
+  width:100vw!important;
+  height:100dvh!important;
+  margin:0!important;
+  padding:0!important;
+}
+body.role-shared #shared .shared-screen:has(> .mirror-content > .si-plus-slide-stage) > .mirror-top,
+body.role-shared #shared .shared-screen:has(> .mirror-content > .si-plus-slide-stage) > .mirror-footer{
+  display:none!important;
+  visibility:hidden!important;
+  width:0!important;
+  height:0!important;
+  padding:0!important;
+  margin:0!important;
+}
+body.role-shared:has(#sharedContent > .si-plus-slide-stage) #shared::after{
+  display:none!important;
+  content:none!important;
+}
+body.role-shared #shared .shared-screen > .mirror-content:has(> .si-plus-slide-stage){
+  grid-column:auto!important;
+  grid-row:auto!important;
+  position:fixed!important;
+  inset:0!important;
+  display:flex!important;
+  width:100vw!important;
+  height:100dvh!important;
+  min-width:100vw!important;
+  min-height:100dvh!important;
+  max-width:none!important;
+  padding:0!important;
+  margin:0!important;
+}
+
 /* Teacher's miniature mirror retains the same proportions, never viewport sizing. */
 #teacher .mirror-screen .si-plus-slide-stage{
   display:flex!important;align-items:center!important;justify-content:center!important;
