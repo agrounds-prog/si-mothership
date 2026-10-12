@@ -18756,7 +18756,7 @@ function readEditorImage(file,cb){if(!file)return;const r=new FileReader();r.onl
 
 let siPlusBatchImportBusy=false,siPlusBatchImportStatus='';
 function siPlusImageFilename(name){
-  return String(name||'Image').replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ').trim().slice(0,76)||'Image';
+  return String(name||'Image').replace(/\.[^.]+$/,'').replace(/[_\s-]+/g,' ').trim().slice(0,76)||'Image';
 }
 function siPlusEmptyStarter(slide){
   return !!slide&&slide.type==='instruction'
