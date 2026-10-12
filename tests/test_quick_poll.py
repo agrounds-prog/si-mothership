@@ -94,7 +94,7 @@ class QuickPollSmoke(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(html.count(dominoes_loader), 1)
         self.assertEqual(html.rfind(word_grid_loader) + len(word_grid_loader), html.rfind(dominoes_loader),
                          "Dominoes must follow Word Grid, outside inline JavaScript")
-        si_plus_loader = '<script src="/si-plus-polish.js?v=88" defer></script>'
+        si_plus_loader = f'<script src="/si-plus-polish.js?v={app.SI_PLUS_ASSET_VERSION}" defer></script>'
         self.assertEqual(html.count(si_plus_loader), 1)
         self.assertEqual(html.rfind(dominoes_loader) + len(dominoes_loader), html.rfind(si_plus_loader),
                          "SI+ enhancement must follow Dominoes, outside inline scripts")
@@ -105,7 +105,7 @@ class QuickPollSmoke(unittest.IsolatedAsyncioTestCase):
         self.assertIn('<link rel="stylesheet" href="/million-studio.css?v=1">', html)
         self.assertIn('<link rel="stylesheet" href="/word-grid.css?v=1">', html)
         self.assertIn('<link rel="stylesheet" href="/dominoes.css?v=1">', html)
-        self.assertIn('<link rel="stylesheet" href="/si-plus-polish.css?v=88">', html)
+        self.assertIn(f'<link rel="stylesheet" href="/si-plus-polish.css?v={app.SI_PLUS_ASSET_VERSION}">', html)
 
     async def test_anonymous_server_totals_and_private_identity(self):
         poll_id = await self.launch()

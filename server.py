@@ -38,6 +38,11 @@ QUICK_POLL_ASSET_VERSION = hashlib.sha256(
     (ROOT / "quick-poll.js").read_bytes()
     + (ROOT / "quick-poll.css").read_bytes()
 ).hexdigest()[:14]
+# Cache-bust both SI+ assets after presentation-mode and editor updates.
+SI_PLUS_ASSET_VERSION = hashlib.sha256(
+    (ROOT / "si-plus-polish.js").read_bytes()
+    + (ROOT / "si-plus-polish.css").read_bytes()
+).hexdigest()[:14]
 CALCULATOR_DIR = ROOT / "scientific-calculator"
 CALCULATOR_INDEX_GZ = CALCULATOR_DIR / "index.html.gz"
 CALCULATOR_ENGINE_GZ = CALCULATOR_DIR / "engine.js.gz"
@@ -4936,7 +4941,7 @@ async def index(request: web.Request) -> web.Response:
                         '<link rel="stylesheet" href="/dominoes.css?v=1">'
                         '<link rel="stylesheet" href="/four-in-line.css?v=2">'
                         '<link rel="stylesheet" href="/signal-sequence.css?v=5">'
-                        '<link rel="stylesheet" href="/si-plus-polish.css?v=88">'
+                        f'<link rel="stylesheet" href="/si-plus-polish.css?v={SI_PLUS_ASSET_VERSION}">'
                          '<link rel="stylesheet" href="/student-companion.css?v=1"></head>', 1)
     # Insert before the final body close: index.html also contains HTML strings
     # in internal scripts, so replacing the first occurrence would corrupt JS.
@@ -4953,7 +4958,7 @@ async def index(request: web.Request) -> web.Response:
                 '<script src="/million-studio.js?v=1" defer></script>' +
                 '<script src="/word-grid.js?v=1" defer></script>' +
                 '<script src="/dominoes.js?v=1" defer></script>' +
-                '<script src="/si-plus-polish.js?v=88" defer></script>' +
+                f'<script src="/si-plus-polish.js?v={SI_PLUS_ASSET_VERSION}" defer></script>' +
                 text[body_close:])
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
