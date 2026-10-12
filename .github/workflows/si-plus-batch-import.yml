@@ -2,7 +2,7 @@ name: SI+ Presentation Editor Regression
 on:
   push:
     branches: [main]
-    paths: ['index.html','si-plus-polish.css','tests/test_si_plus_batch_browser.cjs','tests/test_si_plus_organizer_browser.cjs','.github/workflows/si-plus-batch-import.yml']
+    paths: ['index.html','si-plus-polish.css','tests/test_si_plus_batch_browser.cjs','tests/test_si_plus_organizer_browser.cjs','tests/test_si_plus_uniform_slides_browser.cjs','.github/workflows/si-plus-batch-import.yml']
   workflow_dispatch:
 permissions: {contents: read}
 jobs:
@@ -38,6 +38,8 @@ jobs:
         run: node tests/test_si_plus_batch_browser.cjs
       - name: Organize slides and verify saved presentation
         run: node tests/test_si_plus_organizer_browser.cjs
+      - name: Same-size SI+ presentation canvases across image dimensions
+        run: node tests/test_si_plus_uniform_slides_browser.cjs
       - name: Existing SI+ server persistence regression
         run: python -m unittest discover -s tests -p 'test_si_plus_persistence.py' -v
       - name: Failure logs
