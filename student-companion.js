@@ -12,9 +12,12 @@
    // Touch-enabled Windows PCs may report pointer:coarse although Chrome
    // is running as a desktop browser. Do not treat them as phones.
    const agent=navigator.userAgent||"";
-   if(innerWidth<760 || /Android|iPhone|iPad|iPod|Mobile|Silk|Kindle/i.test(agent))return false;
+   // A laptop snapped beside Zoom can be only 550–750 CSS pixels wide.
+   // Detect the desktop browser, not just the current tab's dimensions.
+   // Already-compact windows need no additional popup.
+   if(innerWidth<540 || /Android|iPhone|iPad|iPod|Mobile|Silk|Kindle/i.test(agent))return false;
    return matchMedia("(pointer:fine)").matches
-      ||matchMedia("(hover:hover)").matches || innerWidth>=900;
+      ||matchMedia("(hover:hover)").matches || innerWidth>=540;
  }
  let deviceLaunched=false;
  let activeWindow=null;
@@ -84,11 +87,17 @@
    const maxHeight=screen.availHeight||DEVICE_HEIGHT;
    const desiredWidth=Math.min(DEVICE_WIDTH,maxWidth);
    const desiredHeight=Math.min(DEVICE_HEIGHT,Math.max(420,maxHeight-65));
-   const left=Math.max(0,(screen.availLeft||0)+Math.round((maxWidth-desiredWidth)/2));
-   const top=Math.max(0,(screen.availTop||0)+Math.round((maxHeight-desiredHeight)/2));
+   // Prefer the right side of the available desktop so the live Zoom
+   // meeting can remain visible on the left. Students may still drag/resize.
+   const left=(screen.availLeft||0)+Math.max(0,maxWidth-desiredWidth-24);
+   const top=(screen.availTop||0)+Math.max(0,Math.min(32,maxHeight-desiredHeight));
    const features="popup=yes,width="+desiredWidth+",height="+desiredHeight
      +",left="+left+",top="+top+",resizable=yes,scrollbars=yes,toolbar=no,menubar=no,status=no";
-   const popup=window.open(url.toString(),POPOUT_NAME,features);
+   let popup=null;
+   try{popup=window.open(url.toString(),POPOUT_NAME,features)}catch(e){
+     // School-managed browsers can throw rather than returning null.
+     // Never swallow the original avatar/join action in that case.
+   }
    if(popup){
      deviceLaunched=true;
      showHandoff(popup);
@@ -108,8 +117,13 @@
    requestAnimationFrame(()=>{
      const chromeW=Math.max(0,outerWidth-innerWidth);
      const chromeH=Math.max(0,outerHeight-innerHeight);
-     const usableW=(screen.availWidth||DEVICE_WIDTH)-chromeW;
-     const usableH=(screen.availHeight||DEVICE_HEIGHT)-chromeH;
+     // Window chrome must fit the actual display work area. On some
+     // emulated/virtual displays screen.availWidth mirrors the popup itself;
+     // don't repeatedly shrink a popup that is already the target size.
+     const workW=Math.max(screen.availWidth||0,innerWidth+chromeW);
+     const workH=Math.max(screen.availHeight||0,innerHeight+chromeH);
+     const usableW=workW-chromeW;
+     const usableH=workH-chromeH;
      const w=Math.max(320,Math.min(DEVICE_WIDTH,usableW));
      const h=Math.max(440,Math.min(DEVICE_HEIGHT,usableH));
      if(Math.abs(innerWidth-w)>5||Math.abs(innerHeight-h)>5){
