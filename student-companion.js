@@ -37,6 +37,7 @@
    deviceLaunched=false;
    activeWindow=null;
    document.body.classList.remove("si-student-window-handed-off");
+   if(desktopWindow())document.body.classList.add("si-student-compact-pending");
    document.querySelector("#siStudentWindowHandoff")?.remove();
  }
  function showHandoff(popup){
@@ -59,6 +60,7 @@
    });
    document.body.appendChild(handoff);
    document.body.classList.add("si-student-window-handed-off");
+   document.body.classList.remove("si-student-compact-pending");
    // Some browsers keep the original tab backgrounded and never emit its
    // focus event when the popup closes. Restore the original login promptly
    // regardless, so students are never stranded on the handoff screen.
@@ -107,6 +109,7 @@
    // If a browser disallows this user-initiated popup, keep the normal
    // classroom join fully functional instead of showing an extra option.
    blockedNotice();
+   document.body.classList.remove("si-student-compact-pending");
    return null;
  }
  // Browser chrome takes up part of a popup's outer height. The window is
@@ -193,6 +196,9 @@
     selectAvatarInDevice();
     return;
   }
+  // No setup or additional option: a quiet, non-interactive hint in the
+  // unused widescreen margin tells students the next click opens the window.
+  if(desktopWindow())document.body.classList.add("si-student-compact-pending");
   // A regular URL loaded into an existing Chrome tab cannot resize that tab.
   // Start the resizable companion on the FIRST trusted page interaction rather
   // than waiting for avatar search or a specific button. This also handles
