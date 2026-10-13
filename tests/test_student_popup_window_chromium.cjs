@@ -23,6 +23,28 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await teacher.goto(BASE+"/?role=teacher",{waitUntil:"domcontentloaded"});
   await teacher.waitForFunction(()=>typeof STUDENT_JOIN_CODE!=="undefined"&&typeof STUDENT_SESSION_ID!=="undefined");
   const {code,sid}=await teacher.evaluate(()=>({code:STUDENT_JOIN_CODE,sid:STUDENT_SESSION_ID}));
+  // Match the actual SI Calculator workflow: click a teacher launcher once
+  // and verify a separate compact student popup appears with the LIVE code.
+  const teacherLaunch=teacher.locator("#siTeacherStudentDeviceLaunch");
+  await teacherLaunch.waitFor({state:"visible",timeout:15000});
+  const teacherPopupPromise=teacher.waitForEvent("popup",{timeout:10000});
+  await teacherLaunch.click();
+  const teacherPop=await teacherPopupPromise;
+  await teacherPop.waitForLoadState("domcontentloaded");
+  await teacherPop.waitForSelector("#studentContent .avatar-select-card",{timeout:15000});
+  const teacherOpened=await teacherPop.evaluate(()=>({
+    href:location.href,name:window.name,outerWidth,outerHeight,
+    role:typeof SESSION_ROLE==="string"?SESSION_ROLE:""
+  }));
+  console.log("CALCULATOR STYLE TEACHER STUDENT DEVICE "+JSON.stringify(teacherOpened));
+  assert.equal(teacherOpened.name,"si_mothership_student_sidecar");
+  assert.equal(teacherOpened.role,"student");
+  assert.ok(Math.abs(teacherOpened.outerWidth-440)<=16,JSON.stringify(teacherOpened));
+  assert.ok(Math.abs(teacherOpened.outerHeight-780)<=16,JSON.stringify(teacherOpened));
+  assert.equal(new URL(teacherOpened.href).searchParams.get("compact"),"1");
+  assert.equal(new URL(teacherOpened.href).searchParams.get("code"),code);
+  assert.equal(new URL(teacherOpened.href).searchParams.get("sid"),sid);
+  await teacherPop.close();
   await page.goto(BASE+"/?role=student&code="+encodeURIComponent(code)+"&sid="+encodeURIComponent(sid),
                   {waitUntil:"domcontentloaded"});
   const search=page.locator("#studentContent .si-avatar-search input");
