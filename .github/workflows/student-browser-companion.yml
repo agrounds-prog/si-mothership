@@ -6,6 +6,7 @@ on:
       - 'student-companion.css'
       - 'student-companion.js'
       - 'tests/test_student_companion_browser.cjs'
+      - 'tests/test_student_popup_window_chromium.cjs'
       - 'tests/test_zoom_student_activities_browser.cjs'
       - 'tests/test_dominoes_multiplayer_browser.cjs'
       - 'tests/test_zoom_student_remaining_browser.cjs'
@@ -54,6 +55,8 @@ jobs:
           exit 1
       - name: Student device desktop, Zoom window, join, controls and popup
         run: node tests/test_student_companion_browser.cjs
+      - name: Verify real Chrome outer window size (headed Xvfb) and snapped desktop
+        run: xvfb-run -a -s '-screen 0 1600x1100x24' node tests/test_student_popup_window_chromium.cjs
       - name: Signal Sequence 4-color + 6-color survival + 8-color relay on student devices
         run: |
           node tests/test_signal_sequence_mobile_browser.cjs
