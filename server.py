@@ -3379,6 +3379,45 @@ html.si-calculator-popup body::-webkit-scrollbar{
   display:none!important
 }
 </style>
+<style id="v56-9-calculator-popup-geometry">
+/* Only the real physical calculator belongs in the pop-out. Marking the
+   other nodes [hidden] is not sufficient: several upstream app components
+   explicitly override display with !important, including the top toolbar. */
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode > :not(.si-model-calculator){
+  display:none!important;
+}
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode{
+  display:block!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+/* The reference keypad is mapped into SEVEN physical rows by
+   applyPhysicalKeyMap(). The previous popup CSS only declared six rows,
+   pushing row seven into an auto track and overlapping the number keys. */
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-keypad{
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  grid-template-rows:22px 22px 24px 31px 31px 31px 32px!important;
+  grid-auto-rows:32px!important;
+  grid-auto-flow:row!important;
+  row-gap:7px!important;
+  column-gap:5px!important;
+  align-content:start!important;
+  overflow:visible!important;
+}
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-keypad > .si-model-key{
+  min-height:0!important;
+  height:100%!important;
+  max-height:100%!important;
+  box-sizing:border-box!important;
+  margin:0!important;
+  align-self:stretch!important;
+}
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-keypad > .si-model-key[data-ref-row="7"]{
+  grid-row:7!important;
+}
+</style>
 <script id="v55-6-calculator-popup-window-script">
 (function(){
   const preferredScale=.82;
