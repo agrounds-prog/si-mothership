@@ -419,25 +419,34 @@
     if(win)try{win.focus()}catch(e){}
     return win;
   }
+  function currentClassroomJoinUrl(){
+    // The app refreshes this after a new class session. Never reuse a
+    // stale code/SID captured when the button was first mounted.
+    if(typeof STUDENT_JOIN_URL==="string" && studentJoinUrl(STUDENT_JOIN_URL))
+      return STUDENT_JOIN_URL;
+    return document.querySelector("#teacher .join-lobby a.join-qr-link[href]")?.href||"";
+  }
   function mount(){
     if(!document.body.classList.contains("role-teacher"))return;
-    for(const lobby of document.querySelectorAll("#teacher .join-lobby")){
-      const anchor=lobby.querySelector("a.join-qr-link[href]");
-      if(!anchor || !studentJoinUrl(anchor.href) || lobby.querySelector(".si-open-student-device"))continue;
-      const button=document.createElement("button");
-      button.type="button";
-      button.className="si-open-student-device";
-      button.textContent="↗ Open Student Device";
-      button.setAttribute("aria-label","Open student controller in a compact calculator-style window");
-      button.addEventListener("click",()=>{
-        const win=openAsCalculator(anchor.href);
-        if(!win){
-          button.textContent="Chrome blocked window — allow pop-ups and retry";
-        }
-      });
-      const code=lobby.querySelector(".join-code-big");
-      (code||anchor).insertAdjacentElement("afterend",button);
-    }
+    // Put the controller launcher next to the real class join code, NOT in
+    // the miniature Shared Screen preview where it would be unreadable.
+    const codeBar=document.querySelector("header .class-code");
+    if(!codeBar||codeBar.querySelector("#siTeacherStudentDeviceLaunch"))return;
+    const button=document.createElement("button");
+    button.type="button";
+    button.id="siTeacherStudentDeviceLaunch";
+    button.className="si-open-student-device";
+    button.textContent="↗ Student Device";
+    button.title="Open the current student classroom in a cropped calculator-style window";
+    button.setAttribute("aria-label","Open the student controller in a compact browser window");
+    button.addEventListener("click",()=>{
+      const win=openAsCalculator(currentClassroomJoinUrl());
+      if(!win){
+        button.textContent="Allow pop-ups, then retry";
+        button.title="Chrome blocked opening the compact student window";
+      }
+    });
+    codeBar.appendChild(button);
   }
   function install(){
     const teacher=document.querySelector("#teacher");
@@ -453,7 +462,8 @@
       event.preventDefault();
       event.stopImmediatePropagation();
     },true);
-    new MutationObserver(mount).observe(teacher,{childList:true,subtree:true});
+    const header=document.querySelector("header");
+    if(header)new MutationObserver(mount).observe(header,{childList:true,subtree:true});
     mount();
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
