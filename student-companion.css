@@ -1499,7 +1499,7 @@ body.role-student #siStudentOpenCompact{display:none!important}
 
 /* v56.9 — calculator-style student launcher in the actual Mission Control
    class-code toolbar, independent of the tiny shared-screen preview. */
-body.role-teacher header .class-code #siTeacherStudentDeviceLaunch {
+body:not(.role-student):not(.role-shared) header .class-code #siTeacherStudentDeviceLaunch {
   display:inline-flex!important;
   align-items:center!important;
   justify-content:center!important;
@@ -1518,10 +1518,10 @@ body.role-teacher header .class-code #siTeacherStudentDeviceLaunch {
   cursor:pointer!important;
   white-space:normal!important;
 }
-body.role-teacher header .class-code #siTeacherStudentDeviceLaunch:hover {
+body:not(.role-student):not(.role-shared) header .class-code #siTeacherStudentDeviceLaunch:hover {
   background:#175f87!important;
 }
-body.role-teacher header .class-code #siTeacherStudentDeviceLaunch:focus-visible {
+body:not(.role-student):not(.role-shared) header .class-code #siTeacherStudentDeviceLaunch:focus-visible {
   outline:3px solid #ffda85!important;
   outline-offset:2px!important;
 }
