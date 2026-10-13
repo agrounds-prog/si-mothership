@@ -193,53 +193,48 @@
     selectAvatarInDevice();
     return;
   }
-  // Only actual join actions (or in-class game controls) launch a popup.
-  // Selecting/searching an avatar and entering a code remain functional in
-  // the original tab until the student has made a meaningful choice.
+  // A regular URL loaded into an existing Chrome tab cannot resize that tab.
+  // Start the resizable companion on the FIRST trusted page interaction rather
+  // than waiting for avatar search or a specific button. This also handles
+  // students who arrive from a QR, LMS, Zoom chat, email, or pasted class link.
+  // Keep this handler on the original student tab only; the compact popup is
+  // allowed to perform every native avatar, join, and gameplay interaction.
   function validCode(){
     const supplied=String(document.querySelector("#joinCodeInput")?.value||"").trim().toUpperCase();
     return typeof STUDENT_JOIN_CODE!=="undefined" && supplied===STUDENT_JOIN_CODE;
   }
-  function launchFromKey(event){
-    if(event.key!=="Enter" || !event.isTrusted || deviceLaunched
-       ||isPopout ||!desktopWindow())return;
-    const search=event.target.matches("#studentContent .si-avatar-search input");
-    const codeInput=event.target.matches("#joinCodeInput");
-    if(!search && !codeInput)return;
-    if(codeInput&&!validCode())return; // Let the existing invalid-code UI work.
-    let avatarKey="";
-    if(search){
-      const avatar=[...document.querySelectorAll("#studentContent [data-join-avatar]")].find(el=>!el.hidden);
-      if(!avatar)return;
-      avatarKey=avatar.dataset.joinAvatar;
+  function popupOptions(target,keyboard){
+    const avatar=target?.closest?.("#studentContent [data-join-avatar]");
+    const search=target?.closest?.("#studentContent .si-avatar-search input");
+    let avatarKey=avatar?.dataset.joinAvatar||"";
+    if(keyboard && search){
+      const first=[...document.querySelectorAll("#studentContent [data-join-avatar]")]
+        .find(el=>!el.hidden && !el.disabled);
+      if(first)avatarKey=first.dataset.joinAvatar;
     }
-    const popup=openDeviceWindow({
-      code:(validCode()||search)?STUDENT_JOIN_CODE:"",
-      avatarKey
-    });
-    if(popup){event.preventDefault();event.stopImmediatePropagation()}
+    // Preserve the QR/session code, or a valid code already entered by the
+    // student, so the popup never restarts an already-completed join stage.
+    const code=(validCode() || (
+      typeof joinStep!=="undefined" && joinStep!=="code"
+      && typeof STUDENT_JOIN_CODE!=="undefined"
+    )) ? STUDENT_JOIN_CODE : "";
+    return {code,avatarKey};
   }
-  document.addEventListener("keydown",launchFromKey,true);
-  document.addEventListener("click",event=>{
-    if(deviceLaunched || !desktopWindow() || isPopout || !event.isTrusted)return;
-    // The first search-field click can start the compact window too.
-    const avatarSearch=event.target.closest("#studentContent .si-avatar-search input");
-    const joinCode=event.target.closest("#joinCodeBtn");
-    const avatar=event.target.closest("#studentContent [data-join-avatar]");
-    const confirm=event.target.closest("#joinClassBtn");
-    const joined=typeof studentNeedsJoin==="function"&&!studentNeedsJoin();
-    const gameAction=joined && event.target.closest(
-      "#studentContent button, #studentContent [role=button], #studentControls button");
-    if(!avatarSearch&&!joinCode&&!avatar&&!confirm&&!gameAction)return;
-    if(joinCode && !validCode())return;
-    let code="";
-    if(typeof STUDENT_JOIN_CODE!=="undefined" &&
-       (joinCode || avatar || validCode()))code=STUDENT_JOIN_CODE;
-    const popup=openDeviceWindow({code,avatarKey:avatar?.dataset.joinAvatar});
-    if(!popup)return; // Fall back to the unmodified join click if blocked.
+  function redirectFirstGesture(event,keyboard=false){
+    if(deviceLaunched || isPopout || !desktopWindow() || !event.isTrusted)return;
+    // Do not intercept browser shortcuts, tab navigation, or a student's first
+    // typed character. Enter/Space are activation keys; a click works anywhere
+    // on the classroom page including blank space outside the controller.
+    if(keyboard && (event.altKey||event.ctrlKey||event.metaKey ||
+       !["Enter"," "].includes(event.key)))return;
+    if(event.target?.closest?.("#siStudentPopupBlocked"))return;
+    const popup=openDeviceWindow(popupOptions(event.target,keyboard));
+    if(!popup)return; // Popup denied: preserve the original native action.
     event.preventDefault();
     event.stopImmediatePropagation();
-  },true);
+  }
+  document.addEventListener("click",event=>redirectFirstGesture(event),true);
+  document.addEventListener("keydown",event=>redirectFirstGesture(event,true),true);
  }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
  else install();
