@@ -88,13 +88,15 @@
    const maxWidth=screen.availWidth||DEVICE_WIDTH;
    const maxHeight=screen.availHeight||DEVICE_HEIGHT;
    const desiredWidth=Math.min(DEVICE_WIDTH,maxWidth);
-   const desiredHeight=Math.min(DEVICE_HEIGHT,Math.max(420,maxHeight-65));
-   // Prefer the right side of the available desktop so the live Zoom
-   // meeting can remain visible on the left. Students may still drag/resize.
+   // Outer browser-window dimensions, including Chrome's title/address bar.
+   // The page itself fills the available interior without a phone-frame margin.
+   const desiredHeight=Math.min(DEVICE_HEIGHT,Math.max(480,maxHeight-16));
+   // Prefer the right side of the available desktop so Zoom remains visible.
+   // This is a fixed-size device, not a window students need to resize.
    const left=(screen.availLeft||0)+Math.max(0,maxWidth-desiredWidth-24);
    const top=(screen.availTop||0)+Math.max(0,Math.min(32,maxHeight-desiredHeight));
    const features="popup=yes,width="+desiredWidth+",height="+desiredHeight
-     +",left="+left+",top="+top+",resizable=yes,scrollbars=yes,toolbar=no,menubar=no,status=no";
+     +",left="+left+",top="+top+",resizable=no,scrollbars=yes,toolbar=no,menubar=no,status=no";
    let popup=null;
    try{popup=window.open(url.toString(),POPOUT_NAME,features)}catch(e){
      // School-managed browsers can throw rather than returning null.
@@ -112,25 +114,18 @@
    document.body.classList.remove("si-student-compact-pending");
    return null;
  }
- // Browser chrome takes up part of a popup's outer height. The window is
- // script-created, so it can be adjusted to make the actual viewport match
- // the 440 × 780 controller while keeping the popup resizable beside Zoom.
+ // Chrome counts its title/address bar in outerHeight. Size the *entire*
+ // separate browser window to 440 × 780, rather than making its viewport
+ // 440 × 780 and leaving an 865-pixel-tall browser around it.
  function fitPopupViewport(){
    if(window.name!==POPOUT_NAME || typeof window.resizeTo!=="function")return;
    requestAnimationFrame(()=>{
-     const chromeW=Math.max(0,outerWidth-innerWidth);
-     const chromeH=Math.max(0,outerHeight-innerHeight);
-     // Window chrome must fit the actual display work area. On some
-     // emulated/virtual displays screen.availWidth mirrors the popup itself;
-     // don't repeatedly shrink a popup that is already the target size.
-     const workW=Math.max(screen.availWidth||0,innerWidth+chromeW);
-     const workH=Math.max(screen.availHeight||0,innerHeight+chromeH);
-     const usableW=workW-chromeW;
-     const usableH=workH-chromeH;
-     const w=Math.max(320,Math.min(DEVICE_WIDTH,usableW));
-     const h=Math.max(440,Math.min(DEVICE_HEIGHT,usableH));
-     if(Math.abs(innerWidth-w)>5||Math.abs(innerHeight-h)>5){
-       try{resizeTo(Math.round(w+chromeW),Math.round(h+chromeH))}catch(e){}
+     const workW=screen.availWidth||DEVICE_WIDTH;
+     const workH=screen.availHeight||DEVICE_HEIGHT;
+     const w=Math.max(320,Math.min(DEVICE_WIDTH,workW-8));
+     const h=Math.max(480,Math.min(DEVICE_HEIGHT,workH-16));
+     if(Math.abs(outerWidth-w)>5||Math.abs(outerHeight-h)>5){
+       try{resizeTo(Math.round(w),Math.round(h))}catch(e){}
      }
    });
  }
@@ -200,7 +195,7 @@
   // unused widescreen margin tells students the next click opens the window.
   if(desktopWindow())document.body.classList.add("si-student-compact-pending");
   // A regular URL loaded into an existing Chrome tab cannot resize that tab.
-  // Start the resizable companion on the FIRST trusted page interaction rather
+  // Start the fixed-size companion on the FIRST trusted page interaction rather
   // than waiting for avatar search or a specific button. This also handles
   // students who arrive from a QR, LMS, Zoom chat, email, or pasted class link.
   // Keep this handler on the original student tab only; the compact popup is
