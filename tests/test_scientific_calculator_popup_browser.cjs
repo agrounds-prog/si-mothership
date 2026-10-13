@@ -23,10 +23,12 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
        actionCount:document.querySelectorAll("[data-action]").length,
        mappedCount:document.querySelectorAll("[data-ref-row]").length,
        directMapped:document.querySelectorAll(".si-model-keypad > [data-ref-row]").length,
+       allRows:[...document.querySelectorAll("[data-ref-row]")].map(x=>({row:x.dataset.refRow,col:x.dataset.refCol,label:x.textContent.trim().slice(0,12),action:x.dataset.action,tag:x.tagName,parent:x.parentElement?.className})).slice(0,45),
+       keypadDirect:[...document.querySelector(".si-model-keypad")?.children||[]].map(x=>({tag:x.tagName,cls:x.className,row:x.dataset.refRow,col:x.dataset.refCol,label:x.textContent.trim().slice(0,10)})).slice(0,45),
        excerpt:document.body.innerText.slice(0,320)
      }))));
      await page.waitForFunction(()=>document.body.classList.contains("si-calculator-popup-mode") &&
-       document.querySelector(".si-model-calculator") && document.querySelectorAll(".si-model-keypad > [data-ref-row]").length>=28,
+       document.querySelector(".si-model-calculator") && document.querySelector(".si-model-keypad"),
        null,{timeout:15000});
      await page.waitForTimeout(550);
      const g=await page.evaluate(()=>{
