@@ -3494,7 +3494,12 @@ body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-keypad 
     const usableH=Math.max(1,window.innerHeight-4);
     const ratio=Math.min(1,usableW/bounds.width,usableH/bounds.height);
     const scale=Math.max(.36,preferredScale*ratio*.975);
-    if(Math.abs(scale-lastScale)<.003)return;
+    if(Math.abs(scale-lastScale)<.003){
+      /* Measurement resets the temporary scale to preferredScale; restore
+         the last fitted value rather than leaving the popup oversized. */
+      calc.style.setProperty('--si-popup-scale',String(lastScale));
+      return;
+    }
     lastScale=scale;
     calc.style.setProperty('--si-popup-scale',String(scale));
   }
