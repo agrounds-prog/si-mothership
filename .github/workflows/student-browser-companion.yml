@@ -58,7 +58,7 @@ jobs:
         run: node tests/test_student_companion_browser.cjs
       - name: Verify real Chrome outer window size (headed Xvfb) and snapped desktop
         run: xvfb-run -a -s '-screen 0 1600x1100x24' node tests/test_student_popup_window_chromium.cjs
-      - name: Scientific Calculator popup: seven-row keypad, hidden toolbar and no overlap
+      - name: 'Scientific Calculator popup — seven-row keypad, hidden toolbar and no overlap'
         run: node tests/test_scientific_calculator_popup_browser.cjs
       - name: Signal Sequence 4-color + 6-color survival + 8-color relay on student devices
         run: |
