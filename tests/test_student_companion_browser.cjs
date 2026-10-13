@@ -255,11 +255,17 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   blocked.on("pageerror",e=>errors.push("blocked-popup "+String(e)));
   await blocked.goto(BASE+"/?role=student&code="+session.code+"&sid="+session.sid,{waitUntil:"domcontentloaded"});
   await blocked.waitForSelector("#studentContent [data-join-avatar]:visible");
+  // A denied popup must display an explanation after clicking the real
+  // launch control, while keeping the join stage and all avatars intact.
+  await blocked.locator("#siStudentOpenCompact").click();
+  assert.equal(await blocked.evaluate(()=>joinStep),"avatar");
+  assert.equal(await blocked.locator("#siStudentPopupBlocked").count(),1);
+  assert.match(await blocked.locator("#siStudentOpenCompact").innerText(),/RETRY OPENING/);
   await blocked.locator("#studentContent [data-join-avatar]:visible").first().click();
   await blocked.locator("#joinStudentName").waitFor({timeout:15000});
   assert.equal(await blocked.locator("#siStudentWindowHandoff").count(),0);
   assert.equal(await blocked.locator("#siStudentPopupBlocked").count(),1);
-  assert.match(await blocked.locator("#siStudentPopupBlocked").innerText(),/blocked by Chrome/);
+  assert.match(await blocked.locator("#siStudentPopupBlocked").innerText(),/Chrome prevented/);
   await blocked.locator("#siStudentPopupBlocked button").click();
   assert.equal(await blocked.locator("#siStudentPopupBlocked").count(),0);
   await blockedCtx.close();
