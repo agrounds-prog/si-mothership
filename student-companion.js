@@ -427,7 +427,7 @@
     return document.querySelector("#teacher .join-lobby a.join-qr-link[href]")?.href||"";
   }
   function mount(){
-    if(!document.body.classList.contains("role-teacher"))return;
+    if(typeof SESSION_ROLE!=="string" || SESSION_ROLE!=="teacher")return;
     // Put the controller launcher next to the real class join code, NOT in
     // the miniature Shared Screen preview where it would be unreadable.
     const codeBar=document.querySelector("header .class-code");
