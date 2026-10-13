@@ -3388,9 +3388,23 @@ body.si-classroom-model.si-hifi-model.si-calculator-popup-mode > :not(.si-model-
 }
 body.si-classroom-model.si-hifi-model.si-calculator-popup-mode{
   display:block!important;
+  /* The legacy popup sets body width/height to ZERO. Combining that with
+     overflow:hidden clipped the entire calculator on actual Windows Chrome,
+     even though DOM bounding-box tests still reported every key present. */
+  box-sizing:border-box!important;
+  position:relative!important;
+  width:100vw!important;
+  max-width:100vw!important;
+  height:100vh!important;
+  min-height:100vh!important;
   margin:0!important;
   padding:0!important;
   overflow:hidden!important;
+}
+body.si-classroom-model.si-hifi-model.si-calculator-popup-mode > .si-model-calculator{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
 }
 /* The reference keypad is mapped into SEVEN physical rows by
    applyPhysicalKeyMap(). The previous popup CSS only declared six rows,
