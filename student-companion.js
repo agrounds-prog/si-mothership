@@ -208,13 +208,15 @@
   document.addEventListener("keydown",launchFromKey,true);
   document.addEventListener("click",event=>{
     if(deviceLaunched || !desktopWindow() || isPopout || !event.isTrusted)return;
+    // The first search-field click can start the compact window too.
+    const avatarSearch=event.target.closest("#studentContent .si-avatar-search input");
     const joinCode=event.target.closest("#joinCodeBtn");
     const avatar=event.target.closest("#studentContent [data-join-avatar]");
     const confirm=event.target.closest("#joinClassBtn");
     const joined=typeof studentNeedsJoin==="function"&&!studentNeedsJoin();
     const gameAction=joined && event.target.closest(
       "#studentContent button, #studentContent [role=button], #studentControls button");
-    if(!joinCode&&!avatar&&!confirm&&!gameAction)return;
+    if(!avatarSearch&&!joinCode&&!avatar&&!confirm&&!gameAction)return;
     if(joinCode && !validCode())return;
     let code="";
     if(typeof STUDENT_JOIN_CODE!=="undefined" &&

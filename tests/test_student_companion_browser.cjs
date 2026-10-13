@@ -211,22 +211,25 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.ok(Math.abs(codeGeom.viewportWidth-codeGeom.width)<=2
     &&Math.abs(codeGeom.viewportHeight-codeGeom.height)<=2,JSON.stringify(codeGeom));
   await freshCtx.close();
-  // Avatar search should remain usable. Clicking it must NOT open a
-  // window or interrupt a student typing their preferred avatar.
+  // In the browser-only experience the first avatar search click must
+  // hand students to the compact Zoom device without a setup step.
   const quickCtx=await browser.newContext({viewport:{width:1380,height:910}});
   const quick=await quickCtx.newPage();
   quick.on("pageerror",e=>errors.push("quick-start "+String(e)));
   await quick.goto(BASE+"/?role=student&code="+session.code+"&sid="+session.sid,{waitUntil:"domcontentloaded"});
   await quick.waitForSelector("#studentContent .si-avatar-search input");
-  await quick.locator("#studentContent .si-avatar-search input").click();
-  assert.equal(quickCtx.pages().length,1,
-    "clicking the search field must not open a disruptive popup");
-  assert.equal(await quick.locator("#siStudentWindowHandoff").count(),0);
   const quickWait=quick.waitForEvent("popup",{timeout:10000});
-  await quick.locator("#studentContent [data-join-avatar]:visible").first().click();
+  await quick.locator("#studentContent .si-avatar-search input").click();
   const quickDevice=await quickWait;
-  await quickDevice.waitForSelector("#joinStudentName",{timeout:15000});
+  await quickDevice.waitForSelector("#studentContent .si-avatar-search input",{timeout:15000});
+  assert.equal(new URL(quickDevice.url()).searchParams.get("compact"),"1");
   assert.equal(await quick.locator("#siStudentWindowHandoff").count(),1);
+  const quickGeom=await quickDevice.evaluate(()=>{
+    const rect=document.querySelector("#student .device").getBoundingClientRect();
+    return {viewportW:innerWidth,viewportH:innerHeight,w:rect.width,h:rect.height};
+  });
+  assert.ok(Math.abs(quickGeom.viewportW-quickGeom.w)<=2
+    &&Math.abs(quickGeom.viewportH-quickGeom.h)<=2,JSON.stringify(quickGeom));
   await quickCtx.close();
 
   // Windows touchscreen laptops can report coarse pointer; desktop-sized
