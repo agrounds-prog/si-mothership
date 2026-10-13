@@ -14,6 +14,17 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
      await page.setViewportSize({width,height});
      const response=await page.goto(BASE+"/tools/scientific-calculator?popup=1",{waitUntil:"domcontentloaded",timeout:30000});
      assert.equal(response.status(),200);
+     await page.waitForTimeout(700);
+     console.log("CALCULATOR BOOT DEBUG "+JSON.stringify(await page.evaluate(()=>({
+       bodyClass:document.body.className,
+       popupClass:document.documentElement.className,
+       calculatorCount:document.querySelectorAll(".si-model-calculator").length,
+       keypadCount:document.querySelectorAll(".si-model-keypad").length,
+       actionCount:document.querySelectorAll("[data-action]").length,
+       mappedCount:document.querySelectorAll("[data-ref-row]").length,
+       directMapped:document.querySelectorAll(".si-model-keypad > [data-ref-row]").length,
+       excerpt:document.body.innerText.slice(0,320)
+     }))));
      await page.waitForFunction(()=>document.body.classList.contains("si-calculator-popup-mode") &&
        document.querySelector(".si-model-calculator") && document.querySelectorAll(".si-model-keypad > [data-ref-row]").length>=28,
        null,{timeout:15000});
