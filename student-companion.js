@@ -27,11 +27,17 @@
    const notice=document.createElement("div");
    notice.id="siStudentPopupBlocked";
    notice.setAttribute("role","alert");
-   notice.innerHTML='<span><b>Compact window blocked by Chrome.</b> '
-     +'Allow pop-ups for this site, or continue joining here.</span>'
+   notice.innerHTML='<span><b>Chrome prevented the compact window from opening.</b> '
+     +'Allow pop-ups for this site in Chrome, then click Open Student Window again. '
+     +'You can still join the class in this tab.</span>'
      +'<button type="button" aria-label="Dismiss popup warning">✕</button>';
    notice.querySelector("button").addEventListener("click",()=>notice.remove());
    device.querySelector(".device-head")?.insertAdjacentElement("afterend",notice);
+   const launch=document.querySelector("#siStudentOpenCompact");
+   if(launch){
+     launch.textContent="RETRY OPENING STUDENT WINDOW";
+     launch.setAttribute("aria-describedby","siStudentPopupBlocked");
+   }
  }
  function endHandoff(){
    deviceLaunched=false;
@@ -111,7 +117,7 @@
    // If a browser disallows this user-initiated popup, keep the normal
    // classroom join fully functional instead of showing an extra option.
    blockedNotice();
-   document.body.classList.remove("si-student-compact-pending");
+   document.body.classList.add("si-student-compact-pending");
    return null;
  }
  // Chrome counts its title/address bar in outerHeight. Size the *entire*
@@ -193,7 +199,23 @@
   }
   // No setup or additional option: a quiet, non-interactive hint in the
   // unused widescreen margin tells students the next click opens the window.
-  if(desktopWindow())document.body.classList.add("si-student-compact-pending");
+  if(desktopWindow()){
+    document.body.classList.add("si-student-compact-pending");
+    // Unlike a CSS pseudo-element, this is a real, focusable, accessible
+    // browser-activation surface. Some managed Chrome installations ignore
+    // window.open requests triggered by indirect page-wide event handlers.
+    const launcher=document.createElement("button");
+    launcher.type="button";
+    launcher.id="siStudentOpenCompact";
+    launcher.textContent="OPEN COMPACT STUDENT WINDOW";
+    launcher.setAttribute("aria-label","Open the fixed-size classroom controller beside Zoom");
+    launcher.addEventListener("click",event=>{
+      if(!event.isTrusted)return;
+      const popup=openDeviceWindow(popupOptions(event.target,false));
+      if(popup){event.preventDefault();event.stopPropagation();}
+    });
+    document.body.appendChild(launcher);
+  }
   // A regular URL loaded into an existing Chrome tab cannot resize that tab.
   // Start the fixed-size companion on the FIRST trusted page interaction rather
   // than waiting for avatar search or a specific button. This also handles
@@ -228,7 +250,8 @@
     // on the classroom page including blank space outside the controller.
     if(keyboard && (event.altKey||event.ctrlKey||event.metaKey ||
        !["Enter"," "].includes(event.key)))return;
-    if(event.target?.closest?.("#siStudentPopupBlocked"))return;
+    // The launch button has its own direct, trusted click handler.
+    if(event.target?.closest?.("#siStudentPopupBlocked, #siStudentOpenCompact"))return;
     const popup=openDeviceWindow(popupOptions(event.target,keyboard));
     if(!popup)return; // Popup denied: preserve the original native action.
     event.preventDefault();
