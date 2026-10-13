@@ -3,6 +3,10 @@
    xvfb-run gives Chromium a real desktop window manager/display so this
    checks the browser's OUTER window, not just the responsive device card. */
 const assert=require("node:assert/strict");
+const fs=require("node:fs");
+// Chrome may ignore window-feature restrictions under managed policies, but
+// the app must request a fixed, not manually resizable, companion window.
+assert.match(fs.readFileSync("student-companion.js","utf8"),/resizable=no/);
 const {chromium}=require("playwright");
 const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
 (async()=>{
@@ -47,8 +51,12 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    assert.equal(outer.name,"si_mothership_student_sidecar");
    assert.ok(outer.outerWidth>=outer.innerWidth,JSON.stringify(outer));
    assert.ok(outer.outerHeight>=outer.innerHeight,JSON.stringify(outer));
-   assert.ok(outer.outerWidth<=540,"Chrome window must be compact, not a full-sized tab: "+JSON.stringify(outer));
-   assert.ok(outer.outerHeight<=1000,"Chrome window must be compact: "+JSON.stringify(outer));
+   // Check the full Chrome WINDOW, not just its responsive webpage.
+   // Window managers add slight differences; the desired OUTER size is 440 × 780.
+   assert.ok(Math.abs(outer.outerWidth-440)<=16,
+     "Chrome outer window should be pre-cropped to 440 pixels wide: "+JSON.stringify(outer));
+   assert.ok(Math.abs(outer.outerHeight-780)<=16,
+     "Chrome outer window should be pre-cropped to 780 pixels tall: "+JSON.stringify(outer));
    assert.ok(outer.innerWidth>=320&&outer.innerWidth<=442,JSON.stringify(outer));
    assert.ok(outer.innerHeight>=440&&outer.innerHeight<=782,JSON.stringify(outer));
    assert.ok(Math.abs(outer.deviceWidth-outer.innerWidth)<=2,JSON.stringify(outer));
