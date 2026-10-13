@@ -219,7 +219,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await quick.goto(BASE+"/?role=student&code="+session.code+"&sid="+session.sid,{waitUntil:"domcontentloaded"});
   await quick.waitForSelector("#studentContent .si-avatar-search input");
   await quick.locator("#studentContent .si-avatar-search input").click();
-  assert.equal(await quickCtx.pages().then(p=>p.length),1,
+  assert.equal(quickCtx.pages().length,1,
     "clicking the search field must not open a disruptive popup");
   assert.equal(await quick.locator("#siStudentWindowHandoff").count(),0);
   const quickWait=quick.waitForEvent("popup",{timeout:10000});
