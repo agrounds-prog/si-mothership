@@ -1465,3 +1465,20 @@ body.role-student #siStudentPopupBlocked button{
  flex:0 0 30px;min-width:30px;min-height:30px;border-radius:7px;
  border:1px solid #d6a06f;background:#51341e;color:#fff;cursor:pointer;
 }
+
+
+/* The original Chrome tab cannot resize itself. Until the student's first
+   trusted click, use only empty outer-page space for this subtle cue. There
+   is no additional setup button, and the prompt vanishes once the real
+   440 × 780 sidecar is open (or Chrome blocks it). */
+@media (min-width:561px) {
+ body.role-student.si-student-compact-pending:not(.si-student-window-handed-off)::after {
+   content:"CLICK ANYWHERE TO OPEN YOUR COMPACT STUDENT WINDOW";
+   position:fixed;z-index:6;bottom:20px;left:50%;transform:translateX(-50%);
+   pointer-events:none;white-space:normal;text-align:center;
+   max-width:min(90vw,480px);padding:10px 15px;
+   font:800 11px/1.4 system-ui,sans-serif;letter-spacing:.07em;
+   color:#b7eafa;background:#0a273c;border:1px solid #32718a;
+   border-radius:999px;box-shadow:0 8px 28px #0007;
+ }
+}
