@@ -400,7 +400,9 @@
   function studentJoinUrl(raw){
     try{
       const u=new URL(raw,location.href);
-      if(u.origin!==location.origin || u.searchParams.get("role")!=="student")return null;
+      if(u.searchParams.get("role")!=="student" || u.pathname!=="/")return null;
+      u.protocol=location.protocol;
+      u.host=location.host;
       u.searchParams.set("compact","1");
       return u.href;
     }catch(e){return null}
