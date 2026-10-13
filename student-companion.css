@@ -1452,3 +1452,16 @@ body.role-student .si-student-handoff-card p{
 body.role-student .si-student-handoff-card small{
  display:block;color:#8cbbca!important;font-size:12px!important;
 }
+
+/* A non-blocking, inline notice only when Chrome rejects a pop-up.
+   Students can still complete the ordinary login in the original tab. */
+body.role-student #siStudentPopupBlocked{
+ width:100%;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+ gap:7px;padding:8px 10px;background:#332516;color:#fff3d9;
+ border-bottom:1px solid #ba8959;font:500 11px/1.35 system-ui,sans-serif;
+}
+body.role-student #siStudentPopupBlocked b{font-weight:900;color:#ffe4a2}
+body.role-student #siStudentPopupBlocked button{
+ flex:0 0 30px;min-width:30px;min-height:30px;border-radius:7px;
+ border:1px solid #d6a06f;background:#51341e;color:#fff;cursor:pointer;
+}

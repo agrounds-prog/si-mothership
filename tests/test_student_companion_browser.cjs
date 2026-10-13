@@ -211,21 +211,57 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.ok(Math.abs(codeGeom.viewportWidth-codeGeom.width)<=2
     &&Math.abs(codeGeom.viewportHeight-codeGeom.height)<=2,JSON.stringify(codeGeom));
   await freshCtx.close();
-  // Initial QR avatar page: even a first click in the search field
-  // launches the compact controller (not just pressing the avatar).
+  // Avatar search should remain usable. Clicking it must NOT open a
+  // window or interrupt a student typing their preferred avatar.
   const quickCtx=await browser.newContext({viewport:{width:1380,height:910}});
   const quick=await quickCtx.newPage();
   quick.on("pageerror",e=>errors.push("quick-start "+String(e)));
   await quick.goto(BASE+"/?role=student&code="+session.code+"&sid="+session.sid,{waitUntil:"domcontentloaded"});
   await quick.waitForSelector("#studentContent .si-avatar-search input");
-  const quickWait=quick.waitForEvent("popup",{timeout:10000});
   await quick.locator("#studentContent .si-avatar-search input").click();
+  assert.equal(await quickCtx.pages().then(p=>p.length),1,
+    "clicking the search field must not open a disruptive popup");
+  assert.equal(await quick.locator("#siStudentWindowHandoff").count(),0);
+  const quickWait=quick.waitForEvent("popup",{timeout:10000});
+  await quick.locator("#studentContent [data-join-avatar]:visible").first().click();
   const quickDevice=await quickWait;
-  await quickDevice.waitForSelector("#studentContent .si-avatar-search input",{timeout:15000});
+  await quickDevice.waitForSelector("#joinStudentName",{timeout:15000});
   assert.equal(await quick.locator("#siStudentWindowHandoff").count(),1);
   await quickCtx.close();
+
+  // Windows touchscreen laptops can report coarse pointer; desktop-sized
+  // Chrome should still open a small window on a trusted avatar tap.
+  const touchCtx=await browser.newContext({viewport:{width:1380,height:910},
+    hasTouch:true,isMobile:false});
+  const touch=await touchCtx.newPage();
+  touch.on("pageerror",e=>errors.push("touchscreen "+String(e)));
+  await touch.goto(BASE+"/?role=student&code="+session.code+"&sid="+session.sid,{waitUntil:"domcontentloaded"});
+  await touch.waitForSelector("#studentContent [data-join-avatar]:visible");
+  const touchPopupWait=touch.waitForEvent("popup",{timeout:10000});
+  await touch.locator("#studentContent [data-join-avatar]:visible").first().tap();
+  const touchPopup=await touchPopupWait;
+  await touchPopup.waitForSelector("#joinStudentName",{timeout:15000});
+  assert.equal(await touch.locator("#siStudentWindowHandoff").count(),1);
+  await touchCtx.close();
+
+  // Simulated Chrome popup policy denial: don't swallow join events, don't
+  // trap students in the handoff. A persistent warning can be dismissed.
+  const blockedCtx=await browser.newContext({viewport:{width:1380,height:910}});
+  await blockedCtx.addInitScript(()=>{window.open=()=>null});
+  const blocked=await blockedCtx.newPage();
+  blocked.on("pageerror",e=>errors.push("blocked-popup "+String(e)));
+  await blocked.goto(BASE+"/?role=student&code="+session.code+"&sid="+session.sid,{waitUntil:"domcontentloaded"});
+  await blocked.waitForSelector("#studentContent [data-join-avatar]:visible");
+  await blocked.locator("#studentContent [data-join-avatar]:visible").first().click();
+  await blocked.locator("#joinStudentName").waitFor({timeout:15000});
+  assert.equal(await blocked.locator("#siStudentWindowHandoff").count(),0);
+  assert.equal(await blocked.locator("#siStudentPopupBlocked").count(),1);
+  assert.match(await blocked.locator("#siStudentPopupBlocked").innerText(),/blocked by Chrome/);
+  await blocked.locator("#siStudentPopupBlocked button").click();
+  assert.equal(await blocked.locator("#siStudentPopupBlocked").count(),0);
+  await blockedCtx.close();
   assert.deepEqual(errors,[]);
-  console.log("STUDENT COMPANION no-install first-click device handoff (avatar/search/code) PASSED");
+  console.log("STUDENT COMPANION desktop, touchscreen, blocked-popup fallback PASSED");
   await ctx.close();
  }finally{await teacherContext.close();await browser.close()}
 })().catch(e=>{console.error(e);process.exit(1)});

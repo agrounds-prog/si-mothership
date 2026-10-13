@@ -8,9 +8,28 @@
  const POPOUT_NAME="si_mothership_student_sidecar";
  const params=new URLSearchParams(location.search);
  const isPopout=window.name===POPOUT_NAME || params.get("compact")==="1";
- function desktopWindow(){return innerWidth>=800 && matchMedia("(pointer:fine)").matches;}
+ function desktopWindow(){
+   // Touch-enabled Windows PCs may report pointer:coarse although Chrome
+   // is running as a desktop browser. Do not treat them as phones.
+   const agent=navigator.userAgent||"";
+   if(innerWidth<760 || /Android|iPhone|iPad|iPod|Mobile|Silk|Kindle/i.test(agent))return false;
+   return matchMedia("(pointer:fine)").matches
+      ||matchMedia("(hover:hover)").matches || innerWidth>=900;
+ }
  let deviceLaunched=false;
  let activeWindow=null;
+ function blockedNotice(){
+   const device=document.querySelector("body.role-student #student .device");
+   if(!device||document.querySelector("#siStudentPopupBlocked"))return;
+   const notice=document.createElement("div");
+   notice.id="siStudentPopupBlocked";
+   notice.setAttribute("role","alert");
+   notice.innerHTML='<span><b>Compact window blocked by Chrome.</b> '
+     +'Allow pop-ups for this site, or continue joining here.</span>'
+     +'<button type="button" aria-label="Dismiss popup warning">✕</button>';
+   notice.querySelector("button").addEventListener("click",()=>notice.remove());
+   device.querySelector(".device-head")?.insertAdjacentElement("afterend",notice);
+ }
  function endHandoff(){
    deviceLaunched=false;
    activeWindow=null;
@@ -78,7 +97,7 @@
    }
    // If a browser disallows this user-initiated popup, keep the normal
    // classroom join fully functional instead of showing an extra option.
-   if(typeof toast==="function")toast("Chrome blocked the classroom device window. Allow pop-ups for SI Mothership.");
+   blockedNotice();
    return null;
  }
  // Browser chrome takes up part of a popup's outer height. The window is
@@ -160,41 +179,48 @@
     selectAvatarInDevice();
     return;
   }
-  // A browser cannot shrink the existing tab. Instead, a student's FIRST
-  // ordinary click inside the device opens the real compact window. This
-  // covers clicking the avatar, search, join code, or a classroom control;
-  // it never displays an extra mode/launcher button or requires setup.
-  // Keyboard Enter in avatar search triggers a synthetic avatar.click()
-  // in the existing app. Open from the trusted key gesture itself.
-  document.addEventListener("keydown",event=>{
-    if(event.key!=="Enter" || deviceLaunched || isPopout || !desktopWindow()
-      || !event.isTrusted || !event.target.matches("#studentContent .si-avatar-search input"))return;
-    const avatar=[...document.querySelectorAll("#studentContent [data-join-avatar]")].find(el=>!el.hidden);
-    if(!avatar)return;
+  // Only actual join actions (or in-class game controls) launch a popup.
+  // Selecting/searching an avatar and entering a code remain functional in
+  // the original tab until the student has made a meaningful choice.
+  function validCode(){
+    const supplied=String(document.querySelector("#joinCodeInput")?.value||"").trim().toUpperCase();
+    return typeof STUDENT_JOIN_CODE!=="undefined" && supplied===STUDENT_JOIN_CODE;
+  }
+  function launchFromKey(event){
+    if(event.key!=="Enter" || !event.isTrusted || deviceLaunched
+       ||isPopout ||!desktopWindow())return;
+    const search=event.target.matches("#studentContent .si-avatar-search input");
+    const codeInput=event.target.matches("#joinCodeInput");
+    if(!search && !codeInput)return;
+    if(codeInput&&!validCode())return; // Let the existing invalid-code UI work.
+    let avatarKey="";
+    if(search){
+      const avatar=[...document.querySelectorAll("#studentContent [data-join-avatar]")].find(el=>!el.hidden);
+      if(!avatar)return;
+      avatarKey=avatar.dataset.joinAvatar;
+    }
     const popup=openDeviceWindow({
-      code:typeof STUDENT_JOIN_CODE!=="undefined"?STUDENT_JOIN_CODE:"",
-      avatarKey:avatar.dataset.joinAvatar
+      code:(validCode()||search)?STUDENT_JOIN_CODE:"",
+      avatarKey
     });
     if(popup){event.preventDefault();event.stopImmediatePropagation()}
-  },true);
+  }
+  document.addEventListener("keydown",launchFromKey,true);
   document.addEventListener("click",event=>{
     if(deviceLaunched || !desktopWindow() || isPopout || !event.isTrusted)return;
-    if(!event.target.closest("#student .device"))return;
-    const codeButton=event.target.closest("#joinCodeBtn");
-    const avatarButton=event.target.closest("#studentContent [data-join-avatar]");
-    const codeField=document.querySelector("#joinCodeInput");
+    const joinCode=event.target.closest("#joinCodeBtn");
+    const avatar=event.target.closest("#studentContent [data-join-avatar]");
+    const confirm=event.target.closest("#joinClassBtn");
+    const joined=typeof studentNeedsJoin==="function"&&!studentNeedsJoin();
+    const gameAction=joined && event.target.closest(
+      "#studentContent button, #studentContent [role=button], #studentControls button");
+    if(!joinCode&&!avatar&&!confirm&&!gameAction)return;
+    if(joinCode && !validCode())return;
     let code="";
-    if(typeof STUDENT_JOIN_CODE!=="undefined"
-       && typeof studentNeedsJoin==="function" && studentNeedsJoin()){
-      const entered=String(codeField?.value||"").trim().toUpperCase();
-      // Never bypass an incorrect classroom code.
-      if(codeButton && entered!==STUDENT_JOIN_CODE)return;
-      if(!codeField || entered===STUDENT_JOIN_CODE)code=STUDENT_JOIN_CODE;
-    }
-    const popup=openDeviceWindow({code,avatarKey:avatarButton?.dataset.joinAvatar});
-    if(!popup)return; // A blocked pop-up leaves normal student login intact.
-    // The first interaction is transferred to the new window. Prevent a
-    // duplicate join, double avatar selection or classroom action in this tab.
+    if(typeof STUDENT_JOIN_CODE!=="undefined" &&
+       (joinCode || avatar || validCode()))code=STUDENT_JOIN_CODE;
+    const popup=openDeviceWindow({code,avatarKey:avatar?.dataset.joinAvatar});
+    if(!popup)return; // Fall back to the unmodified join click if blocked.
     event.preventDefault();
     event.stopImmediatePropagation();
   },true);
