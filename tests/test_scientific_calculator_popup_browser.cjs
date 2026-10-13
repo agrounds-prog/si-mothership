@@ -41,9 +41,24 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
        const rows=[...new Set(keys.map(k=>k.dataset.refRow))].sort();
        const positions=keys.map(k=>({row:Number(k.dataset.refRow),col:Number(k.dataset.refCol),action:k.dataset.action,
          text:k.textContent.trim().slice(0,24),r:rect(k)}));
-       return {body:document.body.className,calc:rect(el),cols:getComputedStyle(keypad).gridTemplateColumns,
+       const centerX=Math.round(rect(el).x+rect(el).w*.5);
+       const centerY=Math.round(rect(el).y+rect(el).h*.4);
+       const topmost=document.elementFromPoint(centerX,centerY);
+       return {body:document.body.className,bodyBounds:rect(document.body),
+         bodyOverflow:getComputedStyle(document.body).overflow,
+         calculatorVisible:!!topmost?.closest(".si-model-calculator"),
+         hitElement:topmost?.tagName,
+         calcDisplay:getComputedStyle(el).display,
+         calc:rect(el),cols:getComputedStyle(keypad).gridTemplateColumns,
          tracks:getComputedStyle(keypad).gridTemplateRows,rows,positions,other,viewport:{width:innerWidth,height:innerHeight}};
      });
+     // Browser layout may compute positions for completely CLIPPED content.
+     // Verify a real hit-test reaches the calculator through the popup body.
+     assert.ok(g.bodyBounds.w>=width-2 && g.bodyBounds.h>=height-2,
+       "popup body must occupy its viewport (zero-size body clips Windows Chrome): "+JSON.stringify(g));
+     assert.equal(g.calcDisplay,"block","calculator display must be enabled");
+     assert.ok(g.calculatorVisible,
+       "calculator must be visible/hit-testable, not merely measurable: "+JSON.stringify(g));
      assert.equal(g.other.length,0,"popup must hide Share / Help / Settings and other page chrome: "+JSON.stringify(g.other));
      assert.deepEqual(g.rows,["1","2","3","4","5","6","7"],"all seven keypad rows must exist");
      assert.equal(g.tracks.split(" ").length,7,"exactly seven explicit keypad tracks: "+g.tracks);
