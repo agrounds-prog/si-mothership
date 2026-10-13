@@ -49,8 +49,10 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    const opener=await page.evaluate(()=>({outerWidth,outerHeight}));
    console.log("HEADED CHROME "+label+" "+JSON.stringify({popup:outer,opener}));
    assert.equal(outer.name,"si_mothership_student_sidecar");
-   assert.ok(outer.outerWidth>=outer.innerWidth,JSON.stringify(outer));
-   assert.ok(outer.outerHeight>=outer.innerHeight,JSON.stringify(outer));
+   // Playwright's emulated 1380x910 context may report an inner viewport
+   // larger than its separately sized native Chrome window. Assert the real
+   // outer dimensions directly, not a comparison between two coordinate
+   // systems that can disagree under viewport emulation.
    // Check the full Chrome WINDOW, not just its responsive webpage.
    // Window managers add slight differences; the desired OUTER size is 440 × 780.
    assert.ok(Math.abs(outer.outerWidth-440)<=16,
