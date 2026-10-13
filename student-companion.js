@@ -102,7 +102,7 @@
    const left=(screen.availLeft||0)+Math.max(0,maxWidth-desiredWidth-24);
    const top=(screen.availTop||0)+Math.max(0,Math.min(32,maxHeight-desiredHeight));
    const features="popup=yes,width="+desiredWidth+",height="+desiredHeight
-     +",left="+left+",top="+top+",resizable=no,scrollbars=yes,toolbar=no,menubar=no,status=no";
+     +",left="+left+",top="+top+",resizable=no,scrollbars=no,toolbar=no,location=no,status=no,menubar=no";
    let popup=null;
    try{popup=window.open(url.toString(),POPOUT_NAME,features)}catch(e){
      // School-managed browsers can throw rather than returning null.
@@ -380,6 +380,81 @@
     if(!root)return;
     new MutationObserver(enhance).observe(root,{childList:true});
     enhance();
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
+  else install();
+})();
+
+
+/* SI Scientific Calculator-style student window launcher for Mission Control.
+   Student join URLs remain valid links for phones, QR codes and Zoom chats.
+   Clicking a JOIN link inside Mission Control opens a real named popup just
+   like the calculator's Open Calculator button (not a full-size _blank tab).
+   This changes browser presentation only; no join/session/state mutation. */
+(function(){
+  "use strict";
+  const q=new URLSearchParams(location.search);
+  if(location.pathname!=="/teacher" && q.get("role")!=="teacher")return;
+  const POPUP_NAME="si_mothership_student_sidecar";
+  const SIZE_W=440, SIZE_H=780;
+  function studentJoinUrl(raw){
+    try{
+      const u=new URL(raw,location.href);
+      if(u.origin!==location.origin || u.searchParams.get("role")!=="student")return null;
+      u.searchParams.set("compact","1");
+      return u.href;
+    }catch(e){return null}
+  }
+  function openAsCalculator(url){
+    const target=studentJoinUrl(url);
+    if(!target)return null;
+    const sw=screen.availWidth||SIZE_W,sh=screen.availHeight||SIZE_H;
+    const w=Math.min(SIZE_W,sw),h=Math.min(SIZE_H,Math.max(480,sh-16));
+    const left=(screen.availLeft||0)+Math.max(0,sw-w-20);
+    const top=(screen.availTop||0)+Math.max(0,Math.min(32,sh-h));
+    const features="popup=yes,width="+w+",height="+h+",left="+left+",top="+top
+      +",resizable=no,scrollbars=no,toolbar=no,location=no,status=no,menubar=no";
+    let win=null;
+    try{win=window.open(target,POPUP_NAME,features)}catch(e){}
+    if(win)try{win.focus()}catch(e){}
+    return win;
+  }
+  function mount(){
+    if(!document.body.classList.contains("role-teacher"))return;
+    for(const lobby of document.querySelectorAll("#teacher .join-lobby")){
+      const anchor=lobby.querySelector("a.join-qr-link[href]");
+      if(!anchor || !studentJoinUrl(anchor.href) || lobby.querySelector(".si-open-student-device"))continue;
+      const button=document.createElement("button");
+      button.type="button";
+      button.className="si-open-student-device";
+      button.textContent="↗ Open Student Device";
+      button.setAttribute("aria-label","Open student controller in a compact calculator-style window");
+      button.addEventListener("click",()=>{
+        const win=openAsCalculator(anchor.href);
+        if(!win){
+          button.textContent="Chrome blocked window — allow pop-ups and retry";
+        }
+      });
+      const code=lobby.querySelector(".join-code-big");
+      (code||anchor).insertAdjacentElement("afterend",button);
+    }
+  }
+  function install(){
+    const teacher=document.querySelector("#teacher");
+    if(!teacher)return;
+    // Existing QR and classroom join hyperlinks now behave like the
+    // calculator's own launcher. If blocked, their normal link still works.
+    document.addEventListener("click",event=>{
+      if(!event.isTrusted || event.defaultPrevented ||
+        event.button!==0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey)return;
+      const anchor=event.target.closest?.("#teacher .join-lobby a.join-qr-link, #teacher .join-lobby .join-url a");
+      if(!anchor || !studentJoinUrl(anchor.href))return;
+      if(!openAsCalculator(anchor.href))return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    },true);
+    new MutationObserver(mount).observe(teacher,{childList:true,subtree:true});
+    mount();
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
   else install();
