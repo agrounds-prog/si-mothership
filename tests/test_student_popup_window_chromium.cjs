@@ -27,12 +27,13 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
                   {waitUntil:"domcontentloaded"});
   const search=page.locator("#studentContent .si-avatar-search input");
   await search.waitFor({timeout:15000});
-  async function verifyCompactPopup(label){
+  async function verifyCompactPopup(label,useButton=false){
    const pending=page.waitForEvent("popup",{timeout:12000});
    // The screenshot regression: start on a maximized browser with the
    // compact controller centered, then click EMPTY background (not a
    // button/search field). It must still launch a real small Chrome window.
-   await page.mouse.click(18,190);
+   if(useButton) await page.locator("#siStudentOpenCompact").click();
+   else await page.mouse.click(18,190);
    const popup=await pending;
    popup.on("pageerror",err=>errors.push(String(err)));
    await popup.waitForLoadState("domcontentloaded");
@@ -69,6 +70,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    await page.bringToFront();
    await page.locator("#siStudentWindowHandoff").waitFor({state:"detached",timeout:5000});
   }
+  await verifyCompactPopup("full desktop, direct launch button",true);
   await verifyCompactPopup("full desktop, blank background click");
   // A Chrome window snapped beside Zoom must not be misclassified as a phone.
   await page.setViewportSize({width:650,height:850});
