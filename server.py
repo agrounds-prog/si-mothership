@@ -3421,6 +3421,44 @@ body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-keypad 
 <script id="v55-6-calculator-popup-window-script">
 (function(){
   const preferredScale=.82;
+  /* The original scientific calculator renders 20 legacy keypad buttons
+     without data-action attributes. The reference mapping separately places
+     11 scientific buttons; unpositioned legacy keys then auto-flow into
+     occupied cells. Arrange every existing button exactly once instead.
+     Do not clone/replace buttons: retain all original click handlers. */
+  function arrangePopupKeys(){
+    const pad=document.querySelector(".si-model-keypad");
+    if(!pad || pad.dataset.siAllKeysMapped==="1")return;
+    const raw=[...pad.children].filter(el=>el.tagName==="BUTTON"&&!el.dataset.refRow);
+    const places=[
+      [1,1],[2,5],[1,5],[2,4],[3,5],
+      [4,2],[4,3],[4,4],[4,5],
+      [5,2],[5,3],[5,4],[5,5],
+      [6,2],[6,3],[6,4],
+      [3,2],[7,2],[7,3],[3,3]
+    ];
+    if(raw.length!==places.length)return;
+    for(let i=0;i<raw.length;i++){
+      const el=raw[i],pair=places[i];
+      el.dataset.refRow=String(pair[0]);
+      el.dataset.refCol=String(pair[1]);
+      el.style.gridRow=String(pair[0]);
+      el.style.gridColumn=String(pair[1]);
+      el.classList.add("si-model-key");
+      const label=(el.textContent||"").trim();
+      if(/^[0-9]$/.test(label)||label===".")el.dataset.modelGroup="number";
+      else if(/[+−×÷]/.test(label)&&label.length<=2)el.dataset.modelGroup="operator";
+      else el.dataset.modelGroup="function";
+    }
+    const convert=pad.querySelector('[data-action="convert"][data-ref-row]');
+    if(convert){
+      convert.dataset.refRow="7";
+      convert.dataset.refCol="5";
+      convert.style.gridRow="7";
+      convert.style.gridColumn="5";
+    }
+    pad.dataset.siAllKeysMapped="1";
+  }
   let lastScale=0;
   function isolateCalculator(){
     if(!document.body)return null;
@@ -3462,6 +3500,7 @@ body.si-classroom-model.si-hifi-model.si-calculator-popup-mode .si-model-keypad 
   }
   function boot(){
     try{window.opener=null}catch(e){}
+    arrangePopupKeys();
     isolateCalculator();
     fitCalculatorInsideWindow();
     requestAnimationFrame(function(){
