@@ -600,3 +600,66 @@ body.sipreview-open{
   max-width:100vw!important;
   overflow:hidden!important;
 }
+
+
+/* SI+ v91: classroom-safe teacher controls and one-time slide transitions.
+   No scale or movement: projected slides retain exactly the same 16:9 bounds.
+   Unchanged slides do not replay animations or restart their video iframe. */
+#teacher #activityControllerPanel .presentation-controls .si-plus-slide-jump{
+  display:inline-flex!important;
+  align-items:center!important;justify-content:center!important;
+  flex:1 1 215px!important;min-width:160px!important;max-width:100%!important;
+  gap:9px!important;padding:7px 10px!important;
+  border:1px solid #488da5!important;border-radius:11px!important;
+  background:linear-gradient(130deg,#102f49,#09223a)!important;
+  box-sizing:border-box!important;
+}
+#teacher #activityControllerPanel .si-plus-slide-jump > span{
+  flex:0 0 auto!important;color:#a9e9f5!important;
+  font:850 10px/1.3 system-ui,sans-serif!important;letter-spacing:.08em!important;
+}
+#teacher #activityControllerPanel .si-plus-slide-jump > select{
+  flex:1 1 auto!important;min-width:0!important;width:100%!important;
+  max-width:100%!important;min-height:38px!important;
+  padding:6px 9px!important;box-sizing:border-box!important;
+  color:#ebfaff!important;border:1px solid #5c9bb8!important;
+  border-radius:8px!important;background:#0b2137!important;
+  font:750 12px/1.3 system-ui,sans-serif!important;
+  text-overflow:ellipsis!important;
+}
+#teacher #activityControllerPanel .si-plus-slide-jump select:focus-visible{
+  outline:3px solid #ffdf96!important;outline-offset:2px!important;
+}
+#teacher #activityControllerPanel .presentation-controls #prevSlideBtn:disabled,
+#teacher #activityControllerPanel .presentation-controls #nextSlideBtn:disabled{
+  opacity:.46!important;cursor:not-allowed!important;
+}
+@keyframes siPlusSlideArrive91{
+  0%{opacity:.65}
+  100%{opacity:1}
+}
+/* The existing SI+ projector intentionally disables old scale/slide entrances.
+   Override it only for our one-time slide-change class, never for roster
+   updates, answers, or a same-slide media refresh. */
+#shared #sharedContent > .si-plus-slide-stage.si-plus-slide-enter,
+#teacher #mirrorContent > .si-plus-slide-stage.si-plus-slide-enter{
+  animation:siPlusSlideArrive91 185ms ease-out both!important;
+  transform:none!important;
+}
+#sharedContent .si-plus-slide-stage .presentation-public,
+#sharedContent .si-plus-slide-stage .response-slide,
+#mirrorContent .si-plus-slide-stage .presentation-public,
+#mirrorContent .si-plus-slide-stage .response-slide{
+  animation:none!important;
+}
+@media(prefers-reduced-motion:reduce){
+  #shared #sharedContent > .si-plus-slide-stage.si-plus-slide-enter,
+  #teacher #mirrorContent > .si-plus-slide-stage.si-plus-slide-enter{
+    animation:none!important;
+  }
+}
+@media(max-width:640px){
+  #teacher #activityControllerPanel .presentation-controls .si-plus-slide-jump{
+    flex-basis:100%!important;
+  }
+}
