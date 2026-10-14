@@ -46,7 +46,7 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
    for(const [game,html] of Object.entries(samples)){
     const ui=await page.evaluate(({html,game})=>{
      const root=document.querySelector("#studentContent");
-     root.innerHTML=withCue(game,html);
+     root.innerHTML=html;
      const rect=el=>el?el.getBoundingClientRect():null;
      const main=rect(root),panel=rect(root.querySelector(game==="million"?".million-student":game==="cosmic"?".cc-device":".dm-device"));
      const cue=rect(root.querySelector("#siTestGameCue"));
@@ -66,7 +66,7 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
         game==="cosmic"?getComputedStyle(root.querySelector(".cc-hand")).gridTemplateColumns.split(" ").length:
         getComputedStyle(root.querySelector(".dm-hand")).gridTemplateColumns.split(" ").length,
        scene:game==="cosmic"?rect(root.querySelector(".cc-scene-mobile")).height:null};
-    },{html,game});
+    },{html:withCue(game,html),game});
     assert.ok(ui.overflow<=2&&ui.panelWidth<=ui.mainWidth+2,JSON.stringify({w,h,game,ui}));
     assert.ok(ui.cue.h<150&&ui.cue.bottom<=ui.panelY+2,
       game+" instructions must sit above, never beside, the board: "+JSON.stringify({w,h,ui}));
