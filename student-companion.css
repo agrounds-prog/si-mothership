@@ -1624,3 +1624,13 @@ body.role-student.si-student-is-popout .student-control-zone{
     width:54px!important;height:54px!important
   }
 }
+
+
+/* Mission Control's compact-device launcher belongs on desktop Chrome.
+   In phone-width teacher layouts it forced the fixed header past 390px
+   and caused horizontal overflow in SI+ preview and other studios. */
+@media (max-width:620px){
+  body:not(.role-student):not(.role-shared) header .class-code #siTeacherStudentDeviceLaunch{
+    display:none!important;
+  }
+}
