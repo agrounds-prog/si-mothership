@@ -64,6 +64,16 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await orbit.locator("#studentContent [data-ss-press]").count(),0);
   assert.equal(await nova.evaluate(()=>state.activityRun.signalSequence.sequence.length),0,"answer redacted during input");
   assert.equal(await nova.evaluate(()=>state.activityRun.signalSequence.entries.Orbit.progress),undefined,"other student's progress private");
+  await nova.reload({waitUntil:"domcontentloaded",timeout:40000});
+  await nova.waitForFunction(()=>state.selectedStudent==="Nova"
+    &&state.activityRun?.signalSequence?.phase==="success"
+    &&networkSocket?.readyState===WebSocket.OPEN,null,{timeout:16000});
+  assert.equal(await nova.evaluate(()=>state.activityRun.signalSequence.sequence.length),0,
+    "reconnected student must not receive the answer sequence");
+  assert.equal(await nova.evaluate(()=>state.activityRun.signalSequence.entries.Orbit.progress),undefined,
+    "reconnected student must not see another player's progress");
+  assert.equal(await teacher.evaluate(()=>state.activityRun.signalSequence.entries.Nova.status),"cleared");
+  console.log("SIGNAL SEQUENCE survivor rejoin and privacy PASSED");
   await teacher.locator('[data-ss-action="next"]').click();
   await nova.waitForFunction(()=>state.activityRun?.signalSequence?.phase==="watch",null,{timeout:12000});
   assert.equal(await orbit.locator("#studentContent [data-ss-press]").count(),0);
