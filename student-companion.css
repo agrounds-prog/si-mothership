@@ -1994,6 +1994,7 @@ body.role-student #studentContent .million-student-choice:is(.selected,[aria-pre
   box-shadow:0 0 0 2px #ffe18e88,0 0 17px #f7d36f55!important;
 }
 body.role-student #studentContent .million-student-actions button{
+  font-size:clamp(12px,3.1vw,14px)!important;
   font-weight:900!important;
   letter-spacing:.03em!important;
   border-width:2px!important;
