@@ -40,10 +40,10 @@ jobs:
         run: node tests/test_si_plus_organizer_browser.cjs
       - name: Same-size SI+ presentation canvases across image dimensions
         run: node tests/test_si_plus_uniform_slides_browser.cjs
-      - name: Teacher-only SI+ presentation preview and projector sizing
-        run: node tests/test_si_plus_preview_browser.cjs
       - name: SI+ unfinished draft recovery, Railway save, teacher reload, and class reset
         run: node tests/test_si_plus_draft_recovery_browser.cjs
+      - name: Teacher-only SI+ presentation preview and projector sizing
+        run: node tests/test_si_plus_preview_browser.cjs
       - name: SI+ video link, player persistence, and editor polish
         run: |
           node tests/test_si_plus_polish_browser.cjs
