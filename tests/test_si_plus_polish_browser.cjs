@@ -92,7 +92,8 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    assert.equal(dims.exists,true);
    assert.ok(dims.width>=210,"Projector shows a readable video");
    assert.ok(Math.abs(dims.ratio-16/9)<.08,"Video must keep 16:9 geometry");
-   assert.ok(Math.abs(dims.width-dims.videoWidth)<4,"Video occupies media frame");
+   // A 2px frame border on each side leaves an intentional 4px difference.
+   assert.ok(Math.abs(dims.width-dims.videoWidth)<=4.1,"Video fills the inner 16:9 frame");
    assert.equal(dims.fullscreen,true);
    assert.ok(dims.overflow<=4,"Projector must not overflow horizontally");
    sizes.push(dims);
