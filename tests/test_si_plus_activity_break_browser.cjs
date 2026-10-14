@@ -66,6 +66,14 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.deepEqual(await page.evaluate(()=>state.siPlusActivityBreak.run.responses),original.answers);
   await page.locator("#siPlusActivityReturn").waitFor({state:"visible"});
   assert.match(await page.locator("#siPlusParkedSummary").innerText(),/Slide 2/);
+  assert.match(await page.locator("#siPlusParkedContext").innerText(),/^Now: /);
+  await page.locator("#siPlusActivityCollapse").click();
+  assert.equal(await page.locator("#siPlusActivityReturn").evaluate(el=>el.classList.contains("is-collapsed")),true);
+  assert.equal(await page.locator("#siPlusActivityResume").isVisible(),true,
+    "minimizing must never hide Return to SI+");
+  assert.equal(await page.locator("#siPlusActivityDiscard").isVisible(),false);
+  await page.locator("#siPlusActivityCollapse").click();
+  assert.equal(await page.locator("#siPlusActivityDiscard").isVisible(),true);
   await page.locator("#boardNewBlank").click();
   assert.equal(await page.evaluate(()=>state.activityRun.activityId),"board-game");
   assert.equal(await page.evaluate(()=>state.activityRun.phase),"running");
@@ -132,6 +140,27 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
     null,{timeout:12000});
   assert.equal(await page.evaluate(()=>state.activityRun.slideIndex),1);
   assert.deepEqual(await page.evaluate(()=>state.activityRun.responses["1"]),original.answers["1"]);
+  // Verify the shared launch/return contract across several other real
+  // registered activities, without changing their bespoke gameplay/setup.
+  await page.locator("#siPlusActivityBreakLaunch").click();
+  const extraApps=await page.locator("#siPlusBreakChoices [data-break-app]")
+    .evaluateAll(buttons=>buttons.map(b=>b.dataset.breakApp)
+      .filter(id=>!["board","orbit","library"].includes(id)).slice(0,4));
+  assert.equal(extraApps.length,4,"four additional activity launchers expected");
+  await page.keyboard.press("Escape");
+  for(const appId of extraApps){
+    await page.locator("#siPlusActivityBreakLaunch").click();
+    await page.locator('#siPlusBreakChoices [data-break-app="'+appId+'"]').click();
+    assert.equal(await page.evaluate(()=>SIPlusActivityBreak.parked),true,
+      appId+" should preserve the original lesson in the classroom session");
+    assert.deepEqual(await page.evaluate(()=>state.siPlusActivityBreak.run.responses),original.answers);
+    await page.locator("#siPlusActivityResume").click();
+    assert.equal(await page.evaluate(()=>state.activityRun?.activityId),original.deck,
+      appId+" should manually return to the same SI+ lesson");
+    assert.equal(await page.evaluate(()=>state.activityRun.slideIndex),original.slide);
+    assert.deepEqual(await page.evaluate(()=>state.activityRun.responses),original.answers);
+  }
+  console.log("SI+ FOUR MORE APP SETUP/RETURN HANDOFFS PASSED",extraApps.join(","));
   // Browse library and recover saved place without starting another app.
   await page.locator("#siPlusActivityBreakLaunch").click();
   await page.locator('[data-break-app="library"]').click();
@@ -145,7 +174,19 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
     null,{timeout:17000});
   await page.locator("#siPlusActivityResume").waitFor({state:"visible",timeout:11000});
   assert.equal(await page.evaluate(()=>state.siPlusActivityBreak.run.slideIndex),1);
+  await page.setViewportSize({width:420,height:740});
+  await page.locator("#siPlusParkedContext").waitFor({state:"visible"});
+  const controls=await page.locator("#siPlusActivityReturn").boundingBox();
+  const quickPoll=await page.locator("#qpLauncher").boundingBox();
+  assert.ok(controls&&controls.x>=0&&controls.x+controls.width<=421,
+    "return strip must stay inside narrow teacher viewport");
+  if(quickPoll)assert.ok(controls.y+controls.height<=quickPoll.y,
+    "paused lesson controls must not overlap the Quick Poll launcher");
+  await page.locator("#siPlusActivityCollapse").click();
+  assert.equal(await page.locator("#siPlusActivityResume").isVisible(),true);
+  await page.locator("#siPlusActivityCollapse").click();
   await page.locator("#siPlusActivityResume").click();
+  await page.setViewportSize({width:1380,height:880});
   assert.equal(await page.evaluate(()=>state.activityRun.activityId),original.deck);
   // No automatic recovery is allowed during an emergency return.
   await page.locator("#siPlusActivityBreakLaunch").click();
@@ -159,6 +200,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.deepEqual(errors,[]);
   console.log("SI+ CLASSROOM ACTIVITY BREAK AND EXACT-SLIDE RETURN PASSED",
     JSON.stringify({slide:original.slide+1,answersPreserved:true,
-      realBoard:true,realOrbit:true,libraryFallback:true,emergencySafe:true}));
+      realBoard:true,realOrbit:true,extraAppHandoffs:extraApps,compactControls:true,
+    libraryFallback:true,emergencySafe:true}));
  }finally{await ctx.close();await browser.close()}
 })().catch(e=>{console.error(e);process.exit(1)});
