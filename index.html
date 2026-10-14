@@ -17132,6 +17132,10 @@ function sendActivityToLobby(){
   toast('Activity paused in Lobby — progress kept');
 }
 function returnToClassroom(reason='normal'){
+  // SI+ teacher-controlled activity breaks preserve the suspended lesson.
+  // Emergency Return always takes precedence over automatic resumption.
+  if(reason==='normal'&&window.SIPlusActivityBreak?.resumeAfterFinish?.())return;
+  if(reason==='emergency')window.SIPlusActivityBreak?.discard?.(true);
   state.activityRun=null;
   state.calculatorLaunch=null;
   state.agendaLive=false;
