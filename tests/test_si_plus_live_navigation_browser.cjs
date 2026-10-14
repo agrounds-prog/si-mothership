@@ -62,8 +62,12 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    assert.equal(await page.locator("#sharedContent iframe").count(),0);
    assert.equal(await page.locator("#siPlusSlideJump").inputValue(),"1");
    assert.equal(await page.locator("#sharedContent img").count(),1);
-   const slideBounds=await page.locator("#sharedContent .si-plus-slide-stage").evaluate(el=>{
-     const r=el.getBoundingClientRect(),style=getComputedStyle(el);
+   // The full-size #sharedContent is deliberately hidden inside a teacher
+   // tab. Check animation on that node but 16:9 geometry on the VISIBLE mirror.
+   const slideBounds=await page.evaluate(()=>{
+     const projector=document.querySelector("#sharedContent .si-plus-slide-stage");
+     const mirror=document.querySelector("#mirrorContent .si-plus-slide-stage");
+     const r=mirror.getBoundingClientRect(),style=getComputedStyle(projector);
      return {w:r.width,h:r.height,animation:style.animationName,transform:style.transform};
    });
    assert.ok(slideBounds.w>0 && slideBounds.h>0 && Math.abs(slideBounds.w/slideBounds.h-16/9)<.015,
@@ -92,6 +96,8 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    assert.equal(await page.evaluate(()=>state.activityRun.slideIndex),2);
    assert.equal(await page.locator("#nextSlideBtn").isDisabled(),true);
    assert.equal(await page.locator("#siPlusSlideJump").inputValue(),"2");
+   // Native selectors retain focus; blur before testing global shortcuts.
+   await page.locator("#siPlusSlideJump").evaluate(el=>el.blur());
    await page.keyboard.press("Home");
    assert.equal(await page.evaluate(()=>state.activityRun.slideIndex),0);
    assert.equal(await page.locator("#prevSlideBtn").isDisabled(),true);
