@@ -47,15 +47,17 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await teacherPop.close();
   await page.goto(BASE+"/?role=student&code="+encodeURIComponent(code)+"&sid="+encodeURIComponent(sid),
                   {waitUntil:"domcontentloaded"});
-  const search=page.locator("#studentContent .si-avatar-search input");
-  await search.waitFor({timeout:15000});
-  async function verifyCompactPopup(label,useButton=false){
+  const launcher=page.locator("#siStudentOpenCompact");
+  await launcher.waitFor({state:"visible",timeout:15000});
+  assert.equal(await page.evaluate(()=>document.querySelector("#student").inert),true);
+  // Background taps cannot open unwanted Chrome windows. Only the genuine
+  // primary launch button has the browser-trusted activation.
+  await page.mouse.click(18,190);
+  assert.equal(await page.locator("#siStudentWindowHandoff").count(),0);
+  assert.equal(await launcher.isVisible(),true);
+  async function verifyCompactPopup(label){
    const pending=page.waitForEvent("popup",{timeout:12000});
-   // The screenshot regression: start on a maximized browser with the
-   // compact controller centered, then click EMPTY background (not a
-   // button/search field). It must still launch a real small Chrome window.
-   if(useButton) await page.locator("#siStudentOpenCompact").click();
-   else await page.mouse.click(18,190);
+   await launcher.click();
    const popup=await pending;
    popup.on("pageerror",err=>errors.push(String(err)));
    await popup.waitForLoadState("domcontentloaded");
@@ -92,17 +94,22 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    await page.bringToFront();
    await page.locator("#siStudentWindowHandoff").waitFor({state:"detached",timeout:5000});
   }
-  await verifyCompactPopup("full desktop, direct launch button",true);
+  await verifyCompactPopup("full desktop, single launch button");
   // A copied student URL can already include compact=1. If pasted into an
   // ordinary Chrome tab, it still needs the normal popup/handoff behavior.
   await page.goto(BASE+"/?role=student&code="+encodeURIComponent(code)+
     "&sid="+encodeURIComponent(sid)+"&compact=1",{waitUntil:"domcontentloaded"});
-  await page.locator("#studentContent .si-avatar-search input").waitFor({timeout:15000});
+  await launcher.waitFor({state:"visible",timeout:15000});
   await verifyCompactPopup("pasted compact URL in a normal full-sized tab");
-  await verifyCompactPopup("full desktop, blank background click");
+  await verifyCompactPopup("full desktop, reopening after close");
   // A Chrome window snapped beside Zoom must not be misclassified as a phone.
   await page.setViewportSize({width:650,height:850});
-  await verifyCompactPopup("snapped desktop, blank background click");
+  await verifyCompactPopup("snapped desktop, single launch button");
+  // A student may explicitly stay in their current tab (school popup policy).
+  await page.locator("#siStudentLaunchContinue").click();
+  assert.equal(await page.locator("#siStudentLaunchScreen").isVisible(),false);
+  assert.equal(await page.locator("#studentContent .si-avatar-search input").isVisible(),true);
+  assert.equal(await page.evaluate(()=>document.querySelector("#student").inert),false);
   assert.deepEqual(errors,[]);
   console.log("HEADED CHROME real compact window + snapped desktop PASSED");
  }finally{
