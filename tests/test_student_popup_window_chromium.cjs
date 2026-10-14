@@ -93,6 +93,12 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    await page.locator("#siStudentWindowHandoff").waitFor({state:"detached",timeout:5000});
   }
   await verifyCompactPopup("full desktop, direct launch button",true);
+  // A copied student URL can already include compact=1. If pasted into an
+  // ordinary Chrome tab, it still needs the normal popup/handoff behavior.
+  await page.goto(BASE+"/?role=student&code="+encodeURIComponent(code)+
+    "&sid="+encodeURIComponent(sid)+"&compact=1",{waitUntil:"domcontentloaded"});
+  await page.locator("#studentContent .si-avatar-search input").waitFor({timeout:15000});
+  await verifyCompactPopup("pasted compact URL in a normal full-sized tab");
   await verifyCompactPopup("full desktop, blank background click");
   // A Chrome window snapped beside Zoom must not be misclassified as a phone.
   await page.setViewportSize({width:650,height:850});
