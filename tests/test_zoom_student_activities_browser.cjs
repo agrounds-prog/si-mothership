@@ -20,6 +20,11 @@ const samples={
   '<div class="dm-hand">'+dominoes+'</div><div class="dm-device-controls"><button id="dmDraw">DRAW</button><button id="dmPass">PASS</button></div>'+
   '<p class="dm-device-help">Play on left or right.</p></div>'
 };
+// Mirror the production student status cue sitting beside every live game.
+const withCue=(game,html)=>'<section class="si-student-game-cue" id="siTestGameCue" data-si-tone="turn">'+
+ '<span class="si-cue-app">'+game.toUpperCase()+'</span>'+
+ '<strong class="si-cue-heading">YOUR TURN</strong>'+
+ '<span class="si-cue-help">Follow your teacher and use the controls below.</span></section>'+html;
 const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span></header>'+
   '<div class="qp-status"><span>VOTING OPEN</span></div><h1>Which activity should the class choose today?</h1>'+
   '<p>Choose your answer.</p><div class="qp-vote-choices">'+
@@ -41,14 +46,18 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
    for(const [game,html] of Object.entries(samples)){
     const ui=await page.evaluate(({html,game})=>{
      const root=document.querySelector("#studentContent");
-     root.innerHTML=html;
+     root.innerHTML=withCue(game,html);
      const rect=el=>el?el.getBoundingClientRect():null;
-     const main=rect(root),panel=rect(root.firstElementChild);
+     const main=rect(root),panel=rect(root.querySelector(game==="million"?".million-student":game==="cosmic"?".cc-device":".dm-device"));
+     const cue=rect(root.querySelector("#siTestGameCue"));
+     const action=rect(root.querySelector(game==="million"?".million-student-choices":game==="cosmic"?".cc-hand":".dm-hand"));
      const selectors=game==="million"?[".million-student-choice",".million-student-actions button"]:
        game==="cosmic"?[".cc-hand-button",".cc-device-actions button"]:
        [".dm-pick-actions button",".dm-device-controls button"];
      return {viewport:innerWidth,overflow:document.documentElement.scrollWidth-innerWidth,
        mainWidth:main.width,panelWidth:panel.width,
+       cue:{y:cue.y,bottom:cue.bottom,h:cue.height,w:cue.width},
+       panelY:panel.y,actionWidth:action.width,
        grids:selectors.map(s=>[...root.querySelectorAll(s)].map(el=>({
         w:rect(el).width,h:rect(el).height}))),
        footer:getComputedStyle(document.querySelector(".student-control-zone")).display,
@@ -59,6 +68,10 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
        scene:game==="cosmic"?rect(root.querySelector(".cc-scene-mobile")).height:null};
     },{html,game});
     assert.ok(ui.overflow<=2&&ui.panelWidth<=ui.mainWidth+2,JSON.stringify({w,h,game,ui}));
+    assert.ok(ui.cue.h<150&&ui.cue.bottom<=ui.panelY+2,
+      game+" instructions must sit above, never beside, the board: "+JSON.stringify({w,h,ui}));
+    assert.ok(ui.panelWidth>=ui.mainWidth-24&&ui.actionWidth>=ui.mainWidth-58,
+      game+" action surface must use student device width: "+JSON.stringify({w,h,ui}));
     assert.equal(ui.footer,"none",game+" has no unused footer");
     assert.equal(ui.cols,game==="dominoes"?(w>=410?3:2):game==="cosmic"?3:2);
     assert.ok(ui.grids[0].length>=4&&ui.grids[0].every(x=>x.w>=40),JSON.stringify({w,h,game,ui}));
