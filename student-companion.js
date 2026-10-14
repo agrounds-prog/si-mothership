@@ -21,7 +21,8 @@
    // iPadOS may identify itself as a Mac desktop.
    if(navigator.platform==="MacIntel" && navigator.maxTouchPoints>1)return false;
    // Chrome snapped beside Zoom may be 400–530px wide, even on touch laptops.
-   return innerWidth>=360;
+   const displayWidth=screen.availWidth||screen.width||innerWidth;
+   return innerWidth>=540 || (innerWidth>=360 && displayWidth>=850);
  }
  let deviceLaunched=false;
  let activeWindow=null;
@@ -288,7 +289,7 @@
   function pageSize(){
     // Fit a third avatar row into ordinary 440 × 780 sidecars. On genuinely
     // short screens use two rows so the navigator remains reachable.
-    return window.innerWidth<360||window.innerHeight<620?6:9;
+    return window.innerWidth<405||window.innerHeight<690?6:9;
   }
   function paint(){
     if(!activeGrid||!activeGrid.isConnected)return;
