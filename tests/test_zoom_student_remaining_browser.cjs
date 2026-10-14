@@ -14,6 +14,10 @@ const matchFixture='<section class="si-student-game-cue" data-si-tone="turn" id=
  '<div class="ma-board-wrap"><div class="ma-board-surround"><div class="ma-grid" style="--ma-cols:6">'+
  Array.from({length:24},(_,i)=>'<button type="button" data-match-pick="'+i+'" class="ma-tile is-hidden"><span class="ma-tile-face ma-tile-back"><b>'+(i+1)+'</b><small>SECTOR</small></span></button>').join('')+
  '</div></div></div><div class="ma-device-tip">Remember the signals.</div><div class="ma-device-bottom">MATCH</div></div>';
+const studentCue=label=>'<section class="si-student-game-cue" data-si-tone="turn" id="siTestGameCue">'+
+ '<span class="si-cue-app">'+label+'</span>'+
+ '<strong class="si-cue-heading">YOUR TURN</strong>'+
+ '<span class="si-cue-help">Follow the shared board and use your private controls.</span></section>';
 const minefieldFixture=(cols=8)=>{
  const header='<div class="minefield-axis corner">•</div>'+Array.from({length:cols},(_,c)=>'<div class="minefield-axis col">'+String.fromCharCode(65+c)+'</div>').join('');
  const body=Array.from({length:cols},(_,r)=>'<div class="minefield-axis row">'+(r+1)+'</div>'+
@@ -70,12 +74,13 @@ const minefieldFixture=(cols=8)=>{
     const own=WordGrid.studentHTML(g,{n:"Zoom Pilot"});
     const spectator=WordGrid.studentHTML(g,{n:"Other Student"});
     const root=document.querySelector("#studentContent");
-    root.innerHTML=own;
+    root.innerHTML=studentCue("WORD GRID")+own;
     const wrap=root.querySelector(".wg-student-board"),board=wrap.querySelector(".wg-board");
+    const game=root.querySelector(".wg-student").getBoundingClientRect(),cue=root.querySelector("#siTestGameCue").getBoundingClientRect();
     const rack=[...root.querySelectorAll(".wg-student-rack .wg-tile")];
     const before=wrap.scrollLeft;wrap.scrollLeft=160;
     return {overflow:document.documentElement.scrollWidth-innerWidth,
-      main:root.clientWidth,frame:root.firstElementChild.getBoundingClientRect().width,
+      main:root.clientWidth,frame:game.width,cueBottom:cue.bottom,gameTop:game.top,
       boardCells:root.querySelectorAll(".wg-student-board [data-wg-cell]").length,
       boardWidth:board.getBoundingClientRect().width,viewWidth:wrap.clientWidth,
       scrolled:wrap.scrollLeft>before,rack:rack.map(t=>({w:t.getBoundingClientRect().width,h:t.getBoundingClientRect().height})),
@@ -83,6 +88,8 @@ const minefieldFixture=(cols=8)=>{
       privacy:!spectator.includes("wg-student-rack"),footer:getComputedStyle(document.querySelector(".student-control-zone")).display};
    });
    assert.ok(word.overflow<=2&&word.frame<=word.main+2,JSON.stringify({width,height,word}));
+   assert.ok(word.cueBottom<=word.gameTop+2&&word.frame>=word.main-24,
+     "Word Grid cue above full-width rack and swipeable board: "+JSON.stringify(word));
    assert.equal(word.boardCells,225);
    assert.ok(word.boardWidth>=450&&word.boardWidth>word.viewWidth&&word.scrolled,JSON.stringify(word));
    assert.ok(word.rack.length===7&&word.rack.every(t=>t.w>=35&&t.h>=43),JSON.stringify(word));
@@ -97,22 +104,27 @@ const minefieldFixture=(cols=8)=>{
     document.querySelector("#studentControls").innerHTML='<button id="si-mf-test-confirm" type="button">Confirm sector</button>';
     window.__siMinefieldSelections=0;
     root.querySelectorAll("[data-mf-cell]").forEach(b=>b.addEventListener("click",()=>window.__siMinefieldSelections++));
-   },minefieldFixture(8));
+   },studentCue("MINEFIELD")+minefieldFixture(8));
    await page.waitForFunction(()=>!!document.querySelector("#studentContent .si-mf-scroll"),null,{timeout:6000});
    const mine=await page.evaluate(()=>{
     const root=document.querySelector("#studentContent");
     const wrapper=root.querySelector(".si-mf-scroll");
     const board=root.querySelector(".minefield-student-board");
+    const cue=root.querySelector("#siTestGameCue").getBoundingClientRect();
+    const game=root.querySelector(".response-device").getBoundingClientRect();
     const targets=[...board.querySelectorAll("[data-mf-cell]")];
     const start=wrapper.scrollLeft;wrapper.scrollLeft=200;
     return {overflow:document.documentElement.scrollWidth-innerWidth,
      viewportWidth:wrapper.clientWidth,scrollWidth:wrapper.scrollWidth,
+     main:root.clientWidth,gameWidth:game.width,cueBottom:cue.bottom,gameTop:game.top,
      scrolled:wrapper.scrollLeft>start,columns:board.querySelectorAll(".minefield-axis.col").length,
      touches:targets.map(b=>({w:b.getBoundingClientRect().width,h:b.getBoundingClientRect().height})),
      footer:getComputedStyle(document.querySelector(".student-control-zone")).display,
      label:wrapper.getAttribute("aria-label")};
    });
    assert.ok(mine.overflow<=2&&mine.columns===8&&mine.scrolled,JSON.stringify({width,height,mine}));
+   assert.ok(mine.cueBottom<=mine.gameTop+2&&mine.gameWidth>=mine.main-24,
+     "Minefield instructions above full-width scroll map: "+JSON.stringify({width,height,mine}));
    assert.ok(mine.scrollWidth>mine.viewportWidth&&mine.touches.length===64,JSON.stringify(mine));
    assert.ok(mine.touches.every(t=>t.w>=44&&t.h>=44),JSON.stringify({width,height,mine}));
    assert.notEqual(mine.footer,"none","Minefield requires its separate confirmation controls");
