@@ -240,7 +240,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   // the top rather than inheriting a stale avatar-list scroll position.
   const deviceNext=quickDevice.locator("#studentContent [data-si-avatar-next]");
   await deviceNext.click();
-  assert.match(await quickDevice.locator("#studentContent .si-avatar-page-count").innerText(),/^2 \\/ /);
+  assert.ok((await quickDevice.locator("#studentContent .si-avatar-page-count").innerText()).trim().startsWith("2 /"));
   const secondPageChoice=quickDevice.locator("#studentContent [data-join-avatar]:visible").first();
   const secondPageAvatar=await secondPageChoice.getAttribute("data-join-avatar");
   await quickDevice.evaluate(()=>{document.querySelector("#studentContent").scrollTop=500});
