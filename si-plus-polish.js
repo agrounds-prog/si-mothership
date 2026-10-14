@@ -694,3 +694,207 @@
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});
  else start();
 })();
+
+
+/* SI+ v93 — temporary activity break.
+   A SINGLE parked SI+ run is kept in the active classroom session snapshot
+   (including response maps and reveal state). Launchers, student controls
+   and all game setup/finish flows remain their existing implementations.
+   No independent saved-presentation or game library records are written. */
+(()=>{
+ "use strict";
+ if(window.SIPlusActivityBreak)return;
+ const isTeacher=()=>typeof SESSION_ROLE!=="undefined"&&SESSION_ROLE==="teacher";
+ const key="siPlusActivityBreak";
+ const session=()=>String(typeof STUDENT_SESSION_ID==="undefined"?"":STUDENT_SESSION_ID||"");
+ const parked=()=>{
+   if(!isTeacher()||typeof state==="undefined"||!state[key])return null;
+   const v=state[key];
+   if(!v.run||String(v.sessionId||"")!==session()||state.ended)return null;
+   return v;
+ };
+ const presentation=()=>{
+   if(!isTeacher()||typeof state==="undefined"||state.ended)return null;
+   const run=state.activityRun,deck=typeof activeActivity==="function"?activeActivity():null;
+   return run&&run.phase==="running"&&deck?.type==="presentation"&&
+     Array.isArray(deck.slides)&&deck.slides.length?{run,deck}:null;
+ };
+ const availableApps=()=>typeof APP_REGISTRY!=="undefined"?
+   APP_REGISTRY.filter(app=>!["si-plus","scientific-calculator"].includes(app.id)):[];
+ let dialog=null,returnBar=null;
+ const escText=v=>String(v||"");
+ function ui(){
+   if(!isTeacher())return;
+   const active=presentation(),save=parked();
+   const row=document.querySelector("#activityControllerPanel .presentation-controls");
+   let launcher=document.getElementById("siPlusActivityBreakLaunch");
+   if(active&&!save&&row){
+     if(!launcher||launcher.parentElement!==row){
+       launcher?.remove();
+       launcher=document.createElement("button");
+       launcher.type="button";launcher.id="siPlusActivityBreakLaunch";
+       launcher.className="si-plus-activity-break-launch";
+       launcher.textContent="↗ Open Another Activity";
+       launcher.title="Park this presentation and return to the exact slide after another activity";
+       launcher.addEventListener("click",open);
+       row.appendChild(launcher);
+     }
+   }else launcher?.remove();
+   if(save&&state.screen!=="brb"){
+     if(!returnBar){
+       returnBar=document.createElement("section");
+       returnBar.id="siPlusActivityReturn";
+       returnBar.className="si-plus-activity-return";
+       returnBar.setAttribute("aria-label","Suspended SI+ presentation");
+       returnBar.innerHTML='<div class="si-plus-activity-return-copy">'+
+         '<b>▣ SI+ PRESENTATION PARKED</b><span id="siPlusParkedSummary"></span></div>'+
+         '<button type="button" id="siPlusActivityResume">↩ Return to SI+</button>'+
+         '<button type="button" id="siPlusActivityDiscard" aria-label="Discard parked presentation">×</button>';
+       returnBar.querySelector("#siPlusActivityResume").addEventListener("click",()=>{
+         if(state.activityRun&&!confirm(
+           "End the current activity and return to the parked SI+ slide? Any unfinished game round will end."))return;
+         resume();
+       });
+       returnBar.querySelector("#siPlusActivityDiscard").addEventListener("click",()=>{
+         if(!confirm("Discard the saved SI+ place? This does not delete the presentation or its saved library."))return;
+         discard();
+       });
+       document.body.appendChild(returnBar);
+     }
+     const name=escText(save.name||"Presentation"),number=Number(save.run.slideIndex)||0;
+     const label=name+" · Slide "+(number+1);
+     const cap=returnBar.querySelector("#siPlusParkedSummary");
+     if(cap&&cap.textContent!==label)cap.textContent=label;
+   }else if(returnBar){returnBar.remove();returnBar=null}
+   if(dialog&&!dialog.hidden&&!active)close(false);
+ }
+ function buildDialog(){
+   if(dialog)return;
+   dialog=document.createElement("div");
+   dialog.id="siPlusActivityBreakDialog";
+   dialog.className="si-plus-activity-break-dialog";
+   dialog.hidden=true;
+   dialog.innerHTML='<section class="si-plus-activity-break-window" role="dialog" aria-modal="true"'+
+     ' aria-label="Choose a classroom activity break">'+
+     '<div class="si-plus-activity-break-head"><div>'+
+     '<small>SI+ · LIVE PRESENTATION</small><h2>Take an Activity Break</h2>'+
+     '<p>Your exact slide, responses and presentation settings will be ready when you return.</p>'+
+     '</div><button type="button" class="si-plus-activity-break-close" data-break-close aria-label="Close">×</button></div>'+
+     '<div class="si-plus-activity-break-guide">Choose a classroom app. Its normal setup and student controls will open. Finish the activity to return to SI+, or use the Return to SI+ button at any time.</div>'+
+     '<div class="si-plus-activity-break-grid" id="siPlusBreakChoices"></div>'+
+     '<div class="si-plus-activity-break-footer">'+
+     '<button type="button" class="si-plus-activity-break-all" data-break-app="library">▦ Browse Full Activity Library</button>'+
+     '<button type="button" data-break-close>Cancel · Stay on Current Slide</button></div></section>';
+   dialog.addEventListener("click",e=>{
+     if(e.target===dialog||e.target.closest("[data-break-close]")){close();return}
+     const button=e.target.closest("[data-break-app]");
+     if(button)begin(button.dataset.breakApp);
+   });
+   document.body.appendChild(dialog);
+ }
+ function open(){
+   if(!presentation()||parked())return false;
+   buildDialog();
+   const grid=dialog.querySelector("#siPlusBreakChoices");
+   grid.replaceChildren();
+   for(const app of availableApps()){
+     const button=document.createElement("button");
+     button.type="button";button.className="si-plus-activity-break-choice";
+     button.dataset.breakApp=app.id;
+     const icon=document.createElement("span");
+     icon.className="si-plus-activity-break-icon";
+     if(typeof appIllustratedIconMarkup==="function")icon.innerHTML=appIllustratedIconMarkup(app.id);
+     else icon.textContent=app.icon||"✦";
+     const copy=document.createElement("span");
+     const name=document.createElement("strong"),description=document.createElement("small");
+     name.textContent=app.name;description.textContent=app.subtitle||"Classroom activity";
+     copy.append(name,description);button.append(icon,copy);grid.appendChild(button);
+   }
+   dialog.hidden=false;
+   dialog.querySelector("[data-break-close]")?.focus({preventScroll:true});
+   return true;
+ }
+ function close(restoreFocus=true){
+   if(!dialog)return;
+   dialog.hidden=true;
+   if(restoreFocus)document.getElementById("siPlusActivityBreakLaunch")?.focus({preventScroll:true});
+ }
+ function begin(appId){
+   const current=presentation();
+   if(!current||parked())return false;
+   const app=appId==="library"?null:availableApps().find(x=>x.id===appId);
+   if(appId!=="library"&&!app)return false;
+   const oldRun=deepClone(current.run);
+   state[key]={sessionId:session(),name:current.deck.deckTitle||current.deck.name||"Presentation",
+     run:oldRun,parkedAt:Date.now()};
+   close(false);
+   // The app's existing setup performs the actual launch; the lesson remains
+   // parked while the teacher chooses options, even if no game is started.
+   state.activityRun=null;
+   state.promptActive=false;
+   state.presentationEditor=null;state.presentationLibraryOpen=false;
+   state.assigningSlot=null;
+   state.screen="activities";
+   if(app)openApp(app.id);
+   else{state.activeApp=null;render()}
+   ui();
+   if(typeof toast==="function")toast("SI+ slide saved for this session · Choose your activity");
+   return true;
+ }
+ function resume(){
+   const saved=parked();
+   if(!saved||typeof state==="undefined")return false;
+   const deck=state.activities.find(x=>String(x.id)===String(saved.run.activityId));
+   if(!deck||deck.type!=="presentation"||!Array.isArray(deck.slides)||!deck.slides.length){
+     if(typeof toast==="function")toast("Saved SI+ deck is unavailable. Return to its library to reload.");
+     return false;
+   }
+   const run=deepClone(saved.run);
+   run.slideIndex=Math.max(0,Math.min(deck.slides.length-1,Number(run.slideIndex)||0));
+   // A fresh delivery token prevents stale game/slide submissions after a
+   // break from altering the preserved presentation response map.
+   run.runToken=typeof newActivityRunToken==="function"?newActivityRunToken():run.runToken;
+   state[key]=null;
+   state.activityRun=run;
+   state.screen="activity";state.activeApp="si-plus";
+   state.promptActive=false;state.assigningSlot=null;
+   state.presentationEditor=null;state.presentationLibraryOpen=false;
+   render();ui();
+   if(typeof toast==="function")toast("SI+ resumed at slide "+(run.slideIndex+1)+" · Responses restored");
+   return true;
+ }
+ function resumeAfterFinish(){
+   const saved=parked();
+   if(!saved)return false;
+   // Only auto-return when another activity completes, not if the same
+   // presentation was manually reloaded by a separate control.
+   if(String(state.activityRun?.activityId)===String(saved.run.activityId))return false;
+   return resume();
+ }
+ function discard(silent=false){
+   if(typeof state==="undefined"||!state[key])return false;
+   state[key]=null;close(false);ui();
+   if(!silent){render();if(typeof toast==="function")toast("Parked SI+ place discarded · Saved decks unchanged")}
+   return true;
+ }
+ function start(){
+   if(!isTeacher())return;
+   const panel=document.getElementById("activityControllerPanel");
+   let pending=false;
+   if(panel)new MutationObserver(()=>{
+     if(pending)return;pending=true;
+     queueMicrotask(()=>{pending=false;ui()});
+   }).observe(panel,{childList:true,subtree:true});
+   // Sync restore, library transitions, and custom game-exit paths may not
+   // rebuild the controller. This light status check covers those cases.
+   setInterval(ui,1250);
+   document.addEventListener("keydown",e=>{
+     if(e.key==="Escape"&&dialog&&!dialog.hidden){e.preventDefault();close()}
+   },true);
+   ui();
+ }
+ window.SIPlusActivityBreak={open,begin,resume,resumeAfterFinish,discard,
+   get parked(){return !!parked()},get data(){return parked()}};
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});
+ else start();
+})();
