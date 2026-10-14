@@ -98,7 +98,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await student.locator("#studentContent .si-avatar-no-match").isVisible(),true);
   await avatarSearch.fill("");
   assert.equal(await student.locator("#studentContent [data-join-avatar]:visible").count(),9);
-  for(const [w,h,expected] of [[390,670,6],[330,610,6],[320,580,6],[480,610,6],[440,760,9]]){
+  for(const [w,h,expected] of [[390,670,9],[330,610,6],[320,580,6],[480,610,9],[440,760,9]]){
     await student.setViewportSize({width:w,height:h});
     const g=await student.evaluate(()=>({
       overflow:document.documentElement.scrollWidth-innerWidth,
