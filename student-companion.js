@@ -259,10 +259,18 @@
     // on the classroom page including blank space outside the controller.
     if(keyboard){
       if(event.altKey||event.ctrlKey||event.metaKey || !["Enter"," "].includes(event.key))return;
-      // Never hijack typing, Space, or Enter inside an editable field.
-      // The user can still activate buttons with the keyboard normally.
+      // Space remains text input. Enter is an established quick-start
+      // shortcut in Avatar Search (select first match) and valid Join Code.
+      // All other editable fields retain ordinary keyboard behavior.
       const el=event.target;
-      if(el?.isContentEditable || el?.closest?.("input,textarea,select,[contenteditable]"))return;
+      if(el?.isContentEditable)return;
+      if(el?.closest?.("input,textarea,select,[contenteditable]")){
+        const avatarEnter=event.key==="Enter" &&
+          el.matches?.("#studentContent .si-avatar-search input");
+        const codeEnter=event.key==="Enter" &&
+          el.matches?.("#joinCodeInput") && validCode();
+        if(!avatarEnter && !codeEnter)return;
+      }
     }
     // The launch button has its own direct, trusted click handler.
     if(event.target?.closest?.("#siStudentPopupBlocked, #siStudentOpenCompact"))return;
