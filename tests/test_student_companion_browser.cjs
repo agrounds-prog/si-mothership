@@ -193,6 +193,11 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await fresh.goto(BASE+"/?role=student",{waitUntil:"domcontentloaded",timeout:40000});
   await fresh.waitForSelector("#joinCodeInput",{timeout:15000});
   assert.equal(await fresh.locator("#siStudentDeviceLauncher").count(),0);
+  // Typing whitespace in a code field cannot launch a popup or hijack focus.
+  await fresh.locator("#joinCodeInput").focus();
+  await fresh.keyboard.press("Space");
+  assert.equal(await fresh.locator("#siStudentWindowHandoff").count(),0);
+  assert.equal(await fresh.locator("#joinCodeInput").evaluate(el=>document.activeElement===el),true);
   await fresh.locator("#joinCodeInput").fill(session.code);
   const codeWindowPromise=fresh.waitForEvent("popup",{timeout:10000});
   await fresh.locator("#joinCodeBtn").click();
@@ -230,6 +235,21 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   });
   assert.ok(Math.abs(quickGeom.viewportW-quickGeom.w)<=2
     &&Math.abs(quickGeom.viewportH-quickGeom.h)<=2,JSON.stringify(quickGeom));
+  // Once in the device, paging must continue to work without another popup.
+  // A student selecting an avatar on page two must see the Name stage from
+  // the top rather than inheriting a stale avatar-list scroll position.
+  const deviceNext=quickDevice.locator("#studentContent [data-si-avatar-next]");
+  await deviceNext.click();
+  assert.match(await quickDevice.locator("#studentContent .si-avatar-page-count").innerText(),/^2 \\/ /);
+  const secondPageChoice=quickDevice.locator("#studentContent [data-join-avatar]:visible").first();
+  const secondPageAvatar=await secondPageChoice.getAttribute("data-join-avatar");
+  await quickDevice.evaluate(()=>{document.querySelector("#studentContent").scrollTop=500});
+  await secondPageChoice.click();
+  await quickDevice.locator("#joinStudentName").waitFor({timeout:15000});
+  assert.ok(await quickDevice.evaluate(()=>document.querySelector("#studentContent").scrollTop)<=16,
+    "scroll must reset after avatar selection");
+  assert.ok(secondPageAvatar,"page two avatar ID must be preserved");
+  console.log("STUDENT COMPANION page-two avatar and join-stage scroll PASSED",secondPageAvatar);
   await quickCtx.close();
 
   // Windows touchscreen laptops can report coarse pointer; desktop-sized
