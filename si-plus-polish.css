@@ -591,7 +591,8 @@ body.sipreview-open{overflow:hidden!important}
    in narrow Zoom/teacher windows without altering the saved slide or stage. */
 body.sipreview-open #teacher,
 body.sipreview-open > header,
-body.sipreview-open #siTeacherStudentDeviceLaunch{
+body.sipreview-open #siTeacherStudentDeviceLaunch,
+body.sipreview-open:not(.role-student):not(.role-shared) header .class-code #siTeacherStudentDeviceLaunch{
   display:none!important;
 }
 body.sipreview-open{
