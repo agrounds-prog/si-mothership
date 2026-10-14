@@ -341,3 +341,30 @@ border-color:#fff0a0;box-shadow:inset 0 0 0 2px #fff7c066,0 0 18px #ffe28da6,0 8
 @media(max-width:1050px){#teacher .match-studio-shell{grid-template-columns:minmax(0,1fr)}#teacher .match-studio-hero{gap:10px}#teacher .match-studio-sidebar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}#teacher .match-studio-saved{grid-column:1/-1}}
 @media(max-width:680px){#teacher .match-studio-logo{width:52px;height:52px;flex-basis:52px;font-size:36px}#teacher .match-studio-hero{padding:11px}#teacher .match-studio-metrics{width:100%}#teacher .match-studio-metrics>div{min-width:0;flex:1}#teacher .match-studio-editor .game-library-grid{grid-template-columns:repeat(3,minmax(0,1fr))}#teacher .match-studio-sidebar{grid-template-columns:1fr}#teacher .match-studio-saved{grid-column:auto}#teacher .match-studio-mini-board{gap:5px}}
 @media(prefers-reduced-motion:reduce){#teacher .match-studio-editor .game-library-tile{transition:none}}
+
+
+/* MATCH automatic scoring: point totals update from confirmed pair state.
+   Teacher manual MARK MATCH is replaced by a noninteractive status label. */
+#teacher #activityControllerPanel .ma-auto-score-indicator{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:1 1 100%!important;
+  min-width:0!important;
+  min-height:42px!important;
+  margin:3px 0!important;
+  padding:8px 12px!important;
+  border:1px solid #79e5b8!important;
+  border-radius:10px!important;
+  background:linear-gradient(120deg,#0f4e50,#103e58)!important;
+  color:#e6fff0!important;
+  font:900 12px/1.3 system-ui,sans-serif!important;
+  text-align:center!important;
+  letter-spacing:.025em!important;
+}
+body.role-student #studentContent .ma-student-earned{
+  border-color:#7ceabd!important;
+  background:linear-gradient(135deg,#16544d,#123e62)!important;
+  color:#f0fffb!important;
+}
+body.role-student #studentContent .ma-student-earned b{color:#aeffda!important}
