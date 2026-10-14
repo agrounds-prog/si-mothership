@@ -67,14 +67,14 @@ const minefieldFixture=(cols=8)=>{
    assert.equal(match.columns,4,"24 cards use touchable four-column layout");
    assert.ok(match.tiles.length===24&&match.tiles.every(t=>t.w>=54&&t.h>=50),JSON.stringify({width,height,match}));
    assert.equal(match.footer,"none");
-   const word=await page.evaluate(()=>{
+   const word=await page.evaluate(cueMarkup=>{
     const g=WordGrid.make(["Blue Crew","Gold Crew"],{assignments:{"Zoom Pilot":0}});
     const id=g.players[0].rack[0].id;
     WordGrid.setHint(g,id);
     const own=WordGrid.studentHTML(g,{n:"Zoom Pilot"});
     const spectator=WordGrid.studentHTML(g,{n:"Other Student"});
     const root=document.querySelector("#studentContent");
-    root.innerHTML=studentCue("WORD GRID")+own;
+    root.innerHTML=cueMarkup+own;
     const wrap=root.querySelector(".wg-student-board"),board=wrap.querySelector(".wg-board");
     const game=root.querySelector(".wg-student").getBoundingClientRect(),cue=root.querySelector("#siTestGameCue").getBoundingClientRect();
     const rack=[...root.querySelectorAll(".wg-student-rack .wg-tile")];
@@ -86,7 +86,7 @@ const minefieldFixture=(cols=8)=>{
       scrolled:wrap.scrollLeft>before,rack:rack.map(t=>({w:t.getBoundingClientRect().width,h:t.getBoundingClientRect().height})),
       hasHint:!!root.querySelector(".wg-tile.wg-highlight"),
       privacy:!spectator.includes("wg-student-rack"),footer:getComputedStyle(document.querySelector(".student-control-zone")).display};
-   });
+   },studentCue("WORD GRID"));
    assert.ok(word.overflow<=2&&word.frame<=word.main+2,JSON.stringify({width,height,word}));
    assert.ok(word.cueBottom<=word.gameTop+2&&word.frame>=word.main-24,
      "Word Grid cue above full-width rack and swipeable board: "+JSON.stringify(word));
