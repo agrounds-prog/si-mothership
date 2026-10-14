@@ -442,3 +442,143 @@
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});
  else start();
 })();
+
+
+/* SI+ v91: live-slide navigation + one-time slide transitions.
+   Reads the existing presentation state; all actions use native changeSlide()
+   so shared screens, responses and session persistence remain authoritative.
+   Intentionally never touches video iframes or rewrites slide markup. */
+(()=>{
+ "use strict";
+ if(window.SIPlusLiveNavigation)return;
+ const teacher=()=>typeof SESSION_ROLE!=="undefined"&&SESSION_ROLE==="teacher";
+ const current=()=>{
+   if(typeof state==="undefined"||!state.activityRun||
+      state.activityRun.phase!=="running"||typeof activeActivity!=="function")return null;
+   const deck=activeActivity();
+   return deck?.type==="presentation"&&Array.isArray(deck.slides)&&deck.slides.length
+      ?{deck,run:state.activityRun}:null;
+ };
+ const index=()=>Math.max(0,Number(current()?.run.slideIndex)||0);
+ const slideName=(slide,i)=>String(slide.listTitle||slide.title||"Slide "+(i+1)).trim();
+ const controls=()=>document.querySelector("#activityControllerPanel .presentation-controls")
+    ?.querySelector("#prevSlideBtn")?.closest(".presentation-controls")||null;
+ function mountNavigation(){
+   if(!teacher())return;
+   const active=current(),row=controls();
+   if(!active||!row){
+     document.querySelector("#siPlusSlideJumpBlock")?.remove();
+     return;
+   }
+   const {deck}=active;
+   let holder=row.querySelector("#siPlusSlideJumpBlock");
+   if(!holder){
+     holder=document.createElement("label");
+     holder.id="siPlusSlideJumpBlock";
+     holder.className="si-plus-slide-jump";
+     holder.innerHTML='<span>GO TO SLIDE</span><select id="siPlusSlideJump" aria-label="Jump to slide"></select>';
+     row.appendChild(holder);
+     holder.querySelector("select").addEventListener("change",event=>{
+       const live=current();if(!live||typeof changeSlide!=="function")return;
+       const selected=Number(event.currentTarget.value);
+       if(!Number.isInteger(selected)||selected<0||selected>=live.deck.slides.length)return;
+       if(selected!==index())changeSlide(selected-index());
+     });
+   }
+   const select=holder.querySelector("select");
+   // Teacher's control panel is frequently reconstructed while students
+   // respond. Avoid touching options unless this actual deck changed.
+   const signature=deck.slides.map((s,i)=>i+":"+slideName(s,i)).join("|");
+   if(select.dataset.deckId!==String(deck.id)||
+      select.dataset.deckSignature!==signature){
+     select.replaceChildren(...deck.slides.map((slide,i)=>{
+       const option=document.createElement("option");
+       option.value=String(i);
+       option.textContent=(i+1)+" · "+slideName(slide,i);
+       return option;
+     }));
+     select.dataset.deckId=String(deck.id);
+     select.dataset.deckSignature=signature;
+   }
+   const selected=String(index());
+   if(select.value!==selected)select.value=selected;
+   select.disabled=deck.slides.length<2;
+   const prev=row.querySelector("#prevSlideBtn");
+   const next=row.querySelector("#nextSlideBtn");
+   if(prev)prev.disabled=index()===0;
+   if(next)next.disabled=index()===deck.slides.length-1;
+   holder.title="Choose any slide without advancing through the whole deck";
+ }
+ function editable(target){
+   return !!target?.closest?.(
+     "input, textarea, select, button, [contenteditable], [role=dialog], .sipreview-overlay"
+   );
+ }
+ function onKey(event){
+   if(!teacher()||event.defaultPrevented||event.isComposing||
+     event.ctrlKey||event.metaKey||event.altKey||event.shiftKey||editable(event.target)||
+     document.querySelector("#siPlusPreviewOverlay")||
+     document.querySelector('[role="dialog"][aria-modal="true"]:not([hidden])'))return;
+   const active=current();
+   if(!active||typeof changeSlide!=="function")return;
+   let target;
+   switch(event.key){
+    case "ArrowRight":case "PageDown":target=index()+1;break;
+    case "ArrowLeft":case "PageUp":target=index()-1;break;
+    case "Home":target=0;break;
+    case "End":target=active.deck.slides.length-1;break;
+    default:return;
+   }
+   target=Math.max(0,Math.min(active.deck.slides.length-1,target));
+   if(target===index())return;
+   event.preventDefault();
+   changeSlide(target-index());
+ }
+ const seen=new WeakMap();
+ function markActualSlideChanges(){
+   if(typeof state==="undefined"||typeof activeActivity!=="function")return;
+   const active=current();
+   for(const id of ["sharedContent","mirrorContent"]){
+     const host=document.getElementById(id);
+     if(!host)continue;
+     const stage=host.querySelector(".si-plus-slide-stage");
+     if(!active||!stage){seen.delete(host);continue}
+     const signature=String(active.run.runToken||active.run.activityId)
+       +"|"+String(active.deck.id)+"|"+String(active.run.slideIndex||0);
+     const previous=seen.get(host);
+     if(previous===signature)continue;
+     seen.set(host,signature);
+     // No entrance animation for first render, restore, or a rejoin.
+     // Only a genuine advance within the same live presentation fades in.
+     if(previous && previous.split("|").slice(0,2).join("|")===
+        signature.split("|").slice(0,2).join("|")){
+       stage.classList.remove("si-plus-slide-enter");
+       void stage.offsetWidth;
+       stage.classList.add("si-plus-slide-enter");
+     }
+   }
+ }
+ function start(){
+   const panel=document.querySelector("#activityControllerPanel");
+   const hosts=["sharedContent","mirrorContent"].map(x=>document.getElementById(x)).filter(Boolean);
+   let queued=false;
+   function onMutations(){
+     if(queued)return;
+     queued=true;
+     queueMicrotask(()=>{
+       queued=false;mountNavigation();markActualSlideChanges();
+     });
+   }
+   if(panel)new MutationObserver(onMutations).observe(panel,{childList:true,subtree:true});
+   for(const host of hosts)new MutationObserver(onMutations).observe(host,{childList:true,subtree:true});
+   if(teacher())document.addEventListener("keydown",onKey,false);
+   mountNavigation();markActualSlideChanges();
+ }
+ window.SIPlusLiveNavigation={get active(){return !!current()},goto(i){
+   const active=current(),n=Number(i);
+   if(!teacher()||!active||!Number.isInteger(n)||n<0||n>=active.deck.slides.length)return false;
+   if(n!==index())changeSlide(n-index());return true;
+ }};
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});
+ else start();
+})();
