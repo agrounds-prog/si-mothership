@@ -11,7 +11,8 @@
 }
 #qpLauncher.active{border-color:#92ffb9;box-shadow:0 0 0 3px #79facd32,0 10px 30px #0009}
 #qpDialog{
- position:fixed;inset:0;z-index:12000;display:grid;place-items:center;
+ /* Above floating Mission Control dock (z-index 12080), below public projector. */
+ position:fixed;inset:0;z-index:13000;display:grid;place-items:center;
  padding:18px;background:#030a16dc;backdrop-filter:blur(6px);
 }
 #qpDialog .qp-dialog-window{
