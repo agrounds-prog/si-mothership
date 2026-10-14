@@ -4,10 +4,13 @@
 const assert=require("node:assert/strict");
 const {chromium}=require("playwright");
 const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
-const matchFixture='<div class="ma-game ma-student">'+
+const matchFixture='<section class="si-student-game-cue" data-si-tone="turn" id="matchStudentCue">'+
+ '<span class="si-cue-app">MATCH</span><strong class="si-cue-heading">FIND A PAIR</strong>'+
+ '<span class="si-cue-help">Tap two cards to find a match.</span></section>'+
+ '<div class="ma-game ma-student">'+
  '<div class="ma-student-heading"><div class="ma-student-pilot"><span class="ma-avatar">✦</span><span>CURRENT NAVIGATOR</span></div>'+
  '<span class="ma-eyebrow">MOTHERSHIP · MATCH</span><h2>YOUR TURN, ZOOM PILOT!</h2><p>Tap two cards to find a match.</p></div>'+
- '<div class="ma-student-status"><span><b>0 / 12</b> PAIRS</span><span><b>0</b> TRIES</span><span>ACTIVE PILOT</span></div>'+
+ '<div class="ma-student-status"><span><b>0 / 12</b> PAIRS</span><span><b>0</b> TRIES</span><span>ACTIVE PILOT</span><span class="ma-student-earned">★ <b>2</b> AUTO POINTS</span></div>'+
  '<div class="ma-board-wrap"><div class="ma-board-surround"><div class="ma-grid" style="--ma-cols:6">'+
  Array.from({length:24},(_,i)=>'<button type="button" data-match-pick="'+i+'" class="ma-tile is-hidden"><span class="ma-tile-face ma-tile-back"><b>'+(i+1)+'</b><small>SECTOR</small></span></button>').join('')+
  '</div></div></div><div class="ma-device-tip">Remember the signals.</div><div class="ma-device-bottom">MATCH</div></div>';
@@ -43,12 +46,20 @@ const minefieldFixture=(cols=8)=>{
     root.innerHTML=markup;
     const grid=root.querySelector(".ma-grid"),tiles=[...root.querySelectorAll("[data-match-pick]")];
     return {overflow:document.documentElement.scrollWidth-innerWidth,
-      main:root.clientWidth,frame:root.firstElementChild.getBoundingClientRect().width,
+      main:root.clientWidth,frame:root.querySelector(".ma-student").getBoundingClientRect().width,
+      cue:(()=>{const r=root.querySelector("#matchStudentCue").getBoundingClientRect();return {y:r.y,bottom:r.bottom,w:r.width,h:r.height};})(),
+      board:(()=>{const r=root.querySelector(".ma-board-surround").getBoundingClientRect();return {y:r.y,w:r.width};})(),
+      score:root.querySelector(".ma-student-earned")?.textContent,
       columns:getComputedStyle(grid).gridTemplateColumns.split(" ").length,
       tiles:tiles.map(t=>({w:t.getBoundingClientRect().width,h:t.getBoundingClientRect().height})),
       footer:getComputedStyle(document.querySelector(".student-control-zone")).display};
    },matchFixture);
    assert.ok(match.overflow<=2&&match.frame<=match.main+2,JSON.stringify({width,height,match}));
+   assert.ok(match.cue.h<155&&match.cue.bottom<=match.board.y+2,
+     "MATCH cue must be ABOVE the board, not beside it: "+JSON.stringify({width,height,match}));
+   assert.ok(match.frame>=match.main-24&&match.board.w>=match.main-48,
+     "MATCH board should use the phone width: "+JSON.stringify({width,height,match}));
+   assert.match(match.score,/2.*AUTO POINTS/);
    assert.equal(match.columns,4,"24 cards use touchable four-column layout");
    assert.ok(match.tiles.length===24&&match.tiles.every(t=>t.w>=54&&t.h>=50),JSON.stringify({width,height,match}));
    assert.equal(match.footer,"none");
