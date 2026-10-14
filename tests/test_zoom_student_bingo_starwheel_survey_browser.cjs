@@ -124,6 +124,42 @@ const fixture={
    }
    assert.deepEqual(errors,[]);
   }
+  // Confirm the actual teacher Bingo caller exposes the session-scoped
+  // switch. This runs against the isolated test server, never production.
+  assert.equal((await page.request.post(BASE+"/api/teacher/login",{data:{key:"5030"}})).status(),200);
+  const teacher=await ctx.newPage();
+  teacher.on("pageerror",e=>errors.push("teacher "+String(e)));
+  await teacher.goto(BASE+"/?role=teacher",{waitUntil:"domcontentloaded",timeout:40000});
+  await teacher.waitForFunction(()=>networkHydrated===true&&!!window.SIBingoStudentCallAlerts,
+    null,{timeout:15000});
+  const teacherPanel=await teacher.evaluate(()=>{
+    const ids=Array.from({length:16},(_,i)=>String(i+1));
+    state.activityRun={
+      activityId:"bingo-game",phase:"running",runToken:"student-bingo-alerts-test",
+      responses:{},bingoConfig:{name:"Alerts Test",size:4,pattern:"line",free:false,
+        items:ids.map(id=>({id,call:{type:"text",value:"Item "+id}}))},
+      bingo:{callOrder:ids,called:[],current:null,cards:{},marks:{},claimResults:{},
+        claims:[],reveal:null,callNonce:0,message:"Ready to call."}
+    };
+    state.screen="activity";render();SIBingoStudentCallAlerts.sync();
+    const button=document.querySelector("#siBingoCallAlertsToggle");
+    return {exists:!!button,pressed:button?.getAttribute("aria-pressed"),
+      text:button?.textContent,help:document.querySelector("#siBingoCallAlertsHelp")?.textContent};
+  });
+  assert.equal(teacherPanel.exists,true,JSON.stringify(teacherPanel));
+  assert.equal(teacherPanel.pressed,"true",JSON.stringify(teacherPanel));
+  assert.match(teacherPanel.text,/ALERTS: ON/);
+  const disabled=await teacher.evaluate(()=>{
+    state.activityRun.bingo.studentCallAlerts=false;
+    SIBingoStudentCallAlerts.sync();
+    const button=document.querySelector("#siBingoCallAlertsToggle");
+    return {pressed:button?.getAttribute("aria-pressed"),text:button?.textContent,
+      help:document.querySelector("#siBingoCallAlertsHelp")?.textContent};
+  });
+  assert.equal(disabled.pressed,"false",JSON.stringify(disabled));
+  assert.match(disabled.text,/ALERTS: OFF/);
+  assert.match(disabled.help,/Listening mode/);
+  await teacher.close();
   console.log("Bingo, Starwheel and Crew Survey student browser size and click tests PASSED");
  }finally{await ctx.close();await browser.close()}
 })().catch(e=>{console.error(e);process.exit(1)});
