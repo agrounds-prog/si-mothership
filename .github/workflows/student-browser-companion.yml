@@ -5,6 +5,9 @@ on:
     paths:
       - 'student-companion.css'
       - 'student-companion.js'
+      - 'bingo-board-studio.js'
+      - 'bingo-board-studio.css'
+      - 'tests/test_bingo_student_call_alerts.py'
       - 'tests/test_student_companion_browser.cjs'
       - 'tests/test_student_popup_window_chromium.cjs'
       - 'tests/test_scientific_calculator_popup_browser.cjs'
@@ -37,21 +40,13 @@ jobs:
           node --check student-companion.js
           python -m py_compile server.py
           python scripts/release_gate.py --require-node
-      - name: Inspect Bingo call alerts and controller integration
-        run: |
-          python - <<'PY'
-          import re
-          lines=open('index.html',encoding='utf-8').read().splitlines()
-          for first,last in [(15375,15400),(15500,15590),(17795,17825),(18148,18172),(18230,18255)]:
-              print("BINGO SOURCE RANGE",first,last,flush=True)
-              for i in range(first-1,last):
-                  print(f"L{i+1}: {lines[i][:1100]}",flush=True)
-          PY
       - name: Install browser and app dependencies
         run: |
           pip install -r requirements.txt
           npm install --no-save --ignore-scripts playwright@1.56.1
           npx playwright install --with-deps chromium
+      - name: Bingo student call alerts teacher-only server rules
+        run: python -m unittest discover -s tests -p 'test_bingo_student_call_alerts.py' -v
       - name: Windows student shortcut download regression
         run: python -m unittest discover -s tests -p 'test_student_device_setup.py'
       - name: Run isolated classroom
