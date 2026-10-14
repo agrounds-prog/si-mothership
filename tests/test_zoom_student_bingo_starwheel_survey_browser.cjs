@@ -4,7 +4,10 @@ const assert=require("node:assert/strict");
 const {chromium}=require("playwright");
 const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
 const fixture={
- bingo:(size=5)=>'<div class="student-game-foundation"><div class="student-game-card"><span class="eyebrow">MOTHERSHIP · BINGO</span><h2>Pilot Private Card</h2><p>Mark the item if called.</p>'+
+ bingo:(size=5)=>'<section class="si-student-game-cue" id="siTestBingoCue" data-si-tone="turn">'+
+  '<span class="si-cue-app">BINGO</span><strong class="si-cue-heading">CHECK YOUR CARD</strong>'+
+  '<span class="si-cue-help">Mark called items. Tap BINGO when you win.</span></section>'+
+  '<div class="student-game-foundation"><div class="student-game-card"><span class="eyebrow">MOTHERSHIP · BINGO</span><h2>Pilot Private Card</h2><p>Mark the item if called.</p>'+
   '<div class="bingo-student-board" style="grid-template-columns:repeat('+size+',1fr)">'+
   Array.from({length:size*size},(_,i)=>'<button type="button" class="bingo-student-cell '+(i===0?"marked":"")+'" data-bingo-mark="'+i+'">'+
      (i%3===0?'KITCHEN ITEM':String(i+1))+'</button>').join("")+'</div>'+
@@ -53,11 +56,15 @@ const fixture={
       const buttons=[...root.querySelectorAll('button')];
       window.__zoomFixtureClicks=0;
       for(const btn of buttons)btn.addEventListener("click",()=>window.__zoomFixtureClicks++);
-      const bounds=el=>{const r=el.getBoundingClientRect();return {w:r.width,h:r.height,x:r.x,right:r.right}};
+      const bounds=el=>{if(!el)return null;const r=el.getBoundingClientRect();return {w:r.width,h:r.height,x:r.x,y:r.y,bottom:r.bottom,right:r.right}};
       const take=sel=>[...root.querySelectorAll(sel)].map(bounds);
       const columns=sel=>root.querySelector(sel)?getComputedStyle(root.querySelector(sel)).gridTemplateColumns.split(" ").length:0;
       return {overflow:document.documentElement.scrollWidth-innerWidth,
         frame:bounds(root.firstElementChild),main:root.clientWidth,
+        cue:bounds(root.querySelector("#siTestBingoCue")),
+        foundation:bounds(root.querySelector(".student-game-foundation")),
+        card:bounds(root.querySelector(".student-game-card")),
+        board:bounds(root.querySelector(".bingo-student-board")),
         buttons:take(name.startsWith("bingo")?".bingo-student-cell":name==="letter"||name==="ready"?".starwheel-student-grid button":name==="buzzer"?"#crewSurveyBuzzBtn":".crew-survey-aac button"),
         action:take(name.startsWith("bingo")?"#studentBingoClaimBtn":name==="letter"||name==="ready"?"#starwheelSendSolve":name==="buzzer"?"#crewSurveyBuzzBtn":"#crewSurveyAnswerSend"),
         grid:columns(name.startsWith("bingo")?".bingo-student-board":name==="letter"||name==="ready"?".starwheel-student-grid":".crew-survey-aac"),
@@ -74,6 +81,12 @@ const fixture={
     if(name.startsWith("bingo")){
       const size=Number(name.slice(-1));assert.equal(data.grid,size);
       assert.equal(data.buttons.length,size*size);
+      assert.ok(data.cue&&data.foundation&&data.board&&data.card,JSON.stringify({width,height,name,data}));
+      assert.ok(data.cue.h<155&&data.cue.bottom<=data.foundation.y+2,
+        "Bingo instructions must be a compact banner ABOVE the card: "+JSON.stringify({width,height,data}));
+      assert.ok(data.foundation.w>=data.main-30&&data.card.w>=data.main-30&&
+        data.board.w>=data.main-60,
+        "Bingo private card should use phone width: "+JSON.stringify({width,height,data}));
     }else if(name==="letter"||name==="ready"){
       assert.equal(data.grid,5);
       assert.equal(data.buttons.length,name==="letter"?21:5);
