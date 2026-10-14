@@ -188,7 +188,6 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const quick=await quickCtx.newPage();
   quick.on("pageerror",e=>errors.push("quick-start "+String(e)));
   await quick.goto(BASE+"/?role=student&code="+session.code+"&sid="+session.sid,{waitUntil:"domcontentloaded"});
-  await quick.waitForSelector("#studentContent .si-avatar-search input");
   await quick.locator("#siStudentOpenCompact").waitFor({state:"visible",timeout:15000});
   const quickWait=quick.waitForEvent("popup",{timeout:10000});
   await quick.locator("#siStudentOpenCompact").click();
@@ -226,7 +225,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const touch=await touchCtx.newPage();
   touch.on("pageerror",e=>errors.push("touchscreen "+String(e)));
   await touch.goto(BASE+"/?role=student&code="+session.code+"&sid="+session.sid,{waitUntil:"domcontentloaded"});
-  await touch.waitForSelector("#studentContent [data-join-avatar]:visible");
+  await touch.locator("#siStudentOpenCompact").waitFor({state:"visible",timeout:15000});
   const touchPopupWait=touch.waitForEvent("popup",{timeout:10000});
   await touch.locator("#siStudentOpenCompact").tap();
   const touchPopup=await touchPopupWait;
@@ -242,7 +241,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const blocked=await blockedCtx.newPage();
   blocked.on("pageerror",e=>errors.push("blocked-popup "+String(e)));
   await blocked.goto(BASE+"/?role=student&code="+session.code+"&sid="+session.sid,{waitUntil:"domcontentloaded"});
-  await blocked.waitForSelector("#studentContent [data-join-avatar]:visible");
+  await blocked.locator("#siStudentOpenCompact").waitFor({state:"visible",timeout:15000});
   // A denied popup must display an explanation after clicking the real
   // launch control, while keeping the join stage and all avatars intact.
   await blocked.locator("#siStudentOpenCompact").click();
