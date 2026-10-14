@@ -2,7 +2,7 @@ name: SI+ Presentation Editor Regression
 on:
   push:
     branches: [main]
-    paths: ['index.html','si-plus-polish.css','si-plus-polish.js','quick-poll.js','quick-poll.css','tests/test_si_plus_batch_browser.cjs','tests/test_si_plus_organizer_browser.cjs','tests/test_si_plus_uniform_slides_browser.cjs','tests/test_si_plus_preview_browser.cjs','tests/test_si_plus_draft_recovery_browser.cjs','tests/test_si_plus_video_stability.cjs','tests/test_si_plus_polish_browser.cjs','tests/test_si_plus_live_navigation_browser.cjs','tests/test_si_plus_quick_poll_bridge_browser.cjs','.github/workflows/si-plus-batch-import.yml']
+    paths: ['index.html','si-plus-polish.css','si-plus-polish.js','quick-poll.js','quick-poll.css','tests/test_si_plus_batch_browser.cjs','tests/test_si_plus_organizer_browser.cjs','tests/test_si_plus_uniform_slides_browser.cjs','tests/test_si_plus_preview_browser.cjs','tests/test_si_plus_draft_recovery_browser.cjs','tests/test_si_plus_video_stability.cjs','tests/test_si_plus_polish_browser.cjs','tests/test_si_plus_live_navigation_browser.cjs','tests/test_si_plus_quick_poll_bridge_browser.cjs','tests/test_si_plus_activity_break_browser.cjs','.github/workflows/si-plus-batch-import.yml']
   workflow_dispatch:
 permissions: {contents: read}
 jobs:
@@ -48,6 +48,8 @@ jobs:
         run: node tests/test_si_plus_live_navigation_browser.cjs
       - name: SI+ Quick Poll classroom bridge, safe draft handoff and projector toggle
         run: node tests/test_si_plus_quick_poll_bridge_browser.cjs
+      - name: SI+ intermission — launch real games and restore exact classroom slide
+        run: node tests/test_si_plus_activity_break_browser.cjs
       - name: SI+ video link, player persistence, and editor polish
         run: |
           node tests/test_si_plus_polish_browser.cjs
