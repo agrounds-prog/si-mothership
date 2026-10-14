@@ -5851,6 +5851,13 @@ def _bingo_apply_request(state: dict, run: dict, actor: str, request: dict, teac
             return
         return
 
+    if kind == "student_call_alerts":
+        # Teacher-only visual setting. Never change the canonical called list,
+        # card eligibility, marks, claims, or winner validation.
+        if value in ("on", "off"):
+            bingo["studentCallAlerts"] = value == "on"
+        return
+
     if kind == "call_next":
         called = [str(x) for x in (bingo.get("called") if isinstance(bingo.get("called"), list) else [])]
         order = [str(x) for x in (bingo.get("callOrder") if isinstance(bingo.get("callOrder"), list) else [])]
