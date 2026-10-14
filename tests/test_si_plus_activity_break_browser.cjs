@@ -65,6 +65,19 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await page.evaluate(()=>state.activityRun.phase),"running");
   await page.evaluate(()=>boardAddPage());
   assert.equal(await page.evaluate(()=>state.activityRun.board.pages.length),2);
+  // An unexpected refresh during a REAL running game must recover both
+  // the active game and the teacher-only parked SI+ slide from the current
+  // server-backed classroom snapshot. Do not require a manual re-save.
+  await page.reload({waitUntil:"domcontentloaded",timeout:40000});
+  await page.waitForFunction(()=>networkHydrated===true&&
+    window.SIPlusActivityBreak?.parked===true&&
+    state.activityRun?.activityId==="board-game"&&
+    state.activityRun?.board?.pages?.length===2,
+    null,{timeout:18000});
+  assert.equal(await page.evaluate(()=>state.siPlusActivityBreak.run.slideIndex),1);
+  assert.deepEqual(await page.evaluate(()=>state.siPlusActivityBreak.run.responses),original.answers);
+  await page.locator("#siPlusActivityResume").waitFor({state:"visible",timeout:12000});
+  console.log("SI+ ACTIVITY BREAK REFRESH DURING LIVE GAME PASSED");
   await page.locator("#returnClassBtn").waitFor({state:"visible",timeout:13000});
   await page.locator("#returnClassBtn").click();
   console.log("SI+ ACTIVITY BREAK FINISH DEBUG",JSON.stringify(await page.evaluate(()=>({
@@ -119,6 +132,13 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await page.evaluate(()=>state.screen),"activities");
   assert.equal(await page.evaluate(()=>state.activeApp),null);
   assert.equal(await page.locator("#siPlusActivityReturn").isVisible(),true);
+  // Also recover the parked lesson after reloading the activity library,
+  // before a game has been chosen or started.
+  await page.reload({waitUntil:"domcontentloaded",timeout:40000});
+  await page.waitForFunction(()=>networkHydrated===true&&SIPlusActivityBreak.parked===true,
+    null,{timeout:17000});
+  await page.locator("#siPlusActivityResume").waitFor({state:"visible",timeout:11000});
+  assert.equal(await page.evaluate(()=>state.siPlusActivityBreak.run.slideIndex),1);
   await page.locator("#siPlusActivityResume").click();
   assert.equal(await page.evaluate(()=>state.activityRun.activityId),original.deck);
   // No automatic recovery is allowed during an emergency return.
