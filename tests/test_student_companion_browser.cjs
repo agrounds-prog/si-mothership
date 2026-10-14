@@ -17,7 +17,16 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const student=await ctx.newPage();
   student.on("pageerror",e=>errors.push("student "+String(e)));
   await student.goto(BASE+"/?role=student&code="+encodeURIComponent(session.code)+"&sid="+encodeURIComponent(session.sid),{waitUntil:"domcontentloaded",timeout:40000});
-  await student.waitForSelector("#studentContent .avatar-select-card",{timeout:15000});
+  await student.locator("#siStudentLaunchScreen").waitFor({state:"visible",timeout:15000});
+  assert.equal(await student.locator("#siStudentOpenCompact").isVisible(),true);
+  assert.equal(await student.evaluate(()=>document.getElementById("student").inert),true);
+  assert.equal(await student.locator("#studentContent .avatar-select-card").isVisible(),false,
+    "desktop student link must present only the one-click launch screen");
+  // Students can explicitly remain in a normal tab if Chrome blocks popups.
+  await student.locator("#siStudentLaunchContinue").click();
+  await student.locator("#studentContent .avatar-select-card").waitFor({state:"visible",timeout:15000});
+  assert.equal(await student.locator("#siStudentLaunchScreen").isVisible(),false);
+  assert.equal(await student.evaluate(()=>document.getElementById("student").inert),false);
   // Test the new Mission Control link in the very same browser context
   // where the student screen and local student data are already active.
   const mission=await ctx.newPage();
@@ -110,51 +119,11 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
 
   await student.setViewportSize({width:440,height:760});
   await avatarSearch.fill(firstAvatarName);
-  // Desktop popups are intentionally not triggered on phone-sized viewports.
-  await student.setViewportSize({width:1380,height:910});
-  const defaultWindowPromise=student.waitForEvent("popup",{timeout:10000});
+  // In explicit "Use this tab" mode, Enter selects an avatar here rather
+  // than spawning another Chrome window.
   await avatarSearch.press("Enter");
-  const launched=await defaultWindowPromise;
-  launched.on("pageerror",e=>errors.push("default device "+String(e)));
-  await launched.waitForLoadState("domcontentloaded");
-  try{
-    await launched.waitForSelector("#joinStudentName",{timeout:15000});
-  }catch(e){
-    console.log("AUTO AVATAR DEBUG",await launched.evaluate(()=>({
-      joinStep:typeof joinStep==="undefined"?"unavailable":joinStep,
-      hydrated:typeof networkHydrated==="undefined"?"unavailable":networkHydrated,
-      needsJoin:typeof studentNeedsJoin==="function"?studentNeedsJoin():null,
-      requested:new URLSearchParams(location.search).get("pickAvatar"),
-      code:typeof STUDENT_JOIN_CODE==="undefined"?"unavailable":STUDENT_JOIN_CODE,
-      codeDraft:typeof joinCodeDraft==="undefined"?"unavailable":joinCodeDraft,
-      avatars:document.querySelectorAll("#studentContent [data-join-avatar]").length,
-      content:document.querySelector("#studentContent")?.innerText.slice(0,250)
-    })));
-    throw e;
-  }
-  const defaultWindow=await launched.evaluate(()=>{
-    const rect=document.querySelector("#student .device").getBoundingClientRect();
-    return {width:innerWidth,height:innerHeight,deviceWidth:rect.width,
-      deviceHeight:rect.height,chosenAvatar:joinAvatarDraft,compact:new URLSearchParams(location.search).get("compact")};
-  });
-  assert.equal(defaultWindow.compact,"1");
-  assert.ok(Math.abs(defaultWindow.width-defaultWindow.deviceWidth)<=2
-    &&Math.abs(defaultWindow.height-defaultWindow.deviceHeight)<=2,
-    JSON.stringify(defaultWindow));
-  assert.ok(defaultWindow.width<=442 &&defaultWindow.height<=782,JSON.stringify(defaultWindow));
-  assert.equal(await launched.locator(".si-student-popout").count(),0);
-  assert.equal(await launched.locator("#siStudentDeviceLauncher").count(),0);
-  assert.equal(await student.locator("#siStudentWindowHandoff").count(),1,
-    "original full-size tab must become a handoff instead of a duplicate login");
-  assert.match(await student.locator("#siStudentWindowHandoff").innerText(),/Continue in your classroom device/);
-  // The original tab must NOT select the avatar or join a second time.
-  assert.equal(await student.evaluate(()=>joinStep),"avatar");
-  await launched.close();
-  await student.bringToFront();
-  await student.waitForSelector("#siStudentWindowHandoff",{state:"detached",timeout:5000});
-  await student.setViewportSize({width:440,height:760});
-  await student.locator("#studentContent [data-join-avatar]:visible").first().click();
-  await student.waitForSelector("#studentContent #joinClassBtn",{timeout:5000});
+  await student.locator("#joinStudentName").waitFor({timeout:15000});
+  assert.equal(await student.locator("#siStudentWindowHandoff").count(),0);
   const confirmation=await student.evaluate(()=>({
     header:document.querySelector("#studentContent .confirm-join-card h2")?.textContent,
     overflow:document.documentElement.scrollWidth-innerWidth,
@@ -185,29 +154,27 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.ok(await student.locator(".student-control-zone").isVisible());
   assert.ok(await student.locator("#studentControls button").count()>0);
 
-  // A student who starts with the standard Join Class code screen
-  // also opens a real device window, without any separate pop-out option.
+  // A student without a class code launches the sized window first and
+  // enters the code INSIDE the device, never in the launcher tab.
   const freshCtx=await browser.newContext({viewport:{width:1380,height:910}});
   const fresh=await freshCtx.newPage();
   fresh.on("pageerror",e=>errors.push("code student "+String(e)));
   await fresh.goto(BASE+"/?role=student",{waitUntil:"domcontentloaded",timeout:40000});
-  await fresh.waitForSelector("#joinCodeInput",{timeout:15000});
-  assert.equal(await fresh.locator("#siStudentDeviceLauncher").count(),0);
-  // Typing whitespace in a code field cannot launch a popup or hijack focus.
-  await fresh.locator("#joinCodeInput").focus();
-  await fresh.keyboard.press("Space");
-  assert.equal(await fresh.locator("#siStudentWindowHandoff").count(),0);
-  assert.equal(await fresh.locator("#joinCodeInput").evaluate(el=>document.activeElement===el),true);
-  await fresh.locator("#joinCodeInput").fill(session.code);
+  await fresh.locator("#siStudentOpenCompact").waitFor({state:"visible",timeout:15000});
   const codeWindowPromise=fresh.waitForEvent("popup",{timeout:10000});
-  await fresh.locator("#joinCodeBtn").click();
+  await fresh.locator("#siStudentOpenCompact").click();
   const codeWindow=await codeWindowPromise;
   codeWindow.on("pageerror",e=>errors.push("code device "+String(e)));
-  await codeWindow.waitForSelector("#studentContent .avatar-select-card",{timeout:15000});
+  await codeWindow.locator("#joinCodeInput").waitFor({timeout:15000});
+  await codeWindow.locator("#joinCodeInput").focus();
+  await codeWindow.keyboard.press("Space");
+  assert.equal(await codeWindow.locator("#joinCodeInput").evaluate(el=>document.activeElement===el),true);
+  await codeWindow.locator("#joinCodeInput").fill(session.code);
+  await codeWindow.locator("#joinCodeBtn").click();
+  await codeWindow.locator("#studentContent .avatar-select-card").waitFor({timeout:15000});
   assert.equal(await fresh.locator("#siStudentWindowHandoff").count(),1);
   assert.equal(await fresh.evaluate(()=>joinStep),"code",
     "source tab must not continue joining after the popup opens");
-  assert.equal(new URL(codeWindow.url()).searchParams.get("code"),session.code);
   assert.equal(new URL(codeWindow.url()).searchParams.get("compact"),"1");
   const codeGeom=await codeWindow.evaluate(()=>{
     const r=document.querySelector("#student .device").getBoundingClientRect();
@@ -216,15 +183,15 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.ok(Math.abs(codeGeom.viewportWidth-codeGeom.width)<=2
     &&Math.abs(codeGeom.viewportHeight-codeGeom.height)<=2,JSON.stringify(codeGeom));
   await freshCtx.close();
-  // In the browser-only experience the first avatar search click must
-  // hand students to the compact Zoom device without a setup step.
+  // Student Zoom links display the single large launcher first.
   const quickCtx=await browser.newContext({viewport:{width:1380,height:910}});
   const quick=await quickCtx.newPage();
   quick.on("pageerror",e=>errors.push("quick-start "+String(e)));
   await quick.goto(BASE+"/?role=student&code="+session.code+"&sid="+session.sid,{waitUntil:"domcontentloaded"});
   await quick.waitForSelector("#studentContent .si-avatar-search input");
+  await quick.locator("#siStudentOpenCompact").waitFor({state:"visible",timeout:15000});
   const quickWait=quick.waitForEvent("popup",{timeout:10000});
-  await quick.locator("#studentContent .si-avatar-search input").click();
+  await quick.locator("#siStudentOpenCompact").click();
   const quickDevice=await quickWait;
   await quickDevice.waitForSelector("#studentContent .si-avatar-search input",{timeout:15000});
   assert.equal(new URL(quickDevice.url()).searchParams.get("compact"),"1");
@@ -261,8 +228,9 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await touch.goto(BASE+"/?role=student&code="+session.code+"&sid="+session.sid,{waitUntil:"domcontentloaded"});
   await touch.waitForSelector("#studentContent [data-join-avatar]:visible");
   const touchPopupWait=touch.waitForEvent("popup",{timeout:10000});
-  await touch.locator("#studentContent [data-join-avatar]:visible").first().tap();
+  await touch.locator("#siStudentOpenCompact").tap();
   const touchPopup=await touchPopupWait;
+  await touchPopup.locator("#studentContent [data-join-avatar]:visible").first().click();
   await touchPopup.waitForSelector("#joinStudentName",{timeout:15000});
   assert.equal(await touch.locator("#siStudentWindowHandoff").count(),1);
   await touchCtx.close();
@@ -281,13 +249,15 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await blocked.evaluate(()=>joinStep),"avatar");
   assert.equal(await blocked.locator("#siStudentPopupBlocked").count(),1);
   assert.match(await blocked.locator("#siStudentOpenCompact").innerText(),/RETRY OPENING/);
+  assert.match(await blocked.locator("#siStudentPopupBlocked").innerText(),/Chrome prevented/);
+  // The recovery link must restore the original login with no second
+  // attempt to launch a popup when avatars or join buttons are clicked.
+  await blocked.locator("#siStudentLaunchContinue").click();
+  assert.equal(await blocked.locator("#siStudentPopupBlocked").count(),0);
+  assert.equal(await blocked.locator("#studentContent .avatar-select-card").isVisible(),true);
   await blocked.locator("#studentContent [data-join-avatar]:visible").first().click();
   await blocked.locator("#joinStudentName").waitFor({timeout:15000});
   assert.equal(await blocked.locator("#siStudentWindowHandoff").count(),0);
-  assert.equal(await blocked.locator("#siStudentPopupBlocked").count(),1);
-  assert.match(await blocked.locator("#siStudentPopupBlocked").innerText(),/Chrome prevented/);
-  await blocked.locator("#siStudentPopupBlocked button").click();
-  assert.equal(await blocked.locator("#siStudentPopupBlocked").count(),0);
   await blockedCtx.close();
   assert.deepEqual(errors,[]);
   console.log("STUDENT COMPANION desktop, touchscreen, blocked-popup fallback PASSED");
