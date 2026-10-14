@@ -42,11 +42,10 @@ jobs:
           python - <<'PY'
           import re
           lines=open('index.html',encoding='utf-8').read().splitlines()
-          patterns=r'bingo(State|Call|Student|Render)|bingo-student|bingo.*(call|alert|notice|setting)|callNonce'
-          hits=[i for i,line in enumerate(lines) if re.search(patterns,line,re.I)]
-          print("BINGO SOURCE INDEX MATCHES",len(hits),flush=True)
-          for i in hits[:180]:
-              print(f"L{i+1}: {lines[i][:250]}",flush=True)
+          for first,last in [(15375,15400),(15500,15590),(17795,17825),(18148,18172),(18230,18255)]:
+              print("BINGO SOURCE RANGE",first,last,flush=True)
+              for i in range(first-1,last):
+                  print(f"L{i+1}: {lines[i][:1100]}",flush=True)
           PY
       - name: Install browser and app dependencies
         run: |
