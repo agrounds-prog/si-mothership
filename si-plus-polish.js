@@ -586,3 +586,108 @@
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});
  else start();
 })();
+
+
+/* SI+ v92: in-lesson Quick Poll bridge.
+   The dedicated Quick Poll overlay retains its own REST/SQLite records,
+   and no SI+ activityRun/slide/response is copied, replaced or paused. */
+(()=>{
+ "use strict";
+ if(window.SIPlusPollBridge)return;
+ const teacher=()=>typeof SESSION_ROLE!=="undefined"&&SESSION_ROLE==="teacher";
+ const active=()=>{
+   if(!teacher()||typeof state==="undefined"||!state.activityRun||
+      state.activityRun.phase!=="running"||typeof activeActivity!=="function")return null;
+   const deck=activeActivity(),run=state.activityRun;
+   return deck?.type==="presentation"&&Array.isArray(deck.slides)?
+     {deck,run,slide:deck.slides[Number(run.slideIndex)||0]}:null;
+ };
+ const poll=()=>window.SIQuickPoll||null;
+ const status=()=>poll()?.teacherStatus?.()||{phase:"none",visible:false,voters:0};
+ const context=()=>{
+   const a=active();if(!a)return null;
+   const slide=a.slide||{},choices=Array.isArray(slide.choices)?slide.choices:[];
+   const validChoices=choices.filter(c=>String(c?.text||"").trim()).slice(0,6);
+   const fromSlide=["question","poll"].includes(slide.type)&&validChoices.length>=2
+     &&String(slide.title||"").trim()!=="";
+   return {...a,fromSlide,validChoices};
+ };
+ function setText(el,value){if(el&&el.textContent!==value)el.textContent=value}
+ function sync(){
+   if(!teacher())return;
+   const row=document.querySelector("#activityControllerPanel .presentation-controls");
+   const info=context();
+   let bridge=document.getElementById("siPlusPollBridge");
+   if(!row||!info){
+     bridge?.remove();return;
+   }
+   if(!bridge||bridge.parentElement!==row){
+     bridge?.remove();
+     bridge=document.createElement("div");
+     bridge.id="siPlusPollBridge";
+     bridge.className="si-plus-poll-bridge";
+     bridge.innerHTML='<div class="si-plus-poll-intro"><strong>⚡ QUICK POLL · SI+</strong><small id="siPlusPollStatus" role="status"></small></div>'+
+       '<div class="si-plus-poll-buttons"><button type="button" id="siPlusPollOpen"></button>'+
+       '<button type="button" id="siPlusPollScreen" hidden></button></div>';
+     row.appendChild(bridge);
+     bridge.querySelector("#siPlusPollOpen").addEventListener("click",()=>{
+       const now=context(),tool=poll();
+       if(!now||!tool?.openFromSiPlus)return;
+       const source=now.fromSlide?{
+         question:String(now.slide.title||"").trim(),
+         description:String(now.slide.text||"").trim(),
+         // Never include a question slide's CORRECT answer flag.
+         choices:now.validChoices.map(c=>({label:c.text,image:c.image||""}))
+       }:null;
+       tool.openFromSiPlus(source);
+       sync();
+     });
+     bridge.querySelector("#siPlusPollScreen").addEventListener("click",async event=>{
+       const tool=poll(),current=status();
+       if(!tool?.setSharedVisible||current.phase==="none")return;
+       event.currentTarget.disabled=true;
+       try{
+         const success=await tool.setSharedVisible(!current.visible);
+         if(!success&&typeof toast==="function")
+           toast("Could not change Quick Poll display. Open Poll Studio to retry.");
+       }finally{event.currentTarget.disabled=false;sync()}
+     });
+   }
+   const live=status(),pollActive=live.phase!=="none";
+   const open=bridge.querySelector("#siPlusPollOpen");
+   setText(open,live.phase==="open"?"⚡ Manage Live Poll":
+     info.fromSlide?"⚡ Poll This Slide":"⚡ Open Quick Poll");
+   open.title=live.phase==="open"?"Open Quick Poll Studio without replacing the current poll":
+     info.fromSlide?"Prepare a poll from this slide's question and answer choices":
+       "Open a new Quick Poll without leaving SI+";
+   const screen=bridge.querySelector("#siPlusPollScreen");
+   screen.hidden=!pollActive;
+   if(pollActive){
+     setText(screen,live.visible?"▣ Show SI+ Slide":"◉ Show Poll on Screen");
+     screen.title=live.visible?
+       "Hide the poll on the projector but keep voting open and preserve this slide":
+       "Show the current poll on the shared screen without changing this slide";
+   }
+   const label=live.phase==="open"?"VOTING OPEN · "+live.voters+" votes":
+     live.phase==="closed"?"POLL CLOSED":
+     info.fromSlide?"Current slide ready to use as a poll":"Ask the class without changing slides";
+   const display=pollActive?" · "+(live.visible?"POLL ON SCREEN":"SLIDE ON SCREEN"):"";
+   setText(bridge.querySelector("#siPlusPollStatus"),label+display);
+ }
+ function start(){
+   if(!teacher())return;
+   const row=document.getElementById("activityControllerPanel");
+   if(row){
+     let scheduled=false;
+     new MutationObserver(()=>{
+       if(scheduled)return;scheduled=true;
+       queueMicrotask(()=>{scheduled=false;sync()});
+     }).observe(row,{childList:true,subtree:true});
+   }
+   window.addEventListener("si:quick-poll-status",sync);
+   sync();
+ }
+ window.SIPlusPollBridge={get available(){return !!context()},refresh:sync};
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});
+ else start();
+})();
