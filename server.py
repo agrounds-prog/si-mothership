@@ -47,6 +47,10 @@ STUDENT_COMPANION_ASSET_VERSION = hashlib.sha256(
     (ROOT / "student-companion.js").read_bytes()
     + (ROOT / "student-companion.css").read_bytes()
 ).hexdigest()[:14]
+TEACHER_UNIFIED_ASSET_VERSION = hashlib.sha256(
+    (ROOT / "teacher-unified-controls.js").read_bytes()
+    + (ROOT / "teacher-unified-controls.css").read_bytes()
+).hexdigest()[:14]
 CALCULATOR_DIR = ROOT / "scientific-calculator"
 CALCULATOR_INDEX_GZ = CALCULATOR_DIR / "index.html.gz"
 CALCULATOR_ENGINE_GZ = CALCULATOR_DIR / "engine.js.gz"
@@ -5043,13 +5047,15 @@ async def index(request: web.Request) -> web.Response:
                         '<link rel="stylesheet" href="/four-in-line.css?v=2">'
                         '<link rel="stylesheet" href="/signal-sequence.css?v=5">'
                         f'<link rel="stylesheet" href="/si-plus-polish.css?v={SI_PLUS_ASSET_VERSION}">'
-                         f'<link rel="stylesheet" href="/student-companion.css?v={STUDENT_COMPANION_ASSET_VERSION}"></head>', 1)
+                         f'<link rel="stylesheet" href="/student-companion.css?v={STUDENT_COMPANION_ASSET_VERSION}">'
+                         f'<link rel="stylesheet" href="/teacher-unified-controls.css?v={TEACHER_UNIFIED_ASSET_VERSION}"></head>', 1)
     # Insert before the final body close: index.html also contains HTML strings
     # in internal scripts, so replacing the first occurrence would corrupt JS.
     body_close = text.rfind("</body>")
     if body_close >= 0:
         text = (text[:body_close] +
                 f'<script src="/student-companion.js?v={STUDENT_COMPANION_ASSET_VERSION}" defer></script>' +
+                f'<script src="/teacher-unified-controls.js?v={TEACHER_UNIFIED_ASSET_VERSION}" defer></script>' +
                 '<script src="/four-in-line.js?v=2" defer></script>' +
                 '<script src="/four-in-line-bridge.js?v=2" defer></script>' +
                 '<script src="/signal-sequence.js?v=5" defer></script>' +
@@ -6233,6 +6239,8 @@ def create_app() -> web.Application:
     app.router.add_get("/signal-sequence.css", lambda request: web.FileResponse(ROOT / "signal-sequence.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/student-companion.css", lambda request: web.FileResponse(ROOT / "student-companion.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/student-companion.js", lambda request: web.FileResponse(ROOT / "student-companion.js", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/teacher-unified-controls.js", lambda request: web.FileResponse(ROOT / "teacher-unified-controls.js", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/teacher-unified-controls.css", lambda request: web.FileResponse(ROOT / "teacher-unified-controls.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/si-plus-polish.js", lambda request: web.FileResponse(ROOT / "si-plus-polish.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/si-plus-polish.css", lambda request: web.FileResponse(ROOT / "si-plus-polish.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/match-arcade.js", match_arcade_script)
