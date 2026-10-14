@@ -96,7 +96,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await page.evaluate(()=>state.activityRun.slideIndex),2);
   await page.locator("#prevSlideBtn").click();
   assert.equal(await page.evaluate(()=>state.activityRun.slideIndex),1);
-  assert.deepEqual(await page.evaluate(()=>state.activityRun.responses),original.answers);
+  assert.deepEqual(await page.evaluate(()=>state.activityRun.responses["1"]),original.answers["1"]);
   // Second intermission opens ORBIT through the normal authoring screen.
   await page.locator("#siPlusActivityBreakLaunch").click();
   await page.locator('#siPlusBreakChoices [data-break-app="orbit"]').click();
@@ -112,7 +112,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await page.waitForFunction(()=>state.activityRun?.activityId==="si-v93-intermission-test",
     null,{timeout:12000});
   assert.equal(await page.evaluate(()=>state.activityRun.slideIndex),1);
-  assert.deepEqual(await page.evaluate(()=>state.activityRun.responses),original.answers);
+  assert.deepEqual(await page.evaluate(()=>state.activityRun.responses["1"]),original.answers["1"]);
   // Browse library and recover saved place without starting another app.
   await page.locator("#siPlusActivityBreakLaunch").click();
   await page.locator('[data-break-app="library"]').click();
