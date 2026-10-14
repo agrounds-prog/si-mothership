@@ -645,12 +645,15 @@
      bridge.querySelector("#siPlusPollScreen").addEventListener("click",async event=>{
        const tool=poll(),current=status();
        if(!tool?.setSharedVisible||current.phase==="none")return;
-       event.currentTarget.disabled=true;
+       // Event.currentTarget is cleared after dispatch. Keep the button
+       // reference before awaiting the asynchronous poll API request.
+       const button=event.currentTarget;
+       button.disabled=true;
        try{
          const success=await tool.setSharedVisible(!current.visible);
          if(!success&&typeof toast==="function")
            toast("Could not change Quick Poll display. Open Poll Studio to retry.");
-       }finally{event.currentTarget.disabled=false;sync()}
+       }finally{button.disabled=false;sync()}
      });
    }
    const live=status(),pollActive=live.phase!=="none";
