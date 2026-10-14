@@ -1718,3 +1718,90 @@ body.role-student #student #studentContent .bingo-student-board{
     font-size:clamp(25px,7vw,33px)!important;
   }
 }
+
+
+/* MATCH mobile vNext — exact Bingo-style single-column student layout.
+   The game cue is a sibling of .ma-student; never let the device's inherited
+   landscape/grid treatment render instructions beside a squeezed board. */
+body.role-student #student #studentContent:has(> .ma-student){
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  justify-content:flex-start!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-auto-flow:row!important;
+  gap:7px!important;
+  width:100%!important;
+  min-width:0!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+}
+body.role-student #student #studentContent:has(> .ma-student) > .si-student-game-cue{
+  position:relative!important;
+  inset:auto!important;
+  display:flex!important;
+  flex:0 0 auto!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  align-self:stretch!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  gap:2px!important;
+  margin:0!important;
+  padding:9px 12px!important;
+  border-radius:12px!important;
+}
+body.role-student #student #studentContent:has(> .ma-student) > .si-student-game-cue .si-cue-heading{
+  font-size:clamp(16px,4.4vw,21px)!important;
+  line-height:1.12!important;
+}
+body.role-student #student #studentContent:has(> .ma-student) > .si-student-game-cue .si-cue-help{
+  font-size:clamp(11px,3vw,13px)!important;
+  line-height:1.3!important;
+}
+body.role-student #student #studentContent > .ma-student{
+  display:flex!important;
+  flex:0 0 auto!important;
+  flex-direction:column!important;
+  align-self:stretch!important;
+  justify-content:flex-start!important;
+  grid-column:1/-1!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:8px!important;
+}
+body.role-student #student #studentContent > .ma-student .ma-board-wrap,
+body.role-student #student #studentContent > .ma-student .ma-board-surround,
+body.role-student #student #studentContent > .ma-student .ma-grid{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  flex:0 0 auto!important;
+}
+body.role-student #student #studentContent > .ma-student .ma-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+}
+body.role-student #student #studentContent > .ma-student .ma-student-status{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+body.role-student #student #studentContent > .ma-student .ma-student-status > span{
+  min-height:30px!important;
+}
+@media(max-width:520px){
+  body.role-student #student #studentContent:has(> .ma-student){padding:7px!important}
+  body.role-student #student #studentContent > .ma-student{
+    padding:7px!important;gap:7px!important;
+  }
+  body.role-student #student #studentContent > .ma-student .ma-student-heading{
+    gap:4px!important;padding:3px!important;
+  }
+}
