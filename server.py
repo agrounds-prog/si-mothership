@@ -5670,8 +5670,14 @@ def _match_apply_request(state: dict, run: dict, actor: str, request: dict, teac
         return
 
     if kind == "mark_match":
+        # Backward-compatible teacher override: a successful pair has already
+        # been matched and scored automatically on the student's second pick.
+        # Never award the same pair a second point during a live reveal.
         selected = match.get("selected") if isinstance(match.get("selected"), list) else []
-        if len(selected) != 2:
+        if len(selected) != 2 or match.get("pendingResolution") or any(
+            str(card_id) in {str(x) for x in (match.get("matched") or [])}
+            for card_id in selected
+        ):
             return
         player = _match_active_name(state, run) or "Player"
         match["matched"] = list(dict.fromkeys([*(match.get("matched") or []), *selected]))
