@@ -67,10 +67,12 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
     const top=document.elementFromPoint(center.x,center.y);
     const shape=el=>{const x=getComputedStyle(el);return {position:x.position,zIndex:x.zIndex,display:x.display,visibility:x.visibility,pointerEvents:x.pointerEvents,transform:x.transform}};
     return {button:{x:r.x,y:r.y,w:r.width,h:r.height},center,top:{tag:top?.tagName,id:top?.id,className:String(top?.className).slice(0,80)},
-      viewport:{w:innerWidth,h:innerHeight,scrollY},modal:{x:m.x,y:m.y,w:m.width,h:m.height,style:shape(modal)},window:{x:w.x,y:w.y,w:w.width,h:w.height},
+      viewport:{w:innerWidth,h:innerHeight,scrollY},hitButton:top===button||button.contains(top),
+      modal:{x:m.x,y:m.y,w:m.width,h:m.height,style:shape(modal)},window:{x:w.x,y:w.y,w:w.width,h:w.height},
       parent:{scrollTop:parent.scrollTop,scrollHeight:parent.scrollHeight,clientHeight:parent.clientHeight}};
   });
   console.log("SI+ POLL SEND BUTTON GEOMETRY",JSON.stringify(editorDiag));
+  assert.equal(editorDiag.hitButton,true,"Quick Poll Send to Class must be above the floating teacher dock");
   await teacher.locator("#qpDialog [data-qp-launch]").click({timeout:6500});
   await teacher.waitForFunction(()=>SIQuickPoll.teacherStatus()?.phase==="open",
     null,{timeout:15000});
