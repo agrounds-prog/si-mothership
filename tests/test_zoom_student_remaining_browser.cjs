@@ -85,6 +85,8 @@ const minefieldFixture=(cols=8)=>{
       boardWidth:board.getBoundingClientRect().width,viewWidth:wrap.clientWidth,
       scrolled:wrap.scrollLeft>before,rack:rack.map(t=>({w:t.getBoundingClientRect().width,h:t.getBoundingClientRect().height})),
       hasHint:!!root.querySelector(".wg-tile.wg-highlight"),
+      hintFont:parseFloat(getComputedStyle(root.querySelector(".wg-student-hint")).fontSize),
+      guidance:getComputedStyle(wrap,"::before").color,
       privacy:!spectator.includes("wg-student-rack"),footer:getComputedStyle(document.querySelector(".student-control-zone")).display};
    },studentCue("WORD GRID"));
    assert.ok(word.overflow<=2&&word.frame<=word.main+2,JSON.stringify({width,height,word}));
@@ -94,6 +96,7 @@ const minefieldFixture=(cols=8)=>{
    assert.ok(word.boardWidth>=450&&word.boardWidth>word.viewWidth&&word.scrolled,JSON.stringify(word));
    assert.ok(word.rack.length===7&&word.rack.every(t=>t.w>=35&&t.h>=43),JSON.stringify(word));
    assert.ok(word.hasHint&&word.privacy,"teacher hint appears only for active assigned team");
+   assert.ok(word.hintFont>=13,"Word Grid teacher-selected hint must be readable: "+JSON.stringify(word));
    assert.equal(word.footer,"none");
    await page.evaluate(html=>{
     const root=document.querySelector("#studentContent");root.innerHTML=html;
@@ -120,7 +123,9 @@ const minefieldFixture=(cols=8)=>{
      scrolled:wrapper.scrollLeft>start,columns:board.querySelectorAll(".minefield-axis.col").length,
      touches:targets.map(b=>({w:b.getBoundingClientRect().width,h:b.getBoundingClientRect().height})),
      footer:getComputedStyle(document.querySelector(".student-control-zone")).display,
-     label:wrapper.getAttribute("aria-label")};
+     label:wrapper.getAttribute("aria-label"),
+     turnFont:parseFloat(getComputedStyle(root.querySelector(".minefield-turn-banner")).fontSize),
+     narratorFont:parseFloat(getComputedStyle(root.querySelector(".minefield-narrator-latest")).fontSize)};
    });
    assert.ok(mine.overflow<=2&&mine.columns===8&&mine.scrolled,JSON.stringify({width,height,mine}));
    assert.ok(mine.cueBottom<=mine.gameTop+2&&mine.gameWidth>=mine.main-24,
@@ -129,6 +134,8 @@ const minefieldFixture=(cols=8)=>{
    assert.ok(mine.touches.every(t=>t.w>=44&&t.h>=44),JSON.stringify({width,height,mine}));
    assert.notEqual(mine.footer,"none","Minefield requires its separate confirmation controls");
    assert.match(mine.label,/Swipe/);
+   assert.ok(mine.turnFont>=13&&mine.narratorFont>=12,
+     "Minefield turn and narrator must stay readable on short phones: "+JSON.stringify(mine));
    await page.evaluate(()=>{
      document.querySelector('#studentContent [data-mf-cell="3,7"]').click();
    });
