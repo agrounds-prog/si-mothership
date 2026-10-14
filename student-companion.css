@@ -1525,3 +1525,34 @@ body:not(.role-student):not(.role-shared) header .class-code #siTeacherStudentDe
   outline:3px solid #ffda85!important;
   outline-offset:2px!important;
 }
+
+
+/* Phase 1 Zoom companion: stable, predictable student scrolling.
+   The join flow and active games scroll INSIDE their existing device.
+   Header and classroom controls stay outside the scrolling area. */
+body.role-student #studentContent{
+  scrollbar-gutter:stable!important;
+  scroll-padding-top:10px!important;
+  scroll-padding-bottom:12px!important;
+  overscroll-behavior-y:contain!important;
+}
+body.role-student .si-avatar-navigator{
+  top:0!important;
+}
+body.role-student.si-student-is-popout .device-main,
+body.role-student.si-student-is-popout #studentContent{
+  max-width:100%!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+}
+body.role-student.si-student-is-popout .student-control-zone{
+  overscroll-behavior-y:contain!important;
+  padding-bottom:max(8px,env(safe-area-inset-bottom))!important;
+}
+@media (max-height:690px){
+  body.role-student .join-avatar-choice{min-height:100px!important}
+  body.role-student .join-avatar-choice .avatar-art{
+    width:54px!important;height:54px!important
+  }
+}
