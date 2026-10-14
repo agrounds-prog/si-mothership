@@ -902,3 +902,40 @@ body.sipreview-open{
   #siPlusActivityReturn .si-plus-activity-return-copy{flex:1 1 140px!important}
   #siPlusActivityReturn #siPlusActivityResume{flex:1 1 150px!important}
 }
+
+
+/* SI+ v94 — compact, contextual teacher intermission controls.
+   On narrow displays the parked lesson sits above Quick Poll's launcher. */
+#siPlusActivityReturn{max-width:min(590px,calc(100vw - 26px))!important}
+#siPlusActivityReturn #siPlusParkedContext{
+  color:#a5cfe7!important;font:700 11px/1.35 system-ui,sans-serif!important;
+  overflow-wrap:anywhere!important;max-width:255px!important;
+}
+#siPlusActivityReturn #siPlusActivityResume{
+  background:linear-gradient(125deg,#187b90,#18516e)!important;
+  border-color:#a0edfa!important;flex:0 1 auto!important;
+}
+#siPlusActivityReturn #siPlusActivityCollapse{
+  min-width:36px!important;padding:5px 7px!important;
+  background:#123148!important;border-color:#6996b4!important;
+  font-size:20px!important;line-height:1!important;
+}
+#siPlusActivityReturn.is-collapsed{
+  width:auto!important;max-width:calc(100vw - 26px)!important;
+  flex-wrap:nowrap!important;padding:7px 8px!important;gap:6px!important;
+}
+#siPlusActivityReturn.is-collapsed #siPlusParkedDetails,
+#siPlusActivityReturn.is-collapsed #siPlusActivityDiscard{display:none!important}
+#siPlusActivityReturn.is-collapsed #siPlusActivityResume{min-height:35px!important}
+@media(max-width:640px){
+  #siPlusActivityReturn{
+    bottom:83px!important;left:8px!important;right:8px!important;
+    max-width:calc(100vw - 16px)!important;gap:6px!important;
+  }
+  #siPlusActivityReturn .si-plus-activity-return-copy{
+    flex:1 1 100%!important;min-width:0!important;
+  }
+  #siPlusActivityReturn .si-plus-activity-return-copy span,
+  #siPlusActivityReturn #siPlusParkedContext{max-width:none!important}
+  #siPlusActivityReturn.is-collapsed{right:auto!important;max-width:calc(100vw - 16px)!important}
+}
