@@ -54,7 +54,24 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
      const selectors=game==="million"?[".million-student-choice",".million-student-actions button"]:
        game==="cosmic"?[".cc-hand-button",".cc-device-actions button"]:
        [".dm-pick-actions button",".dm-device-controls button"];
+     const cmd=root.querySelector(game==="million"?"#millionLockBtn":game==="cosmic"?"#cosmicDrawBtn":"#dmDraw");
+     const primary=root.querySelector(game==="million"?".million-student-choice span":game==="cosmic"?".cc-device-status>span":".dm-pick-actions button");
+     const fontPx=el=>parseFloat(getComputedStyle(el).fontSize);
+     const cueBack=getComputedStyle(root.querySelector("#siTestGameCue")).backgroundImage;
+     cmd.focus();
+     const focusStyle=getComputedStyle(cmd),cmdFont=fontPx(cmd),labelFont=fontPx(primary);
+     const focusWidth=focusStyle.outlineWidth,focusColor=focusStyle.outlineColor;
+     let selectionContrast=false;
+     if(game==="million"){
+       const choice=root.querySelector(".million-student-choice");
+       const idle=getComputedStyle(choice).borderTopColor;
+       choice.classList.add("selected");
+       const active=getComputedStyle(choice).borderTopColor;
+       selectionContrast=idle!==active;
+       choice.classList.remove("selected");
+     }
      return {viewport:innerWidth,overflow:document.documentElement.scrollWidth-innerWidth,
+       visual:{cueBack,cmdFont,labelFont,focusWidth,focusColor,selectionContrast},
        mainWidth:main.width,panelWidth:panel.width,
        cue:{y:cue.y,bottom:cue.bottom,h:cue.height,w:cue.width},
        panelY:panel.y,actionWidth:action.width,
@@ -73,6 +90,15 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
     assert.ok(ui.panelWidth>=ui.mainWidth-24&&ui.actionWidth>=ui.mainWidth-58,
       game+" action surface must use student device width: "+JSON.stringify({w,h,ui}));
     assert.equal(ui.footer,"none",game+" has no unused footer");
+    assert.match(ui.visual.cueBack,/gradient/i,game+" has a styled status banner");
+    assert.ok(parseFloat(ui.visual.focusWidth)>=3,
+      game+" has a high-visibility keyboard outline: "+JSON.stringify({w,h,ui}));
+    assert.ok(ui.visual.cmdFont>=12,
+      game+" action label remains readable: "+JSON.stringify({w,h,ui}));
+    assert.ok(ui.visual.labelFont>=11,
+      game+" card/status labels remain readable: "+JSON.stringify({w,h,ui}));
+    if(game==="million")assert.ok(ui.visual.selectionContrast,
+      "Selected answer has a distinct visual state");
     assert.equal(ui.cols,game==="dominoes"?(w>=410?3:2):game==="cosmic"?3:2);
     assert.ok(ui.grids[0].length>=4&&ui.grids[0].every(x=>x.w>=40),JSON.stringify({w,h,game,ui}));
     if(game==="cosmic")assert.ok(ui.grids[1].every(x=>x.h>=44)&&ui.scene<=75,JSON.stringify(ui));
