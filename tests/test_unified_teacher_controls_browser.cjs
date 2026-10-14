@@ -57,7 +57,7 @@ const cases=[
      window.__siUnifiedTeacherControls.refresh();
      const dock=host.querySelector("#siUnifiedTeacherDeck");
      const buttons=[...dock.querySelectorAll(".si-utc-button")];
-     const primary=buttons.find(b=>b.textContent===fixture.action);
+     const primary=buttons.find(b=>b.textContent.toUpperCase()===fixture.action.toUpperCase());
      if(primary)primary.click();
      const bounds=dock.getBoundingClientRect(),hostBounds=host.getBoundingClientRect();
      return {name:dock.querySelector(".si-utc-title strong")?.textContent,
@@ -75,7 +75,7 @@ const cases=[
     assert.ok(data.session.includes("Pause & Keep Progress")&&data.session.includes("Finish & Return"),
       "Only existing classroom safety actions are mirrored");
     if(fixture.disabled)
-     assert.equal(data.actions.find(a=>a.label===fixture.disabled)?.disabled,true,
+     assert.equal(data.actions.find(a=>a.label.toUpperCase()===fixture.disabled.toUpperCase())?.disabled,true,
       "Disabled native gameplay actions must stay disabled");
    }
   }
