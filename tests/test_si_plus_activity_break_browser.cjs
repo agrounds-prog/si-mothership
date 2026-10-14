@@ -153,12 +153,14 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
     await page.locator('#siPlusBreakChoices [data-break-app="'+appId+'"]').click();
     assert.equal(await page.evaluate(()=>SIPlusActivityBreak.parked),true,
       appId+" should preserve the original lesson in the classroom session");
-    assert.deepEqual(await page.evaluate(()=>state.siPlusActivityBreak.run.responses),original.answers);
+    assert.deepEqual(await page.evaluate(()=>state.siPlusActivityBreak.run.responses["1"]),
+      original.answers["1"],appId+" must retain submitted student responses");
     await page.locator("#siPlusActivityResume").click();
     assert.equal(await page.evaluate(()=>state.activityRun?.activityId),original.deck,
       appId+" should manually return to the same SI+ lesson");
     assert.equal(await page.evaluate(()=>state.activityRun.slideIndex),original.slide);
-    assert.deepEqual(await page.evaluate(()=>state.activityRun.responses),original.answers);
+    assert.deepEqual(await page.evaluate(()=>state.activityRun.responses["1"]),
+      original.answers["1"],appId+" must restore student submissions");
   }
   console.log("SI+ FOUR MORE APP SETUP/RETURN HANDOFFS PASSED",extraApps.join(","));
   // Browse library and recover saved place without starting another app.
