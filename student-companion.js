@@ -329,9 +329,10 @@
   const view={query:"",page:0,joinStage:null};
   let activeGrid=null;
   function pageSize(){
-    // Fit a third avatar row into ordinary 440 × 780 sidecars. On genuinely
-    // short screens use two rows so the navigator remains reachable.
-    return window.innerWidth<405||window.innerHeight<690?6:9;
+    // Phone-width classrooms have room for three rows of three avatars.
+    // Short viewports scroll within the device instead of hiding row three.
+    // Very narrow screens use the existing two-column fallback (three rows).
+    return window.innerWidth<360?6:9;
   }
   function paint(){
     if(!activeGrid||!activeGrid.isConnected)return;
