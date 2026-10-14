@@ -64,10 +64,12 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
      let selectionContrast=false;
      if(game==="million"){
        const choice=root.querySelector(".million-student-choice");
-       const idle=getComputedStyle(choice).borderTopColor;
+       const idle=getComputedStyle(choice);
+       const before=[idle.borderTopColor,idle.boxShadow,idle.outlineWidth].join("|");
        choice.classList.add("selected");
-       const active=getComputedStyle(choice).borderTopColor;
-       selectionContrast=idle!==active;
+       const active=getComputedStyle(choice);
+       const after=[active.borderTopColor,active.boxShadow,active.outlineWidth].join("|");
+       selectionContrast=before!==after;
        choice.classList.remove("selected");
      }
      return {viewport:innerWidth,overflow:document.documentElement.scrollWidth-innerWidth,
