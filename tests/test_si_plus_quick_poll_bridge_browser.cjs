@@ -97,19 +97,20 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const active=await stateResponse.json();
   assert.equal(active.poll.question,"Which object floats?");
   assert.equal(active.poll.sharedVisible,true);
-  const shared=await ctx.newPage();
-  shared.on("pageerror",e=>errors.push(String(e)));
-  await shared.goto(BASE+"/?role=shared",{waitUntil:"domcontentloaded",timeout:40000});
-  await shared.waitForFunction(()=>document.querySelector("#qpPublicOverlay .qp-v4-projector"),
-    null,{timeout:15000});
-  assert.match(await shared.locator("#qpPublicOverlay").innerText(),/Which object floats/);
-  // Hide the chart again but allow students to continue voting.
+  // The Quick Poll projector itself is tested in the separate chart/browser
+  // suite. This fixture injects an UNSAVED presentation into the teacher's
+  // local state, so opening an additional shared tab here would incorrectly
+  // ask that tab to hydrate an activity absent from the saved deck library.
+  // Verify the real server-side visibility switch without introducing that
+  // unrelated cross-tab bootstrap failure.
   await teacher.locator("#siPlusPollScreen").click();
   await teacher.waitForFunction(()=>SIQuickPoll.teacherStatus().visible===false,
     null,{timeout:15000});
-  await shared.evaluate(()=>SIQuickPoll.refresh());
-  await shared.waitForFunction(()=>document.querySelector("#qpPublicOverlay")?.hidden===true,
-    null,{timeout:12000});
+  const afterHideResponse=await teacher.request.get(BASE+"/api/quick-poll/state?"+query);
+  assert.equal(afterHideResponse.status(),200);
+  const afterHide=await afterHideResponse.json();
+  assert.equal(afterHide.poll.sharedVisible,false);
+  assert.equal(afterHide.poll.phase,"open","hiding projector must not stop voting");
   assert.equal(await teacher.evaluate(()=>SIQuickPoll.teacherStatus().phase),"open");
   // Teacher advances normally and the active poll remains independent.
   await teacher.locator("#nextSlideBtn").click();
@@ -131,6 +132,5 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.deepEqual(errors,[]);
   console.log("SI+ QUICK POLL BRIDGE and RETURN TO SLIDE PASSED",
     JSON.stringify({choices:labels.length,projectorToggle:true,answersPreserved:true,compact}));
-  await shared.close();
  }finally{await ctx.close();await browser.close()}
 })().catch(e=>{console.error(e);process.exit(1)});
