@@ -584,3 +584,16 @@ body.sipreview-open{overflow:hidden!important}
   #activitiesPanel .si-plus-draft-recovery button{flex:1 1 auto}
   #activitiesPanel .si-plus-draft-caption{flex-basis:100%}
 }
+
+
+/* When the private teacher preview is open, its modal is the ONLY visible
+   app surface. Hiding the wide dashboard below prevents horizontal scrolling
+   in narrow Zoom/teacher windows without altering the saved slide or stage. */
+body.sipreview-open #teacher{
+  display:none!important;
+}
+body.sipreview-open{
+  width:100vw!important;
+  max-width:100vw!important;
+  overflow:hidden!important;
+}
