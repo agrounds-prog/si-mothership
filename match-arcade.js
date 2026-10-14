@@ -94,7 +94,7 @@ function matchArcadeStudent(run=state.activityRun,student=selectedStudent()){
   return '<div class="ma-game ma-student ma-status-'+status.type+'">'+
     '<div class="ma-cosmos" aria-hidden="true"><span class="ma-planet ma-planet-one"></span><span class="ma-space-grid"></span></div>'+
     '<div class="ma-student-heading"><div class="ma-student-pilot">'+matchArcadePlayerArt(active?.n||'',run)+'<span>CURRENT NAVIGATOR</span></div><span class="ma-eyebrow">✦ MOTHERSHIP · MATCH</span><h2 aria-live="polite">'+turn+'</h2><p>'+instruction+'</p></div>'+
-    '<div class="ma-student-status"><span>◈ <b>'+matched+' / '+(cards.length/2)+'</b> PAIRS</span><span>◎ <b>'+Number(m.attempts||0)+'</b> TRIES</span><span>✦ '+(mine?'ACTIVE PILOT':'CREW OBSERVER')+'</span></div>'+
+    '<div class="ma-student-status"><span>◈ <b>'+matched+' / '+(cards.length/2)+'</b> PAIRS</span><span>◎ <b>'+Number(m.attempts||0)+'</b> TRIES</span><span>✦ '+(mine?'ACTIVE PILOT':'CREW OBSERVER')+'</span><span class="ma-student-earned">★ <b>'+earnedPairs+'</b> '+(cfg.scoring==='no_score'?'MATCHES':'AUTO POINTS')+'</span></div>'+
     '<div class="ma-board-wrap"><div class="ma-board-surround"><div class="ma-grid" style="--ma-cols:'+cols+'">'+
     cards.map((card,i)=>matchArcadeTile(card,i,m,{student:true,canPick,preview})).join('')+'</div></div></div>'+
     '<div class="ma-device-tip"><span class="ma-info-dot">i</span><span>'+esc(m.message||'Match the hidden signals.')+'</span></div>'+
@@ -122,4 +122,25 @@ function matchArcadeRefreshAtExpiry(){
 function matchArcadeWireTeacher(){
   const preview=document.querySelector('#matchMemoryPreviewBtn');
   if(preview)preview.onclick=()=>teacherMatchAction(matchArcadePreviewActive()?'preview_stop':'preview');
+  // Valid matching pairs are already detected and scored by the server.
+  // Retire the old manual MARK MATCH control so the same pair cannot be
+  // credited twice from Mission Control while a reveal is resolving.
+  const manual=document.querySelector('#matchMarkBtn');
+  if(manual){
+    const parent=manual.parentElement;
+    manual.remove();
+    if(parent&&!parent.querySelector('.ma-auto-score-indicator')){
+      const badge=document.createElement('span');
+      badge.className='ma-auto-score-indicator';
+      badge.setAttribute('role','status');
+      parent.appendChild(badge);
+    }
+  }
+  const badge=document.querySelector('#activityControllerPanel .ma-auto-score-indicator');
+  if(badge){
+    const noScore=state.activityRun?.matchConfig?.scoring==='no_score';
+    badge.textContent=noScore?'◈ MEMORY MODE · NO POINTS':'★ MATCHED PAIRS · AUTO +1 POINT';
+    badge.title=noScore?'This activity is in no-score mode':
+      'Every correct pair automatically adds one point to the student and their team (if enabled).';
+  }
 }
