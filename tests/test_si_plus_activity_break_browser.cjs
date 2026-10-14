@@ -15,7 +15,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await page.goto(BASE+"/?role=teacher",{waitUntil:"domcontentloaded",timeout:40000});
   await page.waitForFunction(()=>networkHydrated===true&&window.SIPlusActivityBreak&&
     typeof finishActiveActivity==="function",null,{timeout:22000});
-  await page.evaluate(()=>{
+  await page.evaluate(async()=>{
    const id="si-v93-intermission-test";
    const deck={id,type:"presentation",name:"Life Skills Lesson",
      deckTitle:"Life Skills Lesson",userCreated:true,slides:[
@@ -25,6 +25,9 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
        correct:"A",image:"",youtube:""},
      {type:"instruction",title:"Next Steps",text:"Try independently",image:"",youtube:""}]};
    state.activities.push(deck);
+   // Real lessons exist in the Railway-backed presentation library; saving
+   // this isolated test deck prevents teacher hydration from losing it.
+   await persistPresentations();
    state.activityRun={activityId:id,runToken:"si-v93-original",phase:"running",
      slideIndex:1,showResults:true,revealAnswer:true,
      responses:{"1":{"Student A":"B","Student B":"A"}}};
@@ -64,6 +67,12 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await page.evaluate(()=>state.activityRun.board.pages.length),2);
   await page.locator("#returnClassBtn").waitFor({state:"visible",timeout:13000});
   await page.locator("#returnClassBtn").click();
+  console.log("SI+ ACTIVITY BREAK FINISH DEBUG",JSON.stringify(await page.evaluate(()=>({
+    run:state.activityRun?.activityId||null,screen:state.screen,
+    parked:!!state.siPlusActivityBreak,
+    deckAvailable:state.activities.some(a=>a.id==="si-v93-intermission-test"),
+    toast:document.querySelector("#toast")?.textContent
+  }))));
   await page.waitForFunction(()=>state.activityRun?.activityId==="si-v93-intermission-test",
     null,{timeout:13000});
   const restored=await page.evaluate(()=>({
