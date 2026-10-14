@@ -721,8 +721,19 @@
  };
  const availableApps=()=>typeof APP_REGISTRY!=="undefined"?
    APP_REGISTRY.filter(app=>!["si-plus","scientific-calculator"].includes(app.id)):[];
- let dialog=null,returnBar=null;
+ let dialog=null,returnBar=null,returnBarCollapsed=false;
  const escText=v=>String(v||"");
+ const breakContext=()=>{
+   const appId=String(state.activeApp||"");
+   const app=availableApps().find(x=>String(x.id)===appId);
+   const activeName=app?.name||((state.activityRun&&
+     state.activities?.find(x=>String(x.id)===String(state.activityRun.activityId))?.name))||
+     (state.screen==="activities"?"Activity Library":"Classroom");
+   const poll=window.SIQuickPoll?.teacherStatus?.();
+   const pollNote=poll?.visible?" · Quick Poll on shared screen":
+     poll?.phase==="open"?" · Live poll (not projected)":"";
+   return "Now: "+activeName+pollNote;
+ };
  function ui(){
    if(!isTeacher())return;
    const active=presentation(),save=parked();
@@ -746,10 +757,26 @@
        returnBar.id="siPlusActivityReturn";
        returnBar.className="si-plus-activity-return";
        returnBar.setAttribute("aria-label","Suspended SI+ presentation");
-       returnBar.innerHTML='<div class="si-plus-activity-return-copy">'+
-         '<b>▣ SI+ PRESENTATION PARKED</b><span id="siPlusParkedSummary"></span></div>'+
+       returnBar.innerHTML='<div class="si-plus-activity-return-copy" id="siPlusParkedDetails">'+
+         '<b>▣ SI+ PRESENTATION PARKED</b><span id="siPlusParkedSummary"></span>'+
+         '<small id="siPlusParkedContext" role="status" aria-live="polite"></small></div>'+
          '<button type="button" id="siPlusActivityResume">↩ Return to SI+</button>'+
-         '<button type="button" id="siPlusActivityDiscard" aria-label="Discard parked presentation">×</button>';
+         '<button type="button" id="siPlusActivityCollapse" aria-label="Minimize paused lesson controls" aria-controls="siPlusParkedDetails" aria-expanded="true" title="Minimize paused lesson controls">−</button>'+
+         '<button type="button" id="siPlusActivityDiscard" aria-label="Discard parked presentation" title="Discard paused lesson place (saved deck remains)">×</button>';
+       const collapse=returnBar.querySelector("#siPlusActivityCollapse");
+       collapse.addEventListener("click",()=>{
+         returnBarCollapsed=!returnBarCollapsed;
+         returnBar.classList.toggle("is-collapsed",returnBarCollapsed);
+         collapse.setAttribute("aria-expanded",String(!returnBarCollapsed));
+         collapse.setAttribute("aria-label",returnBarCollapsed?"Expand paused lesson controls":"Minimize paused lesson controls");
+         collapse.title=returnBarCollapsed?"Expand paused lesson controls":"Minimize paused lesson controls";
+         collapse.textContent=returnBarCollapsed?"+":"−";
+       });
+       if(returnBarCollapsed){
+         returnBar.classList.add("is-collapsed");collapse.setAttribute("aria-expanded","false");
+         collapse.setAttribute("aria-label","Expand paused lesson controls");
+         collapse.title="Expand paused lesson controls";collapse.textContent="+";
+       }
        returnBar.querySelector("#siPlusActivityResume").addEventListener("click",()=>{
          if(state.activityRun&&!confirm(
            "End the current activity and return to the parked SI+ slide? Any unfinished game round will end."))return;
@@ -762,9 +789,13 @@
        document.body.appendChild(returnBar);
      }
      const name=escText(save.name||"Presentation"),number=Number(save.run.slideIndex)||0;
-     const label=name+" · Slide "+(number+1);
+     const deck=state.activities?.find(x=>String(x.id)===String(save.run.activityId));
+     const total=Array.isArray(deck?.slides)?deck.slides.length:0;
+     const label=name+" · Slide "+(number+1)+(total?" of "+total:"");
      const cap=returnBar.querySelector("#siPlusParkedSummary");
      if(cap&&cap.textContent!==label)cap.textContent=label;
+     const context=returnBar.querySelector("#siPlusParkedContext"),message=breakContext();
+     if(context&&context.textContent!==message)context.textContent=message;
    }else if(returnBar){returnBar.remove();returnBar=null}
    if(dialog&&!dialog.hidden&&!active)close(false);
  }
@@ -860,7 +891,9 @@
    state.promptActive=false;state.assigningSlot=null;
    state.presentationEditor=null;state.presentationLibraryOpen=false;
    render();ui();
-   if(typeof toast==="function")toast("SI+ resumed at slide "+(run.slideIndex+1)+" · Responses restored");
+   const pollVisible=window.SIQuickPoll?.teacherStatus?.()?.visible===true;
+   if(typeof toast==="function")toast("SI+ resumed at slide "+(run.slideIndex+1)+
+     " · Responses restored"+(pollVisible?" · Quick Poll is still on the shared screen":""));
    return true;
  }
  function resumeAfterFinish(){
