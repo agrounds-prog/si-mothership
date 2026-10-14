@@ -2703,3 +2703,55 @@ body.role-student #student .bingo-student-cell[aria-pressed="true"]{outline:2px 
  body.role-student #student .si-student-game-cue .si-cue-help{font-size:12px}
 }
 @media(prefers-reduced-motion:reduce){body.role-student #student .si-student-game-cue{animation:none!important;transition:none!important}}
+
+
+/* Bingo student call-alerts setting (teacher-controlled, per live round).
+   Muted called-square cues affect presentation only, never mark eligibility. */
+#teacher #activityControllerPanel:has(#bingoCallNextBtn) .si-bingo-call-alerts-control{
+  display:flex!important;
+  flex:1 1 100%!important;
+  flex-direction:column!important;
+  gap:5px!important;
+  width:100%!important;
+  min-width:0!important;
+  margin:8px 0 2px!important;
+  padding:10px!important;
+  background:linear-gradient(120deg,#0c2c43,#11283c)!important;
+  border:1px solid #638cac!important;
+  border-radius:12px!important;
+  box-sizing:border-box!important;
+}
+#teacher #activityControllerPanel:has(#bingoCallNextBtn) .si-bingo-call-alerts-control button{
+  width:100%!important;
+  min-height:45px!important;
+  padding:9px 12px!important;
+  border-radius:10px!important;
+  border:2px solid #73dfb7!important;
+  background:linear-gradient(130deg,#176c69,#0b414e)!important;
+  color:#f6ffff!important;
+  font:900 13px/1.2 system-ui,sans-serif!important;
+  cursor:pointer!important;
+}
+#teacher #activityControllerPanel:has(#bingoCallNextBtn) .si-bingo-call-alerts-control.alerts-off button{
+  border-color:#ffcb86!important;
+  background:linear-gradient(130deg,#664c30,#3b3745)!important;
+}
+#teacher #activityControllerPanel:has(#bingoCallNextBtn) .si-bingo-call-alerts-control small{
+  color:#b8dce9!important;
+  font:650 11px/1.4 system-ui,sans-serif!important;
+}
+#teacher #activityControllerPanel #siBingoCallAlertsToggle:focus-visible{
+  outline:3px solid #ffdf92!important;outline-offset:3px!important;
+}
+body.role-student #student .si-bingo-call-alerts-off .bingo-student-board
+  .bingo-student-cell:not(.marked):not(.free){
+  opacity:1!important;
+  filter:none!important;
+  border-color:#bedbff!important;
+  background:linear-gradient(150deg,#ffffff,#eff7ff)!important;
+  box-shadow:inset 0 1px 0 #fff,0 3px 0 #153b78,0 5px 9px #0005!important;
+}
+body.role-student #student .si-bingo-call-alerts-off .bingo-student-board
+  .bingo-student-cell:not(.marked):not(.free)::before{
+  content:none!important;display:none!important;
+}
