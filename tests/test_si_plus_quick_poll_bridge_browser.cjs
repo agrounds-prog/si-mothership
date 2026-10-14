@@ -88,6 +88,8 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await teacher.waitForFunction(()=>SIQuickPoll.teacherStatus().visible===true,
     null,{timeout:15000});
   assert.match(await teacher.locator("#siPlusPollScreen").innerText(),/Show SI\+ Slide/);
+  await teacher.waitForFunction(()=>document.querySelector("#siPlusPollScreen")?.disabled===false,
+    null,{timeout:10000});
   assert.equal(await teacher.evaluate(()=>JSON.stringify(state.activityRun)),original);
   // The existing REST endpoint, NOT the SI+ presentation run, owns poll state.
   const query=await teacher.evaluate(()=>new URLSearchParams({
