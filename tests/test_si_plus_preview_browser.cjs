@@ -48,6 +48,16 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
      assert.ok(v.w>0&&v.h>0&&Math.abs(v.w/v.h-16/9)<.015,JSON.stringify(v));
      assert.ok(v.x>=0&&v.y>=0&&v.x+v.w<=width+2&&v.y+v.h<=height+2);
      assert.equal(v.fit,"contain");
+     if(v.outer>width+2){
+       const spills=await page.evaluate(()=>[...document.querySelectorAll("body *")]
+         .map(el=>({el,r:el.getBoundingClientRect()}))
+         .filter(x=>x.r.width>0&&x.r.right>innerWidth+2)
+         .sort((a,b)=>b.r.right-a.r.right)
+         .slice(0,14)
+         .map(x=>({tag:x.el.tagName,id:x.el.id,cls:String(x.el.className).slice(0,90),
+           left:Math.round(x.r.left),right:Math.round(x.r.right),width:Math.round(x.r.width)})));
+       console.log("SI+ PREVIEW OVERFLOW DIAGNOSTICS",JSON.stringify({width,height,v,spills}));
+     }
      assert.ok(v.outer<=width+2,"no horizontal overflow");
      sizes.push({width,height,w:Math.round(v.w),h:Math.round(v.h)});
    }
