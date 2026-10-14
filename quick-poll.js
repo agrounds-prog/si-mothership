@@ -27,7 +27,7 @@ const esc=v=>String(v??"").replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&
 const clone=v=>JSON.parse(JSON.stringify(v));
 const fresh=()=>({question:"",description:"",choices:[{label:"Yes",image:""},{label:"No",image:""}],identity:"anonymous",visibility:"live",allowChange:true,multiple:false,limit:2,duration:0,display:"cards",sensitive:false});
 let draft=fresh(),poll=null,library=[],selected=[],open=false,list=false,busy=false,loading=false,previousStudent="",serverOffset=0,studioTab="create";
-let root=null,dialog=null,launcher=null,notice="";
+let root=null,dialog=null,launcher=null,notice="",fromSiPlus=false;
 let sharedRenderedSignature="",teacherPreview=null,teacherPreviewMode="live",teacherPreviewSignature="";
 /* The existing shared screen stays open when Reset Session rotates its ID.
    Re-check the authoritative session only when a stale-ID request is rejected.
@@ -515,7 +515,22 @@ function renderEditor(){
   dialog.addEventListener("change",event=>{try{teacherChange(event);}catch(err){error(err);}});
  }
  dialog.hidden=!open;
- if(open){$(".qp-dialog-window",dialog).innerHTML=editorHtml();updateLive();}
+ if(open){
+  $(".qp-dialog-window",dialog).innerHTML=editorHtml();
+  if(fromSiPlus){
+    const header=$(".qp-teacher header",dialog);
+    const close=header?.querySelector("[data-qp-close]");
+    if(close){
+      const back=document.createElement("button");
+      back.type="button";back.className="qp-si-plus-return";
+      back.setAttribute("data-qp-return-slide","");
+      back.textContent="← Back to SI+ Slides";
+      back.title="Close Poll Studio. Any live poll keeps running.";
+      header.insertBefore(back,close);
+    }
+  }
+  updateLive();
+ }
  if(launcher)launcher.setAttribute("aria-expanded",String(open));
 }
 function error(e){
@@ -602,6 +617,9 @@ async function teacherClick(e){
  if(b.dataset.qpTab!==undefined){
   if(["live","create","library"].includes(b.dataset.qpTab)){studioTab=b.dataset.qpTab;clearError();renderEditor();}
   return;
+ }
+ if(b.hasAttribute("data-qp-return-slide")){
+  open=false;fromSiPlus=false;renderEditor();return;
  }
  if(b.hasAttribute("data-qp-close")){open=false;renderEditor();return;}
  if(b.hasAttribute("data-qp-new")){draft=fresh();studioTab="create";clearError();renderEditor();return;}
@@ -698,6 +716,7 @@ function init(){
    be overwritten by a presentation shortcut. */
 function openFromSiPlus(source){
  if(role!=="teacher")return {mode:"unavailable"};
+ fromSiPlus=true;
  if(poll?.phase==="open"){
   studioTab="live";open=true;renderEditor();
   return {mode:"live",pollId:String(poll.id||"")};
@@ -715,6 +734,17 @@ function openFromSiPlus(source){
  clearError();studioTab="create";open=true;renderEditor();
  return {mode:"prepared",choices:choices.length};
 }
+async function setSharedVisible(visible){
+ if(role!=="teacher"||!poll)return false;
+ if(busy)return false;
+ busy=true;
+ try{
+  await api("/api/quick-poll/control",{action:"share",visible:!!visible});
+  await refresh(true);
+  return true;
+ }catch(e){error(e);return false}
+ finally{busy=false}
+}
 function teacherStatus(){
  if(role!=="teacher")return null;
  return {phase:poll?.phase||"none",visible:!!poll?.sharedVisible,
@@ -730,7 +760,7 @@ function emitTeacherStatus(){
 }
 window.SIQuickPoll={refresh,
  open:()=>{if(role==="teacher"){studioTab=poll?"live":"create";open=true;renderEditor();}},
- openFromSiPlus,teacherStatus};
+ openFromSiPlus,teacherStatus,setSharedVisible};
 
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
