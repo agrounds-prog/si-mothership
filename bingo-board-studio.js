@@ -1938,13 +1938,26 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         const node=cue.querySelector(name);if(node&&node.textContent!==value)node.textContent=value;
       }
     }
+    const callAlertsOff=gameType==='bingo'&&state.activityRun?.bingo?.studentCallAlerts===false;
+    gamePanel.classList.toggle('si-bingo-call-alerts-off',callAlertsOff);
     if(gameType==='bingo'){
       gamePanel.querySelectorAll('.bingo-student-cell').forEach((btn,i)=>{
         const text=String(btn.querySelector('img')?.alt||btn.textContent||'picture').replace(/\s+/g,' ').trim().slice(0,80)||'picture';
         const selected=btn.classList.contains('marked');
-        btn.setAttribute('aria-label','BINGO square '+(i+1)+': '+text+(selected?', marked':btn.disabled?', not yet called':', unmarked'));
+        const status=selected?', marked':callAlertsOff?', unmarked':btn.disabled?', not yet called':', unmarked';
+        btn.setAttribute('aria-label','BINGO square '+(i+1)+': '+text+status);
         btn.setAttribute('aria-pressed',String(selected));
       });
+      if(callAlertsOff){
+        const caption=gamePanel.querySelector('.student-game-foundation:has(.bingo-student-board) .prompt-caption');
+        if(caption){
+          const b=state.activityRun.bingo||{},name=typeof selectedStudent==='function'?selectedStudent()?.n:'';
+          const count=(b.marks?.[name]||[]).length+
+            (gamePanel.querySelector('.bingo-student-cell.free')?1:0);
+          const label=count+' marked · Listen for calls';
+          if(caption.textContent!==label)caption.textContent=label;
+        }
+      }
     }
     if(gameType==='crew-survey'){
       const entry=gamePanel.querySelector('#crewSurveyAnswerInput');
@@ -1999,4 +2012,79 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  }
  if(document.readyState==='complete')init();
  else window.addEventListener('load',init,{once:true});
+})();
+
+
+/* Bingo live teacher setting: student call hints ON/OFF.
+ * Session-backed via the game's existing bingo_action channel; this never
+ * edits saved Bingo board sets, called history, or student marks. */
+(()=>{
+  "use strict";
+  if(typeof window==="undefined"||window.SIBingoStudentCallAlerts)return;
+  const teacher=()=>typeof SESSION_ROLE!=="undefined"&&SESSION_ROLE==="teacher";
+  const bingoRun=()=>typeof state!=="undefined"&&state.activityRun?.activityId==="bingo-game"
+    &&state.activityRun.phase==="running"&&state.activityRun.bingo?state.activityRun:null;
+  const enabled=()=>bingoRun()?.bingo.studentCallAlerts!==false;
+  function sync(){
+    if(!teacher())return;
+    const actions=document.querySelector("#activityControllerPanel .bingo-teacher-actions");
+    const run=bingoRun();
+    let panel=document.querySelector("#siBingoCallAlertsControl");
+    if(!actions||!actions.querySelector("#bingoCallNextBtn")||!run){
+      panel?.remove();return;
+    }
+    if(!panel||panel.parentElement!==actions){
+      panel?.remove();
+      panel=document.createElement("div");panel.id="siBingoCallAlertsControl";
+      panel.className="si-bingo-call-alerts-control";
+      panel.innerHTML='<button type="button" id="siBingoCallAlertsToggle" aria-pressed="true">🔔 STUDENT CALL ALERTS: ON</button>'+
+        '<small id="siBingoCallAlertsHelp">Called squares light up on student cards.</small>';
+      panel.querySelector("button").addEventListener("click",()=>{
+        const current=bingoRun();
+        if(!current)return;
+        const value=enabled()?"off":"on";
+        if(typeof NETWORK_SYNC!=="undefined"&&NETWORK_SYNC){
+          if(typeof networkHydrated==="undefined"||!networkHydrated||
+            typeof networkSocket==="undefined"||!networkSocket||
+            networkSocket.readyState!==WebSocket.OPEN){
+            if(typeof toast==="function")toast("Reconnecting — try the Bingo alerts switch again.");
+            return;
+          }
+          teacherBingoAction("student_call_alerts",value);
+        }else{
+          current.bingo.studentCallAlerts=value==="on";
+          if(typeof render==="function")render();
+          else sync();
+        }
+      });
+      actions.appendChild(panel);
+    }
+    const on=enabled(),btn=panel.querySelector("button"),help=panel.querySelector("small");
+    const text=on?"🔔 STUDENT CALL ALERTS: ON":"🔕 STUDENT CALL ALERTS: OFF";
+    const note=on?"Called squares light up on student cards.":
+      "Listening mode · no call hints on student cards; marking rules still apply.";
+    if(btn.textContent!==text)btn.textContent=text;
+    btn.setAttribute("aria-pressed",String(on));
+    btn.title=on?"Hide which Bingo items have been called on student cards":
+      "Show called-item highlights on student cards";
+    if(help.textContent!==note)help.textContent=note;
+    panel.classList.toggle("alerts-off",!on);
+  }
+  function install(){
+    if(!teacher())return;
+    const root=document.getElementById("activityControllerPanel");
+    if(root){
+      let scheduled=false;
+      new MutationObserver(()=>{
+        if(scheduled)return;
+        scheduled=true;
+        queueMicrotask(()=>{scheduled=false;sync()});
+      }).observe(root,{childList:true,subtree:true});
+    }
+    sync();
+    setInterval(sync,1250);
+  }
+  window.SIBingoStudentCallAlerts={sync,get enabled(){return enabled()}};
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
+  else install();
 })();
