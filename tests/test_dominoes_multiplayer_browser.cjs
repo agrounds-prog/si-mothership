@@ -96,6 +96,21 @@ const PILOT="Domino Pilot",TOKEN="domino-live-pilot-token-2026";
     secondId,{timeout:13000});
   await shared.waitForFunction(()=>state.activityRun?.dominoes?.chain?.length===2,null,{timeout:10000});
   assert.equal(await shared.locator("#sharedContent .dm-played-tile .dm-tile.double.vertical").count(),2);
+  // Student/browser reconnect must preserve turn, exact chain and private
+  // rack without exposing the teacher's hand to the student or projector.
+  await student.reload({waitUntil:"domcontentloaded",timeout:40000});
+  await student.waitForFunction(()=>state.selectedStudent==="Domino Pilot"
+    &&state.activityRun?.dominoes?.chain?.length===2
+    &&networkSocket?.readyState===WebSocket.OPEN,null,{timeout:16000});
+  assert.deepEqual(await student.evaluate(()=>({
+    turn:state.activityRun.dominoes.turn,
+    ids:state.activityRun.dominoes.chain.map(x=>x.id),
+    hands:Object.keys(state.activityRun.dominoes.hands)
+  })),{turn:0,ids:[firstId,secondId],hands:[PILOT]});
+  assert.equal(await teacher.evaluate(()=>state.activityRun.dominoes.chain.length),2,
+    "student reconnect cannot replay a Dominoes move");
+  assert.deepEqual(await shared.evaluate(()=>Object.keys(state.activityRun.dominoes.hands)),[]);
+  console.log("DOMINOES student reconnect and private hand PASSED");
   await teacher.locator('#activityControllerPanel [data-dm-teacher="save"]').click();
   assert.ok(await teacher.evaluate(()=>Dominoes.library().some(x=>x.name==="Dominoes Shared Test")));
   assert.deepEqual(errors,[]);
