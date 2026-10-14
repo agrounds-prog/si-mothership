@@ -9,7 +9,7 @@ const fixture={
   '<span class="si-cue-help">Mark called items. Tap BINGO when you win.</span></section>'+
   '<div class="student-game-foundation"><div class="student-game-card"><span class="eyebrow">MOTHERSHIP · BINGO</span><h2>Pilot Private Card</h2><p>Mark the item if called.</p>'+
   '<div class="bingo-student-board" style="grid-template-columns:repeat('+size+',1fr)">'+
-  Array.from({length:size*size},(_,i)=>'<button type="button" class="bingo-student-cell '+(i===0?"marked":"")+'" data-bingo-mark="'+i+'">'+
+  Array.from({length:size*size},(_,i)=>'<button type="button" class="bingo-student-cell '+(i===0?"marked":i>=2?"uncalled":"")+'" data-bingo-mark="'+i+'" '+(i>=2?"disabled":"")+'>'+
      (i%3===0?'KITCHEN ITEM':String(i+1))+'</button>').join("")+'</div>'+
   '<div class="prompt-caption">3 marked · 6 calls</div><button id="studentBingoClaimBtn" class="bingo-claim-button">BINGO!</button></div></div>',
  letter:()=>'<div class="student-prompt response-device"><span class="eyebrow">STARWHEEL · ACTIVE PILOT</span>'+
@@ -87,6 +87,28 @@ const fixture={
       assert.ok(data.foundation.w>=data.main-30&&data.card.w>=data.main-30&&
         data.board.w>=data.main-60,
         "Bingo private card should use phone width: "+JSON.stringify({width,height,data}));
+      // The teacher's new quiet mode must hide WHICH squares were called,
+      // while leaving marked-square feedback and disabled-game rules intact.
+      const quiet=await page.evaluate(()=>{
+        const root=document.querySelector("#studentContent");
+        root.classList.add("si-bingo-call-alerts-off");
+        const cells=root.querySelectorAll(".bingo-student-cell");
+        const called=getComputedStyle(cells[1]),waiting=getComputedStyle(cells[2]),marked=getComputedStyle(cells[0]);
+        const data={
+          calledBorder:called.borderTopColor,waitingBorder:waiting.borderTopColor,
+          calledBg:called.backgroundImage,waitingBg:waiting.backgroundImage,
+          waitingOpacity:waiting.opacity,calledDot:getComputedStyle(cells[1],"::before").content,
+          markedBg:marked.backgroundImage,waitingDisabled:cells[2].disabled
+        };
+        root.classList.remove("si-bingo-call-alerts-off");
+        return data;
+      });
+      assert.equal(quiet.calledBorder,quiet.waitingBorder,JSON.stringify({width,height,quiet}));
+      assert.equal(quiet.calledBg,quiet.waitingBg,JSON.stringify({width,height,quiet}));
+      assert.equal(quiet.waitingOpacity,"1",JSON.stringify({width,height,quiet}));
+      assert.equal(quiet.calledDot,"none",JSON.stringify({width,height,quiet}));
+      assert.notEqual(quiet.markedBg,quiet.calledBg,"marked squares must remain distinguishable");
+      assert.equal(quiet.waitingDisabled,true,"Bingo eligibility must remain enforced");
     }else if(name==="letter"||name==="ready"){
       assert.equal(data.grid,5);
       assert.equal(data.buttons.length,name==="letter"?21:5);
