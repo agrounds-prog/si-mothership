@@ -58,7 +58,20 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await teacher.locator("#qpDialog").isVisible(),false);
   assert.equal(await teacher.evaluate(()=>JSON.stringify(state.activityRun)),original);
   await teacher.locator("#siPlusPollOpen").click();
-  await teacher.locator("#qpDialog [data-qp-launch]").click();
+  const editorDiag=await teacher.evaluate(()=>{
+    const button=document.querySelector("#qpDialog [data-qp-launch]");
+    const modal=document.querySelector("#qpDialog"),window=document.querySelector("#qpDialog .qp-dialog-window");
+    const parent=document.querySelector("#qpStudioContent");
+    const r=button.getBoundingClientRect(),m=modal.getBoundingClientRect(),w=window.getBoundingClientRect();
+    const center={x:r.x+r.width/2,y:r.y+r.height/2};
+    const top=document.elementFromPoint(center.x,center.y);
+    const shape=el=>{const x=getComputedStyle(el);return {position:x.position,zIndex:x.zIndex,display:x.display,visibility:x.visibility,pointerEvents:x.pointerEvents,transform:x.transform}};
+    return {button:{x:r.x,y:r.y,w:r.width,h:r.height},center,top:{tag:top?.tagName,id:top?.id,className:String(top?.className).slice(0,80)},
+      viewport:{w:innerWidth,h:innerHeight,scrollY},modal:{x:m.x,y:m.y,w:m.width,h:m.height,style:shape(modal)},window:{x:w.x,y:w.y,w:w.width,h:w.height},
+      parent:{scrollTop:parent.scrollTop,scrollHeight:parent.scrollHeight,clientHeight:parent.clientHeight}};
+  });
+  console.log("SI+ POLL SEND BUTTON GEOMETRY",JSON.stringify(editorDiag));
+  await teacher.locator("#qpDialog [data-qp-launch]").click({timeout:6500});
   await teacher.waitForFunction(()=>SIQuickPoll.teacherStatus()?.phase==="open",
     null,{timeout:15000});
   assert.equal(await teacher.evaluate(()=>JSON.stringify(state.activityRun)),original,
