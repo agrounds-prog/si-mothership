@@ -7,7 +7,9 @@
  const DEVICE_WIDTH=440, DEVICE_HEIGHT=780;
  const POPOUT_NAME="si_mothership_student_sidecar";
  const params=new URLSearchParams(location.search);
- const isPopout=window.name===POPOUT_NAME || params.get("compact")==="1";
+ // Only a browser-created named window is a real sidecar. A pasted link
+ // containing compact=1 must not disable the launcher in an ordinary tab.
+ const isPopout=window.name===POPOUT_NAME;
  function desktopWindow(){
    // Touch-enabled Windows PCs may report pointer:coarse although Chrome
    // is running as a desktop browser. Do not treat them as phones.
@@ -15,9 +17,11 @@
    // A laptop snapped beside Zoom can be only 550–750 CSS pixels wide.
    // Detect the desktop browser, not just the current tab's dimensions.
    // Already-compact windows need no additional popup.
-   if(innerWidth<540 || /Android|iPhone|iPad|iPod|Mobile|Silk|Kindle/i.test(agent))return false;
-   return matchMedia("(pointer:fine)").matches
-      ||matchMedia("(hover:hover)").matches || innerWidth>=540;
+   if(/Android|iPhone|iPad|iPod|Mobile|Silk|Kindle/i.test(agent))return false;
+   // iPadOS may identify itself as a Mac desktop.
+   if(navigator.platform==="MacIntel" && navigator.maxTouchPoints>1)return false;
+   // Chrome snapped beside Zoom may be 400–530px wide, even on touch laptops.
+   return innerWidth>=360;
  }
  let deviceLaunched=false;
  let activeWindow=null;
@@ -110,6 +114,10 @@
    }
    if(popup){
      deviceLaunched=true;
+     // A blocked attempt may have left a stale warning in the original tab.
+     document.querySelector("#siStudentPopupBlocked")?.remove();
+     const launch=document.querySelector("#siStudentOpenCompact");
+     if(launch){launch.textContent="OPEN COMPACT STUDENT WINDOW";launch.removeAttribute("aria-describedby")}
      showHandoff(popup);
      try{popup.focus()}catch(e){}
      return popup;
@@ -248,8 +256,13 @@
     // Do not intercept browser shortcuts, tab navigation, or a student's first
     // typed character. Enter/Space are activation keys; a click works anywhere
     // on the classroom page including blank space outside the controller.
-    if(keyboard && (event.altKey||event.ctrlKey||event.metaKey ||
-       !["Enter"," "].includes(event.key)))return;
+    if(keyboard){
+      if(event.altKey||event.ctrlKey||event.metaKey || !["Enter"," "].includes(event.key))return;
+      // Never hijack typing, Space, or Enter inside an editable field.
+      // The user can still activate buttons with the keyboard normally.
+      const el=event.target;
+      if(el?.isContentEditable || el?.closest?.("input,textarea,select,[contenteditable]"))return;
+    }
     // The launch button has its own direct, trusted click handler.
     if(event.target?.closest?.("#siStudentPopupBlocked, #siStudentOpenCompact"))return;
     const popup=openDeviceWindow(popupOptions(event.target,keyboard));
@@ -273,7 +286,9 @@
   const view={query:"",page:0};
   let activeGrid=null;
   function pageSize(){
-    return window.innerWidth<360||window.innerHeight<730?6:9;
+    // Fit a third avatar row into ordinary 440 × 780 sidecars. On genuinely
+    // short screens use two rows so the navigator remains reachable.
+    return window.innerWidth<360||window.innerHeight<620?6:9;
   }
   function paint(){
     if(!activeGrid||!activeGrid.isConnected)return;
