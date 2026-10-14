@@ -125,8 +125,7 @@ class MatchMemoryBoostTests(unittest.TestCase):
 
     def test_auto_score_team_without_manual_mark(self):
         s,r,m=fresh()
-        r["matchConfig"].update(mode="teams",teamCount=2)
-        m["teams"]=[["Alex"],["Bella"]]
+        r["matchConfig"].update(mode="teams",teamCount=2,teamAssignments={"Alex":0,"Bella":1})
         m["activeTeam"]=0
         action(s,r,"Alex","select","a1")
         action(s,r,"Alex","select","a2")
