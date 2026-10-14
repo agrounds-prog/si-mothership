@@ -515,10 +515,14 @@
    );
  }
  function onKey(event){
+   // Mothership mounts several dialogs as hidden DOM elements, so a
+   // mere querySelector would disable presentation hotkeys permanently.
+   const openModal=[...document.querySelectorAll('[role="dialog"][aria-modal="true"]')]
+     .some(el=>el.getClientRects().length>0&&
+       getComputedStyle(el).visibility!=="hidden");
    if(!teacher()||event.defaultPrevented||event.isComposing||
      event.ctrlKey||event.metaKey||event.altKey||event.shiftKey||editable(event.target)||
-     document.querySelector("#siPlusPreviewOverlay")||
-     document.querySelector('[role="dialog"][aria-modal="true"]:not([hidden])'))return;
+     document.querySelector("#siPlusPreviewOverlay")||openModal)return;
    const active=current();
    if(!active||typeof changeSlide!=="function")return;
    let target;
