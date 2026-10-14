@@ -37,6 +37,17 @@ jobs:
           node --check student-companion.js
           python -m py_compile server.py
           python scripts/release_gate.py --require-node
+      - name: Inspect Bingo call alerts and controller integration
+        run: |
+          python - <<'PY'
+          import re
+          lines=open('index.html',encoding='utf-8').read().splitlines()
+          patterns=r'bingo(State|Call|Student|Render)|bingo-student|bingo.*(call|alert|notice|setting)|callNonce'
+          hits=[i for i,line in enumerate(lines) if re.search(patterns,line,re.I)]
+          print("BINGO SOURCE INDEX MATCHES",len(hits),flush=True)
+          for i in hits[:180]:
+              print(f"L{i+1}: {lines[i][:250]}",flush=True)
+          PY
       - name: Install browser and app dependencies
         run: |
           pip install -r requirements.txt
