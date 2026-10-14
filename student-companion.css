@@ -1634,3 +1634,87 @@ body.role-student.si-student-is-popout .student-control-zone{
     display:none!important;
   }
 }
+
+
+/* Mobile student Bingo vNext — the game cue and card are siblings in
+   #studentContent. Always stack them instead of allowing a two-column,
+   full-height layout. This is layout-only: mark/claim actions stay native. */
+body.role-student #student #studentContent:has(.bingo-student-board){
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  justify-content:flex-start!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-auto-flow:row!important;
+  gap:7px!important;
+  width:100%!important;
+  min-width:0!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+}
+body.role-student #student #studentContent:has(.bingo-student-board) > .si-student-game-cue{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  flex:0 0 auto!important;
+  align-self:stretch!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-height:none!important;
+  height:auto!important;
+  position:relative!important;
+  inset:auto!important;
+  margin:0!important;
+  padding:9px 12px!important;
+  gap:2px!important;
+  border-radius:12px!important;
+}
+body.role-student #student #studentContent:has(.bingo-student-board) > .si-student-game-cue .si-cue-app{
+  font-size:10px!important;
+}
+body.role-student #student #studentContent:has(.bingo-student-board) > .si-student-game-cue .si-cue-heading{
+  font-size:clamp(16px,4.4vw,20px)!important;
+  line-height:1.12!important;
+}
+body.role-student #student #studentContent:has(.bingo-student-board) > .si-student-game-cue .si-cue-help{
+  font-size:clamp(11px,3vw,13px)!important;
+  line-height:1.3!important;
+}
+body.role-student #student #studentContent .student-game-foundation:has(.bingo-student-board){
+  display:block!important;
+  flex:0 0 auto!important;
+  align-self:stretch!important;
+  grid-column:1/-1!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+}
+body.role-student #student #studentContent .student-game-foundation:has(.bingo-student-board) .student-game-card{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-height:0!important;
+  height:auto!important;
+  margin:0 auto!important;
+}
+body.role-student #student #studentContent .bingo-student-board{
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+}
+@media(max-width:520px){
+  body.role-student #student #studentContent:has(.bingo-student-board){padding:8px!important;gap:7px!important}
+  body.role-student #student #studentContent .student-game-foundation:has(.bingo-student-board) .student-game-card{
+    padding:10px!important;
+  }
+  body.role-student #student #studentContent .student-game-foundation:has(.bingo-student-board) .student-game-card::before{
+    font-size:clamp(25px,7vw,33px)!important;
+  }
+}
