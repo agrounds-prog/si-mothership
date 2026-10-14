@@ -284,7 +284,7 @@
 (function(){
   "use strict";
   if(new URLSearchParams(location.search).get("role")!=="student")return;
-  const view={query:"",page:0};
+  const view={query:"",page:0,joinStage:null};
   let activeGrid=null;
   function pageSize(){
     // Fit a third avatar row into ordinary 440 × 780 sidecars. On genuinely
@@ -361,9 +361,23 @@
   function install(){
     const content=document.querySelector("body.role-student #studentContent");
     if(!content)return;
-    new MutationObserver(mount).observe(content,{childList:true});
+    function reconcileJoinScroll(){
+      // The app re-renders the existing #studentContent between Code,
+      // Avatar and Name stages. Old scroll offsets should not carry over
+      // and hide the next step's heading or the Continue button.
+      const stage=content.querySelector(".confirm-join-card")?"name":
+        content.querySelector(".avatar-select-card")?"avatar":
+        content.querySelector(".code-join-card")?"code":"joined";
+      if(view.joinStage!==null && stage!==view.joinStage)content.scrollTop=0;
+      view.joinStage=stage;
+    }
+    new MutationObserver(()=>{
+      mount();
+      reconcileJoinScroll();
+    }).observe(content,{childList:true});
     window.addEventListener("resize",paint,{passive:true});
     mount();
+    reconcileJoinScroll();
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
   else install();
