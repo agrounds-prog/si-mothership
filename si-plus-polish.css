@@ -741,3 +741,164 @@ body.sipreview-open{
 @media(max-width:500px){
   #qpDialog .qp-si-plus-return{font-size:11px!important;padding:6px 9px!important;}
 }
+
+
+/* SI+ v93 — teacher-only activity break. Original game/projector stages
+   and the existing saved presentation library are never restyled. */
+#teacher #activityControllerPanel .presentation-controls .si-plus-activity-break-launch{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  min-width:165px!important;min-height:43px!important;flex:1 1 180px!important;
+  max-width:100%!important;padding:9px 12px!important;box-sizing:border-box!important;
+  border-radius:10px!important;border:1px solid #e8ca8b!important;
+  background:linear-gradient(140deg,#6d5229,#305364)!important;
+  color:#fff7e6!important;font:850 12px/1.3 system-ui,sans-serif!important;
+  cursor:pointer!important;
+}
+#teacher #activityControllerPanel .si-plus-activity-break-launch:focus-visible,
+#siPlusActivityReturn button:focus-visible,
+#siPlusActivityBreakDialog button:focus-visible{
+  outline:3px solid #ffe6a1!important;outline-offset:3px!important;
+}
+#siPlusActivityBreakDialog[hidden]{display:none!important}
+#siPlusActivityBreakDialog{
+  position:fixed!important;inset:0!important;z-index:13050!important;
+  display:grid!important;place-items:center!important;
+  padding:clamp(9px,2vw,24px)!important;box-sizing:border-box!important;
+  background:#030c1bea!important;backdrop-filter:blur(5px);
+  font-family:Inter,system-ui,sans-serif;color:#edf9ff;
+}
+#siPlusActivityBreakDialog .si-plus-activity-break-window{
+  width:min(920px,100%)!important;max-height:min(90dvh,860px)!important;
+  min-height:0!important;overflow:auto!important;
+  border:2px solid #4e9dc3!important;border-radius:19px!important;
+  background:linear-gradient(145deg,#0e2c48,#071a32 65%,#081424)!important;
+  box-shadow:0 25px 85px #000c!important;box-sizing:border-box!important;
+}
+#siPlusActivityBreakDialog .si-plus-activity-break-head{
+  display:flex!important;align-items:flex-start!important;justify-content:space-between!important;
+  gap:12px!important;padding:clamp(16px,2vw,25px)!important;
+  background:linear-gradient(100deg,#16436b,#09233f)!important;
+  border-bottom:1px solid #3a7394!important;
+}
+#siPlusActivityBreakDialog .si-plus-activity-break-head>div{min-width:0!important}
+#siPlusActivityBreakDialog .si-plus-activity-break-head small{
+  font:900 11px/1.3 system-ui,sans-serif!important;color:#7ce0f7!important;
+  letter-spacing:.15em!important;
+}
+#siPlusActivityBreakDialog .si-plus-activity-break-head h2{
+  margin:5px 0 5px!important;color:#f4fcff!important;
+  font:900 clamp(22px,3vw,32px)/1.2 system-ui,sans-serif!important;
+}
+#siPlusActivityBreakDialog .si-plus-activity-break-head p{
+  max-width:660px!important;margin:5px 0 0!important;
+  color:#b8d9e7!important;font:650 13px/1.5 system-ui,sans-serif!important;
+}
+#siPlusActivityBreakDialog .si-plus-activity-break-guide{
+  margin:12px 17px!important;padding:12px 15px!important;
+  border-left:3px solid #6dcced!important;background:#1a385052!important;
+  font:650 12px/1.5 system-ui,sans-serif!important;color:#c9eaf4!important;
+}
+#siPlusActivityBreakDialog .si-plus-activity-break-grid{
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:10px!important;padding:6px 17px 16px!important;
+}
+#siPlusActivityBreakDialog button{
+  cursor:pointer!important;color:#f4faff!important;
+  font-family:Inter,system-ui,sans-serif!important;
+}
+#siPlusActivityBreakDialog .si-plus-activity-break-choice{
+  display:flex!important;align-items:center!important;gap:10px!important;
+  min-height:82px!important;min-width:0!important;
+  padding:11px!important;text-align:left!important;
+  border:1px solid #4879a0!important;border-radius:12px!important;
+  background:linear-gradient(145deg,#133956,#0c253d)!important;
+  box-shadow:inset 0 1px #ffffff16!important;
+}
+#siPlusActivityBreakDialog .si-plus-activity-break-choice:hover{
+  background:linear-gradient(145deg,#205675,#123453)!important;
+  border-color:#7cdaf2!important;
+}
+#siPlusActivityBreakDialog .si-plus-activity-break-icon{
+  display:grid!important;place-items:center!important;flex:0 0 49px!important;
+  width:49px!important;height:49px!important;overflow:hidden!important;
+  color:#a2e9fc!important;
+}
+#siPlusActivityBreakDialog .si-plus-activity-break-icon svg,
+#siPlusActivityBreakDialog .si-plus-activity-break-icon img{
+  width:42px!important;height:42px!important;max-width:100%!important;
+}
+#siPlusActivityBreakDialog .si-plus-activity-break-choice>span:last-child{
+  display:flex!important;flex-direction:column!important;gap:4px!important;min-width:0!important;
+}
+#siPlusActivityBreakDialog .si-plus-activity-break-choice strong{
+  color:#effbff!important;font:900 13px/1.2 system-ui,sans-serif!important;
+}
+#siPlusActivityBreakDialog .si-plus-activity-break-choice small{
+  color:#a7c6d7!important;font:650 10px/1.35 system-ui,sans-serif!important;
+}
+#siPlusActivityBreakDialog .si-plus-activity-break-footer{
+  display:flex!important;justify-content:space-between!important;flex-wrap:wrap!important;
+  gap:10px!important;padding:13px 17px 19px!important;
+  border-top:1px solid #244866!important;
+}
+#siPlusActivityBreakDialog .si-plus-activity-break-footer button{
+  min-height:44px!important;padding:9px 16px!important;border-radius:10px!important;
+  border:1px solid #5f91a9!important;background:#13334a!important;
+  font:850 12px/1.3 system-ui,sans-serif!important;
+}
+#siPlusActivityBreakDialog .si-plus-activity-break-all{
+  border-color:#72deee!important;background:#155875!important;
+}
+#siPlusActivityBreakDialog .si-plus-activity-break-close{
+  flex:0 0 42px!important;width:42px!important;height:42px!important;
+  border:1px solid #6ea4be!important;border-radius:10px!important;
+  background:#173e5a!important;font:900 24px/1 system-ui,sans-serif!important;
+}
+#siPlusActivityReturn{
+  position:fixed!important;z-index:12110!important;
+  left:clamp(8px,2vw,24px)!important;bottom:clamp(12px,4vh,40px)!important;
+  display:flex!important;align-items:center!important;flex-wrap:wrap!important;
+  gap:10px!important;max-width:calc(100vw - 26px)!important;
+  min-width:0!important;padding:11px 13px!important;
+  border:2px solid #94dfed!important;border-radius:15px!important;
+  background:linear-gradient(120deg,#11415b,#091d36)!important;
+  box-shadow:0 12px 37px #000a,0 0 20px #28bde944!important;
+  font-family:system-ui,sans-serif!important;box-sizing:border-box!important;
+}
+#siPlusActivityReturn .si-plus-activity-return-copy{
+  display:grid!important;gap:3px!important;min-width:100px!important;
+}
+#siPlusActivityReturn b{
+  font:900 10px/1.2 system-ui,sans-serif!important;color:#9df1ff!important;
+  letter-spacing:.08em!important;
+}
+#siPlusActivityReturn span{
+  color:#deecf5!important;font:650 11px/1.3 system-ui,sans-serif!important;
+  max-width:220px!important;overflow-wrap:anywhere!important;
+}
+#siPlusActivityReturn button{
+  cursor:pointer!important;min-height:40px!important;padding:8px 12px!important;
+  border:1px solid #88e0f2!important;border-radius:9px!important;
+  background:#186280!important;color:white!important;
+  font:850 12px/1.3 system-ui,sans-serif!important;
+}
+#siPlusActivityReturn #siPlusActivityDiscard{
+  padding:7px!important;min-width:38px!important;font-size:20px!important;
+  background:#28384a!important;border-color:#60798c!important;
+}
+@media(max-width:800px){
+  #siPlusActivityBreakDialog .si-plus-activity-break-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:440px){
+  #siPlusActivityBreakDialog .si-plus-activity-break-grid{
+    grid-template-columns:1fr!important;
+  }
+  #siPlusActivityReturn{
+    right:8px!important;left:8px!important;bottom:8px!important;
+    padding:9px 10px!important;
+  }
+  #siPlusActivityReturn .si-plus-activity-return-copy{flex:1 1 140px!important}
+  #siPlusActivityReturn #siPlusActivityResume{flex:1 1 150px!important}
+}
