@@ -589,7 +589,9 @@ body.sipreview-open{overflow:hidden!important}
 /* When the private teacher preview is open, its modal is the ONLY visible
    app surface. Hiding the wide dashboard below prevents horizontal scrolling
    in narrow Zoom/teacher windows without altering the saved slide or stage. */
-body.sipreview-open #teacher{
+body.sipreview-open #teacher,
+body.sipreview-open > header,
+body.sipreview-open #siTeacherStudentDeviceLaunch{
   display:none!important;
 }
 body.sipreview-open{
