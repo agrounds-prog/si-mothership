@@ -38,6 +38,11 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   });
   const original=await teacher.evaluate(()=>JSON.stringify(state.activityRun));
   await teacher.locator("#siPlusPollOpen").waitFor({state:"visible",timeout:15000});
+  await teacher.evaluate(()=>SIPlusPollBridge.refresh());
+  // The teacher controller rehydrates asynchronously after a saved deck is
+  // replaced by this test's isolated question slide. Wait for its real prompt.
+  await teacher.waitForFunction(()=>document.querySelector("#siPlusPollOpen")
+    ?.textContent?.includes("Poll This Slide"),null,{timeout:15000});
   assert.match(await teacher.locator("#siPlusPollOpen").innerText(),/Poll This Slide/);
   assert.equal(await teacher.locator("#siPlusPollScreen").isVisible(),false);
   await teacher.locator("#siPlusPollOpen").click();
