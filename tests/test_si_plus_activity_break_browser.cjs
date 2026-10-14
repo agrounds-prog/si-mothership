@@ -28,6 +28,12 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    // Real lessons exist in the Railway-backed presentation library; saving
    // this isolated test deck prevents teacher hydration from losing it.
    await persistPresentations();
+   // The previous browser test resets the isolated classroom. Its pending
+   // state hydration can replace teacher activities while the async library
+   // upload completes. Reconcile the just-persisted deck before first render.
+   if(!state.activities.some(x=>x.id===id))state.activities.push(deck);
+   assert.ok(state.activities.find(x=>x.id===id&&x.type==="presentation"),
+     "fixture deck must exist in the live classroom before activity start");
    state.activityRun={activityId:id,runToken:"si-v93-original",phase:"running",
      slideIndex:1,showResults:true,revealAnswer:true,
      responses:{"1":{"Student A":"B","Student B":"A"}}};
