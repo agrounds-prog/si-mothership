@@ -26,6 +26,19 @@
  }
  let deviceLaunched=false;
  let activeWindow=null;
+ let inTabMode=false;
+ let launchScreen=null;
+ function toggleLaunchScreen(visible){
+   if(!launchScreen)return;
+   launchScreen.hidden=!visible;
+   document.body.classList.toggle("si-student-launch-active",visible);
+   const student=document.querySelector("#student");
+   if(student){
+     student.inert=visible;
+     if(visible)student.setAttribute("aria-hidden","true");
+     else student.removeAttribute("aria-hidden");
+   }
+ }
  function blockedNotice(){
    const device=document.querySelector("body.role-student #student .device");
    if(!device||document.querySelector("#siStudentPopupBlocked"))return;
@@ -37,7 +50,8 @@
      +'You can still join the class in this tab.</span>'
      +'<button type="button" aria-label="Dismiss popup warning">✕</button>';
    notice.querySelector("button").addEventListener("click",()=>notice.remove());
-   device.querySelector(".device-head")?.insertAdjacentElement("afterend",notice);
+   if(launchScreen && !launchScreen.hidden)launchScreen.querySelector(".si-student-launch-card")?.appendChild(notice);
+   else device.querySelector(".device-head")?.insertAdjacentElement("afterend",notice);
    const launch=document.querySelector("#siStudentOpenCompact");
    if(launch){
      launch.textContent="RETRY OPENING STUDENT WINDOW";
@@ -48,8 +62,9 @@
    deviceLaunched=false;
    activeWindow=null;
    document.body.classList.remove("si-student-window-handed-off");
-   if(desktopWindow())document.body.classList.add("si-student-compact-pending");
+   if(desktopWindow()&&!inTabMode)document.body.classList.add("si-student-compact-pending");
    document.querySelector("#siStudentWindowHandoff")?.remove();
+   toggleLaunchScreen(!inTabMode&&desktopWindow());
  }
  function showHandoff(popup){
    activeWindow=popup;
@@ -72,6 +87,7 @@
    document.body.appendChild(handoff);
    document.body.classList.add("si-student-window-handed-off");
    document.body.classList.remove("si-student-compact-pending");
+   toggleLaunchScreen(false);
    // Some browsers keep the original tab backgrounded and never emit its
    // focus event when the popup closes. Restore the original login promptly
    // regardless, so students are never stranded on the handoff screen.
@@ -86,7 +102,7 @@
    if(deviceLaunched && activeWindow?.closed)endHandoff();
  });
  function openDeviceWindow(options={}){
-   if(deviceLaunched || isPopout || !desktopWindow())return null;
+   if(deviceLaunched || isPopout || inTabMode || !desktopWindow())return null;
    const {code,avatarKey}=options;
    // Only invoke this from a real user click: browsers prohibit resizing an existing tab.
    const url=new URL(location.href);
@@ -206,24 +222,37 @@
     selectAvatarInDevice();
     return;
   }
-  // No setup or additional option: a quiet, non-interactive hint in the
-  // unused widescreen margin tells students the next click opens the window.
+  // Chrome cannot crop a tab opened from a link. The first desktop screen
+  // therefore provides ONE direct, trusted browser-activation click like the
+  // SI Scientific Calculator. Small/mobile screens retain normal joining.
   if(desktopWindow()){
     document.body.classList.add("si-student-compact-pending");
-    // Unlike a CSS pseudo-element, this is a real, focusable, accessible
-    // browser-activation surface. Some managed Chrome installations ignore
-    // window.open requests triggered by indirect page-wide event handlers.
-    const launcher=document.createElement("button");
-    launcher.type="button";
-    launcher.id="siStudentOpenCompact";
-    launcher.textContent="OPEN COMPACT STUDENT WINDOW";
-    launcher.setAttribute("aria-label","Open the fixed-size classroom controller beside Zoom");
+    launchScreen=document.createElement("main");
+    launchScreen.id="siStudentLaunchScreen";
+    launchScreen.setAttribute("aria-labelledby","siStudentLaunchTitle");
+    launchScreen.innerHTML='<div class="si-student-launch-card">'
+      +'<span class="si-student-launch-mark" aria-hidden="true">✦</span>'
+      +'<div class="si-student-launch-kicker">SI MOTHERSHIP · ZOOM COMPANION</div>'
+      +'<h1 id="siStudentLaunchTitle">Your student device is ready</h1>'
+      +'<p>Open your classroom controller in a compact window beside Zoom.</p>'
+      +'<button type="button" id="siStudentOpenCompact">OPEN STUDENT DEVICE <span aria-hidden="true">↗</span></button>'
+      +'<small>No installation or window resizing needed.</small>'
+      +'<button type="button" id="siStudentLaunchContinue">Use this tab instead</button>'
+      +'</div>';
+    document.body.appendChild(launchScreen);
+    const launcher=launchScreen.querySelector("#siStudentOpenCompact");
     launcher.addEventListener("click",event=>{
       if(!event.isTrusted)return;
       const popup=openDeviceWindow(popupOptions(event.target,false));
-      if(popup){event.preventDefault();event.stopPropagation();}
+      if(popup){event.preventDefault();event.stopPropagation()}
     });
-    document.body.appendChild(launcher);
+    launchScreen.querySelector("#siStudentLaunchContinue").addEventListener("click",()=>{
+      inTabMode=true;
+      document.body.classList.remove("si-student-compact-pending");
+      document.querySelector("#siStudentPopupBlocked")?.remove();
+      toggleLaunchScreen(false);
+    });
+    toggleLaunchScreen(true);
   }
   // A regular URL loaded into an existing Chrome tab cannot resize that tab.
   // Start the fixed-size companion on the FIRST trusted page interaction rather
@@ -246,14 +275,19 @@
     }
     // Preserve the QR/session code, or a valid code already entered by the
     // student, so the popup never restarts an already-completed join stage.
-    const code=(validCode() || (
+    // Use the link's supplied class code on the launch screen, even if
+    // the classroom network has not finished hydrating.
+    const code=validCode() || (
       typeof joinStep!=="undefined" && joinStep!=="code"
       && typeof STUDENT_JOIN_CODE!=="undefined"
-    )) ? STUDENT_JOIN_CODE : "";
+    ) ? STUDENT_JOIN_CODE : (params.get("code")||"");
     return {code,avatarKey};
   }
   function redirectFirstGesture(event,keyboard=false){
-    if(deviceLaunched || isPopout || !desktopWindow() || !event.isTrusted)return;
+    if(deviceLaunched || isPopout || inTabMode || !desktopWindow() || !event.isTrusted)return;
+    // With the launch screen active, background clicks do nothing. Only
+    // its primary button is allowed to create a new Chrome window.
+    if(launchScreen && !launchScreen.hidden)return;
     // Do not intercept browser shortcuts, tab navigation, or a student's first
     // typed character. Enter/Space are activation keys; a click works anywhere
     // on the classroom page including blank space outside the controller.
