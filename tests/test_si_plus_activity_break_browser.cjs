@@ -32,8 +32,8 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    // state hydration can replace teacher activities while the async library
    // upload completes. Reconcile the just-persisted deck before first render.
    if(!state.activities.some(x=>x.id===id))state.activities.push(deck);
-   assert.ok(state.activities.find(x=>x.id===id&&x.type==="presentation"),
-     "fixture deck must exist in the live classroom before activity start");
+   if(!state.activities.some(x=>x.id===id&&x.type==="presentation"))
+     throw new Error("fixture deck must exist in the live classroom before activity start");
    state.activityRun={activityId:id,runToken:"si-v93-original",phase:"running",
      slideIndex:1,showResults:true,revealAnswer:true,
      responses:{"1":{"Student A":"B","Student B":"A"}}};
