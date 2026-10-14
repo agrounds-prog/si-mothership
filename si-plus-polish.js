@@ -258,3 +258,185 @@
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});
  else start();
 })();
+
+
+/* SI+ v90 — recover unfinished slide edits after a teacher-tab refresh.
+   This is a LOCAL safety copy in IndexedDB, not an automatic publish.
+   Normal Save Presentation continues to commit to Railway unchanged. */
+(()=>{
+ "use strict";
+ if(window.SIPlusDraftRecovery)return;
+ const DB_NAME="siMothership.siPlusDrafts.v1",TABLE="backups",KEY="latest";
+ const inTeacher=()=>typeof SESSION_ROLE!=="undefined"&&SESSION_ROLE==="teacher";
+ if(!inTeacher()||typeof indexedDB==="undefined")return;
+ let database=null,backup=null,lastJson="",sawEditor=false,lastRecord=null;
+ let chain=Promise.resolve(),timer=null,booted=false;
+ function openDB(){
+   if(database)return Promise.resolve(database);
+   return new Promise((resolve,reject)=>{
+     const req=indexedDB.open(DB_NAME,1);
+     req.onupgradeneeded=()=>{
+       if(!req.result.objectStoreNames.contains(TABLE))req.result.createObjectStore(TABLE);
+     };
+     req.onsuccess=()=>{database=req.result;resolve(database)};
+     req.onerror=()=>reject(req.error||new Error("Draft storage unavailable"));
+   });
+ }
+ async function storage(mode,op){
+   const db=await openDB();
+   return new Promise((resolve,reject)=>{
+     const tx=db.transaction(TABLE,mode),store=tx.objectStore(TABLE);
+     const req=op(store);
+     let result;
+     req.onsuccess=()=>{result=req.result};
+     tx.oncomplete=()=>resolve(result);
+     tx.onerror=()=>reject(tx.error||new Error("Draft storage failed"));
+     tx.onabort=()=>reject(tx.error||new Error("Draft storage interrupted"));
+   });
+ }
+ const findSaved=record=>{
+   const saved=(typeof state!=="undefined"&&Array.isArray(state.activities))
+     ? state.activities.find(a=>a.type==="presentation"&&
+         String(a.id)===String(record?.draft?.id)):null;
+   if(!saved||!record?.draft)return false;
+   const title=s=>String(s?.deckTitle||s?.name||"").trim()||"Untitled Presentation";
+   return title(saved)===title(record.draft)&&
+     JSON.stringify(saved.slides)===JSON.stringify(record.draft.slides);
+ };
+ const edit=()=>typeof state!=="undefined"&&state.presentationEditor?.draft&&
+   state.activeApp==="si-plus"&&!state.activityRun?state.presentationEditor:null;
+ function paint(){
+   if(!inTeacher()||typeof state==="undefined"||state.activityRun)return;
+   const home=document.querySelector("#siLoadPresentation");
+   const existing=document.querySelector("#siPlusRecoverDraft");
+   if(home && backup && !edit() && !findSaved(backup)){
+     if(!existing){
+       const actions=home.parentElement;
+       if(actions){
+         const holder=document.createElement("div");
+         holder.id="siPlusRecoverDraft";
+         holder.className="si-plus-draft-recovery";
+         holder.innerHTML='<button type="button" class="si-plus-draft-resume">↺ Recover Unsaved Draft</button>'
+           +'<button type="button" class="si-plus-draft-discard" aria-label="Discard local unsaved draft">Discard</button>'
+           +'<small class="si-plus-draft-caption"></small>';
+         actions.insertAdjacentElement("afterend",holder);
+         holder.querySelector(".si-plus-draft-resume").addEventListener("click",restore);
+         holder.querySelector(".si-plus-draft-discard").addEventListener("click",discard);
+       }
+     }
+     const cap=document.querySelector(".si-plus-draft-caption");
+     if(cap)cap.textContent="Saved on this device · "+
+       String(backup.draft.deckTitle||backup.draft.name||"Untitled Presentation");
+   }else existing?.remove();
+   const box=document.querySelector("#presentationBuilderPanel");
+   const saveStatus=box?.querySelector("#siPlusSaveStatus");
+   if(saveStatus&&edit()){
+     let local=box.querySelector("#siPlusLocalDraftStatus");
+     if(!local){
+       local=document.createElement("span");
+       local.id="siPlusLocalDraftStatus";local.className="si-plus-local-draft-status";
+       local.setAttribute("role","status");
+       saveStatus.insertAdjacentElement("afterend",local);
+     }
+     local.textContent=backup && lastJson===JSON.stringify(edit().draft)
+       ?"✓ Local draft backup ready · Save Presentation to keep it in Railway"
+       :"Draft changes are backed up on this device while you edit.";
+   }
+ }
+ function queue(op){
+   chain=chain.catch(()=>{}).then(op);
+   return chain;
+ }
+ async function poll(){
+   if(!inTeacher()||typeof state==="undefined")return;
+   const current=edit();
+   if(current){
+     sawEditor=true;
+     let json;try{json=JSON.stringify(current.draft)}catch(e){return}
+     if(json!==lastJson){
+       lastJson=json;
+       const record={draft:JSON.parse(json),originalId:current.originalId,
+         editorSlide:Math.max(0,Number(state.editorSlide)||0),savedAt:Date.now()};
+       lastRecord=record;
+       await queue(async()=>{
+         try{
+           await storage("readwrite",s=>s.put(record,KEY));
+           backup=record;
+         }catch(e){backup=null;console.warn("SI+ draft backup unavailable",e)}
+         paint();
+       });
+     }
+   }else if(sawEditor){
+     sawEditor=false;
+     const previous=lastRecord;
+     if(previous&&findSaved(previous)){
+       await queue(async()=>{
+         try{await storage("readwrite",s=>s.delete(KEY))}catch(e){}
+         if(backup===previous)backup=null;
+         lastRecord=null;lastJson="";
+         paint();
+       });
+     }
+   }
+   paint();
+ }
+ async function flush(){
+   clearTimeout(timer);
+   await poll();
+   await chain.catch(()=>{});
+   return backup;
+ }
+ function soon(){
+   clearTimeout(timer);
+   timer=setTimeout(()=>{void poll()},300);
+ }
+ async function restore(){
+   if(!backup||typeof openNewPresentation!=="function"||state.activityRun)return;
+   const record=backup;
+   openNewPresentation();
+   state.presentationEditor={
+     originalId:record.originalId??null,
+     draft:JSON.parse(JSON.stringify(record.draft))
+   };
+   state.editorSlide=Math.max(0,Math.min(
+     Number(record.editorSlide)||0,state.presentationEditor.draft.slides.length-1));
+   state.activeApp="si-plus";state.presentationLibraryOpen=false;
+   render();
+   lastJson="";sawEditor=false;
+   void poll();
+   if(typeof toast==="function")toast("Recovered local SI+ draft · Save to Library when ready");
+ }
+ async function discard(){
+   if(!backup)return;
+   if(!confirm("Discard this locally recovered SI+ draft? Your saved presentations will remain untouched."))return;
+   await queue(async()=>{
+     await storage("readwrite",s=>s.delete(KEY));
+     backup=null;lastRecord=null;lastJson="";
+   }).catch(e=>console.warn("SI+ draft discard failed",e));
+   paint();
+ }
+ function start(){
+   if(booted)return;booted=true;
+   openDB().then(()=>storage("readonly",s=>s.get(KEY))).then(record=>{
+     if(record?.draft&&Array.isArray(record.draft.slides)&&record.draft.slides.length)
+       backup=record;
+     paint();
+   }).catch(e=>console.warn("SI+ draft recovery unavailable",e));
+   document.addEventListener("input",soon,true);
+   document.addEventListener("change",soon,true);
+   document.addEventListener("click",soon,true);
+   document.addEventListener("visibilitychange",()=>{if(document.hidden)void poll()});
+   const root=document.querySelector("#activitiesPanel");
+   if(root){
+     let queued=false;
+     new MutationObserver(()=>{
+       if(queued)return;queued=true;
+       queueMicrotask(()=>{queued=false;paint()});
+     }).observe(root,{childList:true,subtree:true});
+   }
+   setInterval(()=>{void poll()},1300);
+ }
+ window.SIPlusDraftRecovery={flush,get available(){return !!backup}};
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});
+ else start();
+})();
