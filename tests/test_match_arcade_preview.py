@@ -102,6 +102,56 @@ class MatchMemoryBoostTests(unittest.TestCase):
         self.assertEqual(len(m["matched"]),2)
         self.assertEqual(m["scores"]["Alex"],1)
 
+    def test_auto_award_once_and_no_manual_double_credit(self):
+        s,r,m=fresh()
+        action(s,r,"Alex","select","a1")
+        action(s,r,"Alex","select","a2")
+        self.assertEqual(m["scores"]["Alex"],1)
+        self.assertEqual(m["attempts"],1)
+        action(s,r,"Teacher","mark_match",teacher=True)
+        action(s,r,"Teacher","mark_match",teacher=True)
+        self.assertEqual(m["scores"]["Alex"],1)
+        self.assertEqual(len(m["matched"]),2)
+        action(s,r,"Teacher","resolve",teacher=True)
+        self.assertEqual(m["scores"]["Alex"],1)
+        self.assertEqual(m["activeStudentIndex"],1)
+        action(s,r,"Bella","select","b1")
+        action(s,r,"Bella","select","b2")
+        self.assertEqual(m["scores"]["Bella"],1)
+        self.assertEqual(len(m["matched"]),4)
+        action(s,r,"Teacher","resolve",teacher=True)
+        self.assertTrue(m["complete"])
+        self.assertEqual(sum(m["scores"].values()),2)
+
+    def test_auto_score_team_without_manual_mark(self):
+        s,r,m=fresh()
+        r["matchConfig"].update(mode="teams",teamCount=2)
+        m["teams"]=[["Alex"],["Bella"]]
+        m["activeTeam"]=0
+        action(s,r,"Alex","select","a1")
+        action(s,r,"Alex","select","a2")
+        self.assertEqual(m["scores"]["Alex"],1)
+        self.assertEqual(m["teamScores"].get("0"),1)
+        action(s,r,"Teacher","mark_match",teacher=True)
+        self.assertEqual(m["teamScores"].get("0"),1)
+
+    def test_no_score_mode_still_detects_pairs(self):
+        s,r,m=fresh()
+        r["matchConfig"]["scoring"]="no_score"
+        action(s,r,"Alex","select","a1")
+        action(s,r,"Alex","select","a2")
+        self.assertEqual(len(m["matched"]),2)
+        self.assertEqual(m["scores"],{})
+        self.assertEqual(m["teamScores"],{})
+
+    def test_mismatch_never_awards_points(self):
+        s,r,m=fresh()
+        action(s,r,"Alex","select","a1")
+        action(s,r,"Alex","select","b1")
+        self.assertEqual(m["pendingResolution"]["result"],"miss")
+        self.assertEqual(m["scores"],{})
+        self.assertEqual(m["matched"],[])
+
 
 if __name__=="__main__":
     unittest.main()
