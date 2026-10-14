@@ -325,8 +325,9 @@
        }
      }
      const cap=document.querySelector(".si-plus-draft-caption");
-     if(cap)cap.textContent="Saved on this device · "+
+     const caption="Saved on this device · "+
        String(backup.draft.deckTitle||backup.draft.name||"Untitled Presentation");
+     if(cap&&cap.textContent!==caption)cap.textContent=caption;
    }else existing?.remove();
    const box=document.querySelector("#presentationBuilderPanel");
    const saveStatus=box?.querySelector("#siPlusSaveStatus");
@@ -338,9 +339,10 @@
        local.setAttribute("role","status");
        saveStatus.insertAdjacentElement("afterend",local);
      }
-     local.textContent=backup && lastJson===JSON.stringify(edit().draft)
+     const message=backup && lastJson===JSON.stringify(edit().draft)
        ?"✓ Local draft backup ready · Save Presentation to keep it in Railway"
        :"Draft changes are backed up on this device while you edit.";
+     if(local.textContent!==message)local.textContent=message;
    }
  }
  function queue(op){
