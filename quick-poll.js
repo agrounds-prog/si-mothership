@@ -502,6 +502,7 @@ function updateLive(){
  if(heading)heading.textContent=poll?.question||"Ready for a new question";
  if(screen)screen.textContent=poll?.sharedVisible?"● SHARED SCREEN LIVE":"Shared screen idle";
  if(launcher)launcher.classList.toggle("active",poll?.phase==="open");
+ emitTeacherStatus();
  syncTeacherPreview();
 }
 function renderEditor(){
@@ -692,6 +693,44 @@ function init(){
  }
  refresh();setInterval(refresh,2200);setInterval(timer,500);
 }
-window.SIQuickPoll={refresh,open:()=>{if(role==="teacher"){studioTab=poll?"live":"create";open=true;renderEditor();}}};
+/* SI+ integration: slide prompts are drafts, NEVER sent to students until
+   the teacher selects the existing SEND TO CLASS button. Live polls cannot
+   be overwritten by a presentation shortcut. */
+function openFromSiPlus(source){
+ if(role!=="teacher")return {mode:"unavailable"};
+ if(poll?.phase==="open"){
+  studioTab="live";open=true;renderEditor();
+  return {mode:"live",pollId:String(poll.id||"")};
+ }
+ if(!source||typeof source!=="object"){studioTab=poll?"live":"create";open=true;renderEditor();return {mode:"studio"};}
+ const question=String(source.question||"").trim().slice(0,240);
+ const choices=Array.isArray(source.choices)?source.choices.slice(0,6).map(c=>({
+  label:String(c?.label||"").trim().slice(0,100),
+  image:typeof c?.image==="string"&&/^data:image\/(png|jpeg|webp);base64,/.test(c.image)
+    &&c.image.length<160000?c.image:""
+ })).filter(c=>c.label):[];
+ if(!question||choices.length<2){studioTab="create";open=true;renderEditor();return {mode:"studio"};}
+ draft={...fresh(),question,description:String(source.description||"").trim().slice(0,350),
+   choices,display:choices.length===2?"showdown":"bars",limit:1};
+ clearError();studioTab="create";open=true;renderEditor();
+ return {mode:"prepared",choices:choices.length};
+}
+function teacherStatus(){
+ if(role!=="teacher")return null;
+ return {phase:poll?.phase||"none",visible:!!poll?.sharedVisible,
+   voters:Math.max(0,Number(poll?.voters||0))};
+}
+let previousStatusSignature="";
+function emitTeacherStatus(){
+ if(role!=="teacher")return;
+ const status=teacherStatus(),sig=JSON.stringify(status);
+ if(previousStatusSignature===sig)return;
+ previousStatusSignature=sig;
+ window.dispatchEvent(new CustomEvent("si:quick-poll-status",{detail:status}));
+}
+window.SIQuickPoll={refresh,
+ open:()=>{if(role==="teacher"){studioTab=poll?"live":"create";open=true;renderEditor();}},
+ openFromSiPlus,teacherStatus};
+
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
