@@ -728,7 +728,7 @@
  const checkpoint=(run,deck)=>{
    const index=Math.max(0,Number(run?.slideIndex)||0);
    const slide=deck?.slides?.[index]||{};
-   const title=String(slide.listTitle||slide.title||("Slide "+(index+1))).trim().slice(0,140);
+   const title=String(slide.title||slide.listTitle||("Slide "+(index+1))).trim().slice(0,140);
    const answers=run?.responses?.[String(index)];
    return {index,title,total:deck?.slides?.length||0,
      submitted:answers&&typeof answers==="object"?Object.keys(answers).length:0};
