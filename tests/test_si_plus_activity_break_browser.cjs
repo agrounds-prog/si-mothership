@@ -62,17 +62,26 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await page.evaluate(()=>state.activityRun.slideIndex),1);
   // Polls launched from the activity picker share the existing Quick Poll
   // bridge and DO NOT park the presentation or leak the answer key.
+  const pollBefore=await page.evaluate(()=>SIQuickPoll.teacherStatus());
   await page.locator("#siPlusActivityBreakLaunch").click();
   await page.locator("#siPlusBreakQuickPoll").click();
   await page.locator("#qpDialog").waitFor({state:"visible",timeout:12000});
   assert.equal(await page.evaluate(()=>SIPlusActivityBreak.parked),false);
   assert.equal(await page.evaluate(()=>state.activityRun.slideIndex),1);
   assert.deepEqual(await page.evaluate(()=>state.activityRun.responses),original.answers);
-  assert.equal(await page.locator("#qpQuestion").inputValue(),"Which one is safe?");
-  assert.deepEqual(await page.locator("#qpDialog [data-qp-label]").evaluateAll(
-    fields=>fields.map(el=>el.value)),["A","B"]);
-  assert.equal(await page.locator("#qpDialog .qp-create-pane").getAttribute("data-correct"),
-    null,"SI+ answer key must never enter the public Quick Poll form");
+  if(pollBefore?.phase==="open"){
+    // A live poll from a previous activity must open MANAGE LIVE, never be
+    // overwritten with a new slide-generated poll without teacher consent.
+    assert.equal(await page.locator("#qpTab-live").getAttribute("aria-selected"),"true");
+    assert.equal(await page.evaluate(()=>SIQuickPoll.teacherStatus().phase),"open");
+  }else{
+    assert.equal(await page.locator("#qpTab-create").getAttribute("aria-selected"),"true");
+    assert.equal(await page.locator("#qpQuestion").inputValue(),"Which one is safe?");
+    assert.deepEqual(await page.locator("#qpDialog [data-qp-label]").evaluateAll(
+      fields=>fields.map(el=>el.value)),["A","B"]);
+    assert.equal(await page.locator("#qpDialog .qp-create-pane").getAttribute("data-correct"),
+      null,"SI+ answer key must never enter the public Quick Poll form");
+  }
   await page.locator("[data-qp-return-slide]").click();
   assert.equal(await page.locator("#qpDialog").isVisible(),false);
   assert.equal(await page.evaluate(()=>state.activityRun.slideIndex),1);
