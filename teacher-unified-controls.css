@@ -84,3 +84,120 @@ body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-butto
     transition:none!important;animation:none!important;
   }
 }
+
+
+/* Mission Control Phase 2B — read-only turn and score awareness.
+   Compact responsive summary remains within the existing floating dock. */
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-live{
+  display:grid;grid-template-columns:minmax(165px,.85fr) minmax(0,1.4fr);
+  gap:9px;align-items:stretch;min-width:0;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-turn{
+  display:flex;align-items:center;gap:9px;min-width:0;
+  padding:9px 11px;border:1px solid #76cdbd;border-radius:10px;
+  background:linear-gradient(120deg,#124d4e,#14304b);
+  box-shadow:inset 3px 0 #a7ffdb;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-avatar{
+  display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;
+  border:2px solid #87e5d1;border-radius:11px;
+  background:radial-gradient(circle at 35% 20%,#3d94ad,#164467 75%);
+  color:#fff;font-size:20px;line-height:1;box-shadow:0 0 12px #68e0cc33;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-turn-copy{
+  display:grid;gap:3px;min-width:0;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-turn-copy small{
+  color:#a2f2e1;font:900 9px/1.15 system-ui,sans-serif;
+  letter-spacing:.08em;text-transform:uppercase;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-turn-copy strong{
+  color:#fff;font:950 clamp(13px,1.4vw,18px)/1.16 system-ui,sans-serif;
+  overflow-wrap:anywhere;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score-strip{
+  display:flex;align-items:stretch;gap:5px;min-width:0;max-width:100%;
+  padding:1px;overflow-x:auto;scrollbar-width:thin;
+  scrollbar-color:#77b7c9 transparent;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score{
+  flex:1 1 90px;min-width:81px;max-width:180px;min-height:51px;
+  display:flex;flex-direction:column;justify-content:center;gap:5px;
+  padding:7px 9px;border:1px solid #477b9b;border-radius:9px;
+  background:linear-gradient(145deg,#0b2942,#102f48);
+  text-align:left;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score.is-active{
+  border-color:#a2ffce;background:linear-gradient(140deg,#194d51,#0e3946);
+  box-shadow:inset 0 3px #8ef5cf;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score small{
+  color:#b2d9eb;font:850 10px/1.18 system-ui,sans-serif;
+  overflow-wrap:anywhere;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score.is-active small{
+  color:#bfffe6;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score b{
+  color:#fff;font:950 13px/1.1 system-ui,sans-serif;
+  font-variant-numeric:tabular-nums;overflow-wrap:anywhere;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-rows{
+  padding-top:9px;border-top:1px solid #48799677;
+}
+/* Clear native-specific workspaces, without hiding any original actions.
+   No global game board, shared display or student selector changes. */
+body:not(.role-student):not(.role-shared) #activityControllerPanel :is(
+  .cc-teacher-actions,.dm-teacher-controls,.fil-teacher-side,
+  .ss-teacher-side,.bingo-teacher-actions,.ma-teacher-side
+){
+  min-width:0;max-width:100%;
+  border-radius:12px;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel :is(
+  .cc-teacher-actions,.dm-teacher-controls,.fil-teacher-side,.ss-teacher-side
+) > :is(h3,.dm-kicker){
+  overflow-wrap:anywhere;line-height:1.2;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel :is(
+  .cc-teacher-actions,.dm-teacher-controls,.fil-teacher-side,.ss-teacher-side
+) > p{
+  color:#c6e5ef;line-height:1.38;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel :is(
+  .cc-teacher-actions,.dm-teacher-controls,.fil-actions,.ss-actions,
+  .bingo-teacher-actions,.dm-teacher-moves
+) > button{
+  min-height:42px;min-width:0;
+  font-size:clamp(11px,1vw,13px);
+  line-height:1.2;white-space:normal;
+  overflow-wrap:anywhere;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel :is(
+  .cc-teacher-actions,.dm-teacher-controls,.fil-actions,.ss-actions,
+  .bingo-teacher-actions,.dm-teacher-moves
+) > button:focus-visible{
+  outline:3px solid #ffdf96;outline-offset:2px;
+}
+@media(max-width:760px){
+ body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-live{
+  grid-template-columns:minmax(0,1fr);
+ }
+ body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score-strip{
+  max-width:100%;overflow-x:auto;
+ }
+ body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score{
+  flex:0 0 auto;min-width:94px;
+ }
+}
+@media(max-width:450px){
+ body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-turn{
+  min-height:55px;padding:7px 9px;
+ }
+ body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-title strong{
+  font-size:16px;
+ }
+ body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score{
+  min-width:86px;
+ }
+}
