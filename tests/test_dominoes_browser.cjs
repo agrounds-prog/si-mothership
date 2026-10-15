@@ -36,10 +36,35 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(initial.type,"dominoes");assert.equal(initial.players.length,2);
   assert.equal(initial.hand,7);assert.equal(initial.tiles,0);assert.equal(initial.bag,14);
   assert.ok(await page.locator("#sharedContent .dm-chain").count());
+  const hints=await page.evaluate(()=>{
+   const g=state.activityRun.dominoes;
+   const dom=document.createElement("div");
+   dom.innerHTML=Dominoes.studentHTML(g,{n:g.players[0]});
+   const cue=document.querySelector("#activityControllerPanel .dm-teacher-turn-guide");
+   const publicTable=document.querySelector("#sharedContent .dm-public");
+   return {
+    teacher:cue?.textContent,cssCue:cue?getComputedStyle(cue).display:"",
+    student:dom.querySelector(".dm-turn-guide")?.textContent,
+    studentState:dom.querySelector(".dm-turn-guide")?.dataset.turnState,
+    matchEnds:[...dom.querySelectorAll(".dm-match-ends b")].map(x=>x.textContent),
+    firstTiles:dom.querySelectorAll(".dm-tile-guide").length,
+    total:dom.querySelectorAll(".dm-hand-item").length,
+    sharedTurn:publicTable?.querySelector(".dm-turn-banner strong")?.textContent,
+    sharedPrivate:!!publicTable?.querySelector("[data-dm-play]")};
+  });
+  assert.equal(hints.cssCue,"grid");
+  assert.match(hints.teacher,/TURN DECISION.*7 PLAYABLE DOMINOES/);
+  assert.match(hints.student,/7 PLAYABLE DOMINOES/);
+  assert.equal(hints.studentState,"play");
+  assert.deepEqual(hints.matchEnds,["OPEN","OPEN"]);
+  assert.equal(hints.firstTiles,hints.total);
+  assert.equal(hints.sharedPrivate,false,"Projector must remain private");
   // Use a deterministic double to verify orientation independent of the random deal.
   const first=await page.locator("#activityControllerPanel [data-dm-select]").first().getAttribute("data-dm-select");
   await page.evaluate(id=>{const g=state.activityRun.dominoes,t=g.hands[g.players[g.turn]].find(t=>t.id===id);t.b=t.a;render()},first);
   await page.locator('#activityControllerPanel [data-dm-select="'+first+'"]').click();
+  assert.match(await page.locator('#activityControllerPanel .dm-selection-note').innerText(),/SELECTED/);
+  assert.equal(await page.locator('#activityControllerPanel .dm-teacher-pick.selected').count(),1);
   assert.equal(await page.locator('#activityControllerPanel [data-dm-teacher="rotate"]').count(),1);
   await page.locator('#activityControllerPanel [data-dm-teacher="rotate"]').click();
   assert.equal(await page.locator('#activityControllerPanel .dm-teacher-pick.selected.dm-double-vertical').count(),1);
