@@ -49,11 +49,34 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const modal=page.locator("#siPlusActivityBreakDialog");
   await modal.waitFor({state:"visible"});
   assert.ok(await page.locator("#siPlusBreakChoices [data-break-app]").count()>=10);
+  assert.match(await page.locator("#siPlusBreakLessonTitle").innerText(),/Life Skills Lesson/);
+  const lessonContext=await page.locator("#siPlusBreakLessonMeta").innerText();
+  assert.match(lessonContext,/Slide 2 of 3/);
+  assert.match(lessonContext,/Which one is safe/);
+  assert.match(lessonContext,/2 student responses kept/);
+  assert.equal(await page.locator("#siPlusBreakQuickPoll").innerText(),"⚡ Poll This Slide");
   assert.equal(await page.evaluate(()=>state.activityRun.slideIndex),1,
     "opening picker alone must not interrupt slideshow");
   await page.keyboard.press("Escape");
   assert.equal(await modal.isVisible(),false);
   assert.equal(await page.evaluate(()=>state.activityRun.slideIndex),1);
+  // Polls launched from the activity picker share the existing Quick Poll
+  // bridge and DO NOT park the presentation or leak the answer key.
+  await page.locator("#siPlusActivityBreakLaunch").click();
+  await page.locator("#siPlusBreakQuickPoll").click();
+  await page.locator("#qpDialog").waitFor({state:"visible",timeout:12000});
+  assert.equal(await page.evaluate(()=>SIPlusActivityBreak.parked),false);
+  assert.equal(await page.evaluate(()=>state.activityRun.slideIndex),1);
+  assert.deepEqual(await page.evaluate(()=>state.activityRun.responses),original.answers);
+  assert.equal(await page.locator("#qpQuestion").inputValue(),"Which one is safe?");
+  assert.deepEqual(await page.locator("#qpDialog [data-qp-label]").evaluateAll(
+    fields=>fields.map(el=>el.value)),["A","B"]);
+  assert.equal(await page.locator("#qpDialog .qp-create-pane").getAttribute("data-correct"),
+    null,"SI+ answer key must never enter the public Quick Poll form");
+  await page.locator("[data-qp-return-slide]").click();
+  assert.equal(await page.locator("#qpDialog").isVisible(),false);
+  assert.equal(await page.evaluate(()=>state.activityRun.slideIndex),1);
+  assert.deepEqual(await page.evaluate(()=>state.activityRun.responses),original.answers);
   // Break into the ACTUAL board app, including its standard setup and
   // independent activity run. No clone/alternate game implementation.
   await page.locator("#siPlusActivityBreakLaunch").click();
@@ -66,6 +89,8 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.deepEqual(await page.evaluate(()=>state.siPlusActivityBreak.run.responses),original.answers);
   await page.locator("#siPlusActivityReturn").waitFor({state:"visible"});
   assert.match(await page.locator("#siPlusParkedSummary").innerText(),/Slide 2/);
+  assert.match(await page.locator("#siPlusParkedSummary").innerText(),/Which one is safe/);
+  assert.match(await page.locator("#siPlusParkedResponses").innerText(),/2 student responses preserved/);
   assert.match(await page.locator("#siPlusParkedContext").innerText(),/^Now: /);
   await page.locator("#siPlusActivityCollapse").click();
   assert.equal(await page.locator("#siPlusActivityReturn").evaluate(el=>el.classList.contains("is-collapsed")),true);
@@ -90,6 +115,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
     null,{timeout:18000});
   assert.equal(await page.evaluate(()=>state.siPlusActivityBreak.run.slideIndex),1);
   assert.deepEqual(await page.evaluate(()=>state.siPlusActivityBreak.run.responses),original.answers);
+  assert.match(await page.locator("#siPlusParkedResponses").innerText(),/2 student responses preserved/);
   await page.locator("#siPlusActivityResume").waitFor({state:"visible",timeout:12000});
   console.log("SI+ ACTIVITY BREAK REFRESH DURING LIVE GAME PASSED");
   await page.locator("#returnClassBtn").waitFor({state:"visible",timeout:13000});
