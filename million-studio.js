@@ -37,6 +37,8 @@ let draft=normalize(getJson(DRAFT_KEY,null));
 let tab='create',selected=0,loadedId='',savePending=false,draftTimer=null;
 const ready=q=>!!q.prompt.trim()&&q.choices.every(x=>!!x.trim())&&KEYS.includes(q.correct);
 const readyCount=()=>draft.questions.slice(0,draft.count).filter(ready).length;
+const questionNeeds=q=>{const needed=[];if(!q.prompt.trim())needed.push('question prompt');KEYS.forEach((k,i)=>{if(!q.choices[i].trim())needed.push('answer '+k)});return needed};
+const questionNote=q=>{const needed=questionNeeds(q);return needed.length?'IN PROGRESS · Add '+needed.join(' · '):'READY FOR CLASS · All four answers included'};
 const listGames=()=>{const items=getJson(GAME_KEY,[]);return Array.isArray(items)?items.filter(x=>x&&typeof x.id==='string').slice(0,80):[]};
 const persistDraft=()=>{
  localStorage.setItem(DRAFT_KEY,JSON.stringify(draft));
