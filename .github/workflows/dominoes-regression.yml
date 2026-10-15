@@ -2,7 +2,7 @@ name: Dominoes Regression
 on:
   push:
     branches: [main]
-    paths: ['dominoes.js','dominoes.css','dominoes_server.py','tests/test_dominoes_engine.cjs','tests/test_dominoes_server.py','tests/test_dominoes_browser.cjs','.github/workflows/dominoes-regression.yml','index.html','server.py']
+    paths: ['dominoes.js','dominoes.css','dominoes_server.py','tests/test_dominoes_engine.cjs','tests/test_dominoes_server.py','tests/test_dominoes_browser.cjs','tests/test_dominoes_multiplayer_browser.cjs','.github/workflows/dominoes-regression.yml','index.html','server.py']
 permissions: {contents: read}
 jobs:
   dominoes:
@@ -22,3 +22,25 @@ jobs:
           python -m py_compile server.py dominoes_server.py
       - name: Existing Mothership release gate
         run: python scripts/release_gate.py --require-node
+      - name: Install Chromium and isolated classroom requirements
+        run: |
+          pip install -r requirements.txt
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Start temporary Dominoes classroom
+        run: |
+          mkdir -p /tmp/mothership-dominoes-regression
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-dominoes-regression PORT=8877 python server.py >/tmp/dominoes-regression.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8877/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          tail -90 /tmp/dominoes-regression.log
+          exit 1
+      - name: Dominoes teacher, student guidance, projected chain and saved game
+        run: node tests/test_dominoes_browser.cjs
+      - name: Dominoes real student-to-teacher multiplayer, projector privacy and reconnect
+        run: node tests/test_dominoes_multiplayer_browser.cjs
+      - name: Classroom diagnostics
+        if: failure()
+        run: tail -120 /tmp/dominoes-regression.log || true
