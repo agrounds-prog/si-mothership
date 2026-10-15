@@ -87,8 +87,9 @@ const cases=[
       cue:focus?.querySelector("small")?.textContent,
       scores,updatedScore,
       status:dock.querySelector(".si-utc-status")?.textContent,
-      actions:buttons.map(b=>({label:b.textContent,disabled:b.disabled,
-       height:b.getBoundingClientRect().height})),
+      actions:[...rerendered.querySelectorAll(".si-utc-button")].map(b=>({
+       label:b.textContent,disabled:b.disabled,height:b.getBoundingClientRect().height
+      })),
       calls,outer:bounds.width,host:hostBounds.width,overflow:document.documentElement.scrollWidth-innerWidth,
       session:buttons.filter(b=>b.classList.contains("si-utc-session")).map(b=>b.textContent)};
     },fixture);
