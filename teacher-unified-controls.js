@@ -39,6 +39,125 @@
   if(r.activityId==="signal-sequence-game")return "ROUND "+(r.signalSequence?.round||0);
   return "GAME IN PROGRESS";
  }
+ // A read-only teacher status model. Missing scores are omitted, not
+ // synthesized; no data from this strip is sent to student/projector views.
+ function portrait(name){
+  const entry=(typeof state!=="undefined"&&Array.isArray(state.students)?state.students:[])
+   .find(s=>s.n===name);
+  if(!entry)return "◈";
+  if(typeof avatarAsset==="function"){
+   try{return String(avatarAsset(entry.avatarKey)?.glyph||"◈").slice(0,4)}catch(_){}
+  }
+  return "◈";
+ }
+ function statusModel(r){
+  const id=r.activityId,bar={person:"",prompt:"CLASSROOM STATUS",metrics:[]};
+  const metric=(name,value,active=false)=>bar.metrics.push({name:String(name),value:String(value),active:!!active});
+  if(id==="four-in-line-game"){
+   const g=r.fourInLine||{},turn=Number(g.turn||0),winner=Number(g.winner);
+   bar.person=g.status==="won"?(g.players?.[winner]||"Winner"):g.status==="draw"?"Draw game":g.players?.[turn]||"";
+   bar.prompt=g.status==="playing"?"CURRENT TURN":"ROUND RESULT";
+   (g.players||[]).forEach((n,i)=>metric(n,g.status==="won"&&i===winner?"WINNER":i===turn&&g.status==="playing"?"TO MOVE":"WAITING",i===turn&&g.status==="playing"));
+   metric("MOVES",Number(g.moves||0));
+  }else if(id==="dominoes-game"){
+   const g=r.dominoes||{};
+   bar.person=g.status==="won"?g.winner||"":g.players?.[Number(g.turn||0)]||"";
+   bar.prompt=g.status==="playing"?"CURRENT PLAYER":"ROUND RESULT";
+   (g.players||[]).forEach((n,i)=>metric(n,Number(g.scores?.[n]||0)+" PTS",g.status==="playing"&&i===Number(g.turn||0)));
+   metric("DRAW PILE",(g.bag||[]).length);
+  }else if(id==="cosmic-cards-game"||id==="cosmic-cards"){
+   const g=r.cosmic||{};
+   bar.person=g.status==="won"?g.winner||"":g.players?.[Number(g.turn||0)]||"";
+   bar.prompt=g.status==="playing"?"CURRENT PLAYER":"ROUND RESULT";
+   (g.players||[]).forEach((n,i)=>metric(n,(g.hands?.[n]||[]).length+" CARDS",
+    g.status==="playing"&&i===Number(g.turn||0)));
+  }else if(id==="match-game"){
+   const m=r.match||{},cfg=r.matchConfig||{};
+   let active="";
+   if(typeof matchActiveStudent==="function"){
+    try{active=matchActiveStudent(r)?.n||""}catch(_){}
+   }
+   bar.person=m.complete?"All pairs found":active;
+   bar.prompt=m.complete?"MISSION COMPLETE":m.pendingResolution?"PAIR REVEAL":"CURRENT NAVIGATOR";
+   if(cfg.scoring==="no_score")metric("SCORING","MEMORY MODE");
+   else if(cfg.mode==="teams"){
+    const count=Math.max(2,Math.min(4,Number(cfg.teamCount||3)));
+    for(let i=0;i<count;i++){
+     let name="TEAM "+(i+1);
+     if(typeof matchTeamMeta==="function"){
+      try{name=matchTeamMeta(i)?.name||name}catch(_){}
+     }
+     metric(name,Number(m.teamScores?.[i]||0)+" PTS",Number(m.activeTeam||0)===i);
+    }
+   }else{
+    const values=m.scores||{};
+    const names=[...new Set([...(Array.isArray(state.students)?state.students.map(s=>s.n):[]),...Object.keys(values)])].slice(0,8);
+    names.forEach(n=>metric(n,Number(values[n]||0)+" PTS",n===active));
+   }
+   metric("PAIRS",Math.floor((m.matched||[]).length/2)+" / "+Math.floor((m.cards||[]).length/2));
+  }else if(id==="signal-sequence-game"){
+   const g=r.signalSequence||{};
+   bar.person=g.pilot||"";
+   bar.prompt=g.phase==="success"?"ROUND CLEARED":g.phase==="input"?"AWAITING INPUT":"SEQUENCE STATUS";
+   metric("ROUND",Number(g.round||0));
+   metric("BEST",Number(g.best||0));
+   metric("PHASE",String(g.phase||"READY").toUpperCase());
+  }else if(id==="million-game"){
+   const m=r.million||{},c=r.millionConfig||{};
+   bar.person=m.complete||m.over?"Round complete":m.pilot||m.player||"";
+   bar.prompt="QUESTION PROGRESS";
+   metric("QUESTION",Number(m.questionIndex||0)+1);
+   const total=Number(c.questions?.length||0);
+   if(total)metric("TOTAL",total);
+   metric("ANSWER",m.revealed?"REVEALED":m.lockedAnswer?"LOCKED":"AWAITING");
+  }else if(id==="bingo-game"){
+   const g=r.bingo||{};
+   bar.person="Teacher calling";
+   bar.prompt="LIVE CALL BOARD";
+   metric("CALLED",(g.called||[]).length);
+   metric("CALL ALERTS",g.studentCallAlerts===false?"OFF":"ON");
+  }
+  return bar;
+ }
+ function statusSignature(model){
+  return [model.person,model.prompt,...model.metrics.map(x=>x.name+":"+x.value+":"+x.active)].join("|");
+ }
+ function createStatus(model){
+  const box=document.createElement("div");
+  box.className="si-utc-live";
+  const focus=document.createElement("div");
+  focus.className="si-utc-turn";
+  const glyph=document.createElement("span");
+  glyph.className="si-utc-avatar";
+  glyph.textContent=model.person?portrait(model.person):"◈";
+  glyph.setAttribute("aria-hidden","true");
+  const words=document.createElement("div");
+  words.className="si-utc-turn-copy";
+  const kicker=document.createElement("small");
+  kicker.textContent=model.prompt;
+  const name=document.createElement("strong");
+  name.textContent=model.person||"Watch classroom";
+  words.append(kicker,name);
+  focus.append(glyph,words);
+  box.append(focus);
+  if(model.metrics.length){
+   const scores=document.createElement("div");
+   scores.className="si-utc-score-strip";
+   scores.setAttribute("aria-label","Live game scores and progress");
+   model.metrics.forEach(item=>{
+    const chip=document.createElement("span");
+    chip.className="si-utc-score"+(item.active?" is-active":"");
+    const n=document.createElement("small");
+    n.textContent=item.name;
+    const v=document.createElement("b");
+    v.textContent=item.value;
+    chip.append(n,v);
+    scores.append(chip);
+   });
+   box.append(scores);
+  }
+  return box;
+ }
  function button(title,target,isSafety){
   const el=document.createElement("button");
   el.type="button";
@@ -70,7 +189,8 @@
    sessionActions.push({title:"Return to SI+",target:lesson});
   if(!gameActions.length&&!sessionActions.length)return;
   const all=gameActions.concat(sessionActions);
-  const stamp=info[0]+"|"+label(r)+"|"+all.map(a=>a.title+":"+a.target.disabled+":"+a.target.getAttribute("aria-disabled")).join("|");
+  const model=statusModel(r);
+  const stamp=info[0]+"|"+label(r)+"|"+statusSignature(model)+"|"+all.map(a=>a.title+":"+a.target.disabled+":"+a.target.getAttribute("aria-disabled")).join("|");
   let dock=panel.querySelector("#siUnifiedTeacherDeck");
   if(dock&&stamp===key&&dock.__originals?.length===all.length&&all.every((a,i)=>dock.__originals[i]===a.target))return;
   if(!dock){
@@ -102,7 +222,7 @@
   }
   row("GAME",gameActions,false);
   row("CLASSROOM",sessionActions,true);
-  dock.replaceChildren(header,rows);
+  dock.replaceChildren(header,createStatus(model),rows);
   dock.__originals=all.map(a=>a.target);
   key=stamp;
  }
@@ -124,7 +244,7 @@
  function install(){
   if(typeof SESSION_ROLE==="undefined"||SESSION_ROLE!=="teacher")return;
   observe();setInterval(observe,1100);
-  window.__siUnifiedTeacherControls={refresh,version:"2A"};
+  window.__siUnifiedTeacherControls={refresh,version:"2B"};
  }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
  else install();
