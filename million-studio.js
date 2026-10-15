@@ -203,6 +203,58 @@ function updateStatus(){
  const progress=document.querySelector('.ms-progress-block');if(progress){progress.querySelector('span').textContent=count+' of '+draft.count+' ready';progress.querySelector('i').style.width=(count/draft.count*100)+'%'}
  const active=document.querySelector('.ms-slide.active');if(active){active.classList.toggle('done',ready(q));active.lastElementChild.textContent=ready(q)?'✓':'○'}
 }
+/* Read-only turn cues: the native game owns every answer, lock and reveal. */
+function millionTurnCue(){
+ const role=new URLSearchParams(location.search).get('role');
+ if(!['student','teacher'].includes(role))return;
+ let host=null,watcher=null;
+ function update(){
+  const r=typeof state!=='undefined'&&!state.ended?state.activityRun:null;
+  const parent=document.querySelector(role==='teacher'?'#activityControllerPanel':'#studentContent');
+  const game=parent?.querySelector(role==='teacher'?'.million-teacher-grid':'.million-student');
+  if(!r||r.activityId!=='million-game'||r.phase!=='running'||!game){
+   parent?.querySelector('#msMillionTurnCue')?.remove();return;
+  }
+  const m=r.million||{},pilot=role==='teacher'||typeof selectedStudent==='function'&&m.pilot===selectedStudent()?.n;
+  const selected=pilot?m.selectedAnswer:m.crewPredictions?.[selectedStudent()?.n]||'';
+  let phase='choose',title='CHOOSE AN ANSWER',message=pilot?'Select A, B, C, or D before locking.':'Choose your private prediction.';
+  if(selected){phase='selected';title=pilot?'ANSWER '+selected+' SELECTED':'PREDICTION '+selected+' SENT';message=pilot?'Review your selection, then lock it when ready.':'Your prediction is private.'}
+  if(m.lockedAnswer){phase='locked';title='FINAL ANSWER LOCKED';message='Waiting for the teacher to reveal the answer.'}
+  if(m.revealed){phase=m.result==='correct'?'correct':'wrong';title=m.result==='correct'?'MILESTONE EARNED':'ANSWER REVEALED';message=m.complete?'Million complete!':m.over?'Run complete.':'Review the answer before continuing.'}
+  let cue=game.querySelector('#msMillionTurnCue');
+  if(!cue){
+   cue=document.createElement('div');cue.id='msMillionTurnCue';
+   cue.className='ms-million-turn-cue';cue.setAttribute('role','status');
+   cue.setAttribute('aria-live','polite');
+   const h=document.createElement('strong'),d=document.createElement('span');
+   cue.append(h,d);
+   if(role==='student')game.querySelector('.million-student-choices')?.after(cue);
+   if(!cue.isConnected)game.prepend(cue);
+  }
+  cue.dataset.phase=phase;
+  if(cue.firstElementChild.textContent!==title)cue.firstElementChild.textContent=title;
+  if(cue.lastElementChild.textContent!==message)cue.lastElementChild.textContent=message;
+  if(role==='student')game.querySelectorAll('[data-million-choice]').forEach(button=>{
+   const pressed=selected===button.dataset.millionChoice;
+   if(button.getAttribute('aria-pressed')!==String(pressed))button.setAttribute('aria-pressed',String(pressed));
+  });
+ }
+ function start(){
+  const find=()=>{
+   const next=document.querySelector(role==='teacher'?'#activityControllerPanel':'#studentContent');
+   if(next&&next!==host){
+    watcher?.disconnect();host=next;
+    watcher=new MutationObserver(()=>requestAnimationFrame(update));
+    watcher.observe(host,{childList:true,subtree:true});
+   }
+   update();
+  };
+  find();setInterval(find,1200);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+}
+millionTurnCue();
+
 /* One-shot stage cues live OUTSIDE the re-rendered projector markup.
    Only shared screen sees this: no teacher keys, save data or synchronized state changes. */
 function installMillionStageCues(){
