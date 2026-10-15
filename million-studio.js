@@ -74,12 +74,13 @@ const cardMarkup=()=>{
  return '<div class="ms-workspace"><nav class="ms-slide-rail" aria-label="Question slides"><div class="ms-block-head"><span>QUESTION SLIDES</span><small>'+completed+'/'+draft.count+' READY</small></div>'+
  draft.questions.slice(0,draft.count).map((item,i)=>'<button type="button" class="ms-slide '+(i===selected?'active ':'')+(ready(item)?'done':'')+'" data-ms-slide="'+i+'" aria-current="'+(i===selected?'step':'false')+'"><span>Q'+String(i+1).padStart(2,'0')+'</span><span>'+money(ladder(draft.count)[i])+'</span><b>'+ (ready(item)?'✓':'○')+'</b></button>').join('')+
  '</nav><div class="ms-question-editor"><div class="ms-block-head"><span>01 · QUESTION '+String(current).padStart(2,'0')+'</span><small>'+money(ladder(draft.count)[selected])+' MILESTONE</small></div>'+
+ '<div id="msQuestionCheck" class="ms-question-check" data-complete="'+ready(q)+'" role="status" aria-live="polite">'+esc(questionNote(q))+'</div>'+
  '<label>Question prompt<textarea id="msPrompt" maxlength="260" rows="3" placeholder="Type your question…">'+esc(q.prompt)+'</textarea></label>'+
  '<div class="ms-answer-grid">'+KEYS.map((k,i)=>'<label><span class="ms-answer-letter">'+k+'</span><input data-ms-answer="'+i+'" maxlength="120" value="'+esc(q.choices[i])+'" placeholder="Answer option '+k+'"></label>').join('')+'</div>'+
  '<label>Correct answer<select id="msCorrect">'+KEYS.map(k=>'<option value="'+k+'"'+(q.correct===k?' selected':'')+'>'+k+' — Answer '+k+'</option>').join('')+'</select></label>'+
  '<label>Mothership clue (optional)<input id="msClue" maxlength="240" value="'+esc(q.mothershipClue)+'" placeholder="A hint revealed by the Clue lifeline"></label>'+
  '<label>Answer explanation (optional)<textarea id="msExplanation" maxlength="320" rows="2" placeholder="Private teacher note">'+esc(q.explanation)+'</textarea></label>'+
- '<div class="ms-editor-actions"><button id="msPrev"'+(!selected?' disabled':'')+'>← Previous</button><button id="msNext"'+(selected===draft.count-1?' disabled':'')+'>Next Question →</button></div></div>'+preview+'</div>';
+ '<div class="ms-editor-actions"><button id="msPrev"'+(!selected?' disabled':'')+'>← Previous</button><button id="msNext"'+(selected===draft.count-1?' disabled':'')+'>Next Question →</button><button id="msNextIncomplete"'+(completed===draft.count?' disabled':'')+'>◎ Find Next Incomplete</button></div></div>'+preview+'</div>';
 };
 const libraryMarkup=()=>{
  const games=listGames();
