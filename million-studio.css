@@ -237,3 +237,117 @@ body.role-student .million-student .million-5050-banner{
  .million-public .million-choice.eliminated{animation:ms5050Removal .36s ease-out both}
  @keyframes ms5050Removal{from{filter:brightness(1.5);transform:scale(1.015)}to{filter:none;transform:scale(1)}}
 }
+
+
+/* MILLION fine-tuning · targeted authoring feedback and gameplay states.
+   No shared gameplay markup, answer keys, score, or lobby rules are changed. */
+.ms-studio #msQuestionCheck{
+ display:flex;align-items:center;min-height:43px;padding:10px 13px;
+ border:1px solid #bb9659;border-left:4px solid #ffcb77;border-radius:10px;
+ background:linear-gradient(105deg,#433219,#1a2c3d);color:#ffe5ae;
+ font:800 12px/1.5 system-ui,sans-serif;overflow-wrap:anywhere;
+}
+.ms-studio #msQuestionCheck[data-complete="true"]{
+ border-color:#68c6a8;border-left-color:#b0ffdb;
+ background:linear-gradient(105deg,#174b47,#142d3f);color:#d5ffea;
+}
+.ms-studio .ms-editor-actions #msNextIncomplete{
+ border-color:#c39a56!important;background:linear-gradient(135deg,#57421e,#28485c)!important;
+ color:#ffecbf!important;font-weight:900!important;min-height:45px;
+}
+.ms-studio .ms-editor-actions #msNextIncomplete:disabled{
+ filter:saturate(.7);opacity:.44;cursor:default;
+}
+.ms-studio .ms-slide.active{
+ outline:2px solid #b8f2ff!important;outline-offset:1px;
+}
+.ms-studio .ms-slide.done b{color:#b4ffe0!important}
+.ms-studio .ms-preview-choices>div.answer{
+ border-color:#a3ebbe!important;
+ box-shadow:inset 3px 0 #86ebad,0 0 0 1px #82ddb044!important;
+}
+.ms-studio .ms-preview-prompt{overflow-wrap:anywhere;text-wrap:pretty}
+.ms-million-turn-cue{
+ display:grid;gap:4px;min-width:0;max-width:100%;padding:12px 15px;
+ border:1px solid #75a7c9;border-left:5px solid #64d9f2;
+ border-radius:12px;background:linear-gradient(110deg,#124561,#142b47);
+ color:#e6f7ff;box-shadow:inset 0 1px #ffffff19,0 6px 18px #07111e5c;
+}
+.ms-million-turn-cue strong{
+ font:950 clamp(12px,1.2vw,16px)/1.2 system-ui,sans-serif;
+ color:#fff;letter-spacing:.065em;overflow-wrap:anywhere;
+}
+.ms-million-turn-cue span{
+ color:#d0e8f6;font:700 12px/1.4 system-ui,sans-serif;
+ overflow-wrap:anywhere;
+}
+.ms-million-turn-cue[data-phase="selected"]{
+ border-color:#d8b46a;border-left-color:#ffde91;
+ background:linear-gradient(110deg,#4a3d29,#1c3750);
+}
+.ms-million-turn-cue[data-phase="locked"]{
+ border-color:#d7ad6e;border-left-color:#ffd370;
+ background:linear-gradient(110deg,#61401e,#23334a);
+}
+.ms-million-turn-cue[data-phase="correct"]{
+ border-color:#8fe8c0;border-left-color:#b5ffd9;
+ background:linear-gradient(110deg,#155a48,#113f4a);
+}
+.ms-million-turn-cue[data-phase="wrong"]{
+ border-color:#ef9aa6;border-left-color:#ffc6cf;
+ background:linear-gradient(110deg,#69313e,#2d2a40);
+}
+#activityControllerPanel .million-teacher-grid>.ms-million-turn-cue{
+ grid-column:1/-1;
+}
+#activityControllerPanel .million-teacher-card h4{
+ font-size:12px!important;letter-spacing:.075em;line-height:1.3;
+}
+#activityControllerPanel .million-teacher-choices>div{
+ min-height:45px;gap:9px!important;
+}
+#activityControllerPanel .million-teacher-choices>div b{
+ font-size:15px;color:#d3f3ff;
+}
+#activityControllerPanel .million-teacher-choices>div span{
+ font-size:clamp(12px,1vw,15px);line-height:1.4;overflow-wrap:anywhere;
+}
+#activityControllerPanel .million-teacher-choices>div.correct-key{
+ box-shadow:inset 3px 0 #67daa0;border-color:#417d69;
+}
+#activityControllerPanel .million-teacher-status span{
+ min-height:34px;display:inline-flex;align-items:center;
+ padding:7px 11px!important;font-size:11px!important;
+ color:#d8e9f6!important;line-height:1.3;
+}
+#activityControllerPanel .million-teacher-actions button{
+ min-height:48px!important;line-height:1.3;
+}
+body.role-student .million-student .ms-million-turn-cue{
+ margin:11px 0 0;min-height:65px;
+}
+body.role-student .million-student .million-student-choice[aria-pressed="true"]{
+ border-color:#ffe097!important;
+ background:linear-gradient(115deg,#625028,#153b64)!important;
+ box-shadow:0 0 0 2px #ffe09055,inset 0 1px #ffffff38!important;
+}
+body.role-student .million-student .million-student-choice:focus-visible{
+ outline:3px solid #ffe09a!important;outline-offset:3px!important;
+}
+body.role-student .million-student .million-student-actions #millionLockBtn:not(:disabled){
+ border:2px solid #edcc82!important;background:linear-gradient(135deg,#8d6426,#6e501f)!important;
+ color:#fff7db!important;font-weight:950!important;
+ box-shadow:inset 0 1px #fff4d84a,0 4px 0 #302312;
+}
+body.role-student .million-student .million-student-actions #millionLockBtn:disabled{
+ opacity:.5!important;
+}
+@media(max-width:560px){
+ .ms-studio #msQuestionCheck{font-size:11px;padding:9px 11px}
+ .ms-studio .ms-editor-actions #msNextIncomplete{flex:1 1 100%}
+ body.role-student .million-student .ms-million-turn-cue{padding:10px 12px}
+ #activityControllerPanel .million-teacher-choices>div span{font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){
+ .ms-million-turn-cue{transition:none!important;animation:none!important}
+}
