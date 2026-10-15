@@ -25,6 +25,15 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   await page.locator('#msName').fill('Browser Regression Million Game');
   await page.locator('#msCount').selectOption('5');
   assert.equal(await page.locator('.ms-slide').count(),5);
+  assert.match(await page.locator('#msQuestionCheck').innerText(),/IN PROGRESS.*question prompt/);
+  assert.match(await page.locator('#msQuestionCheck').innerText(),/answer A/);
+  await page.locator('#msPrompt').fill('Draft question preview');
+  assert.match(await page.locator('#msQuestionCheck').innerText(),/answer A/);
+  await page.locator('[data-ms-answer="0"]').fill('Draft answer A');
+  assert.match(await page.locator('.ms-preview-choices>div').first().innerText(),/Draft answer A/);
+  await page.locator('#msNextIncomplete').click();
+  assert.equal(await page.locator('#msPrompt').inputValue(),'');
+  assert.equal(await page.locator('[data-ms-slide="1"]').getAttribute('aria-current'),'step');
   for(let i=0;i<5;i++){
    await page.locator('[data-ms-slide="'+i+'"]').click();
    await page.locator('#msPrompt').fill('Question '+(i+1)+' — crew skills?');
@@ -33,6 +42,8 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
    await page.locator('#msClue').fill('Mothership clue '+i);
   }
   assert.equal(await page.evaluate(()=>window.MillionStudio.inspection().ready),5);
+  assert.match(await page.locator('#msQuestionCheck').innerText(),/READY FOR CLASS/);
+  assert.equal(await page.locator('#msNextIncomplete').isDisabled(),true);
   const selected=await page.evaluate(()=>window.MillionStudio.questions());
   assert.equal(selected.length,5);
   assert.equal(selected[1].correct,'D');
