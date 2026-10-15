@@ -1,0 +1,48 @@
+name: Cosmic Cards Visual and Student Browser Regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cosmic-cards.js'
+      - 'cosmic-cards.css'
+      - 'tests/test_cosmic_cards_polish_browser.cjs'
+      - '.github/workflows/cosmic-cards-polish-browser.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  cosmic-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Release checks and Cosmic Cards syntax
+        run: |
+          node --check cosmic-cards.js
+          python -m py_compile cosmic_cards_server.py server.py
+          python scripts/release_gate.py --require-node
+      - name: Install isolated browser and server dependencies
+        run: |
+          pip install -r requirements.txt
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Start isolated Cosmic Cards classroom
+        run: |
+          mkdir -p /tmp/cosmic-polish-classroom
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/cosmic-polish-classroom PORT=8877 python server.py >/tmp/cosmic-polish-classroom.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8877/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          tail -100 /tmp/cosmic-polish-classroom.log
+          exit 1
+      - name: Cosmic Cards teacher, private student hands, card UI, and turn guidance
+        run: node tests/test_cosmic_cards_polish_browser.cjs
+      - name: Server-authoritative card turn rules and privacy
+        run: python -m unittest discover -s tests -p 'test_cosmic_cards_turn_rules.py' -v
+      - name: Show failed classroom diagnostics
+        if: failure()
+        run: tail -100 /tmp/cosmic-polish-classroom.log || true
