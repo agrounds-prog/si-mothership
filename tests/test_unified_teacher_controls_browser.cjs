@@ -40,8 +40,17 @@ const cases=[
     const data=await page.evaluate(fixture=>{
      state.ended=false;
      state.activityRun={activityId:fixture.id,phase:"running",
-      bingo:{called:["one"]},match:{matched:[]},
-      million:{questionIndex:0},fourInLine:{moves:3},signalSequence:{round:2}};
+      bingo:{called:["one"],studentCallAlerts:false},
+      match:{matched:["a1","a2"],cards:[{id:"a1"},{id:"a2"},{id:"b1"},{id:"b2"}],
+       scores:{"Alex":2,"Blair":1},teamScores:{"0":2,"1":3},activeTeam:1},
+      matchConfig:{mode:"teams",teamCount:2},
+      million:{questionIndex:0,lockedAnswer:"B"},millionConfig:{questions:[{},{}]},
+      fourInLine:{moves:3,turn:0,players:["Blue Crew","Gold Crew"],status:"playing"},
+      dominoes:{turn:1,players:["Alex","Blair"],status:"playing",bag:[{}],
+       scores:{"Alex":4,"Blair":7}},
+      cosmic:{turn:1,players:["Alex","Blair"],status:"playing",
+       hands:{"Alex":[{},{}],"Blair":[{}]}},
+      signalSequence:{round:2,pilot:"Alex",phase:"input",best:1}};
      const host=document.getElementById("activityControllerPanel");
      host.innerHTML=fixture.native+
       '<button id="sendActivityLobbyBtn">PAUSE NATIVE</button>'+
@@ -59,8 +68,24 @@ const cases=[
      const buttons=[...dock.querySelectorAll(".si-utc-button")];
      const primary=buttons.find(b=>b.textContent.toUpperCase()===fixture.action.toUpperCase());
      if(primary)primary.click();
+     const focus=dock.querySelector(".si-utc-turn");
+     const scores=[...dock.querySelectorAll(".si-utc-score")].map(chip=>({
+      name:chip.querySelector("small")?.textContent,
+      value:chip.querySelector("b")?.textContent,
+      active:chip.classList.contains("is-active")
+     }));
+     const originalScore=state.activityRun.dominoes.scores.Blair;
+     state.activityRun.dominoes.scores.Blair=9;
+     window.__siUnifiedTeacherControls.refresh();
+     const rerendered=host.querySelector("#siUnifiedTeacherDeck");
+     const updatedScore=[...rerendered.querySelectorAll(".si-utc-score")]
+      .find(chip=>chip.querySelector("small")?.textContent==="Blair")?.querySelector("b")?.textContent;
+     state.activityRun.dominoes.scores.Blair=originalScore;
      const bounds=dock.getBoundingClientRect(),hostBounds=host.getBoundingClientRect();
      return {name:dock.querySelector(".si-utc-title strong")?.textContent,
+      turn:focus?.querySelector("strong")?.textContent,
+      cue:focus?.querySelector("small")?.textContent,
+      scores,updatedScore,
       status:dock.querySelector(".si-utc-status")?.textContent,
       actions:buttons.map(b=>({label:b.textContent,disabled:b.disabled,
        height:b.getBoundingClientRect().height})),
@@ -69,6 +94,37 @@ const cases=[
     },fixture);
     assert.equal(data.name,fixture.name,JSON.stringify({width,fixture,data}));
     assert.equal(data.calls,1,"Each quick action must click its original button exactly once");
+    assert.ok(data.cue&&data.scores.length>0&&data.scores.every(x=>x.name&&x.value),
+      "Teacher must see a live turn/status and score/progress strip: "+JSON.stringify({width,fixture,data}));
+    assert.ok(data.turn,"Current player or appropriate classroom state should be visible");
+    if(fixture.id==="four-in-line-game"){
+      assert.equal(data.turn,"Blue Crew");
+      assert.ok(data.scores.some(x=>x.name==="Gold Crew"&&x.value==="WAITING"));
+    }
+    if(fixture.id==="dominoes-game"){
+      assert.equal(data.turn,"Blair");
+      assert.ok(data.scores.some(x=>x.name==="Blair"&&x.value==="7 PTS"&&x.active));
+      assert.equal(data.updatedScore,"9 PTS","Score changes refresh without gameplay mutations");
+    }
+    if(fixture.id==="cosmic-cards-game"){
+      assert.equal(data.turn,"Blair");
+      assert.ok(data.scores.some(x=>x.name==="Alex"&&x.value==="2 CARDS"));
+    }
+    if(fixture.id==="bingo-game"){
+      assert.ok(data.scores.some(x=>x.name==="CALLED"&&x.value==="1"));
+      assert.ok(data.scores.some(x=>x.name==="CALL ALERTS"&&x.value==="OFF"));
+    }
+    if(fixture.id==="match-game"){
+      assert.ok(data.scores.some(x=>x.name==="PAIRS"&&x.value==="1 / 2"));
+      assert.ok(data.scores.some(x=>x.value==="3 PTS"));
+    }
+    if(fixture.id==="signal-sequence-game"){
+      assert.equal(data.turn,"Alex");
+      assert.ok(data.scores.some(x=>x.name==="ROUND"&&x.value==="2"));
+    }
+    if(fixture.id==="million-game"){
+      assert.ok(data.scores.some(x=>x.name==="ANSWER"&&x.value==="LOCKED"));
+    }
     assert.ok(data.outer>180&&data.outer<=data.host+2,
      "Teacher toolbar must fit its controller: "+JSON.stringify({width,fixture,data}));
     assert.ok(data.actions.every(a=>a.height>=40),"Toolbar buttons are touch-sized");
@@ -79,6 +135,18 @@ const cases=[
       "Disabled native gameplay actions must stay disabled");
    }
   }
+  // UI strings must be rendered as text, never parsed as teacher markup.
+  const safe=await page.evaluate(()=>{
+    state.activityRun={activityId:"four-in-line-game",phase:"running",
+     fourInLine:{moves:1,turn:0,status:"playing",players:['<img src=x onerror=alert(1)>',"Other"]}};
+    const host=document.getElementById("activityControllerPanel");
+    host.innerHTML='<button data-fil-action="save">SAVE</button>';
+    window.__siUnifiedTeacherControls.refresh();
+    return {content:host.querySelector(".si-utc-turn strong")?.textContent,
+      injected:!!host.querySelector(".si-utc-deck img")};
+  });
+  assert.equal(safe.content,'<img src=x onerror=alert(1)>');
+  assert.equal(safe.injected,false,"Student/team names must be displayed safely");
   const absence=await page.evaluate(()=>{
    state.activityRun=null;
    window.__siUnifiedTeacherControls.refresh();
