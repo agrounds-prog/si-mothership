@@ -723,6 +723,16 @@
    APP_REGISTRY.filter(app=>!["si-plus","scientific-calculator"].includes(app.id)):[];
  let dialog=null,returnBar=null,returnBarCollapsed=false;
  const escText=v=>String(v||"");
+ // All checkpoint details are read from the existing live/parked snapshot.
+ // Never write slide data, grades, or response maps just to display context.
+ const checkpoint=(run,deck)=>{
+   const index=Math.max(0,Number(run?.slideIndex)||0);
+   const slide=deck?.slides?.[index]||{};
+   const title=String(slide.listTitle||slide.title||("Slide "+(index+1))).trim().slice(0,140);
+   const answers=run?.responses?.[String(index)];
+   return {index,title,total:deck?.slides?.length||0,
+     submitted:answers&&typeof answers==="object"?Object.keys(answers).length:0};
+ };
  const breakContext=()=>{
    const appId=String(state.activeApp||"");
    const app=availableApps().find(x=>String(x.id)===appId);
@@ -759,6 +769,7 @@
        returnBar.setAttribute("aria-label","Suspended SI+ presentation");
        returnBar.innerHTML='<div class="si-plus-activity-return-copy" id="siPlusParkedDetails">'+
          '<b>▣ SI+ PRESENTATION PARKED</b><span id="siPlusParkedSummary"></span>'+
+         '<small id="siPlusParkedResponses"></small>'+
          '<small id="siPlusParkedContext" role="status" aria-live="polite"></small></div>'+
          '<button type="button" id="siPlusActivityResume">↩ Return to SI+</button>'+
          '<button type="button" id="siPlusActivityCollapse" aria-label="Minimize paused lesson controls" aria-controls="siPlusParkedDetails" aria-expanded="true" title="Minimize paused lesson controls">−</button>'+
@@ -788,12 +799,16 @@
        });
        document.body.appendChild(returnBar);
      }
-     const name=escText(save.name||"Presentation"),number=Number(save.run.slideIndex)||0;
+     const name=escText(save.name||"Presentation");
      const deck=state.activities?.find(x=>String(x.id)===String(save.run.activityId));
-     const total=Array.isArray(deck?.slides)?deck.slides.length:0;
-     const label=name+" · Slide "+(number+1)+(total?" of "+total:"");
+     const slot=checkpoint(save.run,deck);
+     const label=name+" · Slide "+(slot.index+1)+(slot.total?" of "+slot.total:"")+
+       " · "+slot.title;
      const cap=returnBar.querySelector("#siPlusParkedSummary");
      if(cap&&cap.textContent!==label)cap.textContent=label;
+     const answers=returnBar.querySelector("#siPlusParkedResponses");
+     const count=slot.submitted+" student response"+(slot.submitted===1?"":"s")+" preserved";
+     if(answers&&answers.textContent!==count)answers.textContent=count;
      const context=returnBar.querySelector("#siPlusParkedContext"),message=breakContext();
      if(context&&context.textContent!==message)context.textContent=message;
    }else if(returnBar){returnBar.remove();returnBar=null}
@@ -811,21 +826,45 @@
      '<small>SI+ · LIVE PRESENTATION</small><h2>Take an Activity Break</h2>'+
      '<p>Your exact slide, responses and presentation settings will be ready when you return.</p>'+
      '</div><button type="button" class="si-plus-activity-break-close" data-break-close aria-label="Close">×</button></div>'+
-     '<div class="si-plus-activity-break-guide">Choose a classroom app. Its normal setup and student controls will open. Finish the activity to return to SI+, or use the Return to SI+ button at any time.</div>'+
+     '<div class="si-plus-activity-break-guide">Choose a game to temporarily park this lesson, or run a Quick Poll without leaving the slide. Finishing a game returns to this lesson automatically.</div>'+
+     '<div class="si-plus-lesson-checkpoint" aria-label="Current lesson checkpoint">'+
+       '<div><small>RETURN CHECKPOINT</small><strong id="siPlusBreakLessonTitle"></strong>'+
+       '<span id="siPlusBreakLessonMeta"></span></div>'+
+       '<button type="button" id="siPlusBreakQuickPoll" data-break-poll>⚡ Poll This Slide</button>'+
+     '</div>'+
      '<div class="si-plus-activity-break-grid" id="siPlusBreakChoices"></div>'+
      '<div class="si-plus-activity-break-footer">'+
      '<button type="button" class="si-plus-activity-break-all" data-break-app="library">▦ Browse Full Activity Library</button>'+
      '<button type="button" data-break-close>Cancel · Stay on Current Slide</button></div></section>';
    dialog.addEventListener("click",e=>{
      if(e.target===dialog||e.target.closest("[data-break-close]")){close();return}
+     if(e.target.closest("[data-break-poll]")){pollThisSlide();return}
      const button=e.target.closest("[data-break-app]");
      if(button)begin(button.dataset.breakApp);
    });
    document.body.appendChild(dialog);
  }
  function open(){
-   if(!presentation()||parked())return false;
+   const current=presentation();
+   if(!current||parked())return false;
    buildDialog();
+   const point=checkpoint(current.run,current.deck);
+   const title=dialog.querySelector("#siPlusBreakLessonTitle");
+   if(title)title.textContent=current.deck.deckTitle||current.deck.name||"SI+ Lesson";
+   const detail=dialog.querySelector("#siPlusBreakLessonMeta");
+   if(detail)detail.textContent="Slide "+(point.index+1)+" of "+point.total+
+      " · "+point.title+" · "+point.submitted+" student response"+
+      (point.submitted===1?"":"s")+" kept";
+   const pollButton=dialog.querySelector("#siPlusBreakQuickPoll");
+   const slide=current.deck.slides[point.index]||{};
+   const choices=Array.isArray(slide.choices)?slide.choices.filter(c=>String(c?.text||"").trim()):[];
+   const prefill=["question","poll"].includes(slide.type)&&
+      String(slide.title||"").trim()&&choices.length>=2;
+   if(pollButton){
+     pollButton.textContent=prefill?"⚡ Poll This Slide":"⚡ Open Quick Poll";
+     pollButton.disabled=!document.querySelector("#siPlusPollOpen");
+     pollButton.title="Keep the current slide and student responses while opening Quick Poll";
+   }
    const grid=dialog.querySelector("#siPlusBreakChoices");
    grid.replaceChildren();
    for(const app of availableApps()){
@@ -849,6 +888,16 @@
    if(!dialog)return;
    dialog.hidden=true;
    if(restoreFocus)document.getElementById("siPlusActivityBreakLaunch")?.focus({preventScroll:true});
+ }
+ // Reuse the EXISTING SI+ poll bridge. Unlike games, a poll must not park
+ // or replace the presentation activityRun, and slide answer keys stay private.
+ function pollThisSlide(){
+   if(!presentation()||parked())return false;
+   const native=document.querySelector("#siPlusPollOpen");
+   if(!native||native.disabled)return false;
+   close(false);
+   native.click();
+   return true;
  }
  function begin(appId){
    const current=presentation();
@@ -926,7 +975,7 @@
    },true);
    ui();
  }
- window.SIPlusActivityBreak={open,begin,resume,resumeAfterFinish,discard,
+ window.SIPlusActivityBreak={open,begin,resume,resumeAfterFinish,discard,pollThisSlide,
    get parked(){return !!parked()},get data(){return parked()}};
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});
  else start();
