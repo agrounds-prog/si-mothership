@@ -146,6 +146,12 @@ function wire(){
  on('#msExplanation','input',e=>{selectedQuestion().explanation=e.target.value;queueDraft()});
  on('#msPrev','click',()=>{selected--;redraw()});
  on('#msNext','click',()=>{selected++;redraw()});
+ on('#msNextIncomplete','click',()=>{
+  const missing=draft.questions.slice(0,draft.count).map((q,i)=>ready(q)?-1:i).filter(i=>i>=0);
+  if(!missing.length)return;
+  selected=missing.find(i=>i>selected)??missing[0];
+  redraw();document.querySelector('#msPrompt')?.focus({preventScroll:true});
+ });
  on('#msPilot','change',e=>{draft.pilot=e.target.value;syncEngine();queueDraft()});
  on('#msPilotMode','change',e=>{draft.pilotMode=e.target.value;syncEngine();queueDraft()});
  on('#msRisk','change',e=>{draft.risk=e.target.value;syncEngine();queueDraft()});
@@ -181,6 +187,15 @@ function updateStatus(){
  const count=readyCount(),s=document.querySelector('.ms-save-state');if(s)s.textContent=(loadedId?'Editing saved game':'Unsaved game')+' · '+count+'/'+draft.count+' complete';
  const q=selectedQuestion(),preview=document.querySelector('.ms-preview-prompt');
  if(preview)preview.textContent=q.prompt||'Your question appears here';
+ const check=document.querySelector('#msQuestionCheck');if(check){
+  const note=questionNote(q);
+  if(check.textContent!==note)check.textContent=note;
+  check.dataset.complete=String(ready(q));
+ }
+ const jump=document.querySelector('#msNextIncomplete');
+ if(jump)jump.disabled=count===draft.count;
+ const railCount=document.querySelector('.ms-slide-rail .ms-block-head small');
+ if(railCount)railCount.textContent=count+'/'+draft.count+' READY';
  document.querySelectorAll('.ms-preview-choices > div').forEach((node,i)=>{
   node.classList.toggle('answer',q.correct===KEYS[i]);node.textContent='';
   const b=document.createElement('b');b.textContent=KEYS[i];node.append(b,document.createTextNode(' '+(q.choices[i]||'Answer '+KEYS[i])));
