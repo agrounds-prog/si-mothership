@@ -133,6 +133,16 @@ if(!/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?\/?$/.test(BASE))
   assert.deepEqual(loaded,{images:16,filled:16,copied:16},
     'Loaded Bingo board retains every picture');
   console.log('Bingo 16-picture board assembly, save, refresh, reload PASS');
+  // Hand the isolated classroom back to the normal lobby. Otherwise the
+  // Activities editor's intentional modal stacking layer can intercept
+  // the NEXT headed Chrome test's teacher Student Device launcher.
+  await page.evaluate(()=>{
+    state.screen='classroom';
+    state.activeApp=null;
+    state.activityRun=null;
+    render();
+  });
+  await page.waitForTimeout(450);
   assert.equal(errors.length,0,'No browser runtime errors: '+errors.join('\n'));
   console.log('Bingo image uploads: picker, 2-image batch, server persistence, corrupt file, outage rollback PASS');
  }finally{await ctx.close();await browser.close()}
