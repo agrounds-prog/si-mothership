@@ -21,7 +21,23 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const login=await teacher.request.post(BASE+"/api/teacher/login",{data:{key:"5030"}});
   assert.equal(login.status(),200);
   await teacher.goto(BASE+"/?role=teacher",{waitUntil:"domcontentloaded"});
-  await teacher.waitForFunction(()=>typeof STUDENT_JOIN_CODE!=="undefined"&&typeof STUDENT_SESSION_ID!=="undefined");
+  await teacher.waitForFunction(()=>typeof STUDENT_JOIN_CODE!=="undefined"&&
+    typeof STUDENT_SESSION_ID!=="undefined"&&networkHydrated===true);
+  // Previous isolated browser tests may have left the Activities editor open.
+  // Start from the classroom as a teacher would after closing the editor.
+  await teacher.evaluate(()=>{
+    state.screen='classroom';
+    state.activeApp=null;
+    state.activityRun=null;
+    render();
+  });
+  await teacher.waitForFunction(()=>{
+    const button=document.querySelector('#siTeacherStudentDeviceLaunch');
+    if(!button)return false;
+    const r=button.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+    return document.elementFromPoint(x,y)===button||
+      button.contains(document.elementFromPoint(x,y));
+  },null,{timeout:10000});
   const {code,sid}=await teacher.evaluate(()=>({code:STUDENT_JOIN_CODE,sid:STUDENT_SESSION_ID}));
   // Match the actual SI Calculator workflow: click a teacher launcher once
   // and verify a separate compact student popup appears with the LIVE code.
