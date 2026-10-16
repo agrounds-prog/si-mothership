@@ -15,6 +15,15 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8878";
     state.students=[{n:"Column Pilot",studentToken:"fil-mobile-pilot-token-01",c:"#49dcec",avatarKey:"astro",offline:false}];render();
   });
   await teacher.locator('#teacherControlBar [data-control="activities"]').click();
+  // The reusable isolated classroom runs many games in sequence. Set the
+  // Activities library to its canonical ALL state before choosing a game,
+  // so a previous local category/search selection cannot hide this card.
+  await teacher.evaluate(()=>{
+    state.screen='activities';state.activeApp=null;
+    activityLibraryCategory='all';activityLibraryQuery='';
+    render();
+  });
+  await teacher.locator('#activitiesPanel .fil-library-card .fil-open').waitFor({state:'visible',timeout:15000});
   await teacher.locator("#activitiesPanel .fil-library-card .fil-open").click();
   await teacher.waitForSelector("#filLaunch");
   await teacher.locator('[data-fil-seat="Column Pilot"]').selectOption("0");
