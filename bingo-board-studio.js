@@ -40,7 +40,7 @@ function bbsLibrary(){
     '<div class="bbs-picked"><strong>'+selected.size+' / '+need+' CHECKED</strong>'+
     '<button type="button" id="bbsUncheck">Clear Checks</button></div>'+
     '<button type="button" class="bbs-create" id="bbsCreate"'+(selected.size!==need?' disabled':'')+
-    '>▦ CREATE '+need+'-PICTURE BOARD</button><p id="bbsLibraryStatus" class="bbs-hint">'+
+    '>▦ CREATE '+need+'-PICTURE BOARD</button><p id="bbsLibraryStatus" class="bbs-hint" role="status" aria-live="polite">'+
     (selected.size===need?'Ready to populate all '+need+' board squares.':
       'Check '+Math.max(0,need-selected.size)+' more picture'+(need-selected.size===1?'':'s')+' to create a board.')+
     '</p></section>';
@@ -164,27 +164,75 @@ async function bbsRemoveLibraryImage(id){
     if(button?.isConnected)button.disabled=false;
   }
 }
+/* Copy selected files before clearing the picker: FileList can be live in browsers.
+   Keep library updates atomic, confirming the server save before changing the view. */
 async function bbsImport(files){
-  const list=Array.from(files||[]).filter(f=>String(f.type||'').startsWith('image/')).slice(0,48);
-  if(!list.length)return;
+  const picked=Array.from(files||[]);
+  if(!picked.length)return;
   if(bbsLibraryBusy)return toast('Please wait for the library update.');
-  bbsLibraryBusy=true;
-  try{
-  const status=document.querySelector('#bbsLibraryStatus'),add=[];
-  for(const [i,file] of list.entries()){
-    if(status)status.textContent='Saving picture '+(i+1)+' of '+list.length+'…';
-    try{add.push({id:newGameAssetId(),name:gameImageName(file),image:await normalizeGameImage(file),
-      collection:'Custom',createdAt:Date.now()+i})}catch(err){}
+  const supported=f=>String(f?.type||'').startsWith('image/')||
+    /\.(png|jpe?g|webp|gif|bmp|avif|heic|heif)$/i.test(String(f?.name||''));
+  const candidates=picked.filter(supported),list=candidates.slice(0,48);
+  const status=document.querySelector('#bbsLibraryStatus');
+  if(!list.length){
+    const msg='Choose PNG, JPEG, WebP, GIF, or another supported image file.';
+    if(status)status.textContent=msg;
+    return toast(msg);
   }
-  if(!add.length)return toast('Those pictures could not be processed.');
-  const updated=[...gameImageLibrary,...add];
-  if(!persistGameStore(GAME_IMAGE_LIBRARY_STORE,updated))return toast('Picture library could not be saved.');
-  gameImageLibrary=updated;bbsRecent=true;bbsQuery='';
-  renderActivities();
-  const confirmed=await bbsConfirmRemote(GAME_IMAGE_LIBRARY_STORE,updated);
-  toast(confirmed?add.length+' pictures saved to library. Check the pictures you want to use.':
-    'Pictures are available here, but server save could not be confirmed. Retry before refreshing.');
-  }finally{bbsLibraryBusy=false}
+  bbsLibraryBusy=true;
+  const upload=document.querySelector('#bbsUpload');
+  if(upload)upload.disabled=true;
+  try{
+    const add=[],failed=[];
+    for(const [i,file] of list.entries()){
+      if(status)status.textContent='Processing picture '+(i+1)+' of '+list.length+'…';
+      try{
+        const image=await normalizeGameImage(file);
+        if(typeof image!=='string'||!image.startsWith('data:image/'))
+          throw new Error('No image data returned');
+        add.push({id:newGameAssetId(),name:gameImageName(file),image,
+          collection:'Custom',createdAt:Date.now()+i});
+      }catch(err){
+        failed.push(String(file.name||'Picture'));
+        console.warn('Bingo image import failed:',file.name,err);
+      }
+    }
+    if(!add.length){
+      const msg='No pictures could be opened. Try PNG or JPEG images; HEIC may need conversion.';
+      if(status)status.textContent=msg;
+      return toast(msg);
+    }
+    const updated=[...gameImageLibrary,...add];
+    if(status)status.textContent='Saving '+add.length+' picture'+(add.length===1?'':'s')+' to library…';
+    if(!(await bbsConfirmRemote(GAME_IMAGE_LIBRARY_STORE,updated))){
+      const msg='Upload could not be saved to Mothership. Check your connection or library size and retry; existing pictures are unchanged.';
+      if(status)status.textContent=msg;
+      return toast(msg);
+    }
+    if(!persistGameStore(GAME_IMAGE_LIBRARY_STORE,updated)){
+      const msg='Browser storage is full; pictures may not remain after refreshing.';
+      if(status)status.textContent=msg;
+      return toast(msg);
+    }
+    gameImageLibrary=updated;
+    bbsRecent=true;bbsQuery='';
+    renderActivities();
+    const skipped=failed.length+(picked.length-candidates.length)+Math.max(0,candidates.length-list.length);
+    const msg=add.length+' picture'+(add.length===1?'':'s')+' saved to library. '+
+      (skipped?skipped+' file'+(skipped===1?'':'s')+' skipped. ':'')+
+      'Check the pictures you want to use.';
+    const current=document.querySelector('#bbsLibraryStatus');
+    if(current)current.textContent=msg;
+    toast(msg);
+  }catch(err){
+    console.error('Bingo library upload error:',err);
+    const msg='Bingo upload could not finish. Your existing pictures are unchanged; please retry.';
+    if(status?.isConnected)status.textContent=msg;
+    toast(msg);
+  }finally{
+    bbsLibraryBusy=false;
+    if(upload?.isConnected)upload.disabled=false;
+  }
 }
 function bbsUpdateSelections(){
   const selected=new Set(bbsSelected()),need=bbsNeed();
@@ -234,7 +282,7 @@ function bbsWire(){
   };
   const upload=$('#bbsUpload'),uploadInput=$('#bbsUploadInput');
   if(upload&&uploadInput){upload.onclick=()=>uploadInput.click();
-    uploadInput.onchange=async e=>{const files=e.target.files;e.target.value='';await bbsImport(files)}}
+    uploadInput.onchange=async e=>{const files=Array.from(e.target.files||[]);e.target.value='';await bbsImport(files)}}
   $$('[data-bbs-tab]').forEach(b=>b.onclick=()=>{bbsRecent=b.dataset.bbsTab==='recent';bbsQuery='';renderActivities()});
   const search=$('#bbsSearch');if(search)search.oninput=e=>{
     bbsQuery=e.target.value;const query=bbsQuery.trim().toLowerCase();
