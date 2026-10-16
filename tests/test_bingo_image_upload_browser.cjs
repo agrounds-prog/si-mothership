@@ -27,7 +27,7 @@ if(!/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?\/?$/.test(BASE))
   });
   assert.equal(initial.exists,true,'Bingo image-library uploader present');
   assert.equal(initial.hasMultiple,true,'Multiple selection enabled');
-  assert.match(initial.accept,/image/);
+  assert.match(initial.accepts,/image/);
   const chooser=page.waitForEvent('filechooser');
   await page.locator('#bbsUpload').click();
   const chooserResult=await chooser;
