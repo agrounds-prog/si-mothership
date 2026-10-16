@@ -81,6 +81,58 @@ if(!/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?\/?$/.test(BASE))
   assert.equal(await page.evaluate(()=>gameImageLibrary.length),initial.original+2,
     'Failed remote save leaves library unchanged');
   await page.unroute('**/api/storage');
+
+  // Full 4x4 teaching flow: exactly 16 library pictures -> board -> server
+  // save -> refresh -> load saved board with copied image data intact.
+  const extras=Array.from({length:14},(_,i)=>({
+    name:'si-board-regression-'+String(i+1).padStart(2,'0')+'.png',
+    mimeType:'image/png',buffer:data(sample.png)
+  }));
+  await page.locator('#bbsUploadInput').setInputFiles(extras);
+  await page.waitForFunction(n=>gameImageLibrary.length===n+16,initial.original,{timeout:20000});
+  await page.locator('[data-bbs-tab="all"]').click();
+  const createdNames=await page.evaluate(()=>{
+    const entries=[...document.querySelectorAll('[data-bbs-image]')];
+    const samples=entries.filter(b=>b.dataset.bbsName.startsWith('si-board-regression-')||
+      b.dataset.bbsName.startsWith('si upload regression purple'));
+    if(samples.length!==16)throw Error('Expected 16 imported images; found '+samples.length);
+    return samples.map(x=>x.dataset.bbsImage);
+  });
+  for(const id of createdNames)await page.locator('[data-bbs-image="'+id+'"]').click();
+  assert.equal((await page.locator('.bbs-picked strong').textContent()).trim(),'16 / 16 CHECKED');
+  await page.locator('#bbsCreate').click();
+  const ready=await page.evaluate(()=>({
+    filled:typeof bbsFilled==='function'?bbsFilled():-1,
+    images:[...document.querySelectorAll('.bbs-grid .bbs-tile img')].length,
+    slots:bingoDraft.numberedSlots.filter(s=>!!s?.image).length
+  }));
+  assert.deepEqual(ready,{filled:16,images:16,slots:16});
+  await page.locator('#bbsName').fill('SI BINGO Upload Regression Board');
+  await page.locator('#bbsSave').click();
+  await page.waitForFunction(()=>bingoSets.some(s=>s.name==='SI BINGO Upload Regression Board'),null,{timeout:15000});
+  const sets=await ctx.request.get(BASE+'/api/storage');
+  const boardStorage=(await sets.json()).items['siMothership.bingoSets.v1'];
+  assert.ok(JSON.parse(boardStorage).some(s=>s.name==='SI BINGO Upload Regression Board'),
+    'Completed 16-image board persisted to isolated server');
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>typeof render==='function'&&typeof bbsWire==='function'&&typeof networkHydrated!=='undefined'&&networkHydrated===true,null,{timeout:20000});
+  const restored=await page.evaluate(()=>{
+    state.screen='activities';state.activeApp='bingo';state.activityRun=null;render();
+    return {found:bingoSets.some(s=>s.name==='SI BINGO Upload Regression Board'),
+      library:gameImageLibrary.length,saved:document.querySelectorAll('[data-bbs-load]').length};
+  });
+  assert.equal(restored.found,true,'Saved Bingo board available after refresh');
+  assert.equal(restored.library,initial.original+16,'Full picture library restored after refresh');
+  const savedRow=page.locator('.bbs-saved-board').filter({hasText:'SI BINGO Upload Regression Board'});
+  await savedRow.locator('[data-bbs-load]').click();
+  const loaded=await page.evaluate(()=>({
+    images:[...document.querySelectorAll('.bbs-grid .bbs-tile img')].length,
+    filled:bbsFilled(),
+    copied:bingoDraft.numberedSlots.filter(s=>s?.image?.startsWith('data:image/')).length
+  }));
+  assert.deepEqual(loaded,{images:16,filled:16,copied:16},
+    'Loaded Bingo board retains every picture');
+  console.log('Bingo 16-picture board assembly, save, refresh, reload PASS');
   assert.equal(errors.length,0,'No browser runtime errors: '+errors.join('\n'));
   console.log('Bingo image uploads: picker, 2-image batch, server persistence, corrupt file, outage rollback PASS');
  }finally{await ctx.close();await browser.close()}
