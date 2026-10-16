@@ -27,9 +27,40 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   // and verify a separate compact student popup appears with the LIVE code.
   const teacherLaunch=teacher.locator("#siTeacherStudentDeviceLaunch");
   await teacherLaunch.waitFor({state:"visible",timeout:15000});
-  const teacherPopupPromise=teacher.waitForEvent("popup",{timeout:10000});
-  await teacherLaunch.click();
-  const teacherPop=await teacherPopupPromise;
+  // Simulate an out-of-date QR link while retaining the live code/SID.
+  // The teacher launcher must use the current session, not the stale link.
+  await teacher.evaluate(()=>{
+    window.__siPopupRegressionOldUrl=STUDENT_JOIN_URL;
+    STUDENT_JOIN_URL=location.origin+'/?role=student&code=STAL&sid=old-session';
+  });
+  const teacherPreflight=await teacher.evaluate(()=>({
+    code:STUDENT_JOIN_CODE,sid:STUDENT_SESSION_ID,
+    staleJoinUrl:STUDENT_JOIN_URL,
+    buttonText:document.querySelector('#siTeacherStudentDeviceLaunch')?.textContent,
+    display:getComputedStyle(document.querySelector('#siTeacherStudentDeviceLaunch')).display
+  }));
+  console.log('TEACHER POPUP PREFLIGHT '+JSON.stringify(teacherPreflight));
+  let teacherPop=null;
+  for(let attempt=1;attempt<=2&&!teacherPop;attempt++){
+    const pending=teacher.waitForEvent("popup",{timeout:10000}).catch(()=>null);
+    await teacherLaunch.click();
+    teacherPop=await pending;
+    if(!teacherPop){
+      const diagnostic=await teacher.evaluate(()=>({
+        joinUrl:STUDENT_JOIN_URL,
+        code:STUDENT_JOIN_CODE,
+        sid:STUDENT_SESSION_ID,
+        label:document.querySelector('#siTeacherStudentDeviceLaunch')?.textContent,
+        title:document.querySelector('#siTeacherStudentDeviceLaunch')?.title,
+        focus:document.hasFocus(),
+        namedWindows:window.name
+      }));
+      console.log('TEACHER POPUP RETRY '+JSON.stringify({attempt,diagnostic}));
+      await teacher.waitForTimeout(250);
+    }
+  }
+  assert.ok(teacherPop,'Teacher student-device click must open an actual popup. '+JSON.stringify(teacherPreflight));
+  await teacher.evaluate(()=>{STUDENT_JOIN_URL=window.__siPopupRegressionOldUrl;});
   await teacherPop.waitForLoadState("domcontentloaded");
   await teacherPop.waitForSelector("#studentContent .avatar-select-card",{timeout:15000});
   const teacherOpened=await teacherPop.evaluate(()=>({
