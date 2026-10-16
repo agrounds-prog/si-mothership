@@ -495,9 +495,19 @@
     return win;
   }
   function currentClassroomJoinUrl(){
-    // The app refreshes this after a new class session. Never reuse a
-    // stale code/SID captured when the button was first mounted.
-    if(typeof STUDENT_JOIN_URL==="string" && studentJoinUrl(STUDENT_JOIN_URL))
+    // Rebuild the student URL from the live classroom code and session token.
+    // A teacher may launch while the QR/join panel is re-rendering; never
+    // depend on a momentarily absent anchor or an older cached join URL.
+    const code=typeof STUDENT_JOIN_CODE==="string"?STUDENT_JOIN_CODE.trim():"";
+    const sid=typeof STUDENT_SESSION_ID==="string"?STUDENT_SESSION_ID.trim():"";
+    if(code&&sid){
+      const target=new URL("/",location.origin);
+      target.searchParams.set("role","student");
+      target.searchParams.set("code",code);
+      target.searchParams.set("sid",sid);
+      return target.href;
+    }
+    if(typeof STUDENT_JOIN_URL==="string"&&studentJoinUrl(STUDENT_JOIN_URL))
       return STUDENT_JOIN_URL;
     return document.querySelector("#teacher .join-lobby a.join-qr-link[href]")?.href||"";
   }
@@ -515,10 +525,19 @@
     button.title="Open the current student classroom in a cropped calculator-style window";
     button.setAttribute("aria-label","Open the student controller in a compact browser window");
     button.addEventListener("click",()=>{
-      const win=openAsCalculator(currentClassroomJoinUrl());
+      const currentUrl=currentClassroomJoinUrl();
+      if(!studentJoinUrl(currentUrl)){
+        button.textContent="Class link loading — retry";
+        button.title="The current classroom join link is not ready yet";
+        return;
+      }
+      const win=openAsCalculator(currentUrl);
       if(!win){
         button.textContent="Allow pop-ups, then retry";
         button.title="Chrome blocked opening the compact student window";
+      }else{
+        button.textContent="↗ Student Device";
+        button.title="Open the current student classroom in a cropped calculator-style window";
       }
     });
     codeBar.appendChild(button);
