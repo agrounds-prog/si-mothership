@@ -93,7 +93,7 @@ if(!/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?\/?$/.test(BASE))
   await page.locator('[data-bbs-tab="all"]').click();
   const createdNames=await page.evaluate(()=>{
     const entries=[...document.querySelectorAll('[data-bbs-image]')];
-    const samples=entries.filter(b=>b.dataset.bbsName.startsWith('si-board-regression-')||
+    const samples=entries.filter(b=>b.dataset.bbsName.startsWith('si board regression ')||
       b.dataset.bbsName.startsWith('si upload regression purple'));
     if(samples.length!==16)throw Error('Expected 16 imported images; found '+samples.length);
     return samples.map(x=>x.dataset.bbsImage);
