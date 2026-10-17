@@ -206,6 +206,8 @@ const cases=[
    const make=(id,gameData)=>{
     state.activityRun={activityId:id,phase:'running',...gameData};
     host.innerHTML='<button id="bingoCallNextBtn">NATIVE CALL</button>'+
+      '<button id="matchMemoryPreviewBtn">NATIVE BOOST</button>'+
+      '<button data-million-show-action="reveal">NATIVE REVEAL</button>'+
       '<button data-fil-action="save">NATIVE SAVE</button>'+
       '<button id="returnClassBtn">FINISH NATIVE</button>';
     window.__siUnifiedTeacherControls.refresh();
