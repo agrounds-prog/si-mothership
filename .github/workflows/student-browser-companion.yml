@@ -104,7 +104,14 @@ jobs:
       - name: MATCH builder create, server save, reload, edit, responsive layout and launch
         run: node tests/test_match_setup_workflow_browser.cjs
       - name: MILLION builder create, remote save, session reset and reload
-        run: node tests/test_million_studio_browser.cjs
+        run: |
+          mkdir -p /tmp/mothership-million-studio-test
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-million-studio-test PORT=8878 python server.py >/tmp/million-studio-test.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8878/api/health >/dev/null; then break; fi
+            sleep 1
+          done
+          LOCAL_URL=http://127.0.0.1:8878 node tests/test_million_studio_browser.cjs
       - name: Unified teacher Mission Control native actions and responsive geometry
         run: node tests/test_unified_teacher_controls_browser.cjs
       - name: Local failure diagnostics
