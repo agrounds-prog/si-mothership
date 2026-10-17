@@ -1,4 +1,4 @@
-/* Unified teacher controls · Phase 2C. Read-only live game HUD; existing actions are authoritative. */
+/* Unified teacher controls · Phase 2D. Teacher-only visual HUD; existing actions remain authoritative. */
 (()=>{
  "use strict";
  const params=new URLSearchParams(location.search);
@@ -13,6 +13,7 @@
   "four-in-line-game":["FOUR IN LINE",[["Undo Move",'[data-fil-action="undo"]'],["Save Game",'[data-fil-action="save"]']]],
   "signal-sequence-game":["SIGNAL SEQUENCE",[["Start / Next Round",'[data-ss-action="next"]'],["Retry Run",'[data-ss-action="retry"]'],["Save Game",'[data-ss-action="save"]']]]
  };
+ const gameArt={"bingo-game":"▦","match-game":"◇","million-game":"✧","cosmic-cards-game":"✦","cosmic-cards":"✦","dominoes-game":"◈","four-in-line-game":"⦿","signal-sequence-game":"◉"};
  const safety=[
   ["Pause & Keep Progress",["#sendActivityLobbyBtn",'[data-fil-action="lobby"]']],
   ["Finish & Return",["#returnClassBtn",'[data-fil-action="exit"]','[data-ss-action="exit"]']]
@@ -51,24 +52,32 @@
   return "◈";
  }
  function statusModel(r){
-  const id=r.activityId,bar={person:"",prompt:"CLASSROOM STATUS",metrics:[]};
+  const id=r.activityId,bar={person:"",prompt:"CLASSROOM STATUS",metrics:[],progress:null};
   const playing=r.phase==="running";
-  const metric=(name,value,active=false)=>bar.metrics.push({name:String(name),value:String(value),active:!!active});
+  const metric=(name,value,active=false,kind="stat")=>bar.metrics.push({
+   name:String(name),value:String(value),active:!!active,kind
+  });
+  const playerMetric=(name,value,active=false)=>metric(name,value,active,"player");
+  const progress=(title,value,total)=>{
+   const size=Number(total),now=Number(value);
+   if(Number.isFinite(size)&&size>0&&Number.isFinite(now))
+    bar.progress={title:String(title),value:Math.max(0,Math.min(size,now)),total:size};
+  };
   if(id==="four-in-line-game"){
    const g=r.fourInLine||{},turn=Number(g.turn||0),winner=Number(g.winner);
    bar.person=g.status==="won"?(g.players?.[winner]||"Winner"):g.status==="draw"?"Draw game":g.players?.[turn]||"";
    bar.prompt=g.status==="playing"?"CURRENT TURN":"ROUND RESULT";
-   (g.players||[]).forEach((n,i)=>metric(n,
+   (g.players||[]).forEach((n,i)=>playerMetric(n,
     g.status==="won"?(i===winner?"WINNER":"ROUND OVER"):
     g.status==="draw"?"DRAW":i===turn&&playing?"TO MOVE":"WAITING",
     g.status==="won"?i===winner:i===turn&&playing&&g.status==="playing"));
    metric("MOVES",Number(g.moves||0));
-   if(g.cols&&g.rows)metric("BOARD",g.cols+" × "+g.rows);
+   if(g.cols&&g.rows){metric("BOARD",g.cols+" × "+g.rows);progress("BOARD FILLED",g.moves,g.cols*g.rows)}
   }else if(id==="dominoes-game"){
    const g=r.dominoes||{};
    bar.person=g.status==="won"?g.winner||"":g.players?.[Number(g.turn||0)]||"";
    bar.prompt=g.status==="playing"?"CURRENT PLAYER":"ROUND RESULT";
-   (g.players||[]).forEach((n,i)=>metric(n,Number(g.scores?.[n]||0)+" PTS",
+   (g.players||[]).forEach((n,i)=>playerMetric(n,Number(g.scores?.[n]||0)+" PTS",
     playing&&g.status==="playing"&&i===Number(g.turn||0)));
    if(g.winner&&g.status==="won")metric("WINNER",g.winner,true);
    metric("ROUND",Number(g.round||1));
@@ -77,7 +86,7 @@
    const g=r.cosmic||{};
    bar.person=g.status==="won"?g.winner||"":g.players?.[Number(g.turn||0)]||"";
    bar.prompt=g.status==="playing"?"CURRENT PLAYER":"ROUND RESULT";
-   (g.players||[]).forEach((n,i)=>metric(n,(g.hands?.[n]||[]).length+" CARDS",
+   (g.players||[]).forEach((n,i)=>playerMetric(n,(g.hands?.[n]||[]).length+" CARDS",
     playing&&g.status==="playing"&&i===Number(g.turn||0)));
    if(g.winner&&g.status==="won")metric("WINNER",g.winner,true);
    if(g.color)metric("ACTIVE COLOR",String(g.color).toUpperCase());
@@ -98,14 +107,15 @@
      if(typeof matchTeamMeta==="function"){
       try{name=matchTeamMeta(i)?.name||name}catch(_){}
      }
-     metric(name,Number(m.teamScores?.[i]||0)+" PTS",playing&&!m.complete&&Number(m.activeTeam||0)===i);
+     playerMetric(name,Number(m.teamScores?.[i]||0)+" PTS",playing&&!m.complete&&Number(m.activeTeam||0)===i);
     }
    }else{
     const values=m.scores||{};
     const names=[...new Set([...(Array.isArray(state.students)?state.students.map(s=>s.n):[]),...Object.keys(values)])].slice(0,8);
-    names.forEach(n=>metric(n,Number(values[n]||0)+" PTS",playing&&!m.complete&&n===active));
+    names.forEach(n=>playerMetric(n,Number(values[n]||0)+" PTS",playing&&!m.complete&&n===active));
    }
    metric("PAIRS",Math.floor((m.matched||[]).length/2)+" / "+Math.floor((m.cards||[]).length/2));
+   progress("MATCHED PAIRS",Math.floor((m.matched||[]).length/2),Math.floor((m.cards||[]).length/2));
   }else if(id==="signal-sequence-game"){
    const g=r.signalSequence||{};
    const mode=String(g.mode||"classic");
@@ -124,6 +134,7 @@
     metric("CREW ACTIVE",alive+" / "+people.length);
    }else if(g.phase==="input"){
     metric("INPUT",Number(g.progress||0)+" / "+Number(g.round||0));
+    progress("SEQUENCE INPUT",g.progress,g.round);
    }
   }else if(id==="million-game"){
    const m=r.million||{},c=r.millionConfig||{};
@@ -132,25 +143,30 @@
    const total=Number(c.questions?.length||0);
    const index=Number(m.questionIndex||0)+1;
    metric("QUESTION",index+(total?" / "+total:""));
+   progress("QUESTION PROGRESS",index,total);
    metric("ANSWER",m.revealed?"REVEALED":m.lockedAnswer?"LOCKED":"AWAITING");
   }else if(id==="bingo-game"){
    const g=r.bingo||{};
    bar.person="Teacher calling";
    bar.prompt="LIVE CALL BOARD";
    metric("CALLED",(g.called||[]).length);
-   if(Array.isArray(g.callOrder)&&g.callOrder.length)
+   if(Array.isArray(g.callOrder)&&g.callOrder.length){
     metric("TOTAL CALLS",g.callOrder.length);
+    progress("ITEMS CALLED",(g.called||[]).length,g.callOrder.length);
+   }
    metric("CALL ALERTS",g.studentCallAlerts===false?"OFF":"ON");
   }
   if(!playing){
    bar.person="Waiting for players";
    bar.prompt="LOBBY · READY TO START";
    bar.metrics.forEach(item=>item.active=false);
+   bar.progress=null;
   }
   return bar;
  }
  function statusSignature(model){
-  return [model.person,model.prompt,...model.metrics.map(x=>x.name+":"+x.value+":"+x.active)].join("|");
+  return [model.person,model.prompt,...model.metrics.map(x=>x.name+":"+x.value+":"+x.active+":"+x.kind),
+   model.progress?model.progress.title+":"+model.progress.value+":"+model.progress.total:""].join("|");
  }
  function createStatus(model){
   const box=document.createElement("div");
@@ -178,7 +194,14 @@
    scores.setAttribute("aria-label","Live game scores and progress");
    model.metrics.forEach(item=>{
     const chip=document.createElement("span");
-    chip.className="si-utc-score"+(item.active?" is-active":"");
+    chip.className="si-utc-score"+(item.active?" is-active":"")+(item.kind==="player"?" is-player":"");
+    if(item.kind==="player"){
+     const avatar=document.createElement("i");
+     avatar.className="si-utc-chip-avatar";
+     avatar.setAttribute("aria-hidden","true");
+     avatar.textContent=portrait(item.name);
+     chip.append(avatar);
+    }
     const n=document.createElement("small");
     n.textContent=item.name;
     const v=document.createElement("b");
@@ -188,6 +211,21 @@
    });
    box.append(scores);
   }
+  if(model.progress){
+   const {title,value,total}=model.progress;
+   const meter=document.createElement("div");meter.className="si-utc-progress";
+   const info=document.createElement("div");info.className="si-utc-progress-label";
+   const text=document.createElement("small");text.textContent=title;
+   const valueText=document.createElement("strong");valueText.textContent=value+" / "+total;
+   info.append(text,valueText);
+   const track=document.createElement("div");
+   track.className="si-utc-progress-track";track.setAttribute("role","progressbar");
+   track.setAttribute("aria-label",title);track.setAttribute("aria-valuemin","0");
+   track.setAttribute("aria-valuemax",String(total));track.setAttribute("aria-valuenow",String(value));
+   const fill=document.createElement("span");fill.className="si-utc-progress-fill";
+   fill.style.width=(value/total*100).toFixed(2)+"%";track.append(fill);
+   meter.append(info,track);box.append(meter);
+  }
   return box;
  }
  function button(title,target,isSafety){
@@ -196,6 +234,8 @@
   el.className="si-utc-button"+(isSafety?" si-utc-session":"");
   if(/Finish/.test(title))el.classList.add("si-utc-finish");
   el.textContent=title;
+  el.setAttribute("aria-label",title);
+  el.dataset.icon=/Next|Continue|Start/.test(title)?"→":/Save/.test(title)?"▣":/Undo|Retry/.test(title)?"↺":/Pause/.test(title)?"Ⅱ":/Return|Finish/.test(title)?"↩":/Draw/.test(title)?"⊕":/Reveal|Memory/.test(title)?"✧":"◆";
   el.disabled=target.disabled||target.getAttribute("aria-disabled")==="true";
   el.addEventListener("click",()=>{
    if(run()&&target.isConnected&&!target.disabled&&target.getAttribute("aria-disabled")!=="true")
@@ -234,8 +274,14 @@
    dock.setAttribute("aria-label","Unified teacher quick controls");
    panel.prepend(dock);
   }
+  dock.dataset.game=r.activityId;
+  dock.dataset.phase=r.phase;
   const header=document.createElement("div");
   header.className="si-utc-head";
+  const emblem=document.createElement("span");
+  emblem.className="si-utc-emblem";
+  emblem.setAttribute("aria-hidden","true");
+  emblem.textContent=gameArt[r.activityId]||"✦";
   const title=document.createElement("div");
   title.className="si-utc-title";
   const kicker=document.createElement("small");kicker.textContent="◈ MISSION CONTROL";
@@ -243,7 +289,7 @@
   title.append(kicker,name);
   const status=document.createElement("span");
   status.className="si-utc-status";status.textContent=label(r);
-  header.append(title,status);
+  header.append(emblem,title,status);
   const rows=document.createElement("div");rows.className="si-utc-rows";
   function row(label,actions,safe){
    if(!actions.length)return;
@@ -278,7 +324,7 @@
  function install(){
   if(typeof SESSION_ROLE==="undefined"||SESSION_ROLE!=="teacher")return;
   observe();setInterval(observe,1100);
-  window.__siUnifiedTeacherControls={refresh,version:"2C"};
+  window.__siUnifiedTeacherControls={refresh,version:"2D"};
  }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
  else install();
