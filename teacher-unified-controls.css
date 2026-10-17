@@ -201,3 +201,245 @@ body:not(.role-student):not(.role-shared) #activityControllerPanel :is(
   min-width:86px;
  }
 }
+
+
+/* Phase 2D · Game-specific teacher HUD. Scoped to the existing teacher
+   activity controller only. No game rules, projector or student CSS. */
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-deck{
+  --si-utc-accent:#77e1ed;
+  --si-utc-rgb:119,225,237;
+  container-name:si-teacher-dock;
+  container-type:inline-size;
+  gap:12px;padding:15px;
+  border-color:rgba(var(--si-utc-rgb),.64);
+  border-radius:18px;
+  background:
+    radial-gradient(ellipse at 0% 0%,rgba(var(--si-utc-rgb),.19),transparent 51%),
+    radial-gradient(ellipse at 100% 100%,rgba(52,125,163,.15),transparent 62%),
+    linear-gradient(146deg,#102c45 0%,#08172a 76%);
+  box-shadow:inset 0 1px rgba(255,255,255,.17),0 11px 28px #020c1ba6;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-deck[data-game="bingo-game"]{
+  --si-utc-accent:#ffd98b;--si-utc-rgb:255,217,139;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-deck[data-game="match-game"]{
+  --si-utc-accent:#b8aaff;--si-utc-rgb:184,170,255;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-deck[data-game="million-game"]{
+  --si-utc-accent:#ffdb90;--si-utc-rgb:255,219,144;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel :is(.si-utc-deck[data-game="cosmic-cards-game"],.si-utc-deck[data-game="cosmic-cards"]){
+  --si-utc-accent:#ffb7e6;--si-utc-rgb:255,183,230;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-deck[data-game="dominoes-game"]{
+  --si-utc-accent:#a6f2cb;--si-utc-rgb:166,242,203;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-deck[data-game="four-in-line-game"]{
+  --si-utc-accent:#80c9ff;--si-utc-rgb:128,201,255;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-deck[data-game="signal-sequence-game"]{
+  --si-utc-accent:#ffbe8f;--si-utc-rgb:255,190,143;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-head{
+  display:grid;grid-template-columns:52px minmax(0,1fr) auto;
+  gap:12px;align-items:center;
+  padding:0 0 13px;
+  border-bottom:1px solid rgba(var(--si-utc-rgb),.35);
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-emblem{
+  display:grid;place-items:center;width:52px;height:52px;
+  border:1.5px solid var(--si-utc-accent);border-radius:15px;
+  background:radial-gradient(circle at 33% 22%,rgba(var(--si-utc-rgb),.30),rgba(11,33,55,.65));
+  color:var(--si-utc-accent);font:900 31px/1 system-ui,sans-serif;
+  text-shadow:0 1px 10px rgba(var(--si-utc-rgb),.50);
+  box-shadow:inset 0 1px rgba(255,255,255,.25),0 5px 16px #020c1b73;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-title{gap:5px}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-title small{
+  color:#abcfe2;font-size:10px;letter-spacing:.16em;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-title strong{
+  font-size:clamp(18px,2vw,24px);letter-spacing:.035em;line-height:1.13;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-status{
+  max-width:min(44cqw,210px);min-width:0;
+  border-color:rgba(var(--si-utc-rgb),.65);
+  background:rgba(var(--si-utc-rgb),.14);
+  color:#fff;font:900 11px/1.3 system-ui,sans-serif;
+  padding:8px 11px;letter-spacing:.035em;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-status::before{
+  content:"";display:inline-block;vertical-align:middle;
+  width:7px;height:7px;margin:0 7px 1px 0;border-radius:50%;
+  background:var(--si-utc-accent);
+  box-shadow:0 0 0 3px rgba(var(--si-utc-rgb),.12),0 0 9px rgba(var(--si-utc-rgb),.55);
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-deck[data-phase="lobby"] .si-utc-status::before{
+  background:#9faec2;box-shadow:none;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-live{
+  grid-template-columns:minmax(190px,.78fr) minmax(0,1.4fr);
+  gap:10px;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-turn{
+  gap:12px;min-height:78px;padding:13px;
+  border-color:rgba(var(--si-utc-rgb),.65);
+  border-radius:14px;
+  background:linear-gradient(130deg,rgba(var(--si-utc-rgb),.15),rgba(11,38,58,.85));
+  box-shadow:inset 4px 0 var(--si-utc-accent),inset 0 1px rgba(255,255,255,.12);
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-avatar{
+  width:45px;height:45px;flex-basis:45px;
+  border-color:var(--si-utc-accent);border-radius:13px;
+  background:radial-gradient(circle at 28% 22%,rgba(var(--si-utc-rgb),.40),#163d58 76%);
+  font-size:25px;
+  box-shadow:0 0 0 3px rgba(var(--si-utc-rgb),.09);
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-turn-copy small{
+  color:var(--si-utc-accent);font-size:10px;line-height:1.3;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-turn-copy strong{
+  color:#fff;font-size:clamp(15px,1.55vw,20px);line-height:1.2;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score-strip{
+  align-items:stretch;gap:7px;
+  padding:1px 2px 5px;
+  overscroll-behavior-x:contain;scroll-snap-type:x proximity;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score{
+  position:relative;flex:1 0 104px;min-width:104px;
+  max-width:195px;min-height:75px;
+  padding:11px 12px 10px;gap:8px;
+  border:1px solid #426580;border-radius:12px;
+  background:linear-gradient(150deg,#163852,#0b253c 82%);
+  scroll-snap-align:start;box-shadow:inset 0 1px rgba(255,255,255,.08);
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score.is-player{
+  padding-left:43px;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-chip-avatar{
+  position:absolute;left:9px;top:13px;width:26px;height:26px;
+  display:grid;place-items:center;border:1px solid #7597af;border-radius:9px;
+  color:#fff;background:#22506b;font:700 16px/1 system-ui,sans-serif;
+  font-style:normal;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score.is-active{
+  border-color:var(--si-utc-accent);
+  background:linear-gradient(150deg,rgba(var(--si-utc-rgb),.22),#12394a 95%);
+  box-shadow:inset 0 3px var(--si-utc-accent),0 0 0 1px rgba(var(--si-utc-rgb),.18);
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score.is-active::after{
+  content:"";position:absolute;right:8px;top:7px;width:6px;height:6px;
+  background:var(--si-utc-accent);border-radius:50%;box-shadow:0 0 8px var(--si-utc-accent);
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score small{
+  font:850 11px/1.25 system-ui,sans-serif;color:#cfdfed;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score b{
+  font:950 16px/1.2 system-ui,sans-serif;color:#fff;
+  font-variant-numeric:tabular-nums;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score.is-active small{
+  color:var(--si-utc-accent);
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-progress{
+  grid-column:1 / -1;display:grid;gap:7px;
+  padding:9px 12px;border:1px solid #385874;
+  border-radius:11px;background:rgba(1,18,37,.40);
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-progress-label{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-progress-label small{
+  font:900 10px/1.2 system-ui,sans-serif;letter-spacing:.11em;color:#c9dcea;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-progress-label strong{
+  font:900 13px/1.2 system-ui,sans-serif;color:var(--si-utc-accent);
+  font-variant-numeric:tabular-nums;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-progress-track{
+  height:9px;overflow:hidden;border:1px solid #46657d;border-radius:20px;
+  background:linear-gradient(#071e32,#0b2940);
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-progress-fill{
+  display:block;height:100%;border-radius:20px;
+  background:linear-gradient(90deg,rgba(var(--si-utc-rgb),.6),var(--si-utc-accent));
+  box-shadow:0 0 14px rgba(var(--si-utc-rgb),.42);
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-rows{
+  gap:10px;padding-top:12px;border-color:rgba(var(--si-utc-rgb),.25);
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-row{
+  gap:8px;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-caption{
+  font-size:10px;letter-spacing:.14em;color:#bddaea;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-button{
+  position:relative;gap:10px;flex:1 1 155px;
+  min-width:115px;min-height:51px;
+  padding:10px 14px;border-radius:12px;
+  border-color:rgba(var(--si-utc-rgb),.57);
+  background:linear-gradient(155deg,#226586,#10425e);
+  color:#fff;font:900 13px/1.25 system-ui,sans-serif;
+  box-shadow:inset 0 1px #ffffff36,0 4px 0 #021529;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-button::before{
+  content:attr(data-icon);display:inline-grid;place-items:center;
+  flex:0 0 27px;width:27px;height:27px;
+  border:1px solid rgba(var(--si-utc-rgb),.65);border-radius:8px;
+  background:rgba(var(--si-utc-rgb),.16);color:var(--si-utc-accent);
+  font:900 17px/1 system-ui,sans-serif;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-button.si-utc-session{
+  border-color:#5e91a9;background:linear-gradient(155deg,#174858,#103447);
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-button.si-utc-finish{
+  border-color:#9caac1;background:linear-gradient(155deg,#364254,#1b2e42);
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-button:not(:disabled):hover{
+  transform:translateY(-1px);border-color:var(--si-utc-accent);
+  background:linear-gradient(155deg,#2a7592,#155674);
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-button:active:not(:disabled){
+  transform:translateY(2px);box-shadow:inset 0 1px #ffffff2b,0 1px 0 #021529;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-button:disabled{
+  opacity:.52;filter:saturate(.7);
+}
+@container si-teacher-dock (max-width:740px){
+  body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-live{
+    grid-template-columns:minmax(0,1fr);
+  }
+  body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score{
+    flex:0 0 150px;max-width:200px;
+  }
+}
+@container si-teacher-dock (max-width:440px){
+  body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-head{
+    grid-template-columns:40px minmax(0,1fr);gap:9px;
+  }
+  body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-emblem{
+    width:40px;height:40px;font-size:23px;border-radius:12px;
+  }
+  body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-head .si-utc-status{
+    grid-column:1/-1;max-width:none;justify-self:stretch;
+  }
+  body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score{
+    flex-basis:137px;
+  }
+}
+@media(max-width:540px){
+  body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-deck{
+    padding:11px;gap:9px;
+  }
+  body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-button{
+    flex-basis:140px;min-width:0;min-height:48px;font-size:12px;
+    padding:9px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-button{
+    transform:none!important;
+  }
+}
