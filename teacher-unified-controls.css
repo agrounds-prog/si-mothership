@@ -540,7 +540,7 @@ body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-butto
   background:linear-gradient(150deg,rgba(var(--si-setup-rgb),.16),#103247 85%);
 }
 #teacher #activitiesPanel.si-setup-view #activityGrid > :is(
-  .bbs-studio,.ms-studio,.cc-setup,.dm-setup,.wg-setup,
+  .bbs-studio,.mcb-shell,.ms-studio,.cc-setup,.dm-setup,.wg-setup,
   .fil-setup,.ss-setup,.minefield-setup,.game-show-setup
 ){
   width:100%!important;max-width:100%!important;
