@@ -314,7 +314,7 @@
   "bingo":{selector:".bbs-studio",title:"BINGO BOARD STUDIO",icon:"▦",accent:"gold",
    summary:"Upload or choose your pictures, arrange the board, then save and launch.",
    stages:["Choose pictures","Build your board","Save & launch"]},
-  "match":{selector:".match-builder, .match-builder-shell, .match-setup, .match-studio",title:"MATCH BUILDER",icon:"◇",accent:"violet",
+  "match":{selector:".mcb-shell",title:"MATCH BUILDER",icon:"◇",accent:"violet",
    summary:"Choose matching content, configure the players and launch a memory challenge.",
    stages:["Build pairs","Set game rules","Save & launch"]},
   "million":{selector:".ms-studio",title:"MILLION GAME STUDIO",icon:"✧",accent:"gold",
