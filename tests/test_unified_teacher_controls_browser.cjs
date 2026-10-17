@@ -136,6 +136,82 @@ const cases=[
       "Disabled native gameplay actions must stay disabled");
    }
   }
+  // The overlay reflects actual game phases and winners, not placeholder
+  // scoring. Synthetic only: these state edits never publish to a classroom.
+  const summaries=await page.evaluate(()=>{
+   const host=document.querySelector('#activityControllerPanel');
+   function inspect(id,phase,data){
+    state.activityRun={activityId:id,phase,...data};
+    host.innerHTML='<button id="returnClassBtn">RETURN</button>';
+    window.__siUnifiedTeacherControls.refresh();
+    const dock=host.querySelector('#siUnifiedTeacherDeck');
+    return {person:dock.querySelector('.si-utc-turn strong')?.textContent,
+     phase:dock.querySelector('.si-utc-turn small')?.textContent,
+     status:dock.querySelector('.si-utc-status')?.textContent,
+     chips:[...dock.querySelectorAll('.si-utc-score')].map(x=>({
+      key:x.querySelector('small')?.textContent,value:x.querySelector('b')?.textContent,
+      active:x.classList.contains('is-active')
+     }))};
+   }
+   return {
+    waiting:inspect('four-in-line-game','lobby',{fourInLine:{
+     status:'playing',turn:1,players:['Blue Crew','Gold Crew'],moves:0,cols:7,rows:6}}),
+    win:inspect('four-in-line-game','running',{fourInLine:{
+     status:'won',turn:1,players:['Blue Crew','Gold Crew'],winner:0,moves:7}}),
+    draw:inspect('four-in-line-game','running',{fourInLine:{
+     status:'draw',turn:1,players:['Blue Crew','Gold Crew'],moves:42}}),
+    dominoWin:inspect('dominoes-game','running',{dominoes:{
+     status:'won',turn:1,players:['Alex','Blair'],winner:'Alex',round:3,
+     scores:{Alex:25,Blair:12},bag:[]}}),
+    cosmicWin:inspect('cosmic-cards-game','running',{cosmic:{
+     status:'won',turn:1,players:['Alex','Blair'],winner:'Blair',
+     hands:{Alex:[{},{}],Blair:[]},color:'green',direction:-1}}),
+    survival:inspect('signal-sequence-game','running',{signalSequence:{
+     phase:'input',mode:'survival',pilot:'THE CREW',round:3,best:2,
+     participants:['Alex','Blair','Casey'],
+     entries:{Alex:{status:'playing'},Blair:{status:'out'},Casey:{status:'playing'}}}}),
+    relay:inspect('signal-sequence-game','running',{signalSequence:{
+     phase:'input',mode:'relay',pilot:'Blair',round:5,progress:2,best:4}}),
+    bingo:inspect('bingo-game','running',{bingo:{
+     called:['i1','i2'],callOrder:['i1','i2','i3'],studentCallAlerts:true}}),
+    million:inspect('million-game','running',{million:{
+     questionIndex:1,revealed:false,lockedAnswer:''},millionConfig:{questions:[{},{},{}]}})
+   };
+  });
+  assert.equal(summaries.waiting.person,'Waiting for players');
+  assert.match(summaries.waiting.phase,/LOBBY/);
+  assert.ok(summaries.waiting.chips.every(x=>!x.active),
+   'Lobby must not present a live student turn');
+  assert.equal(summaries.win.person,'Blue Crew');
+  assert.ok(summaries.win.chips.some(x=>x.key==='Blue Crew'&&x.value==='WINNER'&&x.active));
+  assert.ok(summaries.win.chips.some(x=>x.key==='Gold Crew'&&x.value==='ROUND OVER'));
+  assert.equal(summaries.draw.person,'Draw game');
+  assert.ok(summaries.draw.chips.every(x=>!x.active));
+  assert.equal(summaries.dominoWin.person,'Alex');
+  assert.ok(summaries.dominoWin.chips.some(x=>x.key==='WINNER'&&x.value==='Alex'));
+  assert.ok(summaries.dominoWin.chips.some(x=>x.key==='ROUND'&&x.value==='3'));
+  assert.equal(summaries.cosmicWin.person,'Blair');
+  assert.ok(summaries.cosmicWin.chips.some(x=>x.key==='ACTIVE COLOR'&&x.value==='GREEN'));
+  assert.ok(summaries.cosmicWin.chips.some(x=>x.key==='DIRECTION'&&x.value==='COUNTERCLOCKWISE'));
+  assert.equal(summaries.survival.person,'THE CREW');
+  assert.ok(summaries.survival.chips.some(x=>x.key==='CREW ACTIVE'&&x.value==='2 / 3'));
+  assert.ok(summaries.relay.chips.some(x=>x.key==='INPUT'&&x.value==='2 / 5'));
+  assert.equal(summaries.relay.person,'Blair');
+  assert.ok(summaries.bingo.chips.some(x=>x.key==='TOTAL CALLS'&&x.value==='3'));
+  assert.ok(summaries.million.chips.some(x=>x.key==='QUESTION'&&x.value==='2 / 3'));
+  // A dormant controller without game-native actions must never retain
+  // controls from a previous game.
+  const cleared=await page.evaluate(()=>{
+    state.activityRun={activityId:'bingo-game',phase:'running',bingo:{called:[]}};
+    const host=document.getElementById('activityControllerPanel');
+    host.innerHTML='<button id="bingoCallNextBtn">CALL</button>';
+    window.__siUnifiedTeacherControls.refresh();
+    host.querySelector('#bingoCallNextBtn').remove();
+    window.__siUnifiedTeacherControls.refresh();
+    return !!host.querySelector('#siUnifiedTeacherDeck');
+  });
+  assert.equal(cleared,false,'Missing original buttons clear stale teacher shortcuts');
+  console.log('Teacher live HUD: lobby, result, relay, survival and all seven game summaries PASS');
   // UI strings must be rendered as text, never parsed as teacher markup.
   const safe=await page.evaluate(()=>{
     state.activityRun={activityId:"four-in-line-game",phase:"running",
