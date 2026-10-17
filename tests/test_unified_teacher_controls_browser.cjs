@@ -240,7 +240,7 @@ const cases=[
    const dock=host.querySelector('#siUnifiedTeacherDeck');
    const live=dock.querySelector('.si-utc-live');
    const narrow={outer:dock.getBoundingClientRect().width,host:host.getBoundingClientRect().width,
-    tracks:getComputedStyle(live).gridTemplateColumns.trim().split(/\\s+/).length,
+    tracks:getComputedStyle(live).gridTemplateColumns.trim().split(' ').filter(Boolean).length,
     overflow:document.documentElement.scrollWidth-innerWidth,
     buttonHeights:[...dock.querySelectorAll('.si-utc-button')].map(x=>x.getBoundingClientRect().height),
     activeBorder:getComputedStyle(dock.querySelector('.si-utc-score.is-active')).borderColor};
