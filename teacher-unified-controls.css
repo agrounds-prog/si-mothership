@@ -620,3 +620,208 @@ body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-butto
   #teacher #activitiesPanel.si-setup-view .si-setup-steps li b{font-size:14px}
   #teacher #activitiesPanel.si-setup-view .si-setup-steps li span{font-size:10px}
 }
+
+/* Phase 2F · native teacher game setup refinement.
+   Visual hierarchy and responsive layout only. Never change game data,
+   handlers, live activity controls, student views or projector surfaces. */
+#teacher #activitiesPanel.si-setup-view #activityGrid :is(
+  .bbs-studio,.mcb-shell,.ms-studio,.cc-setup,.dm-setup,.wg-setup,
+  .fil-setup,.ss-setup,.minefield-setup,.crew-survey-setup,.calculator-setup-panel
+){
+  min-width:0;
+}
+#teacher #activitiesPanel.si-setup-view #activityGrid :is(
+  .bbs-title p,.mcb-hero-text p,.ms-hero p,.cc-setup-intro p,
+  .dm-setup-intro p,.fil-setup-card p,.ss-setup-card p
+){
+  line-height:1.5;
+  text-wrap:pretty;
+}
+#teacher #activitiesPanel.si-setup-view #activityGrid :is(
+  .bbs-panel,.mcb-card,.ms-question-editor,.ms-preview,.ms-slide-rail,
+  .ms-settings,.fil-setup-card,.ss-setup-card,.dm-setup-rule
+){
+  min-width:0;
+  border-color:color-mix(in srgb,var(--si-setup-accent) 46%,#47748c);
+}
+#teacher #activitiesPanel.si-setup-view #activityGrid :is(
+  .bbs-name-row>label,.bbs-options>label,.mcb-name-row>label,.mcb-side label,
+  .mcb-settings label,.ms-studio label,.fil-setup-card label,.ss-setup-card label
+){
+  font-size:clamp(12px,1vw,14px);
+  line-height:1.42;
+  letter-spacing:.01em;
+  color:#d7ecf8;
+  overflow-wrap:anywhere;
+}
+#teacher #activitiesPanel.si-setup-view #activityGrid :is(
+  .mcb-modes button,.mcb-main-actions button,.mcb-saved-set button,
+  .ms-tabs button,.ms-draft-actions button,.ms-editor-actions button,
+  .ms-footer-buttons button,.bbs-upload-actions button
+){
+  min-height:44px;
+  line-height:1.35;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  touch-action:manipulation;
+}
+#teacher #activitiesPanel.si-setup-view #activityGrid :is(
+  .mcb-modes button,.ms-tabs button,.ms-slide,.mcb-image-card
+)[aria-selected="true"],
+#teacher #activitiesPanel.si-setup-view #activityGrid .ms-slide[aria-current="step"]{
+  border-color:var(--si-setup-accent)!important;
+  box-shadow:inset 0 0 0 1px rgba(var(--si-setup-rgb),.36),0 0 0 2px rgba(var(--si-setup-rgb),.15);
+}
+/* MATCH: keep paired inputs readable instead of squeezing two narrow fields. */
+#teacher #activitiesPanel.si-setup-view[data-si-setup="match"] .mcb-hero{
+  padding:clamp(13px,1.4vw,21px);
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="match"] .mcb-modes button{
+  border-radius:13px;
+  padding:12px 13px;
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="match"] .mcb-modes button b{
+  font-size:clamp(13px,1.1vw,16px);
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="match"] .mcb-modes button small{
+  font-size:12px;line-height:1.4;
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="match"] .mcb-pair-row{
+  min-width:0;align-items:center;
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="match"] .mcb-pair-row :is(
+  input,select,button
+){
+  min-width:0;min-height:44px;
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="match"] :is(
+  .mcb-image-card b,.mcb-preview-examples p,.mcb-saved-set small
+){font-size:12px;line-height:1.4;}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="match"] #mcbSaveLaunch{
+  min-height:54px;
+  background:linear-gradient(135deg,#b8ffde,#39d3ab)!important;
+  color:#092b25!important;
+  border-color:#c6ffe8!important;
+}
+/* MILLION: prominent authoring controls, legible answer preview and game actions. */
+#teacher #activitiesPanel.si-setup-view[data-si-setup="million"] .ms-hero{
+  min-height:0;padding:clamp(15px,1.7vw,24px);
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="million"] .ms-slide{
+  min-height:44px;height:auto;
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="million"] .ms-studio label{
+  font-size:13px;color:#d7e7f3;
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="million"] .ms-answer-grid label{
+  min-width:0;gap:8px;
+  border-color:#416c91;
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="million"] .ms-answer-grid input{
+  font-size:14px!important;
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="million"] .ms-preview-prompt{
+  font-size:clamp(18px,1.7vw,25px);
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="million"] .ms-preview-choices>div{
+  font-size:13px;line-height:1.45;min-height:76px;
+  border-color:#5b8db4;
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="million"] .ms-preview-choices .answer{
+  border-color:#7ff5cb;
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="million"] .ms-save-state{
+  font-size:13px;max-width:none;color:#d1e7f5;
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="million"] .ms-footer-buttons .ms-launch{
+  min-height:53px;
+}
+/* BINGO: selection, naming and saving remain visibly separate. */
+#teacher #activitiesPanel.si-setup-view[data-si-setup="bingo"] .bbs-hero{
+  margin-bottom:13px;
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="bingo"] :is(
+  .bbs-name-row input,.bbs-options select
+){font-size:15px;min-height:46px;}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="bingo"] .bbs-panel{
+  border-color:#668fae;
+}
+/* Small multiplayer studios: hierarchy, selectable targets, roster legibility. */
+#teacher #activitiesPanel.si-setup-view #activityGrid :is(
+  .cc-rule-setup,.dm-setup-rule,.fil-setup-card,.ss-setup-card
+) :is(label,small,p){line-height:1.5;}
+#teacher #activitiesPanel.si-setup-view #activityGrid :is(
+  .cc-setup,.dm-setup,.fil-setup,.ss-setup
+) :is(button,select,input:not([type="checkbox"]):not([type="radio"])){
+  min-height:44px;max-width:100%;
+}
+#teacher #activitiesPanel.si-setup-view #activityGrid :is(
+  .dm-seats,.fil-setup-cards,.ss-setup-main,.mcb-layout,.bbs-layout,.ms-workspace
+)>*{min-width:0;}
+@media(max-width:1100px){
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="match"] .mcb-layout,
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="bingo"] .bbs-layout{
+    grid-template-columns:minmax(0,1fr);
+  }
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="million"] .ms-workspace{
+    grid-template-columns:minmax(130px,185px) minmax(0,1fr);
+  }
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="million"] .ms-preview{
+    position:static;grid-column:2;
+  }
+}
+@media(max-width:760px){
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="match"] .mcb-pair-row{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:12px;
+  }
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="match"] .mcb-pair-index,
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="match"] .mcb-pair-link{
+    display:none;
+  }
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="match"] .mcb-pair-actions{
+    grid-column:1/-1;
+  }
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="million"] .ms-workspace{
+    grid-template-columns:minmax(0,1fr);
+  }
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="million"] .ms-slide-rail{
+    display:flex;flex-wrap:wrap;gap:7px;
+  }
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="million"] .ms-slide-rail .ms-block-head{
+    width:100%;
+  }
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="million"] .ms-slide{
+    flex:1 1 88px;max-width:125px;
+  }
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="million"] .ms-preview{
+    grid-column:1;
+  }
+}
+@media(max-width:540px){
+  #teacher #activitiesPanel.si-setup-view #activityGrid :is(
+    .mcb-card,.bbs-panel,.ms-question-editor,.ms-preview,.ms-slide-rail,.ms-settings,
+    .fil-setup-card,.ss-setup-card
+  ){padding:12px;}
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="match"] .mcb-pair-row{
+    grid-template-columns:minmax(0,1fr);
+  }
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="match"] .mcb-modes{
+    grid-template-columns:minmax(0,1fr);
+  }
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="match"] .mcb-modes button{
+    min-height:62px;
+  }
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="million"] .ms-footer-buttons{
+    display:grid;grid-template-columns:minmax(0,1fr);width:100%;
+  }
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="million"] .ms-footer-buttons button{
+    width:100%;min-height:46px;
+  }
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="bingo"] .bbs-options{
+    grid-template-columns:minmax(0,1fr);
+  }
+  #teacher #activitiesPanel.si-setup-view[data-si-setup="bingo"] .bbs-options .bbs-check{
+    grid-column:1;
+  }
+}
