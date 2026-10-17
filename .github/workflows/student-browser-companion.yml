@@ -8,6 +8,7 @@ on:
       - 'teacher-unified-controls.js'
       - 'teacher-unified-controls.css'
       - 'tests/test_unified_teacher_controls_browser.cjs'
+      - 'tests/test_teacher_game_setup_browser.cjs'
       - 'bingo-board-studio.js'
       - 'bingo-board-studio.css'
       - 'tests/test_bingo_student_call_alerts.py'
@@ -96,6 +97,8 @@ jobs:
         run: node tests/test_word_grid_browser.cjs
       - name: Zoom Bingo, Starwheel and Crew Survey student layout
         run: node tests/test_zoom_student_bingo_starwheel_survey_browser.cjs
+      - name: Eleven teacher game setup studios, controls and narrow-width regression
+        run: node tests/test_teacher_game_setup_browser.cjs
       - name: Unified teacher Mission Control native actions and responsive geometry
         run: node tests/test_unified_teacher_controls_browser.cjs
       - name: Local failure diagnostics
