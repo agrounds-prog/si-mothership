@@ -443,3 +443,180 @@ body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-butto
     transform:none!important;
   }
 }
+
+
+/* Phase 2E · game setup studio. Teacher-only, additive visual system.
+   Native app editors and their event handlers remain untouched. */
+#teacher #activitiesPanel.si-setup-view{
+  --si-setup-accent:#82dafa;--si-setup-rgb:130,218,250;
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="bingo"],
+#teacher #activitiesPanel.si-setup-view[data-si-setup="million"]{
+  --si-setup-accent:#f9d693;--si-setup-rgb:249,214,147;
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="match"]{
+  --si-setup-accent:#c7b2ff;--si-setup-rgb:199,178,255;
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="cosmic-cards"]{
+  --si-setup-accent:#ffb7df;--si-setup-rgb:255,183,223;
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="dominoes"],
+#teacher #activitiesPanel.si-setup-view[data-si-setup="word-grid"]{
+  --si-setup-accent:#a4f4d2;--si-setup-rgb:164,244,210;
+}
+#teacher #activitiesPanel.si-setup-view[data-si-setup="minefield"],
+#teacher #activitiesPanel.si-setup-view[data-si-setup="signal-sequence"]{
+  --si-setup-accent:#ffc39a;--si-setup-rgb:255,195,154;
+}
+#teacher #activitiesPanel.si-setup-view #activityGrid{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  overflow:visible;
+  padding:0!important;
+}
+#teacher #activitiesPanel.si-setup-view #favoriteAppsWrap{
+  display:none!important;
+}
+#teacher #activitiesPanel.si-setup-view .si-setup-guide{
+  width:100%;max-width:100%;min-width:0;display:grid;
+  grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
+  align-items:center;gap:22px;
+  margin:13px 0 17px;padding:21px 22px;
+  border:1px solid rgba(var(--si-setup-rgb),.60);
+  border-radius:20px;
+  background:
+    radial-gradient(ellipse at 4% 0%,rgba(var(--si-setup-rgb),.20),transparent 54%),
+    linear-gradient(148deg,#13364f,#09192e 85%);
+  box-shadow:inset 0 1px rgba(255,255,255,.12),0 10px 24px #0004;
+  color:#edfaff;
+}
+#teacher #activitiesPanel.si-setup-view .si-setup-identity{
+  display:flex;align-items:center;gap:17px;min-width:0;
+}
+#teacher #activitiesPanel.si-setup-view .si-setup-emblem{
+  width:76px;height:76px;flex:0 0 76px;display:grid;place-items:center;
+  border:2px solid var(--si-setup-accent);border-radius:20px;
+  background:radial-gradient(circle at 30% 22%,rgba(var(--si-setup-rgb),.32),#10243d 76%);
+  box-shadow:inset 0 1px rgba(255,255,255,.26),0 7px 20px #0007;
+  color:var(--si-setup-accent);font:900 44px/1 system-ui,sans-serif;
+  text-shadow:0 4px 17px rgba(var(--si-setup-rgb),.4);
+}
+#teacher #activitiesPanel.si-setup-view .si-setup-guide-copy{
+  display:grid;gap:5px;min-width:0;
+}
+#teacher #activitiesPanel.si-setup-view .si-setup-guide-copy small{
+  color:var(--si-setup-accent);font:900 10px/1.3 system-ui,sans-serif;
+  letter-spacing:.16em;
+}
+#teacher #activitiesPanel.si-setup-view .si-setup-guide-copy h3{
+  margin:0;color:#fff;font:950 clamp(19px,2.45vw,28px)/1.1 system-ui,sans-serif;
+  letter-spacing:.015em;overflow-wrap:anywhere;
+}
+#teacher #activitiesPanel.si-setup-view .si-setup-guide-copy p{
+  margin:0;color:#cce0ed;font:650 12px/1.5 system-ui,sans-serif;
+  max-width:53ch;
+}
+#teacher #activitiesPanel.si-setup-view .si-setup-steps{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  list-style:none;margin:0;padding:0;gap:8px;min-width:0;
+}
+#teacher #activitiesPanel.si-setup-view .si-setup-steps li{
+  display:grid;align-content:center;gap:8px;min-width:0;min-height:81px;
+  padding:12px 10px;border:1px solid rgba(var(--si-setup-rgb),.35);
+  border-radius:13px;background:linear-gradient(145deg,#14374d,#0c243b);
+}
+#teacher #activitiesPanel.si-setup-view .si-setup-steps li b{
+  color:var(--si-setup-accent);font:950 17px/1.15 system-ui,sans-serif;
+  font-variant-numeric:tabular-nums;
+}
+#teacher #activitiesPanel.si-setup-view .si-setup-steps li span{
+  color:#f0faff;font:800 11px/1.3 system-ui,sans-serif;
+  overflow-wrap:anywhere;
+}
+#teacher #activitiesPanel.si-setup-view .si-setup-steps li:last-child{
+  border-color:rgba(var(--si-setup-rgb),.8);
+  background:linear-gradient(150deg,rgba(var(--si-setup-rgb),.16),#103247 85%);
+}
+#teacher #activitiesPanel.si-setup-view #activityGrid > :is(
+  .bbs-studio,.ms-studio,.cc-setup,.dm-setup,.wg-setup,
+  .fil-setup,.ss-setup,.minefield-setup,.game-show-setup
+){
+  width:100%!important;max-width:100%!important;
+  min-width:0!important;margin-inline:auto;
+}
+#teacher #activitiesPanel.si-setup-view #activityGrid :is(
+  .fil-setup-card,.ss-setup-card,.wg-setup-card,.game-show-card,
+  .ms-settings,.cc-rule-setup,.dm-setup-rule
+){
+  min-width:0;
+  border-radius:17px;
+  box-shadow:inset 0 1px rgba(255,255,255,.09),0 7px 20px #010c1947;
+}
+#teacher #activitiesPanel.si-setup-view #activityGrid :is(
+  select,input:not([type="checkbox"]):not([type="radio"]),textarea
+){
+  max-width:100%;min-width:0;
+  color-scheme:dark;
+  border-radius:10px;
+  accent-color:var(--si-setup-accent);
+}
+#teacher #activitiesPanel.si-setup-view #activityGrid :is(
+  select,input:not([type="checkbox"]):not([type="radio"]),textarea
+):focus-visible{
+  outline:3px solid var(--si-setup-accent)!important;
+  outline-offset:2px;
+}
+#teacher #activitiesPanel.si-setup-view #activityGrid :is(input[type="checkbox"],input[type="radio"]){
+  accent-color:var(--si-setup-accent);
+}
+#teacher #activitiesPanel.si-setup-view #activityGrid :is(
+  #bbsSaveLaunch,#filLaunch,#ssLaunch,#wgStart,#dmStart,#cosmicLaunchBtn,
+  #msLaunch,#launchMinefieldBtn,#launchCrewSurveyBtn
+){
+  min-height:52px;max-width:100%;
+  border-radius:12px;
+  font-weight:900;line-height:1.22;
+  box-shadow:inset 0 1px rgba(255,255,255,.23),0 4px 0 #031529;
+}
+#teacher #activitiesPanel.si-setup-view #activityGrid :is(
+  button,select,input,textarea
+):focus-visible{
+  outline:3px solid var(--si-setup-accent)!important;
+  outline-offset:3px;
+}
+#teacher #activitiesPanel.si-setup-view .mode-title{
+  align-items:center!important;gap:12px!important;
+  border-bottom:1px solid rgba(var(--si-setup-rgb),.26);
+  padding-bottom:12px;
+}
+#teacher #activitiesPanel.si-setup-view #activitiesHeaderActions button{
+  min-height:42px;border-radius:10px!important;
+  border:1px solid rgba(var(--si-setup-rgb),.56)!important;
+  background:#173e55!important;color:#f2fbff!important;
+  font-weight:850!important;
+}
+@media(max-width:950px){
+  #teacher #activitiesPanel.si-setup-view .si-setup-guide{
+    grid-template-columns:minmax(0,1fr);gap:16px;padding:17px;
+  }
+}
+@media(max-width:590px){
+  #teacher #activitiesPanel.si-setup-view .si-setup-guide{
+    margin:10px 0 15px;padding:12px;gap:12px;
+    border-radius:15px;
+  }
+  #teacher #activitiesPanel.si-setup-view .si-setup-identity{gap:10px}
+  #teacher #activitiesPanel.si-setup-view .si-setup-emblem{
+    width:49px;height:49px;flex-basis:49px;border-radius:13px;font-size:26px;
+  }
+  #teacher #activitiesPanel.si-setup-view .si-setup-guide-copy h3{font-size:18px}
+  #teacher #activitiesPanel.si-setup-view .si-setup-guide-copy p{font-size:11px}
+  #teacher #activitiesPanel.si-setup-view .si-setup-steps{gap:5px}
+  #teacher #activitiesPanel.si-setup-view .si-setup-steps li{
+    min-height:68px;padding:8px 6px;gap:6px;
+  }
+  #teacher #activitiesPanel.si-setup-view .si-setup-steps li b{font-size:14px}
+  #teacher #activitiesPanel.si-setup-view .si-setup-steps li span{font-size:10px}
+}
