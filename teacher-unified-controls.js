@@ -306,6 +306,102 @@
   dock.__originals=all.map(a=>a.target);
   key=stamp;
  }
+ // Phase 2E · Shared classroom game setup header. Never changes setup
+ // controls, native handlers, game drafts, saved files, or launch behavior.
+ // Most games render inside #activityGrid; the Four In Line and Signal
+ // Sequence bridges use the same host and are recognized by actual markup.
+ const setupGames={
+  "bingo":{selector:".bbs-studio",title:"BINGO BOARD STUDIO",icon:"▦",accent:"gold",
+   summary:"Upload or choose your pictures, arrange the board, then save and launch.",
+   stages:["Choose pictures","Build your board","Save & launch"]},
+  "match":{selector:".match-builder, .match-builder-shell, .match-setup, .match-studio",title:"MATCH BUILDER",icon:"◇",accent:"violet",
+   summary:"Choose matching content, configure the players and launch a memory challenge.",
+   stages:["Build pairs","Set game rules","Save & launch"]},
+  "million":{selector:".ms-studio",title:"MILLION GAME STUDIO",icon:"✧",accent:"gold",
+   summary:"Write your questions, configure lifelines and save a complete game show.",
+   stages:["Write questions","Configure the show","Save & launch"]},
+  "cosmic-cards":{selector:".cc-setup",title:"COSMIC CARDS",icon:"✦",accent:"pink",
+   summary:"Select the crew, choose how turns advance and launch the card game.",
+   stages:["Choose turn rule","Select players","Launch game"]},
+  "dominoes":{selector:".dm-setup",title:"DOMINOES",icon:"◈",accent:"mint",
+   summary:"Select two to four players, decide if the teacher plays and deal the tiles.",
+   stages:["Choose players","Assign the teacher","Start game"]},
+  "word-grid":{selector:".wg-setup",title:"WORD GRID",icon:"▤",accent:"mint",
+   summary:"Create teams, place students and launch your word-building challenge.",
+   stages:["Name teams","Assign students","Start game"]},
+  "four-in-line":{selector:".fil-setup",title:"FOUR IN LINE",icon:"⦿",accent:"blue",
+   summary:"Choose board size and sides, assign students and start the strategy game.",
+   stages:["Game settings","Assign crew","Start game"]},
+  "signal-sequence":{selector:".ss-setup",title:"SIGNAL SEQUENCE",icon:"◉",accent:"orange",
+   summary:"Choose a memory mode, configure the lights and assign the crew.",
+   stages:["Choose mode","Assign pilots","Start game"]},
+  "minefield":{selector:".minefield-setup",title:"MINEFIELD",icon:"✹",accent:"orange",
+   summary:"Choose a classroom mode, set the mission length and clear the map together.",
+   stages:["Choose mode","Set difficulty","Launch mission"]},
+  "crew-survey":{selector:".crew-survey-setup",title:"CREW SURVEY",icon:"▥",accent:"blue",
+   summary:"Write the survey prompt, add hidden answers and choose communication supports.",
+   stages:["Write the survey","Set up teams","Launch game"]},
+  "scientific-calculator":{selector:".calculator-setup-panel",title:"SCIENTIFIC CALCULATOR",icon:"▣",accent:"blue",
+   summary:"Choose number settings, then open or share the calculator with your class.",
+   stages:["Choose settings","Preview tool","Open or share"]}
+ };
+ function syncSetup(){
+  if(typeof state==="undefined"||typeof SESSION_ROLE==="undefined"||SESSION_ROLE!=="teacher")return;
+  const host=document.getElementById("activitiesPanel"),grid=document.getElementById("activityGrid");
+  if(!host||!grid)return;
+  let app=String(state.activeApp||""),config=setupGames[app];
+  if(!config||state.activityRun||state.assigningSlot!==null||!grid.querySelector(config.selector)){
+   app="";config=null;
+   // Bridge games can render a native setup before state.activeApp updates.
+   if(!state.activityRun&&state.assigningSlot===null){
+    for(const [candidate,option] of Object.entries(setupGames)){
+     if(grid.querySelector(option.selector)){app=candidate;config=option;break}
+    }
+   }
+  }
+  const old=host.querySelector("#siGameSetupGuide");
+  if(!config){
+   old?.remove();
+   host.classList.remove("si-setup-view");
+   host.removeAttribute("data-si-setup");
+   return;
+  }
+  host.classList.add("si-setup-view");
+  host.dataset.siSetup=app;
+  if(old?.dataset.siSetupApp===app)return;
+  old?.remove();
+  const banner=document.createElement("section");
+  banner.id="siGameSetupGuide";banner.className="si-setup-guide";
+  banner.dataset.siSetupApp=app;banner.dataset.accent=config.accent;
+  banner.setAttribute("aria-label",config.title+" setup instructions");
+  const identity=document.createElement("div");identity.className="si-setup-identity";
+  const emblem=document.createElement("span");emblem.className="si-setup-emblem";
+  emblem.setAttribute("aria-hidden","true");emblem.textContent=config.icon;
+  const copy=document.createElement("div");copy.className="si-setup-guide-copy";
+  const kicker=document.createElement("small");kicker.textContent="MISSION CONTROL · GAME SETUP";
+  const name=document.createElement("h3");name.textContent=config.title;
+  const intro=document.createElement("p");intro.textContent=config.summary;
+  copy.append(kicker,name,intro);identity.append(emblem,copy);
+  const steps=document.createElement("ol");steps.className="si-setup-steps";
+  config.stages.forEach((step,i)=>{
+   const item=document.createElement("li");
+   const number=document.createElement("b");number.textContent=String(i+1).padStart(2,"0");
+   const label=document.createElement("span");label.textContent=step;
+   item.append(number,label);steps.append(item);
+  });
+  banner.append(identity,steps);
+  grid.before(banner);
+ }
+ let setupObserver,setupHost;
+ function watchSetup(){
+  const grid=document.getElementById("activityGrid");
+  if(grid&&grid!==setupHost){
+   setupObserver?.disconnect();setupHost=grid;
+   setupObserver=new MutationObserver(()=>requestAnimationFrame(syncSetup));
+   setupObserver.observe(grid,{childList:true});
+  }
+  syncSetup();
+ }
  let pending=false;
  function enqueue(){
   if(pending)return;
@@ -323,8 +419,8 @@
  }
  function install(){
   if(typeof SESSION_ROLE==="undefined"||SESSION_ROLE!=="teacher")return;
-  observe();setInterval(observe,1100);
-  window.__siUnifiedTeacherControls={refresh,version:"2D"};
+  observe();watchSetup();setInterval(()=>{observe();watchSetup()},1100);
+  window.__siUnifiedTeacherControls={refresh,syncSetup,version:"2E"};
  }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
  else install();
