@@ -199,6 +199,73 @@ const cases=[
   assert.equal(summaries.relay.person,'Blair');
   assert.ok(summaries.bingo.chips.some(x=>x.key==='TOTAL CALLS'&&x.value==='3'));
   assert.ok(summaries.million.chips.some(x=>x.key==='QUESTION'&&x.value==='2 / 3'));
+  // Phase 2D: icon treatment, player-card readability, meaningful accessible
+  // progress, distinct game identity, and narrow component layout.
+  const design=await page.evaluate(()=>{
+   const host=document.getElementById('activityControllerPanel');
+   const make=(id,gameData)=>{
+    state.activityRun={activityId:id,phase:'running',...gameData};
+    host.innerHTML='<button id="bingoCallNextBtn">NATIVE CALL</button>'+
+      '<button data-fil-action="save">NATIVE SAVE</button>'+
+      '<button id="returnClassBtn">FINISH NATIVE</button>';
+    window.__siUnifiedTeacherControls.refresh();
+    const dock=host.querySelector('#siUnifiedTeacherDeck');
+    const meter=dock.querySelector('[role="progressbar"]');
+    const gameButton=dock.querySelector('.si-utc-button:not(.si-utc-session)');
+    const person=dock.querySelector('.si-utc-score.is-player');
+    return {id:dock.dataset.game,phase:dock.dataset.phase,
+      icon:dock.querySelector('.si-utc-emblem')?.textContent,
+      accent:getComputedStyle(dock).getPropertyValue('--si-utc-accent').trim(),
+      panelWidth:dock.getBoundingClientRect().width,
+      meter:meter?{title:meter.getAttribute('aria-label'),now:meter.getAttribute('aria-valuenow'),
+       total:meter.getAttribute('aria-valuemax'),width:meter.querySelector('.si-utc-progress-fill').style.width}:null,
+      playerAvatar:!!person?.querySelector('.si-utc-chip-avatar[aria-hidden="true"]'),
+      buttonIcon:gameButton?getComputedStyle(gameButton,'::before').content:'',
+      buttonLabel:gameButton?.getAttribute('aria-label')};
+   };
+   const cases={
+    bingo:make('bingo-game',{bingo:{called:['a','b'],callOrder:['a','b','c']}}),
+    match:make('match-game',{match:{matched:['p1','p2'],cards:[{},{},{},{}],scores:{Alex:2}},
+      matchConfig:{mode:'individual'}}),
+    million:make('million-game',{million:{questionIndex:1},millionConfig:{questions:[{},{},{}]}}),
+    four:make('four-in-line-game',{fourInLine:{turn:0,players:['Blue Crew','Gold Crew'],
+      moves:7,cols:7,rows:6,status:'playing'}})
+   };
+   state.activityRun={activityId:'four-in-line-game',phase:'running',
+    fourInLine:{turn:0,players:['Blue Crew','Gold Crew'],moves:7,cols:7,rows:6,status:'playing'}};
+   host.innerHTML='<button data-fil-action="save">NATIVE SAVE</button><button id="returnClassBtn">RETURN</button>';
+   host.style.width='360px';
+   host.style.maxWidth='none';
+   window.__siUnifiedTeacherControls.refresh();
+   const dock=host.querySelector('#siUnifiedTeacherDeck');
+   const live=dock.querySelector('.si-utc-live');
+   const narrow={outer:dock.getBoundingClientRect().width,host:host.getBoundingClientRect().width,
+    tracks:getComputedStyle(live).gridTemplateColumns.trim().split(/\\s+/).length,
+    overflow:document.documentElement.scrollWidth-innerWidth,
+    buttonHeights:[...dock.querySelectorAll('.si-utc-button')].map(x=>x.getBoundingClientRect().height),
+    activeBorder:getComputedStyle(dock.querySelector('.si-utc-score.is-active')).borderColor};
+   host.style.width='';host.style.maxWidth='';
+   return {cases,narrow};
+  });
+  for(const [name,item] of Object.entries(design.cases)){
+   assert.ok(item.icon&&item.accent&&item.panelWidth>250,'Each game has a distinct visual identity: '+name);
+   assert.ok(item.buttonIcon&&item.buttonIcon!=='none','Native action mirrors have visible icons: '+name);
+   assert.ok(item.buttonLabel,'Action remains accessible: '+name);
+  }
+  assert.deepEqual(Object.values(design.cases).map(x=>x.accent).filter((v,i,a)=>a.indexOf(v)===i).length,4,
+   'Four sample games have four distinct colored accent themes');
+  assert.deepEqual(design.cases.bingo.meter,{title:'ITEMS CALLED',now:'2',total:'3',width:'66.67%'});
+  assert.equal(design.cases.match.meter?.now,'1');
+  assert.equal(design.cases.match.meter?.total,'2');
+  assert.equal(design.cases.million.meter?.now,'2');
+  assert.equal(design.cases.million.meter?.total,'3');
+  assert.equal(design.cases.four.meter?.now,'7');
+  assert.equal(design.cases.four.meter?.total,'42');
+  assert.equal(design.cases.four.playerAvatar,true,'Player score cards include visual identity');
+  assert.ok(design.narrow.outer<=design.narrow.host+2,'Toolbar must not spill from a 360px host: '+JSON.stringify(design.narrow));
+  assert.equal(design.narrow.tracks,1,'Component-level narrow widths stack the game HUD');
+  assert.ok(design.narrow.buttonHeights.every(n=>n>=44),'Compact teacher actions must be touch sized');
+  console.log('Teacher HUD visual identity, progress semantics and 360px responsive layout PASS');
   // A dormant controller without game-native actions must never retain
   // controls from a previous game.
   const cleared=await page.evaluate(()=>{
