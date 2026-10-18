@@ -62,6 +62,12 @@ function matchArcadeShared(run=state.activityRun,big=false){
   const preview=matchArcadePreviewActive(run),status=matchArcadeStatus(m,run),matched=(m.matched||[]).length/2,pairs=cards.length/2;
   const cols=matchArcadeGridColumns(cards);
   const team=cfg.mode==='teams'?matchTeamMeta(m.activeTeam):null;
+  // Decorative, pointer-transparent state accents. The existing status banner
+  // remains the accessible announcer and native MATCH retains all scoring.
+  const celebration=status.type==='matched'?
+    '<div class="ma-stage-celebration ma-stage-pair" aria-hidden="true"><span class="ma-celebration-sparks">✦ &nbsp; ✧ &nbsp; ✦</span><strong>PAIR FOUND!</strong><small>'+ (cfg.scoring==='no_score'?'MEMORY MISSION · WELL DONE':'AUTOMATIC POINT AWARDED') +'</small></div>':
+    status.type==='victory'?
+    '<div class="ma-stage-celebration ma-stage-victory" aria-hidden="true"><span class="ma-celebration-sparks">✦ &nbsp; ★ &nbsp; ✦</span><span class="ma-celebration-trophy">🏆</span><strong>MISSION COMPLETE</strong><small>'+matched+' OF '+pairs+' PAIRS DISCOVERED</small></div>':'';
   return '<div class="ma-game ma-shared '+(big?'ma-present':'ma-compact')+' ma-status-'+status.type+'">'+
     '<div class="ma-cosmos" aria-hidden="true"><span class="ma-planet ma-planet-one"></span><span class="ma-planet ma-planet-two"></span><span class="ma-space-grid"></span></div>'+
     '<header class="ma-header"><div class="ma-brand"><span class="ma-brand-icon">✦</span><span>MISSION <b>MATCH</b></span></div><span class="ma-round-label">MEMORY CHALLENGE</span></header>'+
@@ -70,7 +76,7 @@ function matchArcadeShared(run=state.activityRun,big=false){
     '<div class="ma-counter-strip"><span><b>'+matched+'</b> / '+pairs+' <small>PAIRS FOUND</small></span><span><b>'+Number(m.attempts||0)+'</b> <small>TRIES</small></span></div></div>'+
     '<div class="ma-signal ma-signal-'+status.type+'" aria-live="polite" aria-atomic="true"><span class="ma-signal-icon" aria-hidden="true">'+({victory:'🏆',preview:'◉',matched:'✦',miss:'↶',hold:'Ⅱ',ready:'◇'}[status.type])+'</span><div><strong>'+status.title+'</strong><span>'+status.detail+'</span></div></div>'+
     '<div class="ma-board-wrap"><div class="ma-board-surround"><div class="ma-grid" style="--ma-cols:'+cols+'">'+cards.map((card,i)=>
-      matchArcadeTile(card,i,m,{preview})).join('')+'</div></div></div>'+
+      matchArcadeTile(card,i,m,{preview})).join('')+'</div>'+celebration+'</div></div>'+
     '<div class="ma-bottomline"><div class="ma-progress"><span>MISSION PROGRESS</span><div class="ma-progress-track"><i style="width:'+(pairs?Math.min(100,Math.round(matched/pairs*100)):0)+'%"></i></div></div>'+
     '<div class="ma-log">⌁ '+esc(m.message||'Find the hidden pairs.')+'</div></div>'+
     '<div class="ma-scoreboard">'+matchArcadeScoreline(m,run)+'</div>'+
