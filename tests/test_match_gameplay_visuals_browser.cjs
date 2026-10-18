@@ -142,6 +142,18 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(victory.progressWidth,'100%');
   assert.equal(victory.pointer,'none');
   assert.equal(victory.aria,'true');
+  const standings=await shared.evaluate(()=>{
+    const stage=document.querySelector('.ma-stage-victory .ma-final-results');
+    return {mode:stage?.dataset.mode,rows:[...stage.querySelectorAll('.ma-final-row')].map(row=>({
+      rank:row.querySelector('.ma-final-rank').textContent,
+      name:row.querySelector('.ma-final-name').textContent,
+      score:row.querySelector('.ma-final-points').textContent.trim()
+    }))};
+  });
+  assert.equal(standings.mode,'individual');
+  assert.deepEqual(standings.rows.map(x=>x.name),['✦ Alex','✦ Blair']);
+  assert.deepEqual(standings.rows.map(x=>x.rank),['01','02']);
+  assert.deepEqual(standings.rows.map(x=>x.score),['5 PAIRS','3 PAIRS']);
   assert.ok(victory.staysInBoard,'victory graphic stays inside the game card arena');
   assert.deepEqual(errors,[],'No JavaScript errors during teacher and projector play');
   console.log('MATCH Phase 3A teacher controls + projected 16-card board PASS',
