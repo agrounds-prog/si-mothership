@@ -299,9 +299,21 @@ function installMillionStageCues(){
   if(stageName==='complete'){headline='MILLION COMPLETE';detail='FINAL MILESTONE: '+String.fromCharCode(36)+Number(ladder.at(-1)||1000000).toLocaleString('en-US');duration=2800}
   const node=ensureCue();
   node.className='ms-million-cue '+stageName;
+  // A purely decorative one-shot stage crest; the already announced title,
+  // prize and state still come exclusively from the native game run.
+  const crest=document.createElement('div');
+  crest.className='ms-million-cue-crest';
+  crest.setAttribute('aria-hidden','true');
+  crest.textContent=stageName==='complete'?'🏆':
+    stageName==='correct'?'✦':stageName==='wrong'?'◇':
+    stageName==='locked'?'◆':'✧';
+  const sparkle=document.createElement('div');
+  sparkle.className='ms-million-cue-sparkles';
+  sparkle.setAttribute('aria-hidden','true');
+  sparkle.textContent='✦   ✧   ✦   ✧   ✦';
   const title=document.createElement('strong');title.textContent=headline;
   const sub=document.createElement('span');sub.textContent=detail;
-  node.replaceChildren(title,sub);
+  node.replaceChildren(sparkle,crest,title,sub);
   node.classList.remove('visible');
   // Browser presentation frames start a new visual cue only on a real game-state transition.
   void node.offsetWidth;
