@@ -219,6 +219,25 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.match(finale.bannerBackground,/gradient/);
   assert.equal(finale.fourChoices,4);
   assert.equal(finale.noPrivateKey,true);
+  await screen.waitForFunction(()=>!!document.querySelector('.million-public .ms-million-final-results'),
+    null,{timeout:6500});
+  const results=await screen.evaluate(()=>{
+    const board=document.querySelector('.million-public .ms-million-final-results');
+    const metrics=[...board.querySelectorAll('.ms-million-final-metrics strong')].map(x=>x.textContent);
+    const rect=board.getBoundingClientRect();
+    return {title:board.querySelector('.ms-million-final-header h3')?.textContent,
+      value:board.querySelector('.ms-million-final-prize strong')?.textContent,
+      metrics,count:document.querySelectorAll('.million-public .ms-million-final-results').length,
+      inViewport:rect.width>200&&rect.left>=0&&rect.right<=innerWidth+5,
+      privateAnswerHidden:!('correct' in state.activityRun.millionConfig.questions[0])};
+  });
+  assert.deepEqual([results.title,results.value],['MILLION COMPLETE','$1,000,000']);
+  assert.deepEqual(results.metrics,['5 / 5','5 / 5']);
+  assert.equal(results.count,1);
+  assert.ok(results.inViewport&&results.privateAnswerHidden);
+  await teacher.waitForFunction(()=>!!document.querySelector('#activityControllerPanel .ms-million-final-results'),
+    null,{timeout:6500});
+
 
   // Ensure game-over stops after a wrong classic answer instead of silently proceeding.
   await teacher.evaluate(()=>{
