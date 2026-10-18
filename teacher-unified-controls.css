@@ -919,3 +919,26 @@ body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-butto
     flex:1 1 170px;
   }
 }
+
+
+/* Phase 3D: teacher's authentic native return action becomes the finale CTA. */
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-deck[data-finished="true"]{
+ border-color:#e6c78a;box-shadow:inset 0 0 0 2px #f5d9951f,0 11px 30px #0006;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-deck[data-finished="true"] .si-utc-status{
+ color:#ffe1a2;border-color:#c2a56d;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-complete-note{
+ margin:0;padding:10px 13px;border:1px solid #7f96ca;border-radius:12px;
+ background:linear-gradient(105deg,#242660,#173957);
+ color:#f3f8ff;font:850 13px/1.5 system-ui,sans-serif;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-deck[data-finished="true"] .si-utc-finish{
+ flex:1 1 190px;min-height:59px;
+ border:2px solid #ffeba8!important;background:linear-gradient(115deg,#ffe4a2,#dda54a)!important;
+ color:#16243a!important;box-shadow:inset 0 1px #fff7df,0 4px 0 #865824;
+ font:1000 15px/1.25 system-ui,sans-serif;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-deck[data-finished="true"] .si-utc-finish::before{
+ color:#142741!important;border-color:#866128;background:#fff3d4;
+}
