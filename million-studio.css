@@ -624,3 +624,205 @@ body.role-student #studentContent .million-student-actions button{
   transition:none!important;animation:none!important;
  }
 }
+
+
+/* Phase 3A.2 · MILLION game-show effects. Stage only — no game logic.
+   Existing one-shot cues are the only source of reveal timing and milestones. */
+.ms-million-cue{
+ overflow:hidden;isolation:isolate;
+ border-width:3px!important;
+ box-shadow:0 22px 84px #000d,0 0 40px #79c8ff65,inset 0 0 0 3px #e2ffff21!important;
+}
+.ms-million-cue:before{
+ content:'';position:absolute;inset:-42%;
+ z-index:-1;pointer-events:none;
+ background:conic-gradient(from 15deg,#ffffff00 0 11%,#c9edff1f 13%,#ffffff00 18% 29%,#aeecff1c 32%,#ffffff00 36% 49%,#c9edff1f 52%,#ffffff00 56% 69%,#aeecff1c 72%,#ffffff00 78% 90%,#c9edff16 94%,#ffffff00 97%);
+ opacity:.7;
+}
+.ms-million-cue:after{
+ content:'';position:absolute;inset:7px;
+ border:1px solid #edfcff3d;border-radius:18px;pointer-events:none;
+ box-shadow:inset 0 0 26px #9bdfff16;
+}
+.ms-million-cue .ms-million-cue-crest{
+ display:grid;place-items:center;margin:0 auto 11px;
+ width:clamp(58px,7vw,104px);height:clamp(58px,7vw,104px);
+ border:2px solid #a6e3ff;border-radius:50%;
+ background:radial-gradient(circle at 33% 28%,#4689af,#104169 67%,#0b233f);
+ box-shadow:inset 0 1px 0 #ffffff85,0 0 27px #6ddcff83;
+ color:#effcff;font-size:clamp(30px,4.8vw,65px);line-height:1;
+ text-shadow:0 0 13px #b5efff;
+}
+.ms-million-cue .ms-million-cue-sparkles{
+ position:absolute;inset:7% 0 auto;
+ display:block;margin:0!important;padding:0 8px;
+ color:#c3f5ff;font-size:clamp(16px,2vw,30px);letter-spacing:.42em;
+ text-shadow:0 0 16px #68d9fd;opacity:.85;pointer-events:none;
+}
+.ms-million-cue strong{
+ position:relative;z-index:1;line-height:1.13!important;
+ font-size:clamp(27px,4vw,61px);
+ overflow-wrap:anywhere;text-wrap:balance;
+}
+.ms-million-cue>span{
+ position:relative;z-index:1;font-size:clamp(12px,1.4vw,21px);
+ line-height:1.45!important;letter-spacing:.1em!important;overflow-wrap:anywhere;
+}
+.ms-million-cue.visible.correct{
+ border-color:#a9ffd4!important;
+ background:radial-gradient(circle at 50% -22%,#287f69,#093345 70%)!important;
+ box-shadow:0 25px 85px #000c,0 0 62px #55eab07a!important;
+}
+.ms-million-cue.visible.correct .ms-million-cue-crest{
+ border-color:#b5ffe0;background:radial-gradient(circle at 35% 22%,#78f5c4,#168366 68%,#0b473a);
+ box-shadow:inset 0 1px #ffffff9e,0 0 34px #69ffc3a6;color:#effff4;
+}
+.ms-million-cue.visible.complete{
+ border-color:#ffe39a!important;
+ background:radial-gradient(circle at 50% -20%,#9e732b,#3d3442 64%,#111e34)!important;
+ box-shadow:0 25px 95px #000d,0 0 76px #ffc75b9c!important;
+}
+.ms-million-cue.visible.complete .ms-million-cue-crest{
+ border-color:#fff2b7;
+ background:radial-gradient(circle at 36% 21%,#fff1bc,#daa543 45%,#8d5720 82%);
+ box-shadow:0 0 48px #ffdd8299,inset 0 1px #ffffff99;
+ font-size:clamp(34px,5.3vw,71px);
+}
+.ms-million-cue.visible.complete .ms-million-cue-sparkles{
+ color:#fff0bb;text-shadow:0 0 15px #ffc65e;
+}
+.ms-million-cue.visible.complete strong{
+ color:#fff1b9;text-shadow:0 0 26px #ffd075,0 4px 11px #3a210c;
+}
+.ms-million-cue.visible.wrong .ms-million-cue-crest{
+ border-color:#ffc1d2;background:radial-gradient(circle at 33% 20%,#d3748c,#782d50 70%);
+ color:#ffe9f0;box-shadow:0 0 30px #ed92ab65;
+}
+.ms-million-cue.visible.locked .ms-million-cue-crest{
+ border-color:#ffe7aa;background:radial-gradient(circle at 33% 20%,#d9a954,#6c5126 71%);
+ color:#fff8d2;box-shadow:0 0 28px #ffd07866;
+}
+/* Money ladder: active prize clearly distinct from banked achievements. */
+.million-public.big .million-rung.earned:not(.active){
+ border:1px solid #4e9f87!important;border-left:4px solid #81edba!important;
+ border-radius:7px;
+ background:linear-gradient(100deg,#135b50,#103a46)!important;
+ color:#e6fff1!important;
+}
+.million-public.big .million-rung.earned:not(.active) b{
+ color:#adffcd!important;font-weight:1000!important;
+}
+.million-public.big .million-rung.active{
+ position:relative;
+ border-color:#ffe8a5!important;
+ background:radial-gradient(circle at right top,#b57d2a66,transparent 74%),
+            linear-gradient(100deg,#755325,#2e3c57)!important;
+ color:#fff3c6!important;
+ box-shadow:inset 0 1px #fff5cc54,0 0 18px #ffd77881!important;
+}
+.million-public.big .million-rung.active:before{
+ content:'✦';position:absolute;left:-9px;top:50%;transform:translateY(-50%);
+ font-size:15px;color:#ffebba;text-shadow:0 0 11px #ffd466;pointer-events:none;
+}
+/* Correct answers read as a stage win, while incorrect remain visibly distinct. */
+.million-public.big .million-choice.correct{
+ border:3px solid #9effd1!important;
+ box-shadow:inset 0 0 0 2px #e9fff846,0 0 28px #5bf1a884!important;
+}
+.million-public.big .million-choice.correct b{
+ background:linear-gradient(130deg,#2cb58d,#127255)!important;color:#fff!important;
+}
+.million-public.big .million-choice.wrong{
+ border:3px solid #ffb1bf!important;box-shadow:0 0 22px #fe658571!important;
+}
+.million-public.big .million-choice.locked{
+ border:3px solid #ffe6a8!important;
+ box-shadow:0 0 23px #ffd36b8f!important;
+}
+/* Persistent final-state celebration remains after the one-shot cue fades. */
+.million-public.big .million-complete{
+ position:relative;display:grid;justify-items:center;gap:6px;
+ margin:15px auto 8px;padding:17px 28px;max-width:90%;
+ border:2px solid #ffe3a0;border-radius:18px;
+ background:radial-gradient(circle at 50% -40%,#b38a3c77,transparent 76%),#172e46;
+ color:#fff0af!important;font:1000 clamp(22px,2.8vw,43px)/1.2 system-ui,sans-serif;
+ letter-spacing:.08em;text-align:center;
+ text-shadow:0 0 22px #ffc868a1;
+ box-shadow:0 0 32px #ffc7666d,inset 0 0 0 3px #ffe7aa1b;
+}
+.million-public.big .million-complete:before{
+ content:'★ ★ ★';display:block;font-size:clamp(15px,2vw,29px);
+ color:#fff2be;letter-spacing:.35em;text-shadow:0 0 14px #f7d271;
+}
+.million-public.big .million-complete:after{
+ content:'ALL MILESTONES EARNED';display:block;
+ color:#c9ffe2;font-size:clamp(11px,.95vw,15px);font-weight:950;
+ letter-spacing:.15em;text-shadow:none;
+}
+body.role-student #studentContent .million-student .ms-million-turn-cue[data-phase="correct"]{
+ border:2px solid #a0ffdc;border-left:6px solid #7affa8;
+ box-shadow:inset 0 0 0 1px #d8fff01d,0 0 19px #64eeba46;
+}
+body.role-student #studentContent .million-student .ms-million-turn-cue[data-phase="wrong"]{
+ border-color:#ffa9bf;border-left:6px solid #ff8fa7;
+}
+@media(prefers-reduced-motion:no-preference){
+ .ms-million-cue.visible:before{animation:ms-cue-rays 3s ease-out both}
+ .ms-million-cue.visible .ms-million-cue-crest{
+  animation:ms-cue-award 1.15s cubic-bezier(.2,.85,.23,1) both;
+ }
+ .ms-million-cue.visible .ms-million-cue-sparkles{
+  animation:ms-cue-sparkles 1.45s ease-out both;
+ }
+ .million-public.big .million-complete{
+  animation:ms-end-prize-arrive .85s ease-out both;
+ }
+ @keyframes ms-cue-rays{
+  from{opacity:.12;transform:rotate(-22deg) scale(.72)}
+  to{opacity:.7;transform:rotate(8deg) scale(1)}
+ }
+ @keyframes ms-cue-award{
+  0%{opacity:0;transform:translateY(18px) scale(.63)}
+  52%{opacity:1;transform:translateY(-6px) scale(1.12)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+ }
+ @keyframes ms-cue-sparkles{
+  0%{opacity:0;transform:translateY(14px) scale(.7)}
+  55%{opacity:1;transform:translateY(-7px) scale(1.15)}
+  100%{opacity:.85;transform:translateY(0) scale(1)}
+ }
+ @keyframes ms-end-prize-arrive{
+  from{opacity:0;transform:translateY(12px) scale(.94)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+ }
+}
+@media(max-width:880px){
+ .ms-million-cue{width:min(90vw,590px);padding:clamp(13px,2vw,26px)}
+ .ms-million-cue .ms-million-cue-crest{
+  width:clamp(48px,9vw,76px);height:clamp(48px,9vw,76px);
+  font-size:clamp(26px,6vw,49px);
+ }
+ .ms-million-cue .ms-million-cue-sparkles{top:4%;letter-spacing:.2em}
+ .ms-million-cue strong{font-size:clamp(24px,4vw,42px)}
+ .ms-million-cue>span{font-size:clamp(11px,2vw,16px)}
+ .million-public.big .million-complete{padding:12px 15px}
+}
+@media(max-height:680px){
+ .ms-million-cue .ms-million-cue-crest{
+  width:51px;height:51px;font-size:31px;margin-bottom:6px;
+ }
+ .ms-million-cue .ms-million-cue-sparkles{top:2%;font-size:14px}
+ .ms-million-cue{padding:12px 19px}
+ .ms-million-cue strong{font-size:clamp(22px,4.1vh,36px)}
+ .ms-million-cue>span{margin-top:7px;font-size:clamp(11px,2vh,14px)}
+ .million-public.big .million-complete:before{font-size:13px}
+ .million-public.big .million-complete:after{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ .ms-million-cue:before,
+ .ms-million-cue .ms-million-cue-crest,
+ .ms-million-cue .ms-million-cue-sparkles,
+ .million-public.big .million-complete{
+  animation:none!important;transition:none!important
+ }
+}
