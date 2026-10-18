@@ -408,9 +408,9 @@ function installMillionFinalResults(){
   }else if(role==='student'){
    game.append(card);
   }else{
-   const complete=game.querySelector('.million-complete');
-   if(complete)complete.replaceWith(card);
-   else game.append(card);
+   // Preserve the existing completion banner in DOM for old student/projector
+   // integrations, while CSS puts the new final results in visual focus.
+   game.append(card);
   }
   lastHost=game;lastKey=key;
  }
