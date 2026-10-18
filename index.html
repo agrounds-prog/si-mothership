@@ -19601,10 +19601,11 @@ function renderPublic(){
   const label=state.ended?'ENDED':state.activityRun?(activeActivity()?.type==='board'?'BOARD LIVE':state.activityRun.phase==='lobby'?'ACTIVITY LOBBY':'ACTIVITY LIVE'):state.screen==='brb'?'WE’LL BE RIGHT BACK':state.screen.toUpperCase();$('#mirrorLabel').textContent=label;$('#sharedLabel').textContent=label;updateSecondScreen();
 }
 function render(){
-  // Browser history can restore SIGNAL SEQUENCE before its deferred bridge
-  // has initialized. The generic controller is not built for this game.
-  // The game bridge will render immediately after installation.
+  // A restored bridge game can hydrate before its controller is installed.
+  // Defer generic rendering until the corresponding bridge initializes,
+  // rather than treating its non-presentation game state as slide responses.
   if(state.activityRun?.activityId==='signal-sequence-game'&&!window.__signalSequenceBridge)return;
+  if(state.activityRun?.activityId==='four-in-line-game'&&!window.__fourLineBridgeInstalled)return;
   teacherSummaryObserve();renderActivityWorkflowBar();renderCalculatorWorkflowBar();const cm=$('#connectedMetric');if(cm)cm.textContent=connectedStudents().length;renderStudentSelect();renderRoster();renderRight();renderControls();renderHomeAppShortcuts();setMissionPanel();renderCustomRoster();renderAgendaPreview();renderActivities();renderPresentationBuilder();updateAgendaDraftPreview();renderPublic();syncBoardCalculatorOverlay();publishSyncedState()}
 
 async function handleGenericAction(){
