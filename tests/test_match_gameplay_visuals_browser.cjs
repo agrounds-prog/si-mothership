@@ -197,7 +197,16 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    compactFinal.stage.right<=compactFinal.board.right+4&&
    compactFinal.scrollWidth<=compactFinal.viewport+6,
    'compact MATCH final results stay inside projector: '+JSON.stringify(compactFinal));
-  await teacher.evaluate(()=>{state.activityRun=null;state.screen='classroom';render()});
+  const matchFinalHUD=await teacher.evaluate(()=>{
+   const dock=document.querySelector('#siUnifiedTeacherDeck');
+   return {finished:dock?.dataset.finished,
+    returnText:dock?.querySelector('.si-utc-finish')?.textContent};
+  });
+  assert.deepEqual(matchFinalHUD,{finished:'true',returnText:'Return to Class'});
+  teacher.on('dialog',dialog=>dialog.accept());
+  await teacher.locator('#siUnifiedTeacherDeck .si-utc-finish').click();
+  await teacher.waitForFunction(()=>!state.activityRun||state.activityRun.activityId!=='match-game',
+   null,{timeout:12000});
   await shared.waitForFunction(()=>!document.querySelector('.ma-present .ma-final-results'),null,{timeout:12000});
   assert.deepEqual(errors,[],'No JavaScript errors during teacher and projector play');
   console.log('MATCH Phase 3A teacher controls + projected 16-card board PASS',
