@@ -45,7 +45,15 @@ jobs:
       - name: Teacher-only SI+ presentation preview and projector sizing
         run: node tests/test_si_plus_preview_browser.cjs
       - name: SI+ live presentation navigation, one-shot transitions and video stability
-        run: node tests/test_si_plus_live_navigation_browser.cjs
+        run: |
+          # Separate test presentation state from earlier editor/save/reset cases.
+          mkdir -p /tmp/mothership-si-plus-live-navigation
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-si-plus-live-navigation PORT=8882 python server.py >/tmp/mothership-si-plus-live-navigation.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8882/api/health >/dev/null; then break; fi
+            sleep 1
+          done
+          LOCAL_URL=http://127.0.0.1:8882 node tests/test_si_plus_live_navigation_browser.cjs
       - name: SI+ Quick Poll classroom bridge, safe draft handoff and projector toggle
         run: node tests/test_si_plus_quick_poll_bridge_browser.cjs
       - name: SI+ intermission — launch real games and restore exact classroom slide
