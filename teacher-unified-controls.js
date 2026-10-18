@@ -34,9 +34,9 @@
  function label(r){
   if(r.phase==="lobby")return "LOBBY · READY";
   if(r.activityId==="bingo-game")return (r.bingo?.called||[]).length+" CALLED";
-  if(r.activityId==="match-game")return Math.floor((r.match?.matched||[]).length/2)+" PAIRS FOUND";
+  if(r.activityId==="match-game")return r.match?.complete?"FINAL RESULTS":Math.floor((r.match?.matched||[]).length/2)+" PAIRS FOUND";
   if(r.activityId==="four-in-line-game")return (r.fourInLine?.moves||0)+" MOVES";
-  if(r.activityId==="million-game")return "QUESTION "+(Number(r.million?.questionIndex||0)+1);
+  if(r.activityId==="million-game")return r.million?.complete||r.million?.over?"FINAL RESULTS":"QUESTION "+(Number(r.million?.questionIndex||0)+1);
   if(r.activityId==="signal-sequence-game")return "ROUND "+(r.signalSequence?.round||0);
   return "GAME IN PROGRESS";
  }
@@ -139,12 +139,18 @@
   }else if(id==="million-game"){
    const m=r.million||{},c=r.millionConfig||{};
    bar.person=m.complete||m.over?"Round complete":m.pilot||m.player||"";
-   bar.prompt="QUESTION PROGRESS";
+   bar.prompt=m.complete||m.over?"FINAL RESULTS":"QUESTION PROGRESS";
    const total=Number(c.questions?.length||0);
    const index=Number(m.questionIndex||0)+1;
    metric("QUESTION",index+(total?" / "+total:""));
    progress("QUESTION PROGRESS",index,total);
    metric("ANSWER",m.revealed?"REVEALED":m.lockedAnswer?"LOCKED":"AWAITING");
+   if(m.complete||m.over){
+    const ladder=Array.isArray(c.ladder)?c.ladder:[];
+    const level=Math.min(ladder.length,Math.max(0,Number(m.ladderLevel)||0));
+    const prize=level?Math.max(0,Number(ladder[level-1])||0):0;
+    metric("FINAL PRIZE","$"+prize.toLocaleString("en-US"));
+   }
   }else if(id==="bingo-game"){
    const g=r.bingo||{};
    bar.person="Teacher calling";
@@ -232,7 +238,7 @@
   const el=document.createElement("button");
   el.type="button";
   el.className="si-utc-button"+(isSafety?" si-utc-session":"");
-  if(/Finish/.test(title))el.classList.add("si-utc-finish");
+  if(/Finish|Return to Class$/.test(title))el.classList.add("si-utc-finish");
   el.textContent=title;
   el.setAttribute("aria-label",title);
   el.dataset.icon=/Next|Continue|Start/.test(title)?"→":/Save/.test(title)?"▣":/Undo|Retry/.test(title)?"↺":/Pause/.test(title)?"Ⅱ":/Return|Finish/.test(title)?"↩":/Draw/.test(title)?"⊕":/Reveal|Memory/.test(title)?"✧":"◆";
@@ -253,7 +259,10 @@
   const info=game[r.activityId],gameActions=info[1].map(([title,selector])=>{
    const target=lookup([selector]);return target?{title,target}:null;
   }).filter(Boolean);
+  const finished=(r.activityId==="match-game"&&!!r.match?.complete)||
+   (r.activityId==="million-game"&&!!(r.million?.complete||r.million?.over));
   const sessionActions=safety.map(([title,selectors])=>{
+   if(finished&&title==="Finish & Return")title="Return to Class";
    const target=lookup(selectors);return target?{title,target}:null;
   }).filter(Boolean);
   const lesson=document.querySelector("#siPlusActivityResume");
@@ -276,6 +285,7 @@
   }
   dock.dataset.game=r.activityId;
   dock.dataset.phase=r.phase;
+  dock.dataset.finished=finished?"true":"false";
   const header=document.createElement("div");
   header.className="si-utc-head";
   const emblem=document.createElement("span");
@@ -302,7 +312,13 @@
   }
   row("GAME",gameActions,false);
   row("CLASSROOM",sessionActions,true);
-  dock.replaceChildren(header,createStatus(model),rows);
+  if(finished){
+   const note=document.createElement("p");
+   note.className="si-utc-complete-note";
+   note.setAttribute("role","status");
+   note.textContent="Game complete · review the results, then return to class.";
+   dock.replaceChildren(header,createStatus(model),note,rows);
+  }else dock.replaceChildren(header,createStatus(model),rows);
   dock.__originals=all.map(a=>a.target);
   key=stamp;
  }
