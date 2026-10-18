@@ -10,6 +10,7 @@ on:
       - 'tests/test_unified_teacher_controls_browser.cjs'
       - 'tests/test_teacher_game_setup_browser.cjs'
       - 'tests/test_teacher_multiplayer_setup_workflows_browser.cjs'
+      - 'tests/test_teacher_remaining_setup_workflows_browser.cjs'
       - 'tests/test_match_setup_workflow_browser.cjs'
       - 'tests/test_million_studio_browser.cjs'
       - 'bingo-board-studio.js'
@@ -111,6 +112,15 @@ jobs:
             sleep 1
           done
           LOCAL_URL=http://127.0.0.1:8880 node tests/test_teacher_multiplayer_setup_workflows_browser.cjs
+      - name: Phase 2F Word Grid, Minefield, Crew Survey, Calculator setup and restoration
+        run: |
+          mkdir -p /tmp/mothership-remaining-setup-test
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-remaining-setup-test PORT=8883 python server.py >/tmp/remaining-setup-test.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8883/api/health >/dev/null; then break; fi
+            sleep 1
+          done
+          LOCAL_URL=http://127.0.0.1:8883 node tests/test_teacher_remaining_setup_workflows_browser.cjs
       - name: MATCH builder create, server save, reload, edit, responsive layout and launch
         run: node tests/test_match_setup_workflow_browser.cjs
       - name: MILLION builder create, remote save, session reset and reload
