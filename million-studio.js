@@ -293,7 +293,7 @@ function installMillionStageCues(){
   const prize=Number(ladder[Math.max(0,Math.min(ladder.length-1,Number(m.ladderLevel||0)-1))]||0);
   let headline='',detail='',duration=0;
   if(stageName==='question'){headline='NEW QUESTION';detail='QUESTION '+(q+1)+' OF '+(cfg.questions?.length||15);duration=950}
-  if(stageName==='locked'){headline='FINAL ANSWER LOCKED';detail='MISSION CONTROL · REVEAL PENDING';duration=1350}
+  if(stageName==='locked'){headline='FINAL ANSWER LOCKED';detail='MISSION CONTROL · REVEAL PENDING';duration=1650}
   if(stageName==='correct'){headline='SIGNAL CONFIRMED';detail='MILESTONE REACHED: '+String.fromCharCode(36)+prize.toLocaleString('en-US');duration=2050}
   if(stageName==='wrong'){headline='SIGNAL LOST';detail=m.over?'RUN COMPLETE':'ANSWER REVEALED';duration=2000}
   if(stageName==='complete'){headline='MILLION COMPLETE';detail='FINAL MILESTONE: '+String.fromCharCode(36)+Number(ladder.at(-1)||1000000).toLocaleString('en-US');duration=2800}
@@ -313,7 +313,24 @@ function installMillionStageCues(){
   sparkle.textContent='✦   ✧   ✦   ✧   ✦';
   const title=document.createElement('strong');title.textContent=headline;
   const sub=document.createElement('span');sub.textContent=detail;
-  node.replaceChildren(sparkle,crest,title,sub);
+  // Purely presentational beats: no countdown, result delay, answer key, or
+  // gameplay mutation. Cue classes follow public synchronized game state.
+  const sequence=document.createElement('div');
+  sequence.className='ms-million-cue-sequence';
+  sequence.setAttribute('aria-hidden','true');
+  for(let i=0;i<5;i++){
+   const beat=document.createElement('i');
+   sequence.appendChild(beat);
+  }
+  const footer=document.createElement('div');
+  footer.className='ms-million-cue-footer';
+  footer.setAttribute('aria-hidden','true');
+  footer.textContent=stageName==='locked'?'THE ANSWER IS IN…':
+   stageName==='correct'?'THE PRIZE LADDER ADVANCES':
+   stageName==='wrong'?(m.over?'THIS RUN HAS ENDED':'REVIEW THE REVEAL'):
+   stageName==='complete'?'THE GRAND FINALE':'THE STAGE IS YOURS';
+  node.dataset.phase=stageName;
+  node.replaceChildren(sparkle,crest,title,sub,sequence,footer);
   node.classList.remove('visible');
   // Browser presentation frames start a new visual cue only on a real game-state transition.
   void node.offsetWidth;
