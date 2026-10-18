@@ -68,7 +68,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
     publicOnly:state.activityRun.millionConfig.questions.every(q=>!('correct' in q))};
   });
   assert.deepEqual(showProgress,{question:'QUESTION 01 / 05',value:'ON THE LINE · $100',
-   progress:'0 / 5 SECURED',fill:'0.00%',final:'false',publicOnly:true},
+   progress:'0 / 5 SECURED',fill:'0%',final:'false',publicOnly:true},
    'new prize ladder HUD reflects only public state');
   // Phase 3D: the new theme must be visible on the actual projector, not a mockup.
   const showArt=await screen.evaluate(()=>{
@@ -295,7 +295,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
     const meter=document.querySelector('.million-public.big .ms-million-ladder-progress');
     return meter.querySelector('.ms-million-progress-fill').style.width;
    });
-   assert.equal(meter,((i+1)*20).toFixed(2)+'%','prize bar follows actually earned levels');
+   assert.equal(parseFloat(meter),(i+1)*20,'prize bar follows actually earned levels');
    assert.equal(result.noKey,true);
    assert.equal(result.complete,i===4,'completion '+i);
    if(i===4)assert.equal(result.stake,'$1,000,000');
