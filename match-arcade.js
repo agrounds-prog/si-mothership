@@ -57,6 +57,41 @@ function matchArcadeScoreline(match,run){
   return connectedStudents().slice(0,8).map(st=>
     '<span class="ma-score-chip">'+esc(st.n)+' <b>'+Number(match.scores?.[st.n]||0)+'</b></span>').join('');
 }
+/* End-of-round standings are derived from MATCH's authoritative scores.
+   No-score mode displays participants rather than inventing a winner. */
+function matchArcadeFinalStandings(match,run){
+  const cfg=run?.matchConfig||{},unscored=cfg.scoring==='no_score';
+  let entries=[];
+  if(cfg.mode==='teams'){
+    const count=Math.max(2,Math.min(4,Number(cfg.teamCount||3)));
+    entries=Array.from({length:count},(_,i)=>({
+      label:String(matchTeamMeta(i).name||'Team '+(i+1)),
+      symbol:String(matchTeamMeta(i).icon||'✦'),
+      score:Math.max(0,Number(match.teamScores?.[i]||0)||0)
+    }));
+  }else{
+    const names=[...new Set([...connectedStudents().map(x=>String(x.n||'')),
+      ...Object.keys(match.scores||{})].filter(Boolean))];
+    entries=names.map(name=>({label:name,symbol:'✦',
+      score:Math.max(0,Number(match.scores?.[name]||0)||0)}));
+  }
+  if(!unscored)entries.sort((a,b)=>b.score-a.score||a.label.localeCompare(b.label));
+  const top=entries.slice(0,5);
+  let previous=null,position=0;
+  const rows=top.map((entry,i)=>{
+    if(!unscored&&entry.score!==previous)position=i+1;
+    previous=entry.score;
+    return '<div class="ma-final-row '+(!unscored&&position===1?'is-leading':'')+'">'+
+      '<span class="ma-final-rank">'+(unscored?'✦':String(position).padStart(2,'0'))+'</span>'+
+      '<span class="ma-final-name">'+esc(entry.symbol)+' '+esc(entry.label)+'</span>'+
+      '<span class="ma-final-points">'+(unscored?'CREW':' '+entry.score+' '+(entry.score===1?'PAIR':'PAIRS'))+'</span></div>';
+  }).join('');
+  const more=entries.length>top.length?
+    '<p class="ma-final-more">+'+(entries.length-top.length)+' more · full results on teacher scoreboard</p>':'';
+  return '<div class="ma-final-results" data-mode="'+(unscored?'memory':cfg.mode==='teams'?'teams':'individual')+'">'+
+    '<div class="ma-final-heading">'+(unscored?'ALL CREW MEMBERS':'FINAL STANDINGS')+'</div>'+
+    '<div class="ma-final-rows">'+(rows||'<p class="ma-final-more">Crew mission completed.</p>')+'</div>'+more+'</div>';
+}
 function matchArcadeShared(run=state.activityRun,big=false){
   const m=run?.match||{},cfg=run?.matchConfig||{},cards=m.cards||[],active=matchActiveStudent(run);
   const preview=matchArcadePreviewActive(run),status=matchArcadeStatus(m,run),matched=(m.matched||[]).length/2,pairs=cards.length/2;
@@ -67,7 +102,7 @@ function matchArcadeShared(run=state.activityRun,big=false){
   const celebration=status.type==='matched'?
     '<div class="ma-stage-celebration ma-stage-pair" aria-hidden="true"><span class="ma-celebration-sparks">✦ &nbsp; ✧ &nbsp; ✦</span><strong>PAIR FOUND!</strong><small>'+ (cfg.scoring==='no_score'?'MEMORY MISSION · WELL DONE':'AUTOMATIC POINT AWARDED') +'</small></div>':
     status.type==='victory'?
-    '<div class="ma-stage-celebration ma-stage-victory" aria-hidden="true"><span class="ma-celebration-sparks">✦ &nbsp; ★ &nbsp; ✦</span><span class="ma-celebration-trophy">🏆</span><strong>MISSION COMPLETE</strong><small>'+matched+' OF '+pairs+' PAIRS DISCOVERED</small></div>':'';
+    '<div class="ma-stage-celebration ma-stage-victory" aria-hidden="true"><span class="ma-celebration-sparks">✦ &nbsp; ★ &nbsp; ✦</span><span class="ma-celebration-trophy">🏆</span><strong>MISSION COMPLETE</strong><small>'+matched+' OF '+pairs+' PAIRS DISCOVERED</small>'+matchArcadeFinalStandings(m,run)+'</div>':'';
   return '<div class="ma-game ma-shared '+(big?'ma-present':'ma-compact')+' ma-status-'+status.type+'">'+
     '<div class="ma-cosmos" aria-hidden="true"><span class="ma-planet ma-planet-one"></span><span class="ma-planet ma-planet-two"></span><span class="ma-space-grid"></span></div>'+
     '<header class="ma-header"><div class="ma-brand"><span class="ma-brand-icon">✦</span><span>MISSION <b>MATCH</b></span></div><span class="ma-round-label">MEMORY CHALLENGE</span></header>'+
@@ -103,6 +138,11 @@ function matchArcadeStudent(run=state.activityRun,student=selectedStudent()){
     '<div class="ma-student-status"><span>◈ <b>'+matched+' / '+(cards.length/2)+'</b> PAIRS</span><span>◎ <b>'+Number(m.attempts||0)+'</b> TRIES</span><span>✦ '+(mine?'ACTIVE PILOT':'CREW OBSERVER')+'</span><span class="ma-student-earned">'+(cfg.scoring==='no_score'?'◈ MEMORY MODE · NO POINTS':'★ <b>'+earnedPairs+'</b> AUTO POINTS')+'</span></div>'+
     '<div class="ma-board-wrap"><div class="ma-board-surround"><div class="ma-grid" style="--ma-cols:'+cols+'">'+
     cards.map((card,i)=>matchArcadeTile(card,i,m,{student:true,canPick,preview})).join('')+'</div></div></div>'+
+    (m.complete?'<div class="ma-student-final" role="status"><strong>✦ ALL '+matched+' PAIRS FOUND</strong><span>'+
+      (cfg.scoring==='no_score'?'Crew memory challenge complete. Great teamwork.':cfg.mode==='teams'?
+      esc(matchTeamMeta(teamIndex).name)+' · '+earnedPairs+' team '+(earnedPairs===1?'pair':'pairs'):
+      esc(student?.n||'Crew member')+' · '+earnedPairs+' '+(earnedPairs===1?'pair':'pairs')+' found')+
+      '</span></div>':'')+
     '<div class="ma-device-tip"><span class="ma-info-dot">i</span><span>'+esc(m.message||'Match the hidden signals.')+'</span></div>'+
     consult+consultGroup+suggestions+
     '<div class="ma-device-bottom">'+(cfg.mode==='teams'?esc(matchTeamMeta(teamIndex).name):'INDIVIDUAL ROTATION')+' · '+
