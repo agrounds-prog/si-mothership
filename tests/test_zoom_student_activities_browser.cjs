@@ -129,6 +129,41 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
    assert.ok(pv.choices.length===6&&pv.choices.every(c=>c.w>=90&&c.h>=100)&&pv.submitHeight>=44,JSON.stringify({w,h,pv}));
    console.log("ZOOM poll "+w+"x"+h+" "+JSON.stringify({choices:pv.choices.length,voteButton:pv.submitHeight}));
   }
+  // Phase 3F: exercise the real read-only MILLION companion ribbon at Zoom size.
+  await page.setViewportSize({width:330,height:610});
+  await page.evaluate(html=>{
+   state.activityRun={activityId:'million-game',phase:'running',
+    runToken:'local-visual-fixture',
+    million:{questionIndex:0,ladderLevel:0,inventory:{poll:2,reduce:1,clue:0,tryAgain:0}},
+    millionConfig:{questions:Array.from({length:5},(_,i)=>({prompt:'Question '+i,choices:[]})),
+     ladder:[100,200,300,500,1000000]}};
+   document.querySelector('#studentContent').innerHTML=html;
+  },withCue('million',samples.million));
+  await page.waitForFunction(()=>document.querySelector('.ms-million-student-ribbon .ms-million-student-stake')?.textContent==='PLAYING FOR $100',null,{timeout:8000});
+  const ribbon=await page.evaluate(()=>{
+   const root=document.querySelector('#studentContent .ms-million-student-ribbon');
+   const r=root.getBoundingClientRect();
+   return {question:root.querySelector('.ms-million-student-question')?.textContent,
+    stake:root.querySelector('.ms-million-student-stake')?.textContent,
+    lives:root.querySelector('.ms-million-student-lives')?.textContent,
+    background:getComputedStyle(root).backgroundImage,width:r.width,
+    documentWidth:document.documentElement.scrollWidth};
+  });
+  assert.deepEqual([ribbon.question,ribbon.stake,ribbon.lives],
+   ['QUESTION 1 / 5','PLAYING FOR $100','3 CREW LIFELINES LEFT']);
+  assert.match(ribbon.background,/linear-gradient/);
+  assert.ok(ribbon.width>=220&&ribbon.documentWidth<=332,'compact companion status fits 330px');
+  await page.evaluate(()=>{state.activityRun.million.questionIndex=4;});
+  await page.waitForFunction(()=>document.querySelector('.ms-million-student-ribbon.is-final .ms-million-student-stake')?.textContent==='★ FINAL QUESTION · $1,000,000',null,{timeout:8000});
+  const finalRibbon=await page.evaluate(()=>{
+   const el=document.querySelector('.ms-million-student-ribbon.is-final');
+   return {border:parseFloat(getComputedStyle(el).borderTopWidth),
+    contents:el.textContent,noKey:state.activityRun.millionConfig.questions.every(q=>!('correct' in q))};
+  });
+  assert.ok(finalRibbon.border>=2&&finalRibbon.noKey,'final question has a gold border without answer leakage');
+  await page.evaluate(()=>{state.activityRun=null;document.querySelector('#studentContent').innerHTML='';});
+  assert.equal(await page.locator('.ms-million-student-ribbon').count(),0,
+   'classroom return clears MILLION student ribbon');
   assert.deepEqual(errors,[]);
   console.log("ZOOM companion student vote, answer, hand, and domino tile geometry PASS");
  }finally{await context.close();await browser.close()}
