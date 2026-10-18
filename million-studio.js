@@ -385,7 +385,8 @@ function installMillionFinalResults(){
   scheduled=false;
   const run=typeof state==='undefined'?null:state.activityRun;
   const data=millionFinalResultsData(run);
-  const game=role==='shared'?document.querySelector('.million-public .million-stage'):
+  const game=role==='shared'?(document.querySelector('.million-public.big .million-stage')||
+   [...document.querySelectorAll('.million-public .million-stage')].find(el=>el.getClientRects().length)):
    role==='teacher'?document.querySelector('#activityControllerPanel .million-teacher-grid'):
    document.querySelector('#studentContent .million-student');
   if(!data||!game){
