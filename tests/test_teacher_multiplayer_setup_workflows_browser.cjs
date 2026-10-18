@@ -101,7 +101,7 @@ const students=()=>[{n:'Alex',offline:false},{n:'Blair',offline:false},{n:'Casey
   await page.locator('#activityControllerPanel [data-fil-action="save"]').click();
   assert.ok(await page.evaluate(()=>FourLine.saved().length>0));
   await page.reload({waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>!!window.FourLine&&networkHydrated===true,null,{timeout:20000});
+  await page.waitForFunction(()=>!!window.FourLine&&networkHydrated===true&&window.__fourLineBridgeInstalled===true,null,{timeout:25000});
   await open('four-in-line');
   const fourBoot=await page.evaluate(()=>{
    const err=document.querySelector('#bootError');
