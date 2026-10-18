@@ -55,6 +55,39 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   });
   assert.equal(first.rungCount,5);
   assert.equal(first.prize,'$100');
+  const phase3Visual=await Promise.all([
+   teacher.evaluate(()=>{
+     const root=document.querySelector('#activityControllerPanel'),grid=root.querySelector('.million-teacher-grid');
+     const reveal=root.querySelector('#millionCorrectBtn'),control=root.querySelector('.million-teacher-card');
+     return {columns:getComputedStyle(grid).gridTemplateColumns.split(' ').length,
+      revealHeight:reveal.getBoundingClientRect().height,
+      revealWidth:reveal.getBoundingClientRect().width,
+      revealBackground:getComputedStyle(reveal).backgroundImage,
+      actionCount:root.querySelectorAll('.million-teacher-actions button').length,
+      lifelines:root.querySelectorAll('.million-teacher-lifelines button').length,
+      controlBackground:getComputedStyle(control).backgroundImage};
+   }),
+   screen.evaluate(()=>{
+     const game=document.querySelector('.million-public.big'),q=game.querySelector('.million-stage h3'),
+       cards=[...game.querySelectorAll('.million-choice')],ladder=game.querySelector('.million-ladder');
+     return {cards:cards.length,questionFont:parseFloat(getComputedStyle(q).fontSize),
+      answerFont:parseFloat(getComputedStyle(cards[0].querySelector('span')).fontSize),
+      minAnswerHeight:Math.min(...cards.map(x=>x.getBoundingClientRect().height)),
+      visibleLadder:ladder.getBoundingClientRect().width,
+      stageBackground:getComputedStyle(q).backgroundImage};
+   })
+  ]);
+  assert.equal(phase3Visual[0].columns,2,'Two-panel teacher MILLION command deck');
+  assert.ok(phase3Visual[0].revealHeight>=56&&phase3Visual[0].revealWidth>=165,
+   'Prominent teacher reveal action: '+JSON.stringify(phase3Visual));
+  assert.equal(phase3Visual[0].actionCount,3,'Existing Reveal, Wrong, Next actions remain present');
+  assert.ok(phase3Visual[0].lifelines>=8);
+  assert.match(phase3Visual[0].controlBackground,/gradient/);
+  assert.ok(phase3Visual[1].questionFont>=28&&phase3Visual[1].answerFont>=17&&
+   phase3Visual[1].minAnswerHeight>=73&&phase3Visual[1].visibleLadder>=160,
+   'Projected MILLION stage, answers, ladder readable: '+JSON.stringify(phase3Visual));
+  assert.match(phase3Visual[1].stageBackground,/gradient/);
+
   assert.equal(first.noKey,true);
   assert.equal(await screen.locator('.ms-studio').count(),0,'game editor is teacher only');
 
@@ -164,7 +197,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.equal(ended.before,ended.after,'classic risk game cannot advance');
   assert.equal(ended.nextDisabled,true);
   assert.equal(errors.length,0,'browser JS errors: '+JSON.stringify(errors));
-  console.log(JSON.stringify({test:'MILLION five-question teacher/projector multiplayer, 50/50 and classic-risk stop',first,fifty,pilot50,layout,ended,pageErrors:errors}));
+  console.log(JSON.stringify({test:'MILLION five-question teacher/projector multiplayer, Phase 3A visuals, 50/50 and classic-risk stop',first,phase3Visual,fifty,pilot50,layout,ended,pageErrors:errors}));
   // Leave the isolated app clean so unrelated SI+ and Activity Library smoke
   // tests never inherit a synthetic MILLION session.
   await teacher.evaluate(()=>{state.activityRun=null;state.screen='classroom';state.activeApp=null;render()});
