@@ -171,6 +171,18 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
       complete:!!state.activityRun.million.complete,
       stake:root.querySelector('.million-stakes-amount')?.textContent};
    });
+   const fx=await screen.evaluate(()=>{
+    const root=document.querySelector('.million-public.big')||document.querySelector('.million-public');
+    const correct=root.querySelector('.million-choice.correct');
+    const earned=root.querySelector('.million-rung.earned');
+    return {borderWidth:parseFloat(getComputedStyle(correct).borderTopWidth),
+     correctBorder:getComputedStyle(correct).borderTopColor,
+     rungColor:earned?getComputedStyle(earned).backgroundImage:'',
+     privateKeyProtected:state.activityRun.millionConfig.questions.every(q=>!('correct' in q))};
+   });
+   assert.ok(fx.borderWidth>=2,'Reveal state must have a strong correct answer border');
+   assert.match(fx.rungColor,/gradient/,'Prize milestone is visibly banked');
+   assert.equal(fx.privateKeyProtected,true);
    assert.equal(result.correct,1,'answer reveal '+i);
    assert.equal(result.earned,i+1,'earned rung count '+i);
    assert.equal(result.noKey,true);
@@ -180,6 +192,34 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   }
   assert.equal(await teacher.locator('#millionNextBtn').isDisabled(),true,'no next after million complete');
   await screen.waitForFunction(()=>document.querySelector('#msMillionStageCue')?.classList.contains('complete')===true,{timeout:6000});
+  const finale=await screen.evaluate(()=>{
+   const game=document.querySelector('.million-public.big')||document.querySelector('.million-public');
+   const cue=document.querySelector('#msMillionStageCue');
+   const crest=cue?.querySelector('.ms-million-cue-crest');
+   const sparks=cue?.querySelector('.ms-million-cue-sparkles');
+   const banner=game.querySelector('.million-complete');
+   const active=game.querySelector('.million-rung.active');
+   return {cue:cue?.className,crest:crest?.textContent,sparks:sparks?.textContent,
+    crestAnimated:crest?getComputedStyle(crest).animationName:'',
+    aria:crest?.getAttribute('aria-hidden'),
+    banner:banner?.textContent||'',
+    bannerBorder:banner?parseFloat(getComputedStyle(banner).borderTopWidth):0,
+    bannerBackground:banner?getComputedStyle(banner).backgroundImage:'',
+    activeBorder:active?getComputedStyle(active).borderTopColor:'',
+    earned:game.querySelectorAll('.million-rung.earned').length,
+    fourChoices:game.querySelectorAll('.million-choice').length,
+    noPrivateKey:state.activityRun.millionConfig.questions.every(q=>!('correct' in q))};
+  });
+  assert.match(finale.cue,/complete/);
+  assert.equal(finale.crest,'🏆');
+  assert.equal(finale.aria,'true');
+  assert.match(finale.sparks,/✦/);
+  assert.match(finale.banner,/MISSION COMPLETE/);
+  assert.ok(finale.bannerBorder>=2&&finale.earned===5);
+  assert.match(finale.bannerBackground,/gradient/);
+  assert.equal(finale.fourChoices,4);
+  assert.equal(finale.noPrivateKey,true);
+
   // Ensure game-over stops after a wrong classic answer instead of silently proceeding.
   await teacher.evaluate(()=>{
    const m=state.activityRun.million,cfg=state.activityRun.millionConfig;
@@ -197,7 +237,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.equal(ended.before,ended.after,'classic risk game cannot advance');
   assert.equal(ended.nextDisabled,true);
   assert.equal(errors.length,0,'browser JS errors: '+JSON.stringify(errors));
-  console.log(JSON.stringify({test:'MILLION five-question teacher/projector multiplayer, Phase 3A visuals, 50/50 and classic-risk stop',first,phase3Visual,fifty,pilot50,layout,ended,pageErrors:errors}));
+  console.log(JSON.stringify({test:'MILLION five-question teacher/projector multiplayer, Phase 3A.2 cinematic finale, 50/50 and classic-risk stop',first,phase3Visual,finale,fifty,pilot50,layout,ended,pageErrors:errors}));
   // Leave the isolated app clean so unrelated SI+ and Activity Library smoke
   // tests never inherit a synthetic MILLION session.
   await teacher.evaluate(()=>{state.activityRun=null;state.screen='classroom';state.activeApp=null;render()});
