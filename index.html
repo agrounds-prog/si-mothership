@@ -15652,13 +15652,44 @@ const CREW_SURVEY_SAMPLE=[
   {text:'PENCIL',value:32},{text:'NOTEBOOK',value:25},{text:'CHROMEBOOK',value:18},
   {text:'WATER BOTTLE',value:12},{text:'FOLDER',value:8},{text:'SNACK',value:5}
 ];
-let crewSurveyDraft={
+const CREW_SURVEY_DRAFT_KEY='siMothership.crewSurveyDraft.v1';
+const defaultCrewSurveyDraft=()=>({
   prompt:'Name something students usually carry in a backpack.',
   answers:CREW_SURVEY_SAMPLE.map(x=>({...x})),
   scoring:true,
   aacStudents:[],
   aacVocab:['Pencil','Notebook','Folder','Computer','Water','Food','Book','Phone','Other','Pass']
-};
+});
+function loadCrewSurveyDraft(){
+  const fallback=defaultCrewSurveyDraft();
+  try{
+    const saved=JSON.parse(localStorage.getItem(CREW_SURVEY_DRAFT_KEY)||'null');
+    if(!saved||typeof saved!=='object'||!Array.isArray(saved.answers)||saved.answers.length<4)return fallback;
+    return {
+      prompt:String(saved.prompt||'').slice(0,240),
+      answers:saved.answers.slice(0,8).map(a=>({text:String(a?.text||'').slice(0,70),value:Math.max(0,Math.min(999,Number(a?.value)||0))})),
+      scoring:!!saved.scoring,
+      aacStudents:Array.isArray(saved.aacStudents)?saved.aacStudents.map(x=>String(x)).slice(0,60):[],
+      aacVocab:Array.isArray(saved.aacVocab)?saved.aacVocab.slice(0,10).map(x=>String(x).slice(0,30)):fallback.aacVocab
+    };
+  }catch(e){return fallback}
+}
+let crewSurveyDraft=loadCrewSurveyDraft();
+function crewSurveySetupMessage(message){
+  const el=document.getElementById('crewSurveySetupStatus');
+  if(el){el.textContent=message;return}
+  toast(message);
+}
+function saveCrewSurveyDraft(){
+  try{
+    localStorage.setItem(CREW_SURVEY_DRAFT_KEY,JSON.stringify(crewSurveyDraft));
+    crewSurveySetupMessage('Survey draft saved on this teacher device. Reload to continue editing.');
+    return true;
+  }catch(e){
+    crewSurveySetupMessage('Could not save this survey draft. Check available browser storage.');
+    return false;
+  }
+}
 function crewSurveyTeamsFromRoster(){
   const teams=[[],[]];connectedStudents().forEach((st,i)=>teams[i%2].push(st.n));return teams;
 }
@@ -15667,9 +15698,9 @@ function crewSurveyCleanAnswers(){
 }
 function launchCrewSurvey(){
   const students=connectedStudents(),answers=crewSurveyCleanAnswers();
-  if(students.length<2)return toast('CREW SURVEY needs at least two connected students');
-  if(!String(crewSurveyDraft.prompt||'').trim())return toast('Add a survey prompt first');
-  if(answers.length<4)return toast('Add at least four survey answers');
+  if(students.length<2)return crewSurveySetupMessage('CREW SURVEY needs at least two connected students.');
+  if(!String(crewSurveyDraft.prompt||'').trim())return crewSurveySetupMessage('Add a survey prompt first.');
+  if(answers.length<4)return crewSurveySetupMessage('Add at least four survey answers.');
   const teams=crewSurveyTeamsFromRoster(),eligible=[teams[0][0],teams[1][0]].filter(Boolean);
   state.activityRun={
     activityId:'crew-survey-game',runToken:newActivityRunToken(),phase:'lobby',responses:{},
@@ -18481,7 +18512,14 @@ function renderActivities(){
     note.classList.add('hidden');picker.classList.add('hidden');grid.classList.remove('hidden');title.textContent='SCIENTIFIC CALCULATOR';subtitle.textContent='Open it yourself, launch it for the class, or share the standalone link.';header.innerHTML=`<button id="backToAppsBtn">← Activity Library</button>`;$('#backToAppsBtn').onclick=backToAppLibrary;
     const s=scientificCalculatorSettings(),url=scientificCalculatorUrl(s),qr=`${PUBLIC_ORIGIN}/api/qr?url=${encodeURIComponent(url)}`,live=!!state.calculatorLaunch;
     grid.innerHTML=`<div class="calculator-setup-panel"><div class="calculator-setup-main"><div class="calculator-device-icon" aria-hidden="true"><div class="screen"></div><div class="keys">${Array.from({length:20},()=>'<i></i>').join('')}</div></div><div class="calculator-setup-copy"><span class="app-status">CLASSROOM TOOL</span><h3>SI Scientific Calculator</h3><p>Familiar four-line scientific calculator workflow with exact fractions, trig, logs, powers, history, and independent student calculator state.</p>${live?'<span class="calculator-live-chip">● LIVE FOR CLASS</span>':''}</div></div><div class="calculator-settings-card"><label>ANGLE MODE<select id="calculatorAngleMode"><option value="deg" ${s.angle==='deg'?'selected':''}>DEG · Degrees</option><option value="rad" ${s.angle==='rad'?'selected':''}>RAD · Radians</option></select></label><label>NUMBER FORMAT<select id="calculatorNumberFormat"><option value="normal" ${s.format==='normal'?'selected':''}>Normal</option><option value="scientific" ${s.format==='scientific'?'selected':''}>Scientific</option></select></label><div class="calculator-action-grid"><button id="openCalculatorSelfBtn">↗ Open Calculator</button><button class="primary" id="launchCalculatorClassBtn">▶ Launch for Class</button><button id="copyCalculatorLinkBtn">⧉ Copy Share Link</button><button id="showCalculatorQrBtn">▣ Show QR Code</button>${live?'<button class="danger" id="endCalculatorClassBtn">× End for Class</button>':''}</div></div><div class="calculator-qr-wrap hidden" id="calculatorQrWrap"><img src="${qr}" alt="QR code for SI Scientific Calculator"><div class="calculator-share-url">${esc(url)}</div></div></div>`;
-    $('#calculatorAngleMode').onchange=e=>{state.calculatorSettings=scientificCalculatorSettings({...state.calculatorSettings,angle:e.target.value})};$('#calculatorNumberFormat').onchange=e=>{state.calculatorSettings=scientificCalculatorSettings({...state.calculatorSettings,format:e.target.value})};$('#openCalculatorSelfBtn').onclick=openScientificCalculator;$('#launchCalculatorClassBtn').onclick=launchScientificCalculatorForClass;$('#copyCalculatorLinkBtn').onclick=copyScientificCalculatorLink;$('#showCalculatorQrBtn').onclick=()=>{const q=$('#calculatorQrWrap'),b=$('#showCalculatorQrBtn');q.classList.toggle('hidden');b.textContent=q.classList.contains('hidden')?'▣ Show QR Code':'▣ Hide QR Code'};const end=$('#endCalculatorClassBtn');if(end)end.onclick=endScientificCalculatorForClass;return;
+    const updateCalculatorSharePreview=()=>{
+      const url=scientificCalculatorUrl();
+      const image=$('#calculatorQrWrap img'),label=$('#calculatorQrWrap .calculator-share-url');
+      if(image)image.src=PUBLIC_ORIGIN+'/api/qr?url='+encodeURIComponent(url);
+      if(label)label.textContent=url;
+    };
+    $('#calculatorAngleMode').onchange=e=>{state.calculatorSettings=scientificCalculatorSettings({...state.calculatorSettings,angle:e.target.value});updateCalculatorSharePreview()};
+    $('#calculatorNumberFormat').onchange=e=>{state.calculatorSettings=scientificCalculatorSettings({...state.calculatorSettings,format:e.target.value});updateCalculatorSharePreview()};$('#openCalculatorSelfBtn').onclick=openScientificCalculator;$('#launchCalculatorClassBtn').onclick=launchScientificCalculatorForClass;$('#copyCalculatorLinkBtn').onclick=copyScientificCalculatorLink;$('#showCalculatorQrBtn').onclick=()=>{const q=$('#calculatorQrWrap'),b=$('#showCalculatorQrBtn');q.classList.toggle('hidden');b.textContent=q.classList.contains('hidden')?'▣ Show QR Code':'▣ Hide QR Code'};const end=$('#endCalculatorClassBtn');if(end)end.onclick=endScientificCalculatorForClass;return;
   }
 
 
@@ -18513,7 +18551,7 @@ function renderActivities(){
     title.textContent='CREW SURVEY';subtitle.textContent='Game show · Build the hidden survey board, then run face-offs, strikes, and steals.';
     header.innerHTML=`<button id="backToAppsBtn">← Activity Library</button>`;$('#backToAppsBtn').onclick=backToAppLibrary;
     const teams=crewSurveyTeamsFromRoster(),aacSet=new Set(crewSurveyDraft.aacStudents||[]);
-    grid.innerHTML=`<div class="game-show-setup crew-survey-setup"><div class="game-show-hero crew-survey-hero"><span class="app-status">GAME SHOW</span><h3>CREW SURVEY</h3><p>We asked the crew. Can your team find the top answers?</p><div class="game-show-crew-preview"><div><b>BLUE CREW</b><span>${teams[0].map(esc).join(' · ')||'Waiting for students'}</span></div><div><b>RED CREW</b><span>${teams[1].map(esc).join(' · ')||'Waiting for students'}</span></div></div></div><div class="game-show-setup-grid"><div class="game-show-card"><label class="game-show-field">SURVEY PROMPT<textarea id="crewSurveyPrompt" maxlength="240">${esc(crewSurveyDraft.prompt)}</textarea></label><div class="game-show-answer-editor"><div class="game-show-card-head"><b>Hidden Answer Board</b><button id="crewSurveyAddAnswer" type="button">＋ Answer</button></div>${crewSurveyDraft.answers.map((a,i)=>`<div class="survey-answer-edit"><span>${i+1}</span><input data-cs-answer-text="${i}" value="${esc(a.text)}" placeholder="Accepted answer"><input data-cs-answer-value="${i}" type="number" min="0" max="999" value="${Number(a.value||0)}" aria-label="Point value"><button data-cs-remove-answer="${i}" ${crewSurveyDraft.answers.length<=4?'disabled':''}>×</button></div>`).join('')}</div><label class="game-show-toggle"><input id="crewSurveyScoring" type="checkbox" ${crewSurveyDraft.scoring?'checked':''}> Use score values</label></div><div class="game-show-card"><h4>Communication Support</h4><p class="setup-copy">Selected students keep normal crew status and can use the prompt-specific AAC board plus Type Answer.</p><div class="game-show-student-checks">${connectedStudents().map(st=>`<label><input type="checkbox" data-cs-aac-student="${esc(st.n)}" ${aacSet.has(st.n)?'checked':''}>${studentAvatarBadgeMarkup(st)} <span>${esc(st.n)}</span></label>`).join('')||'<div class="empty">Students will appear after joining.</div>'}</div><label class="game-show-field">AAC BUTTONS · up to 10<textarea id="crewSurveyAacVocab">${esc((crewSurveyDraft.aacVocab||[]).join(', '))}</textarea></label><div class="game-show-launch-row"><button id="crewSurveySampleBtn">↻ Sample Board</button><button class="game-show-launch crew-survey-launch" id="launchCrewSurveyBtn">▶ LOAD CREW SURVEY</button></div></div></div></div>`;
+    grid.innerHTML=`<div class="game-show-setup crew-survey-setup"><div class="game-show-hero crew-survey-hero"><span class="app-status">GAME SHOW</span><h3>CREW SURVEY</h3><p>We asked the crew. Can your team find the top answers?</p><div class="game-show-crew-preview"><div><b>BLUE CREW</b><span>${teams[0].map(esc).join(' · ')||'Waiting for students'}</span></div><div><b>RED CREW</b><span>${teams[1].map(esc).join(' · ')||'Waiting for students'}</span></div></div></div><div class="game-show-setup-grid"><div class="game-show-card"><label class="game-show-field">SURVEY PROMPT<textarea id="crewSurveyPrompt" maxlength="240">${esc(crewSurveyDraft.prompt)}</textarea></label><div class="game-show-answer-editor"><div class="game-show-card-head"><b>Hidden Answer Board</b><button id="crewSurveyAddAnswer" type="button">＋ Answer</button></div>${crewSurveyDraft.answers.map((a,i)=>`<div class="survey-answer-edit"><span>${i+1}</span><input data-cs-answer-text="${i}" value="${esc(a.text)}" placeholder="Accepted answer"><input data-cs-answer-value="${i}" type="number" min="0" max="999" value="${Number(a.value||0)}" aria-label="Point value"><button data-cs-remove-answer="${i}" ${crewSurveyDraft.answers.length<=4?'disabled':''}>×</button></div>`).join('')}</div><label class="game-show-toggle"><input id="crewSurveyScoring" type="checkbox" ${crewSurveyDraft.scoring?'checked':''}> Use score values</label></div><div class="game-show-card"><h4>Communication Support</h4><p class="setup-copy">Selected students keep normal crew status and can use the prompt-specific AAC board plus Type Answer.</p><div class="game-show-student-checks">${connectedStudents().map(st=>`<label><input type="checkbox" data-cs-aac-student="${esc(st.n)}" ${aacSet.has(st.n)?'checked':''}>${studentAvatarBadgeMarkup(st)} <span>${esc(st.n)}</span></label>`).join('')||'<div class="empty">Students will appear after joining.</div>'}</div><label class="game-show-field">AAC BUTTONS · up to 10<textarea id="crewSurveyAacVocab">${esc((crewSurveyDraft.aacVocab||[]).join(', '))}</textarea></label><div class="game-show-launch-row"><button id="crewSurveySampleBtn">↻ Sample Board</button><button id="crewSurveySaveDraftBtn" type="button">▣ Save Draft</button><button class="game-show-launch crew-survey-launch" id="launchCrewSurveyBtn">▶ LOAD CREW SURVEY</button></div><div class="crew-survey-setup-status" id="crewSurveySetupStatus" role="status" aria-live="polite"></div></div></div></div>`;
     $('#crewSurveyPrompt').oninput=e=>crewSurveyDraft.prompt=e.target.value;
     $('#crewSurveyScoring').onchange=e=>crewSurveyDraft.scoring=!!e.target.checked;
     $('#crewSurveyAacVocab').oninput=e=>crewSurveyDraft.aacVocab=e.target.value.split(',').map(x=>x.trim()).filter(Boolean).slice(0,10);
@@ -18523,6 +18561,7 @@ function renderActivities(){
     document.querySelectorAll('[data-cs-aac-student]').forEach(el=>el.onchange=()=>{const n=el.dataset.csAacStudent,set=new Set(crewSurveyDraft.aacStudents||[]);el.checked?set.add(n):set.delete(n);crewSurveyDraft.aacStudents=[...set]});
     $('#crewSurveyAddAnswer').onclick=()=>{if(crewSurveyDraft.answers.length>=8)return toast('CREW SURVEY supports up to 8 answers');crewSurveyDraft.answers.push({text:'',value:0});renderActivities()};
     $('#crewSurveySampleBtn').onclick=()=>{crewSurveyDraft.prompt='Name something students usually carry in a backpack.';crewSurveyDraft.answers=CREW_SURVEY_SAMPLE.map(x=>({...x}));crewSurveyDraft.aacVocab=['Pencil','Notebook','Folder','Computer','Water','Food','Book','Phone','Other','Pass'];renderActivities()};
+    $('#crewSurveySaveDraftBtn').onclick=saveCrewSurveyDraft;
     $('#launchCrewSurveyBtn').onclick=launchCrewSurvey;return;
   }
 
@@ -18554,11 +18593,16 @@ function renderActivities(){
       ['crew','Co-op Classroom','One shared map · take turns · clear every safe square'],
       ['teams','Team Challenge','Separate boards · teams alternate revealing squares'],
       ['teacher','Teacher vs Class','Separate boards · first to clear all safe squares wins']
-    ].map(x=>`<button class="minefield-mode ${state.minefieldMode===x[0]?'active':''}" data-mf-mode="${x[0]}"><b>${x[1]}</b><span>${x[2]}</span></button>`).join('')}</div>${teamCountControls}<div class="minefield-lengths">${[['quick','Quick','~5 min · 5×5'],['standard','Standard','~10 min · 6×6'],['epic','Epic','~15 min · 7×7']].map(x=>`<button class="minefield-length ${state.minefieldLength===x[0]?'active':''}" data-mf-length="${x[0]}"><b>${x[1]}</b><span>${x[2]}</span></button>`).join('')}</div><div class="real-app-actions"><button class="minefield-launch" id="launchMinefieldBtn">▶ Load MINEFIELD</button><button class="preset-save-btn" id="saveMinefieldPresetBtn">▣ Save Preset</button></div><p style="margin:12px 0 0;font-size:11px">Always available during play: <b>Send to Lobby</b>, <b>Return to Classroom</b>, and <b>Emergency Return</b>.</p></div>`;
+    ].map(x=>`<button class="minefield-mode ${state.minefieldMode===x[0]?'active':''}" data-mf-mode="${x[0]}"><b>${x[1]}</b><span>${x[2]}</span></button>`).join('')}</div>${teamCountControls}<div class="minefield-lengths">${[['quick','Quick','~5 min · 5×5'],['standard','Standard','~10 min · 6×6'],['epic','Epic','~15 min · 7×7']].map(x=>`<button class="minefield-length ${state.minefieldLength===x[0]?'active':''}" data-mf-length="${x[0]}"><b>${x[1]}</b><span>${x[2]}</span></button>`).join('')}</div><div class="real-app-actions"><button class="minefield-launch" id="launchMinefieldBtn">▶ Load MINEFIELD</button><button class="preset-save-btn" id="saveMinefieldPresetBtn">▣ Save Preset</button></div><div class="minefield-saved-presets"><b>SAVED MISSION PRESETS</b>${loadActivityPresets().filter(p=>p.appId==='minefield').slice(0,8).map(p=>`<button type="button" data-mf-preset-load="${esc(p.id)}"><strong>${esc(p.name)}</strong><small>${esc(activityPresetSummary(p))}</small></button>`).join('')||'<p>No saved presets yet. Select a mode and difficulty, then Save Preset.</p>'}</div><p style="margin:12px 0 0;font-size:11px">Always available during play: <b>Send to Lobby</b>, <b>Return to Classroom</b>, and <b>Emergency Return</b>.</p></div>`;
     $$('[data-mf-mode]').forEach(b=>b.onclick=()=>{state.minefieldMode=b.dataset.mfMode;renderActivities()});
     $$('[data-mf-team-count]').forEach(b=>b.onclick=()=>{state.minefieldTeamCount=Number(b.dataset.mfTeamCount);renderActivities()});
     $$('[data-mf-length]').forEach(b=>b.onclick=()=>{state.minefieldLength=b.dataset.mfLength;renderActivities()});
-    $('#launchMinefieldBtn').onclick=launchMinefield;$('#saveMinefieldPresetBtn').onclick=()=>saveActivityPreset('minefield');return;
+    $('#launchMinefieldBtn').onclick=launchMinefield;
+    $('#saveMinefieldPresetBtn').onclick=()=>saveActivityPreset('minefield');
+    $('[data-mf-preset-load]').forEach(b=>b.onclick=()=>{
+      const preset=loadActivityPresets().find(p=>p.id===b.dataset.mfPresetLoad&&p.appId==='minefield');
+      if(preset)applyActivityPreset(preset,{launch:false});
+    });return;
   }
 
 
