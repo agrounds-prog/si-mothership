@@ -18599,7 +18599,7 @@ function renderActivities(){
     $$('[data-mf-length]').forEach(b=>b.onclick=()=>{state.minefieldLength=b.dataset.mfLength;renderActivities()});
     $('#launchMinefieldBtn').onclick=launchMinefield;
     $('#saveMinefieldPresetBtn').onclick=()=>saveActivityPreset('minefield');
-    $('[data-mf-preset-load]').forEach(b=>b.onclick=()=>{
+    document.querySelectorAll('[data-mf-preset-load]').forEach(b=>b.onclick=()=>{
       const preset=loadActivityPresets().find(p=>p.id===b.dataset.mfPresetLoad&&p.appId==='minefield');
       if(preset)applyActivityPreset(preset,{launch:false});
     });return;
