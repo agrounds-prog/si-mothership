@@ -103,6 +103,16 @@ const students=()=>[{n:'Alex',offline:false},{n:'Blair',offline:false},{n:'Casey
   await page.reload({waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>!!window.FourLine&&networkHydrated===true,null,{timeout:20000});
   await open('four-in-line');
+  const fourBoot=await page.evaluate(()=>{
+   const err=document.querySelector('#bootError');
+   return {display:err?getComputedStyle(err).display:'absent',
+    message:(err?.textContent||'').slice(0,1300),
+    run:state.activityRun?.activityId||null,
+    setup:document.querySelector('#activitiesPanel')?.dataset.siSetup||null};
+  });
+  console.log('Four In Line post-reload boot diagnostic',JSON.stringify(fourBoot));
+  assert.ok(['none','absent'].includes(fourBoot.display),
+   'Unexpected boot error overlay after reloading saved Four In Line: '+JSON.stringify(fourBoot));
   await page.locator('[data-fil-load]').first().click();
   assert.deepEqual(await page.evaluate(()=>({
    cols:state.activityRun?.fourInLine?.cols,rows:state.activityRun?.fourInLine?.rows,
