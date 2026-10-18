@@ -334,6 +334,100 @@ function installMillionStageCues(){
 }
 installMillionStageCues();
 
+
+/* Phase 3B · read-only results stage. The native MILLION engine alone owns the
+   ladder, checkpoints, outcome, current pilot and every saved classroom run.
+   This view is recomputed from synced public results; never writes to state. */
+function millionFinalResultsData(run){
+ const m=run?.million||{},cfg=run?.millionConfig||{};
+ if(run?.activityId!=='million-game'||run.phase!=='running'||(!m.complete&&!m.over))return null;
+ const ladder=Array.isArray(cfg.ladder)?cfg.ladder:[];
+ const level=Math.max(0,Math.min(ladder.length,Number(m.ladderLevel||0)||0));
+ const amount=level?Math.max(0,Number(ladder[level-1])||0):0;
+ const total=Math.max(0,Array.isArray(cfg.questions)?cfg.questions.length:0);
+ const reached=Math.min(total,Math.max(0,Number(m.questionIndex||0)+1));
+ return {
+  complete:!!m.complete,amount,level,total,reached,
+  pilot:String(m.pilot||'Command Seat').slice(0,90),
+  checkpoint:cfg.risk==='classic'&&!!m.over,
+  risk:cfg.risk||'practice'
+ };
+}
+function millionFinalResultsMarkup(data,compact=false){
+ const fmt=n=>'
+window.MillionStudio={markup,wire,questions,ladder,checkpoints:n=>n===5?[3]:n===10?[5]:[5,10],
+ currentName:()=>draft.name||'MILLION',inspection:()=>({count:draft.count,ready:readyCount(),saved:listGames().length,loadedId})};
+if(typeof state!=='undefined'&&state.activeApp==='million'&&typeof renderActivities==='function')renderActivities();
+})();+Number(n).toLocaleString('en-US');
+ const milestone=data.checkpoint?'SAFE CHECKPOINT':data.complete?'FINAL PRIZE':'MILESTONE REACHED';
+ const title=data.complete?'MILLION COMPLETE':'MISSION RESULTS';
+ const detail=data.complete?'The crew reached the final milestone.':
+  data.checkpoint?'Classic mode · returned to your last safe checkpoint.':
+  'The crew finished this run. Review the milestone achieved.';
+ return '<section class="ms-million-final-results'+(data.complete?' is-champion':' is-finished')+
+   (compact?' is-compact':'')+'" aria-label="MILLION final mission results">'+
+  '<header class="ms-million-final-header"><span class="ms-million-final-icon" aria-hidden="true">'+
+   (data.complete?'🏆':'✦')+'</span><div><span class="ms-million-final-eyebrow">'+
+   (data.complete?'CHAMPIONSHIP ACHIEVED':'RUN COMPLETE')+'</span>'+
+   '<h3>'+title+'</h3></div></header>'+
+  '<div class="ms-million-final-prize"><span>'+milestone+'</span><strong>'+
+   fmt(data.amount)+'</strong></div>'+
+  '<div class="ms-million-final-metrics">'+
+   '<div><strong>'+data.level+' / '+data.total+'</strong><span>MILESTONES</span></div>'+
+   '<div><strong>'+data.reached+' / '+data.total+'</strong><span>QUESTIONS REACHED</span></div>'+
+   '</div>'+
+  '<p class="ms-million-final-description">'+detail+'</p>'+
+  '<p class="ms-million-final-pilot">✦ FINAL COMMAND SEAT · '+(typeof esc==='function'?esc(data.pilot):
+   data.pilot.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])))+'</p>'+
+  '</section>';
+}
+function installMillionFinalResults(){
+ const role=new URLSearchParams(location.search).get('role');
+ if(!['shared','teacher','student'].includes(role))return;
+ let scheduled=false,lastHost=null,lastKey='';
+ function renderFinal(){
+  scheduled=false;
+  const run=typeof state==='undefined'?null:state.activityRun;
+  const data=millionFinalResultsData(run);
+  const game=role==='shared'?document.querySelector('.million-public .million-stage'):
+   role==='teacher'?document.querySelector('#activityControllerPanel .million-teacher-grid'):
+   document.querySelector('#studentContent .million-student');
+  if(!data||!game){
+   if(lastHost?.isConnected)lastHost.querySelector('.ms-million-final-results')?.remove();
+   lastHost=null;lastKey='';return;
+  }
+  const key=String(run?.runToken||'')+'|'+String(data.complete)+'|'+String(data.amount)+
+   '|'+String(data.reached)+'|'+String(data.level)+'|'+data.pilot;
+  if(game===lastHost&&lastKey===key&&game.querySelector('.ms-million-final-results'))return;
+  game.querySelectorAll('.ms-million-final-results').forEach(el=>el.remove());
+  const holder=document.createElement('div');
+  holder.innerHTML=millionFinalResultsMarkup(data,role!=='shared');
+  const card=holder.firstElementChild;
+  if(role==='teacher'){
+   game.prepend(card);
+  }else if(role==='student'){
+   game.append(card);
+  }else{
+   const complete=game.querySelector('.million-complete');
+   if(complete)complete.replaceWith(card);
+   else game.append(card);
+  }
+  lastHost=game;lastKey=key;
+ }
+ function queue(){
+  if(scheduled)return;scheduled=true;requestAnimationFrame(renderFinal);
+ }
+ function start(){
+  if(document.body){
+   new MutationObserver(queue).observe(document.body,{subtree:true,childList:true});
+   setInterval(queue,950);queue();
+  }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+ else start();
+}
+installMillionFinalResults();
+
 syncEngine();
 window.MillionStudio={markup,wire,questions,ladder,checkpoints:n=>n===5?[3]:n===10?[5]:[5,10],
  currentName:()=>draft.name||'MILLION',inspection:()=>({count:draft.count,ready:readyCount(),saved:listGames().length,loadedId})};
