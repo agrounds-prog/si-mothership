@@ -87,6 +87,15 @@ jobs:
             sleep 1
           done
           LOCAL_URL=http://127.0.0.1:8885 node tests/test_match_gameplay_visuals_browser.cjs
+      - name: Million teacher and projector regression
+        run: |
+          mkdir -p /tmp/mothership-million-projector-test
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-million-projector-test PORT=8887 python server.py >/tmp/million-projector-test.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8887/api/health >/dev/null; then break; fi
+            sleep 1
+          done
+          LOCAL_URL=http://127.0.0.1:8887 node tests/test_million_projector_browser.cjs
       - name: Phase 2F Word Grid, Minefield, Crew Survey, Calculator setup and restoration
         run: |
           mkdir -p /tmp/mothership-remaining-setup-test
@@ -118,8 +127,6 @@ jobs:
           node tests/test_quick_poll_projector_browser.cjs
       - name: Dominoes real student, teacher, and shared-screen sync
         run: node tests/test_dominoes_multiplayer_browser.cjs
-      - name: Million teacher and projector regression
-        run: node tests/test_million_projector_browser.cjs
       - name: Cosmic Cards turn rules and privacy
         run: python -m unittest discover -s tests -p 'test_cosmic_cards_turn_rules.py'
       - name: Zoom Match, Word Grid and Minefield student controller layout
