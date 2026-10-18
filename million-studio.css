@@ -1332,3 +1332,178 @@ body.role-student #studentContent .million-student .ms-million-turn-cue[data-pha
   animation:none!important;transition:none!important;
  }
 }
+
+
+/* Phase 3F · Million Grand Stage show HUD and jackpot spotlight.
+   Rendered from public game state, never a gameplay control. */
+body.role-shared .million-public.big .ms-million-question-band{
+ display:flex;align-items:center;justify-content:space-between;gap:7px;
+ flex-wrap:wrap;width:100%;margin:2px 0 8px;padding:7px 13px;
+ border:1px solid #9faedf8a;border-radius:12px;
+ background:linear-gradient(100deg,#101b55da,#273777da,#131b50da);
+ box-shadow:inset 0 1px #f4e5ff24;
+ color:#eff3ff;font:900 clamp(10px,.84vw,14px)/1.3 system-ui,sans-serif;
+}
+body.role-shared .million-public.big .ms-million-question-number{
+ flex:0 0 auto;color:#d5e3ff;letter-spacing:.13em;white-space:nowrap;
+}
+body.role-shared .million-public.big .ms-million-question-prize{
+ min-width:0;flex:1 1 110px;color:#ffde9f;text-align:right;
+ font-size:clamp(11px,1.02vw,17px);overflow-wrap:anywhere;
+ letter-spacing:.06em;font-variant-numeric:tabular-nums;
+ text-shadow:0 0 9px #ffc47266;
+}
+body.role-shared .million-public.big .ms-million-question-band.is-final{
+ border:2px solid #ffdb91;background:linear-gradient(103deg,#443060,#65452b,#302456);
+ box-shadow:0 0 19px #ffc66b6f,inset 0 1px #fff4cb6b;
+}
+body.role-shared .million-public.big .ms-million-question-band.is-final .ms-million-question-prize{
+ color:#fff0b9;
+}
+body.role-shared .million-public.big[data-ms-final-question="true"] .million-stage h3{
+ border-color:#ffe8ac!important;
+ box-shadow:inset 0 0 0 3px #ebd6ff28,0 0 0 4px #4f3163,
+  0 0 40px #f6c3729c,0 12px 29px #0008!important;
+}
+body.role-shared .million-public.big .ms-million-ladder-progress{
+ display:grid;gap:7px;min-width:0;
+ margin-top:9px;padding:10px 10px 11px;
+ border:1px solid #997fb6;border-radius:12px;
+ background:linear-gradient(133deg,#141a53,#252664);
+ box-shadow:inset 0 1px #d5c5ff34;
+}
+body.role-shared .million-public.big .ms-million-progress-head{
+ display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:3px;
+ min-width:0;font:950 clamp(9px,.7vw,11px)/1.25 system-ui,sans-serif;
+}
+body.role-shared .million-public.big .ms-million-progress-head span{
+ color:#d9ddff;letter-spacing:.07em;
+}
+body.role-shared .million-public.big .ms-million-progress-head strong{
+ color:#ffe0a5;font-size:inherit;font-variant-numeric:tabular-nums;
+}
+body.role-shared .million-public.big .ms-million-progress-track{
+ display:block;overflow:hidden;width:100%;height:10px;border-radius:99px;
+ border:1px solid #766ea3;background:#070e31;
+ box-shadow:inset 0 1px 4px #000b;
+}
+body.role-shared .million-public.big .ms-million-progress-fill{
+ display:block;height:100%;border-radius:99px;
+ background:linear-gradient(90deg,#56dbc3,#a3ffdb,#ffe6a5);
+ box-shadow:0 0 9px #7ae8cbae;
+ transition:width .45s ease;
+}
+body.role-shared .million-public.big .ms-million-ladder-progress[data-ms-complete="true"]{
+ border-color:#ffdfa1;
+}
+body.role-shared .million-public.big .ms-million-ladder-progress[data-ms-complete="true"] .ms-million-progress-fill{
+ background:linear-gradient(90deg,#d29c4a,#fff2be,#d49e40);
+}
+body.role-shared .million-public .million-stage:has(>.ms-million-final-results)>.ms-million-question-band{
+ display:none!important;
+}
+body.role-shared .ms-million-cue.is-final-question.question{
+ border:3px solid #ffe2a2!important;
+ background:radial-gradient(ellipse at 50% -25%,#674786,#22215d 64%,#0c1538)!important;
+ box-shadow:0 22px 90px #000b,0 0 54px #d9a4fa89!important;
+}
+body.role-shared .ms-million-cue.is-final-question.question strong{
+ color:#fff0be;text-shadow:0 0 24px #ffc56d;
+}
+body.role-shared .ms-million-cue.is-final-question.question .ms-million-cue-crest{
+ border-color:#ffe0a2;
+ background:radial-gradient(circle at 30% 23%,#fff1b4,#d4a14c 55%,#633a45);
+ box-shadow:0 0 36px #ffe08eab;color:#201745;
+}
+body.role-student #studentContent .ms-million-student-ribbon{
+ display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
+ gap:7px 10px;min-width:0;margin:4px 0 12px;padding:10px 13px;
+ border:1px solid #9da6dc;border-radius:15px;
+ background:linear-gradient(110deg,#1a2364,#343e86 52%,#171e56);
+ box-shadow:inset 0 1px #f2e9ff52;
+ color:#f5f7ff;
+}
+body.role-student #studentContent .ms-million-student-question{
+ color:#d6e4ff;font:950 11px/1.3 system-ui,sans-serif;
+ letter-spacing:.12em;
+}
+body.role-student #studentContent .ms-million-student-stake{
+ min-width:0;color:#ffe2a0;font:950 clamp(12px,3.4vw,16px)/1.32 system-ui,sans-serif;
+ letter-spacing:.04em;text-align:right;overflow-wrap:anywhere;
+}
+body.role-student #studentContent .ms-million-student-lives{
+ grid-column:1/-1;display:block;
+ padding-top:7px;border-top:1px solid #d9ceff38;
+ color:#bbffe6;font:900 11px/1.3 system-ui,sans-serif;
+ letter-spacing:.1em;
+}
+body.role-student #studentContent .ms-million-student-ribbon.is-final{
+ border:2px solid #ffe0a4;
+ background:linear-gradient(106deg,#50315e,#79512c 55%,#3a2b69);
+ box-shadow:0 0 18px #ffcc767c,inset 0 1px #fff0bd64;
+}
+body.role-student #studentContent .ms-million-student-ribbon.is-final .ms-million-student-stake{
+ color:#fff3ba;
+}
+body.role-student #studentContent .million-student:has(>.ms-million-final-results)>.ms-million-student-ribbon{
+ display:none!important;
+}
+@media(min-width:571px) and (max-width:900px){
+ body.role-shared .million-public.big .ms-million-question-band{
+  padding:5px 8px;gap:4px;margin:2px 0 5px;
+ }
+ body.role-shared .million-public.big .ms-million-question-prize{
+  font-size:11px;
+ }
+ body.role-shared .million-public.big .ms-million-ladder-progress{
+  padding:7px 6px;margin-top:5px;gap:5px;
+ }
+ body.role-shared .million-public.big .ms-million-progress-head{
+  font-size:9px;
+ }
+}
+@media(max-width:570px){
+ body.role-shared .million-public.big .ms-million-question-band{
+  padding:5px 8px;gap:5px;
+ }
+ body.role-shared .million-public.big .ms-million-question-prize{
+  text-align:left;font-size:12px;
+ }
+ body.role-shared .million-public.big .ms-million-ladder-progress{
+  grid-column:1/-1;padding:7px 8px;
+ }
+ body.role-student #studentContent .ms-million-student-ribbon{
+  grid-template-columns:minmax(0,1fr);padding:9px 10px;
+ }
+ body.role-student #studentContent .ms-million-student-stake{
+  text-align:left;
+ }
+}
+@media(max-height:570px){
+ body.role-shared .million-public.big .ms-million-question-band{margin:2px 0 3px;padding:4px 7px}
+ body.role-shared .million-public.big .ms-million-ladder-progress{margin-top:3px;padding:5px 6px;gap:4px}
+ body.role-shared .million-public.big .ms-million-progress-track{height:7px}
+}
+@media(prefers-reduced-motion:no-preference){
+ body.role-shared .million-public.big[data-ms-final-question="true"] .ms-million-question-band.is-final{
+  animation:ms3f-final-question-glow 1.6s ease-in-out 2;
+ }
+ body.role-shared .million-public.big .ms-million-ladder-progress[data-ms-complete="true"] .ms-million-progress-fill{
+  animation:ms3f-prize-finish 1s ease-out;
+ }
+ @keyframes ms3f-final-question-glow{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.22)}
+ }
+ @keyframes ms3f-prize-finish{
+  0%{filter:brightness(1.5)}
+  100%{filter:brightness(1)}
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body.role-shared .million-public.big .ms-million-question-band,
+ body.role-shared .million-public.big .ms-million-progress-fill,
+ body.role-student #studentContent .ms-million-student-ribbon{
+  animation:none!important;transition:none!important;
+ }
+}
