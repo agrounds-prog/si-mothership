@@ -87,7 +87,7 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    .then(s=>s.includes('active')),true);
   await page.locator('#launchMinefieldBtn').click();
   assert.equal(await page.evaluate(()=>state.activityRun?.phase),'lobby');
-  await page.locator('#activityWorkflowStart').click();
+  await page.locator('#activityControllerPanel #startActivityBtn').click();
   const minefield=await page.evaluate(()=>({
    id:state.activityRun?.activityId,phase:state.activityRun?.phase,
    mode:state.activityRun?.minefieldMode,count:state.activityRun?.mfTeams?.length,
