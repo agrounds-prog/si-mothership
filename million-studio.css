@@ -351,3 +351,276 @@ body.role-student .million-student .million-student-actions #millionLockBtn:disa
 @media(prefers-reduced-motion:reduce){
  .ms-million-turn-cue{transition:none!important;animation:none!important}
 }
+
+
+/* Phase 3A · MILLION live-show visual pass.
+   Strictly presentational; question, score, lifeline and session logic unchanged. */
+#teacher #activityControllerPanel:has(.million-teacher-grid) .activity-controller-head{
+  padding:clamp(14px,1.6vw,22px);margin-bottom:14px;
+  border:1px solid #628cae;border-radius:17px;
+  background:radial-gradient(circle at 93% -30%,#bb8e4538,transparent 54%),
+             linear-gradient(120deg,#123c5c,#0a1e36);
+  box-shadow:inset 0 1px #edffff24,0 9px 21px #0003;
+}
+#teacher #activityControllerPanel:has(.million-teacher-grid) .activity-controller-head h2{
+  color:#fff4d6;font-size:clamp(19px,1.75vw,28px);
+  line-height:1.25;overflow-wrap:anywhere;
+}
+#teacher #activityControllerPanel:has(.million-teacher-grid) .activity-controller-head p{
+  color:#d7edf8;font-size:clamp(12px,1vw,15px);line-height:1.55;
+  overflow-wrap:anywhere;
+}
+#teacher #activityControllerPanel .million-teacher-grid{
+  grid-template-columns:minmax(0,1.4fr) minmax(260px,.85fr);gap:14px;align-items:start;
+}
+#teacher #activityControllerPanel .million-teacher-card{
+  min-width:0;padding:clamp(14px,1.3vw,20px);
+  border:1px solid #5685ac!important;border-radius:18px!important;
+  background:radial-gradient(ellipse at 65% -24%,#325b8c99,transparent 70%),
+             linear-gradient(165deg,#102c4b,#081a30)!important;
+  box-shadow:inset 0 1px 0 #e3f6ff28,0 10px 24px #0004;
+}
+#teacher #activityControllerPanel .million-teacher-card h4{
+  padding-bottom:9px;border-bottom:1px solid #375f83;
+  color:#ffdb91;font-size:12px!important;letter-spacing:.13em;
+}
+#teacher #activityControllerPanel .million-teacher-card select{
+  min-height:43px;min-width:0;max-width:100%;
+  color:#eef9ff;background:#09233d;border:1px solid #73b7d4;
+  font-size:14px;font-weight:850;
+}
+#teacher #activityControllerPanel .million-teacher-choices{gap:9px;margin-top:12px;}
+#teacher #activityControllerPanel .million-teacher-choices>div{
+  min-width:0;min-height:52px;padding:8px 11px;
+  grid-template-columns:34px minmax(0,1fr) auto;
+  border:1px solid #486e99;border-radius:11px;
+  background:linear-gradient(120deg,#102d52,#0b203b);
+}
+#teacher #activityControllerPanel .million-teacher-choices>div b{
+  width:34px;height:34px;display:grid;place-items:center;
+  border:1px solid #568cba;border-radius:9px;background:#16476d;
+  font-size:17px;color:#f4faff;
+}
+#teacher #activityControllerPanel .million-teacher-choices>div span{
+  min-width:0;color:#e8f6ff;font-size:clamp(12px,1vw,15px);
+  line-height:1.45;overflow-wrap:anywhere;
+}
+#teacher #activityControllerPanel .million-teacher-choices>div.correct-key{
+  border-color:#66bd99;background:linear-gradient(120deg,#174d48,#0e2c43);
+}
+#teacher #activityControllerPanel .million-teacher-choices>div.locked{
+  border-color:#efd087;box-shadow:inset 4px 0 0 #ffd87e;
+}
+#teacher #activityControllerPanel .million-teacher-choices em{
+  color:#b8ffdb;font-size:10px;font-weight:950;letter-spacing:.04em;
+}
+#teacher #activityControllerPanel .million-teacher-status{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0;
+}
+#teacher #activityControllerPanel .million-teacher-status>span{
+  display:flex;flex-wrap:wrap;gap:4px;justify-content:center;
+  min-width:0;min-height:51px;align-items:center;
+  border:1px solid #45708e;border-radius:10px;
+  background:#0a263e;color:#c9e6f7!important;
+  font-size:11px!important;line-height:1.45;text-align:center;
+}
+#teacher #activityControllerPanel .million-teacher-status b{color:#fff2b3;font-size:14px;}
+#teacher #activityControllerPanel .million-teacher-actions{
+  display:grid;grid-template-columns:1fr 1fr;gap:9px;
+}
+#teacher #activityControllerPanel .million-teacher-actions button{
+  min-width:0;min-height:55px!important;padding:10px;
+  border:1px solid #5b8eae;border-radius:11px;
+  background:linear-gradient(140deg,#14426b,#0b2c4b);
+  color:#f0faff;font-weight:950;font-size:13px!important;line-height:1.4;
+  white-space:normal;overflow-wrap:anywhere;
+}
+#teacher #activityControllerPanel #millionCorrectBtn{
+  grid-column:1/-1;min-height:61px!important;
+  border:2px solid #ffe09d!important;
+  background:linear-gradient(115deg,#ffdd87,#e9aa46)!important;
+  color:#152339!important;box-shadow:0 4px 0 #8f6023;
+}
+#teacher #activityControllerPanel #millionNextBtn{
+  grid-column:1/-1;min-height:51px!important;
+  border-color:#95f1d9;background:linear-gradient(120deg,#15695f,#114257);
+  color:#edfff8;
+}
+#teacher #activityControllerPanel .million-teacher-actions button:disabled{
+  opacity:.46;filter:saturate(.54);box-shadow:none!important;cursor:default;
+}
+#teacher #activityControllerPanel .million-teacher-actions button:focus-visible,
+#teacher #activityControllerPanel .million-teacher-lifelines button:focus-visible{
+  outline:3px solid #fff0a8;outline-offset:2px;
+}
+#teacher #activityControllerPanel .million-teacher-lifelines>div{
+  grid-template-columns:minmax(0,1fr) 41px 40px;gap:7px;align-items:stretch;
+}
+#teacher #activityControllerPanel .million-teacher-lifelines button{
+  min-width:0;min-height:45px;padding:8px 5px;border:1px solid #6583ad;
+  border-radius:10px;background:#172f53;color:#e6f5ff;
+  font-size:12px;line-height:1.35;font-weight:850;
+}
+#teacher #activityControllerPanel .million-teacher-lifelines button:disabled{
+  opacity:.4;filter:grayscale(.55);
+}
+#teacher #activityControllerPanel .million-teacher-lifelines span{
+  color:#ffe8b2;font-size:13px;font-weight:950;
+}
+#teacher #activityControllerPanel .million-teacher-poll span{
+  border-color:#4d7797;background:#102d44;color:#e4f6ff;font-size:12px;
+}
+/* Shared screen: illuminated question theater, firm card grouping, money ladder. */
+.million-public.big{
+  border:2px solid #6799bb!important;
+  background:radial-gradient(ellipse at 45% -18%,#365e8b 0%,transparent 56%),
+             linear-gradient(165deg,#0b2443,#060f23)!important;
+  box-shadow:inset 0 0 0 3px #082340,0 16px 47px #000a,0 0 35px #2b739544!important;
+}
+.million-public.big .million-ladder,
+.million-public.big .million-lifelines{
+  border:1px solid #517ea2;border-radius:15px;
+  background:linear-gradient(160deg,#102c4b,#07182e);
+  box-shadow:inset 0 1px #c9f2ff18;
+}
+.million-public.big .million-ladder{
+  min-width:0;
+}
+.million-public.big .million-rung{
+  border-bottom-color:#34516e!important;
+  line-height:1.2;
+}
+.million-public.big .million-rung.active{
+  border:2px solid #ffe09b!important;
+  background:linear-gradient(115deg,#9b5f22,#503719)!important;
+  box-shadow:0 0 14px #e6a04780!important;
+  color:#fff!important;
+}
+.million-public.big .million-rung.active b{color:#fff4bf!important}
+.million-public.big .million-stage h3{
+  border:2px solid #74bce2!important;border-radius:19px!important;
+  background:radial-gradient(ellipse at 50% -90%,#346d9d70,transparent 75%),
+             linear-gradient(170deg,#133654,#0a213e)!important;
+  color:#f6fbff;box-shadow:inset 0 0 0 3px #142e4999,0 11px 29px #0008!important;
+  text-wrap:balance;
+}
+.million-public.big .million-choices{
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,1.2vw,15px);
+}
+.million-public.big .million-choice{
+  min-width:0;border:2px solid #70a8d5!important;
+  background:linear-gradient(112deg,#15436a,#0b2547)!important;
+  box-shadow:inset 0 1px 0 #d2f6ff25,0 5px 15px #0005;
+  overflow:hidden;
+}
+.million-public.big .million-choice b{
+  display:grid;place-items:center;align-self:stretch;
+  min-width:49px;border-right:1px solid #5a95c1;
+  background:linear-gradient(170deg,#245f94,#123d70)!important;
+  color:#e5f9ff;font-weight:1000;
+}
+.million-public.big .million-choice span{
+  min-width:0;padding:9px 14px;color:#f5fbff;
+  font-size:clamp(16px,1.6vw,27px)!important;line-height:1.28!important;
+}
+.million-public.big .million-choice.locked{
+  border-color:#ffda84!important;
+  background:linear-gradient(120deg,#594522,#213f5d)!important;
+  box-shadow:0 0 23px #f2c76687!important;
+}
+.million-public.big .million-choice.correct{
+  border-color:#adffce!important;
+  background:linear-gradient(120deg,#137553,#0e473f)!important;
+}
+.million-public.big .million-choice.wrong{
+  border-color:#ffc3c8!important;background:#642c42!important;
+}
+.million-public.big .million-choice.eliminated{
+  border-color:#668398!important;
+  background:repeating-linear-gradient(135deg,#162538,#162538 12px,#213247 12px,#213247 24px)!important;
+  box-shadow:inset 0 0 18px #051320!important;
+}
+.million-public.big .million-choice.eliminated b{background:#39475a!important}
+.million-public.big .million-lifelines span.available{
+  border:1px solid #658cb1;color:#effaff;
+  background:#174062;
+}
+.million-public.big .million-message{
+  margin-top:12px;padding:9px 12px;border:1px solid #3a6f99;
+  border-radius:10px;background:#08243bb8;color:#d8effd;
+}
+.million-public.big .million-stakes-amount{
+  color:#ffe6a0;font-variant-numeric:tabular-nums;
+  text-shadow:0 0 21px #ffc85e81;
+}
+/* Students: four answers remain prominent without two cramped phone columns. */
+body.role-student #studentContent .million-student{
+  min-width:0;padding:clamp(12px,2.5vw,20px);
+  border:1px solid #4b7aa4;border-radius:17px;
+  background:radial-gradient(ellipse at 50% 0%,#224f7a99,transparent 66%),
+             linear-gradient(160deg,#0e2744,#06172d);
+}
+body.role-student #studentContent .million-student h2{
+  color:#f2fbff;font-size:clamp(19px,4.6vw,30px)!important;
+  line-height:1.32;overflow-wrap:anywhere;text-wrap:balance;
+}
+body.role-student #studentContent .million-student-choices{gap:10px;}
+body.role-student #studentContent .million-student-choice{
+  min-width:0;min-height:78px!important;border:2px solid #70a9d1!important;
+  background:linear-gradient(115deg,#164069,#0e274c)!important;
+  box-shadow:0 4px 13px #0004;
+}
+body.role-student #studentContent .million-student-choice b{
+  min-width:45px;background:#1b5885;color:#fff4d1;
+  font-size:24px;font-weight:1000;
+}
+body.role-student #studentContent .million-student-choice span{
+  min-width:0;padding:10px 13px;
+  font-size:clamp(14px,2.9vw,18px);line-height:1.4;
+}
+body.role-student #studentContent .million-student-choice.selected{
+  border-color:#ffe39d!important;background:linear-gradient(110deg,#564524,#15375c)!important;
+}
+body.role-student #studentContent .million-student-choice.correct{
+  border-color:#a8ffd2!important;background:#145740!important;
+}
+body.role-student #studentContent .million-student-choice.wrong{
+  border-color:#ffa4b8!important;background:#61304b!important;
+}
+body.role-student #studentContent .million-student-actions button{
+  min-width:0;min-height:55px!important;padding:11px;
+  border:1px solid #6aa6cf;color:#eefbff;font-weight:950;
+}
+@media(max-width:1100px){
+ #teacher #activityControllerPanel .million-teacher-grid{grid-template-columns:minmax(0,1fr);}
+}
+@media(max-width:570px){
+ body.role-student #studentContent .million-student-choices{
+   grid-template-columns:minmax(0,1fr);
+ }
+ body.role-student #studentContent .million-student-choice{min-height:65px!important;}
+ body.role-student #studentContent .million-student-choice span{font-size:15px;}
+ #teacher #activityControllerPanel .million-teacher-status{grid-template-columns:1fr;}
+ #teacher #activityControllerPanel .million-teacher-card{padding:12px;}
+}
+@media(max-width:880px){
+ body.role-shared .million-public.big .million-choice span{
+  font-size:clamp(13px,1.9vw,19px)!important;
+ }
+ body.role-shared .million-public.big .million-stage h3{
+  font-size:clamp(21px,2.7vw,28px)!important;
+ }
+}
+@media(max-height:720px){
+ body.role-shared .million-public.big .million-choice{
+  min-height:56px!important;
+ }
+ body.role-shared .million-public.big .million-stage h3{padding:11px!important;margin:7px 0 10px!important;}
+ body.role-shared .million-public.big .million-message{margin-top:7px;padding:5px 9px;}
+}
+@media(prefers-reduced-motion:reduce){
+ .million-public.big .million-choice,
+ body.role-student #studentContent .million-student-choice{
+  transition:none!important;animation:none!important;
+ }
+}
