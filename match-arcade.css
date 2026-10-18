@@ -368,3 +368,176 @@ body.role-student #studentContent .ma-student-earned{
   color:#f0fffb!important;
 }
 body.role-student #studentContent .ma-student-earned b{color:#aeffda!important}
+
+
+/* Phase 3A · MATCH live arcade visual pass. All rules and state remain native.
+   Applies to teacher controls, projected game and student tiles only. */
+#teacher #activityControllerPanel:has(.match-teacher-grid) .activity-controller-head{
+  display:flex;gap:16px;align-items:center;flex-wrap:wrap;
+  padding:clamp(13px,1.6vw,22px);margin-bottom:13px;
+  border:1px solid #448db4;border-radius:18px;
+  background:radial-gradient(ellipse at 85% -30%,#246d9655,transparent 56%),
+             linear-gradient(120deg,#123e60,#081d33);
+  box-shadow:inset 0 1px 0 #beeffb25,0 8px 22px #010c1866;
+}
+#teacher #activityControllerPanel:has(.match-teacher-grid) .activity-controller-head h2{
+  font-size:clamp(21px,1.9vw,29px);line-height:1.16;color:#f3fdff;
+  overflow-wrap:anywhere;
+}
+#teacher #activityControllerPanel:has(.match-teacher-grid) .activity-controller-head p{
+  color:#c5e7f7;font-size:clamp(12px,1vw,15px);line-height:1.5;overflow-wrap:anywhere;
+}
+#teacher #activityControllerPanel .match-result-chip{
+  margin-top:10px;padding:8px 14px;border:1px solid #7ad2ec;
+  background:#0d3b55;color:#ebfaff;font-size:11px;letter-spacing:.065em;
+}
+#teacher #activityControllerPanel .match-teacher-grid{
+  grid-template-columns:minmax(0,1.44fr) minmax(250px,.8fr);
+  align-items:start;gap:13px;
+}
+#teacher #activityControllerPanel .match-teacher-card{
+  min-width:0;padding:clamp(14px,1.2vw,19px);
+  border:1px solid #4b92bb;border-radius:17px;
+  background:radial-gradient(ellipse at top right,#20547b7d,transparent 62%),
+             linear-gradient(170deg,#0e2b49,#071a2f);
+  box-shadow:inset 0 1px 0 #d9fbff1a,0 8px 21px #0003;
+}
+#teacher #activityControllerPanel .match-teacher-card h4{
+  padding-bottom:10px;border-bottom:1px solid #356782;margin:0 0 12px;
+  color:#a8e9ff;font-size:12px;font-weight:950;letter-spacing:.13em;
+}
+#teacher #activityControllerPanel .match-current-player{
+  display:flex;align-items:center;min-height:51px;padding:10px 14px;
+  border:1px solid #85e9ff;border-left:5px solid #8dffdb;border-radius:12px;
+  background:linear-gradient(105deg,#164b67,#0a2b43);
+  font-size:clamp(20px,1.8vw,27px);line-height:1.25;color:#f4fdff;
+  text-shadow:0 0 12px #50bfe055;overflow-wrap:anywhere;
+}
+#teacher #activityControllerPanel .match-teacher-card>p{
+  color:#c1dcec;font-size:13px;line-height:1.5;
+}
+#teacher #activityControllerPanel .match-control-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px;
+}
+#teacher #activityControllerPanel .match-control-grid button{
+  min-width:0;min-height:52px;padding:11px 9px;
+  border:1px solid #498daf;border-radius:11px;
+  background:linear-gradient(135deg,#15456c,#0b2e50);
+  color:#effaff;font:850 clamp(11px,.95vw,14px)/1.35 system-ui,sans-serif;
+  white-space:normal;overflow-wrap:anywhere;touch-action:manipulation;
+}
+#teacher #activityControllerPanel .match-control-grid button:not(:disabled):hover{
+  border-color:#a6edff;background:linear-gradient(135deg,#24628d,#154566);
+}
+#teacher #activityControllerPanel .match-control-grid button:focus-visible{
+  outline:3px solid #ffe7a0;outline-offset:2px;
+}
+#teacher #activityControllerPanel .match-control-grid button:disabled{
+  opacity:.44;cursor:default;filter:saturate(.58);
+}
+#teacher #activityControllerPanel #matchContinueBtn:not(:disabled){
+  border:2px solid #b3ffe1;background:linear-gradient(120deg,#2bd4a5,#118466);
+  color:#062b24;font-weight:1000;box-shadow:0 5px 0 #065d4d;
+}
+#teacher #activityControllerPanel #matchMemoryPreviewBtn:not(:disabled){
+  border-color:#f8d789;background:linear-gradient(120deg,#65461c,#294b68);
+  color:#fff0c7;
+}
+#teacher #activityControllerPanel #matchLockBtn{
+  border-color:#95c8e0;
+}
+#teacher #activityControllerPanel .match-teacher-score{
+  gap:8px;
+}
+#teacher #activityControllerPanel .match-teacher-score>div{
+  align-items:center;gap:10px;padding:11px 13px;
+  border:1px solid #335c80;border-radius:11px;
+  background:linear-gradient(110deg,#11344c,#081d33);
+}
+#teacher #activityControllerPanel .match-teacher-score b{
+  min-width:0;color:#e2f9ff;font-size:13px;overflow-wrap:anywhere;
+}
+#teacher #activityControllerPanel .match-teacher-score span{
+  flex-shrink:0;color:#a3ffda;font-size:14px;font-weight:950;
+}
+/* Full projector keeps the real board central. Score and status remain legible. */
+#shared .ma-present{
+  background:radial-gradient(ellipse at 50% 35%,#175081 0%,#092447 52%,#020b1a 100%)!important;
+}
+#shared .ma-present .ma-header{
+  border-color:#5dabd4;background:linear-gradient(100deg,#103957e9,#092440ed);
+}
+#shared .ma-present .ma-board-surround{
+  border-color:#6acbee;box-shadow:inset 0 0 0 3px #05243e,
+    inset 0 0 0 6px #72dfff33,0 12px 36px #0008;
+}
+#shared .ma-present .ma-tile{
+  border-color:#81cffb;
+  box-shadow:inset 0 0 0 2px #c7f9ff22,0 5px 14px #00101dbc,0 0 10px #2ca3fa44;
+}
+#shared .ma-present .ma-tile.is-matched{border-color:#b4ffd3;
+  box-shadow:0 0 17px #53f6a77a,0 5px 12px #0007;
+}
+#shared .ma-present .ma-turn-identity{
+  border-color:#9ceafd;background:linear-gradient(110deg,#155575,#092642);
+}
+#shared .ma-present .ma-counter-strip>span{
+  border-color:#649fc1;background:#09273eeb;
+}
+#shared .ma-present .ma-signal{
+  border-width:2px;box-shadow:inset 0 1px 0 #d2f7ff19;
+}
+#shared .ma-present .ma-score-chip.active{
+  border:2px solid #b1ffdf;background:#175b53;color:#fff;
+}
+#shared .ma-present .ma-log{
+  border-color:#5c9dbd;background:#07213bdc;color:#f1fbff;line-height:1.42;
+}
+/* Student play: stronger active-player cues, readable card labels and touch zones. */
+#student .ma-student .ma-student-heading{
+  padding:13px 9px 10px;border:1px solid #447da7;border-radius:15px;
+  background:linear-gradient(170deg,#143f62a8,#071d35ab);
+}
+#student .ma-student .ma-student-heading h2{
+  font-size:clamp(21px,5.2vw,36px)!important;
+}
+#student .ma-student .ma-student-heading p{
+  font-size:clamp(13px,3vw,17px)!important;
+}
+#student .ma-student .ma-student-status>span{
+  min-height:38px;display:inline-flex;gap:4px;align-items:center;
+  border-color:#5aabc8;background:#123954;
+}
+#student .ma-student .ma-board-surround{
+  border:2px solid #65b6d8;background:linear-gradient(150deg,#173e64,#08213c);
+}
+#student .ma-student .ma-tile{
+  border-color:#8dc4f2;box-shadow:0 4px 12px #0008;
+}
+#student .ma-student .ma-tile:not(:disabled){
+  border-color:#aff9ef;box-shadow:0 0 0 1px #91e8f944,0 4px 13px #0009;
+}
+#student .ma-student .ma-tile.is-open{
+  border-color:#c4f5ff;box-shadow:0 0 15px #89defd75;
+}
+#student .ma-student .ma-tile.is-matched{border-color:#abffd4;}
+#student .ma-student .ma-tile:focus-visible{outline:3px solid #ffeca0;outline-offset:3px;}
+#student .ma-student .ma-device-tip{line-height:1.48;color:#f1faff;}
+@media(max-width:980px){
+ #teacher #activityControllerPanel .match-teacher-grid{grid-template-columns:minmax(0,1fr);}
+}
+@media(max-width:580px){
+ #teacher #activityControllerPanel .match-control-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+ #teacher #activityControllerPanel .match-control-grid button{min-height:49px;padding:9px 7px;}
+ #teacher #activityControllerPanel .match-teacher-card{padding:12px;}
+ #student .ma-student{padding:11px;gap:10px;}
+ #student .ma-student .ma-student-status>span{font-size:11px;padding:6px 9px;}
+}
+@media(max-height:680px){
+ #shared .ma-present .ma-counter-strip>span{padding:6px 9px;min-width:65px}
+ #shared .ma-present .ma-board-surround{padding:clamp(5px,1vh,10px)}
+}
+@media(prefers-reduced-motion:reduce){
+ #teacher #activityControllerPanel .match-control-grid button,
+ #student .ma-student .ma-tile{transition:none!important;}
+}
