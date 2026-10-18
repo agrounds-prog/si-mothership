@@ -101,11 +101,11 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
       game+" card/status labels remain readable: "+JSON.stringify({w,h,ui}));
     if(game==="million")assert.ok(ui.visual.selectionContrast,
       "Selected answer has a distinct visual state");
-    assert.equal(ui.cols,game==="dominoes"?(w>=410?3:2):game==="cosmic"?3:2);
+    assert.equal(ui.cols,game==="dominoes"?(w>=410?3:2):game==="cosmic"?3:game==="million"?1:2);
     assert.ok(ui.grids[0].length>=4&&ui.grids[0].every(x=>x.w>=40),JSON.stringify({w,h,game,ui}));
     if(game==="cosmic")assert.ok(ui.grids[1].every(x=>x.h>=44)&&ui.scene<=75,JSON.stringify(ui));
     if(game==="dominoes")assert.ok(ui.grids[0].every(x=>x.h>=44&&x.w>=80)&&ui.grids[1].every(x=>x.h>=44),JSON.stringify(ui));
-    if(game==="million")assert.ok(ui.grids[0].every(x=>x.h>=70)&&ui.grids[1].every(x=>x.h>=44),JSON.stringify(ui));
+    if(game==="million")assert.ok(ui.grids[0].every(x=>x.h>=70&&x.w>=190)&&ui.grids[1].every(x=>x.h>=44)&&ui.visual.labelFont>=13,JSON.stringify(ui));
     console.log("ZOOM "+game+" "+w+"x"+h+" "+JSON.stringify({columns:ui.cols,buttons:ui.grids[0].length}));
    }
    const pv=await page.evaluate(poll=>{
