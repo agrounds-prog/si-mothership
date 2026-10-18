@@ -358,7 +358,9 @@ function millionFinalResultsMarkup(data,compact=false){
  const milestone=data.checkpoint?'SAFE CHECKPOINT':data.complete?'FINAL PRIZE':'MILESTONE REACHED';
  const title=data.complete?'MILLION COMPLETE':'MISSION RESULTS';
  const detail=data.complete?'The crew reached the final milestone.':
-  data.checkpoint?'Classic mode · returned to your last safe checkpoint.':
+  data.checkpoint?(data.level===0?'Classic mode · no safe checkpoint was secured.':
+   'Classic mode · returned to your last safe checkpoint.'):
+  data.amount===0?'No prize secured this round. The crew can try again.':
   'The crew finished this run. Review the milestone achieved.';
  return '<section class="ms-million-final-results'+(data.complete?' is-champion':' is-finished')+
    (compact?' is-compact':'')+'" aria-label="MILLION final mission results">'+
@@ -394,7 +396,8 @@ function installMillionFinalResults(){
    lastHost=null;lastKey='';return;
   }
   const key=String(run?.runToken||'')+'|'+String(data.complete)+'|'+String(data.amount)+
-   '|'+String(data.reached)+'|'+String(data.level)+'|'+data.pilot;
+   '|'+String(data.reached)+'|'+String(data.level)+'|'+String(data.total)+
+   '|'+String(data.checkpoint)+'|'+String(data.risk)+'|'+data.pilot;
   if(game===lastHost&&lastKey===key&&game.querySelector('.ms-million-final-results'))return;
   game.querySelectorAll('.ms-million-final-results').forEach(el=>el.remove());
   const holder=document.createElement('div');

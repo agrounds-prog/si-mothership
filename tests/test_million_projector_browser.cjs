@@ -256,6 +256,63 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.equal(ended.over,true);
   assert.equal(ended.before,ended.after,'classic risk game cannot advance');
   assert.equal(ended.nextDisabled,true);
+  // Phase 3C: read the actual rolled-back checkpoint, not a guessed winnings value.
+  await screen.waitForFunction(()=>document.querySelector('.million-public.big .ms-million-final-results')?.querySelector('.ms-million-final-prize>span')?.textContent==='SAFE CHECKPOINT',null,{timeout:12000});
+  const classic=await teacher.evaluate(()=>{
+   const m=state.activityRun.million,cfg=state.activityRun.millionConfig;
+   return {level:m.ladderLevel,amount:m.ladderLevel?cfg.ladder[m.ladderLevel-1]:0};
+  });
+  const classicShown=await screen.evaluate(()=>{
+   const r=document.querySelector('.million-public.big .ms-million-final-results');
+   return {label:r.querySelector('.ms-million-final-prize>span').textContent,
+    money:r.querySelector('.ms-million-final-prize>strong').textContent,
+    description:r.querySelector('.ms-million-final-description').textContent};
+  });
+  assert.equal(classicShown.money,','browser JS errors: '+JSON.stringify(errors));
+  console.log(JSON.stringify({test:'MILLION five-question teacher/projector multiplayer, Phase 3A.2 cinematic finale, 50/50 and classic-risk stop',first,phase3Visual,finale,fifty,pilot50,layout,ended,pageErrors:errors}));
+  // Leave the isolated app clean so unrelated SI+ and Activity Library smoke
+  // tests never inherit a synthetic MILLION session.
+  await teacher.evaluate(()=>{state.activityRun=null;state.screen='classroom';state.activeApp=null;render()});
+  await teacher.waitForTimeout(350);
+ }finally{
+  await browser.close();
+ }
+})().catch(e=>{console.error(e);process.exit(1)});
++Number(classic.amount).toLocaleString('en-US'));
+  assert.match(classicShown.description,/Classic mode/);
+  const finalSizes=[];
+  for(const [width,height] of [[880,720],[700,500]]){
+   await screen.setViewportSize({width,height});
+   await screen.waitForTimeout(100);
+   const g=await screen.evaluate(()=>{
+    const panel=document.querySelector('.million-public.big .ms-million-final-results');
+    const b=panel.getBoundingClientRect();
+    return {viewport:innerWidth,page:document.documentElement.scrollWidth,
+     left:b.left,right:b.right,width:b.width,height:b.height,
+     amount:panel.querySelector('.ms-million-final-prize strong').textContent,
+     hiddenPreview:!!document.querySelector('.million-public:not(.big) .ms-million-final-results')};
+   });
+   finalSizes.push({size:width+'x'+height,...g});
+   assert.ok(g.width>170&&g.left>=-5&&g.right<=width+5&&g.page<=width+36,
+    'compact MILLION final results remain horizontally visible: '+JSON.stringify(g));
+   assert.equal(g.hiddenPreview,false,'final results must not mount in hidden preview');
+  }
+  // A new, early classic loss must replace the previous final state with $0.
+  await teacher.evaluate(()=>{
+   const m=state.activityRun.million;
+   Object.assign(m,{complete:false,over:false,revealed:false,result:'',questionIndex:0,
+    ladderLevel:0,lockedAnswer:'A',selectedAnswer:'A',publicCorrect:''});
+   millionResolve(false);
+  });
+  await screen.waitForFunction(()=>{
+   const p=document.querySelector('.million-public.big .ms-million-final-results');
+   return p?.querySelector('.ms-million-final-prize strong')?.textContent==='$0';
+  },null,{timeout:12000});
+  const zero=await screen.locator('.million-public.big .ms-million-final-description').textContent();
+  assert.match(zero,/no safe checkpoint/i);
+  // Returning to class clears the results; no previously earned prize is cached.
+  await teacher.evaluate(()=>{state.activityRun=null;state.screen='classroom';state.activeApp=null;render()});
+  await screen.waitForFunction(()=>!document.querySelector('.million-public.big .ms-million-final-results'),null,{timeout:12000});
   assert.equal(errors.length,0,'browser JS errors: '+JSON.stringify(errors));
   console.log(JSON.stringify({test:'MILLION five-question teacher/projector multiplayer, Phase 3A.2 cinematic finale, 50/50 and classic-risk stop',first,phase3Visual,finale,fifty,pilot50,layout,ended,pageErrors:errors}));
   // Leave the isolated app clean so unrelated SI+ and Activity Library smoke

@@ -798,3 +798,20 @@ body.role-student #studentContent .ma-student-earned b{color:#aeffda!important}
 @media(prefers-reduced-motion:reduce){
  #shared .ma-present .ma-final-results{animation:none!important;transition:none!important}
 }
+
+/* Phase 3C: keep long final names legible and compact projectors within the board. */
+.ma-game .ma-final-name{
+ display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+ overflow:hidden;line-height:1.16;max-width:100%;
+}
+@media(max-width:760px) and (max-height:560px){
+ #shared .ma-present .ma-stage-victory{
+  width:94%;padding:6px 8px;gap:2px;max-height:97%;
+ }
+ #shared .ma-present .ma-stage-victory .ma-celebration-sparks,
+ #shared .ma-present .ma-stage-victory .ma-celebration-trophy{display:none}
+ #shared .ma-present .ma-final-results{padding:5px;gap:3px}
+ #shared .ma-present .ma-final-rows{gap:2px;max-height:unset}
+ #shared .ma-present .ma-final-row{min-height:22px;padding:3px 5px;gap:4px}
+ #shared .ma-present .ma-final-more{font-size:10px}
+}

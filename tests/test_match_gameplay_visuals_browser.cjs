@@ -128,6 +128,7 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
     board=root.querySelector('.ma-board-surround');
    const bannerRect=banner.getBoundingClientRect(),boardRect=board.getBoundingClientRect();
    return {text:banner.textContent,aria:banner.getAttribute('aria-hidden'),
+    region:banner.getAttribute('role'),label:banner.getAttribute('aria-label'),
     pointer:getComputedStyle(banner).pointerEvents,
     trophy:banner.querySelector('.ma-celebration-trophy')?.textContent,
     matched:root.querySelectorAll('.ma-tile.is-matched').length,
@@ -141,7 +142,8 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(victory.matched,16);
   assert.equal(victory.progressWidth,'100%');
   assert.equal(victory.pointer,'none');
-  assert.equal(victory.aria,'true');
+  assert.equal(victory.aria,null,'final results must be available to screen readers');
+  assert.deepEqual([victory.region,victory.label],['region','MATCH final standings']);
   const standings=await shared.evaluate(()=>{
     const stage=document.querySelector('.ma-stage-victory .ma-final-results');
     return {mode:stage?.dataset.mode,rows:[...stage.querySelectorAll('.ma-final-row')].map(row=>({
@@ -155,6 +157,48 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.deepEqual(standings.rows.map(x=>x.rank),['01','02']);
   assert.deepEqual(standings.rows.map(x=>x.score),['5 PAIRS','3 PAIRS']);
   assert.ok(victory.staysInBoard,'victory graphic stays inside the game card arena');
+  // Phase 3C: native team points, shared ranks, score-free crew, and small projector.
+  await teacher.evaluate(()=>{
+   const run=state.activityRun;
+   run.matchConfig.mode='teams';run.matchConfig.scoring='pairs';run.matchConfig.teamCount=3;
+   run.match.teamScores=[4,4,1];render();
+  });
+  await shared.waitForFunction(()=>{
+   const p=document.querySelector('.ma-present .ma-final-results');
+   return p?.dataset.mode==='teams'&&p.querySelectorAll('.ma-final-row').length===3;
+  },null,{timeout:12000});
+  const teams=await shared.evaluate(()=>[...document.querySelectorAll('.ma-present .ma-final-row')]
+   .map(row=>({rank:row.querySelector('.ma-final-rank').textContent,
+    score:row.querySelector('.ma-final-points').textContent.trim()})));
+  assert.deepEqual(teams.map(x=>x.rank),['01','01','03'],'team ties share first rank');
+  assert.deepEqual(teams.map(x=>x.score),['4 PAIRS','4 PAIRS','1 PAIR']);
+  await teacher.evaluate(()=>{state.activityRun.matchConfig.scoring='no_score';render()});
+  await shared.waitForFunction(()=>document.querySelector('.ma-present .ma-final-results')?.dataset.mode==='memory',null,{timeout:12000});
+  const memory=await shared.evaluate(()=>{
+   const p=document.querySelector('.ma-present .ma-final-results');
+   return {heading:p.querySelector('.ma-final-heading').textContent,
+    ranks:[...p.querySelectorAll('.ma-final-rank')].map(x=>x.textContent),
+    points:[...p.querySelectorAll('.ma-final-points')].map(x=>x.textContent)};
+  });
+  assert.equal(memory.heading,'CREW MEMORY MISSION');
+  assert.ok(memory.ranks.every(x=>x==='✦')&&memory.points.every(x=>x==='CREW'),
+   'no-score mode must never claim a ranking or winner');
+  await shared.setViewportSize({width:700,height:500});
+  const compactFinal=await shared.evaluate(()=>{
+   const p=document.querySelector('.ma-present .ma-stage-victory'),
+    board=document.querySelector('.ma-present .ma-board-surround'),
+    r=p.getBoundingClientRect(),b=board.getBoundingClientRect();
+   return {stage:{left:r.left,right:r.right,top:r.top,bottom:r.bottom},
+    board:{left:b.left,right:b.right,top:b.top,bottom:b.bottom},
+    scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth,
+    rows:p.querySelectorAll('.ma-final-row').length};
+  });
+  assert.ok(compactFinal.stage.left>=compactFinal.board.left-4&&
+   compactFinal.stage.right<=compactFinal.board.right+4&&
+   compactFinal.scrollWidth<=compactFinal.viewport+6,
+   'compact MATCH final results stay inside projector: '+JSON.stringify(compactFinal));
+  await teacher.evaluate(()=>{state.activityRun=null;state.screen='classroom';render()});
+  await shared.waitForFunction(()=>!document.querySelector('.ma-present .ma-final-results'),null,{timeout:12000});
   assert.deepEqual(errors,[],'No JavaScript errors during teacher and projector play');
   console.log('MATCH Phase 3A teacher controls + projected 16-card board PASS',
    JSON.stringify({pair,victory,teacher:teacherStyle,projectors:layouts.map(({size,overflow,board,cards})=>

@@ -1001,3 +1001,24 @@ body.role-student #studentContent .ms-million-final-pilot{font-size:11px!importa
 @media(prefers-reduced-motion:reduce){
  .ms-million-final-results,.ms-million-final-results *{animation:none!important;transition:none!important}
 }
+
+/* Phase 3C: prevent finale cards crowding Zoom-sized 700x500 projectors. */
+@media(max-width:900px) and (max-height:560px){
+ body.role-shared .million-public.big .ms-million-final-results{
+  padding:7px 9px;gap:4px;border-radius:12px;
+ }
+ body.role-shared .million-public.big .ms-million-final-icon{display:none}
+ body.role-shared .million-public.big .ms-million-final-header h3{
+  font-size:clamp(19px,3.2vw,25px)!important;
+ }
+ body.role-shared .million-public.big .ms-million-final-prize{padding:6px}
+ body.role-shared .million-public.big .ms-million-final-prize>strong{
+  font-size:clamp(26px,5vh,38px);
+ }
+ body.role-shared .million-public.big .ms-million-final-metrics{gap:4px}
+ body.role-shared .million-public.big .ms-million-final-metrics>div{padding:4px}
+ body.role-shared .million-public.big .ms-million-final-metrics strong{font-size:16px}
+ body.role-shared .million-public.big .ms-million-final-metrics span{font-size:9px}
+ body.role-shared .million-public.big .ms-million-final-description{font-size:11px!important;line-height:1.2!important}
+ body.role-shared .million-public.big .ms-million-final-pilot{font-size:10px!important;padding:4px}
+}

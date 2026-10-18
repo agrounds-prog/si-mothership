@@ -87,9 +87,9 @@ function matchArcadeFinalStandings(match,run){
       '<span class="ma-final-points">'+(unscored?'CREW':' '+entry.score+' '+(entry.score===1?'PAIR':'PAIRS'))+'</span></div>';
   }).join('');
   const more=entries.length>top.length?
-    '<p class="ma-final-more">+'+(entries.length-top.length)+' more · full results on teacher scoreboard</p>':'';
+    '<p class="ma-final-more">+'+(entries.length-top.length)+(unscored?' additional crew members':' more · full results on teacher scoreboard')+'</p>':'';
   return '<div class="ma-final-results" data-mode="'+(unscored?'memory':cfg.mode==='teams'?'teams':'individual')+'">'+
-    '<div class="ma-final-heading">'+(unscored?'ALL CREW MEMBERS':'FINAL STANDINGS')+'</div>'+
+    '<div class="ma-final-heading">'+(unscored?'CREW MEMORY MISSION':'FINAL STANDINGS')+'</div>'+
     '<div class="ma-final-rows">'+(rows||'<p class="ma-final-more">Crew mission completed.</p>')+'</div>'+more+'</div>';
 }
 function matchArcadeShared(run=state.activityRun,big=false){
@@ -102,7 +102,7 @@ function matchArcadeShared(run=state.activityRun,big=false){
   const celebration=status.type==='matched'?
     '<div class="ma-stage-celebration ma-stage-pair" aria-hidden="true"><span class="ma-celebration-sparks">✦ &nbsp; ✧ &nbsp; ✦</span><strong>PAIR FOUND!</strong><small>'+ (cfg.scoring==='no_score'?'MEMORY MISSION · WELL DONE':'AUTOMATIC POINT AWARDED') +'</small></div>':
     status.type==='victory'?
-    '<div class="ma-stage-celebration ma-stage-victory" aria-hidden="true"><span class="ma-celebration-sparks">✦ &nbsp; ★ &nbsp; ✦</span><span class="ma-celebration-trophy">🏆</span><strong>MISSION COMPLETE</strong><small>'+matched+' OF '+pairs+' PAIRS DISCOVERED</small>'+matchArcadeFinalStandings(m,run)+'</div>':'';
+    '<div class="ma-stage-celebration ma-stage-victory" role="region" aria-label="MATCH final standings"><span class="ma-celebration-sparks">✦ &nbsp; ★ &nbsp; ✦</span><span class="ma-celebration-trophy">🏆</span><strong>MISSION COMPLETE</strong><small>'+matched+' OF '+pairs+' PAIRS DISCOVERED</small>'+matchArcadeFinalStandings(m,run)+'</div>':'';
   return '<div class="ma-game ma-shared '+(big?'ma-present':'ma-compact')+' ma-status-'+status.type+'">'+
     '<div class="ma-cosmos" aria-hidden="true"><span class="ma-planet ma-planet-one"></span><span class="ma-planet ma-planet-two"></span><span class="ma-space-grid"></span></div>'+
     '<header class="ma-header"><div class="ma-brand"><span class="ma-brand-icon">✦</span><span>MISSION <b>MATCH</b></span></div><span class="ma-round-label">MEMORY CHALLENGE</span></header>'+
