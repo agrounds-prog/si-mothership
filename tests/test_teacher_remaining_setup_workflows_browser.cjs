@@ -97,23 +97,8 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   // Crew Survey: visible validation, teacher-local save draft, reload, launch.
   await launchSetup('crew-survey');
   await page.locator('#crewSurveyPrompt').fill('');
-  await page.locator('#launchCrewSurveyBtn').click();
-  console.log('CREW SURVEY VALIDATION DIAGNOSTIC',JSON.stringify(await page.evaluate(()=>({
-    status:document.querySelector('#crewSurveySetupStatus')?.textContent||'',
-    handler:typeof document.querySelector('#launchCrewSurveyBtn')?.onclick,
-    feedback:crewSurveySetupFeedback,
-    prompt:crewSurveyDraft.prompt,
-    connected:connectedStudents().length,
-    run:state.activityRun?.activityId||null,
-    show:document.querySelector('#bootErrorText')?.textContent?.slice(0,120)||''
-  }))));
-  console.log('CREW SURVEY DIRECT VALIDATION',JSON.stringify(await page.evaluate(()=>{
-    const same=document.querySelector('#launchCrewSurveyBtn')?.onclick===launchCrewSurvey;
-    launchCrewSurvey();
-    return {same,status:crewSurveySetupFeedback,
-      handlerSource:document.querySelector('#launchCrewSurveyBtn')?.onclick?.toString().slice(0,160)};
-  })));
-  assert.match(await page.locator('#crewSurveySetupStatus').innerText(),/survey prompt/i);
+  await page.locator('#surveyPlayDraft').click();
+  assert.match(await page.locator('#surveyLaunchStatus').innerText(),/question.*at least four answers/i);
   assert.equal(await page.evaluate(()=>state.activityRun),null);
   await page.locator('#crewSurveyPrompt').fill('Which school supplies help us learn?');
   await page.locator('[data-cs-answer-text="0"]').fill('Pencils');
@@ -133,7 +118,7 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(await page.locator('[data-cs-answer-text="6"]').inputValue(),'Paper');
   assert.equal(await page.locator('#crewSurveyScoring').isChecked(),false);
   assert.equal(await page.locator('[data-cs-aac-student="Alex"]').isChecked(),true);
-  await page.locator('#launchCrewSurveyBtn').click();
+  await page.locator('#surveyPlayDraft').click();
   const survey=await page.evaluate(()=>({
    id:state.activityRun?.activityId,phase:state.activityRun?.phase,
    prompt:state.activityRun?.crewSurveyConfig?.prompt,
@@ -142,7 +127,7 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    scoring:state.activityRun?.crewSurveyConfig?.scoring,
    aac:state.activityRun?.crewSurveyConfig?.aacStudents
   }));
-  assert.deepEqual(survey,{id:'crew-survey-game',phase:'lobby',
+  assert.deepEqual(survey,{id:'crew-survey-game',phase:'running',
    prompt:'Which school supplies help us learn?',count:7,first:'Pencils',
    scoring:false,aac:['Alex']});
   // Calculator: QR and share URL update immediately when settings change.
