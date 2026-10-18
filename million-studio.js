@@ -285,6 +285,8 @@ function installMillionStageCues(){
   }
   const m=run.million||{},cfg=run.millionConfig||{};
   const q=Math.max(0,Number(m.questionIndex)||0);
+  const questionTotal=Array.isArray(cfg.questions)?cfg.questions.length:0;
+  const finalQuestion=questionTotal>0&&q===questionTotal-1;
   const stageName=m.revealed?(m.complete?'complete':m.result==='correct'?'correct':'wrong'):(m.lockedAnswer?'locked':'question');
   const key=String(run.runToken||'')+':'+q+':'+stageName;
   if(lastKey===key)return;
@@ -292,13 +294,18 @@ function installMillionStageCues(){
   const ladder=Array.isArray(cfg.ladder)?cfg.ladder:[];
   const prize=Number(ladder[Math.max(0,Math.min(ladder.length-1,Number(m.ladderLevel||0)-1))]||0);
   let headline='',detail='',duration=0;
-  if(stageName==='question'){headline='NEW QUESTION';detail='QUESTION '+(q+1)+' OF '+(cfg.questions?.length||15);duration=950}
+  if(stageName==='question'){
+   headline=finalQuestion?'THE FINAL QUESTION':'NEW QUESTION';
+   detail=finalQuestion?'GRAND PRIZE AT STAKE · '+String.fromCharCode(36)+Number(ladder[q]||0).toLocaleString('en-US'):
+    'QUESTION '+(q+1)+' OF '+(cfg.questions?.length||15);
+   duration=finalQuestion?1850:950;
+  }
   if(stageName==='locked'){headline='FINAL ANSWER LOCKED';detail='MISSION CONTROL · REVEAL PENDING';duration=1650}
   if(stageName==='correct'){headline='SIGNAL CONFIRMED';detail='MILESTONE REACHED: '+String.fromCharCode(36)+prize.toLocaleString('en-US');duration=2050}
   if(stageName==='wrong'){headline='SIGNAL LOST';detail=m.over?'RUN COMPLETE':'ANSWER REVEALED';duration=2000}
   if(stageName==='complete'){headline='MILLION COMPLETE';detail='FINAL MILESTONE: '+String.fromCharCode(36)+Number(ladder.at(-1)||1000000).toLocaleString('en-US');duration=2800}
   const node=ensureCue();
-  node.className='ms-million-cue '+stageName;
+  node.className='ms-million-cue '+stageName+(finalQuestion?' is-final-question':'');
   // A purely decorative one-shot stage crest; the already announced title,
   // prize and state still come exclusively from the native game run.
   const crest=document.createElement('div');
@@ -328,7 +335,7 @@ function installMillionStageCues(){
   footer.textContent=stageName==='locked'?'THE ANSWER IS IN…':
    stageName==='correct'?'THE PRIZE LADDER ADVANCES':
    stageName==='wrong'?(m.over?'THIS RUN HAS ENDED':'REVIEW THE REVEAL'):
-   stageName==='complete'?'THE GRAND FINALE':'THE STAGE IS YOURS';
+   stageName==='complete'?'THE GRAND FINALE':finalQuestion?'THE LAST QUESTION · MAKE IT COUNT':'THE STAGE IS YOURS';
   node.dataset.phase=stageName;
   node.replaceChildren(sparkle,crest,title,sub,sequence,footer);
   node.classList.remove('visible');
@@ -350,6 +357,110 @@ function installMillionStageCues(){
  }
 }
 installMillionStageCues();
+
+
+/* Phase 3F · public show HUD. Pure read-only decorations derived from the
+   synchronized game model. No state mutations, private answer keys or timers. */
+function installMillionShowHUD(){
+ const role=new URLSearchParams(location.search).get('role');
+ if(!['shared','student'].includes(role))return;
+ let queued=false;
+ const money=value=>String.fromCharCode(36)+Math.max(0,Number(value)||0).toLocaleString('en-US');
+ const setText=(element,value)=>{
+  if(element&&element.textContent!==value)element.textContent=value;
+ };
+ const make=(cls,children)=>{
+  const node=document.createElement('div');
+  node.className=cls;
+  for(const [tag,name] of children){
+   const el=document.createElement(tag);
+   el.className=name;
+   node.appendChild(el);
+  }
+  return node;
+ };
+ function update(){
+  queued=false;
+  const run=typeof state!=='undefined'&&!state.ended?state.activityRun:null;
+  if(!run||run.activityId!=='million-game'||run.phase!=='running')return;
+  const m=run.million||{},cfg=run.millionConfig||{};
+  const ladder=Array.isArray(cfg.ladder)?cfg.ladder:[];
+  const total=Array.isArray(cfg.questions)?cfg.questions.length:0;
+  if(!total||!ladder.length)return;
+  const q=Math.max(0,Math.min(total-1,Number(m.questionIndex)||0));
+  const earned=Math.max(0,Math.min(ladder.length,Number(m.ladderLevel)||0));
+  const complete=!!(m.complete||m.over);
+  const finalQuestion=!complete&&q===total-1;
+  if(role==='shared'){
+   const board=document.querySelector('.million-public.big');
+   const stage=board?.querySelector('.million-stage');
+   const prizeSide=board?.querySelector('.million-ladder');
+   if(!stage||!prizeSide)return;
+   const f=finalQuestion?'true':'false';
+   if(board.dataset.msFinalQuestion!==f)board.dataset.msFinalQuestion=f;
+   let band=stage.querySelector(':scope > .ms-million-question-band');
+   if(!band){
+    band=make('ms-million-question-band',[
+     ['span','ms-million-question-number'],['strong','ms-million-question-prize']]);
+    band.setAttribute('aria-label','MILLION question and current prize');
+    const question=stage.querySelector('h3');
+    if(question)question.before(band);else stage.prepend(band);
+   }
+   setText(band.firstElementChild,'QUESTION '+String(q+1).padStart(2,'0')+' / '+String(total).padStart(2,'0'));
+   setText(band.lastElementChild,complete?'ROUND COMPLETE':finalQuestion?
+    '★ GRAND PRIZE QUESTION · '+money(ladder[q]):'ON THE LINE · '+money(ladder[Math.min(q,ladder.length-1)]));
+   band.classList.toggle('is-final',finalQuestion);
+   let track=prizeSide.querySelector(':scope > .ms-million-ladder-progress');
+   if(!track){
+    track=make('ms-million-ladder-progress',[
+     ['div','ms-million-progress-head'],['div','ms-million-progress-track']]);
+    track.setAttribute('aria-label','MILLION prize ladder progress');
+    const [head,rail]=track.children;
+    head.appendChild(document.createElement('span'));
+    head.appendChild(document.createElement('strong'));
+    const fill=document.createElement('i');fill.className='ms-million-progress-fill';rail.append(fill);
+    prizeSide.append(track);
+   }
+   const [head,rail]=track.children;
+   setText(head.firstElementChild,'PRIZE LADDER');
+   setText(head.lastElementChild,earned+' / '+ladder.length+' SECURED');
+   const percentage=(earned/ladder.length*100).toFixed(2)+'%';
+   if(rail.firstElementChild.style.width!==percentage)rail.firstElementChild.style.width=percentage;
+   if(track.dataset.msComplete!==(complete?'true':'false'))track.dataset.msComplete=complete?'true':'false';
+  }else{
+   const student=document.querySelector('#studentContent .million-student');
+   if(!student)return;
+   let ribbon=student.querySelector(':scope > .ms-million-student-ribbon');
+   if(!ribbon){
+    ribbon=make('ms-million-student-ribbon',[
+     ['span','ms-million-student-question'],['strong','ms-million-student-stake'],['small','ms-million-student-lives']]);
+    ribbon.setAttribute('aria-label','MILLION question, prize and crew lifelines');
+    const heading=student.querySelector('h2');
+    if(heading)heading.before(ribbon);else student.prepend(ribbon);
+   }
+   setText(ribbon.children[0],'QUESTION '+(q+1)+' / '+total);
+   setText(ribbon.children[1],complete?'MILLION ROUND COMPLETE':finalQuestion?
+    '★ FINAL QUESTION · '+money(ladder[q]):'PLAYING FOR '+money(ladder[Math.min(q,ladder.length-1)]));
+   const available=Object.entries(m.inventory||{}).reduce((n,[key,value])=>
+    ['poll','reduce','clue','tryAgain'].includes(key)?n+Math.max(0,Number(value)||0):n,0);
+   setText(ribbon.children[2],available+' CREW LIFELINE'+(available===1?'':'S')+' LEFT');
+   ribbon.classList.toggle('is-final',finalQuestion);
+  }
+ }
+ function queue(){
+  if(queued)return;queued=true;
+  requestAnimationFrame(update);
+ }
+ function start(){
+  if(!document.body)return;
+  new MutationObserver(queue).observe(document.body,{childList:true,subtree:true});
+  setInterval(queue,950);
+  queue();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+ else start();
+}
+installMillionShowHUD();
 
 
 /* Phase 3B · read-only results stage. The native MILLION engine alone owns the
