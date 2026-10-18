@@ -219,15 +219,15 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.match(finale.bannerBackground,/gradient/);
   assert.equal(finale.fourChoices,4);
   assert.equal(finale.noPrivateKey,true);
-  await screen.waitForFunction(()=>!!document.querySelector('.million-public .ms-million-final-results'),
+  await screen.waitForFunction(()=>!!document.querySelector('.million-public.big .ms-million-final-results'),
     null,{timeout:6500});
   const results=await screen.evaluate(()=>{
-    const board=document.querySelector('.million-public .ms-million-final-results');
+    const board=document.querySelector('.million-public.big .ms-million-final-results');
     const metrics=[...board.querySelectorAll('.ms-million-final-metrics strong')].map(x=>x.textContent);
     const rect=board.getBoundingClientRect();
     return {title:board.querySelector('.ms-million-final-header h3')?.textContent,
       value:board.querySelector('.ms-million-final-prize strong')?.textContent,
-      metrics,count:document.querySelectorAll('.million-public .ms-million-final-results').length,
+      metrics,count:document.querySelectorAll('.million-public.big .ms-million-final-results').length,
       rect:{left:Math.round(rect.left),right:Math.round(rect.right),width:Math.round(rect.width),height:Math.round(rect.height)},viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,stageWidth:Math.round(board.parentElement.getBoundingClientRect().width),inViewport:rect.width>200&&rect.left>=0&&rect.right<=innerWidth+5,
       privateAnswerHidden:!('correct' in state.activityRun.millionConfig.questions[0])};
   });
