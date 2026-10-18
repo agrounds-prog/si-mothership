@@ -234,6 +234,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.deepEqual([results.title,results.value],['MILLION COMPLETE','$1,000,000']);
   assert.deepEqual(results.metrics,['5 / 5','5 / 5']);
   assert.equal(results.count,1);
+  console.log('MILLION FINAL RESULTS GEOMETRY',JSON.stringify(results));
   assert.ok(results.inViewport&&results.privateAnswerHidden);
   await teacher.waitForFunction(()=>!!document.querySelector('#activityControllerPanel .ms-million-final-results'),
     null,{timeout:6500});
