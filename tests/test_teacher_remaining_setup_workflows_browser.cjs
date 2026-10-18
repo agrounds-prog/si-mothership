@@ -100,6 +100,8 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   await page.locator('#launchCrewSurveyBtn').click();
   console.log('CREW SURVEY VALIDATION DIAGNOSTIC',JSON.stringify(await page.evaluate(()=>({
     status:document.querySelector('#crewSurveySetupStatus')?.textContent||'',
+    handler:typeof document.querySelector('#launchCrewSurveyBtn')?.onclick,
+    feedback:crewSurveySetupFeedback,
     prompt:crewSurveyDraft.prompt,
     connected:connectedStudents().length,
     run:state.activityRun?.activityId||null,
