@@ -55,6 +55,22 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   });
   assert.equal(first.rungCount,5);
   assert.equal(first.prize,'$100');
+  // Phase 3D: the new theme must be visible on the actual projector, not a mockup.
+  const showArt=await screen.evaluate(()=>{
+   const root=document.querySelector('.million-public.big');
+   const h=root.querySelector('.million-stage h3'),choice=root.querySelector('.million-choice'),
+    badge=choice.querySelector('b'),ladder=root.querySelector('.million-ladder');
+   return {stage:getComputedStyle(root).backgroundImage,
+    question:getComputedStyle(h).backgroundImage,questionRadius:getComputedStyle(h).borderTopLeftRadius,
+    choice:getComputedStyle(choice).backgroundImage,choiceRadius:getComputedStyle(choice).borderTopLeftRadius,
+    badge:getComputedStyle(badge).backgroundImage,ladder:getComputedStyle(ladder).backgroundImage};
+  });
+  assert.match(showArt.stage,/repeating-radial-gradient/,'quiz stage concentric lighting');
+  assert.match(showArt.question,/radial-gradient/,'lit oval question display');
+  assert.ok(parseFloat(showArt.questionRadius)>=25,'question displayed in rounded stage frame');
+  assert.ok(parseFloat(showArt.choiceRadius)>=100,'pill-shaped game show answers');
+  assert.match(showArt.badge,/radial-gradient/,'gold letter medallions');
+  assert.match(showArt.ladder,/linear-gradient/,'stage-themed money ladder');
   const phase3Visual=await Promise.all([
    teacher.evaluate(()=>{
      const root=document.querySelector('#activityControllerPanel'),grid=root.querySelector('.million-teacher-grid');
@@ -238,6 +254,15 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.ok(results.inViewport&&results.privateAnswerHidden);
   await teacher.waitForFunction(()=>!!document.querySelector('#activityControllerPanel .ms-million-final-results'),
     null,{timeout:6500});
+  const finishHUD=await teacher.evaluate(()=>{
+   const dock=document.querySelector('#siUnifiedTeacherDeck');
+   return {finished:dock?.dataset.finished,
+    text:dock?.querySelector('.si-utc-finish')?.textContent,
+    disabled:dock?.querySelector('.si-utc-finish')?.disabled,
+    prize:dock?.textContent.includes('FINAL PRIZE')};
+  });
+  assert.deepEqual(finishHUD,{finished:'true',text:'Return to Class',disabled:false,prize:true},
+   'Mission Control displays native postgame return and final prize');
 
 
   // Ensure game-over stops after a wrong classic answer instead of silently proceeding.
@@ -301,7 +326,10 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   const zero=await screen.locator('.million-public.big .ms-million-final-description').textContent();
   assert.match(zero,/no safe checkpoint/i);
   // Returning to class clears the results; no previously earned prize is cached.
-  await teacher.evaluate(()=>{state.activityRun=null;state.screen='classroom';state.activeApp=null;render()});
+  teacher.on('dialog',dialog=>dialog.accept());
+  await teacher.locator('#siUnifiedTeacherDeck .si-utc-finish').click();
+  await teacher.waitForFunction(()=>!state.activityRun||state.activityRun.activityId!=='million-game',
+   null,{timeout:12000});
   await screen.waitForFunction(()=>!document.querySelector('.million-public.big .ms-million-final-results'),null,{timeout:12000});
   assert.equal(errors.length,0,'browser JS errors: '+JSON.stringify(errors));
   console.log(JSON.stringify({test:'MILLION five-question teacher/projector multiplayer, Phase 3A.2 cinematic finale, 50/50 and classic-risk stop',first,phase3Visual,finale,fifty,pilot50,layout,ended,pageErrors:errors}));
