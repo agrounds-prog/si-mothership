@@ -55,6 +55,21 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   });
   assert.equal(first.rungCount,5);
   assert.equal(first.prize,'$100');
+  await screen.waitForFunction(()=>!!document.querySelector('.million-public.big .ms-million-ladder-progress')&&
+   !!document.querySelector('.million-public.big .ms-million-question-band'),null,{timeout:7000});
+  const showProgress=await screen.evaluate(()=>{
+   const b=document.querySelector('.million-public.big');
+   const band=b.querySelector('.ms-million-question-band'),meter=b.querySelector('.ms-million-ladder-progress');
+   return {question:band.querySelector('.ms-million-question-number')?.textContent,
+    value:band.querySelector('.ms-million-question-prize')?.textContent,
+    progress:meter.querySelector('.ms-million-progress-head strong')?.textContent,
+    fill:meter.querySelector('.ms-million-progress-fill')?.style.width,
+    final:b.dataset.msFinalQuestion,
+    publicOnly:state.activityRun.millionConfig.questions.every(q=>!('correct' in q))};
+  });
+  assert.deepEqual(showProgress,{question:'QUESTION 01 / 05',value:'ON THE LINE · $100',
+   progress:'0 / 5 SECURED',fill:'0.00%',final:'false',publicOnly:true},
+   'new prize ladder HUD reflects only public state');
   // Phase 3D: the new theme must be visible on the actual projector, not a mockup.
   const showArt=await screen.evaluate(()=>{
    const root=document.querySelector('.million-public.big');
@@ -183,6 +198,28 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   }
 
   for(let i=0;i<5;i++){
+   if(i===4){
+    await screen.waitForFunction(()=>{
+     const game=document.querySelector('.million-public.big');
+     return game?.dataset.msFinalQuestion==='true'&&
+      game.querySelector('.ms-million-question-prize')?.textContent.includes('$1,000,000');
+    },null,{timeout:8500});
+    const finalQuestion=await screen.evaluate(()=>{
+     const board=document.querySelector('.million-public.big');
+     const cue=document.querySelector('#msMillionStageCue');
+     const ribbon=board.querySelector('.ms-million-question-band');
+     return {label:ribbon.querySelector('strong').textContent,
+      border:getComputedStyle(ribbon).borderTopWidth,
+      glow:getComputedStyle(board.querySelector('.million-stage h3')).boxShadow,
+      cue:cue?.className,
+      noKey:state.activityRun.millionConfig.questions.every(q=>!('correct' in q))};
+    });
+    assert.match(finalQuestion.label,/GRAND PRIZE QUESTION.*\$1,000,000/);
+    assert.ok(parseFloat(finalQuestion.border)>=2);
+    assert.match(finalQuestion.glow,/rgb/);
+    assert.match(finalQuestion.cue,/is-final-question/);
+    assert.ok(finalQuestion.noKey);
+   }
    await teacher.evaluate(()=>{
     const run=state.activityRun,m=run.million,q=run.millionConfig.questions[m.questionIndex];
     m.selectedAnswer=q.correct;m.lockedAnswer=q.correct;render();
@@ -250,6 +287,15 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
    assert.equal(fx.privateKeyProtected,true);
    assert.equal(result.correct,1,'answer reveal '+i);
    assert.equal(result.earned,i+1,'earned rung count '+i);
+   await screen.waitForFunction(level=>{
+    const meter=document.querySelector('.million-public.big .ms-million-ladder-progress');
+    return meter?.querySelector('.ms-million-progress-head strong')?.textContent===level+' / 5 SECURED';
+   },i+1,{timeout:8000});
+   const meter=await screen.evaluate(()=>{
+    const meter=document.querySelector('.million-public.big .ms-million-ladder-progress');
+    return meter.querySelector('.ms-million-progress-fill').style.width;
+   });
+   assert.equal(meter,((i+1)*20).toFixed(2)+'%','prize bar follows actually earned levels');
    assert.equal(result.noKey,true);
    assert.equal(result.complete,i===4,'completion '+i);
    if(i===4)assert.equal(result.stake,'$1,000,000');
@@ -283,6 +329,15 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
     count:cue.querySelectorAll('.ms-million-cue-sequence i').length};
   });
   assert.deepEqual(finaleBeats,{phase:'complete',footer:'THE GRAND FINALE',count:5});
+  const finaleHUD=await screen.evaluate(()=>{
+   const board=document.querySelector('.million-public.big');
+   const stage=board.querySelector('.million-stage');
+   return {finalFlag:board.dataset.msFinalQuestion,
+    progress:board.querySelector('.ms-million-ladder-progress')?.dataset.msComplete,
+    questionHidden:getComputedStyle(stage.querySelector('.ms-million-question-band')).display};
+  });
+  assert.deepEqual(finaleHUD,{finalFlag:'false',progress:'true',questionHidden:'none'},
+   'jackpot state ends the question spotlight and hides redundant stage header');
   assert.equal(finale.aria,'true');
   assert.match(finale.sparks,/✦/);
   assert.match(finale.banner,/MISSION COMPLETE/);
