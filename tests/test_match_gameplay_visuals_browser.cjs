@@ -86,9 +86,66 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    assert.ok(g.board.x>=-4&&g.board.right<=width+4);
    assert.ok(g.navigator&&g.progress&&g.score);
   }
+  // Cosmetic reveal states are driven by real MATCH render markup, not
+  // invented overlays detached from the engine's own match state.
+  await teacher.evaluate(()=>{
+   const m=state.activityRun.match;
+   m.pendingResolution={result:'match'};
+   m.message='The crew found a matching pair!';
+   render();
+  });
+  await shared.waitForFunction(()=>!!document.querySelector('.ma-present .ma-stage-pair'),
+   null,{timeout:12000});
+  const pair=await shared.evaluate(()=>{
+   const root=document.querySelector('.ma-present'),burst=root.querySelector('.ma-stage-pair'),
+    signal=root.querySelector('.ma-signal'),board=root.querySelector('.ma-board-surround');
+   return {text:burst.textContent,status:root.classList.contains('ma-status-matched'),
+    aria:burst.getAttribute('aria-hidden'),pointer:getComputedStyle(burst).pointerEvents,
+    boardPosition:getComputedStyle(board).position,
+    animation:getComputedStyle(burst).animationName,
+    cards:root.querySelectorAll('.ma-tile').length,
+    statusAnnouncement:signal.getAttribute('aria-live')};
+  });
+  assert.equal(pair.status,true);
+  assert.match(pair.text,/PAIR FOUND!/);
+  assert.match(pair.text,/AUTOMATIC POINT AWARDED/);
+  assert.equal(pair.pointer,'none');
+  assert.equal(pair.aria,'true','native status banner, not decoration, announces the pair');
+  assert.equal(pair.statusAnnouncement,'polite');
+  assert.equal(pair.cards,16,'celebration must not replace the game board');
+  // Drive final completion directly on the synthetic local session, never live.
+  await teacher.evaluate(()=>{
+   const m=state.activityRun.match;
+   m.pendingResolution=null;m.complete=true;
+   m.matched=m.cards.map(card=>card.id);
+   m.message='All pairs have been discovered!';render();
+  });
+  await shared.waitForFunction(()=>!!document.querySelector('.ma-present .ma-stage-victory'),
+   null,{timeout:12000});
+  const victory=await shared.evaluate(()=>{
+   const root=document.querySelector('.ma-present'),banner=root.querySelector('.ma-stage-victory'),
+    progress=root.querySelector('.ma-progress-track i'),
+    board=root.querySelector('.ma-board-surround');
+   const bannerRect=banner.getBoundingClientRect(),boardRect=board.getBoundingClientRect();
+   return {text:banner.textContent,aria:banner.getAttribute('aria-hidden'),
+    pointer:getComputedStyle(banner).pointerEvents,
+    trophy:banner.querySelector('.ma-celebration-trophy')?.textContent,
+    matched:root.querySelectorAll('.ma-tile.is-matched').length,
+    status:root.classList.contains('ma-status-victory'),
+    progressWidth:progress.style.width,animation:getComputedStyle(banner).animationName,
+    staysInBoard:bannerRect.left>=boardRect.left-3&&bannerRect.right<=boardRect.right+3};
+  });
+  assert.equal(victory.status,true);
+  assert.match(victory.text,/MISSION COMPLETE/);
+  assert.match(victory.text,/8 OF 8 PAIRS DISCOVERED/);
+  assert.equal(victory.matched,16);
+  assert.equal(victory.progressWidth,'100%');
+  assert.equal(victory.pointer,'none');
+  assert.equal(victory.aria,'true');
+  assert.ok(victory.staysInBoard,'victory graphic stays inside the game card arena');
   assert.deepEqual(errors,[],'No JavaScript errors during teacher and projector play');
   console.log('MATCH Phase 3A teacher controls + projected 16-card board PASS',
-   JSON.stringify({teacher:teacherStyle,projectors:layouts.map(({size,overflow,board,cards})=>
+   JSON.stringify({pair,victory,teacher:teacherStyle,projectors:layouts.map(({size,overflow,board,cards})=>
     ({size,overflow,board,cards:cards.length,minTile:Math.min(...cards.map(x=>x.w))}))}));
  }finally{await teacherCtx.close();await sharedCtx.close();await browser.close();}
 })().catch(err=>{console.error(err);process.exitCode=1});
