@@ -98,6 +98,13 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   await launchSetup('crew-survey');
   await page.locator('#crewSurveyPrompt').fill('');
   await page.locator('#launchCrewSurveyBtn').click();
+  console.log('CREW SURVEY VALIDATION DIAGNOSTIC',JSON.stringify(await page.evaluate(()=>({
+    status:document.querySelector('#crewSurveySetupStatus')?.textContent||'',
+    prompt:crewSurveyDraft.prompt,
+    connected:connectedStudents().length,
+    run:state.activityRun?.activityId||null,
+    show:document.querySelector('#bootErrorText')?.textContent?.slice(0,120)||''
+  }))));
   assert.match(await page.locator('#crewSurveySetupStatus').innerText(),/survey prompt/i);
   assert.equal(await page.evaluate(()=>state.activityRun),null);
   await page.locator('#crewSurveyPrompt').fill('Which school supplies help us learn?');
