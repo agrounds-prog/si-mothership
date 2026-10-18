@@ -135,6 +135,18 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.deepEqual(fifty.labels,['SIGNAL REMOVED','SIGNAL REMOVED']);
   assert.match(fifty.banner,/50\/50 ACTIVATED/);
   assert.equal(fifty.noKey,true,'no correct answer leaked to shared screen');
+  const lifelineDrama=await screen.evaluate(()=>{
+   const root=document.querySelector('.million-public.big');
+   const activated=root.querySelector('.million-5050-banner');
+   const ready=root.querySelector('.million-lifelines span.available');
+   return {border:activated?parseFloat(getComputedStyle(activated).borderTopWidth):0,
+    background:activated?getComputedStyle(activated).backgroundImage:'',
+    ready:ready?getComputedStyle(ready).backgroundImage:''};
+  });
+  assert.ok(lifelineDrama.border>=2,'50/50 announcement gets the show spotlight');
+  assert.match(lifelineDrama.background,/linear-gradient/);
+  if(lifelineDrama.ready)assert.match(lifelineDrama.ready,/linear-gradient/);
+
   assert.equal(pilot50.removed,2,'pilot visibly sees eliminated choices');
   assert.deepEqual(pilot50.removedText,['SIGNAL REMOVED','SIGNAL REMOVED']);
   assert.match(pilot50.banner,/50\/50 ACTIVE/);
@@ -176,8 +188,45 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
     m.selectedAnswer=q.correct;m.lockedAnswer=q.correct;render();
    });
    await screen.waitForFunction(idx=>!!state.activityRun?.million?.lockedAnswer&&state.activityRun.million.questionIndex===idx,i,{timeout:10000});
+   if(i===0){
+    await screen.waitForFunction(()=>{
+     const cue=document.querySelector('#msMillionStageCue');
+     return cue?.classList.contains('locked')&&cue.querySelectorAll('.ms-million-cue-sequence i').length===5;
+    },null,{timeout:8000});
+    const lockedShow=await screen.evaluate(()=>{
+     const cue=document.querySelector('#msMillionStageCue');
+     const beats=cue.querySelector('.ms-million-cue-sequence i');
+     const locked=document.querySelector('.million-public.big .million-choice.locked');
+     return {phase:cue.dataset.phase,footer:cue.querySelector('.ms-million-cue-footer')?.textContent,
+      beats:cue.querySelectorAll('.ms-million-cue-sequence i').length,
+      animation:getComputedStyle(beats).animationName,
+      outline:locked?parseFloat(getComputedStyle(locked).outlineWidth):0,
+      protected:state.activityRun.millionConfig.questions.every(q=>!('correct' in q))};
+    });
+    assert.equal(lockedShow.phase,'locked');
+    assert.match(lockedShow.footer,/ANSWER IS IN/);
+    assert.equal(lockedShow.beats,5);
+    assert.match(lockedShow.animation,/ms3e-suspense/);
+    assert.ok(lockedShow.outline>=2&&lockedShow.protected,'dramatic locked answer does not leak private key');
+   }
    await teacher.evaluate(()=>millionResolve(true));
    await screen.waitForFunction(idx=>!!state.activityRun?.million?.revealed&&state.activityRun.million.questionIndex===idx,i,{timeout:10000});
+   if(i===0){
+    await screen.waitForFunction(()=>document.querySelector('#msMillionStageCue')?.dataset.phase==='correct',null,{timeout:8000});
+    const awarded=await screen.evaluate(()=>{
+     const cue=document.querySelector('#msMillionStageCue');
+     return {footer:cue.querySelector('.ms-million-cue-footer')?.textContent,
+      beats:cue.querySelectorAll('.ms-million-cue-sequence i').length,
+      animation:getComputedStyle(cue.querySelector('.ms-million-cue-sequence i')).animationName,
+      prize:cue.textContent,
+      hiddenKey:state.activityRun.millionConfig.questions.every(q=>!('correct' in q))};
+    });
+    assert.equal(awarded.footer,'THE PRIZE LADDER ADVANCES');
+    assert.equal(awarded.beats,5);
+    assert.match(awarded.animation,/ms3e-burst/);
+    assert.match(awarded.prize,/MILESTONE REACHED/);
+    assert.equal(awarded.hiddenKey,true);
+   }
    const result=await screen.evaluate(()=>{
     const root=document.querySelector('.million-public.big')||document.querySelector('.million-public');
     return {correct:root.querySelectorAll('.million-choice.correct').length,
@@ -228,6 +277,12 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   });
   assert.match(finale.cue,/complete/);
   assert.equal(finale.crest,'🏆');
+  const finaleBeats=await screen.evaluate(()=>{
+   const cue=document.querySelector('#msMillionStageCue');
+   return {phase:cue.dataset.phase,footer:cue.querySelector('.ms-million-cue-footer')?.textContent,
+    count:cue.querySelectorAll('.ms-million-cue-sequence i').length};
+  });
+  assert.deepEqual(finaleBeats,{phase:'complete',footer:'THE GRAND FINALE',count:5});
   assert.equal(finale.aria,'true');
   assert.match(finale.sparks,/✦/);
   assert.match(finale.banner,/MISSION COMPLETE/);
@@ -235,6 +290,13 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.match(finale.bannerBackground,/gradient/);
   assert.equal(finale.fourChoices,4);
   assert.equal(finale.noPrivateKey,true);
+  await screen.emulateMedia({reducedMotion:'reduce'});
+  const reduced=await screen.evaluate(()=>{
+   const p=document.querySelector('.million-public.big .million-choice.correct');
+   return p?getComputedStyle(p).animationName:null;
+  });
+  assert.equal(reduced,'none','reveal motion respects reduced-motion preference');
+  await screen.emulateMedia({reducedMotion:'no-preference'});
   await screen.waitForFunction(()=>!!document.querySelector('.million-public.big .ms-million-final-results'),
     null,{timeout:6500});
   const results=await screen.evaluate(()=>{
