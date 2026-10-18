@@ -354,11 +354,7 @@ function millionFinalResultsData(run){
  };
 }
 function millionFinalResultsMarkup(data,compact=false){
- const fmt=n=>'
-window.MillionStudio={markup,wire,questions,ladder,checkpoints:n=>n===5?[3]:n===10?[5]:[5,10],
- currentName:()=>draft.name||'MILLION',inspection:()=>({count:draft.count,ready:readyCount(),saved:listGames().length,loadedId})};
-if(typeof state!=='undefined'&&state.activeApp==='million'&&typeof renderActivities==='function')renderActivities();
-})();+Number(n).toLocaleString('en-US');
+ const fmt=n=>String.fromCharCode(36)+Number(n).toLocaleString('en-US');
  const milestone=data.checkpoint?'SAFE CHECKPOINT':data.complete?'FINAL PRIZE':'MILESTONE REACHED';
  const title=data.complete?'MILLION COMPLETE':'MISSION RESULTS';
  const detail=data.complete?'The crew reached the final milestone.':
