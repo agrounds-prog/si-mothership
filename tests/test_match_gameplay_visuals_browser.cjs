@@ -116,7 +116,7 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   // Drive final completion directly on the synthetic local session, never live.
   await teacher.evaluate(()=>{
    const m=state.activityRun.match;
-   m.pendingResolution=null;m.complete=true;
+   m.pendingResolution=null;m.complete=true;m.scores={Alex:5,Blair:3};
    m.matched=m.cards.map(card=>card.id);
    m.message='All pairs have been discovered!';render();
   });
