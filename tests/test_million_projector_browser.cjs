@@ -228,7 +228,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
     return {title:board.querySelector('.ms-million-final-header h3')?.textContent,
       value:board.querySelector('.ms-million-final-prize strong')?.textContent,
       metrics,count:document.querySelectorAll('.million-public .ms-million-final-results').length,
-      inViewport:rect.width>200&&rect.left>=0&&rect.right<=innerWidth+5,
+      rect:{left:Math.round(rect.left),right:Math.round(rect.right),width:Math.round(rect.width),height:Math.round(rect.height)},viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,stageWidth:Math.round(board.parentElement.getBoundingClientRect().width),inViewport:rect.width>200&&rect.left>=0&&rect.right<=innerWidth+5,
       privateAnswerHidden:!('correct' in state.activityRun.millionConfig.questions[0])};
   });
   assert.deepEqual([results.title,results.value],['MILLION COMPLETE','$1,000,000']);
