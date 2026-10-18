@@ -1022,3 +1022,154 @@ body.role-student #studentContent .ms-million-final-pilot{font-size:11px!importa
  body.role-shared .million-public.big .ms-million-final-description{font-size:11px!important;line-height:1.2!important}
  body.role-shared .million-public.big .ms-million-final-pilot{font-size:10px!important;padding:4px}
 }
+
+
+/* Phase 3D · MILLION Grand Stage, original television-quiz-inspired theme.
+   Only styling; no changes to answer keys, scoring, saving or lifelines. */
+body.role-shared .million-public.big{
+ position:relative;isolation:isolate;border:3px solid #e3c486!important;border-radius:26px!important;
+ background:radial-gradient(ellipse 47% 69% at 50% 12%,#3155a6a0,transparent 83%),
+ radial-gradient(ellipse at 6% 93%,#6143b477,transparent 64%),
+ radial-gradient(ellipse at 96% 90%,#6143b477,transparent 64%),
+ repeating-radial-gradient(ellipse at 50% 50%,transparent 0 86px,#acc1ff1d 87px 89px,transparent 90px 177px),
+ linear-gradient(145deg,#030827,#171b5a 47%,#050a28)!important;
+ box-shadow:inset 0 0 0 3px #e0d8ff31,inset 0 0 83px #000a,0 15px 48px #000b,0 0 42px #6c7aff67!important;
+}
+body.role-shared .million-public.big .million-stage{position:relative;isolation:isolate;min-width:0}
+body.role-shared .million-public.big .million-stage:before{
+ content:"";position:absolute;z-index:-1;pointer-events:none;left:50%;top:50%;
+ width:min(85%,550px);aspect-ratio:1;border:1px solid #bad1ff32;border-radius:50%;
+ transform:translate(-50%,-50%);
+ background:radial-gradient(circle,transparent 0 35%,#b8c9ff20 36% 36.5%,transparent 37% 52%,#b8c9ff20 53% 53.5%,transparent 54%);
+}
+body.role-shared .million-public.big .million-stage>.eyebrow{
+ align-self:center;color:#ffe5ab!important;border-bottom:1px solid #efc684a8;padding:5px 15px;
+ font-size:clamp(11px,1vw,16px)!important;font-weight:1000!important;letter-spacing:.21em!important;
+ text-shadow:0 0 15px #ffc87890;
+}
+body.role-shared .million-public.big .million-stakes,
+body.role-shared .million-public.big .million-pilot{
+ border-radius:999px!important;border:1px solid #ac9ce0!important;
+ background:linear-gradient(90deg,#111947,#2b3f87,#111947)!important;
+ box-shadow:inset 0 1px #f3ddff48;
+}
+body.role-shared .million-public.big .million-stakes{
+ align-self:center;max-width:100%;padding:5px 17px;
+}
+body.role-shared .million-public.big .million-stakes-amount{
+ color:#ffe4a2!important;text-shadow:0 0 17px #f6bf65aa!important;
+}
+body.role-shared .million-public.big .million-stage h3{
+ width:100%;margin:9px 0 16px!important;padding:clamp(16px,2vw,31px) clamp(17px,3vw,48px)!important;
+ border:3px solid #f0d093!important;border-radius:clamp(26px,6vw,78px)!important;
+ background:radial-gradient(ellipse at 50% -25%,#395dad,#1c2868 56%,#080f3f)!important;
+ box-shadow:inset 0 0 0 3px #c2cdff29,inset 0 -11px 29px #050921a8,0 0 0 4px #101b50,0 0 26px #e7c37e69!important;
+ text-align:center!important;color:#fffdf6!important;text-shadow:0 2px 5px #000a;
+ font-size:clamp(27px,2.75vw,48px)!important;line-height:1.22!important;overflow-wrap:anywhere;
+}
+body.role-shared .million-public.big .million-choices{
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:clamp(9px,1.2vw,17px)!important;
+}
+body.role-shared .million-public.big .million-choice{
+ min-width:0;min-height:clamp(70px,6vw,100px)!important;
+ border:2px solid #adbdeb!important;border-radius:999px!important;
+ background:linear-gradient(110deg,#10194e,#303f8e 53%,#141c58)!important;
+ box-shadow:inset 0 1px #e4e5ff74,inset 0 -9px 16px #010824a8,0 0 0 3px #07102a,0 6px 20px #0009!important;
+ overflow:hidden;transition:border-color .18s ease,box-shadow .18s ease;
+}
+body.role-shared .million-public.big .million-choice b{
+ display:grid;place-items:center;flex:0 0 clamp(44px,4.6vw,63px);
+ min-width:44px!important;border:0!important;border-radius:50%!important;
+ background:radial-gradient(circle at 30% 22%,#fff1c6,#cb913e 67%,#794d22)!important;
+ color:#17254d!important;font-weight:1000!important;text-shadow:none;
+ box-shadow:inset 0 0 0 3px #f6e4bd,0 0 12px #d5ae727d;
+}
+body.role-shared .million-public.big .million-choice span{
+ display:flex;align-items:center;min-width:0;padding:9px 14px!important;
+ color:#fffdf5!important;font-size:clamp(17px,1.6vw,27px)!important;
+ font-weight:900!important;line-height:1.25!important;text-shadow:0 1px 5px #0009;
+}
+body.role-shared .million-public.big .million-choice.locked{
+ border:3px solid #ffe4a8!important;background:linear-gradient(110deg,#574123,#9a6c30,#313264)!important;
+ box-shadow:0 0 27px #ffce7d96!important;
+}
+body.role-shared .million-public.big .million-choice.correct{
+ border:3px solid #a7ffd5!important;background:linear-gradient(110deg,#0b6252,#19866f,#073d42)!important;
+ box-shadow:0 0 29px #61f0b590!important;
+}
+body.role-shared .million-public.big .million-choice.wrong{
+ border:3px solid #ffc3d4!important;background:linear-gradient(110deg,#561842,#96365b,#3c1945)!important;
+ box-shadow:0 0 25px #ff8aa186!important;
+}
+body.role-shared .million-public.big .million-choice.eliminated{opacity:.35!important;filter:grayscale(.8)}
+body.role-shared .million-public.big :is(.million-ladder,.million-lifelines){
+ min-width:0;border:2px solid #808cce!important;border-radius:20px!important;
+ background:linear-gradient(160deg,#222b6aec,#080f36ed)!important;
+ box-shadow:inset 0 0 0 2px #d5d5ff17,0 8px 26px #0009!important;
+}
+body.role-shared .million-public.big :is(.million-ladder,.million-lifelines) h4{
+ color:#ffe4af!important;letter-spacing:.12em!important;text-shadow:0 0 13px #f9c46677;
+}
+body.role-shared .million-public.big .million-rung{border-radius:9px!important;color:#d5e0ff!important}
+body.role-shared .million-public.big .million-rung.active{
+ border:2px solid #ffe8b0!important;background:linear-gradient(105deg,#68471c,#b98435,#69441c)!important;
+ color:#fff9df!important;box-shadow:0 0 18px #f3c875a0!important;
+}
+body.role-shared .million-public.big .million-rung.active b{color:#fffbe3!important}
+body.role-shared .million-public.big .million-rung.earned:not(.active){
+ border:1px solid #68dbad!important;border-left:4px solid #98fccc!important;
+ background:linear-gradient(105deg,#145c54,#153d60)!important;color:#e5fff3!important;
+}
+body.role-shared .million-public.big .million-lifelines span{
+ border:1px solid #8b8ac6!important;border-radius:999px!important;
+ background:linear-gradient(95deg,#273677,#192255)!important;color:#f6f5ff!important;
+}
+body.role-shared .million-public.big .million-message{
+ border-color:#868ac7!important;border-radius:999px!important;background:#101940cc!important;
+}
+body.role-student #studentContent .million-student{
+ border:2px solid #aa9bce!important;
+ background:radial-gradient(ellipse at 50% 0%,#334ca6a3,transparent 71%),linear-gradient(145deg,#181d5b,#070d30)!important;
+}
+body.role-student #studentContent .million-student h2{
+ text-align:center;padding:12px;border:2px solid #dcb975;border-radius:25px;
+ background:linear-gradient(145deg,#293c85,#141949);color:#fffdf1!important;
+}
+body.role-student #studentContent .million-student-choice{
+ border-radius:999px!important;border-color:#a4b5ec!important;
+ background:linear-gradient(112deg,#1c296d,#2c3f87)!important;overflow:hidden;
+}
+body.role-student #studentContent .million-student-choice b{
+ border-radius:50%!important;color:#192447!important;
+ background:radial-gradient(circle at 32% 25%,#ffeab7,#c98f36 67%,#865322)!important;
+}
+body.role-student #studentContent .million-student-choice.selected{border-color:#ffe1a2!important;background:linear-gradient(112deg,#664923,#363977)!important}
+body.role-student #studentContent .million-student-choice.correct{border-color:#b2ffd9!important;background:#196b58!important}
+body.role-student #studentContent .million-student-choice.wrong{border-color:#ffa9c6!important;background:#69304f!important}
+body.role-student #studentContent .million-student-choice:focus-visible{outline:3px solid #ffe2a8!important;outline-offset:3px}
+.ms-million-final-results.is-champion{
+ border:3px solid #ffe6aa;
+ background:radial-gradient(ellipse at 50% -30%,#8a633685,transparent 79%),linear-gradient(140deg,#21255d,#10173a);
+}
+.ms-million-final-results.is-champion .ms-million-final-icon{border-radius:50%;box-shadow:0 0 0 5px #fff0b525,0 0 32px #ffd57599}
+@media(min-width:900px) and (max-height:790px){
+ body.role-shared .million-public.big .million-stage h3{padding:11px 15px!important;margin:6px 0 9px!important;font-size:clamp(23px,2.4vw,35px)!important}
+ body.role-shared .million-public.big .million-choice{min-height:64px!important}
+ body.role-shared .million-public.big .million-choice span{font-size:clamp(16px,1.4vw,23px)!important;padding:7px 10px!important}
+}
+@media(max-width:900px){
+ body.role-shared .million-public.big .million-stage h3{padding:10px 13px!important;margin:6px 0 9px!important;font-size:clamp(21px,2.7vw,28px)!important;border-radius:25px!important}
+ body.role-shared .million-public.big .million-choice{min-height:56px!important}
+ body.role-shared .million-public.big .million-choice b{flex-basis:41px;min-width:41px!important}
+ body.role-shared .million-public.big .million-choice span{font-size:clamp(14px,1.8vw,19px)!important;padding:6px 8px!important}
+ body.role-shared .million-public.big :is(.million-ladder,.million-lifelines){border-radius:12px!important}
+}
+@media(max-width:570px){body.role-shared .million-public.big .million-choices{grid-template-columns:minmax(0,1fr)!important}}
+@media(max-height:570px){
+ body.role-shared .million-public.big .million-choice{min-height:51px!important}
+ body.role-shared .million-public.big .million-stakes{margin:4px 0!important;padding:4px 10px}
+}
+@media(prefers-reduced-motion:reduce){
+ body.role-shared .million-public.big .million-choice,
+ body.role-student #studentContent .million-student-choice{transition:none!important}
+}
