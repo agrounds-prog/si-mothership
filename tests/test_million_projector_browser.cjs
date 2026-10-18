@@ -256,7 +256,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.equal(ended.over,true);
   assert.equal(ended.before,ended.after,'classic risk game cannot advance');
   assert.equal(ended.nextDisabled,true);
-  // Phase 3C: read the actual rolled-back checkpoint, not a guessed winnings value.
+  // Phase 3C: read the actual rolled-back checkpoint, not guessed winnings.
   await screen.waitForFunction(()=>document.querySelector('.million-public.big .ms-million-final-results')?.querySelector('.ms-million-final-prize>span')?.textContent==='SAFE CHECKPOINT',null,{timeout:12000});
   const classic=await teacher.evaluate(()=>{
    const m=state.activityRun.million,cfg=state.activityRun.millionConfig;
@@ -268,17 +268,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
     money:r.querySelector('.ms-million-final-prize>strong').textContent,
     description:r.querySelector('.ms-million-final-description').textContent};
   });
-  assert.equal(classicShown.money,','browser JS errors: '+JSON.stringify(errors));
-  console.log(JSON.stringify({test:'MILLION five-question teacher/projector multiplayer, Phase 3A.2 cinematic finale, 50/50 and classic-risk stop',first,phase3Visual,finale,fifty,pilot50,layout,ended,pageErrors:errors}));
-  // Leave the isolated app clean so unrelated SI+ and Activity Library smoke
-  // tests never inherit a synthetic MILLION session.
-  await teacher.evaluate(()=>{state.activityRun=null;state.screen='classroom';state.activeApp=null;render()});
-  await teacher.waitForTimeout(350);
- }finally{
-  await browser.close();
- }
-})().catch(e=>{console.error(e);process.exit(1)});
-+Number(classic.amount).toLocaleString('en-US'));
+  assert.equal(classicShown.money,'$'+Number(classic.amount).toLocaleString('en-US'));
   assert.match(classicShown.description,/Classic mode/);
   const finalSizes=[];
   for(const [width,height] of [[880,720],[700,500]]){
