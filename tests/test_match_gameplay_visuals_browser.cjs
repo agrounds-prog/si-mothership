@@ -113,6 +113,17 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(pair.aria,'true','native status banner, not decoration, announces the pair');
   assert.equal(pair.statusAnnouncement,'polite');
   assert.equal(pair.cards,16,'celebration must not replace the game board');
+  const pairRays=await shared.evaluate(()=>{
+   const burst=document.querySelector('.ma-present .ma-stage-pair');
+   const streak=burst.querySelector('.ma-pair-streaks i');
+   return {count:burst.querySelectorAll('.ma-pair-streaks i').length,
+    decorative:burst.querySelector('.ma-pair-streaks')?.getAttribute('aria-hidden'),
+    animation:streak?getComputedStyle(streak).animationName:''};
+  });
+  assert.equal(pairRays.count,5,'pair-found visual has five rays');
+  assert.equal(pairRays.decorative,'true','pair graphic is not a duplicate live announcement');
+  assert.match(pairRays.animation,/ma3h-pair-rays/);
+
   // Drive final completion directly on the synthetic local session, never live.
   await teacher.evaluate(()=>{
    const m=state.activityRun.match;
@@ -144,6 +155,19 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(victory.pointer,'none');
   assert.equal(victory.aria,null,'final results must be available to screen readers');
   assert.deepEqual([victory.region,victory.label],['region','MATCH final standings']);
+  const winnerLights=await shared.evaluate(()=>{
+   const root=document.querySelector('.ma-present .ma-stage-victory');
+   const halo=root.querySelector('.ma-victory-halo');
+   return {stars:halo?.querySelectorAll('i').length,
+    aria:halo?.getAttribute('aria-hidden'),
+    animation:halo?getComputedStyle(halo).animationName:'',
+    finalBg:getComputedStyle(root.querySelector('.ma-final-results')).backgroundImage};
+  });
+  assert.equal(winnerLights.stars,3,'championship halo lights');
+  assert.equal(winnerLights.aria,'true');
+  assert.match(winnerLights.animation,/ma3h-halo-entry/);
+  assert.match(winnerLights.finalBg,/linear-gradient/);
+
   const standings=await shared.evaluate(()=>{
     const stage=document.querySelector('.ma-stage-victory .ma-final-results');
     return {mode:stage?.dataset.mode,rows:[...stage.querySelectorAll('.ma-final-row')].map(row=>({
