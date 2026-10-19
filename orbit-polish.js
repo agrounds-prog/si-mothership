@@ -60,7 +60,9 @@
     '<div class="orbit-cosmic-brand"><span class="orbit-cosmic-wordmark"><span class="orbit-cosmic-logo" aria-hidden="true">◉</span>ORBIT</span>'+
     '<span class="orbit-cosmic-subtitle">ONE QUESTION · EVERY VOICE · SHARED THINKING</span></div>'+
     '<div class="orbit-cosmic-tally" aria-label="'+count+' of '+total+' crew responses transmitted">'+
-    '<span class="orbit-cosmic-crew" aria-hidden="true">♟ ♟ ♟</span>'+
+    '<svg class="orbit-cosmic-crew" viewBox="0 0 56 36" aria-hidden="true" focusable="false">'+
+    '<circle cx="28" cy="8" r="7"/><circle cx="10" cy="12" r="5"/><circle cx="46" cy="12" r="5"/>'+
+    '<path d="M16 29c0-9 4-13 12-13s12 4 12 13v3H16zM1 29c0-7 3-10 9-10s7 2 7 4v9H1zM39 23c0-2 2-4 7-4 6 0 9 3 9 10v3H39z"/></svg>'+
     '<span class="orbit-cosmic-fraction"><b>'+count+' / '+total+'</b> TRANSMITTED</span>'+
     '<span class="orbit-cosmic-progress" aria-hidden="true"><i style="width:'+pct+'%"></i></span></div></header>';
    return html.replace('<div class="orbit-public"',
