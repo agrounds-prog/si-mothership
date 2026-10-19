@@ -6,6 +6,7 @@
  if(window.SIPixelBatch)return;
  const MAX_IMAGES=12,MAX_DATA_CHARS=190000;
  let busy=false,scheduled=false;
+ let lastUploadDraft=null,lastUploadSummary=''; // survive organizer rerenders; never saved
  const escapeHtml=value=>String(value==null?'':value).replace(/[&<>"']/g,c=>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
  const copyAnswers=x=>Array.isArray(x)?x.slice():[];
@@ -97,12 +98,13 @@
   selectImage(d,Math.min(firstIndex,d.images.length-1),false);
   busy=false;
   if(button)button.value=''; // selecting the same files again must still fire change
-  renderActivities();
   const skipped=all.length-selected.length;
   const summary=added+' image'+(added===1?'':'s')+' added'+
    (failed?' · '+failed+' could not be processed':'')+
    (skipped?' · '+skipped+' skipped (12-image limit or unsupported file)':'')+
    ' · '+d.images.length+' of '+MAX_IMAGES+' rounds ready';
+  lastUploadDraft=d;lastUploadSummary=summary;
+  renderActivities();
   const ready=document.querySelector('.pixel-batch-upload-status');
   if(ready){ready.removeAttribute('aria-busy');ready.textContent=summary}
   toast(summary);
@@ -173,7 +175,8 @@
     '<button type="button" data-pixel-batch-right="'+i+'" aria-label="Move image '+(i+1)+' later" '+(i===d.images.length-1?'disabled':'')+'>→</button>'+
     '<button type="button" data-pixel-batch-remove="'+i+'" aria-label="Remove image '+(i+1)+'" '+(d.images.length===1?'disabled':'')+'>×</button></div></div>').join('')+
     '</div><p class="pixel-batch-upload-status" role="status" aria-live="polite">'+
-    d.images.length+' mystery image'+(d.images.length===1?'':'s')+' ready. Each image has its own answer and guesses.</p>';
+    (lastUploadDraft===d&&lastUploadSummary?escapeHtml(lastUploadSummary):
+     d.images.length+' mystery image'+(d.images.length===1?'':'s')+' ready. Each image has its own answer and guesses.')+'</p>';
   preview.after(manager);
  }
  function snapshot(run){
