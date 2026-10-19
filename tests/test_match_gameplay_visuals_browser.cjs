@@ -187,6 +187,14 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    run.matchConfig.mode='teams';run.matchConfig.scoring='pairs';run.matchConfig.teamCount=3;
    run.match.teamScores=[4,4,1];render();
   });
+  // Fixture-only mode switches are not broadcast as real game actions. Mirror
+  // the synthetic config in the projector browser to test the same native
+  // standings renderer deterministically without touching actual sessions.
+  await shared.evaluate(()=>{
+   const run=state.activityRun;
+   run.matchConfig.mode='teams';run.matchConfig.scoring='pairs';run.matchConfig.teamCount=3;
+   run.match.teamScores=[4,4,1];renderPublic();
+  });
   await shared.waitForFunction(()=>{
    const p=document.querySelector('.ma-present .ma-final-results');
    return p?.dataset.mode==='teams'&&p.querySelectorAll('.ma-final-row').length===3;
@@ -197,6 +205,7 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.deepEqual(teams.map(x=>x.rank),['01','01','03'],'team ties share first rank');
   assert.deepEqual(teams.map(x=>x.score),['4 PAIRS','4 PAIRS','1 PAIR']);
   await teacher.evaluate(()=>{state.activityRun.matchConfig.scoring='no_score';render()});
+  await shared.evaluate(()=>{state.activityRun.matchConfig.scoring='no_score';renderPublic()});
   await shared.waitForFunction(()=>document.querySelector('.ma-present .ma-final-results')?.dataset.mode==='memory',null,{timeout:12000});
   const memory=await shared.evaluate(()=>{
    const p=document.querySelector('.ma-present .ma-final-results');
