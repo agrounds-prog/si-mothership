@@ -211,19 +211,65 @@
  }
  function enhanceController(){
   const run=typeof state!=='undefined'?state.activityRun:null;
-  if(!run||run.activityId!=='pixel-game')return;
+  if(!run||run.activityId!=='pixel-game'||run.phase!=='running')return;
+  const grid=document.querySelector('#activityControllerPanel .pixel-controller-grid');
+  if(!grid||grid.dataset.pixelTeacherEnhanced)return;
+  const board=grid.querySelector('.pixel-control-board');
+  const side=grid.querySelector('.pixel-control-side');
+  if(!board||!side)return;
+  grid.dataset.pixelTeacherEnhanced='true'; // stable per native render; do not duplicate on observer updates
   const images=run.pixelConfig?.images;
-  if(!Array.isArray(images)||images.length<2)return;
-  const side=document.querySelector('#activityControllerPanel .pixel-control-side');
-  if(!side||side.querySelector('.pixel-batch-live'))return;
-  const i=validIndex(run.pixelImageIndex,images.length);
-  const panel=document.createElement('div');panel.className='pixel-batch-live';
-  panel.innerHTML='<strong>IMAGE '+(i+1)+' OF '+images.length+'</strong>'+
-   '<div class="pixel-batch-live-actions"><button data-pixel-round-prev '+(i===0?'disabled':'')+'>← Previous Image</button>'+
-   '<button data-pixel-round-next '+(i===images.length-1?'disabled':'')+'>Next Image →</button></div>'+
-   '<small>Each image keeps its own reveal progress, private guesses, and teacher corrections.</small>';
-  const heading=side.querySelector('h3');
-  if(heading)heading.after(panel);else side.prepend(panel);
+  const i=Array.isArray(images)&&images.length?validIndex(run.pixelImageIndex,images.length):0;
+  const rounds=Array.isArray(images)&&images.length?images.length:1;
+  const isFocus=(run.pixelConfig?.revealStyle||'tiles')==='focus';
+  const total=isFocus?10:(typeof pixelTotal==='function'?pixelTotal(run):
+   board.querySelectorAll('.pixel-cover').length);
+  const remain=typeof pixelRemaining==='function'?pixelRemaining(run):Math.max(0,total-(run.pixelRevealed||[]).length);
+  const completed=Math.max(0,total-remain),pct=total?Math.round(completed*100/total):100;
+  const preview=document.createElement('div');
+  preview.className='pixel-teacher-preview-head';
+  preview.innerHTML='<span><i aria-hidden="true">✦</i> MISSION VISUAL</span>'+
+   '<span>LIVE IMAGE '+(i+1)+' / '+rounds+'</span>';
+  board.prepend(preview);
+  const title=side.querySelector('h3');
+  if(title)title.insertAdjacentHTML('beforebegin',
+   '<div class="pixel-teacher-command-kicker"><span aria-hidden="true">◈</span> MISSION OPERATIONS</div>');
+  if(title)title.insertAdjacentHTML('afterend',
+   '<p class="pixel-teacher-command-help">Choose how much of the mystery to reveal to the crew.</p>');
+  // Keep navigation fully delegated to the existing handlers; only its
+  // visual presentation and position change.
+  if(rounds>1){
+   const panel=document.createElement('div');panel.className='pixel-batch-live';
+   panel.innerHTML='<div class="pixel-teacher-round-heading"><strong>IMAGE '+(i+1)+' OF '+rounds+'</strong>'+
+    '<span>ROUND NAVIGATION</span></div>'+
+    '<div class="pixel-batch-live-actions"><button type="button" data-pixel-round-prev '+(i===0?'disabled':'')+'>← Previous Image</button>'+
+    '<button type="button" data-pixel-round-next '+(i===rounds-1?'disabled':'')+'>Next Image →</button></div>'+
+    '<small>Each image saves its own reveal progress and private guesses.</small>';
+   if(title)title.after(panel);else side.prepend(panel);
+  }
+  const progress=document.createElement('div');
+  progress.className='pixel-teacher-progress';
+  progress.innerHTML='<div class="pixel-teacher-progress-top"><span>'+
+   (isFocus?'IMAGE CLARITY':'SIGNAL REVEAL')+'</span><b>'+pct+'% <small>REVEALED</small></b></div>'+
+   '<div class="pixel-teacher-progress-track" role="progressbar" aria-label="'+
+   (isFocus?'Image clarity':'Image tiles revealed')+'" aria-valuemin="0" aria-valuemax="'+total+
+   '" aria-valuenow="'+completed+'"><i style="width:'+pct+'%"></i></div>'+
+   '<div class="pixel-teacher-progress-foot"><span>'+completed+' / '+total+' '+(isFocus?'STEPS':'TILES')+'</span>'+
+   '<span>'+(remain?remain+' REMAINING':'SIGNAL ACQUIRED')+'</span></div>';
+  const nav=side.querySelector('.pixel-batch-live');
+  const help=side.querySelector('.pixel-teacher-command-help');
+  if(nav)nav.after(progress);else if(help)help.after(progress);else side.prepend(progress);
+  const guesses=side.querySelector('.pixel-private-guesses .eyebrow');
+  if(guesses){
+   const counter=document.createElement('span');
+   counter.className='pixel-teacher-guess-count';
+   counter.textContent=typeof pixelSubmittedCount==='function'?
+    pixelSubmittedCount(run)+' LOCKED':'PRIVATE';
+   guesses.after(counter);
+  }
+  const footer=side.querySelector('.board-global-actions');
+  if(footer)footer.insertAdjacentHTML('afterbegin',
+   '<span class="pixel-teacher-session-label">SESSION ACTIONS</span>');
  }
  const originalLaunch=typeof launchPixel==='function'?launchPixel:null;
  if(originalLaunch){
