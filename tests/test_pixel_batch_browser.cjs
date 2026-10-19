@@ -79,6 +79,59 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   });
   await page.locator('.pixel-batch-live').waitFor();
   assert.match(await page.locator('.pixel-batch-live').innerText(),/IMAGE 1 OF 3/);
+  // Teacher Mission Control: responsive, high-contrast, and still wired to
+  // native reveal/navigation, guess correction, and session actions.
+  await page.locator('.pixel-teacher-progress').waitFor();
+  const teacherPanel=await page.evaluate(()=>{
+   const root=document.querySelector('#activityControllerPanel');
+   const grid=root.querySelector('.pixel-controller-grid');
+   const prog=root.querySelector('.pixel-teacher-progress-track');
+   const buttons=[...root.querySelectorAll('.pixel-reveal-buttons button')];
+   return {
+    enhanced:grid.dataset.pixelTeacherEnhanced,
+    heading:root.querySelector('.pixel-teacher-command-kicker')?.textContent.trim(),
+    preview:root.querySelector('.pixel-teacher-preview-head')?.textContent,
+    progress:prog?.getAttribute('aria-valuenow'),
+    total:prog?.getAttribute('aria-valuemax'),
+    buttonCount:buttons.length,
+    actionCount:root.querySelectorAll('.pixel-control-side .board-global-actions button').length,
+    revealBackground:getComputedStyle(buttons[0]).backgroundImage,
+    columns:getComputedStyle(grid).gridTemplateColumns.split(' ').length,
+    hiddenResult:root.querySelector('#pixelResultsBtn').disabled
+   };
+  });
+  assert.equal(teacherPanel.enhanced,'true');
+  assert.match(teacherPanel.heading,/MISSION OPERATIONS/);
+  assert.match(teacherPanel.preview,/MISSION VISUAL/);
+  assert.equal(teacherPanel.progress,'0');
+  assert.ok(Number(teacherPanel.total)>0);
+  assert.equal(teacherPanel.buttonCount,4);
+  assert.equal(teacherPanel.actionCount,3);
+  assert.equal(teacherPanel.hiddenResult,true);
+  assert.match(teacherPanel.revealBackground,/gradient/);
+  assert.equal(teacherPanel.columns,2);
+  await page.locator('[data-pixel-reveal="1"]').click();
+  assert.equal(await page.evaluate(()=>state.activityRun.pixelRevealed.length),1,
+   'polished reveal button still calls native PIXEL REVEAL action');
+  assert.equal(await page.locator('.pixel-teacher-progress-track').getAttribute('aria-valuenow'),'1',
+   'live progress meter tracks the actual revealed tile count');
+  await page.setViewportSize({width:1049,height:797});
+  const modalWidth=await page.evaluate(()=>{
+   const g=document.querySelector('.pixel-controller-grid');
+   return {grid:g.scrollWidth-g.clientWidth,side:g.querySelector('.pixel-control-side').scrollWidth-
+    g.querySelector('.pixel-control-side').clientWidth};
+  });
+  assert.ok(modalWidth.grid<=3&&modalWidth.side<=3,
+   'teacher panel fits the 1049px laptop/screenshot viewport');
+  await page.setViewportSize({width:790,height:850});
+  const tablet=await page.evaluate(()=>{
+   const g=document.querySelector('.pixel-controller-grid');
+   return {columns:getComputedStyle(g).gridTemplateColumns.split(' ').length,
+    overflow:g.scrollWidth-g.clientWidth};
+  });
+  assert.equal(tablet.columns,1,'tablet teacher controls stack below the mystery board');
+  assert.ok(tablet.overflow<=3);
+  await page.setViewportSize({width:1366,height:920});
   await page.evaluate(()=>{
    state.activityRun.pixelGuesses={Alex:{guess:'Apple',at:10,firstCorrectRemaining:24}};
    state.activityRun.pixelRevealed=[0,1,2];
