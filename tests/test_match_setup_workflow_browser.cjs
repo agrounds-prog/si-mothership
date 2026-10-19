@@ -69,6 +69,16 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(await page.locator('.mcb-saved-set:visible').count(),1);
   assert.match(await page.locator('#mcbSavedSummary').textContent(),/1 of 1 saved sets/);
   await page.locator('#mcbFindSet').fill('');
+  await page.locator('#mcbSaveCopy').click();
+  await page.waitForFunction(()=>matchSets.some(s=>s.name==='Copy of Phase 2F isolated MATCH set'),null,{timeout:12000});
+  assert.equal(await page.evaluate(()=>matchSets.length),2,'saved copy and original are separate');
+  assert.equal(await page.evaluate(()=>matchSets.find(s=>s.name==='Phase 2F isolated MATCH set')?.pairs.length),8);
+  page.once('dialog',dialog=>dialog.accept());
+  await page.locator('#mcbNewBlank').click();
+  assert.equal(await page.locator('#matchSetName').inputValue(),'');
+  assert.equal(await page.evaluate(()=>matchBuilderPairs().length),0);
+  assert.equal(await page.evaluate(()=>matchSets.length),2,'starting blank never deletes the library');
+  await page.locator('[data-mcb-load]').filter({hasText:'Edit'}).first().click();
   await page.setViewportSize({width:500,height:850});
   const geometry=await page.evaluate(()=>{
    const root=document.querySelector('.mcb-shell'),grid=document.querySelector('#activityGrid');
