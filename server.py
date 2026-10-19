@@ -5049,13 +5049,13 @@ async def index(request: web.Request) -> web.Response:
                         f'<link rel="stylesheet" href="/si-plus-polish.css?v={SI_PLUS_ASSET_VERSION}">'
                          f'<link rel="stylesheet" href="/student-companion.css?v={STUDENT_COMPANION_ASSET_VERSION}">'
                          f'<link rel="stylesheet" href="/teacher-unified-controls.css?v={TEACHER_UNIFIED_ASSET_VERSION}">'
-                         '<link rel="stylesheet" href="/orbit-polish.css?v=2"></head>', 1)
+                         '<link rel="stylesheet" href="/orbit-polish.css?v=2">'
+                         '<script src="/orbit-polish.js?v=2" defer></script></head>', 1)
     # Insert before the final body close: index.html also contains HTML strings
     # in internal scripts, so replacing the first occurrence would corrupt JS.
     body_close = text.rfind("</body>")
     if body_close >= 0:
         text = (text[:body_close] +
-                '<script src="/orbit-polish.js?v=2" defer></script>' +
                 f'<script src="/student-companion.js?v={STUDENT_COMPANION_ASSET_VERSION}" defer></script>' +
                 f'<script src="/teacher-unified-controls.js?v={TEACHER_UNIFIED_ASSET_VERSION}" defer></script>' +
                 '<script src="/four-in-line.js?v=2" defer></script>' +
