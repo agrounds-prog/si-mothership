@@ -81,22 +81,31 @@
   busy=true;
   const button=document.querySelector('#pixelImageFile'),status=document.querySelector('.pixel-batch-upload-status');
   if(button)button.disabled=true;
+  if(status){status.setAttribute('aria-busy','true');status.textContent='Preparing '+selected.length+' image rounds…'}
   syncAnswer(d);
   if(replace){d.images=[];d.answer='';d.acceptedAnswers=[]}
-  let added=0,firstIndex=d.images.length;
-  for(const file of selected){
-   if(status)status.textContent='Preparing '+(added+1)+' of '+selected.length+' images…';
+  let added=0,failed=0,firstIndex=d.images.length;
+  for(const [index,file] of selected.entries()){
+   if(status)status.textContent='Uploading image '+(index+1)+' of '+selected.length+' · '+added+' ready';
    try{
     const image=await imageFile(file);
     d.images.push({image,answer:'',acceptedAnswers:[]});
     added++;
-   }catch(e){toast(String(e.message||e))}
+   }catch(e){failed++;toast(String(e.message||e))}
   }
   if(!d.images.length)d.images=[{image:pixelDemoImage(),answer:'Giraffe',acceptedAnswers:['Giraffe']}];
   selectImage(d,Math.min(firstIndex,d.images.length-1),false);
   busy=false;
+  if(button)button.value=''; // selecting the same files again must still fire change
   renderActivities();
-  toast(added+' image'+(added===1?'':'s')+' added to PIXEL REVEAL'+(raster.length>selected.length?' (12-image limit)':''));
+  const skipped=all.length-selected.length;
+  const summary=added+' image'+(added===1?'':'s')+' added'+
+   (failed?' · '+failed+' could not be processed':'')+
+   (skipped?' · '+skipped+' skipped (12-image limit or unsupported file)':'')+
+   ' · '+d.images.length+' of '+MAX_IMAGES+' rounds ready';
+  const ready=document.querySelector('.pixel-batch-upload-status');
+  if(ready){ready.removeAttribute('aria-busy');ready.textContent=summary}
+  toast(summary);
  }
  function reorder(d,index,delta){
   const target=index+delta;
