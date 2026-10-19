@@ -526,6 +526,16 @@ function installMillionShowHUD(){
     ribbon=make('ms-million-student-ribbon',[
      ['span','ms-million-student-question'],['strong','ms-million-student-stake'],['small','ms-million-student-lives']]);
     ribbon.setAttribute('aria-label','MILLION question, points and crew lifelines');
+    const points=document.createElement('div');
+    points.className='ms-million-student-points';
+    points.setAttribute('aria-label','Point ladder progress');
+    const copy=document.createElement('strong');copy.className='ms-million-student-points-label';
+    const rail=document.createElement('span');rail.className='ms-million-student-points-track';
+    rail.setAttribute('role','progressbar');
+    rail.setAttribute('aria-label','Questions secured');
+    rail.setAttribute('aria-valuemin','0');
+    const fill=document.createElement('i');fill.className='ms-million-student-points-fill';
+    rail.append(fill);points.append(copy,rail);ribbon.append(points);
     const heading=student.querySelector('h2');
     if(heading)heading.before(ribbon);else student.prepend(ribbon);
    }
@@ -535,6 +545,20 @@ function installMillionShowHUD(){
    const available=Object.entries(m.inventory||{}).reduce((n,[key,value])=>
     ['poll','reduce','clue','tryAgain'].includes(key)?n+Math.max(0,Number(value)||0):n,0);
    setText(ribbon.children[2],available+' CREW LIFELINE'+(available===1?'':'S')+' LEFT');
+   const points=ribbon.querySelector(':scope > .ms-million-student-points');
+   if(points){
+    setText(points.firstElementChild,earned+' / '+ladder.length+' POINT LEVELS SECURED');
+    const track=points.querySelector('.ms-million-student-points-track');
+    const fill=track?.firstElementChild;
+    if(track){
+     track.setAttribute('aria-valuemax',String(ladder.length));
+     track.setAttribute('aria-valuenow',String(earned));
+    }
+    if(fill){
+     const width=(earned/ladder.length*100).toFixed(2)+'%';
+     if(fill.style.width!==width)fill.style.width=width;
+    }
+   }
    ribbon.classList.toggle('is-final',finalQuestion);
   }
  }
