@@ -455,6 +455,10 @@
    // the field rather than creating another submit path or changing scoring.
    const from=document.querySelector('#studentControls #sendPixelGuessBtn');
    if(from){
+    // The native renderer queries by ID when attaching its click handler.
+    // A previously moved button can be found before the replacement tray
+    // button, so bind the current button to the very same native function.
+    if(typeof submitPixelGuess==='function')from.onclick=submitPixelGuess;
     entry.querySelector('#sendPixelGuessBtn')?.remove();
     from.type='button';
     from.classList.add('pixel-student-send');
