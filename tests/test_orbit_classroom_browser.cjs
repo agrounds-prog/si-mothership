@@ -74,13 +74,14 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
     colors:getComputedStyle(sat[0]).getPropertyValue('--orb-strong').trim()};
    run.orbitRevealCrew=true;
    const named=document.createElement('div');named.innerHTML=orbitSharedMarkup(run,true);
-   info.revealedNames=named.querySelector('.orbit-sat-author')?.textContent;
+   info.revealedNames=named.querySelector('.orbit-sat-author, .orbit-gallery-author')?.textContent;
    mount.remove();return info;
   });
   assert.equal(cosmic.satellites,10);
   assert.equal(cosmic.galaxies,0);
   assert.equal(cosmic.hideNames,true,'anonymous Orbit keeps identity off all satellites');
-  assert.equal(cosmic.revealedNames,'Student 01');
+  assert.equal(cosmic.revealedNames,'Student 01',
+   'revealed names remain present when lengthy responses use the spacious gallery');
   assert.match(cosmic.wordmark,/ORBIT/);
   assert.match(cosmic.prompt,/What makes a good friend/);
   assert.match(cosmic.lastIdea,/Idea 10/);
