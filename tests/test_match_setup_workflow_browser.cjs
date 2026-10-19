@@ -63,6 +63,12 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(await page.locator('#matchSetName').inputValue(),'Phase 2F isolated MATCH set');
   assert.equal(await page.locator('[data-mcb-mode="pairs"]').getAttribute('aria-selected'),'true');
   assert.equal(await page.evaluate(()=>matchBuilderPairs().length),8,'restored pair content editable');
+  await page.locator('#mcbFindSet').fill('not-in-library');
+  assert.equal(await page.locator('.mcb-saved-set:visible').count(),0);
+  await page.locator('#mcbFindSet').fill('Phase 2F isolated');
+  assert.equal(await page.locator('.mcb-saved-set:visible').count(),1);
+  assert.match(await page.locator('#mcbSavedSummary').textContent(),/1 of 1 saved sets/);
+  await page.locator('#mcbFindSet').fill('');
   await page.setViewportSize({width:500,height:850});
   const geometry=await page.evaluate(()=>{
    const root=document.querySelector('.mcb-shell'),grid=document.querySelector('#activityGrid');
