@@ -139,7 +139,9 @@
   }else if(id==="million-game"){
    const m=r.million||{},c=r.millionConfig||{};
    bar.person=m.complete||m.over?"Round complete":m.pilot||m.player||"";
-   bar.prompt=m.complete||m.over?"FINAL RESULTS":"QUESTION PROGRESS";
+   bar.prompt=m.complete||m.over?"FINAL RESULTS":
+    m.revealed?"ANSWER REVEALED":m.lockedAnswer?"ANSWER LOCKED":
+    m.selectedAnswer?"ANSWER SELECTED":"QUESTION LIVE";
    const total=Number(c.questions?.length||0);
    const index=Number(m.questionIndex||0)+1;
    metric("QUESTION",index+(total?" / "+total:""));
@@ -261,6 +263,10 @@
   }).filter(Boolean);
   const finished=(r.activityId==="match-game"&&!!r.match?.complete)||
    (r.activityId==="million-game"&&!!(r.million?.complete||r.million?.over));
+  const revealStep=r.activityId==="million-game"&&r.phase==="running"&&!finished?
+   (r.million?.revealed?"revealed":r.million?.lockedAnswer?"locked":"ready"):
+   r.activityId==="match-game"&&r.phase==="running"&&!finished?
+   (r.match?.pendingResolution?"resolution":r.match?.locked?"paused":"ready"):"";
   const sessionActions=safety.map(([title,selectors])=>{
    if(finished&&title==="Finish & Return")title="Return to Class";
    const target=lookup(selectors);return target?{title,target}:null;
@@ -273,7 +279,8 @@
   }
   const all=gameActions.concat(sessionActions);
   const model=statusModel(r);
-  const stamp=info[0]+"|"+r.phase+"|"+label(r)+"|"+statusSignature(model)+"|"+all.map(a=>a.title+":"+a.target.disabled+":"+a.target.getAttribute("aria-disabled")).join("|");
+  const stamp=info[0]+"|"+r.phase+"|"+label(r)+"|"+statusSignature(model)+"|"+revealStep+
+   "|"+all.map(a=>a.title+":"+a.target.disabled+":"+a.target.getAttribute("aria-disabled")).join("|");
   let dock=panel.querySelector("#siUnifiedTeacherDeck");
   if(dock&&stamp===key&&dock.__originals?.length===all.length&&all.every((a,i)=>dock.__originals[i]===a.target))return;
   if(!dock){
@@ -286,6 +293,7 @@
   dock.dataset.game=r.activityId;
   dock.dataset.phase=r.phase;
   dock.dataset.finished=finished?"true":"false";
+  dock.dataset.revealStep=revealStep;
   const header=document.createElement("div");
   header.className="si-utc-head";
   const emblem=document.createElement("span");
@@ -307,11 +315,27 @@
    container.className="si-utc-row";
    const caption=document.createElement("span");
    caption.className="si-utc-caption";caption.textContent=label;
-   container.append(caption,...actions.map(a=>button(a.title,a.target,safe)));
+   container.append(caption,...actions.map(a=>{
+    const el=button(a.title,a.target,safe);
+    if(!safe&&r.activityId==="million-game"&&(
+      (revealStep==="locked"&&a.title==="Reveal Answer")||
+      (revealStep==="revealed"&&a.title==="Next Question")))el.classList.add("si-utc-focus-action");
+    return el;
+   }));
    rows.append(container);
   }
   row("GAME",gameActions,false);
   row("CLASSROOM",sessionActions,true);
+  if(r.activityId==="million-game"&&revealStep){
+   const note=document.createElement("p");
+   note.className="si-utc-step-note";
+   note.dataset.step=revealStep;
+   note.setAttribute("role","status");
+   note.textContent=revealStep==="locked"?"ANSWER LOCKED · Reveal the answer when your class is ready.":
+    revealStep==="revealed"?"ANSWER REVEALED · Discuss it, then advance to the next question.":
+    "QUESTION LIVE · Give students time to choose an answer or use a lifeline.";
+   rows.before(note);
+  }
   if(finished){
    const note=document.createElement("p");
    note.className="si-utc-complete-note";
