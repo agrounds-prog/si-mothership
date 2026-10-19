@@ -147,6 +147,41 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   shared.on('pageerror',e=>errors.push('shared '+String(e)));
   await shared.goto(BASE+'/?role=shared',{waitUntil:'domcontentloaded',timeout:40000});
   await shared.waitForFunction(()=>window.SIOrbitPolish&&typeof orbitSharedMarkup==='function');
+  // Phase 4B: only genuinely new transmissions fly in. An existing
+  // response restored in a different run must not replay its arrival.
+  const orbitEntrances=await shared.evaluate(()=>{
+   const run={runToken:'orbit-browser-arrival-test',phase:'running',
+    orbitConfig:{prompt:'How can we help?',anonymous:true},
+    orbitResponses:{},orbitPaused:false,orbitRevealCrew:false};
+   orbitSharedMarkup(run,true); // Seed empty round.
+   run.orbitResponses['Student One']={text:'Invite everyone',at:101};
+   const first=document.createElement('div');
+   first.innerHTML=orbitSharedMarkup(run,true);
+   const incoming=first.querySelector('.orbit-new-arrival');
+   const arrival={isSatellite:incoming?.classList.contains('orbit-satellite'),
+    anonymous:!first.innerHTML.includes('Student One'),
+    enterX:incoming?.style.getPropertyValue('--orb-enter-x').trim()};
+   const restored={...run,runToken:'orbit-browser-restored-round'};
+   const restoredMarkup=orbitSharedMarkup(restored,true);
+   const spotlight={...restored,orbitSpotlight:'Student One'};
+   const focus=document.createElement('div');
+   focus.innerHTML=orbitSharedMarkup(spotlight,true);
+   const panel=focus.querySelector('.orbit-spotlight-broadcast');
+   return {arrival,restoredArrival:restoredMarkup.includes('orbit-new-arrival'),
+    focus:!!panel,focusMotion:panel?.classList.contains('orbit-focus-new'),
+    focusedText:panel?.querySelector('.quote')?.textContent,
+    identityHidden:!focus.innerHTML.includes('Student One'),
+    rings:panel?.querySelectorAll('.orbit-focus-rings i').length};
+  });
+  assert.equal(orbitEntrances.arrival.isSatellite,true,'new student idea enters as a satellite');
+  assert.equal(orbitEntrances.arrival.anonymous,true);
+  assert.equal(orbitEntrances.arrival.enterX,'125%');
+  assert.equal(orbitEntrances.restoredArrival,false,'existing response never replays as a new idea');
+  assert.equal(orbitEntrances.focus,true);
+  assert.equal(orbitEntrances.focusMotion,true);
+  assert.equal(orbitEntrances.identityHidden,true,'spotlight cannot reveal anonymous identity');
+  assert.match(orbitEntrances.focusedText,/Invite everyone/);
+  assert.equal(orbitEntrances.rings,3);
   await shared.evaluate(()=>{
    const people=Array.from({length:24},(_,i)=>'Student '+String(i+1).padStart(2,'0'));
    state.students=people.map(n=>({n,offline:false}));
