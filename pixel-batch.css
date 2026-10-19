@@ -616,6 +616,7 @@ body.role-shared .pixel-cinematic-public .pixel-public-head h3{
  background:linear-gradient(115deg,#184e75e8,#3052a5ef,#6041a0e8);
  box-shadow:inset 0 1px #fff6,0 0 35px #f2c87b7a,0 9px 20px #0009;
  color:#fff;text-shadow:0 2px 8px #182a53;
+ opacity:0; /* after the cinematic cue, leave the full image unobstructed */
  font:1000 clamp(15px,2.5vw,29px)/1.2 system-ui,sans-serif;
  letter-spacing:.13em;
 }
@@ -662,8 +663,9 @@ body.role-shared .pixel-cinematic-public .pixel-public-head h3{
 }
 @keyframes pixel-cinematic-signal-land{
  0%{opacity:0;transform:translate(-50%,13px) scale(.78);filter:brightness(2)}
- 60%{opacity:1;transform:translate(-50%,-4px) scale(1.04)}
- 100%{opacity:1;transform:translate(-50%,0) scale(1);filter:none}
+ 25%{opacity:1;transform:translate(-50%,-4px) scale(1.04)}
+ 72%{opacity:1;transform:translate(-50%,0) scale(1);filter:none}
+ 100%{opacity:0;transform:translate(-50%,-4px) scale(1);filter:none}
 }
 @keyframes pixel-cinematic-focus-flare{
  0%{filter:brightness(1.6)}
@@ -685,7 +687,7 @@ body.role-shared .pixel-cinematic-public .pixel-public-head h3{
   animation:pixel-cinematic-signal-sweep 1.55s ease-out both;
  }
  .pixel-cinematic-celebrating .pixel-cinematic-acquired{
-  animation:pixel-cinematic-signal-land .75s cubic-bezier(.2,.8,.2,1) both;
+  animation:pixel-cinematic-signal-land 1.85s cubic-bezier(.2,.8,.2,1) both;
  }
  .pixel-cinematic-focus-up .pixel-focus-board{
   animation:pixel-cinematic-focus-flare .55s ease-out both;
