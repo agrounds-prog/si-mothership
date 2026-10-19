@@ -326,6 +326,7 @@
   }
   row("GAME",gameActions,false);
   row("CLASSROOM",sessionActions,true);
+  let stepNote=null;
   if(r.activityId==="million-game"&&revealStep){
    const note=document.createElement("p");
    note.className="si-utc-step-note";
@@ -334,7 +335,7 @@
    note.textContent=revealStep==="locked"?"ANSWER LOCKED · Reveal the answer when your class is ready.":
     revealStep==="revealed"?"ANSWER REVEALED · Discuss it, then advance to the next question.":
     "QUESTION LIVE · Give students time to choose an answer or use a lifeline.";
-   rows.before(note);
+   stepNote=note;
   }
   if(finished){
    const note=document.createElement("p");
@@ -342,7 +343,7 @@
    note.setAttribute("role","status");
    note.textContent="Game complete · review the results, then return to class.";
    dock.replaceChildren(header,createStatus(model),note,rows);
-  }else dock.replaceChildren(header,createStatus(model),rows);
+  }else dock.replaceChildren(header,createStatus(model),...(stepNote?[stepNote]:[]),rows);
   dock.__originals=all.map(a=>a.target);
   key=stamp;
  }
