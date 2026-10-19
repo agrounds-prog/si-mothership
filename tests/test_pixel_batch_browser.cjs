@@ -333,6 +333,29 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(studentCompact.disabled,true);
   assert.ok(studentCompact.gap>=0&&studentCompact.gap<=23);
   assert.ok(studentCompact.overflow<=3);
+  const studentSent=await page.evaluate(()=>{
+    state.activityRun.pixelConfig.allowUpdates=false;
+    document.body.classList.add('role-student');
+    document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='student'));
+    renderPublic();window.SIPixelBatch.enhanceStudent();
+    const input=document.querySelector('#studentContent #pixelGuessInput');
+    input.value='Apple';input.dispatchEvent(new Event('input',{bubbles:true}));
+    const send=document.querySelector('#studentContent #sendPixelGuessBtn');
+    const enabled=!send.disabled;send.click();
+    window.SIPixelBatch.enhanceStudent();
+    const result={
+      enabled,stored:state.activityRun.pixelGuesses?.Alex?.guess,
+      confirmation:document.querySelector('#studentContent .pixel-student-locked h2')?.textContent,
+      privateLabel:document.querySelector('#studentContent .pixel-student-confirmation p')?.textContent
+    };
+    document.body.classList.remove('role-student');
+    document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='teacher'));
+    return result;
+  });
+  assert.equal(studentSent.enabled,true);
+  assert.equal(studentSent.stored,'Apple');
+  assert.equal(studentSent.confirmation,'Guess sent!');
+  assert.match(studentSent.privateLabel,/teacher can see/);
   await page.setViewportSize({width:1366,height:920});
   await page.evaluate(()=>{
    state.screen='activities';state.activeApp='pixel';
