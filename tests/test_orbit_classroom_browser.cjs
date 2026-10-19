@@ -171,6 +171,15 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(ambience.hidden,'true');
   assert.equal(ambience.pointer,'none');
   assert.match(ambience.motion,/orbitDeepComet/);
+  await shared.emulateMedia({reducedMotion:'reduce'});
+  const reduced=await shared.evaluate(()=>{
+   const sky=document.querySelector('#siOrbitTestStage');
+   return {comet:getComputedStyle(sky.querySelector('.orbit-shooting-star')).animationName,
+    stars:getComputedStyle(sky.querySelector('.orbit-cosmic'),'::before').animationName,
+    cluster:getComputedStyle(sky.querySelector('.orbit-constellation-cluster')).animationName};
+  });
+  assert.deepEqual(reduced,{comet:'none',stars:'none',cluster:'none'});
+  await shared.emulateMedia({reducedMotion:'no-preference'});
   const geometry=await shared.evaluate(()=>{
    const stage=document.querySelector('#siOrbitTestStage .orbit-space'),gallery=stage.querySelector('.orbit-idea-gallery'),
     first=gallery.querySelector('.orbit-gallery-card'),second=first.nextElementSibling;
