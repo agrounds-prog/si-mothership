@@ -1175,3 +1175,177 @@ body.role-shared .orbit-public.orbit-cosmic .orbit-focus-rings i:nth-child(3){an
   transform:translateY(-50%)!important;
  }
 }
+
+
+/* ORBIT Phase 4C — clustered solar systems. Decorative only: all displayed
+   categories, assignment order and identities are native teacher-owned state. */
+.orbit-solar-systems{
+ --solar-glow:#7deaff;
+ position:relative;isolation:isolate;box-sizing:border-box;
+ display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));
+ align-content:start;align-items:stretch;gap:clamp(12px,1.4vw,22px)!important;
+ width:100%;max-width:100%;min-width:0;min-height:0;
+ overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
+ padding:clamp(9px,1.4vw,21px)!important;
+ scrollbar-color:#8daff1 #101b39;scrollbar-width:thin;
+}
+.orbit-public.orbit-cosmic .orbit-solar-systems{
+ flex:1 1 auto!important;height:auto!important;max-height:none!important;
+ margin:0!important;box-sizing:border-box;
+}
+.orbit-solar-summary{
+ grid-column:1/-1;display:flex;align-items:center;gap:10px;
+ width:fit-content;max-width:100%;padding:7px 14px;
+ border:1px solid #77d8efb0;border-radius:99px;
+ background:#0e2954ec;color:#dbfaff;
+ box-shadow:0 0 18px #46b9f22b;
+ font:900 clamp(10px,.92vw,14px)/1.4 system-ui,sans-serif;letter-spacing:.09em;
+}
+.orbit-solar-summary span{color:#a1ffff;font-size:18px;line-height:1}
+.orbit-solar-system{
+ --solar-glow:#73e6ff;--solar-deep:#153e70;
+ position:relative;box-sizing:border-box;min-width:0;
+ display:flex;flex-direction:column;gap:clamp(12px,1.5vw,19px);
+ padding:clamp(12px,1.5vw,22px);
+ border:2px solid color-mix(in srgb,var(--solar-glow) 65%,#253a78)!important;
+ border-radius:clamp(16px,1.8vw,25px)!important;
+ background:
+  radial-gradient(ellipse at 16% 5%,color-mix(in srgb,var(--solar-glow) 22%,transparent),transparent 55%),
+  radial-gradient(ellipse at 83% 100%,#5142a44b,transparent 60%),
+  linear-gradient(145deg,var(--solar-deep),#0c173a 84%)!important;
+ box-shadow:inset 0 1px 0 #d8faff33,0 0 26px color-mix(in srgb,var(--solar-glow) 20%,transparent),0 13px 28px #0005!important;
+ color:#f4faff;overflow:hidden;
+}
+.orbit-solar-system::before{
+ content:"";position:absolute;pointer-events:none;inset:0;
+ background:radial-gradient(circle,#f4fbffb8 0 1px,transparent 1.5px) 4px 13px/67px 71px,
+            radial-gradient(circle,#bb9fffb8 0 1px,transparent 1.4px) 31px 46px/109px 98px;
+ opacity:.4;
+}
+.orbit-solar-system>*{position:relative;z-index:1}
+.orbit-solar-system.orbit-tone-violet{--solar-glow:#bd9bff;--solar-deep:#34265e}
+.orbit-solar-system.orbit-tone-cyan{--solar-glow:#70efff;--solar-deep:#154467}
+.orbit-solar-system.orbit-tone-gold{--solar-glow:#ffd681;--solar-deep:#604222}
+.orbit-solar-system.orbit-tone-pink{--solar-glow:#ff9bdb;--solar-deep:#55275b}
+.orbit-solar-system.orbit-tone-mint{--solar-glow:#88ffca;--solar-deep:#18524e}
+.orbit-solar-system.orbit-tone-blue{--solar-glow:#8db6ff;--solar-deep:#213c72}
+.orbit-solar-system.orbit-tone-coral{--solar-glow:#ffb49e;--solar-deep:#67324a}
+.orbit-solar-system.orbit-tone-indigo{--solar-glow:#ada6ff;--solar-deep:#343474}
+.orbit-solar-system.orbit-tone-teal{--solar-glow:#8aeedd;--solar-deep:#20535c}
+.orbit-solar-system.orbit-tone-lime{--solar-glow:#d0fa8c;--solar-deep:#3e5334}
+.orbit-solar-system-head{display:flex;align-items:center;gap:clamp(12px,1.3vw,19px);min-width:0}
+.orbit-solar-sun{
+ position:relative;display:flex;align-items:center;flex:1 1 auto;
+ gap:clamp(12px,1.25vw,18px);min-width:0;
+}
+.orbit-solar-sun-symbol{
+ position:relative;display:grid;place-items:center;flex:0 0 clamp(54px,6vw,81px);
+ width:clamp(54px,6vw,81px);height:clamp(54px,6vw,81px);
+ border:2px solid var(--solar-glow);border-radius:50%;
+ background:radial-gradient(circle at 32% 29%,#fff9e7,#ffda89 19%,var(--solar-glow) 47%,#25548e 78%);
+ color:#142147;text-shadow:0 1px 1px #ffffff80;
+ box-shadow:0 0 12px var(--solar-glow),0 0 33px color-mix(in srgb,var(--solar-glow) 48%,transparent),inset -8px -9px 16px #092b649c;
+ font:950 clamp(22px,2.4vw,34px)/1 system-ui,sans-serif;
+}
+.orbit-solar-sun-symbol::before,.orbit-solar-sun-symbol::after{
+ content:"";position:absolute;inset:21% -18%;
+ border:2px solid color-mix(in srgb,var(--solar-glow) 75%,white);
+ border-radius:50%;transform:rotate(-25deg);pointer-events:none;
+}
+.orbit-solar-sun-symbol::after{inset:29% -22%;border-color:#dce7ff6b;transform:rotate(25deg)}
+.orbit-solar-sun-copy{min-width:0;flex:1 1 auto}
+.orbit-solar-sun-copy h4{
+ margin:0 0 5px!important;color:#fff!important;
+ font:950 clamp(17px,1.8vw,27px)/1.2 system-ui,sans-serif!important;
+ text-shadow:0 1px 9px #060d23;overflow-wrap:anywhere;
+}
+.orbit-solar-sun-copy>span{
+ display:block;color:var(--solar-glow);
+ font:900 clamp(10px,.92vw,13px)/1.35 system-ui,sans-serif;
+ letter-spacing:.08em;overflow-wrap:anywhere;
+}
+.orbit-solar-track{
+ position:relative;flex:0 0 60px;width:60px;height:60px;
+ border:1px solid #d0e8ff65;border-radius:50%;
+ transform:rotate(-24deg);pointer-events:none;
+}
+.orbit-solar-track i{
+ position:absolute;inset:11px -9px;border:1px solid var(--solar-glow);border-radius:50%;
+ opacity:.7;
+}
+.orbit-solar-track i:nth-child(2){inset:-8px 15px;border-color:#dce6ff99;transform:rotate(70deg)}
+.orbit-solar-planets{
+ display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,185px),1fr));
+ gap:clamp(9px,.95vw,14px);align-content:start;min-width:0;
+}
+.orbit-solar-planet{
+ position:relative;display:flex;gap:clamp(8px,1vw,12px);align-items:flex-start;
+ box-sizing:border-box;min-width:0;min-height:92px;padding:clamp(9px,.85vw,14px);
+ border:1px solid color-mix(in srgb,var(--solar-glow) 68%,#6580b1);
+ border-radius:15px;background:linear-gradient(133deg,#253e74e6,#182748f2);
+ box-shadow:inset 0 1px 0 #dcf6ff33,0 4px 12px #01082266;
+}
+.orbit-solar-moon{
+ display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;
+ border:1px solid #d8faffbc;border-radius:50%;
+ background:radial-gradient(circle at 32% 25%,#fcffff,var(--solar-glow) 31%,#437ac6 72%,#192759);
+ color:#0c2855;font:950 18px/1 system-ui,sans-serif;
+ box-shadow:0 0 11px color-mix(in srgb,var(--solar-glow) 54%,transparent);
+}
+.orbit-solar-idea{min-width:0;flex:1 1 auto}
+.orbit-solar-idea strong{
+ display:block;margin:0 0 5px;color:var(--solar-glow);
+ font:900 clamp(10px,.9vw,13px)/1.3 system-ui,sans-serif;
+ overflow-wrap:anywhere;
+}
+.orbit-solar-idea p{
+ margin:0!important;color:#f8fcff!important;
+ font:750 clamp(13px,1.13vw,18px)/1.4 system-ui,sans-serif!important;
+ white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;
+}
+.orbit-solar-empty{
+ position:relative;box-sizing:border-box;display:grid;place-items:center;
+ align-content:center;gap:14px;min-height:220px;
+ width:min(100%,760px);margin:clamp(20px,5vh,70px) auto;
+ padding:25px;border:2px dashed #94bbed;
+ border-radius:23px;background:linear-gradient(145deg,#23315f,#111e42);
+ color:#f4f9ff;text-align:center;
+}
+.orbit-solar-empty>span{font-size:53px;color:#a5f2ff;text-shadow:0 0 20px #81d9ff}
+.orbit-solar-empty strong{font:950 clamp(19px,2vw,29px)/1.2 system-ui,sans-serif}
+.orbit-solar-empty p{margin:0;color:#d7eaff;font:750 14px/1.45 system-ui,sans-serif}
+#teacher #activityControllerPanel .orbit-solar-systems{
+ grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));
+ max-height:clamp(280px,45vh,550px)!important;padding:9px!important;gap:10px!important;
+}
+#teacher #activityControllerPanel .orbit-solar-system{padding:10px;gap:10px}
+#teacher #activityControllerPanel .orbit-solar-sun-symbol{
+ flex-basis:50px;width:50px;height:50px;font-size:21px;
+}
+#teacher #activityControllerPanel .orbit-solar-track{display:none}
+#teacher #activityControllerPanel .orbit-solar-sun-copy h4{font-size:15px!important}
+#teacher #activityControllerPanel .orbit-solar-planets{grid-template-columns:1fr;gap:7px}
+#teacher #activityControllerPanel .orbit-solar-planet{min-height:66px;padding:8px}
+#teacher #activityControllerPanel .orbit-solar-idea p{font-size:12px!important}
+@media(min-width:1051px){
+ body.role-shared .orbit-solar-system{animation:orbit-system-materialize .55s both}
+ body.role-shared .orbit-solar-system:nth-of-type(2){animation-delay:.1s}
+ body.role-shared .orbit-solar-system:nth-of-type(3){animation-delay:.18s}
+}
+@keyframes orbit-system-materialize{
+ from{opacity:.2;translate:0 13px;filter:blur(3px)}
+ to{opacity:1;translate:0 0;filter:none}
+}
+@media(max-width:650px){
+ .orbit-public.orbit-cosmic .orbit-solar-systems,
+ .orbit-solar-systems{grid-template-columns:1fr!important;padding:8px!important;gap:10px!important}
+ .orbit-solar-system{padding:11px;gap:10px}
+ .orbit-solar-sun-symbol{flex-basis:53px;width:53px;height:53px;font-size:20px}
+ .orbit-solar-track{display:none}
+ .orbit-solar-planets{grid-template-columns:1fr!important}
+ .orbit-solar-idea p{font-size:14px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .orbit-solar-system{animation:none!important;transition:none!important;translate:none!important;filter:none!important}
+ .orbit-solar-sun-symbol,.orbit-solar-track,.orbit-solar-moon{animation:none!important;transition:none!important}
+}
