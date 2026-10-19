@@ -406,16 +406,80 @@
  }
 
  function enhanceStudent(){
+  if(!document.body?.classList.contains('role-student'))return;
   const run=typeof state!=='undefined'?state.activityRun:null;
-  if(!run||run.activityId!=='pixel-game')return;
-  const images=run.pixelConfig?.images;
-  if(!Array.isArray(images)||images.length<2)return;
-  const prompt=document.querySelector('#studentContent .student-prompt .eyebrow');
-  if(prompt&&!prompt.querySelector('.pixel-batch-student-round')){
-   const span=document.createElement('span');span.className='pixel-batch-student-round';
-   span.textContent=' · IMAGE '+(validIndex(run.pixelImageIndex,images.length)+1)+' / '+images.length;
-   prompt.append(span);
+  if(!run||run.activityId!=='pixel-game'||run.phase!=='running')return;
+  const prompt=document.querySelector('#studentContent .student-prompt.response-device');
+  if(!prompt)return;
+  const student=typeof selectedStudent==='function'?selectedStudent():null;
+  const guess=student&&run.pixelGuesses?.[student.n];
+  const locked=!!guess&&!run.pixelConfig?.allowUpdates;
+  const rounds=Array.isArray(run.pixelConfig?.images)&&run.pixelConfig.images.length?
+   run.pixelConfig.images.length:1;
+  const index=validIndex(run.pixelImageIndex,rounds);
+  prompt.classList.add('pixel-student-simple');
+  prompt.classList.toggle('pixel-student-locked',locked);
+  if(!prompt.querySelector('.pixel-student-top')){
+   const eyebrow=prompt.querySelector('.eyebrow');
+   if(eyebrow){
+    eyebrow.textContent='PIXEL REVEAL';
+    const top=document.createElement('div');top.className='pixel-student-top';
+    eyebrow.parentNode.insertBefore(top,eyebrow);
+    top.appendChild(eyebrow);
+    top.insertAdjacentHTML('beforeend',
+     '<span class="pixel-student-round" aria-label="Image '+(index+1)+' of '+rounds+'">'+
+     'IMAGE '+(index+1)+' / '+rounds+'</span>');
+   }
   }
+  const heading=prompt.querySelector('h2');
+  if(heading)heading.textContent=locked?'Guess sent!':'What do you see?';
+  const description=prompt.querySelector(':scope > p');
+  if(description)description.textContent='Look at the class screen. Make your guess.';
+  const lockedPanel=prompt.querySelector('.orbit-transmitted');
+  if(lockedPanel){
+   lockedPanel.classList.add('pixel-student-confirmation');
+   const note=lockedPanel.querySelector('p');
+   if(note)note.textContent='Only your teacher can see it.';
+  }
+  const entry=prompt.querySelector('.pixel-student-guess');
+  const input=entry?.querySelector('#pixelGuessInput');
+  if(entry&&input){
+   const extra=entry.querySelector('small');
+   if(extra)extra.textContent=guess?
+    'Your guess is private. You can change it.':'Only your teacher can see your guess.';
+   input.setAttribute('aria-label','Your mystery image guess');
+   input.setAttribute('autocomplete','off');
+   input.setAttribute('enterkeyhint','send');
+   input.placeholder='Type your guess…';
+   // The original native button owns the submit handler. Move it beside
+   // the field rather than creating another submit path or changing scoring.
+   const from=document.querySelector('#studentControls #sendPixelGuessBtn');
+   if(from){
+    entry.querySelector('#sendPixelGuessBtn')?.remove();
+    from.type='button';
+    from.classList.add('pixel-student-send');
+    from.innerHTML='<span aria-hidden="true">➜</span> '+
+     (guess?'Update my guess':'Send my guess');
+    entry.appendChild(from);
+   }
+   const button=entry.querySelector('#sendPixelGuessBtn');
+   if(button){
+    const update=()=>{button.disabled=!input.value.trim();};
+    if(!input.dataset.pixelSimpleWired){
+     input.dataset.pixelSimpleWired='1';
+     input.addEventListener('input',update);
+     input.addEventListener('keydown',e=>{
+      if(e.key==='Enter'&&!e.isComposing&&input.value.trim()){
+       e.preventDefault();
+       const send=entry.querySelector('#sendPixelGuessBtn');
+       if(send&&!send.disabled)send.click();
+      }
+     });
+    }
+    update();
+   }
+  }
+  document.body.classList.add('pixel-student-current');
  }
  function enhance(){
   if(typeof state==='undefined')return;
@@ -467,5 +531,5 @@
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
  else boot();
- window.SIPixelBatch={version:'4e',upload,normalize,switchRound,snapshot,enhanceCinematic,MAX_IMAGES};
+ window.SIPixelBatch={version:'4e',upload,normalize,switchRound,snapshot,enhanceCinematic,enhanceStudent,MAX_IMAGES};
 })();
