@@ -32,8 +32,8 @@
   item.answer=d.answer||'';
   item.acceptedAnswers=copyAnswers(d.acceptedAnswers);
  }
- function selectImage(d,index){
-  syncAnswer(d);d.imageIndex=validIndex(index,d.images.length);
+ function selectImage(d,index,saveCurrent=true){
+  if(saveCurrent)syncAnswer(d);d.imageIndex=validIndex(index,d.images.length);
   const item=d.images[d.imageIndex];
   d.image=item.image;d.answer=item.answer||'';d.acceptedAnswers=copyAnswers(item.acceptedAnswers);
  }
@@ -81,7 +81,8 @@
   busy=true;
   const button=document.querySelector('#pixelImageFile'),status=document.querySelector('.pixel-batch-upload-status');
   if(button)button.disabled=true;
-  if(replace)d.images=[];
+  syncAnswer(d);
+  if(replace){d.images=[];d.answer='';d.acceptedAnswers=[]}
   let added=0,firstIndex=d.images.length;
   for(const file of selected){
    if(status)status.textContent='Preparing '+(added+1)+' of '+selected.length+' images…';
@@ -92,7 +93,7 @@
    }catch(e){toast(String(e.message||e))}
   }
   if(!d.images.length)d.images=[{image:pixelDemoImage(),answer:'Giraffe',acceptedAnswers:['Giraffe']}];
-  selectImage(d,Math.min(firstIndex,d.images.length-1));
+  selectImage(d,Math.min(firstIndex,d.images.length-1),false);
   busy=false;
   renderActivities();
   toast(added+' image'+(added===1?'':'s')+' added to PIXEL REVEAL'+(raster.length>selected.length?' (12-image limit)':''));
@@ -103,14 +104,14 @@
   syncAnswer(d);
   const moved=d.images.splice(index,1)[0];
   d.images.splice(target,0,moved);
-  selectImage(d,target);
+  selectImage(d,target,false);
   renderActivities();
  }
  function remove(d,index){
   syncAnswer(d);
   if(d.images.length<=1){toast('Keep at least one image in the activity');return}
   d.images.splice(index,1);
-  selectImage(d,Math.min(index,d.images.length-1));
+  selectImage(d,Math.min(index,d.images.length-1),false);
   renderActivities();
  }
  function enhanceSetup(){
@@ -130,7 +131,7 @@
   if(demo)demo.onclick=()=>{
    syncAnswer(d);
    d.images[d.imageIndex]={image:pixelDemoImage(),answer:'Giraffe',acceptedAnswers:['Giraffe','Girafe','🦒']};
-   selectImage(d,d.imageIndex);renderActivities();
+   selectImage(d,d.imageIndex,false);renderActivities();
   };
   const answer=setup.querySelector('#pixelAnswer');
   if(answer&&!answer.dataset.pixelBatchWired){
