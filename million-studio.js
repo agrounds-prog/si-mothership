@@ -34,7 +34,7 @@ const normalize=o=>{
  return x;
 };
 let draft=normalize(getJson(DRAFT_KEY,null));
-let tab='create',selected=0,loadedId='',savePending=false,draftTimer=null;
+let tab='create',selected=0,loadedId='',savePending=false,draftTimer=null,librarySearch='';
 const ready=q=>!!q.prompt.trim()&&q.choices.every(x=>!!x.trim())&&KEYS.includes(q.correct);
 const readyCount=()=>draft.questions.slice(0,draft.count).filter(ready).length;
 const questionNeeds=q=>{const needed=[];if(!q.prompt.trim())needed.push('question prompt');KEYS.forEach((k,i)=>{if(!q.choices[i].trim())needed.push('answer '+k)});return needed};
@@ -85,11 +85,47 @@ const cardMarkup=()=>{
 const libraryMarkup=()=>{
  const games=listGames();
  return '<div class="ms-library"><div class="ms-block-head"><span>SAVED GAME LIBRARY</span><small>'+games.length+' games</small></div>'+
- (games.length?'<div class="ms-saved-grid">'+games.map(game=>{
+ (games.length?'<div class="ms-library-tools"><label for="msLibrarySearch">FIND A SAVED GAME<input type="search" id="msLibrarySearch" placeholder="Search saved game names" autocomplete="off" value="'+esc(librarySearch)+'"></label><span class="ms-library-summary" role="status" aria-live="polite"></span></div>'+
+ '<div class="ms-saved-grid">'+games.map(game=>{
   const g=normalize(game.data);
-  return '<article class="ms-saved-game"><span>◆ SAVED MISSION</span><h3>'+esc(g.name||'Untitled')+'</h3><p>'+g.count+' question slides · '+(g.risk==='classic'?'Classic risk':g.risk==='friendly'?'Friendly':'Practice')+'</p><small>'+esc(new Date(game.updatedAt||Date.now()).toLocaleDateString())+'</small><div><button data-ms-load="'+esc(game.id)+'">Edit / Load</button><button data-ms-delete="'+esc(game.id)+'">Delete</button></div></article>';
- }).join('')+'</div>':'<div class="ms-empty"><strong>No saved games yet</strong><p>Create a game with pre-labeled questions and save it here. Games remain after Reset Session.</p><button id="msLibraryStart">Create a Game →</button></div>')+'</div>';
+  return '<article class="ms-saved-game" data-ms-search-name="'+esc(g.name.toLocaleLowerCase())+'"><span>◆ SAVED MISSION</span><h3>'+esc(g.name||'Untitled')+'</h3><p>'+g.count+' question slides · '+(g.risk==='classic'?'Classic risk':g.risk==='friendly'?'Friendly':'Practice')+'</p><small>'+esc(new Date(game.updatedAt||Date.now()).toLocaleDateString())+'</small><div><button type="button" data-ms-load="'+esc(game.id)+'">Edit / Load</button><button type="button" data-ms-copy="'+esc(game.id)+'">Duplicate</button><button type="button" data-ms-delete="'+esc(game.id)+'">Delete</button></div></article>';
+ }).join('')+'</div><p class="ms-library-no-results" hidden>No saved games match your search.</p>':
+ '<div class="ms-empty"><strong>No saved games yet</strong><p>Create a game with pre-labeled questions and save it here. Games remain after Reset Session.</p><button id="msLibraryStart">Create a Game →</button></div>')+'</div>';
 };
+function updateLibrarySearch(){
+ const root=document.querySelector('.ms-library'),input=root?.querySelector('#msLibrarySearch');
+ if(!input)return;
+ const query=librarySearch.trim().toLocaleLowerCase();
+ const cards=[...root.querySelectorAll('.ms-saved-game')];
+ let visible=0;
+ cards.forEach(card=>{
+  const show=!query||(card.dataset.msSearchName||'').includes(query);
+  card.hidden=!show;
+  if(show)visible++;
+ });
+ const summary=root.querySelector('.ms-library-summary');
+ if(summary)summary.textContent=visible+' of '+cards.length+' saved games';
+ const empty=root.querySelector('.ms-library-no-results');
+ if(empty)empty.hidden=visible!==0;
+}
+async function duplicateSavedGame(saved){
+ if(!saved||savePending)return;
+ savePending=true;
+ const copy=normalize(saved.data);
+ copy.name=('Copy of '+(copy.name||'MILLION Game')).slice(0,100);
+ const identity=id(),stamp=Date.now();
+ const list=listGames();
+ const value=JSON.stringify([{id:identity,updatedAt:stamp,data:copy},...list].slice(0,80));
+ try{
+  const resp=await fetch('/api/storage',{method:'POST',headers:{'Content-Type':'application/json'},
+   credentials:'same-origin',body:JSON.stringify({key:GAME_KEY,value})});
+  if(!resp.ok)throw Error(resp.status===401?'Teacher sign-in required':'Server returned '+resp.status);
+  localStorage.setItem(GAME_KEY,value);
+  draft=copy;loadedId=identity;selected=0;tab='create';
+  persistDraft();redraw();toast('MILLION copy saved · original game is unchanged');
+ }catch(err){toast('Could not duplicate game: '+String(err.message||err))}
+ finally{savePending=false}
+}
 function ladder(count){
  if(count===15)return LADDER.slice();
  const indexes=count===5?[0,3,7,11,14]:[0,1,2,3,4,6,8,10,12,14];
@@ -130,12 +166,14 @@ async function save(asNew){
   localStorage.setItem(GAME_KEY,value);loadedId=identity;
   persistDraft();toast('MILLION game saved to your Game Library');redraw();
  }catch(err){const b=document.querySelector('#msSaveStatus');if(b)b.textContent='Save failed · '+String(err.message||err);toast('Could not save game: '+String(err.message||err))}
- finally{savePending=false}
+ finally{savePending=false;const button=document.querySelector('#msSaveGame');if(button)button.disabled=false}
 }
 function wire(){
  const root=document.querySelector('.ms-studio');if(!root)return;
  const on=(sel,event,cb)=>root.querySelector(sel)?.addEventListener(event,cb);
  root.querySelectorAll('[data-ms-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.msTab;redraw()});
+ on('#msLibrarySearch','input',e=>{librarySearch=e.target.value;updateLibrarySearch()});
+ updateLibrarySearch();
  root.querySelectorAll('[data-ms-slide]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.msSlide);redraw()});
  on('#msName','input',e=>{draft.name=e.target.value;queueDraft()});
  on('#msCount','change',e=>{draft.count=Number(e.target.value);selected=Math.min(selected,draft.count-1);persistDraft();redraw()});
@@ -169,6 +207,9 @@ function wire(){
   loadedId='';selected=0;persistDraft();redraw()
  });
  on('#msLibraryStart','click',()=>{tab='create';redraw()});
+ root.querySelectorAll('[data-ms-copy]').forEach(b=>b.onclick=()=>{
+  duplicateSavedGame(listGames().find(x=>x.id===b.dataset.msCopy));
+ });
  root.querySelectorAll('[data-ms-load]').forEach(b=>b.onclick=()=>{
   const g=listGames().find(x=>x.id===b.dataset.msLoad);if(!g)return;
   draft=normalize(g.data);loadedId=g.id;selected=0;tab='create';persistDraft();redraw();toast('Game loaded · ready to edit or launch')
