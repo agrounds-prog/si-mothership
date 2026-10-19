@@ -1605,3 +1605,122 @@ body.role-student #studentContent .ms-million-student-stake{
   animation:none!important;transition:none!important;
  }
 }
+
+
+/* Phase 3H · projector-only lifeline theatrics and championship coronation.
+   Decorations follow synchronized public state; no timers affect the game. */
+.ms-million-lifeline-cue{
+ position:fixed;top:clamp(65px,14vh,170px);left:50%;z-index:15950;
+ display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;
+ gap:11px 15px;width:min(540px,86vw);max-width:calc(100vw - 20px);
+ padding:15px 20px;border:2px solid #ffe5a7;border-radius:22px;
+ background:radial-gradient(ellipse at 55% -30%,#6547ac,#27326b 58%,#0d143a 100%);
+ box-shadow:inset 0 0 0 3px #e5d9ff26,0 0 38px #b694ff75,0 19px 65px #000c;
+ color:#fff9df;pointer-events:none;opacity:0;visibility:hidden;
+ transform:translate(-50%,-14px) scale(.94);transition:opacity .23s ease,transform .33s ease,visibility .23s;
+}
+.ms-million-lifeline-cue.is-visible{
+ opacity:1;visibility:visible;transform:translate(-50%,0) scale(1);
+}
+.ms-million-lifeline-ring{
+ display:grid;place-items:center;width:clamp(53px,6vw,79px);aspect-ratio:1;
+ flex:none;border:3px solid #ffe7ac;border-radius:50%;
+ background:radial-gradient(circle at 37% 28%,#ffe3a4,#b08040 42%,#33275f 83%);
+ box-shadow:inset 0 0 0 4px #fff4c133,0 0 25px #ffc7779f;
+ color:#fff7d5;font:1000 clamp(27px,3vw,42px)/1 system-ui,sans-serif;
+ text-shadow:0 0 12px #ffe79c;
+}
+.ms-million-lifeline-copy{display:grid;gap:4px;min-width:0}
+.ms-million-lifeline-copy strong{
+ color:#fff3ba;font:1000 clamp(17px,2.2vw,30px)/1.13 system-ui,sans-serif;
+ letter-spacing:.075em;overflow-wrap:anywhere;text-shadow:0 0 13px #f9ca7b81;
+}
+.ms-million-lifeline-copy small{
+ color:#e3e8ff;font:900 clamp(10px,1vw,14px)/1.3 system-ui,sans-serif;
+ letter-spacing:.11em;overflow-wrap:anywhere;
+}
+.ms-million-lifeline-beats{
+ grid-column:1/-1;display:flex;justify-content:center;gap:10px;
+ max-width:100%;padding:2px 8px 0;
+}
+.ms-million-lifeline-beats i{
+ flex:1 1 0;max-width:83px;height:5px;border-radius:99px;
+ background:#ffe7ae;box-shadow:0 0 12px #ffd28299;
+}
+.ms-million-lifeline-cue[data-lifeline="poll"]{border-color:#8feafb;box-shadow:0 0 36px #5ac7f883,0 19px 65px #000b}
+.ms-million-lifeline-cue[data-lifeline="poll"] .ms-million-lifeline-ring{
+ border-color:#bbf6ff;background:radial-gradient(circle at 35% 25%,#bcefff,#3785b9 55%,#273b71);
+}
+.ms-million-lifeline-cue[data-lifeline="clue"]{border-color:#c3b8ff}
+.ms-million-lifeline-cue[data-lifeline="tryAgain"]{border-color:#a3f8d1}
+.ms-million-lifeline-cue[data-lifeline="tryAgain"] .ms-million-lifeline-ring{
+ border-color:#b1ffdc;background:radial-gradient(circle at 35% 25%,#d3ffdf,#338f7c 55%,#194957);
+}
+.ms-million-final-results{position:relative;isolation:isolate;overflow:hidden}
+.ms-million-victory-corona{
+ position:absolute;inset:0;z-index:-1;pointer-events:none;
+ display:flex;justify-content:space-between;align-items:center;
+ padding:clamp(4px,1.4vw,24px);
+ background:repeating-conic-gradient(from 10deg at 50% 42%,#ffe7a000 0deg 18deg,#ffdfa30f 21deg 27deg,#ffe7a000 30deg 60deg);
+}
+.ms-million-victory-corona span{
+ color:#ffeac6;font-size:clamp(15px,2.5vw,34px);
+ text-shadow:0 0 19px #f4b44baa;opacity:.75;
+}
+.ms-million-final-results.is-champion .ms-million-final-prize{
+ position:relative;box-shadow:inset 0 0 0 2px #fff4cf37,0 0 34px #ffdf768a!important;
+}
+.ms-million-final-results.is-champion .ms-million-final-prize>strong{
+ text-shadow:0 0 28px #ffc868bf,0 0 45px #ffeb9991!important;
+}
+.ms-million-final-results.is-champion .ms-million-final-header{
+ position:relative;text-shadow:0 0 18px #ffe9aa65;
+}
+@media(max-width:780px),(max-height:630px){
+ .ms-million-lifeline-cue{top:clamp(33px,8vh,67px);width:min(470px,84vw);padding:8px 12px;gap:7px}
+ .ms-million-lifeline-ring{width:41px}
+ .ms-million-lifeline-copy strong{font-size:clamp(13px,2.5vw,19px)}
+ .ms-million-lifeline-copy small{font-size:10px}
+ .ms-million-lifeline-beats{gap:5px}
+ .ms-million-final-results.is-champion .ms-million-victory-corona span{font-size:16px}
+}
+@media(prefers-reduced-motion:no-preference){
+ .ms-million-lifeline-cue.is-visible .ms-million-lifeline-ring{
+  animation:ms3h-lifeline-entry .72s cubic-bezier(.22,.82,.29,1) both;
+ }
+ .ms-million-lifeline-cue.is-visible .ms-million-lifeline-beats i{
+  animation:ms3h-lifeline-beat .83s ease-in-out 2;
+ }
+ .ms-million-lifeline-cue.is-visible .ms-million-lifeline-beats i:nth-child(2){animation-delay:.1s}
+ .ms-million-lifeline-cue.is-visible .ms-million-lifeline-beats i:nth-child(3){animation-delay:.2s}
+ .ms-million-lifeline-cue.is-visible .ms-million-lifeline-beats i:nth-child(4){animation-delay:.3s}
+ .ms-million-final-results.is-champion .ms-million-victory-corona{
+  animation:ms3h-corona-bloom 1.5s ease-out both;
+ }
+ .ms-million-final-results.is-champion .ms-million-final-prize{
+  animation:ms3h-final-bloom 1.2s ease-out both;
+ }
+ @keyframes ms3h-lifeline-entry{
+  from{opacity:.2;transform:rotate(-25deg) scale(.6)}
+  65%{opacity:1;transform:rotate(9deg) scale(1.11)}
+  to{opacity:1;transform:rotate(0) scale(1)}
+ }
+ @keyframes ms3h-lifeline-beat{
+  0%,100%{opacity:.45;transform:scaleY(.65)}
+  50%{opacity:1;transform:scaleY(1.45)}
+ }
+ @keyframes ms3h-corona-bloom{
+  from{opacity:.05;transform:scale(.8) rotate(-12deg)}
+  to{opacity:1;transform:scale(1) rotate(0)}
+ }
+ @keyframes ms3h-final-bloom{
+  from{filter:brightness(1.55);transform:translateY(8px)}
+  to{filter:brightness(1);transform:translateY(0)}
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .ms-million-lifeline-cue,.ms-million-lifeline-cue *,
+ .ms-million-victory-corona,.ms-million-final-results.is-champion .ms-million-final-prize{
+  animation:none!important;transition:none!important;
+ }
+}
