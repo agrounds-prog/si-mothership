@@ -7,25 +7,65 @@
  const safe=value=>String(value??'').replace(/[&<>"']/g,c=>
    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
  const naturalCount=n=>Number(n||0).toLocaleString('en-US');
- // The native orbit uses up to 16 absolutely positioned notes; beyond six,
- // cards collide with each other and the question. Keep every response in a
- // readable, scrollable galaxy instead of silently dropping later pupils.
- const original=typeof window.orbitIdeasMarkup==='function'?window.orbitIdeasMarkup:null;
- if(original){
+ // The classroom projector uses real response text and maintains the native
+ // prompt, anonymous-name and turn state. No response is dropped at 16.
+ const icons=['✦','♫','♥','✧','◎','★','✺','◆','❖','✿'];
+ const tones=['violet','cyan','gold','pink','mint','blue','coral','indigo','teal','lime'];
+ const originalIdeas=typeof window.orbitIdeasMarkup==='function'?window.orbitIdeasMarkup:null;
+ const originalPublic=typeof window.orbitSharedMarkup==='function'?window.orbitSharedMarkup:null;
+ const noName=(run)=>Boolean(run?.orbitConfig?.anonymous&&!run?.orbitRevealCrew);
+ function ideaLabel(name,run){return noName(run)?'':String(name||'')}
+ function gallery(entries,run){
+  return '<div class="orbit-idea-gallery orbit-cosmic-gallery" role="list" aria-label="All crew ideas">'+
+   entries.map(([name,r],i)=>'<article class="orbit-gallery-card orbit-tone-'+tones[i%tones.length]+'" role="listitem">'+
+    '<span class="orbit-gallery-number" aria-hidden="true">'+icons[i%icons.length]+'</span>'+
+    '<div class="orbit-gallery-copy">'+(ideaLabel(name,run)?
+     '<strong class="orbit-gallery-author">'+safe(ideaLabel(name,run))+'</strong>':'')+
+     '<p>'+safe(r?.text||'')+'</p></div></article>').join('')+'</div>';
+ }
+ function satellites(entries,run){
+  const total=entries.length,rows=Math.ceil(total/2);
+  return '<div class="orbit-satellites" role="list" aria-label="Ideas orbiting the question">'+
+   entries.map(([name,r],i)=>{
+    const side=i%2,slot=Math.floor(i/2),y=((slot+.5)/rows*100).toFixed(2);
+    return '<article class="orbit-satellite orbit-tone-'+tones[i%tones.length]+'" role="listitem"'+
+     ' style="--orb-x:'+(side?'75.5':'1.2')+'%;--orb-y:'+y+'%;">'+
+     '<span class="orbit-sat-moon" aria-hidden="true"><span class="orbit-sat-icon">'+icons[i%icons.length]+'</span></span>'+
+     '<div class="orbit-sat-content">'+(ideaLabel(name,run)?
+       '<strong class="orbit-sat-author">'+safe(ideaLabel(name,run))+'</strong>':'')+
+       '<span class="orbit-sat-text">'+safe(r?.text||'')+'</span></div></article>';
+   }).join('')+'</div>';
+ }
+ if(originalIdeas){
   window.orbitIdeasMarkup=function(run,big){
-   const submitted=run?.orbitResponses||{},entries=Object.entries(submitted);
-   if(entries.length<=6)return original(run,big);
-   const revealName=name=>{
-    if(run?.orbitConfig?.anonymous&&!run?.orbitRevealCrew)return '';
-    return String(name||'');
-   };
-   return '<div class="orbit-idea-gallery" role="list" aria-label="Crew responses">'+
-    entries.map(([name,r],i)=>'<article class="orbit-gallery-card" role="listitem">'+
-      '<span class="orbit-gallery-number" aria-hidden="true">'+String(i+1).padStart(2,'0')+'</span>'+
-      '<div class="orbit-gallery-copy">'+(revealName(name)?
-        '<strong class="orbit-gallery-author">'+safe(revealName(name))+'</strong>':'')+
-        '<p>'+safe(r?.text||'')+'</p></div></article>').join('')+
-    '</div>';
+   const entries=Object.entries(run?.orbitResponses||{});
+   if(!entries.length)return originalIdeas(run,big);
+   // The projector presents up to ten brief contributions as glowing planets.
+   // Full-length text and larger classes use a scrollable, equally styled
+   // gallery so no student's response is visually cut off or omitted.
+   if(big&&entries.length<=10&&entries.every(([,r])=>String(r?.text||'').length<=110))
+    return satellites(entries,run);
+   return gallery(entries,run);
+  };
+ }
+ if(originalPublic){
+  window.orbitSharedMarkup=function(run,big){
+   const html=originalPublic(run,big);
+   if(typeof html!=='string'||!html.startsWith('<div class="orbit-public"'))return html;
+   const cfg=run?.orbitConfig||{},responses=run?.orbitResponses||{};
+   const active=typeof connectedStudents==='function'?connectedStudents():[];
+   const count=active.filter(s=>responses[s.n]).length,total=active.length;
+   const pct=total?Math.round(count/total*100):0;
+   const header='<header class="orbit-cosmic-header">'+
+    '<div class="orbit-cosmic-brand"><span class="orbit-cosmic-wordmark"><span class="orbit-cosmic-logo" aria-hidden="true">◉</span>ORBIT</span>'+
+    '<span class="orbit-cosmic-subtitle">ONE QUESTION · EVERY VOICE · SHARED THINKING</span></div>'+
+    '<div class="orbit-cosmic-tally" aria-label="'+count+' of '+total+' crew responses transmitted">'+
+    '<span class="orbit-cosmic-crew" aria-hidden="true">♟ ♟ ♟</span>'+
+    '<span class="orbit-cosmic-fraction"><b>'+count+' / '+total+'</b> TRANSMITTED</span>'+
+    '<span class="orbit-cosmic-progress" aria-hidden="true"><i style="width:'+pct+'%"></i></span></div></header>';
+   return html.replace('<div class="orbit-public"',
+    '<div class="orbit-public orbit-cosmic" data-orbit-style="cosmic"').replace('data-orbit-style="cosmic">',
+    'data-orbit-style="cosmic">'+header);
   };
  }
  function enhance(){
