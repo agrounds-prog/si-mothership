@@ -38,6 +38,11 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   })));
   await page.waitForFunction(()=>state.pixelDraft?.images?.length===3,null,{timeout:20000});
   await page.locator('.pixel-batch-item').first().waitFor();
+  await page.waitForFunction(()=>document.querySelector('.pixel-batch-upload-status')?.textContent?.includes('3 images added'),null,{timeout:10000});
+  assert.match(await page.locator('.pixel-batch-upload-status').innerText(),/3 of 12 rounds ready/,
+   'teacher sees an accurate upload result and remaining image capacity');
+  assert.equal(await page.locator('#pixelImageFile').inputValue(),'',
+   'teacher can retry the same selected files after an upload');
   assert.equal(await page.locator('.pixel-batch-item').count(),3);
   assert.equal(await page.locator('.pixel-batch-pick[aria-pressed="true"]').count(),1);
   await page.locator('#pixelAnswer').fill('Apple');
