@@ -12,6 +12,34 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
  const page=await context.newPage(),errors=[];
  page.on('pageerror',e=>errors.push(String(e.stack||e)));
  const setup=async()=>{
+  // Student PIXEL viewport check: native button lives beside the input.
+  await page.setViewportSize({width:390,height:844});
+  const studentCompact=await page.evaluate(()=>{
+    state.selectedStudent='Alex';state.students=[{n:'Alex',offline:false}];
+    state.activityRun.pixelGuesses={};state.activityRun.pixelShowResults=false;
+    state.activityRun.pixelRevealAll=false;state.activityRun.phase='running';
+    state.screen='activity';
+    document.body.classList.add('role-student');
+    document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='student'));
+    renderPublic();window.SIPixelBatch.enhanceStudent();
+    const card=document.querySelector('#studentContent .pixel-student-simple');
+    const button=card?.querySelector('#sendPixelGuessBtn');
+    const input=card?.querySelector('#pixelGuessInput');
+    const result={card:!!card,button:!!button,
+      header:card?.querySelector('h2')?.textContent,
+      gap:button&&input?button.getBoundingClientRect().top-input.getBoundingClientRect().bottom:999,
+      disabled:button?.disabled,
+      overflow:Math.max(0,document.documentElement.scrollWidth-innerWidth)};
+    document.body.classList.remove('role-student');
+    document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='teacher'));
+    return result;
+  });
+  assert.equal(studentCompact.header,'What do you see?');
+  assert.equal(studentCompact.button,true);
+  assert.equal(studentCompact.disabled,true);
+  assert.ok(studentCompact.gap>=0&&studentCompact.gap<=23);
+  assert.ok(studentCompact.overflow<=3);
+  await page.setViewportSize({width:1366,height:920});
   await page.evaluate(()=>{
    state.screen='activities';state.activeApp='pixel';state.activityRun=null;
    state.students=[{n:'Alex',offline:false},{n:'Blair',offline:false}];
