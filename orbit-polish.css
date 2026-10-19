@@ -764,3 +764,219 @@ body.role-student #studentContent .orbit-transmitted{
   transform:none!important;
  }
 }
+
+
+/* Phase 4 — DEEP SPACE ATMOSPHERE.
+   Visual-only animation: no changes to responses, scoring, teacher controls,
+   component sizing, or the responsive gallery used for large classes. */
+.orbit-public.orbit-cosmic .orbit-cosmic-atmosphere{
+ position:absolute!important;inset:0!important;z-index:0!important;
+ overflow:hidden;pointer-events:none!important;
+ background:radial-gradient(ellipse at 54% 63%,rgba(61,118,225,.07),transparent 62%);
+}
+.orbit-cosmic .orbit-constellations{
+ position:absolute;inset:0;width:100%;height:100%;
+ fill:none;stroke:#b0dfff;stroke-width:1.2;opacity:.33;
+ filter:drop-shadow(0 0 3px rgba(128,208,255,.44));
+}
+.orbit-cosmic .orbit-constellation-cluster path{
+ stroke-dasharray:3 6;stroke-linecap:round;
+}
+.orbit-cosmic .orbit-constellation-cluster circle{
+ fill:#cceeff;stroke:#73c5ff;stroke-width:1.4;
+}
+.orbit-cosmic .orbit-space-spark{
+ position:absolute;display:block;width:7px;height:7px;
+ border-radius:50%;background:#eafcff;
+ box-shadow:0 0 5px #fff,0 0 13px #7be1ff,0 0 28px #6e77ff;
+ opacity:.66;
+}
+.orbit-cosmic .orbit-space-spark-a{left:13%;top:37%;animation-delay:-7s}
+.orbit-cosmic .orbit-space-spark-b{left:87%;top:23%;animation-delay:-2s}
+.orbit-cosmic .orbit-space-spark-c{left:71%;top:86%;animation-delay:-13s}
+.orbit-cosmic .orbit-shooting-star{
+ position:absolute;left:0;top:52%;width:clamp(90px,11vw,180px);
+ height:2px;opacity:0;border-radius:99px;
+ background:linear-gradient(90deg,transparent 0%,#76b8ff44 22%,#b0eeff 75%,#fff 100%);
+ filter:drop-shadow(0 0 4px #b2eeff) drop-shadow(0 0 10px #6ac2ff);
+ transform-origin:right center;transform:translate(-220px,170px) rotate(-17deg);
+}
+.orbit-cosmic .orbit-shooting-star::after{
+ content:"";position:absolute;right:0;top:-3px;width:8px;height:8px;
+ border-radius:50%;background:#fff;
+ box-shadow:0 0 10px #bdf7ff,0 0 25px #6cc9ff;
+}
+/* Keep animated layers behind the interactive classroom content. */
+body.role-shared .orbit-public.orbit-cosmic::before{
+ animation:orbitDeepStars 18s ease-in-out infinite alternate!important;
+}
+body.role-shared .orbit-public.orbit-cosmic::after{
+ animation:orbitDeepNebula 34s ease-in-out infinite alternate!important;
+}
+body.role-shared .orbit-cosmic .orbit-constellation-cluster{
+ animation:orbitDeepConstellation 15s ease-in-out infinite alternate;
+}
+body.role-shared .orbit-cosmic .orbit-space-spark{
+ animation:orbitDeepSpark 12s ease-in-out infinite;
+}
+body.role-shared .orbit-cosmic .orbit-shooting-star{
+ animation:orbitDeepComet 29s linear infinite;
+}
+body.role-shared .orbit-cosmic .orbit-space:has(>.orbit-satellites)::before,
+body.role-shared .orbit-cosmic .orbit-space[data-orbit-waiting="true"]::before{
+ animation:orbitDeepRingA 36s linear infinite;
+}
+body.role-shared .orbit-cosmic .orbit-space:has(>.orbit-satellites)::after,
+body.role-shared .orbit-cosmic .orbit-space[data-orbit-waiting="true"]::after{
+ animation:orbitDeepRingB 46s linear infinite;
+}
+body.role-shared .orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core,
+body.role-shared .orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core{
+ animation:orbitDeepPlanet 8s ease-in-out infinite;
+}
+/* A light-catching cloud layer adds a three-dimensional surface. */
+.orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core::after,
+.orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core::after{
+ content:"";position:absolute;inset:8% 11%;z-index:0;
+ border-radius:50%;pointer-events:none;opacity:.5;
+ background:
+  radial-gradient(circle at 25% 17%,#fff9 0 8%,transparent 27%),
+  radial-gradient(ellipse at 73% 75%,#6f7bff38 0 19%,transparent 42%),
+  linear-gradient(135deg,transparent 22%,#ffffff2b 43%,transparent 52%,#fff3 70%,transparent 82%);
+ mix-blend-mode:screen;
+}
+.orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core h3,
+.orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core h3{
+ position:relative;z-index:1;
+}
+body.role-shared .orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core::after,
+body.role-shared .orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core::after{
+ animation:orbitDeepCloud 17s ease-in-out infinite alternate;
+}
+body.role-shared .orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core::before,
+body.role-shared .orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core::before{
+ animation:orbitDeepHalo 10s ease-in-out infinite;
+}
+/* Satellite animations only on wide shared screens. Compact stacked layouts
+   must not inherit translateY(-50%) or they will collide. */
+@media(min-width:1051px){
+ body.role-shared .orbit-cosmic .orbit-satellite{
+  animation:orbitDeepSatellite 8.2s ease-in-out infinite;
+  animation-delay:calc(var(--orb-stagger,0) * -1s);
+ }
+ body.role-shared .orbit-cosmic .orbit-satellite:nth-child(2n){animation-duration:10.1s}
+ body.role-shared .orbit-cosmic .orbit-satellite:nth-child(3n){animation-duration:7.4s}
+ body.role-shared .orbit-cosmic .orbit-sat-moon{
+  animation:orbitDeepMoon 9s ease-in-out infinite alternate;
+ }
+ body.role-shared .orbit-cosmic .orbit-satellite:hover{
+  animation-play-state:paused;
+  filter:brightness(1.08);
+ }
+}
+.orbit-cosmic .orbit-sat-moon::after{
+ content:"";position:absolute;inset:-7%;border:1px solid #ffffff88;
+ border-radius:50%;opacity:.4;pointer-events:none;
+ box-shadow:0 0 8px var(--orb-strong),0 0 17px var(--orb-strong);
+}
+/* Do not dim legibility when paused: color the atmosphere, not the copy. */
+.orbit-public.orbit-cosmic[data-orbit-phase="waiting"] .orbit-space{
+ box-shadow:inset 0 0 90px #9267ff1b,0 0 30px #8461ff33!important;
+}
+.orbit-public.orbit-cosmic[data-orbit-phase="collecting"] .orbit-cosmic-progress i{
+ box-shadow:0 0 9px #55ffeab3,0 0 22px #43c9ffb3;
+}
+.orbit-public.orbit-cosmic[data-orbit-phase="paused"] .orbit-space{
+ box-shadow:inset 0 0 95px #ffb65426,0 0 29px #ffbe7151!important;
+}
+.orbit-public.orbit-cosmic[data-orbit-phase="complete"] .orbit-cosmic-progress i{
+ box-shadow:0 0 12px #90ffd9,0 0 30px #43e9bb;
+}
+.orbit-public.orbit-cosmic[data-orbit-phase="complete"] .orbit-core{
+ border-color:#a5ffe2!important;
+}
+.orbit-public.orbit-cosmic .orbit-spotlight{
+ box-shadow:0 0 48px #53a3ffbb,0 0 96px #9852dc66,inset 0 1px #fff9!important;
+}
+.orbit-cosmic-gallery .orbit-gallery-card::after{
+ content:"";position:absolute;inset:0;pointer-events:none;
+ background:radial-gradient(circle at 15% 16%,#fff7,transparent 24%);
+ opacity:.45;border-radius:inherit;
+}
+.orbit-cosmic-gallery .orbit-gallery-card{position:relative;overflow:hidden}
+#teacher #activityControllerPanel .orbit-cosmic .orbit-cosmic-atmosphere{
+ opacity:.55!important;
+}
+body.role-student #studentContent .orbit-student-box{
+ border-radius:17px;padding:7px;
+ background:linear-gradient(180deg,#172c5a8a,#0e194d66);
+ box-shadow:inset 0 1px #d4e5ff22,0 0 20px #7569ff26;
+}
+@keyframes orbitDeepStars{
+ from{filter:brightness(.74)}
+ to{filter:brightness(1.24)}
+}
+@keyframes orbitDeepNebula{
+ from{transform:translate(-.9%,.4%) scale(1.01)}
+ to{transform:translate(1%,-.7%) scale(1.03)}
+}
+@keyframes orbitDeepConstellation{
+ from{opacity:.25}
+ to{opacity:.62}
+}
+@keyframes orbitDeepSpark{
+ 0%,100%{opacity:.2;transform:scale(.72)}
+ 50%{opacity:1;transform:scale(1.18)}
+}
+@keyframes orbitDeepComet{
+ 0%,90%{opacity:0;transform:translate(-230px,170px) rotate(-17deg)}
+ 90.8%{opacity:0;transform:translate(-160px,147px) rotate(-17deg)}
+ 91.8%{opacity:.9}
+ 98%{opacity:.82;transform:translate(1150px,-140px) rotate(-17deg)}
+ 100%{opacity:0;transform:translate(1370px,-190px) rotate(-17deg)}
+}
+@keyframes orbitDeepRingA{
+ from{transform:rotate(-8deg)}
+ to{transform:rotate(352deg)}
+}
+@keyframes orbitDeepRingB{
+ from{transform:rotate(13deg)}
+ to{transform:rotate(-347deg)}
+}
+@keyframes orbitDeepPlanet{
+ 0%,100%{filter:drop-shadow(0 0 7px #67cdff67) brightness(1)}
+ 50%{filter:drop-shadow(0 0 13px #a58cff9c) brightness(1.055)}
+}
+@keyframes orbitDeepCloud{
+ from{opacity:.40;transform:translateX(-2%) translateY(0)}
+ to{opacity:.64;transform:translateX(2%) translateY(1%)}
+}
+@keyframes orbitDeepHalo{
+ 0%,100%{opacity:.59;transform:scale(1)}
+ 50%{opacity:.87;transform:scale(1.025)}
+}
+@keyframes orbitDeepSatellite{
+ 0%,100%{transform:translateY(-50%) translateX(0)}
+ 50%{transform:translateY(calc(-50% - 3px)) translateX(1px)}
+}
+@keyframes orbitDeepMoon{
+ from{filter:brightness(1)}
+ to{filter:brightness(1.12)}
+}
+/* A11y: still, readable presentation for users who reduce motion. */
+@media(prefers-reduced-motion:reduce){
+ .orbit-public.orbit-cosmic::before,
+ .orbit-public.orbit-cosmic::after,
+ .orbit-cosmic .orbit-space::before,
+ .orbit-cosmic .orbit-space::after,
+ .orbit-cosmic .orbit-constellation-cluster,
+ .orbit-cosmic .orbit-space-spark,
+ .orbit-cosmic .orbit-shooting-star,
+ .orbit-cosmic .orbit-core,
+ .orbit-cosmic .orbit-core::before,
+ .orbit-cosmic .orbit-core::after,
+ .orbit-cosmic .orbit-satellite,
+ .orbit-cosmic .orbit-sat-moon{
+  animation:none!important;transition:none!important;
+ }
+}
