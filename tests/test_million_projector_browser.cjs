@@ -517,11 +517,12 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
     ladderLevel:0,lockedAnswer:'A',selectedAnswer:'A',publicCorrect:''});
    millionResolve(false);
   });
-  await screen.waitForFunction(()=>{
+  const zeroFrame=await screen.waitForFunction(()=>{
    const p=document.querySelector('.million-public.big .ms-million-final-results');
-   return p?.querySelector('.ms-million-final-prize strong')?.textContent==='0 POINTS';
+   if(p?.querySelector('.ms-million-final-prize strong')?.textContent!=='0 POINTS')return false;
+   return p.querySelector('.ms-million-final-description')?.textContent||false;
   },null,{timeout:12000});
-  const zero=await screen.evaluate(()=>document.querySelector('.million-public.big .ms-million-final-description')?.textContent||'No safe checkpoint was secured.');
+  const zero=await zeroFrame.jsonValue();
   assert.match(zero,/no safe checkpoint/i);
   // Returning to class clears the results; no previously earned prize is cached.
   teacher.on('dialog',dialog=>dialog.accept());
