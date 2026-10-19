@@ -149,7 +149,7 @@
     const ladder=Array.isArray(c.ladder)?c.ladder:[];
     const level=Math.min(ladder.length,Math.max(0,Number(m.ladderLevel)||0));
     const prize=level?Math.max(0,Number(ladder[level-1])||0):0;
-    metric("FINAL PRIZE","$"+prize.toLocaleString("en-US"));
+    metric("FINAL POINTS",prize.toLocaleString("en-US")+" PTS");
    }
   }else if(id==="bingo-game"){
    const g=r.bingo||{};
