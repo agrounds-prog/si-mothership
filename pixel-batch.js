@@ -286,20 +286,125 @@
    }
   };
  }
+ // Phase 4E: presentation-only cinematic HUD. Never place answers, accepted
+ // answers, teacher corrections, or guesses in the public signal overlay.
  const originalShared=typeof pixelSharedMarkup==='function'?pixelSharedMarkup:null;
  if(originalShared){
   pixelSharedMarkup=function(run,big){
-   const html=originalShared(run,big),images=run?.pixelConfig?.images;
-   if(!Array.isArray(images)||images.length<2||typeof html!=='string')return html;
-   const index=validIndex(run.pixelImageIndex,images.length);
-   const badge='<span class="pixel-batch-round-badge">IMAGE '+(index+1)+' / '+images.length+'</span>';
-   if(html.includes('<div class="pixel-public-head">'))
-    return html.replace('<div class="pixel-public-head">','<div class="pixel-public-head">'+badge);
-   if(html.includes('<div class="pixel-results">'))
-    return html.replace('<div class="pixel-results">','<div class="pixel-results">'+badge);
+   let html=originalShared(run,big);
+   const images=run?.pixelConfig?.images;
+   const rounds=Array.isArray(images)&&images.length?images.length:1;
+   const index=validIndex(run?.pixelImageIndex,rounds);
+   if(typeof html!=='string')return html;
+   // Keep the original round badge for teacher previews and legacy markup.
+   if(rounds>1){
+    const badge='<span class="pixel-batch-round-badge">IMAGE '+(index+1)+' / '+rounds+'</span>';
+    if(html.includes('<div class="pixel-public-head">'))
+     html=html.replace('<div class="pixel-public-head">','<div class="pixel-public-head">'+badge);
+    else if(html.includes('<div class="pixel-results">'))
+     html=html.replace('<div class="pixel-results">','<div class="pixel-results">'+badge);
+   }
+   if(!big)return html; // the teacher preview retains its polished controls
+   const focus=(run?.pixelConfig?.revealStyle||'tiles')==='focus';
+   const total=focus?10:(typeof pixelTotal==='function'?pixelTotal(run):0);
+   const remain=typeof pixelRemaining==='function'?pixelRemaining(run):0;
+   const done=Math.max(0,total-remain),pct=total?Math.round(100*done/total):100;
+   const finished=!!run.pixelRevealAll||remain===0;
+   const resultView=!!run.pixelShowResults&&!!run.pixelRevealAll;
+   const stageLabel='MYSTERY '+(index+1)+' OF '+rounds;
+   const marks=Array.from({length:rounds},(_,n)=>
+    '<span class="pixel-cinematic-round'+(n===index?' is-current':'')+
+    '"'+(n===index?' aria-current="step"':'')+' aria-label="Image '+(n+1)+
+    (n===index?', current':'')+'">'+(n+1)+'</span>').join('');
+   const preface='<div class="pixel-cinematic-mission">'+
+    '<span><i aria-hidden="true">✧</i> MOTHERSHIP · MYSTERY SIGNAL</span>'+
+    '<strong>'+stageLabel+'</strong></div>';
+   const meter='<div class="pixel-cinematic-hud">'+
+    '<div class="pixel-cinematic-hud-top"><strong>'+
+    (finished?'SIGNAL ACQUIRED':focus?'RESTORING IMAGE CLARITY':'DECODING THE HIDDEN IMAGE')+
+    '</strong><span>'+pct+'% VISIBLE</span></div>'+
+    '<div class="pixel-cinematic-track" role="progressbar" aria-label="'+
+    (focus?'Image clarity':'Mystery image revealed')+'" aria-valuemin="0" aria-valuemax="'+
+    total+'" aria-valuenow="'+done+'"><i style="width:'+pct+'%"></i></div>'+
+    '<div class="pixel-cinematic-hud-bottom"><span>'+
+    (finished?'ALL SECTIONS UNLOCKED':remain+' '+(focus?'CLARITY STEPS':'TILES')+' STILL HIDDEN')+
+    '</span><div class="pixel-cinematic-rounds" role="group" aria-label="Image rounds">'+
+    marks+'</div></div></div>';
+   if(resultView){
+    return html.replace('<div class="pixel-results">',
+     '<div class="pixel-results pixel-cinematic-results">'+preface+meter);
+   }
+   html=html.replace('<div class="pixel-public">',
+    '<div class="pixel-public pixel-cinematic-public">'+preface);
+   html=html.replace('<div class="pixel-public-head">',
+    meter+'<div class="pixel-public-head">');
+   // Image-unlocked signal appears only after the teacher has revealed all.
+   // It is not an answer reveal: answers stay behind the existing Results action.
+   const signal=finished?
+    '<div class="pixel-cinematic-acquired" aria-label="Mystery image unlocked">'+
+     '<span aria-hidden="true">✦</span> SIGNAL ACQUIRED <span aria-hidden="true">✦</span></div>':'';
+   html=html.replace('<div class="pixel-mystery-board">',
+    '<div class="pixel-mystery-board pixel-cinematic-board">'+signal);
+   html=html.replace('<div class="pixel-focus-board">',
+    '<div class="pixel-focus-board pixel-cinematic-board">'+signal);
    return html;
   };
  }
+ // Browser-local visual ledger: one-time animations, with no new server,
+ // persistence, or classroom-state fields. Redraws cannot reset these timers.
+ let cinematicRun='',cinematicLastRound=null;
+ const cinematicSeen=new Map(),cinematicNewTiles=new Map();
+ const cinematicRoundUntil=new Map(),cinematicFinalUntil=new Map(),
+       cinematicFocusUntil=new Map(),cinematicFocusSeen=new Map();
+ function enhanceCinematic(){
+  const run=typeof state!=='undefined'?state.activityRun:null;
+  if(!run||run.activityId!=='pixel-game'||run.phase!=='running')return;
+  const stages=document.querySelectorAll('.pixel-cinematic-public,.pixel-cinematic-results');
+  if(!stages.length)return;
+  const identity=String(run.runToken||run.pixelConfig?.name||'pixel-game');
+  if(identity!==cinematicRun){
+   cinematicRun=identity;cinematicLastRound=null;cinematicSeen.clear();
+   cinematicNewTiles.clear();cinematicRoundUntil.clear();cinematicFinalUntil.clear();
+   cinematicFocusUntil.clear();cinematicFocusSeen.clear();
+  }
+  const rounds=run.pixelConfig?.images?.length||1;
+  const i=validIndex(run.pixelImageIndex,rounds),key=identity+':'+i;
+  const now=performance.now(),focus=(run.pixelConfig?.revealStyle||'tiles')==='focus';
+  const revealed=new Set((run.pixelRevealed||[]).filter(n=>Number.isInteger(n)&&n>=0));
+  const previously=cinematicSeen.get(key);
+  const fully=!!run.pixelRevealAll;
+  if(previously){
+   const additions=[...revealed].filter(n=>!previously.has(n));
+   const newUntil=cinematicNewTiles.get(key)||new Map();
+   if(additions.length&&additions.length<=16&&!fully)
+    additions.forEach((n,j)=>newUntil.set(n,now+900+j*24));
+   cinematicNewTiles.set(key,newUntil);
+   if(fully&&!previously.full)cinematicFinalUntil.set(key,now+2000);
+  }else if(fully)cinematicFinalUntil.set(key,0); // restored, not a new celebration
+  const focusStage=Math.max(0,Math.min(10,Number(run.pixelFocusStage||0)));
+  if(cinematicFocusSeen.has(key)&&focusStage>cinematicFocusSeen.get(key))
+   cinematicFocusUntil.set(key,now+650);
+  cinematicFocusSeen.set(key,focusStage);
+  cinematicSeen.set(key,Object.assign(revealed,{full:fully}));
+  if(cinematicLastRound!==null&&cinematicLastRound!==key)
+   cinematicRoundUntil.set(key,now+850);
+  cinematicLastRound=key;
+  const animTiles=cinematicNewTiles.get(key)||new Map();
+  for(const [n,until] of animTiles)if(until<=now)animTiles.delete(n);
+  for(const stage of stages){
+   stage.classList.toggle('pixel-cinematic-arriving',(cinematicRoundUntil.get(key)||0)>now);
+   stage.classList.toggle('pixel-cinematic-celebrating',(cinematicFinalUntil.get(key)||0)>now);
+   stage.classList.toggle('pixel-cinematic-focus-up',(cinematicFocusUntil.get(key)||0)>now);
+   const tiles=stage.querySelectorAll('.pixel-cover-grid .pixel-cover');
+   tiles.forEach((tile,n)=>{
+    if(animTiles.has(n)&&tile.classList.contains('revealed')){
+     tile.classList.add('pixel-cinematic-dissolve');
+     tile.style.setProperty('--pixel-dissolve-delay',Math.min(n%8,7)*20+'ms');
+    }
+   });
+  }
+ }
+
  function enhanceStudent(){
   const run=typeof state!=='undefined'?state.activityRun:null;
   if(!run||run.activityId!=='pixel-game')return;
@@ -316,6 +421,7 @@
   if(typeof state==='undefined')return;
   if(state.screen==='activities'&&state.activeApp==='pixel')enhanceSetup();
   enhanceController();
+  enhanceCinematic();
   if(document.body?.classList.contains('role-student'))enhanceStudent();
  }
  function schedule(){
@@ -361,5 +467,5 @@
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
  else boot();
- window.SIPixelBatch={version:'1',upload,normalize,switchRound,snapshot,MAX_IMAGES};
+ window.SIPixelBatch={version:'4e',upload,normalize,switchRound,snapshot,enhanceCinematic,MAX_IMAGES};
 })();
