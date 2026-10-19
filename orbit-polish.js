@@ -43,7 +43,7 @@
    // The projector presents up to ten brief contributions as glowing planets.
    // Full-length text and larger classes use a scrollable, equally styled
    // gallery so no student's response is visually cut off or omitted.
-   if(big&&entries.length<=10&&entries.every(([,r])=>String(r?.text||'').length<=110))
+   if(big&&entries.length<=10&&entries.every(([,r])=>String(r?.text||'').length<=(noName(run)?62:47)))
     return satellites(entries,run);
    return gallery(entries,run);
   };
@@ -143,5 +143,10 @@
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
  else boot();
+ // A reopened live ORBIT could have rendered before this deferred stylesheet
+ // companion loaded. Repaint once to apply the new projector markup.
+ if(typeof state!=='undefined'&&state.activityRun?.activityId==='orbit-game'&&typeof render==='function'){
+  requestAnimationFrame(()=>render());
+ }
  window.SIOrbitPolish={enhance};
 })();
