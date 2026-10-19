@@ -5050,7 +5050,9 @@ async def index(request: web.Request) -> web.Response:
                          f'<link rel="stylesheet" href="/student-companion.css?v={STUDENT_COMPANION_ASSET_VERSION}">'
                          f'<link rel="stylesheet" href="/teacher-unified-controls.css?v={TEACHER_UNIFIED_ASSET_VERSION}">'
                          '<link rel="stylesheet" href="/orbit-polish.css?v=2">'
-                         '<script src="/orbit-polish.js?v=2" defer></script></head>', 1)
+                         '<link rel="stylesheet" href="/pixel-batch.css?v=1">'
+                         '<script src="/orbit-polish.js?v=2" defer></script>'
+                         '<script src="/pixel-batch.js?v=1" defer></script></head>', 1)
     # Insert before the final body close: index.html also contains HTML strings
     # in internal scripts, so replacing the first occurrence would corrupt JS.
     body_close = text.rfind("</body>")
@@ -6231,6 +6233,8 @@ def create_app() -> web.Application:
     app.router.add_get("/million-studio.css", lambda request: web.FileResponse(Path(__file__).with_name("million-studio.css"), headers={"Cache-Control": "no-store"}))
     app.router.add_get("/orbit-polish.js", lambda request: web.FileResponse(ROOT / "orbit-polish.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/orbit-polish.css", lambda request: web.FileResponse(ROOT / "orbit-polish.css", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/pixel-batch.js", lambda request: web.FileResponse(ROOT / "pixel-batch.js", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/pixel-batch.css", lambda request: web.FileResponse(ROOT / "pixel-batch.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/orbit-nebula.svg", lambda request: web.FileResponse(ROOT / "orbit-nebula.svg", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/word-grid.js", lambda request: web.FileResponse(ROOT / "word-grid.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/word-grid.css", lambda request: web.FileResponse(ROOT / "word-grid.css", headers={"Cache-Control": "no-store"}))
