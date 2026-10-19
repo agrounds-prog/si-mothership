@@ -121,6 +121,15 @@
     enhanced=enhanced.replace('<div class="orbit-space">',
      '<div class="orbit-space" data-orbit-waiting="true"><span class="orbit-wait-caption">◎ IDEAS WILL APPEAR AROUND THIS PLANET</span>');
    }
+   // Spotlight remains the teacher's native selected response. The
+   // broadcast frame is decoration only; it never changes the selected idea
+   // or reveals a name while anonymous mode is active.
+   if(run?.orbitSpotlight&&responses[run.orbitSpotlight]){
+    enhanced=enhanced.replace('<div class="orbit-spotlight">',
+     '<div class="orbit-spotlight orbit-spotlight-broadcast">'+
+     '<div class="orbit-focus-rings" aria-hidden="true"><i></i><i></i><i></i></div>'+
+     '<div class="orbit-broadcast-heading" aria-hidden="true">✦ CREW IDEA SPOTLIGHT ✦</div>');
+   }
    return enhanced;
   };
  }
