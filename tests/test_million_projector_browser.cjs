@@ -158,6 +158,25 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.deepEqual(fifty.labels,['SIGNAL REMOVED','SIGNAL REMOVED']);
   assert.match(fifty.banner,/50\/50 ACTIVATED/);
   assert.equal(fifty.noKey,true,'no correct answer leaked to shared screen');
+  // Phase 3H: genuine 50/50 inventory consumption triggers a read-only
+  // decorative cue. The eliminated cards and answer key remain native.
+  await screen.waitForFunction(()=>{
+   const flash=document.querySelector('#msMillionLifelineCue');
+   return flash?.dataset.lifeline==='reduce'&&flash.classList.contains('is-visible');
+  },null,{timeout:7000});
+  const lifeCue=await screen.evaluate(()=>{
+   const flash=document.querySelector('#msMillionLifelineCue');
+   const ring=flash.querySelector('.ms-million-lifeline-ring');
+   return {label:flash.textContent,role:flash.getAttribute('role'),
+    type:flash.dataset.lifeline,beats:flash.querySelectorAll('.ms-million-lifeline-beats i').length,
+    pointer:getComputedStyle(flash).pointerEvents,animation:getComputedStyle(ring).animationName};
+  });
+  assert.equal(lifeCue.type,'reduce');
+  assert.equal(lifeCue.beats,4,'four visible pulse lights on consumed lifeline');
+  assert.equal(lifeCue.pointer,'none');
+  assert.match(lifeCue.label,/50\/50 ACTIVATED/);
+  assert.match(lifeCue.animation,/ms3h-lifeline-entry/);
+
   const lifelineDrama=await screen.evaluate(()=>{
    const root=document.querySelector('.million-public.big');
    const activated=root.querySelector('.million-5050-banner');
@@ -347,6 +366,19 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.deepEqual(finaleHUD,{finalFlag:'false',progress:'true',questionHidden:'none'},
    'jackpot state ends the question spotlight and hides redundant stage header');
   assert.equal(finale.aria,'true');
+  const coronation=await screen.evaluate(()=>{
+   const board=document.querySelector('.million-public.big .ms-million-final-results');
+   const crown=board.querySelector('.ms-million-victory-corona');
+   return {champion:board.classList.contains('is-champion'),
+    decoration:crown?.getAttribute('aria-hidden'),
+    stars:crown?.querySelectorAll('span').length,
+    animation:crown?getComputedStyle(crown).animationName:''};
+  });
+  assert.equal(coronation.champion,true);
+  assert.equal(coronation.decoration,'true');
+  assert.equal(coronation.stars,5);
+  assert.match(coronation.animation,/ms3h-corona-bloom/);
+
   assert.match(finale.sparks,/✦/);
   assert.match(finale.banner,/MISSION COMPLETE/);
   assert.ok(finale.bannerBorder>=2&&finale.earned===5);
@@ -456,6 +488,12 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   await teacher.waitForFunction(()=>!state.activityRun||state.activityRun.activityId!=='million-game',
    null,{timeout:12000});
   await screen.waitForFunction(()=>!document.querySelector('.million-public.big .ms-million-final-results'),null,{timeout:12000});
+  const clearedLifeline=await screen.evaluate(()=>{
+   const cue=document.querySelector('#msMillionLifelineCue');
+   return !cue||!cue.classList.contains('is-visible');
+  });
+  assert.equal(clearedLifeline,true,'lifeline visuals clear on return to class');
+
   assert.equal(errors.length,0,'browser JS errors: '+JSON.stringify(errors));
   console.log(JSON.stringify({test:'MILLION five-question teacher/projector multiplayer, Phase 3A.2 cinematic finale, 50/50 and classic-risk stop',first,phase3Visual,finale,fifty,pilot50,layout,ended,pageErrors:errors}));
   // Leave the isolated app clean so unrelated SI+ and Activity Library smoke
