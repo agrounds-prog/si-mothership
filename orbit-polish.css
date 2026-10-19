@@ -1432,7 +1432,7 @@ body.role-shared .orbit-public.orbit-cosmic .orbit-focus-rings i:nth-child(3){an
  border-radius:50%!important;opacity:.9!important;
  box-shadow:0 0 9px color-mix(in srgb,var(--solar-glow) 43%,transparent),
             inset 0 0 7px color-mix(in srgb,var(--solar-glow) 20%,transparent);
- pointer-events:none;inset:auto!important;
+ pointer-events:none;
 }
 .orbit-solar-track .orbit-solar-path-a{
  width:72%;height:36%;transform:translate(-50%,-50%) rotate(18deg);
