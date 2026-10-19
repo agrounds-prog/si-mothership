@@ -211,6 +211,13 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
   await page.mouse.wheel(0,1200);
   await page.waitForFunction(()=>document.querySelector('#studentContent')?.scrollTop>75,
    null,{timeout:5500});
+  await page.mouse.wheel(0,1200);
+  await page.waitForFunction(()=>{
+   const box=document.querySelector('#studentContent'),button=box?.querySelector('#millionLockBtn');
+   if(!button)return false;
+   const r=box.getBoundingClientRect(),b=button.getBoundingClientRect();
+   return b.top>=r.top-5&&b.bottom<=r.bottom+5;
+  },null,{timeout:6000});
   const scrolled=await page.evaluate(()=>{
    const box=document.querySelector('#studentContent'),br=box.getBoundingClientRect();
    const fourth=box.querySelector('.million-student-choice:last-child')?.getBoundingClientRect();
