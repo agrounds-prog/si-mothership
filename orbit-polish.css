@@ -1,0 +1,211 @@
+/* Orbit Phase 1 — classroom-ready setup, large-group projected ideas and Zoom response seat.
+   Only ORBIT surfaces; does not change the native response or game engine. */
+#teacher .orbit-setup{
+ border:2px solid #6c6cb9!important;border-radius:21px!important;
+ background:radial-gradient(ellipse at 92% 0%,#6551a744,transparent 58%),
+  linear-gradient(145deg,#152451,#09152c 82%)!important;
+ box-shadow:0 13px 35px #0006,inset 0 1px #d5d2ff30!important;
+}
+#teacher .orbit-setup-grid{align-items:start!important;gap:15px!important}
+#teacher .orbit-setup .orbit-card,
+#teacher #activityControllerPanel .orbit-control-card{
+ min-width:0;border:1px solid #7f81bb!important;border-radius:16px!important;
+ background:linear-gradient(147deg,#1a2755,#0a1734 76%)!important;
+ box-shadow:inset 0 1px #e5dfff2b!important;
+}
+#teacher .orbit-setup .orbit-card h3{font-size:clamp(23px,2.3vw,32px);color:#fff;line-height:1.17}
+#teacher .orbit-setup .orbit-card h4{font-size:clamp(17px,1.45vw,22px);color:#e5dcff}
+#teacher .orbit-setup .vector-label{display:block;margin:14px 0 7px;font-size:12px;font-weight:900;color:#d4d7ff;letter-spacing:.045em}
+#teacher .orbit-setup #orbitName,
+#teacher .orbit-setup #orbitPrompt{
+ width:100%!important;min-height:48px;padding:12px 14px!important;
+ border:2px solid #616fa4!important;border-radius:12px!important;
+ background:#0a1633!important;color:#fff!important;
+ font-size:15px!important;line-height:1.45!important;
+}
+#teacher .orbit-setup #orbitPrompt{min-height:158px!important;font-size:18px!important;resize:vertical!important}
+#teacher .orbit-prompt-count{margin:7px 2px 12px;color:#b3c8e5;font:800 11px/1.35 system-ui,sans-serif}
+#teacher .orbit-mode-row{gap:11px!important;margin:13px 0!important}
+#teacher .orbit-mode{
+ min-height:86px!important;padding:12px!important;border:2px solid #545f9d!important;
+ border-radius:13px!important;background:#152551!important;color:#e6edff!important;
+ font-size:13px!important;white-space:normal!important;
+}
+#teacher .orbit-mode.active{
+ border-color:#a4f3d8!important;
+ background:linear-gradient(130deg,#215d68,#163d67)!important;
+ box-shadow:0 0 0 2px #8df4d01b,inset 0 1px #dcfff648!important;
+}
+#teacher .orbit-mode small{font-size:11px!important;line-height:1.35;color:#c0cbea!important}
+#teacher .orbit-save-row{display:flex!important;flex-wrap:wrap!important;gap:8px!important}
+#teacher .orbit-save-row button{
+ min-height:47px!important;min-width:125px!important;flex:1 1 125px!important;
+ padding:10px 12px!important;border-radius:11px!important;
+ border:1px solid #829bd2!important;background:#203d73!important;
+ color:#f3f8ff!important;font-weight:950!important;font-size:13px!important;
+}
+#teacher .orbit-save-row .orbit-launch{
+ border-color:#a4f6dd!important;background:linear-gradient(120deg,#37e8bf,#199ac6)!important;
+ color:#062b3f!important;box-shadow:0 3px #07677a!important;margin:0!important;
+}
+#teacher .orbit-saved-list{max-height:310px;overflow-y:auto;scrollbar-color:#779bd0 #111f46}
+#teacher .orbit-saved-row{background:#131f47!important;border:1px solid #626ba9!important;min-width:0}
+#teacher .orbit-saved-row>div:first-child{min-width:0;overflow-wrap:anywhere}
+#teacher .orbit-saved-row small{font-size:11px!important;color:#c4cbea!important;line-height:1.35!important}
+#teacher .orbit-saved-row button{min-height:40px;min-width:42px;font-size:12px}
+#teacher .orbit-setup :is(button,input,textarea):focus-visible,
+#teacher #activityControllerPanel .orbit-controller :is(button,select):focus-visible{
+ outline:3px solid #ffdd9b!important;outline-offset:2px!important;
+}
+/* 7+ ideas: keep every student response instead of overlapping the center and
+   clipping all ideas after #16. Long responses scroll INSIDE the gallery. */
+.orbit-space:has(>.orbit-idea-gallery){
+ display:grid!important;grid-template-rows:auto minmax(0,1fr)!important;
+ justify-items:stretch!important;align-items:stretch!important;
+ gap:12px!important;min-height:0;padding:clamp(10px,1.4vw,21px)!important;
+ background:radial-gradient(ellipse at 50% 0%,#453574,#12244a 55%,#070e25)!important;
+}
+.orbit-space:has(>.orbit-idea-gallery)::before,
+.orbit-space:has(>.orbit-idea-gallery)::after{pointer-events:none;opacity:.3}
+.orbit-space:has(>.orbit-idea-gallery)>.orbit-core{
+ position:relative!important;left:auto!important;top:auto!important;
+ transform:none!important;z-index:2!important;flex:0 0 auto!important;
+ min-width:0!important;width:100%!important;aspect-ratio:auto!important;
+ min-height:62px!important;max-height:150px!important;overflow:auto!important;
+ padding:12px 18px!important;border-radius:15px!important;
+ border:2px solid #a6b8ff!important;
+ background:linear-gradient(125deg,#242d69,#343879,#192253)!important;
+}
+.orbit-space:has(>.orbit-idea-gallery)>.orbit-core h3{
+ margin:0!important;color:#fff!important;
+ font:950 clamp(15px,1.55vw,25px)/1.24 system-ui,sans-serif!important;
+ overflow-wrap:anywhere;text-wrap:balance;
+}
+.orbit-idea-gallery{
+ position:relative;z-index:2;display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(min(100%,215px),1fr));
+ grid-auto-rows:minmax(106px,auto);align-content:start;
+ gap:clamp(8px,1vw,13px);min-width:0;min-height:0;
+ height:100%;width:100%;padding:3px 8px 15px 3px;
+ overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
+ scrollbar-color:#9ba8e9 #101a38;scrollbar-width:thin;
+}
+.orbit-idea-gallery .orbit-gallery-card{
+ display:flex;align-items:flex-start;gap:10px;
+ min-width:0;min-height:104px;
+ padding:12px;border:1px solid #818ad4;border-radius:13px;
+ background:linear-gradient(146deg,#243a72,#15294f 80%);
+ box-shadow:inset 0 1px #c8ccff33,0 4px 12px #0004;
+ color:#eef7ff;
+}
+.orbit-gallery-number{
+ display:grid;place-items:center;flex:0 0 32px;
+ width:32px;height:32px;border-radius:9px;
+ border:1px solid #acd4ff;background:#365ca2;color:#f7f8ff;
+ font:950 12px/1 system-ui,sans-serif;
+}
+.orbit-gallery-copy{min-width:0;flex:1}
+.orbit-gallery-author{
+ display:block;margin-bottom:5px;color:#a9ffe6;
+ font:900 11px/1.3 system-ui,sans-serif;letter-spacing:.04em;
+ overflow-wrap:anywhere;
+}
+.orbit-gallery-copy p{
+ color:#f2f7ff!important;font:750 clamp(12px,1.08vw,16px)/1.4 system-ui,sans-serif;
+ margin:0!important;overflow-wrap:anywhere;white-space:pre-wrap;
+}
+body.role-shared .orbit-space:has(>.orbit-idea-gallery){
+ width:min(1140px,97%)!important;height:min(650px,65vh)!important;
+}
+body.role-shared .orbit-idea-gallery{grid-template-columns:repeat(3,minmax(0,1fr))}
+body.role-shared .orbit-idea-gallery .orbit-gallery-card{
+ min-height:116px;padding:13px;
+}
+body.role-shared .orbit-gallery-copy p{font-size:clamp(13px,1.2vw,17px)!important}
+body.role-shared .orbit-count{
+ color:#eff4ff!important;border-color:#9ca3df!important;
+ background:#222a5e!important;font-size:clamp(11px,1vw,15px)!important;
+}
+#teacher #activityControllerPanel .orbit-control-card .orbit-space:has(>.orbit-idea-gallery){
+ width:100%!important;height:clamp(260px,36vh,460px)!important;
+}
+#teacher #activityControllerPanel .orbit-idea-gallery{
+ grid-template-columns:repeat(2,minmax(0,1fr));
+}
+#teacher #activityControllerPanel .orbit-gallery-card{padding:9px;min-height:82px}
+#teacher #activityControllerPanel .orbit-gallery-copy p{font-size:12px!important}
+#teacher #activityControllerPanel .orbit-controller{gap:14px}
+#teacher #activityControllerPanel .orbit-control-grid button{
+ min-height:44px;padding:8px 10px;font-size:12px;
+}
+#teacher #activityControllerPanel .orbit-response-row b{font-size:13px}
+#teacher #activityControllerPanel .orbit-response-row p{
+ font-size:12px;line-height:1.45;color:#d1dff2;
+}
+#teacher #activityControllerPanel .si-orbit-participation{
+ padding:11px;margin:0 0 13px;border:1px solid #748bd2;
+ border-radius:11px;background:linear-gradient(120deg,#182f66,#13244d);
+}
+#teacher #activityControllerPanel .si-orbit-participation-label{
+ display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;
+ margin-bottom:8px;font:900 12px/1.3 system-ui,sans-serif;
+ color:#f3f8ff;
+}
+#teacher #activityControllerPanel .si-orbit-participation-label span{
+ color:#a5efcf;font-size:10px;letter-spacing:.05em;
+}
+#teacher #activityControllerPanel .si-orbit-track{
+ display:block;width:100%;height:10px;background:#091329;
+ border:1px solid #728fc0;border-radius:99px;overflow:hidden;
+}
+#teacher #activityControllerPanel .si-orbit-track i{
+ display:block;height:100%;border-radius:99px;
+ background:linear-gradient(90deg,#39c9e6,#72edc5);
+ transition:width .28s ease;
+}
+#teacher #activityControllerPanel .si-orbit-participation[data-phase="paused"]{
+ border-color:#eab876;
+}
+#teacher #activityControllerPanel .si-orbit-participation[data-phase="paused"] .si-orbit-participation-label span{
+ color:#ffe1a0;
+}
+/* Compact student text composition stays scrollable; do not move the send
+   button away from the native student controls. */
+body.role-student #studentContent:has(#orbitStudentText){
+ overflow-y:auto!important;overscroll-behavior:contain!important;
+ touch-action:pan-y pinch-zoom;
+}
+body.role-student #studentContent .orbit-student-box{min-width:0;width:100%!important}
+body.role-student #studentContent #orbitStudentText{
+ min-height:150px!important;max-height:270px!important;width:100%!important;
+ border:2px solid #94a6ee!important;border-radius:14px!important;
+ background:#101d45!important;color:#fff!important;
+ padding:13px!important;font:750 16px/1.5 system-ui,sans-serif!important;
+ touch-action:auto!important;resize:vertical!important;
+}
+body.role-student #studentContent #orbitCharCount{
+ color:#c3d0f4!important;font-size:12px!important;font-weight:850!important;
+}
+body.role-student #studentContent .orbit-transmitted{
+ border:2px solid #a5f6d5!important;background:linear-gradient(128deg,#184d55,#173a67)!important;
+ color:#fff!important;line-height:1.5!important;
+}
+body.role-student .orbit-student-controls button{
+ min-height:56px!important;border:2px solid #a5ebdf!important;
+ border-radius:13px!important;background:#11665f!important;
+ color:#faffff!important;font-weight:950!important;
+}
+@media(max-width:900px){
+ body.role-shared .orbit-idea-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:570px){
+ body.role-shared .orbit-idea-gallery,
+ #teacher #activityControllerPanel .orbit-idea-gallery{grid-template-columns:1fr}
+ #teacher .orbit-mode-row{grid-template-columns:1fr}
+ #teacher .orbit-save-row{flex-direction:column}
+ #teacher .orbit-save-row button{width:100%!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .orbit-public::before{animation:none!important}
+ .si-orbit-track i{transition:none!important}
+}
