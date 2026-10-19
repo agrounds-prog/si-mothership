@@ -1,4 +1,5 @@
 /* SI Mothership MATCH Set Studio v2. Content authoring only; game runtime remains unchanged. */
+let matchBuilderSearch='';
 function matchBuilderMode(){return ['images','pairs','quick'].includes(matchDraft.editorMode)?matchDraft.editorMode:'images'}
 function matchBuilderAssetIds(){return (matchDraft.selectedImages||[]).filter((id,i,ids)=>ids.indexOf(id)===i&&gameImageLibrary.some(a=>a.id===id)).slice(0,24)}
 function matchBuilderImageCount(){return Math.max(4,Math.min(24,Number(matchDraft.imageCount||12)))}
@@ -107,14 +108,17 @@ function matchBuilderSettingsMarkup(){
     '<div class="mcb-crew">'+crew+'</div></div>';
 }
 function matchBuilderSavedMarkup(){
-  return '<div class="mcb-card mcb-saved"><h3>REUSABLE MATCH SETS</h3><div class="mcb-saved-list">'+
-    (matchSets.length?matchSets.map(s=>'<div class="mcb-saved-set"><div><b>'+matchBuilderEsc(s.name)+'</b><small>'+
+  return '<div class="mcb-card mcb-saved"><h3>REUSABLE MATCH SETS</h3>'+
+   '<div class="mcb-saved-search"><label for="mcbFindSet">FIND A SET<input id="mcbFindSet" type="search" autocomplete="off" placeholder="Search saved MATCH sets" value="'+matchBuilderEsc(matchBuilderSearch)+'"></label>'+
+   '<span id="mcbSavedSummary" role="status" aria-live="polite"></span></div>'+
+   '<div class="mcb-saved-list">'+
+    (matchSets.length?matchSets.map(s=>'<div class="mcb-saved-set" data-mcb-search-name="'+matchBuilderEsc(String(s.name||'').toLocaleLowerCase())+'"><div><b>'+matchBuilderEsc(s.name)+'</b><small>'+
       (s.pairs?.length||0)+' pairs · '+((s.pairs?.length||0)*2)+' cards</small></div>'+
       '<button type="button" data-mcb-load="'+matchBuilderEsc(s.id)+'">Edit</button>'+
       '<button type="button" data-mcb-copyset="'+matchBuilderEsc(s.id)+'">Duplicate</button>'+
       '<button type="button" data-mcb-launch="'+matchBuilderEsc(s.id)+'">Launch</button>'+
       '<button type="button" data-mcb-delete="'+matchBuilderEsc(s.id)+'" aria-label="Delete '+matchBuilderEsc(s.name)+'">×</button></div>').join(''):
-      '<div class="mcb-empty">Your saved MATCH sets appear here.</div>')+'</div></div>';
+      '<div class="mcb-empty">Your saved MATCH sets appear here.</div>')+'</div><p id="mcbSavedNoMatch" hidden>No saved sets match that search.</p></div>';
 }
 function matchBuilderMarkup(){
   const mode=matchBuilderMode(),count=matchBuilderPairs().length,images=matchBuilderAssetIds().length;
@@ -124,13 +128,13 @@ function matchBuilderMarkup(){
     '<div class="mcb-hero-stats"><span><strong id="mcbPairCount">'+count+'</strong> PAIRS</span>'+
     '<span><strong id="mcbCardCount">'+(count*2)+'</strong> CARDS</span></div></div>'+
     '<div class="mcb-layout"><section class="mcb-main mcb-card">'+
-    '<div class="mcb-name-row"><label>GAME SET NAME<input id="matchSetName" value="'+matchBuilderEsc(matchDraft.name||'')+'" placeholder="e.g. Kitchen Tools"></label>'+
+    '<div class="mcb-name-row"><label>GAME SET NAME<input id="matchSetName" value="'+matchBuilderEsc(matchDraft.name||'')+'" placeholder="e.g. Kitchen Tools"></label><button type="button" id="mcbNewBlank">＋ New Blank Set</button>'+
     (matchDraft.editingSetId?'<span class="mcb-editing">EDITING SAVED SET</span>':'')+'</div>'+
     '<div class="mcb-modes" role="tablist" aria-label="MATCH creation methods">'+
     [['images','▧ IMAGE SET','Upload pictures and auto-pair'],['pairs','◫ PAIR BUILDER','Word↔Picture and custom pairs'],['quick','✎ QUICK TEXT','Paste or type pairs']].map(x=>
       '<button type="button" role="tab" aria-selected="'+(mode===x[0]?'true':'false')+'" class="'+(mode===x[0]?'active':'')+'" data-mcb-mode="'+x[0]+'"><b>'+x[1]+'</b><small>'+x[2]+'</small></button>').join('')+'</div>'+
     '<div class="mcb-editor">'+(mode==='images'?matchBuilderLibraryMarkup():mode==='pairs'?matchBuilderManualMarkup():matchBuilderQuickMarkup())+'</div>'+
-    '<div class="mcb-main-actions"><button type="button" id="mcbSave">'+(matchDraft.editingSetId?'Save Changes':'Save Set')+'</button>'+
+    '<div class="mcb-main-actions"><button type="button" id="mcbSave">'+(matchDraft.editingSetId?'Save Changes':'Save Set')+'</button>'+(matchDraft.editingSetId?'<button type="button" id="mcbSaveCopy">Save as New Copy</button>':'')+
     '<button type="button" id="mcbSaveLaunch">▶ Save & Launch MATCH</button></div></section>'+
     '<aside class="mcb-sidebar"><div class="mcb-card mcb-preview" id="mcbPreview">'+matchBuilderPreviewMarkup()+'</div>'+
     matchBuilderSettingsMarkup()+matchBuilderSavedMarkup()+'</aside></div></div>';
@@ -143,6 +147,40 @@ function matchBuilderRefreshPreview(){
   if(p)p.textContent=count;if(c)c.textContent=count*2;
   const title=document.querySelector('.mcb-hero-text h2');
   if(title)title.textContent=matchDraft.name||'Create MATCH Game';
+}
+function matchBuilderRefreshSavedSearch(){
+  const input=document.querySelector('#mcbFindSet');
+  if(!input)return;
+  const query=matchBuilderSearch.trim().toLocaleLowerCase();
+  const cards=[...document.querySelectorAll('.mcb-saved-list .mcb-saved-set')];
+  let visible=0;
+  for(const card of cards){
+    const show=!query||(card.dataset.mcbSearchName||'').includes(query);
+    card.hidden=!show;if(show)visible++;
+  }
+  const summary=document.querySelector('#mcbSavedSummary');
+  if(summary)summary.textContent=visible+' of '+cards.length+' saved sets';
+  const empty=document.querySelector('#mcbSavedNoMatch');
+  if(empty)empty.hidden=visible!==0;
+}
+function matchBuilderNewBlank(){
+  const hasWork=!!String(matchDraft.name||'').trim()||matchBuilderPairs().length>0||
+    (matchDraft.manualPairs||[]).length>0;
+  if(hasWork&&!confirm('Start a blank MATCH set? Unsaved edits to the current set will be lost. Saved sets are preserved.'))return;
+  matchDraft.name='';matchDraft.editorMode='quick';matchDraft.quick='';
+  matchDraft.manualPairs=[];matchDraft.selectedImages=[];matchDraft.editingSetId='';
+  renderActivities();
+  toast('New blank MATCH set ready. Your saved sets and images are unchanged.');
+}
+function matchBuilderSaveCopy(){
+  if(!matchDraft.editingSetId)return;
+  const priorId=matchDraft.editingSetId,priorName=matchDraft.name;
+  matchDraft.editingSetId='';
+  matchDraft.name=('Copy of '+String(priorName||'MATCH Set')).slice(0,80);
+  const saved=saveMatchDraft();
+  if(!saved){matchDraft.editingSetId=priorId;matchDraft.name=priorName;renderActivities();return}
+  renderActivities();
+  toast('MATCH copy saved as a separate set. The original is unchanged.');
 }
 function matchBuilderSetMode(mode){
   if(!['images','pairs','quick'].includes(mode))return;
@@ -194,6 +232,11 @@ function matchBuilderDuplicateSet(id){
 }
 function matchBuilderWire(){
   const q=id=>document.querySelector(id),all=sel=>[...document.querySelectorAll(sel)];
+  const find=q('#mcbFindSet');
+  if(find)find.oninput=e=>{matchBuilderSearch=e.target.value;matchBuilderRefreshSavedSearch()};
+  matchBuilderRefreshSavedSearch();
+  const newBlank=q('#mcbNewBlank');if(newBlank)newBlank.onclick=matchBuilderNewBlank;
+  const saveCopy=q('#mcbSaveCopy');if(saveCopy)saveCopy.onclick=matchBuilderSaveCopy;
   const name=q('#matchSetName');
   if(name)name.oninput=e=>{matchDraft.name=e.target.value;matchBuilderRefreshPreview()};
   all('[data-mcb-mode]').forEach(btn=>btn.onclick=()=>matchBuilderSetMode(btn.dataset.mcbMode));
