@@ -567,9 +567,9 @@ body.role-shared .pixel-cinematic-public .pixel-public-head h3{
 .pixel-cinematic-results .pixel-mystery-board,
 .pixel-cinematic-results .pixel-focus-board{
  position:relative;
- width:min(100%,calc(59dvh * 1.6),1080px)!important;
+ width:min(100%,calc(48dvh * 1.6),1080px)!important;
  max-width:none!important;aspect-ratio:16/10;
- max-height:59dvh;
+ max-height:48dvh;
  margin:0 auto!important;
  border:2px solid #80d8ff!important;border-radius:17px!important;
  overflow:hidden;
@@ -593,7 +593,7 @@ body.role-shared .pixel-cinematic-public .pixel-public-head h3{
 }
 .pixel-cinematic-public .pixel-cover.revealed,
 .pixel-cinematic-results .pixel-cover.revealed{
- opacity:0!important;transform:scale(.68);pointer-events:none;
+ opacity:0;transform:scale(.68);pointer-events:none;
 }
 .pixel-cinematic-public .pixel-remaining{
  text-align:center!important;margin:10px auto 0!important;
