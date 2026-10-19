@@ -2162,3 +2162,68 @@ body.role-student #studentContent .si-mf-scroll .minefield-cell.selectable{
   min-height:52px!important;font-size:clamp(12px,3vw,14px)!important;
  }
 }
+
+
+/* MILLION student Zoom scroll recovery (2026-10-19).
+   The desktop body/device remain cropped; the active MILLION content alone is
+   the vertical scroll surface. Keep all four native choices and actions in
+   normal document flow so a 330×610 sidecar can reach A through D.
+   Touches beginning on a large answer button must still permit pan-y. */
+body.role-student #student #studentContent:has(.million-student){
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:stretch!important;
+ justify-content:flex-start!important;
+ flex:1 1 0%!important;
+ min-height:0!important;
+ height:auto!important;
+ max-height:100%!important;
+ overflow-x:hidden!important;
+ overflow-y:scroll!important;
+ overscroll-behavior-y:contain!important;
+ touch-action:pan-y pinch-zoom!important;
+ -webkit-overflow-scrolling:touch!important;
+ scroll-padding-block:8px 25px;
+ padding-bottom:24px!important;
+ scrollbar-width:auto!important;
+ scrollbar-color:#7ae3f4 #0b2641;
+}
+body.role-student #student #studentContent .million-student{
+ flex:0 0 auto!important;
+ align-self:stretch!important;
+ height:max-content!important;
+ max-height:none!important;
+ min-height:0!important;
+ overflow:visible!important;
+ touch-action:pan-y pinch-zoom!important;
+ padding-bottom:16px!important;
+}
+body.role-student #student #studentContent .million-student-choices{
+ height:auto!important;
+ max-height:none!important;
+ overflow:visible!important;
+ touch-action:pan-y pinch-zoom!important;
+}
+body.role-student #student #studentContent .million-student-choice,
+body.role-student #student #studentContent .million-student-choice :is(b,span){
+ touch-action:pan-y pinch-zoom!important;
+}
+body.role-student #student #studentContent .million-student-actions{
+ position:static!important;
+ inset:auto!important;
+ z-index:auto!important;
+ margin-top:12px!important;
+ padding:9px 0!important;
+ touch-action:pan-y pinch-zoom!important;
+}
+body.role-student #student #studentContent .million-student-actions button{
+ touch-action:pan-y pinch-zoom!important;
+}
+@media(max-width:390px),(max-height:680px){
+ body.role-student #student #studentContent:has(.million-student){
+  padding-bottom:26px!important;
+ }
+ body.role-student #student #studentContent .million-student-choices{
+  gap:9px!important;
+ }
+}
