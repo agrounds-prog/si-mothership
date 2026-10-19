@@ -358,6 +358,81 @@ function installMillionStageCues(){
 }
 installMillionStageCues();
 
+/* Phase 3H · decorative, state-driven lifeline spotlights. Never mutates
+   gameplay, answer keys, inventory, checkpoints, or stored sessions. */
+function installMillionLifelineCues(){
+ if(new URLSearchParams(location.search).get('role')!=='shared')return;
+ const labels={
+  reduce:['50/50 ACTIVATED','TWO SIGNALS ELIMINATED','◈'],
+  poll:['CREW POLL ACTIVATED','THE CREW HAS SPOKEN','◉'],
+  clue:['MOTHERSHIP CLUE','A NEW HINT IS AVAILABLE','✧'],
+  tryAgain:['SECOND CHANCE','ONE MORE OPPORTUNITY','↺']
+ };
+ let lastQuestion='',lastInventory=null,lastRemoved=0,shown=null,timeout=0,pending=false;
+ function clear(){
+  clearTimeout(timeout);
+  if(shown){shown.classList.remove('is-visible');shown.setAttribute('aria-hidden','true')}
+ }
+ function show(kind){
+  const data=labels[kind];
+  if(!data)return;
+  if(!shown?.isConnected){
+   shown=document.createElement('div');
+   shown.id='msMillionLifelineCue';shown.className='ms-million-lifeline-cue';
+   shown.setAttribute('role','status');shown.setAttribute('aria-live','polite');
+   shown.setAttribute('aria-atomic','true');shown.setAttribute('aria-hidden','true');
+   document.body.append(shown);
+  }
+  shown.dataset.lifeline=kind;
+  const ring=document.createElement('span');
+  ring.className='ms-million-lifeline-ring';ring.setAttribute('aria-hidden','true');ring.textContent=data[2];
+  const words=document.createElement('span');words.className='ms-million-lifeline-copy';
+  const title=document.createElement('strong');title.textContent=data[0];
+  const subtitle=document.createElement('small');subtitle.textContent=data[1];
+  words.append(title,subtitle);
+  const beats=document.createElement('span');beats.className='ms-million-lifeline-beats';
+  beats.setAttribute('aria-hidden','true');
+  for(let i=0;i<4;i++)beats.append(document.createElement('i'));
+  shown.replaceChildren(ring,words,beats);
+  shown.classList.remove('is-visible');void shown.offsetWidth;
+  shown.classList.add('is-visible');shown.setAttribute('aria-hidden','false');
+  clearTimeout(timeout);timeout=setTimeout(clear,1950);
+ }
+ function sync(){
+  pending=false;
+  const run=typeof state==='undefined'?null:state.activityRun;
+  if(!run||run.activityId!=='million-game'||run.phase!=='running'||
+    !document.querySelector('.million-public.big')){
+   clear();lastQuestion='';lastInventory=null;lastRemoved=0;return;
+  }
+  const m=run.million||{},question=String(run.runToken||'')+':'+String(m.questionIndex||0);
+  const inventory={};
+  for(const key of Object.keys(labels))inventory[key]=Math.max(0,Number(m.inventory?.[key]||0));
+  const removed=Array.isArray(m.eliminated)?m.eliminated.length:0;
+  if(question!==lastQuestion){
+   clear();lastQuestion=question;lastInventory=inventory;lastRemoved=removed;return;
+  }
+  if(lastInventory){
+   let used=null;
+   if(removed>=2&&lastRemoved<2)used='reduce';
+   else for(const key of ['reduce','poll','clue','tryAgain']){
+    if(inventory[key]<lastInventory[key]){used=key;break}
+   }
+   if(used)show(used);
+  }
+  lastInventory=inventory;lastRemoved=removed;
+ }
+ function queue(){if(pending)return;pending=true;requestAnimationFrame(sync)}
+ function start(){
+  if(!document.body)return;
+  new MutationObserver(queue).observe(document.body,{childList:true,subtree:true,characterData:true});
+  setInterval(queue,420);queue();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+ else start();
+}
+installMillionLifelineCues();
+
 
 /* Phase 3F · public show HUD. Pure read-only decorations derived from the
    synchronized game model. No state mutations, private answer keys or timers. */
@@ -492,6 +567,7 @@ function millionFinalResultsMarkup(data,compact=false){
   'The crew finished this run. Review the points earned.';
  return '<section class="ms-million-final-results'+(data.complete?' is-champion':' is-finished')+
    (compact?' is-compact':'')+'" aria-label="MILLION final mission results">'+
+  (data.complete?'<div class="ms-million-victory-corona" aria-hidden="true"><span>✦</span><span>★</span><span>✦</span><span>★</span><span>✦</span></div>':'')+
   '<header class="ms-million-final-header"><span class="ms-million-final-icon" aria-hidden="true">'+
    (data.complete?'🏆':'✦')+'</span><div><span class="ms-million-final-eyebrow">'+
    (data.complete?'CHAMPIONSHIP ACHIEVED':'RUN COMPLETE')+'</span>'+
