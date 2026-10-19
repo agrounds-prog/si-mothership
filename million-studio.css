@@ -1507,3 +1507,101 @@ body.role-student #studentContent .million-student:has(>.ms-million-final-result
   animation:none!important;transition:none!important;
  }
 }
+
+
+/* Phase 3G · Points-era game show finishing touches.
+   Live answering gains suspense, earned points brighten the stage, and wider
+   point labels stay inside compact projector and Zoom companion frames. */
+body.role-shared .million-public.big .million-stakes-amount{
+ font-variant-numeric:tabular-nums;min-width:0;max-width:100%;
+ font-size:clamp(16px,1.45vw,26px)!important;overflow-wrap:anywhere;
+ letter-spacing:.035em;
+}
+body.role-shared .million-public.big .million-rung{
+ min-width:0;overflow:hidden;column-gap:3px;
+}
+body.role-shared .million-public.big .million-rung b{
+ display:block;min-width:0;font-size:clamp(9px,.72vw,12px)!important;
+ font-weight:1000!important;white-space:normal;line-height:1.1;
+ overflow-wrap:normal;font-variant-numeric:tabular-nums;
+}
+body.role-shared .million-public.big .ms-million-question-prize{
+ letter-spacing:.05em;font-variant-numeric:tabular-nums;
+}
+body.role-shared .million-public.big:has(.million-choice.locked) .million-choice:not(.locked):not(.correct):not(.wrong){
+ opacity:.68;filter:saturate(.8);
+}
+body.role-shared .million-public.big .million-choice.locked span{
+ color:#fff8d6!important;text-shadow:0 0 12px #ffd38288,0 1px #000b!important;
+}
+body.role-shared .million-public.big .million-choice.correct span{
+ color:#e2fff4!important;text-shadow:0 0 14px #65ffc779!important;
+}
+body.role-shared .million-public.big .million-choice.correct b{
+ background:radial-gradient(circle at 30% 18%,#d1ffe6,#6de6a8 70%,#28785d)!important;
+ box-shadow:inset 0 0 0 3px #efffef,0 0 18px #63ffd4a1;
+ color:#083c33!important;
+}
+body.role-shared .million-public.big .million-rung.earned:not(.active) b{
+ color:#d5ffe9!important;
+}
+body.role-shared .million-public.big .ms-million-ladder-progress .ms-million-progress-fill{
+ background:linear-gradient(90deg,#288a88,#66e9d5,#aaf5cd,#f1d38a);
+}
+body.role-shared .million-public.big .ms-million-ladder-progress[data-ms-complete="true"] .ms-million-progress-fill{
+ background:linear-gradient(90deg,#ba782e,#e3b966,#fff4c2,#f3b450);
+}
+body.role-shared .million-public.big .million-lifelines span.available{
+ box-shadow:inset 0 1px #f1d9ff6b,0 0 16px #bca9ff65!important;
+}
+body.role-student #studentContent .ms-million-student-stake{
+ font-variant-numeric:tabular-nums;overflow-wrap:anywhere;
+}
+.ms-million-cue.visible.correct .ms-million-cue-footer{
+ color:#c1ffe6;
+}
+.ms-million-cue.visible.complete .ms-million-cue-footer{
+ color:#fff0b4;
+}
+@media(min-width:571px) and (max-width:900px){
+ body.role-shared .million-public.big .million-rung b{
+  font-size:9px!important;letter-spacing:-.015em!important;
+ }
+ body.role-shared .million-public.big .million-stakes-amount{
+  font-size:15px!important;
+ }
+}
+@media(max-height:570px){
+ body.role-shared .million-public.big .million-stage h3{
+  padding:7px 11px!important;
+ }
+ body.role-shared .million-public.big .million-choice b{
+  min-width:37px!important;flex-basis:37px!important;
+ }
+}
+@media(prefers-reduced-motion:no-preference){
+ body.role-shared .million-public.big .million-choice.correct b{
+  animation:ms3g-point-medallion 1.05s ease-out both;
+ }
+ body.role-shared .million-public.big .million-rung.earned:not(.active){
+  animation:ms3g-point-bank .65s ease-out both;
+ }
+ body.role-shared .million-public.big:has(.million-choice.locked) .million-choice:not(.locked):not(.correct):not(.wrong){
+  transition:opacity .3s ease,filter .3s ease;
+ }
+ @keyframes ms3g-point-medallion{
+  0%{filter:brightness(1.65);transform:scale(.86)}
+  60%{filter:brightness(1.25);transform:scale(1.06)}
+  100%{filter:brightness(1);transform:scale(1)}
+ }
+ @keyframes ms3g-point-bank{
+  0%{filter:brightness(1.7)}
+  100%{filter:brightness(1)}
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body.role-shared .million-public.big .million-choice.correct b,
+ body.role-shared .million-public.big .million-rung.earned:not(.active){
+  animation:none!important;transition:none!important;
+ }
+}
