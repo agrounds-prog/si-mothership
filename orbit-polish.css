@@ -1349,3 +1349,204 @@ body.role-shared .orbit-public.orbit-cosmic .orbit-focus-rings i:nth-child(3){an
  .orbit-solar-system{animation:none!important;transition:none!important;translate:none!important;filter:none!important}
  .orbit-solar-sun-symbol,.orbit-solar-track,.orbit-solar-moon{animation:none!important;transition:none!important}
 }
+
+
+/* ORBIT Phase 4D — living solar-system dioramas.
+   The animated scenery is decorative: classroom responses, names, categories,
+   submission times and teacher actions remain in the native ORBIT state. */
+.orbit-public.orbit-cosmic .orbit-solar-systems{
+ background:radial-gradient(ellipse at 50% 0%,#3564b124,transparent 65%);
+}
+.orbit-public.orbit-cosmic .orbit-solar-system{
+ background:
+  radial-gradient(ellipse at 16% 7%,color-mix(in srgb,var(--solar-glow) 26%,transparent),transparent 55%),
+  radial-gradient(ellipse at 95% 92%,#5a44ac56,transparent 60%),
+  linear-gradient(154deg,var(--solar-deep),#0b183c 72%,#090d2b)!important;
+ box-shadow:inset 0 1px #e4f8ff4d,
+            0 0 25px color-mix(in srgb,var(--solar-glow) 18%,transparent),
+            0 18px 35px #0007!important;
+}
+.orbit-solar-system::before{
+ background-image:
+  radial-gradient(circle,#fff 0 .9px,transparent 1.6px),
+  radial-gradient(circle,#b1f2ff 0 1.2px,transparent 2px),
+  radial-gradient(circle,#f2c4ff 0 .8px,transparent 1.4px);
+ background-size:65px 69px,93px 103px,139px 121px;
+ background-position:4px 13px,20px 31px,51px 61px;
+ opacity:.5;
+}
+.orbit-solar-system::after{
+ content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+ background:radial-gradient(ellipse at 20% 2%,#e7faff24,transparent 43%),
+            radial-gradient(ellipse at 96% 100%,#879aff1a,transparent 60%);
+}
+.orbit-solar-system-head{
+ position:relative;align-items:center;
+ min-height:clamp(99px,10vw,135px);gap:12px;
+ padding-bottom:13px;
+ border-bottom:1px solid color-mix(in srgb,var(--solar-glow) 40%,transparent);
+}
+.orbit-solar-system-head::after{
+ content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;
+ background:linear-gradient(90deg,transparent,var(--solar-glow),transparent);
+ box-shadow:0 0 11px color-mix(in srgb,var(--solar-glow) 60%,transparent);
+ opacity:.8;pointer-events:none;
+}
+.orbit-solar-sun-symbol{
+ isolation:isolate;overflow:visible;
+ background:
+  radial-gradient(ellipse at 34% 24%,#fffef0 0%,#fff4c3 12%,transparent 38%),
+  repeating-linear-gradient(153deg,transparent 0 9px,#ffffff38 11px 15px,transparent 17px 24px),
+  radial-gradient(circle at 39% 31%,#ffd998 4%,var(--solar-glow) 47%,#244a9a 82%)!important;
+ box-shadow:
+  0 0 14px var(--solar-glow),
+  0 0 47px color-mix(in srgb,var(--solar-glow) 47%,transparent),
+  inset -9px -11px 16px #061b5970,
+  inset 6px 5px 10px #ffffff66!important;
+}
+.orbit-solar-sun-glyph{
+ position:relative;z-index:2;
+ display:grid;place-items:center;width:100%;height:100%;
+ color:#152352;text-shadow:0 1px #fff9ddc7;
+}
+.orbit-solar-system-id{
+ display:block;margin:0 0 5px;
+ width:fit-content;padding:3px 8px;border-radius:99px;
+ border:1px solid color-mix(in srgb,var(--solar-glow) 66%,#ffffff);
+ background:color-mix(in srgb,var(--solar-glow) 15%,#102349);
+ color:#fff;
+ font:900 clamp(9px,.83vw,12px)/1.2 system-ui,sans-serif;
+ letter-spacing:.16em;
+}
+.orbit-solar-track{
+ position:relative;isolation:isolate;overflow:visible;
+ flex:0 0 clamp(88px,10vw,132px);
+ width:clamp(88px,10vw,132px);height:clamp(88px,10vw,132px);
+ border:0!important;border-radius:0!important;
+ transform:none!important;
+ filter:drop-shadow(0 0 6px color-mix(in srgb,var(--solar-glow) 33%,transparent));
+}
+.orbit-solar-track .orbit-solar-path{
+ position:absolute;display:block;left:50%;top:50%;
+ border:1.5px solid color-mix(in srgb,var(--solar-glow) 75%,#fff)!important;
+ border-radius:50%!important;opacity:.9!important;
+ box-shadow:0 0 9px color-mix(in srgb,var(--solar-glow) 43%,transparent),
+            inset 0 0 7px color-mix(in srgb,var(--solar-glow) 20%,transparent);
+ pointer-events:none;inset:auto!important;
+}
+.orbit-solar-track .orbit-solar-path-a{
+ width:72%;height:36%;transform:translate(-50%,-50%) rotate(18deg);
+}
+.orbit-solar-track .orbit-solar-path-b{
+ width:94%;height:58%;border-color:#e6eaffbb!important;
+ transform:translate(-50%,-50%) rotate(-32deg);
+}
+.orbit-solar-track .orbit-solar-path-c{
+ width:62%;height:90%;border-color:#b19affbb!important;
+ transform:translate(-50%,-50%) rotate(60deg);
+}
+.orbit-solar-path b{
+ position:absolute;left:50%;top:-6px;width:12px;height:12px;
+ border:1px solid #f8ffff;border-radius:50%;pointer-events:none;
+ background:radial-gradient(circle at 30% 25%,#fff,var(--solar-glow) 34%,#336cc0 80%);
+ box-shadow:0 0 9px var(--solar-glow),0 0 18px color-mix(in srgb,var(--solar-glow) 65%,transparent);
+}
+.orbit-solar-path-b b{width:10px;height:10px;top:-5px;background:radial-gradient(circle at 24% 20%,#fff,#d0baff 36%,#6440b3)}
+.orbit-solar-path-c b{width:8px;height:8px;top:-4px;background:radial-gradient(circle at 24% 20%,#fff,#7efbdc 40%,#166b77)}
+.orbit-solar-center-star{
+ position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+ width:28px;height:28px;border-radius:50%;pointer-events:none;
+ background:radial-gradient(circle at 33% 27%,#fff 0 14%,#ffe7a9 28%,var(--solar-glow) 55%,#426ec2 100%);
+ box-shadow:0 0 16px var(--solar-glow),0 0 33px color-mix(in srgb,var(--solar-glow) 60%,transparent);
+}
+.orbit-solar-center-star::after{
+ content:"";position:absolute;inset:-14px;border:1px solid color-mix(in srgb,var(--solar-glow) 60%,transparent);
+ border-radius:50%;opacity:.6;
+}
+.orbit-solar-planet{
+ isolation:isolate;
+ background:
+  radial-gradient(ellipse at 0% 0%,color-mix(in srgb,var(--solar-glow) 20%,transparent),transparent 70%),
+  linear-gradient(138deg,#263e72f0,#111d3df7)!important;
+ transition:border-color .2s ease,box-shadow .2s ease;
+}
+.orbit-solar-planet::before{
+ content:"";position:absolute;left:0;top:15%;bottom:15%;width:3px;
+ border-radius:4px;background:var(--solar-glow);
+ box-shadow:0 0 10px var(--solar-glow);
+}
+.orbit-solar-moon{
+ position:relative;isolation:isolate;overflow:hidden;
+ flex-basis:clamp(40px,3.6vw,52px);
+ width:clamp(40px,3.6vw,52px);height:clamp(40px,3.6vw,52px);
+ border:1.5px solid #e5fbffea!important;
+ background:
+  radial-gradient(circle at 32% 24%,#fff 0 7%,#dbf8ff 13%,transparent 33%),
+  repeating-linear-gradient(125deg,transparent 0 8px,#ffffff37 9px 11px,transparent 14px 24px),
+  radial-gradient(circle at 32% 30%,var(--solar-glow) 0 31%,#4586cb 63%,#19234a 100%)!important;
+ box-shadow:0 0 14px color-mix(in srgb,var(--solar-glow) 56%,transparent),inset -9px -10px 11px #07154898!important;
+}
+.orbit-solar-moon::before{
+ content:"";position:absolute;z-index:1;inset:0;pointer-events:none;
+ background:radial-gradient(ellipse at 72% 82%,#091037a8,transparent 67%),
+            radial-gradient(circle at 23% 31%,#fff8 0 2px,transparent 4px),
+            radial-gradient(circle at 67% 59%,#091e5270 0 3px,transparent 6px);
+}
+.orbit-solar-moon-glyph{
+ position:relative;z-index:2;color:#08254e;
+ text-shadow:0 1px 1px #fff8;
+}
+.orbit-solar-idea p{line-height:1.45!important}
+#teacher #activityControllerPanel .orbit-solar-system-head{min-height:72px}
+#teacher #activityControllerPanel .orbit-solar-system-id{font-size:9px;letter-spacing:.11em}
+#teacher #activityControllerPanel .orbit-solar-moon{
+ width:34px;height:34px;flex-basis:34px;font-size:14px;
+}
+/* Never replay system reveals on each shared-screen state refresh; only
+   genuinely new transmissions receive a brief arrival. */
+body.role-shared .orbit-solar-system{animation:none!important}
+@keyframes orbit-solar-path-spin{
+ from{rotate:0deg}
+ to{rotate:360deg}
+}
+@keyframes orbit-solar-sparkle{
+ 0%,100%{opacity:.72;filter:brightness(1)}
+ 50%{opacity:1;filter:brightness(1.24)}
+}
+@keyframes orbit-solar-planet-arrive{
+ 0%{opacity:.2;transform:translateY(21px) scale(.92);filter:brightness(2)}
+ 70%{opacity:1;transform:translateY(-2px) scale(1.015);filter:brightness(1.25)}
+ 100%{opacity:1;transform:none;filter:none}
+}
+@media(prefers-reduced-motion:no-preference){
+ body.role-shared .orbit-solar-track .orbit-solar-path-a{
+  animation:orbit-solar-path-spin 26s linear infinite;
+ }
+ body.role-shared .orbit-solar-track .orbit-solar-path-b{
+  animation:orbit-solar-path-spin 39s linear reverse infinite;
+ }
+ body.role-shared .orbit-solar-track .orbit-solar-path-c{
+  animation:orbit-solar-path-spin 51s linear infinite;
+ }
+ body.role-shared .orbit-solar-center-star{
+  animation:orbit-solar-sparkle 5.5s ease-in-out infinite;
+ }
+ body.role-shared .orbit-solar-planet.orbit-new-arrival{
+  animation:orbit-solar-planet-arrive .8s cubic-bezier(.2,.8,.2,1) both;
+ }
+}
+@media(max-width:650px){
+ .orbit-solar-system-head{min-height:81px;gap:8px}
+ .orbit-solar-sun-symbol{flex-basis:53px;width:53px;height:53px}
+ .orbit-solar-sun-copy h4{font-size:17px!important}
+ .orbit-solar-moon{flex-basis:40px;width:40px;height:40px}
+ .orbit-solar-track{display:none!important}
+}
+@media(prefers-reduced-motion:reduce){
+ body.role-shared .orbit-solar-system,
+ body.role-shared .orbit-solar-planet.orbit-new-arrival,
+ body.role-shared .orbit-solar-track .orbit-solar-path,
+ body.role-shared .orbit-solar-center-star{
+  animation:none!important;transition:none!important;filter:none!important;
+ }
+}
