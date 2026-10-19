@@ -239,6 +239,85 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
     final:gallery.lastElementChild.getBoundingClientRect().bottom<=gallery.getBoundingClientRect().bottom+4};
   });
   assert.ok(scroll.top>0&&scroll.final,'final crew ideas become visible after scrolling');
+  // Phase 4C: the public renderer must use the teacher's categories as
+  // genuine solar systems without losing a single submission or identity rule.
+  await shared.evaluate(()=>{
+   document.querySelector('#siOrbitTestStage')?.remove();
+   const names=Array.from({length:24},(_,i)=>'Student '+String(i+1).padStart(2,'0'));
+   const responses={},assignments={};
+   names.forEach((name,i)=>{
+    responses[name]={text:i===23?'<img src=x onerror=alert(1)> Final idea':
+      'Planet '+String(i+1).padStart(2,'0')+' · '+('Include everyone and share our ideas. '.repeat(i===2?12:1)),at:i+1};
+    assignments[name]=i<9?'Life Skills':i<18?'Science':i===23?'Invalid category':'Unclustered';
+   });
+   const run={activityId:'orbit-game',phase:'running',runToken:'orbit-phase4c-fixture',
+    orbitConfig:{prompt:'How should we collaborate?',anonymous:true},orbitResponses:responses,
+    orbitClusters:['Life Skills','Science','Unclustered'],orbitAssignments:assignments,
+    orbitRevealCrew:false,orbitPaused:false,orbitClusterView:true,orbitCompare:false,orbitSpotlight:null};
+   const fixture=document.createElement('div');fixture.id='siOrbitSolarStage';
+   fixture.innerHTML=orbitSharedMarkup(run,true);
+   document.querySelector('#shared').append(fixture);
+   window.__orbitSolarFixture=run;
+  });
+  const solar=await shared.evaluate(()=>{
+   const mount=document.querySelector('#siOrbitSolarStage');
+   const systems=[...mount.querySelectorAll('.orbit-solar-system')];
+   const planets=[...mount.querySelectorAll('.orbit-solar-planet')];
+   const grouping=systems.map(s=>({name:s.querySelector('h4')?.textContent,
+    ideas:s.querySelectorAll('.orbit-solar-planet').length}));
+   const empty=document.createElement('div');
+   empty.innerHTML=orbitClusterMarkup({...window.__orbitSolarFixture,orbitResponses:{}},true);
+   const revealed=document.createElement('div');
+   revealed.innerHTML=orbitClusterMarkup({...window.__orbitSolarFixture,orbitRevealCrew:true},true);
+   const stage=mount.querySelector('.orbit-solar-systems');
+   const last=planets.at(-1)?.querySelector('p')?.textContent;
+   const app=mount.querySelector('.orbit-public.orbit-cosmic');
+   return {grouping,planets:planets.length,wordmark:app?.querySelector('.orbit-cosmic-wordmark')?.textContent,
+    summary:stage?.querySelector('.orbit-solar-summary')?.textContent,
+    noNames:!stage?.textContent?.includes('Student 01'),
+    revealed:revealed.querySelector('.orbit-solar-idea strong')?.textContent,
+    escaped:mount.querySelectorAll('.orbit-solar-idea img').length===0,
+    last,empty:!!empty.querySelector('.orbit-solar-empty'),
+    grid:getComputedStyle(stage).display,
+    firstCard:getComputedStyle(planets[0]).display,
+    ownScroll:getComputedStyle(stage).overflowY,
+    gradient:getComputedStyle(systems[0]).backgroundImage,
+    overflow:document.documentElement.scrollWidth-innerWidth};
+  });
+  assert.deepEqual(solar.grouping,[{name:'Life Skills',ideas:9},{name:'Science',ideas:9},
+   {name:'Unclustered',ideas:6}],'native groups and unmatched responses remain intact');
+  assert.equal(solar.planets,24,'all 24 submissions are present in their teacher group');
+  assert.match(solar.wordmark,/ORBIT/);
+  assert.match(solar.summary,/3 SOLAR SYSTEMS/);
+  assert.equal(solar.noNames,true,'anonymous names are hidden in every solar system');
+  assert.equal(solar.revealed,'Student 01','teacher reveal still exposes identities when enabled');
+  assert.equal(solar.escaped,true,'idea text cannot inject image or script markup');
+  assert.match(solar.last,/Final idea/);
+  assert.equal(solar.empty,true,'empty clustered round has a waiting message');
+  assert.equal(solar.grid,'grid');
+  assert.equal(solar.firstCard,'flex');
+  assert.equal(solar.ownScroll,'auto');
+  assert.match(solar.gradient,/gradient/);
+  assert.ok(solar.overflow<=3,'projector solar systems stay within viewport');
+  await shared.setViewportSize({width:490,height:810});
+  const mobileSolar=await shared.evaluate(()=>{
+   const wrap=document.querySelector('#siOrbitSolarStage .orbit-solar-systems');
+   return {columns:getComputedStyle(wrap).gridTemplateColumns.split(' ').length,
+    width:wrap.clientWidth,overflow:wrap.scrollWidth-wrap.clientWidth,
+    retained:wrap.querySelectorAll('.orbit-solar-planet').length};
+  });
+  assert.equal(mobileSolar.columns,1,'compact projector stacks its solar systems');
+  assert.equal(mobileSolar.retained,24);
+  assert.ok(mobileSolar.overflow<=3,'all compact solar planets fit without sideways scrolling');
+  await shared.emulateMedia({reducedMotion:'reduce'});
+  const noSolarMotion=await shared.evaluate(()=>getComputedStyle(
+   document.querySelector('#siOrbitSolarStage .orbit-solar-system')).animationName);
+  assert.equal(noSolarMotion,'none','solar arrival respects reduced-motion setting');
+  await shared.emulateMedia({reducedMotion:'no-preference'});
+  await shared.setViewportSize({width:1180,height:760});
+  await shared.evaluate(()=>{document.querySelector('#siOrbitSolarStage')?.remove();delete window.__orbitSolarFixture});
+  console.log('ORBIT Phase 4C solar systems, privacy, 24 planets and responsive layout PASSED',
+   JSON.stringify({solar,mobileSolar}));
   await sctx.close();
   assert.deepEqual(errors,[],'no unexpected Orbit browser errors');
   console.log('ORBIT setup + 24 students + privacy + projector scroll + teacher status PASSED',
