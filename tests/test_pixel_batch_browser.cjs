@@ -162,6 +162,9 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   // Phase 4E: render actual shared-screen markup in a visible isolated
   // classroom fixture, without touching live Railway or storing test data.
   const initialCinema=await page.evaluate(()=>{
+   // Simulate reopening a previously played image under a fresh local
+   // visual identity; native submission/round data stays the same.
+   state.activityRun.runToken='pixel-phase4e-reopened-fixture';
    const mount=document.createElement('section');
    mount.id='pixelCinematicTestStage';
    mount.style.cssText='width:100%;max-width:1120px;margin:auto';
