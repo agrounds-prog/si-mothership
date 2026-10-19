@@ -124,7 +124,11 @@ async function duplicateSavedGame(saved){
   draft=copy;loadedId=identity;selected=0;tab='create';
   persistDraft();redraw();toast('MILLION copy saved · original game is unchanged');
  }catch(err){toast('Could not duplicate game: '+String(err.message||err))}
- finally{savePending=false}
+ finally{
+  savePending=false;
+  const saveButton=document.querySelector('#msSaveGame');
+  if(saveButton)saveButton.disabled=false;
+ }
 }
 function ladder(count){
  if(count===15)return LADDER.slice();
