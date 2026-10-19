@@ -159,6 +159,147 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   }));
   assert.deepEqual(first,{index:0,answer:'Apple',guess:'Apple',tiles:3},
    'returning to an earlier image restores its guesses and reveal state');
+  // Phase 4E: render actual shared-screen markup in a visible isolated
+  // classroom fixture, without touching live Railway or storing test data.
+  const initialCinema=await page.evaluate(()=>{
+   const mount=document.createElement('section');
+   mount.id='pixelCinematicTestStage';
+   mount.style.cssText='width:100%;max-width:1120px;margin:auto';
+   mount.innerHTML=pixelSharedMarkup(state.activityRun,true);
+   document.body.append(mount);
+   window.SIPixelBatch.enhanceCinematic(); // seed the already-revealed tiles
+   const progress=mount.querySelector('.pixel-cinematic-track');
+   return {
+    stage:mount.querySelectorAll('.pixel-cinematic-public').length,
+    progress:progress?.getAttribute('aria-valuenow'),
+    max:progress?.getAttribute('aria-valuemax'),
+    imageRounds:mount.querySelectorAll('.pixel-cinematic-round').length,
+    current:mount.querySelector('.pixel-cinematic-round.is-current')?.textContent,
+    existingAnimated:mount.querySelectorAll('.pixel-cinematic-dissolve').length,
+    concealed:!mount.textContent.includes('Apple'),
+    grid:mount.querySelector('.pixel-cover-grid')?.children.length
+   };
+  });
+  assert.equal(initialCinema.stage,1,'shared-screen cinematic mystery is rendered');
+  assert.equal(initialCinema.progress,'3','public meter reflects native reveal state');
+  assert.ok(Number(initialCinema.max)>=3);
+  assert.equal(initialCinema.imageRounds,3);
+  assert.equal(initialCinema.current,'1');
+  assert.equal(initialCinema.existingAnimated,0,
+   'reopened or previously revealed tiles never replay entrance effects');
+  assert.equal(initialCinema.concealed,true,'public progress must never leak the mystery answer');
+  assert.ok(initialCinema.grid>=9,'all grid cover tiles remain available');
+
+  const newTile=await page.evaluate(()=>{
+   state.activityRun.pixelRevealed.push(3);
+   const mount=document.querySelector('#pixelCinematicTestStage');
+   mount.innerHTML=pixelSharedMarkup(state.activityRun,true);
+   window.SIPixelBatch.enhanceCinematic();
+   const tile=mount.querySelectorAll('.pixel-cover')[3];
+   const progress=mount.querySelector('.pixel-cinematic-track');
+   return {fourth:tile?.classList.contains('pixel-cinematic-dissolve'),
+    css:getComputedStyle(tile).animationName,
+    progress:progress?.getAttribute('aria-valuenow'),
+    answerHidden:!mount.textContent.includes('Apple')};
+  });
+  assert.deepEqual([newTile.fourth,newTile.progress,newTile.answerHidden],[true,'4',true]);
+  assert.match(newTile.css,/pixel-cinematic-tile-dissolve/,
+   'newly revealed tiles have a luminous one-off animation');
+  await page.waitForTimeout(1180);
+  const noReplay=await page.evaluate(()=>{
+   const mount=document.querySelector('#pixelCinematicTestStage');
+   mount.innerHTML=pixelSharedMarkup(state.activityRun,true);
+   window.SIPixelBatch.enhanceCinematic();
+   return mount.querySelectorAll('.pixel-cinematic-dissolve').length;
+  });
+  assert.equal(noReplay,0,'periodic classroom rerenders never replay old tile animations');
+
+  const roundCinema=await page.evaluate(()=>{
+   window.SIPixelBatch.switchRound(1);
+   const mount=document.querySelector('#pixelCinematicTestStage');
+   mount.innerHTML=pixelSharedMarkup(state.activityRun,true);
+   window.SIPixelBatch.enhanceCinematic();
+   const current=mount.querySelector('.pixel-cinematic-round.is-current');
+   const progress=mount.querySelector('.pixel-cinematic-track');
+   return {current:current?.textContent,rounds:mount.querySelectorAll('.pixel-cinematic-round').length,
+    entered:!!mount.querySelector('.pixel-cinematic-arriving'),
+    progress:progress?.getAttribute('aria-valuenow'),
+    noRevealed:mount.querySelectorAll('.pixel-cover.revealed').length,
+    hiddenAnswer:!mount.textContent.includes('Train')};
+  });
+  assert.deepEqual(roundCinema,{current:'2',rounds:3,entered:true,
+   progress:'0',noRevealed:0,hiddenAnswer:true},
+   'switching image rounds animates arrival while resetting only that round');
+  const restoredCinema=await page.evaluate(()=>{
+   window.SIPixelBatch.switchRound(0);
+   const mount=document.querySelector('#pixelCinematicTestStage');
+   mount.innerHTML=pixelSharedMarkup(state.activityRun,true);
+   window.SIPixelBatch.enhanceCinematic();
+   return {index:state.activityRun.pixelImageIndex,
+    revealed:state.activityRun.pixelRevealed.length,
+    newTiles:mount.querySelectorAll('.pixel-cinematic-dissolve').length};
+  });
+  assert.deepEqual(restoredCinema,{index:0,revealed:4,newTiles:0},
+   'returning to a previous image restores its exact state without replaying reveals');
+
+  const finalCinema=await page.evaluate(()=>{
+   revealPixelAll();
+   const mount=document.querySelector('#pixelCinematicTestStage');
+   mount.innerHTML=pixelSharedMarkup(state.activityRun,true);
+   window.SIPixelBatch.enhanceCinematic();
+   const status=mount.querySelector('.pixel-cinematic-acquired');
+   return {status:status?.textContent.trim(),
+    celebrating:!!mount.querySelector('.pixel-cinematic-celebrating'),
+    progress:mount.querySelector('.pixel-cinematic-track')?.getAttribute('aria-valuenow'),
+    all:mount.querySelectorAll('.pixel-cover:not(.revealed)').length,
+    noAnswer:!mount.textContent.includes('Apple'),
+    resultsHidden:!state.activityRun.pixelShowResults};
+  });
+  assert.match(finalCinema.status,/SIGNAL ACQUIRED/);
+  assert.equal(finalCinema.celebrating,true);
+  assert.equal(finalCinema.progress,String(initialCinema.max));
+  assert.equal(finalCinema.all,0);
+  assert.equal(finalCinema.noAnswer,true,
+   'unlocking an image does not reveal the answer until teacher selects Results');
+  assert.equal(finalCinema.resultsHidden,true);
+  const resultCinema=await page.evaluate(()=>{
+   state.activityRun.pixelShowResults=true;
+   const mount=document.querySelector('#pixelCinematicTestStage');
+   mount.innerHTML=pixelSharedMarkup(state.activityRun,true);
+   return {result:!!mount.querySelector('.pixel-cinematic-results'),
+    answer:mount.querySelector('.pixel-results>h3')?.textContent,
+    rounds:mount.querySelectorAll('.pixel-cinematic-round').length};
+  });
+  assert.deepEqual(resultCinema,{result:true,answer:'Apple',rounds:3},
+   'native teacher-controlled result reveal still works with the cinematic stage');
+  // Focus mode and reduced motion must be as usable as the tile mode.
+  const focusCinema=await page.evaluate(()=>{
+   const run={...state.activityRun,pixelConfig:{
+    ...state.activityRun.pixelConfig,revealStyle:'focus'
+   },pixelFocusStage:4,pixelRevealAll:false,pixelShowResults:false};
+   const mount=document.querySelector('#pixelCinematicTestStage');
+   mount.innerHTML=pixelSharedMarkup(run,true);
+   return {focus:!!mount.querySelector('.pixel-cinematic-public .pixel-focus-board'),
+    progress:mount.querySelector('.pixel-cinematic-track')?.getAttribute('aria-valuenow'),
+    full:mount.querySelector('.pixel-cinematic-track')?.getAttribute('aria-valuemax')};
+  });
+  assert.deepEqual(focusCinema,{focus:true,progress:'4',full:'10'});
+  await page.emulateMedia({reducedMotion:'reduce'});
+  const reduced=await page.evaluate(()=>{
+   const mount=document.querySelector('#pixelCinematicTestStage');
+   const board=mount.querySelector('.pixel-focus-board');
+   board.classList.add('pixel-cinematic-focus-up');
+   const animation=getComputedStyle(board).animationName;
+   const r=mount.getBoundingClientRect();
+   return {animation,overflow:mount.scrollWidth-mount.clientWidth,
+    width:r.width};
+  });
+  assert.equal(reduced.animation,'none','reduced motion disables cinematic effects');
+  assert.ok(reduced.overflow<=3,'cinematic shared screen stays within its viewport');
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await page.evaluate(()=>document.querySelector('#pixelCinematicTestStage')?.remove());
+  console.log('PIXEL Phase 4E cinematic HUD, one-shot tile dissolves, multi-round transition, focus and result privacy PASSED',
+   JSON.stringify({initialCinema,newTile,roundCinema,restoredCinema,finalCinema,reduced}));
   await page.evaluate(()=>{
    state.screen='activities';state.activeApp='pixel';
    state.pixelDraft=defaultPixelDraft();state.activityRun=null;render();
