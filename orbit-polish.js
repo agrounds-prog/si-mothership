@@ -56,6 +56,8 @@
    const active=typeof connectedStudents==='function'?connectedStudents():[];
    const count=active.filter(s=>responses[s.n]).length,total=active.length;
    const pct=total?Math.round(count/total*100):0;
+   const phase=run?.orbitPaused?'paused':!count?'waiting':total&&count===total?'complete':'collecting';
+   const phaseLabel={paused:'TRANSMISSIONS PAUSED',waiting:'AWAITING CREW IDEAS',complete:'ALL CREW RESPONDED',collecting:'LIVE · COLLECTING IDEAS'}[phase];
    const header='<header class="orbit-cosmic-header">'+
     '<div class="orbit-cosmic-brand"><span class="orbit-cosmic-wordmark"><span class="orbit-cosmic-logo" aria-hidden="true">◉</span>ORBIT</span>'+
     '<span class="orbit-cosmic-subtitle">ONE QUESTION · EVERY VOICE · SHARED THINKING</span></div>'+
@@ -65,9 +67,17 @@
     '<path d="M16 29c0-9 4-13 12-13s12 4 12 13v3H16zM1 29c0-7 3-10 9-10s7 2 7 4v9H1zM39 23c0-2 2-4 7-4 6 0 9 3 9 10v3H39z"/></svg>'+
     '<span class="orbit-cosmic-fraction"><b>'+count+' / '+total+'</b> TRANSMITTED</span>'+
     '<span class="orbit-cosmic-progress" aria-hidden="true"><i style="width:'+pct+'%"></i></span></div></header>';
-   return html.replace('<div class="orbit-public"',
-    '<div class="orbit-public orbit-cosmic" data-orbit-style="cosmic"').replace('data-orbit-style="cosmic">',
-    'data-orbit-style="cosmic">'+header);
+   let enhanced=html.replace('<div class="orbit-public"',
+    '<div class="orbit-public orbit-cosmic" data-orbit-style="cosmic" data-orbit-phase="'+phase+'"').replace('data-orbit-phase="'+phase+'">',
+    'data-orbit-phase="'+phase+'">'+header+'<span class="orbit-cosmic-state" role="status">'+phaseLabel+'</span>');
+   // The first student response must not be required to make the classroom
+   // projector look like ORBIT: the waiting question is also a cosmic planet.
+   // Leave Spotlight / Clusters / Before vs After intact.
+   if(!count&&!Object.keys(responses).length&&!run?.orbitSpotlight&&!run?.orbitClusterView&&!run?.orbitCompare){
+    enhanced=enhanced.replace('<div class="orbit-space">',
+     '<div class="orbit-space" data-orbit-waiting="true"><span class="orbit-wait-caption">◎ IDEAS WILL APPEAR AROUND THIS PLANET</span>');
+   }
+   return enhanced;
   };
  }
  function enhance(){
