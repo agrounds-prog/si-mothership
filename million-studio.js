@@ -50,7 +50,7 @@ const syncEngine=()=>{
  millionDraft.lifelines=JSON.parse(JSON.stringify(draft.lifelines));
 };
 const redraw=()=>{syncEngine();if(typeof renderActivities==='function')renderActivities()};
-const money=n=>'$'+Number(n).toLocaleString();
+const money=n=>Number(n).toLocaleString('en-US')+' PTS';
 const selectedQuestion=()=>draft.questions[selected];
 const controls=()=>{
  let options='';
@@ -70,7 +70,7 @@ const cardMarkup=()=>{
  '<div class="ms-preview-choices">'+q.choices.map((choice,i)=>'<div class="'+(q.correct===KEYS[i]?'answer':'')+'"><b>'+KEYS[i]+'</b> '+esc(choice||'Answer '+KEYS[i])+'</div>').join('')+'</div>'+
  '<small>Answer key is only visible in this editor and teacher controls.</small></div>'+
  '<div class="ms-progress-block"><span>'+completed+' of '+draft.count+' ready</span><div><i style="width:'+(completed/draft.count*100)+'%"></i></div></div>'+
- '<p class="ms-note">The '+draft.count+' question slides and money labels are already built. Fill them in and save one complete game.</p></aside>';
+ '<p class="ms-note">The '+draft.count+' question slides and point milestones are already built. Fill them in and save one complete game.</p></aside>';
  return '<div class="ms-workspace"><nav class="ms-slide-rail" aria-label="Question slides"><div class="ms-block-head"><span>QUESTION SLIDES</span><small>'+completed+'/'+draft.count+' READY</small></div>'+
  draft.questions.slice(0,draft.count).map((item,i)=>'<button type="button" class="ms-slide '+(i===selected?'active ':'')+(ready(item)?'done':'')+'" data-ms-slide="'+i+'" aria-current="'+(i===selected?'step':'false')+'"><span>Q'+String(i+1).padStart(2,'0')+'</span><span>'+money(ladder(draft.count)[i])+'</span><b>'+ (ready(item)?'✓':'○')+'</b></button>').join('')+
  '</nav><div class="ms-question-editor"><div class="ms-block-head"><span>01 · QUESTION '+String(current).padStart(2,'0')+'</span><small>'+money(ladder(draft.count)[selected])+' MILESTONE</small></div>'+
@@ -296,14 +296,14 @@ function installMillionStageCues(){
   let headline='',detail='',duration=0;
   if(stageName==='question'){
    headline=finalQuestion?'THE FINAL QUESTION':'NEW QUESTION';
-   detail=finalQuestion?'GRAND PRIZE AT STAKE · '+String.fromCharCode(36)+Number(ladder[q]||0).toLocaleString('en-US'):
+   detail=finalQuestion?'FINAL QUESTION · '+Number(ladder[q]||0).toLocaleString('en-US')+' POINTS AT STAKE':
     'QUESTION '+(q+1)+' OF '+(cfg.questions?.length||15);
    duration=finalQuestion?1850:950;
   }
   if(stageName==='locked'){headline='FINAL ANSWER LOCKED';detail='MISSION CONTROL · REVEAL PENDING';duration=1650}
-  if(stageName==='correct'){headline='SIGNAL CONFIRMED';detail='MILESTONE REACHED: '+String.fromCharCode(36)+prize.toLocaleString('en-US');duration=2050}
+  if(stageName==='correct'){headline='SIGNAL CONFIRMED';detail='POINTS EARNED: '+prize.toLocaleString('en-US')+' PTS';duration=2050}
   if(stageName==='wrong'){headline='SIGNAL LOST';detail=m.over?'RUN COMPLETE':'ANSWER REVEALED';duration=2000}
-  if(stageName==='complete'){headline='MILLION COMPLETE';detail='FINAL MILESTONE: '+String.fromCharCode(36)+Number(ladder.at(-1)||1000000).toLocaleString('en-US');duration=2800}
+  if(stageName==='complete'){headline='MILLION COMPLETE';detail='FINAL SCORE: '+Number(ladder.at(-1)||1000000).toLocaleString('en-US')+' POINTS';duration=2800}
   const node=ensureCue();
   node.className='ms-million-cue '+stageName+(finalQuestion?' is-final-question':'');
   // A purely decorative one-shot stage crest; the already announced title,
@@ -333,7 +333,7 @@ function installMillionStageCues(){
   footer.className='ms-million-cue-footer';
   footer.setAttribute('aria-hidden','true');
   footer.textContent=stageName==='locked'?'THE ANSWER IS IN…':
-   stageName==='correct'?'THE PRIZE LADDER ADVANCES':
+   stageName==='correct'?'THE POINT LADDER ADVANCES':
    stageName==='wrong'?(m.over?'THIS RUN HAS ENDED':'REVIEW THE REVEAL'):
    stageName==='complete'?'THE GRAND FINALE':finalQuestion?'THE LAST QUESTION · MAKE IT COUNT':'THE STAGE IS YOURS';
   node.dataset.phase=stageName;
@@ -365,7 +365,7 @@ function installMillionShowHUD(){
  const role=new URLSearchParams(location.search).get('role');
  if(!['shared','student'].includes(role))return;
  let queued=false;
- const money=value=>String.fromCharCode(36)+Math.max(0,Number(value)||0).toLocaleString('en-US');
+ const money=value=>Math.max(0,Number(value)||0).toLocaleString('en-US')+' PTS';
  const setText=(element,value)=>{
   if(element&&element.textContent!==value)element.textContent=value;
  };
@@ -402,19 +402,19 @@ function installMillionShowHUD(){
    if(!band){
     band=make('ms-million-question-band',[
      ['span','ms-million-question-number'],['strong','ms-million-question-prize']]);
-    band.setAttribute('aria-label','MILLION question and current prize');
+    band.setAttribute('aria-label','MILLION question and points at stake');
     const question=stage.querySelector('h3');
     if(question)question.before(band);else stage.prepend(band);
    }
    setText(band.firstElementChild,'QUESTION '+String(q+1).padStart(2,'0')+' / '+String(total).padStart(2,'0'));
    setText(band.lastElementChild,complete?'ROUND COMPLETE':finalQuestion?
-    '★ GRAND PRIZE QUESTION · '+money(ladder[q]):'ON THE LINE · '+money(ladder[Math.min(q,ladder.length-1)]));
+    '★ FINAL QUESTION · '+money(ladder[q]):'ON THE LINE · '+money(ladder[Math.min(q,ladder.length-1)]));
    band.classList.toggle('is-final',finalQuestion);
    let track=prizeSide.querySelector(':scope > .ms-million-ladder-progress');
    if(!track){
     track=make('ms-million-ladder-progress',[
      ['div','ms-million-progress-head'],['div','ms-million-progress-track']]);
-    track.setAttribute('aria-label','MILLION prize ladder progress');
+    track.setAttribute('aria-label','MILLION point ladder progress');
     const [head,rail]=track.children;
     head.appendChild(document.createElement('span'));
     head.appendChild(document.createElement('strong'));
@@ -422,7 +422,7 @@ function installMillionShowHUD(){
     prizeSide.append(track);
    }
    const [head,rail]=track.children;
-   setText(head.firstElementChild,'PRIZE LADDER');
+   setText(head.firstElementChild,'POINT LADDER');
    setText(head.lastElementChild,earned+' / '+ladder.length+' SECURED');
    const percentage=(earned/ladder.length*100).toFixed(2)+'%';
    if(rail.firstElementChild.style.width!==percentage)rail.firstElementChild.style.width=percentage;
@@ -434,7 +434,7 @@ function installMillionShowHUD(){
    if(!ribbon){
     ribbon=make('ms-million-student-ribbon',[
      ['span','ms-million-student-question'],['strong','ms-million-student-stake'],['small','ms-million-student-lives']]);
-    ribbon.setAttribute('aria-label','MILLION question, prize and crew lifelines');
+    ribbon.setAttribute('aria-label','MILLION question, points and crew lifelines');
     const heading=student.querySelector('h2');
     if(heading)heading.before(ribbon);else student.prepend(ribbon);
    }
@@ -482,14 +482,14 @@ function millionFinalResultsData(run){
  };
 }
 function millionFinalResultsMarkup(data,compact=false){
- const fmt=n=>String.fromCharCode(36)+Number(n).toLocaleString('en-US');
- const milestone=data.checkpoint?'SAFE CHECKPOINT':data.complete?'FINAL PRIZE':'MILESTONE REACHED';
+ const fmt=n=>Number(n).toLocaleString('en-US')+' POINTS';
+ const milestone=data.checkpoint?'CHECKPOINT POINTS':data.complete?'FINAL POINTS':'POINTS EARNED';
  const title=data.complete?'MILLION COMPLETE':'MISSION RESULTS';
  const detail=data.complete?'The crew reached the final milestone.':
   data.checkpoint?(data.level===0?'Classic mode · no safe checkpoint was secured.':
    'Classic mode · returned to your last safe checkpoint.'):
-  data.amount===0?'No prize secured this round. The crew can try again.':
-  'The crew finished this run. Review the milestone achieved.';
+  data.amount===0?'No points secured this round. The crew can try again.':
+  'The crew finished this run. Review the points earned.';
  return '<section class="ms-million-final-results'+(data.complete?' is-champion':' is-finished')+
    (compact?' is-compact':'')+'" aria-label="MILLION final mission results">'+
   '<header class="ms-million-final-header"><span class="ms-million-final-icon" aria-hidden="true">'+
@@ -555,6 +555,54 @@ function installMillionFinalResults(){
  else start();
 }
 installMillionFinalResults();
+
+/* Phase 3G · points presentation compatibility. The native engine remains
+   authoritative for ladder values, checkpoints, saves and class sync.
+   User-written question text and answer choices are NEVER rewritten. */
+function installMillionNativePoints(){
+ const role=new URLSearchParams(location.search).get('role');
+ if(!['shared','student','teacher'].includes(role))return;
+ const moneyPattern=/\$\s*([0-9][0-9,]*(?:\.[0-9]+)?)/g;
+ const protectedNodes='.million-stage h3,.million-choice,.million-teacher-choices,'+
+  '.million-student-choice,.million-student-choices,.million-poll,'+
+  '.million-pilot,textarea,input,select,.ms-million-final-results,'+
+  '.ms-million-question-band,.ms-million-student-ribbon';
+ let pending=false;
+ function sync(){
+  pending=false;
+  const run=typeof state==='undefined'?null:state.activityRun;
+  if(!run||run.activityId!=='million-game'||run.phase!=='running')return;
+  const root=role==='shared'?document.querySelector('.million-public.big'):
+   role==='student'?document.querySelector('#studentContent .million-student'):
+   document.querySelector('#activityControllerPanel .million-teacher-grid');
+  if(!root)return;
+  const iter=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),nodes=[];
+  while(iter.nextNode()){
+   const t=iter.currentNode,original=t.nodeValue||'';
+   moneyPattern.lastIndex=0;
+   if(!moneyPattern.test(original))continue;
+   const parent=t.parentElement;
+   if(!parent||parent.closest(protectedNodes))continue;
+   if(parent.closest('.million-ladder,.million-stakes,.million-message,'+
+      '.million-complete,.million-lifelines,.million-teacher-status,'+
+      '.million-student-status,.million-student-prize,.million-teacher-prize,'+
+      '.million-teacher-progress,.million-student-progress'))nodes.push(t);
+  }
+  nodes.forEach(t=>{
+   const updated=(t.nodeValue||'').replace(moneyPattern,(_,number)=>number+' PTS');
+   if(updated!==t.nodeValue)t.nodeValue=updated;
+  });
+ }
+ function queue(){if(pending)return;pending=true;requestAnimationFrame(sync)}
+ function start(){
+  if(!document.body)return;
+  new MutationObserver(queue).observe(document.body,{childList:true,subtree:true,characterData:true});
+  setInterval(queue,950);queue();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+ else start();
+}
+installMillionNativePoints();
 
 syncEngine();
 window.MillionStudio={markup,wire,questions,ladder,checkpoints:n=>n===5?[3]:n===10?[5]:[5,10],
