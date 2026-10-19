@@ -299,6 +299,61 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(solar.ownScroll,'auto');
   assert.match(solar.gradient,/gradient/);
   assert.ok(solar.overflow<=3,'projector solar systems stay within viewport');
+  // Phase 4D: solar artwork uses actual category order and hides its
+  // orbital decoration from assistive technology; typography remains native.
+  const planetarium=await shared.evaluate(()=>{
+   const root=document.querySelector('#siOrbitSolarStage');
+   const systems=[...root.querySelectorAll('.orbit-solar-system')];
+   const first=systems[0],track=first.querySelector('.orbit-solar-track');
+   const orbital=track.querySelector('.orbit-solar-path-a');
+   const ringBox=orbital.getBoundingClientRect(),trackBox=track.getBoundingClientRect();
+   const motion=getComputedStyle(orbital);
+   const moon=first.querySelector('.orbit-solar-moon');
+   const planet=getComputedStyle(moon).backgroundImage;
+   const count=systems.reduce((n,sys)=>n+sys.querySelectorAll('.orbit-solar-planet').length,0);
+   return {
+    ids:systems.map(s=>s.querySelector('.orbit-solar-system-id')?.textContent),
+    systems:systems.length,orbitalPaths:root.querySelectorAll('.orbit-solar-path').length,
+    orbitalBodies:root.querySelectorAll('.orbit-solar-path b').length,
+    solarCores:root.querySelectorAll('.orbit-solar-center-star').length,
+    sunGlyphs:root.querySelectorAll('.orbit-solar-sun-glyph').length,
+    decoratedHidden:track.getAttribute('aria-hidden'),
+    moonGlyphs:root.querySelectorAll('.orbit-solar-moon-glyph').length,
+    count,orbitMotion:motion.animationName,orbitSeconds:motion.animationDuration,
+    orbitCentered:Math.abs((ringBox.left+ringBox.right)/2-(trackBox.left+trackBox.right)/2)<18&&
+      Math.abs((ringBox.top+ringBox.bottom)/2-(trackBox.top+trackBox.bottom)/2)<18,
+    surface:planet.includes('radial-gradient')
+   };
+  });
+  assert.deepEqual(planetarium.ids,['SYSTEM 01','SYSTEM 02','SYSTEM 03']);
+  assert.deepEqual([planetarium.systems,planetarium.orbitalPaths,
+   planetarium.orbitalBodies,planetarium.solarCores,planetarium.sunGlyphs,
+   planetarium.moonGlyphs,planetarium.count],[3,9,9,3,3,24,24]);
+  assert.equal(planetarium.decoratedHidden,'true');
+  assert.match(planetarium.orbitMotion,/orbit-solar-path-spin/);
+  assert.equal(planetarium.orbitCentered,true,'animated orbital markers stay centered in system header');
+  assert.equal(planetarium.surface,true,'mini planets use shaded planetary textures');
+  const oneArrival=await shared.evaluate(()=>{
+   const run={activityId:'orbit-game',phase:'running',runToken:'orbit-4d-new-signal',
+    orbitConfig:{prompt:'What do we share?',anonymous:true},
+    orbitResponses:{},orbitClusters:['Teamwork'],orbitAssignments:{},
+    orbitClusterView:true,orbitRevealCrew:false,orbitSpotlight:null,orbitCompare:false};
+   orbitClusterMarkup(run,true); // seeds the empty round without a replay
+   run.orbitResponses['Pilot One']={text:'We listen carefully',at:1000};
+   run.orbitAssignments['Pilot One']='Teamwork';
+   const first=document.createElement('div');
+   first.innerHTML=orbitClusterMarkup(run,true);
+   const newPlanet=first.querySelector('.orbit-solar-planet.orbit-new-arrival');
+   const firstNameHidden=!first.textContent.includes('Pilot One');
+   const second=document.createElement('div');
+   second.innerHTML=orbitClusterMarkup({...run,runToken:'orbit-4d-restored'},true);
+   const original=first.querySelector('.orbit-solar-idea p')?.textContent;
+   return {firstAnimated:!!newPlanet,firstNameHidden,original,
+    restoredAnimated:!!second.querySelector('.orbit-solar-planet.orbit-new-arrival')};
+  });
+  assert.deepEqual(oneArrival,{firstAnimated:true,firstNameHidden:true,
+   original:'We listen carefully',restoredAnimated:false},
+   'new student planets enter once; restored responses never replay or expose names');
   await shared.setViewportSize({width:490,height:810});
   const mobileSolar=await shared.evaluate(()=>{
    const wrap=document.querySelector('#siOrbitSolarStage .orbit-solar-systems');
