@@ -1829,3 +1829,36 @@ body.role-student #studentContent .million-student .ms-million-student-ribbon.is
   transition:none!important;animation:none!important;
  }
 }
+
+
+/* Phase 3K · searchable saved MILLION games and accessible copy actions. */
+.ms-studio .ms-library-tools{
+ display:flex;align-items:end;justify-content:space-between;flex-wrap:wrap;
+ gap:12px;margin:0 0 16px;padding:12px;border:1px solid #376c8f;
+ border-radius:13px;background:linear-gradient(110deg,#0a2a45,#0b2038);
+}
+.ms-studio .ms-library-tools label{
+ flex:1 1 220px;max-width:440px;color:#b9e4f3;font-weight:950;
+}
+.ms-studio .ms-library-tools input{margin-top:6px}
+.ms-studio .ms-library-summary{color:#bde9d9;font-size:12px;font-weight:950;padding:7px 0}
+.ms-studio .ms-saved-game[hidden],.ms-studio .ms-library-no-results[hidden]{display:none!important}
+.ms-studio .ms-library-no-results{
+ color:#daeaff;text-align:center;padding:23px 8px;font-size:14px;
+ border:1px dashed #577b93;border-radius:11px;
+}
+.ms-studio .ms-saved-game>div{display:flex;gap:7px;flex-wrap:wrap}
+.ms-studio .ms-saved-game>div button{
+ flex:1 1 88px;min-height:42px;padding:9px!important;white-space:normal;
+}
+.ms-studio .ms-saved-game [data-ms-copy]{
+ border-color:#91e6c5!important;background:#155548!important;color:#e8fff3!important;
+}
+.ms-studio .ms-saved-game [data-ms-delete]{
+ flex:0 1 85px;background:#4d2539!important;border-color:#98526d!important;
+}
+@media(max-width:570px){
+ .ms-studio .ms-library{padding:12px}
+ .ms-studio .ms-library-tools{align-items:stretch;padding:9px}
+ .ms-studio .ms-library-summary{padding:0}
+}
