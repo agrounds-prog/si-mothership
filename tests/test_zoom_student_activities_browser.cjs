@@ -150,7 +150,7 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
     documentWidth:document.documentElement.scrollWidth};
   });
   assert.deepEqual([ribbon.question,ribbon.stake,ribbon.lives],
-   ['QUESTION 1 / 5','PLAYING FOR $100','3 CREW LIFELINES LEFT']);
+   ['QUESTION 1 / 5','PLAYING FOR 100 PTS','3 CREW LIFELINES LEFT']);
   assert.match(ribbon.background,/linear-gradient/);
   assert.ok(ribbon.width>=220&&ribbon.documentWidth<=332,'compact companion status fits 330px');
   await page.evaluate(()=>{state.activityRun.million.questionIndex=4;});
