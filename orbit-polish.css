@@ -980,3 +980,26 @@ body.role-student #studentContent .orbit-student-box{
   animation:none!important;transition:none!important;
  }
 }
+
+/* Match the high-specificity projector selectors when disabling motion. */
+@media(prefers-reduced-motion:reduce){
+ body.role-shared .orbit-public.orbit-cosmic::before,
+ body.role-shared .orbit-public.orbit-cosmic::after,
+ body.role-shared .orbit-cosmic .orbit-constellation-cluster,
+ body.role-shared .orbit-cosmic .orbit-space-spark,
+ body.role-shared .orbit-cosmic .orbit-shooting-star,
+ body.role-shared .orbit-cosmic .orbit-space:has(>.orbit-satellites)::before,
+ body.role-shared .orbit-cosmic .orbit-space:has(>.orbit-satellites)::after,
+ body.role-shared .orbit-cosmic .orbit-space[data-orbit-waiting="true"]::before,
+ body.role-shared .orbit-cosmic .orbit-space[data-orbit-waiting="true"]::after,
+ body.role-shared .orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core,
+ body.role-shared .orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core,
+ body.role-shared .orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core::before,
+ body.role-shared .orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core::after,
+ body.role-shared .orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core::before,
+ body.role-shared .orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core::after,
+ body.role-shared .orbit-cosmic .orbit-satellite,
+ body.role-shared .orbit-cosmic .orbit-sat-moon{
+  animation:none!important;transition:none!important;
+ }
+}
