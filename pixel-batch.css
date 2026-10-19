@@ -85,3 +85,352 @@
 @media(prefers-reduced-motion:reduce){
  .pixel-batch-item,.pixel-batch-pick,.pixel-batch-live button{animation:none!important;transition:none!important}
 }
+
+
+/* PIXEL REVEAL · Mission Control teacher interface refinement.
+   Scoped to the teacher's running-activity panel. Does not restyle the
+   shared screen, student input, activity setup, or native gameplay controls. */
+#activityControllerPanel:has(.pixel-controller-grid){
+ padding:clamp(13px,2vw,24px)!important;
+ border:1px solid #3c7aae!important;
+ background:
+  radial-gradient(ellipse at 8% 0%,#186da939,transparent 58%),
+  radial-gradient(ellipse at 100% 65%,#793fbb24,transparent 60%),
+  linear-gradient(150deg,#06182c,#0b1531 67%,#080d20)!important;
+ border-radius:20px!important;
+}
+#activityControllerPanel:has(.pixel-controller-grid)>.activity-controller-head{
+ display:flex;align-items:center;flex-wrap:wrap;gap:12px;
+ margin:0 0 16px!important;padding:14px clamp(13px,2vw,20px)!important;
+ border:1px solid #396d9a;border-radius:17px;
+ background:
+  linear-gradient(90deg,#194b80a8,#173163d4 55%,#35246790),
+  radial-gradient(ellipse at 0 0,#4aceff33,transparent 70%);
+ box-shadow:inset 0 1px #d7f9ff28,0 9px 20px #0005;
+}
+#activityControllerPanel:has(.pixel-controller-grid)>.activity-controller-head .slide-badge{
+ padding:5px 11px;border:1px solid #c39bffb5;border-radius:999px;
+ background:linear-gradient(120deg,#7135da,#ae58ff)!important;
+ box-shadow:0 0 12px #9860ff66;font-size:10px;letter-spacing:.11em;
+}
+#activityControllerPanel:has(.pixel-controller-grid)>.activity-controller-head h2{
+ margin:7px 0 4px!important;color:#fff!important;
+ font:1000 clamp(23px,2.4vw,34px)/1.06 system-ui,sans-serif!important;
+ letter-spacing:-.025em;text-shadow:0 0 15px #82e5ff40;
+}
+#activityControllerPanel:has(.pixel-controller-grid)>.activity-controller-head p{
+ color:#b9dbf4!important;font-size:12px;font-weight:750;
+}
+#activityControllerPanel:has(.pixel-controller-grid)>.activity-controller-head .controller-stats{
+ font-size:11px;font-weight:900;letter-spacing:.035em;color:#c7eaff;
+ border:1px solid #5bb8ec;border-radius:999px;background:#081f3acc;
+ padding:10px 13px;box-shadow:inset 0 1px #ffffff1a;
+}
+#activityControllerPanel .pixel-controller-grid{
+ display:grid!important;
+ grid-template-columns:minmax(0,1.12fr) minmax(315px,.88fr)!important;
+ align-items:stretch;gap:14px!important;min-width:0;
+}
+#activityControllerPanel .pixel-controller-grid>div{min-width:0}
+#activityControllerPanel .pixel-control-board,
+#activityControllerPanel .pixel-control-side{
+ border:1px solid #3c7aab!important;border-radius:18px!important;
+ min-width:0;overflow:hidden;
+ background:
+  radial-gradient(ellipse at 48% 0%,#246ba43b,transparent 64%),
+  linear-gradient(152deg,#0d2851 0%,#081a37 62%,#08142a 100%)!important;
+ box-shadow:inset 0 1px #aee9ff29,0 14px 29px #0005!important;
+}
+#activityControllerPanel .pixel-control-board{padding:clamp(10px,1.4vw,16px)!important}
+#activityControllerPanel .pixel-teacher-preview-head{
+ display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+ gap:7px;margin:0 1px 12px;color:#98eaff;
+ font:950 10px/1.3 system-ui,sans-serif;letter-spacing:.13em;
+}
+#activityControllerPanel .pixel-teacher-preview-head span:first-child{display:flex;align-items:center;gap:7px}
+#activityControllerPanel .pixel-teacher-preview-head i{
+ display:inline-grid;place-items:center;width:25px;height:25px;
+ border:1px solid #85ebff;border-radius:8px;background:#19486f;
+ color:#abf3ff;font-style:normal;font-size:14px;
+ box-shadow:0 0 12px #4abfff45;
+}
+#activityControllerPanel .pixel-teacher-preview-head span:last-child{
+ padding:5px 9px;border:1px solid #476fa2;border-radius:999px;
+ color:#d6eaff;background:#102c4c;font-size:9px;letter-spacing:.07em;
+}
+#activityControllerPanel .pixel-control-board .pixel-public{
+ max-width:none!important;padding:clamp(10px,1.5vw,16px)!important;
+ border:1px solid #5a80bb!important;border-radius:17px!important;
+ background:
+  radial-gradient(circle at 12% 12%,#ac92ff1e 0,transparent 40%),
+  radial-gradient(circle at 85% 90%,#218dca21 0,transparent 60%),
+  linear-gradient(153deg,#161935,#0c152c 75%,#10142c)!important;
+ box-shadow:inset 0 1px #c7eaff22,0 12px 30px #0008!important;
+}
+#activityControllerPanel .pixel-control-board .pixel-public-head{
+ display:flex;align-items:center;flex-wrap:wrap;gap:7px;
+ margin:0 0 13px!important;
+}
+#activityControllerPanel .pixel-control-board .pixel-public-head h3{
+ max-width:290px;margin:6px 0 0!important;
+ font:950 clamp(16px,1.75vw,23px)/1.16 system-ui,sans-serif!important;
+ color:#fff!important;letter-spacing:.005em;
+}
+#activityControllerPanel .pixel-control-board .pixel-public-head .eyebrow{
+ color:#8dedff!important;font-size:10px!important;font-weight:950!important;
+ letter-spacing:.12em!important;
+}
+#activityControllerPanel .pixel-control-board .pixel-public-head .pixel-mode-badge{
+ display:inline-flex;align-items:center;margin-left:6px;
+ padding:4px 7px;border-radius:99px;border:1px solid #4ebce6!important;
+ background:#123c59!important;color:#abf5ff!important;font-size:9px!important;
+}
+#activityControllerPanel .pixel-control-board .pixel-public-head>span{
+ white-space:normal;max-width:130px;text-align:center;flex:0 0 auto;
+ border-color:#5678a7!important;background:#0a2340!important;
+ color:#d6ebff!important;font-size:9px!important;line-height:1.3;
+}
+#activityControllerPanel .pixel-control-board .pixel-mystery-board,
+#activityControllerPanel .pixel-control-board .pixel-focus-board{
+ width:100%!important;max-width:none!important;
+ border:2px solid #80d9ff!important;border-radius:15px!important;
+ box-shadow:0 0 0 3px #4dbfff1b,0 0 26px #31adff22,0 16px 26px #0008!important;
+}
+#activityControllerPanel .pixel-control-board .pixel-mystery-board:after{
+ content:"";position:absolute;inset:0;pointer-events:none;
+ box-shadow:inset 0 0 27px #66dfff35,inset 0 0 3px #fff5;
+}
+#activityControllerPanel .pixel-control-board .pixel-cover{
+ border:1px solid #477eae!important;
+ background:
+  linear-gradient(120deg,#a0f5ff0f,transparent 55%),
+  linear-gradient(145deg,#113c65,#061c39 76%)!important;
+ box-shadow:inset 0 1px #b8f5ff26,inset 0 -9px 13px #0004!important;
+}
+#activityControllerPanel .pixel-control-board .pixel-cover.revealed{
+ box-shadow:none!important;
+}
+#activityControllerPanel .pixel-control-board .pixel-remaining{
+ margin-top:13px!important;color:#d9f3ff!important;
+ font:950 clamp(12px,1.15vw,16px)/1.3 system-ui,sans-serif!important;
+ letter-spacing:.13em!important;text-shadow:0 0 13px #8fd5ff46;
+}
+#activityControllerPanel .pixel-control-side{
+ padding:clamp(14px,1.7vw,20px)!important;
+ display:flex;flex-direction:column;gap:0;
+}
+#activityControllerPanel .pixel-teacher-command-kicker{
+ color:#8de9ff;font:950 10px/1.3 system-ui,sans-serif;
+ letter-spacing:.17em;margin-bottom:7px;
+}
+#activityControllerPanel .pixel-control-side h3{
+ margin:0!important;color:#f8fcff!important;
+ font:950 clamp(19px,1.8vw,26px)/1.15 system-ui,sans-serif!important;
+ letter-spacing:-.022em;
+}
+#activityControllerPanel .pixel-teacher-command-help{
+ margin:7px 0 14px;color:#b7d1e9;font-size:11px;line-height:1.5;
+}
+#activityControllerPanel .pixel-batch-live{
+ margin:0 0 12px!important;padding:12px!important;
+ border:1px solid #467fb4!important;border-radius:13px!important;
+ background:linear-gradient(120deg,#163e71,#122c4d 80%)!important;
+ box-shadow:inset 0 1px #ffffff25!important;gap:9px;
+}
+#activityControllerPanel .pixel-teacher-round-heading{
+ display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;
+}
+#activityControllerPanel .pixel-teacher-round-heading strong{
+ color:#fff!important;font:950 12px/1.3 system-ui,sans-serif;letter-spacing:.1em;
+}
+#activityControllerPanel .pixel-teacher-round-heading span{
+ color:#a0e9ff;font:950 9px/1.3 system-ui,sans-serif;letter-spacing:.11em;
+}
+#activityControllerPanel .pixel-batch-live-actions{
+ grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
+}
+#activityControllerPanel .pixel-batch-live-actions button{
+ padding:9px 7px!important;min-height:43px!important;
+ background:linear-gradient(155deg,#246094,#10395e)!important;
+ border:1px solid #7abcec!important;border-radius:10px!important;
+ box-shadow:inset 0 1px #ffffff20!important;
+ color:#e7f7ff!important;font-size:11px!important;font-weight:950!important;
+ transition:filter .16s,transform .16s,box-shadow .16s;
+}
+#activityControllerPanel .pixel-batch-live small{
+ color:#c0d7f0;font-size:10px;line-height:1.4;
+}
+#activityControllerPanel .pixel-teacher-progress{
+ margin:0 0 15px;padding:12px;
+ border:1px solid #385f93;border-radius:13px;
+ background:linear-gradient(145deg,#091d39,#122744);
+ box-shadow:inset 0 1px #ffffff12;
+}
+#activityControllerPanel .pixel-teacher-progress-top,
+#activityControllerPanel .pixel-teacher-progress-foot{
+ display:flex;align-items:center;justify-content:space-between;
+ flex-wrap:wrap;gap:7px;
+}
+#activityControllerPanel .pixel-teacher-progress-top{
+ color:#9ceaff;font:950 10px/1.3 system-ui,sans-serif;letter-spacing:.1em;
+}
+#activityControllerPanel .pixel-teacher-progress-top b{
+ color:#fff;font-size:16px;letter-spacing:.01em;
+}
+#activityControllerPanel .pixel-teacher-progress-top small{
+ font-size:9px;color:#a8cee9;letter-spacing:.07em;
+}
+#activityControllerPanel .pixel-teacher-progress-track{
+ overflow:hidden;height:10px;margin:8px 0 7px;
+ border:1px solid #5276a0;border-radius:99px;
+ background:#041226;
+}
+#activityControllerPanel .pixel-teacher-progress-track i{
+ display:block;height:100%;border-radius:99px;
+ background:linear-gradient(90deg,#5ae9ff 5%,#7b99ff 60%,#c879ff);
+ box-shadow:0 0 13px #75e9ffc0;transition:width .25s ease;
+}
+#activityControllerPanel .pixel-teacher-progress-foot{
+ font:900 9px/1.35 system-ui,sans-serif;color:#c5d8ef;letter-spacing:.08em;
+}
+#activityControllerPanel .pixel-teacher-progress-foot span:last-child{color:#b3f1ff}
+#activityControllerPanel .pixel-reveal-buttons{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:9px!important;margin:0 0 10px;
+}
+#activityControllerPanel .pixel-reveal-buttons button,
+#activityControllerPanel #pixelResultsBtn{
+ position:relative;min-width:0;min-height:54px!important;
+ padding:10px 9px!important;border-radius:12px!important;
+ font:950 clamp(12px,1.2vw,15px)/1.3 system-ui,sans-serif!important;
+ white-space:normal!important;
+ color:#f8fbff!important;
+ border:1px solid #6bbdf2!important;
+ background:linear-gradient(140deg,#205a98,#133b76 64%,#123159)!important;
+ box-shadow:inset 0 1px #ffffff35,0 5px 13px #0004!important;
+ text-shadow:0 1px 2px #082047;
+ transition:filter .16s,transform .16s,box-shadow .16s;
+}
+#activityControllerPanel .pixel-reveal-buttons button[data-pixel-reveal]:before{
+ content:"✦";font-size:12px;margin-right:7px;color:#adf8ff;
+}
+#activityControllerPanel #pixelRevealAllBtn{
+ color:#fff!important;border-color:#c9a0ff!important;
+ background:linear-gradient(135deg,#7b38c9,#9b49db 59%,#5634b9)!important;
+ box-shadow:inset 0 1px #ffffff47,0 0 15px #a76dff42!important;
+}
+#activityControllerPanel #pixelRevealAllBtn:before{content:"✧";margin-right:7px}
+#activityControllerPanel #pixelResultsBtn{
+ width:100%!important;min-height:46px!important;
+ margin:0 0 10px!important;border-color:#5ab59f!important;
+ background:linear-gradient(120deg,#164a59,#1c4d74)!important;
+}
+#activityControllerPanel .pixel-reveal-buttons button:enabled:hover,
+#activityControllerPanel #pixelResultsBtn:enabled:hover,
+#activityControllerPanel .pixel-batch-live-actions button:enabled:hover{
+ filter:brightness(1.14);transform:translateY(-1px);
+}
+#activityControllerPanel .pixel-reveal-buttons button:disabled,
+#activityControllerPanel #pixelResultsBtn:disabled,
+#activityControllerPanel .pixel-batch-live-actions button:disabled{
+ opacity:.48!important;filter:saturate(.55);
+ cursor:not-allowed!important;transform:none!important;
+}
+#activityControllerPanel .pixel-private-guesses{
+ position:relative;margin:5px 0 12px!important;padding:13px 0 0!important;
+ max-height:210px;overflow-y:auto;overflow-x:hidden;
+ border-top:1px solid #3d6391!important;
+ scrollbar-color:#4a82b1 #091a33;
+}
+#activityControllerPanel .pixel-private-guesses>.eyebrow{
+ font:950 10px/1.3 system-ui,sans-serif!important;
+ color:#95ecff!important;letter-spacing:.15em;
+}
+#activityControllerPanel .pixel-teacher-guess-count{
+ float:right;padding:3px 8px;border:1px solid #4875a3;
+ border-radius:99px;background:#153759;color:#cbeaff;
+ font:950 9px/1.25 system-ui,sans-serif;
+}
+#activityControllerPanel .pixel-private-guesses .empty{
+ padding:12px 9px!important;color:#b8d3ed!important;
+ font-size:11px!important;text-align:center;
+}
+#activityControllerPanel .pixel-guess-row{
+ align-items:center;gap:7px;margin-top:8px;padding:9px!important;
+ border:1px solid #385e86!important;border-radius:10px!important;
+ background:linear-gradient(130deg,#143052,#0e2342)!important;
+}
+#activityControllerPanel .pixel-guess-row>b,
+#activityControllerPanel .pixel-guess-row b{color:#f5faff;font-size:12px!important}
+#activityControllerPanel .pixel-guess-row small{color:#c7d7ed!important;font-size:10px!important}
+#activityControllerPanel .pixel-guess-row button{
+ min-height:29px;min-width:29px;border-radius:7px;
+ border:1px solid #527ca7;background:#173f63;color:#d5f7ff;font-weight:950;
+}
+#activityControllerPanel .pixel-control-side .board-global-actions{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:8px!important;margin:0!important;padding:12px 0 0!important;
+ border-top:1px solid #3d6089;
+}
+#activityControllerPanel .pixel-teacher-session-label{
+ grid-column:1/-1;margin-bottom:2px;
+ font:950 10px/1.3 system-ui,sans-serif;letter-spacing:.16em;color:#91dded;
+}
+#activityControllerPanel .pixel-control-side .board-global-actions button{
+ min-width:0!important;min-height:49px!important;
+ padding:10px 7px!important;white-space:normal!important;
+ font:900 11px/1.3 system-ui,sans-serif!important;
+ border-radius:11px!important;
+ border:1px solid #66a1d5!important;
+ background:linear-gradient(145deg,#205b82,#12345b)!important;
+ color:#ebf8ff!important;box-shadow:inset 0 1px #ffffff30!important;
+}
+#activityControllerPanel .pixel-control-side #returnClassBtn{
+ border-color:#5fdaba!important;
+ background:linear-gradient(140deg,#116e70,#135167)!important;
+}
+#activityControllerPanel .pixel-control-side #sendActivityLobbyBtn{
+ border-color:#a18bf1!important;
+ background:linear-gradient(145deg,#3d3a91,#283469)!important;
+}
+#activityControllerPanel .pixel-control-side #emergencyActivityBtn{
+ grid-column:1/-1;min-height:39px!important;
+ border-color:#955975!important;
+ background:linear-gradient(120deg,#401b38,#311b37)!important;
+ color:#ffc0d2!important;
+}
+#activityControllerPanel .pixel-control-side .board-global-actions button:hover{
+ filter:brightness(1.12);
+}
+#activityControllerPanel .pixel-controller-grid button:focus-visible{
+ outline:3px solid #fbd67d!important;outline-offset:2px!important;
+}
+@media(max-width:960px){
+ #activityControllerPanel .pixel-controller-grid{
+  grid-template-columns:minmax(0,1fr)!important;
+ }
+ #activityControllerPanel .pixel-control-board .pixel-public-head h3{
+  max-width:none;
+ }
+ #activityControllerPanel .pixel-control-side{overflow:visible}
+}
+@media(max-width:520px){
+ #activityControllerPanel:has(.pixel-controller-grid){padding:9px!important}
+ #activityControllerPanel:has(.pixel-controller-grid)>.activity-controller-head{
+  padding:11px!important;
+ }
+ #activityControllerPanel .pixel-control-board,
+ #activityControllerPanel .pixel-control-side{padding:10px!important}
+ #activityControllerPanel .pixel-control-board .pixel-public{padding:9px!important}
+ #activityControllerPanel .pixel-control-board .pixel-public-head h3{font-size:16px!important}
+ #activityControllerPanel .pixel-batch-live-actions button{font-size:10px!important}
+ #activityControllerPanel .pixel-reveal-buttons button{min-height:49px!important;font-size:12px!important}
+ #activityControllerPanel .pixel-private-guesses{max-height:225px}
+}
+@media(prefers-reduced-motion:reduce){
+ #activityControllerPanel .pixel-controller-grid button,
+ #activityControllerPanel .pixel-teacher-progress-track i,
+ #activityControllerPanel .pixel-control-board .pixel-cover{
+  transition:none!important;animation:none!important;
+ }
+}
