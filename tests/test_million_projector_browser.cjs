@@ -46,6 +46,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   await teacher.evaluate(()=>startOrResumeActivityRun());
   await teacher.waitForFunction(()=>state.activityRun?.phase==='running',{timeout:10000});
   await screen.waitForFunction(()=>document.querySelector('.million-public')?.querySelectorAll('.million-choice').length===4,{timeout:12000});
+  await screen.waitForFunction(()=>document.querySelector('.million-public.big .million-stakes-amount')?.textContent.includes('PTS'),null,{timeout:8500});
   const first=await screen.evaluate(()=>{
    const root=document.querySelector('.million-public.big')||document.querySelector('.million-public');
    return {rungCount:root.querySelectorAll('.million-rung').length,
@@ -54,7 +55,14 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
     noKey:state.activityRun.millionConfig.questions.every(q=>!('correct' in q)),role:document.body.className};
   });
   assert.equal(first.rungCount,5);
-  assert.equal(first.prize,'$100');
+  const currencyAudit=await screen.evaluate(()=>{
+   const b=document.querySelector('.million-public.big');
+   const list=['.million-rung','.million-stakes-amount','.ms-million-question-prize'];
+   return list.map(sel=>({selector:sel,labels:[...b.querySelectorAll(sel)].map(el=>el.textContent)}));
+  });
+  assert.ok(currencyAudit.every(section=>section.labels.every(label=>!label.includes('$'))),
+   'no currency symbols in MILLION score widgets');
+  assert.equal(first.prize,'100 PTS');
   await screen.waitForFunction(()=>!!document.querySelector('.million-public.big .ms-million-ladder-progress')&&
    !!document.querySelector('.million-public.big .ms-million-question-band'),null,{timeout:7000});
   const showProgress=await screen.evaluate(()=>{
@@ -67,7 +75,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
     final:b.dataset.msFinalQuestion,
     publicOnly:state.activityRun.millionConfig.questions.every(q=>!('correct' in q))};
   });
-  assert.deepEqual(showProgress,{question:'QUESTION 01 / 05',value:'ON THE LINE · $100',
+  assert.deepEqual(showProgress,{question:'QUESTION 01 / 05',value:'ON THE LINE · 100 PTS',
    progress:'0 / 5 SECURED',fill:'0%',final:'false',publicOnly:true},
    'new prize ladder HUD reflects only public state');
   // Phase 3D: the new theme must be visible on the actual projector, not a mockup.
@@ -202,7 +210,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
     await screen.waitForFunction(()=>{
      const game=document.querySelector('.million-public.big');
      return game?.dataset.msFinalQuestion==='true'&&
-      game.querySelector('.ms-million-question-prize')?.textContent.includes('$1,000,000');
+      game.querySelector('.ms-million-question-prize')?.textContent.includes('1,000,000 PTS');
     },null,{timeout:8500});
     const finalQuestion=await screen.evaluate(()=>{
      const board=document.querySelector('.million-public.big');
@@ -214,7 +222,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
       cue:cue?.className,
       noKey:state.activityRun.millionConfig.questions.every(q=>!('correct' in q))};
     });
-    assert.match(finalQuestion.label,/GRAND PRIZE QUESTION.*\$1,000,000/);
+    assert.match(finalQuestion.label,/FINAL QUESTION.*1,000,000 PTS/);
     assert.ok(parseFloat(finalQuestion.border)>=2);
     assert.match(finalQuestion.glow,/rgb/);
     assert.match(finalQuestion.cue,/is-final-question/);
@@ -258,7 +266,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
       prize:cue.textContent,
       hiddenKey:state.activityRun.millionConfig.questions.every(q=>!('correct' in q))};
     });
-    assert.equal(awarded.footer,'THE PRIZE LADDER ADVANCES');
+    assert.equal(awarded.footer,'THE POINT LADDER ADVANCES');
     assert.equal(awarded.beats,5);
     assert.match(awarded.animation,/ms3e-burst/);
     assert.match(awarded.prize,/MILESTONE REACHED/);
@@ -298,7 +306,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
    assert.equal(parseFloat(meter),(i+1)*20,'prize bar follows actually earned levels');
    assert.equal(result.noKey,true);
    assert.equal(result.complete,i===4,'completion '+i);
-   if(i===4)assert.equal(result.stake,'$1,000,000');
+   if(i===4)assert.equal(result.stake,'1,000,000 PTS');
    if(i<4)await teacher.evaluate(()=>millionNextQuestion());
   }
   assert.equal(await teacher.locator('#millionNextBtn').isDisabled(),true,'no next after million complete');
@@ -364,7 +372,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
       rect:{left:Math.round(rect.left),right:Math.round(rect.right),width:Math.round(rect.width),height:Math.round(rect.height)},viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,stageWidth:Math.round(board.parentElement.getBoundingClientRect().width),inViewport:rect.width>200&&rect.left>=0&&rect.right<=innerWidth+5,
       privateAnswerHidden:!('correct' in state.activityRun.millionConfig.questions[0])};
   });
-  assert.deepEqual([results.title,results.value],['MILLION COMPLETE','$1,000,000']);
+  assert.deepEqual([results.title,results.value],['MILLION COMPLETE','1,000,000 POINTS']);
   assert.deepEqual(results.metrics,['5 / 5','5 / 5']);
   assert.equal(results.count,1);
   console.log('MILLION FINAL RESULTS GEOMETRY',JSON.stringify(results));
@@ -376,7 +384,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
    return {finished:dock?.dataset.finished,
     text:dock?.querySelector('.si-utc-finish')?.textContent,
     disabled:dock?.querySelector('.si-utc-finish')?.disabled,
-    prize:dock?.textContent.includes('FINAL PRIZE')};
+    prize:dock?.textContent.includes('FINAL POINTS')};
   });
   assert.deepEqual(finishHUD,{finished:'true',text:'Return to Class',disabled:false,prize:true},
    'Mission Control displays native postgame return and final prize');
@@ -399,7 +407,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.equal(ended.before,ended.after,'classic risk game cannot advance');
   assert.equal(ended.nextDisabled,true);
   // Phase 3C: read the actual rolled-back checkpoint, not guessed winnings.
-  await screen.waitForFunction(()=>document.querySelector('.million-public.big .ms-million-final-results')?.querySelector('.ms-million-final-prize>span')?.textContent==='SAFE CHECKPOINT',null,{timeout:12000});
+  await screen.waitForFunction(()=>document.querySelector('.million-public.big .ms-million-final-results')?.querySelector('.ms-million-final-prize>span')?.textContent==='CHECKPOINT POINTS',null,{timeout:12000});
   const classic=await teacher.evaluate(()=>{
    const m=state.activityRun.million,cfg=state.activityRun.millionConfig;
    return {level:m.ladderLevel,amount:m.ladderLevel?cfg.ladder[m.ladderLevel-1]:0};
@@ -410,7 +418,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
     money:r.querySelector('.ms-million-final-prize>strong').textContent,
     description:r.querySelector('.ms-million-final-description').textContent};
   });
-  assert.equal(classicShown.money,'$'+Number(classic.amount).toLocaleString('en-US'));
+  assert.equal(classicShown.money,Number(classic.amount).toLocaleString('en-US')+' POINTS');
   assert.match(classicShown.description,/Classic mode/);
   const finalSizes=[];
   for(const [width,height] of [[880,720],[700,500]]){
@@ -438,7 +446,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   });
   await screen.waitForFunction(()=>{
    const p=document.querySelector('.million-public.big .ms-million-final-results');
-   return p?.querySelector('.ms-million-final-prize strong')?.textContent==='$0';
+   return p?.querySelector('.ms-million-final-prize strong')?.textContent==='0 POINTS';
   },null,{timeout:12000});
   const zero=await screen.locator('.million-public.big .ms-million-final-description').textContent();
   assert.match(zero,/no safe checkpoint/i);
