@@ -955,3 +955,93 @@ body.role-student #studentContent .ma-student-earned b{color:#aeffda!important}
   animation:none!important;transition:none!important;
  }
 }
+
+
+/* Phase 3I · shared/student MATCH phase harmony.
+   Visual feedback follows the real selected cards, turn lock, preview and
+   pair-resolution flags. CSS never changes the native scoring/turn rules. */
+.ma-game[data-turn-phase="second-card"] .ma-signal,
+.ma-game[data-turn-phase="second-card"] .ma-student-heading{
+ border-color:#ffdea1!important;
+ box-shadow:inset 0 0 0 1px #ffe8af44,0 0 20px #eac57b42;
+}
+.ma-game[data-turn-phase="second-card"] .ma-tile.is-selected{
+ border-color:#ffe09c!important;
+ box-shadow:0 0 20px #ffdb89a8,0 4px 12px #0009!important;
+}
+.ma-game[data-turn-phase="preview"] .ma-board-surround{
+ border-color:#f8d995!important;
+ box-shadow:inset 0 0 0 3px #fff0b526,0 0 24px #ffe2a25a;
+}
+.ma-game[data-turn-phase="miss"] .ma-signal,
+.ma-game[data-turn-phase="miss"] .ma-student-heading{
+ border-color:#f6b1a3!important;background:linear-gradient(115deg,#5e354c,#1a3c58)!important;
+}
+.ma-game[data-turn-phase="hold"] .ma-signal,
+.ma-game[data-turn-phase="hold"] .ma-student-heading{
+ border-color:#edc992!important;filter:saturate(.8);
+}
+.ma-game[data-turn-phase="matched"] .ma-student-heading{
+ border-color:#9bffe0!important;
+ box-shadow:0 0 20px #65f2b15f,inset 0 0 0 1px #a0ffe448;
+}
+.ma-game[data-turn-phase="complete"] .ma-student-heading{
+ border-color:#ffe6ad!important;box-shadow:0 0 19px #ffe09264;
+}
+#student .ma-student-status>.ma-phase-pill{
+ display:inline-flex;align-items:center;justify-content:center;
+ min-height:36px;border:2px solid #a5e8f7;border-radius:999px;
+ background:linear-gradient(105deg,#173c5a,#1d4570);
+ color:#eaffff;font:950 clamp(10px,2.8vw,13px)/1.2 system-ui,sans-serif;
+ letter-spacing:.055em;text-align:center;
+}
+#student .ma-student[data-turn-phase="second-card"] .ma-phase-pill,
+#student .ma-student[data-turn-phase="preview"] .ma-phase-pill{
+ border-color:#ffe6ad;background:linear-gradient(105deg,#58441f,#313d67);color:#fff5d8;
+}
+#student .ma-student[data-turn-phase="matched"] .ma-phase-pill{
+ border-color:#aeffe4;background:linear-gradient(105deg,#11624d,#174e62);color:#e1fff0;
+}
+#student .ma-student[data-turn-phase="miss"] .ma-phase-pill{
+ border-color:#ffc8b2;background:linear-gradient(105deg,#66394a,#2c3557);color:#fff0e7;
+}
+#student .ma-student[data-turn-phase="complete"] .ma-phase-pill{
+ border-color:#fff0c1;background:linear-gradient(105deg,#84642b,#3b4973);color:#fff4d4;
+}
+#student .ma-student .ma-tile.is-selected:not(.is-matched){
+ border-color:#ffeab9!important;box-shadow:0 0 17px #ffe19c8f;
+}
+@media(max-width:390px){
+ #student .ma-student-status>.ma-phase-pill{flex:1 1 100%;min-height:28px;font-size:11px}
+ #student .ma-student-status{gap:5px}
+}
+@media(prefers-reduced-motion:no-preference){
+ #shared .ma-present[data-turn-phase="second-card"] .ma-tile.is-selected{
+  animation:ma3i-second-card-pulse .8s ease-in-out 2;
+ }
+ #shared .ma-present[data-turn-phase="preview"] .ma-board-surround{
+  animation:ma3i-preview-glow 1.25s ease-in-out 2;
+ }
+ #student .ma-student[data-turn-phase="matched"] .ma-phase-pill{
+  animation:ma3i-phase-pop .55s ease-out both;
+ }
+ @keyframes ma3i-second-card-pulse{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.3)}
+ }
+ @keyframes ma3i-preview-glow{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.15)}
+ }
+ @keyframes ma3i-phase-pop{
+  from{opacity:.65;transform:scale(.95)}
+  to{opacity:1;transform:scale(1)}
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #shared .ma-present[data-turn-phase="second-card"] .ma-tile.is-selected,
+ #shared .ma-present[data-turn-phase="preview"] .ma-board-surround,
+ #student .ma-student .ma-phase-pill{
+  animation:none!important;transition:none!important;
+ }
+}
