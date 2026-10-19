@@ -63,13 +63,12 @@
    else groups.set('Unclustered',unclustered);
   }
   const populated=[...groups].filter(([,ideas])=>ideas.length);
+  // Seed an empty cluster round too: its very first incoming crew idea should
+  // animate once, not be mistaken for a restored historical response.
+  const arrivals=arrivalFor(run,Object.entries(run?.orbitResponses||{}));
   if(!populated.length)return '<div class="orbit-solar-empty" role="status">'+
    '<span aria-hidden="true">✧</span><strong>Awaiting ideas for the solar systems</strong>'+
    '<p>Student responses will appear in the teacher’s groups.</p></div>';
-  // Shared-screen refreshes can repaint a grouped view many times per minute.
-  // Only a genuinely new transmission gets an entrance; existing planets
-  // keep their place. Do not alter the underlying assignment or response.
-  const arrivals=arrivalFor(run,Object.entries(run?.orbitResponses||{}));
   const total=populated.reduce((sum,[,ideas])=>sum+ideas.length,0);
   const summary='<div class="orbit-solar-summary" aria-label="'+populated.length+
    ' solar systems and '+total+' ideas"><span aria-hidden="true">✦</span> '+
