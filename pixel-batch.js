@@ -464,7 +464,12 @@
    }
    const button=entry.querySelector('#sendPixelGuessBtn');
    if(button){
-    const update=()=>{button.disabled=!input.value.trim();};
+    const update=()=>{
+     // Native classroom redraws may replace the action while retaining the
+     // original input node. Always update the current live button.
+     const live=entry.querySelector('#sendPixelGuessBtn');
+     if(live)live.disabled=!input.value.trim();
+    };
     if(!input.dataset.pixelSimpleWired){
      input.dataset.pixelSimpleWired='1';
      input.addEventListener('input',update);
