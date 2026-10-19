@@ -815,3 +815,143 @@ body.role-student #studentContent .ma-student-earned b{color:#aeffda!important}
  #shared .ma-present .ma-final-row{min-height:22px;padding:3px 5px;gap:4px}
  #shared .ma-present .ma-final-more{font-size:10px}
 }
+
+
+/* Phase 3H · MATCH arcade premiere.
+   Independent visual effects only: underlying score, card visibility, turn
+   order, teacher controls and classroom restoration are all unchanged. */
+#shared .ma-present{
+ background:
+ radial-gradient(ellipse at 50% 24%,#2074b177,transparent 49%),
+ radial-gradient(ellipse at 6% 98%,#3452a077,transparent 56%),
+ radial-gradient(ellipse at 96% 90%,#22579368,transparent 55%),
+ linear-gradient(155deg,#04132e,#082249 49%,#040e23)!important;
+}
+#shared .ma-present .ma-board-surround{
+ position:relative;isolation:isolate;
+ border:2px solid #82dff5!important;border-radius:24px!important;
+ background:radial-gradient(ellipse at 50% 14%,#2f659f3a,transparent 66%),
+ linear-gradient(165deg,#071c42,#08162c)!important;
+ box-shadow:inset 0 0 0 3px #caf5ff21,inset 0 0 46px #468af026,
+ 0 10px 42px #000b,0 0 26px #43bdff36!important;
+}
+#shared .ma-present .ma-tile{
+ border-width:3px!important;border-radius:clamp(8px,1vw,19px)!important;
+ box-shadow:inset 0 0 0 2px #fff2ce17,0 6px 17px #0009,0 0 13px #4d9ee341;
+}
+#shared .ma-present .ma-tile.is-selected{
+ border-color:#fff0ba!important;box-shadow:0 0 21px #ffe39a7b,0 6px 15px #0009!important;
+}
+#shared .ma-present .ma-tile.is-matched{
+ border-color:#bfffe1!important;box-shadow:0 0 19px #78f6c18f,0 6px 16px #0008!important;
+}
+#shared .ma-present .ma-tile.is-preview{
+ border-color:#ffe3a4!important;box-shadow:0 0 19px #ffcc718a,0 7px 17px #000a!important;
+}
+#shared .ma-present .ma-score-chip.active{
+ border:2px solid #bfffe5!important;box-shadow:0 0 15px #72faca65,inset 0 1px #ffffff34;
+}
+#shared .ma-present .ma-status-matched .ma-signal{
+ border-color:#94ffe3;
+}
+.ma-game .ma-pair-streaks,.ma-game .ma-victory-halo{
+ position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;border-radius:inherit;
+}
+.ma-game .ma-pair-streaks i{
+ position:absolute;left:50%;top:50%;width:30%;height:3px;border-radius:99px;
+ background:linear-gradient(90deg,transparent,#d5fff4,#a8fbd6,transparent);
+ box-shadow:0 0 18px #90ffe0;
+ transform-origin:left center;
+}
+.ma-game .ma-pair-streaks i:nth-child(1){transform:rotate(0deg)}
+.ma-game .ma-pair-streaks i:nth-child(2){transform:rotate(72deg)}
+.ma-game .ma-pair-streaks i:nth-child(3){transform:rotate(144deg)}
+.ma-game .ma-pair-streaks i:nth-child(4){transform:rotate(216deg)}
+.ma-game .ma-pair-streaks i:nth-child(5){transform:rotate(288deg)}
+.ma-game .ma-stage-victory{
+ border:3px solid #ffe2a0!important;
+ background:radial-gradient(ellipse at 50% -19%,#a37c3994,transparent 69%),
+  radial-gradient(ellipse at 50% 98%,#284f7888,transparent 64%),
+  linear-gradient(145deg,#10274af2,#07162eee)!important;
+ box-shadow:inset 0 0 0 3px #fff1c124,0 17px 70px #000d,0 0 42px #ffd57d8a!important;
+}
+.ma-game .ma-victory-halo{
+ background:
+ radial-gradient(circle at 50% 42%,transparent 0 23%,#ffe6ac21 23.5% 24%,transparent 25% 40%,#ffdb9931 40.5% 41%,transparent 42%),
+ repeating-conic-gradient(from 18deg at 50% 42%,#ffe6a000 0deg 19deg,#ffe6aa13 21deg 27deg,#ffe6a000 30deg 54deg);
+}
+.ma-game .ma-victory-halo i{
+ position:absolute;display:block;top:8%;width:14px;height:14px;transform:rotate(45deg);
+ background:#ffe8b1;box-shadow:0 0 17px #ffc56bbb;
+}
+.ma-game .ma-victory-halo i:nth-child(1){left:11%}
+.ma-game .ma-victory-halo i:nth-child(2){left:50%;top:4%;width:9px;height:9px}
+.ma-game .ma-victory-halo i:nth-child(3){right:11%}
+.ma-game .ma-stage-victory .ma-final-results{
+ border:2px solid #c5b67d;
+ background:linear-gradient(146deg,#0b2444ee,#123953e9)!important;
+ box-shadow:inset 0 0 0 2px #e9efbc1b,0 8px 19px #0007;
+}
+.ma-game .ma-final-row.is-leading{
+ border:2px solid #ffdda0!important;
+ background:linear-gradient(105deg,#866126,#4b5d4c,#15435c)!important;
+ box-shadow:inset 3px 0 #ffeeba,0 0 14px #ffdf8f69!important;
+}
+.ma-game .ma-final-row.is-leading .ma-final-rank{
+ color:#fff6d7;text-shadow:0 0 10px #ffd577;
+}
+#student .ma-student .ma-student-final{
+ border:2px solid #ffe4a7!important;border-radius:16px;
+ background:radial-gradient(ellipse at 50% -35%,#91703d86,transparent 72%),
+ linear-gradient(120deg,#233c63,#124a56)!important;
+ box-shadow:inset 0 0 0 2px #fff5bd2a,0 0 18px #ffd58740;
+}
+#student .ma-student .ma-tile.is-matched{
+ box-shadow:0 0 15px #93fbd083,0 4px 11px #0007!important;
+}
+@media(prefers-reduced-motion:no-preference){
+ #shared .ma-present .ma-stage-pair .ma-pair-streaks i{
+  animation:ma3h-pair-rays .75s ease-out both;
+ }
+ #shared .ma-present .ma-stage-victory .ma-victory-halo{
+  animation:ma3h-halo-entry 1.5s ease-out both;
+ }
+ #shared .ma-present .ma-stage-victory .ma-victory-halo i{
+  animation:ma3h-glimmer 1.4s ease-in-out 2 alternate;
+ }
+ #shared .ma-present .ma-stage-victory .ma-final-row{
+  animation:ma3h-score-entry .55s ease-out both;
+ }
+ #shared .ma-present .ma-stage-victory .ma-final-row:nth-child(2){animation-delay:.08s}
+ #shared .ma-present .ma-stage-victory .ma-final-row:nth-child(3){animation-delay:.16s}
+ #shared .ma-present .ma-stage-victory .ma-final-row:nth-child(4){animation-delay:.24s}
+ @keyframes ma3h-pair-rays{
+  from{opacity:0;filter:brightness(1.55);width:6%}
+  65%{opacity:1;width:38%}
+  to{opacity:.8;width:30%}
+ }
+ @keyframes ma3h-halo-entry{
+  from{opacity:0;transform:scale(.65) rotate(-9deg)}
+  to{opacity:1;transform:scale(1) rotate(0)}
+ }
+ @keyframes ma3h-glimmer{
+  from{opacity:.4;filter:brightness(.8)}
+  to{opacity:1;filter:brightness(1.55)}
+ }
+ @keyframes ma3h-score-entry{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+ }
+}
+@media(max-height:560px){
+ #shared .ma-present .ma-stage-victory .ma-victory-halo i{width:7px;height:7px}
+ #shared .ma-present .ma-final-rows{max-height:unset}
+}
+@media(prefers-reduced-motion:reduce){
+ #shared .ma-present .ma-pair-streaks *,
+ #shared .ma-present .ma-victory-halo,
+ #shared .ma-present .ma-victory-halo *,
+ #shared .ma-present .ma-stage-victory .ma-final-row{
+  animation:none!important;transition:none!important;
+ }
+}
