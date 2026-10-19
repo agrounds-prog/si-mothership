@@ -230,12 +230,13 @@ body.role-student .orbit-student-controls button{
 .orbit-public.orbit-cosmic::before{
  position:absolute!important;inset:0!important;transform:none!important;
  background-image:
+  url("/orbit-nebula.svg"),
   radial-gradient(circle,#defbff 0 1px,transparent 1.7px),
   radial-gradient(circle,#cb9cff 0 1.4px,transparent 2px),
   radial-gradient(circle,#80d6ff 0 1px,transparent 1.7px),
   radial-gradient(ellipse at 18% 86%,#6750bd28,transparent 50%)!important;
- background-size:83px 83px,137px 137px,193px 193px,100% 100%!important;
- background-position:8px 17px,44px 60px,9px 88px,0 0!important;
+ background-size:cover,83px 83px,137px 137px,193px 193px,100% 100%!important;
+ background-position:center,8px 17px,44px 60px,9px 88px,0 0!important;
  opacity:.75!important;animation:none!important;pointer-events:none!important;z-index:0!important;
 }
 .orbit-public.orbit-cosmic::after{
