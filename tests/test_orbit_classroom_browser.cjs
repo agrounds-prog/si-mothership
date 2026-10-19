@@ -95,6 +95,39 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(verbose.satellites,0,'long response should not overflow a planet');
   assert.equal(verbose.gallery,1);
   assert.ok(verbose.fullText>160);
+  // The redesigned waiting scene uses the same planet treatment before the
+  // first response and reports real run phases without changing submissions.
+  const cosmicStates=await t.evaluate(()=>{
+   const base=state.activityRun;
+   const markup=(responses,paused)=>orbitSharedMarkup({
+    ...base,orbitResponses:responses,orbitPaused:paused,
+    orbitSpotlight:null,orbitCompare:false,orbitClusterView:false
+   },true);
+   const view=html=>{
+    const root=document.createElement('div');root.innerHTML=html;
+    const surface=root.querySelector('.orbit-cosmic');
+    return {phase:surface?.dataset.orbitPhase,
+     text:surface?.querySelector('.orbit-cosmic-state')?.textContent,
+     waiting:!!surface?.querySelector('.orbit-space[data-orbit-waiting]'),
+     planet:!!surface?.querySelector('.orbit-space .orbit-core'),
+     status:surface?.querySelector('.orbit-cosmic-tally')?.getAttribute('aria-label')};
+   };
+   const first=Object.fromEntries(Object.entries(base.orbitResponses).slice(0,1));
+   return {empty:view(markup({},false)),
+    collecting:view(markup(first,false)),
+    paused:view(markup(first,true)),
+    complete:view(markup(base.orbitResponses,false))};
+  });
+  assert.deepEqual([cosmicStates.empty.phase,cosmicStates.collecting.phase,
+   cosmicStates.paused.phase,cosmicStates.complete.phase],
+   ['waiting','collecting','paused','complete']);
+  assert.equal(cosmicStates.empty.waiting,true);
+  assert.equal(cosmicStates.empty.planet,true);
+  assert.equal(cosmicStates.collecting.waiting,false);
+  assert.match(cosmicStates.empty.text,/AWAITING CREW IDEAS/);
+  assert.match(cosmicStates.paused.text,/TRANSMISSIONS PAUSED/);
+  assert.match(cosmicStates.complete.text,/ALL CREW RESPONDED/);
+  assert.match(cosmicStates.empty.status,/0 of 24/);
   // The teacher meter must be derived from native run state, never from a
   // synthetic tally that could diverge from the classroom session.
   await t.evaluate(()=>{
