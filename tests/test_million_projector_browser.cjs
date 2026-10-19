@@ -128,6 +128,14 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.match(phase3Visual[1].stageBackground,/gradient/);
 
   assert.equal(first.noKey,true);
+  const entranceState=await screen.evaluate(()=>{
+   const b=document.querySelector('.million-public.big');
+   return {phase:b.dataset.msRevealStep,entering:b.dataset.msEntering,
+     current:b.querySelector('.ms-million-question-number')?.textContent};
+  });
+  assert.equal(entranceState.phase,'ready','new MILLION question is ready before locking');
+  assert.ok(['true','false'].includes(entranceState.entering),'projector tracks question-entry phase');
+  assert.match(entranceState.current,/QUESTION 01/);
   assert.equal(await screen.locator('.ms-studio').count(),0,'game editor is teacher only');
 
   // Live teacher action must visibly remove exactly two wrong choices on
@@ -268,6 +276,17 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
       protected:state.activityRun.millionConfig.questions.every(q=>!('correct' in q))};
     });
     assert.equal(lockedShow.phase,'locked');
+    await teacher.waitForFunction(()=>
+     document.querySelector('#siUnifiedTeacherDeck')?.dataset.revealStep==='locked'&&
+     document.querySelector('#siUnifiedTeacherDeck .si-utc-step-note')?.dataset.step==='locked',
+     null,{timeout:9000});
+    const controlLock=await teacher.evaluate(()=>{
+     const deck=document.querySelector('#siUnifiedTeacherDeck');
+     return {prompt:deck.querySelector('.si-utc-step-note')?.textContent,
+      focus:[...deck.querySelectorAll('.si-utc-focus-action')].map(el=>el.textContent)};
+    });
+    assert.match(controlLock.prompt,/Reveal the answer/);
+    assert.ok(controlLock.focus.some(x=>x.includes('Reveal Answer')),'teacher highlights native reveal action');
     assert.match(lockedShow.footer,/ANSWER IS IN/);
     assert.equal(lockedShow.beats,5);
     assert.match(lockedShow.animation,/ms3e-suspense/);
@@ -286,6 +305,20 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
       hiddenKey:state.activityRun.millionConfig.questions.every(q=>!('correct' in q))};
     });
     assert.equal(awarded.footer,'THE POINT LADDER ADVANCES');
+    await teacher.waitForFunction(()=>
+     document.querySelector('#siUnifiedTeacherDeck')?.dataset.revealStep==='revealed'&&
+     document.querySelector('#siUnifiedTeacherDeck .si-utc-step-note')?.dataset.step==='revealed',
+     null,{timeout:9000});
+    const controlReveal=await teacher.evaluate(()=>{
+     const deck=document.querySelector('#siUnifiedTeacherDeck');
+     return {prompt:deck.querySelector('.si-utc-step-note')?.textContent,
+      focus:[...deck.querySelectorAll('.si-utc-focus-action')].map(el=>el.textContent)};
+    });
+    assert.match(controlReveal.prompt,/next question/i);
+    assert.ok(controlReveal.focus.some(x=>x.includes('Next Question')),'teacher highlights native next action');
+    await screen.waitForFunction(()=>
+      document.querySelector('.million-public.big')?.dataset.msRevealStep==='revealed',
+      null,{timeout:8000});
     assert.equal(awarded.beats,5);
     assert.match(awarded.animation,/ms3e-burst/);
     assert.match(awarded.prize,/POINTS EARNED: 100 PTS/);
@@ -326,7 +359,15 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
    assert.equal(result.noKey,true);
    assert.equal(result.complete,i===4,'completion '+i);
    if(i===4)assert.equal(result.stake,'1,000,000 PTS');
-   if(i<4)await teacher.evaluate(()=>millionNextQuestion());
+   if(i<4){
+    await teacher.evaluate(()=>millionNextQuestion());
+    await screen.waitForFunction(next=>{
+     const board=document.querySelector('.million-public.big');
+     return state.activityRun?.million?.questionIndex===next&&
+      board?.dataset.msRevealStep==='ready'&&
+      board.querySelector('.ms-million-question-number')?.textContent.includes(String(next+1).padStart(2,'0'));
+    },i+1,{timeout:10000});
+   }
   }
   assert.equal(await teacher.locator('#millionNextBtn').isDisabled(),true,'no next after million complete');
   await screen.waitForFunction(()=>document.querySelector('#msMillionStageCue')?.classList.contains('complete')===true,{timeout:6000});
