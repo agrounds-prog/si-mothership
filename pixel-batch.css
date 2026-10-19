@@ -1,0 +1,87 @@
+/* PIXEL REVEAL — multi-image mystery activity.
+   Teacher-only organizer; shared and student labels never expose answers. */
+.pixel-batch-manager{
+ margin:13px 0 4px;padding:12px;
+ border:1px solid #4b628b;border-radius:14px;
+ background:linear-gradient(145deg,#12284a,#101c35 76%);
+ box-shadow:inset 0 1px #c6e7ff1e,0 6px 18px #0004;
+ min-width:0;
+}
+.pixel-batch-heading{display:grid;gap:5px;margin-bottom:10px}
+.pixel-batch-heading strong{font:950 12px/1.2 system-ui,sans-serif;letter-spacing:.08em;color:#f0f8ff}
+.pixel-batch-heading strong span{color:#7be9ff}
+.pixel-batch-heading small,.pixel-batch-upload-status{
+ color:#afc8e3;font:700 11px/1.4 system-ui,sans-serif;
+}
+.pixel-batch-list{
+ display:grid;grid-template-columns:repeat(auto-fill,minmax(114px,1fr));
+ gap:9px;max-height:330px;overflow:auto;padding:4px;
+ scrollbar-color:#5787b9 #11223b;min-width:0;
+}
+.pixel-batch-item{
+ min-width:0;border:1px solid #355c88;border-radius:12px;
+ padding:5px;background:#0a1930;display:grid;gap:5px;
+}
+.pixel-batch-item.selected{
+ border-color:#7ce9ff;background:#173754;
+ box-shadow:0 0 0 2px #70dfff30,0 0 16px #4dcbff39;
+}
+.pixel-batch-pick{
+ border:0;background:transparent;padding:0;cursor:pointer;
+ color:#dffaff;font:900 10px/1.4 system-ui,sans-serif;
+ text-align:center;display:grid;gap:4px;min-width:0;
+}
+.pixel-batch-pick img{
+ display:block;width:100%;height:73px;object-fit:cover;
+ border-radius:7px;background:#061122;
+}
+.pixel-batch-item-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px}
+.pixel-batch-item-actions button{
+ min-width:0;min-height:29px;padding:3px 0;
+ border:1px solid #476991;border-radius:7px;
+ background:#183351;color:#d9f8ff;font-size:15px;font-weight:900;cursor:pointer;
+}
+.pixel-batch-item-actions button:last-child{color:#ffb4c5;border-color:#81516a}
+.pixel-batch-item-actions button:disabled{opacity:.32;cursor:default}
+.pixel-batch-upload-status{margin:10px 2px 0}
+.pixel-batch-live{
+ margin:10px 0 14px;padding:12px;
+ border:1px solid #6bc2f1;border-radius:12px;
+ background:linear-gradient(130deg,#103456,#142c56);
+ box-shadow:inset 0 1px #a9eaff40,0 0 18px #4099ff26;
+ display:grid;gap:9px;
+}
+.pixel-batch-live>strong{
+ color:#9feaff;font:950 12px/1.3 system-ui,sans-serif;
+ letter-spacing:.1em;
+}
+.pixel-batch-live-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pixel-batch-live-actions button{
+ min-width:0;min-height:43px;border:1px solid #83b9e5;
+ border-radius:10px;background:linear-gradient(145deg,#225483,#12385f);
+ color:#f2fbff;font:900 12px/1.3 system-ui,sans-serif;
+ cursor:pointer;
+}
+.pixel-batch-live-actions button:disabled{opacity:.35;cursor:default}
+.pixel-batch-live>small{color:#b7cde6;font:700 10px/1.4 system-ui,sans-serif}
+.pixel-batch-round-badge{
+ display:inline-flex;align-items:center;justify-content:center;
+ padding:6px 11px;border:1px solid #76cfff;border-radius:999px;
+ background:linear-gradient(110deg,#194c7a,#342d78);
+ box-shadow:0 0 14px #58b9ff44;color:#dcf9ff;
+ font:950 11px/1.3 system-ui,sans-serif;letter-spacing:.08em;
+}
+.pixel-results>.pixel-batch-round-badge{margin:0 auto 12px}
+.pixel-batch-student-round{color:#8ce9ff;white-space:nowrap}
+.pixel-batch-pick:focus-visible,.pixel-batch-item-actions button:focus-visible,
+.pixel-batch-live-actions button:focus-visible{
+ outline:3px solid #ffdb9b;outline-offset:2px;
+}
+@media(max-width:650px){
+ .pixel-batch-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .pixel-batch-live-actions{grid-template-columns:1fr}
+ .pixel-batch-manager{padding:9px}
+}
+@media(prefers-reduced-motion:reduce){
+ .pixel-batch-item,.pixel-batch-pick,.pixel-batch-live button{animation:none!important;transition:none!important}
+}
