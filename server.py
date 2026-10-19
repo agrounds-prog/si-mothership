@@ -5049,7 +5049,7 @@ async def index(request: web.Request) -> web.Response:
                         f'<link rel="stylesheet" href="/si-plus-polish.css?v={SI_PLUS_ASSET_VERSION}">'
                          f'<link rel="stylesheet" href="/student-companion.css?v={STUDENT_COMPANION_ASSET_VERSION}">'
                          f'<link rel="stylesheet" href="/teacher-unified-controls.css?v={TEACHER_UNIFIED_ASSET_VERSION}">'
-                         '<link rel="stylesheet" href="/orbit-polish.css?v=1"></head>', 1)
+                         '<link rel="stylesheet" href="/orbit-polish.css?v=2"></head>', 1)
     # Insert before the final body close: index.html also contains HTML strings
     # in internal scripts, so replacing the first occurrence would corrupt JS.
     body_close = text.rfind("</body>")
@@ -5063,7 +5063,7 @@ async def index(request: web.Request) -> web.Response:
                 '<script src="/signal-sequence-bridge.js?v=5" defer></script>' +
                 f'<script src="/quick-poll.js?v={QUICK_POLL_ASSET_VERSION}" defer></script>' +
                 '<script src="/dashboard-polish.js?v=80" defer></script>' +
-                 '<script src="/orbit-polish.js?v=1" defer></script>' +
+                 '<script src="/orbit-polish.js?v=2" defer></script>' +
                 '<script src="/million-studio.js?v=1" defer></script>' +
                 '<script src="/word-grid.js?v=1" defer></script>' +
                 '<script src="/dominoes.js?v=1" defer></script>' +
@@ -6231,6 +6231,7 @@ def create_app() -> web.Application:
     app.router.add_get("/million-studio.css", lambda request: web.FileResponse(Path(__file__).with_name("million-studio.css"), headers={"Cache-Control": "no-store"}))
     app.router.add_get("/orbit-polish.js", lambda request: web.FileResponse(ROOT / "orbit-polish.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/orbit-polish.css", lambda request: web.FileResponse(ROOT / "orbit-polish.css", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/orbit-nebula.svg", lambda request: web.FileResponse(ROOT / "orbit-nebula.svg", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/word-grid.js", lambda request: web.FileResponse(ROOT / "word-grid.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/word-grid.css", lambda request: web.FileResponse(ROOT / "word-grid.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/dominoes.js", lambda request: web.FileResponse(ROOT / "dominoes.js", headers={"Cache-Control": "no-store"}))
