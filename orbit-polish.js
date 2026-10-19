@@ -49,7 +49,7 @@
  // never mutate the teacher's cluster or submission records.
  function orbitSolarMarkup(run){
   const clusters=Array.isArray(run?.orbitClusters)?run.orbitClusters:[];
-  const names=[...new Set(clusters.filter(x=>typeof x==='string'&&x.trim()).map(x=>x.trim()))];
+  const names=[...new Set(clusters.filter(x=>typeof x==='string'&&x.trim()))];
   const groups=new Map(names.map(x=>[x,[]]));
   const unclustered=[];
   const assignments=run?.orbitAssignments||{};
@@ -58,7 +58,10 @@
    const destination=groups.has(assigned)?groups.get(assigned):unclustered;
    destination.push({name,response});
   });
-  if(unclustered.length)groups.set('Unclustered',unclustered);
+  if(unclustered.length){
+   if(groups.has('Unclustered'))groups.get('Unclustered').push(...unclustered);
+   else groups.set('Unclustered',unclustered);
+  }
   const populated=[...groups].filter(([,ideas])=>ideas.length);
   if(!populated.length)return '<div class="orbit-solar-empty" role="status">'+
    '<span aria-hidden="true">✧</span><strong>Awaiting ideas for the solar systems</strong>'+
