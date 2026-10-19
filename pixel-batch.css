@@ -723,3 +723,190 @@ body.role-shared .pixel-cinematic-public .pixel-public-head h3{
   opacity:0!important;transform:none!important;
  }
 }
+
+
+/* Phase 4F — PIXEL student quiet-mode.
+   Focus on one question, one field, one action. All rules are PIXEL-only;
+   never restyle the regular student classroom/control interface. */
+body.role-student #studentContent:has(.pixel-student-simple){
+ flex:0 0 auto!important;height:auto!important;min-height:0!important;
+ max-height:none!important;overflow:visible!important;
+ padding:clamp(10px,3vw,20px)!important;
+ background:
+  radial-gradient(ellipse at 55% 0%,rgba(38,132,186,.14),transparent 72%),
+  linear-gradient(180deg,#071a2a,#061321)!important;
+}
+body.role-student #studentContent:has(.pixel-student-simple)::before,
+body.role-student #studentContent:has(.pixel-student-simple)::after{
+ display:none!important;content:none!important;
+}
+body.role-student #studentContent .pixel-student-simple{
+ position:relative!important;isolation:isolate!important;overflow:visible!important;
+ display:flex!important;flex-direction:column!important;
+ align-items:stretch!important;justify-content:flex-start!important;
+ box-sizing:border-box!important;width:min(100%,640px)!important;
+ max-width:640px!important;min-width:0!important;min-height:0!important;
+ margin:0 auto!important;
+ padding:clamp(18px,4vw,29px)!important;
+ border:1px solid #35698b!important;border-radius:20px!important;
+ background:
+  radial-gradient(ellipse at 83% 0%,rgba(43,166,220,.19),transparent 53%),
+  linear-gradient(146deg,#0d2b42,#081c2f 62%,#091827)!important;
+ box-shadow:inset 0 1px rgba(214,246,255,.12),0 12px 26px rgba(0,0,0,.24)!important;
+ text-align:left!important;
+}
+body.role-student #studentContent .pixel-student-simple::before{
+ content:"";display:block;position:absolute;z-index:-1;
+ top:0;right:0;width:52%;height:130px;pointer-events:none;
+ border:0!important;border-radius:20px!important;
+ background:radial-gradient(ellipse at 72% 19%,rgba(91,226,255,.11),transparent 70%);
+ box-shadow:none!important;
+}
+body.role-student #studentContent .pixel-student-simple::after{
+ content:none!important;display:none!important;
+}
+body.role-student #studentContent .pixel-student-top{
+ display:flex;align-items:center;justify-content:space-between;
+ flex-wrap:wrap;gap:8px;margin:0 0 21px;
+}
+body.role-student #studentContent .pixel-student-simple .eyebrow{
+ display:inline-flex;align-items:center;gap:8px;
+ color:#94eaff!important;
+ font:900 clamp(10px,2.6vw,12px)/1.25 system-ui,sans-serif!important;
+ letter-spacing:.13em!important;
+ margin:0!important;
+}
+body.role-student #studentContent .pixel-student-simple .eyebrow::before{
+ content:"◈";display:grid;place-items:center;
+ width:31px;height:31px;flex:0 0 31px;
+ border:1px solid rgba(113,231,255,.55);border-radius:10px;
+ background:linear-gradient(150deg,#1e668c,#163c69);
+ box-shadow:inset 0 1px #ffffff33,0 0 16px #37dfff26;
+ color:#d2faff;font-size:17px;
+}
+body.role-student #studentContent .pixel-student-round{
+ padding:6px 10px;border:1px solid #447c9f;border-radius:999px;
+ background:#102e46;color:#c4eaff;
+ font:850 10px/1.3 system-ui,sans-serif;
+ letter-spacing:.075em;white-space:nowrap;
+}
+body.role-student #studentContent .pixel-student-simple h2{
+ margin:0 0 7px!important;
+ color:#fff!important;
+ font:900 clamp(27px,5.6vw,38px)/1.06 system-ui,sans-serif!important;
+ letter-spacing:-.035em!important;
+ text-align:left!important;text-shadow:none!important;
+}
+body.role-student #studentContent .pixel-student-simple>p{
+ max-width:470px;margin:0 0 20px!important;
+ font:500 clamp(13px,3vw,16px)/1.48 system-ui,sans-serif!important;
+ color:#bed4e5!important;text-align:left!important;
+}
+body.role-student #studentContent .pixel-student-simple .pixel-student-guess{
+ display:flex!important;flex-direction:column!important;
+ align-items:stretch!important;
+ width:100%!important;max-width:none!important;
+ margin:0!important;gap:10px!important;
+}
+body.role-student #studentContent .pixel-student-simple #pixelGuessInput{
+ display:block;width:100%!important;max-width:100%!important;
+ box-sizing:border-box;height:60px!important;min-height:60px!important;
+ padding:0 16px!important;border:1.5px solid #5584ab!important;
+ border-radius:13px!important;
+ background:#08182a!important;color:#f6fcff!important;
+ box-shadow:inset 0 2px 9px rgba(0,0,0,.18)!important;
+ font:650 clamp(16px,3.8vw,20px)/1.25 system-ui,sans-serif!important;
+ text-align:left!important;letter-spacing:normal!important;
+ outline-offset:2px;
+}
+body.role-student #studentContent .pixel-student-simple #pixelGuessInput::placeholder{
+ color:#92a8bd!important;opacity:1;
+}
+body.role-student #studentContent .pixel-student-simple #pixelGuessInput:focus{
+ outline:3px solid #79dff3!important;border-color:#b9f2ff!important;
+ background:#0b2037!important;
+}
+body.role-student #studentContent .pixel-student-simple #sendPixelGuessBtn{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ gap:12px;width:100%!important;max-width:100%!important;
+ min-height:62px!important;margin:2px 0 0!important;
+ padding:12px 16px!important;
+ border:1px solid #8aeafa!important;border-radius:13px!important;
+ background:linear-gradient(125deg,#159ac2 0%,#2573b6 65%,#625bc0 100%)!important;
+ color:#fff!important;
+ box-shadow:inset 0 1px #ffffff6e,0 8px 16px #0004,0 0 16px #37b8fa22!important;
+ font:900 clamp(16px,3.7vw,19px)/1.25 system-ui,sans-serif!important;
+ letter-spacing:.01em!important;text-shadow:0 1px 2px #084669;
+ cursor:pointer;
+}
+body.role-student #studentContent .pixel-student-simple #sendPixelGuessBtn>span{
+ display:inline-grid;place-items:center;width:26px;height:26px;
+ border-radius:50%;background:#ffffff27;font-size:17px;
+}
+body.role-student #studentContent .pixel-student-simple #sendPixelGuessBtn:disabled{
+ opacity:.48!important;filter:saturate(.5)!important;
+ box-shadow:none!important;cursor:not-allowed!important;
+}
+body.role-student #studentContent .pixel-student-simple #sendPixelGuessBtn:enabled:active{
+ transform:scale(.985)!important;
+}
+body.role-student #studentContent .pixel-student-simple #sendPixelGuessBtn:focus-visible{
+ outline:3px solid #ffe9a4!important;outline-offset:3px;
+}
+body.role-student #studentContent .pixel-student-guess>small{
+ order:3;display:flex;align-items:center;gap:7px;
+ max-width:100%;margin:3px 0 0!important;
+ color:#94b6ca!important;
+ font:600 clamp(11px,2.7vw,13px)/1.4 system-ui,sans-serif!important;
+ text-align:left!important;
+}
+body.role-student #studentContent .pixel-student-guess>small::before{
+ content:"";display:inline-block;width:8px;height:8px;flex:0 0 8px;
+ border-radius:99px;background:#5dd5b8;box-shadow:0 0 9px #5dd5b849;
+}
+body.role-student #studentContent .pixel-student-confirmation{
+ width:100%;min-width:0;max-width:none;
+ padding:18px!important;margin:6px 0 0!important;
+ border:1px solid #4ab5a0!important;border-radius:14px!important;
+ background:linear-gradient(130deg,#104a4a,#092d3a)!important;
+ box-shadow:inset 0 1px #c6fff529!important;
+ color:#fff;
+}
+body.role-student #studentContent .pixel-student-confirmation::before{
+ content:"✓";display:inline-grid;place-items:center;
+ width:37px;height:37px;margin-right:10px;
+ border-radius:99px;border:1px solid #8afbe1;
+ color:#092c33;background:#80f1d1;font-weight:950;font-size:22px;
+ vertical-align:middle;
+}
+body.role-student #studentContent .pixel-student-confirmation b{
+ overflow-wrap:anywhere;font-size:clamp(16px,4vw,20px);color:#fff;
+}
+body.role-student #studentContent .pixel-student-confirmation p{
+ margin:11px 0 0!important;color:#b8e7e1!important;
+ font-size:13px!important;text-align:left!important;
+}
+/* The native submit button is moved next to its input. The now-empty
+   duplicate controls tray can collapse, keeping the student's avatar and
+   persistent connection indicator untouched. */
+body.role-student:has(#studentContent .pixel-student-simple) .student-control-zone:has(#studentControls:empty),
+body.role-student:has(#studentContent .pixel-student-locked) .student-control-zone[data-app="pixel"]{
+ display:none!important;
+}
+@media(max-width:650px){
+ body.role-student #studentContent:has(.pixel-student-simple){
+  padding:10px!important;min-height:0!important;
+ }
+ body.role-student #studentContent .pixel-student-simple{
+  padding:19px 15px!important;border-radius:16px!important;
+ }
+ body.role-student #studentContent .pixel-student-top{margin-bottom:20px}
+ body.role-student #studentContent .pixel-student-simple #pixelGuessInput{height:56px!important;min-height:56px!important}
+ body.role-student #studentContent .pixel-student-simple #sendPixelGuessBtn{min-height:57px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ body.role-student #studentContent .pixel-student-simple *,
+ body.role-student #studentContent .pixel-student-simple *::before{
+  animation:none!important;transition:none!important;
+ }
+}
