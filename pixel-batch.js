@@ -264,6 +264,22 @@
   if(scheduled)return;scheduled=true;
   requestAnimationFrame(()=>{scheduled=false;enhance()});
  }
+ // Capture edits immediately even when the native setup rerenders and the
+ // per-field enhancement has not yet run its next animation frame.
+ document.addEventListener('input',e=>{
+  if(typeof state==='undefined'||state.activeApp!=='pixel')return;
+  if(e.target.id!=='pixelAnswer'&&e.target.id!=='pixelAcceptedAnswers')return;
+  const d=state.pixelDraft;
+  if(!d||!Array.isArray(d.images)||!d.images.length)return;
+  const item=d.images[validIndex(d.imageIndex,d.images.length)];
+  if(e.target.id==='pixelAnswer'){
+   const previous=item.answer||'';
+   item.answer=d.answer=e.target.value;
+   item.acceptedAnswers=copyAnswers(d.acceptedAnswers).filter(v=>v!==previous||v===d.answer);
+  }else{
+   item.acceptedAnswers=copyAnswers(d.acceptedAnswers);
+  }
+ });
  document.addEventListener('click',e=>{
   const btn=e.target.closest('button');
   if(!btn)return;
