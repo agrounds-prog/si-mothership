@@ -15,6 +15,9 @@ on:
       - 'tests/test_match_gameplay_visuals_browser.cjs'
       - 'tests/test_million_projector_browser.cjs'
       - 'tests/test_zoom_student_activities_browser.cjs'
+      - 'orbit-polish.js'
+      - 'orbit-polish.css'
+      - 'tests/test_orbit_classroom_browser.cjs'
       - 'match-arcade.css'
       - 'million-studio.css'
       - 'million-studio.js'
@@ -54,6 +57,7 @@ jobs:
       - name: Check student companion JS, server, and release gate
         run: |
           node --check student-companion.js
+          node --check orbit-polish.js
           node --check million-studio.js
           node --check match-arcade.js
           node --check teacher-unified-controls.js
@@ -121,6 +125,8 @@ jobs:
         run: LOCAL_URL=http://127.0.0.1:8877 node tests/test_four_in_line_mobile_browser.cjs
       - name: Zoom Quick Poll, Million, Cosmic Cards and Dominoes browser layout
         run: node tests/test_zoom_student_activities_browser.cjs
+      - name: ORBIT 24-idea gallery, projector scroll, anonymous privacy and setup
+        run: node tests/test_orbit_classroom_browser.cjs
       - name: Existing Dominoes and Quick Poll browser regressions
         run: |
           node tests/test_dominoes_browser.cjs
