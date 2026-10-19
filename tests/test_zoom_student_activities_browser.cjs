@@ -139,7 +139,7 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
      ladder:[100,200,300,500,1000000]}};
    document.querySelector('#studentContent').innerHTML=html;
   },withCue('million',samples.million));
-  await page.waitForFunction(()=>document.querySelector('.ms-million-student-ribbon .ms-million-student-stake')?.textContent==='PLAYING FOR $100',null,{timeout:8000});
+  await page.waitForFunction(()=>document.querySelector('.ms-million-student-ribbon .ms-million-student-stake')?.textContent==='PLAYING FOR 100 PTS',null,{timeout:8000});
   const ribbon=await page.evaluate(()=>{
    const root=document.querySelector('#studentContent .ms-million-student-ribbon');
    const r=root.getBoundingClientRect();
@@ -154,7 +154,7 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
   assert.match(ribbon.background,/linear-gradient/);
   assert.ok(ribbon.width>=220&&ribbon.documentWidth<=332,'compact companion status fits 330px');
   await page.evaluate(()=>{state.activityRun.million.questionIndex=4;});
-  await page.waitForFunction(()=>document.querySelector('.ms-million-student-ribbon.is-final .ms-million-student-stake')?.textContent==='★ FINAL QUESTION · $1,000,000',null,{timeout:8000});
+  await page.waitForFunction(()=>document.querySelector('.ms-million-student-ribbon.is-final .ms-million-student-stake')?.textContent==='★ FINAL QUESTION · 1,000,000 PTS',null,{timeout:8000});
   const finalRibbon=await page.evaluate(()=>{
    const el=document.querySelector('.ms-million-student-ribbon.is-final');
    return {border:parseFloat(getComputedStyle(el).borderTopWidth),
