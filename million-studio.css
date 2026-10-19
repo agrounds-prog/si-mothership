@@ -1724,3 +1724,63 @@ body.role-student #studentContent .ms-million-student-stake{
   animation:none!important;transition:none!important;
  }
 }
+
+
+/* Phase 3I · question pacing and legible reveal state.
+   All timing is purely visual: native answers, reveal actions and lifelines are
+   always immediately available and never delayed by these animations. */
+body.role-shared .million-public.big[data-ms-reveal-step="locked"] .million-stage h3{
+ border-color:#ffe6ac!important;
+ box-shadow:inset 0 0 0 3px #ffeec839,0 0 0 5px #231b52,
+  0 0 32px #ffd58b9c!important;
+}
+body.role-shared .million-public.big[data-ms-reveal-step="revealed"] .ms-million-question-band{
+ border-color:#90eeca;
+ background:linear-gradient(105deg,#123d57,#204a68,#123d57);
+}
+body.role-shared .million-public.big .million-stage h3,
+body.role-shared .million-public.big .million-choices{
+ transform-origin:center center;
+}
+body.role-student #studentContent .million-student[data-ms-reveal-step="locked"] .ms-million-turn-cue{
+ border-color:#ffe19e;box-shadow:0 0 17px #f3c8755c;
+}
+body.role-student #studentContent .million-student[data-ms-reveal-step="revealed"] .ms-million-student-ribbon{
+ border-color:#9defd6;
+}
+body.role-student #studentContent .million-student .ms-million-turn-cue strong{
+ line-height:1.2;letter-spacing:.04em;
+}
+@media(prefers-reduced-motion:no-preference){
+ body.role-shared .million-public.big[data-ms-entering="true"] .million-stage h3{
+  animation:ms3i-stage-question-in .72s cubic-bezier(.18,.8,.28,1) both;
+ }
+ body.role-shared .million-public.big[data-ms-entering="true"] .million-choice{
+  animation:ms3i-stage-choice-in .58s ease-out both;
+ }
+ body.role-shared .million-public.big[data-ms-entering="true"] .million-choice:nth-child(2){animation-delay:.06s}
+ body.role-shared .million-public.big[data-ms-entering="true"] .million-choice:nth-child(3){animation-delay:.12s}
+ body.role-shared .million-public.big[data-ms-entering="true"] .million-choice:nth-child(4){animation-delay:.18s}
+ body.role-student #studentContent .million-student[data-ms-entering="true"] .ms-million-student-ribbon{
+  animation:ms3i-companion-question-in .58s ease-out both;
+ }
+ @keyframes ms3i-stage-question-in{
+  from{opacity:.72;transform:translateY(15px) scale(.97);filter:brightness(1.28)}
+  to{opacity:1;transform:translateY(0) scale(1);filter:brightness(1)}
+ }
+ @keyframes ms3i-stage-choice-in{
+  from{opacity:.6;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+ }
+ @keyframes ms3i-companion-question-in{
+  from{opacity:.68;transform:translateY(-8px)}
+  to{opacity:1;transform:translateY(0)}
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body.role-shared .million-public.big[data-ms-entering="true"] .million-stage h3,
+ body.role-shared .million-public.big[data-ms-entering="true"] .million-choice,
+ body.role-student #studentContent .million-student[data-ms-entering="true"] .ms-million-student-ribbon{
+  animation:none!important;transform:none!important;transition:none!important;
+ }
+}
