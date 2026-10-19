@@ -1169,9 +1169,9 @@ body.role-shared .orbit-public.orbit-cosmic .orbit-focus-rings i:nth-child(3){an
   filter:none!important;opacity:1!important;
   transform:none!important;
  }
- @media(min-width:1051px){
-  body.role-shared .orbit-cosmic .orbit-satellite.orbit-new-arrival{
-   transform:translateY(-50%)!important;
-  }
+}
+@media(prefers-reduced-motion:reduce) and (min-width:1051px){
+ body.role-shared .orbit-cosmic .orbit-satellite.orbit-new-arrival{
+  transform:translateY(-50%)!important;
  }
 }
