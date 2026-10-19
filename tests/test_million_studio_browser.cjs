@@ -75,6 +75,13 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   await page.locator('[data-ms-copy]').click();
   await page.waitForFunction(()=>window.MillionStudio.inspection().saved===2,null,{timeout:12000});
   assert.equal(await page.locator('#msName').inputValue(),'Copy of Browser Regression Million Game');
+  await page.locator('#msPrompt').fill('Revised copy-only question');
+  await page.locator('#msSaveGame').click();
+  await page.waitForFunction(async()=>{
+   const response=await fetch('/api/storage').then(r=>r.json());
+   const items=JSON.parse(response.items['siMothership.millionGames.v1']||'[]');
+   return items.some(g=>g.data.questions[0].prompt==='Revised copy-only question');
+  },null,{timeout:12000});
   await page.locator('[data-ms-tab="library"]').click();
   assert.equal(await page.locator('.ms-saved-game').count(),2);
   await page.locator('[data-ms-load]').last().click();
