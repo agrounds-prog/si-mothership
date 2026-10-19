@@ -320,7 +320,10 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
       header:card?.querySelector('h2')?.textContent,
       gap:button&&input?button.getBoundingClientRect().top-input.getBoundingClientRect().bottom:999,
       disabled:button?.disabled,
-      overflow:Math.max(0,document.documentElement.scrollWidth-innerWidth)};
+      overflow:Math.max(0,
+        document.querySelector('#student .device').scrollWidth-document.querySelector('#student .device').clientWidth,
+        document.querySelector('#studentContent').scrollWidth-document.querySelector('#studentContent').clientWidth,
+        card.scrollWidth-card.clientWidth)};
     document.body.classList.remove('role-student');
     document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='teacher'));
     return result;
