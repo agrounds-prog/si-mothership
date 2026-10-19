@@ -942,3 +942,50 @@ body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-deck[
 body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-deck[data-finished="true"] .si-utc-finish::before{
  color:#142741!important;border-color:#866128;background:#fff3d4;
 }
+
+
+/* Phase 3I · teacher cues for the current, real MILLION reveal step.
+   Highlighting never simulates a disabled button or alters its handler. */
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-step-note{
+ margin:0;padding:10px 14px;border:1px solid #6685a5;
+ border-left:5px solid #81c5e4;border-radius:11px;
+ background:linear-gradient(110deg,#102d4d,#112941);
+ color:#e7f6ff;font:850 13px/1.45 system-ui,sans-serif;
+ overflow-wrap:anywhere;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-step-note[data-step="locked"]{
+ border-color:#d6b978;border-left-color:#ffe6aa;
+ background:linear-gradient(105deg,#47341d,#2b3167);
+ color:#fff4d7;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-step-note[data-step="revealed"]{
+ border-color:#81d5b4;border-left-color:#9bffdd;
+ background:linear-gradient(105deg,#134a4a,#183b5c);
+ color:#e3fff6;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel
+ .si-utc-deck[data-game="million-game"] .si-utc-button.si-utc-focus-action:not(:disabled){
+ border:2px solid #ffe6af!important;
+ background:linear-gradient(125deg,#ffedbb,#d0a354)!important;
+ color:#14203c!important;
+ box-shadow:inset 0 1px #fffaf3,0 4px 0 #87571f,0 0 16px #e7c07244;
+ font-weight:1000;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel
+ .si-utc-deck[data-game="million-game"] .si-utc-button.si-utc-focus-action:not(:disabled)::before{
+ color:#273956!important;border-color:#8b692f!important;background:#fff3d0;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel
+ .si-utc-deck[data-game="match-game"][data-reveal-step="resolution"] .si-utc-status{
+ border-color:#79e8c5;background:#184a4e;color:#d1ffee;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel
+ .si-utc-deck[data-game="match-game"][data-reveal-step="paused"] .si-utc-status{
+ border-color:#f2c889;background:#483926;color:#fff3d8;
+}
+@media(prefers-reduced-motion:reduce){
+ body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-step-note,
+ body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-focus-action{
+  animation:none!important;transition:none!important;
+ }
+}
