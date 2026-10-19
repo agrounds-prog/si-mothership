@@ -66,6 +66,10 @@
   if(!populated.length)return '<div class="orbit-solar-empty" role="status">'+
    '<span aria-hidden="true">✧</span><strong>Awaiting ideas for the solar systems</strong>'+
    '<p>Student responses will appear in the teacher’s groups.</p></div>';
+  // Shared-screen refreshes can repaint a grouped view many times per minute.
+  // Only a genuinely new transmission gets an entrance; existing planets
+  // keep their place. Do not alter the underlying assignment or response.
+  const arrivals=arrivalFor(run,Object.entries(run?.orbitResponses||{}));
   const total=populated.reduce((sum,[,ideas])=>sum+ideas.length,0);
   const summary='<div class="orbit-solar-summary" aria-label="'+populated.length+
    ' solar systems and '+total+' ideas"><span aria-hidden="true">✦</span> '+
@@ -77,14 +81,19 @@
    return '<section class="orbit-solar-system orbit-tone-'+tone+
     '" role="listitem" aria-label="'+safe(cluster)+': '+ideas.length+' ideas">'+
     '<div class="orbit-solar-system-head"><div class="orbit-solar-sun">'+
-     '<span class="orbit-solar-sun-symbol" aria-hidden="true">'+icons[index%icons.length]+'</span>'+
-     '<div class="orbit-solar-sun-copy"><h4>'+safe(cluster)+'</h4>'+
+     '<span class="orbit-solar-sun-symbol" aria-hidden="true"><span class="orbit-solar-sun-glyph">'+icons[index%icons.length]+'</span></span>'+
+     '<div class="orbit-solar-sun-copy"><span class="orbit-solar-system-id">SYSTEM '+String(index+1).padStart(2,'0')+'</span>'+
+     '<h4>'+safe(cluster)+'</h4>'+
      '<span>'+ideas.length+' PLANET'+(ideas.length===1?'':'S')+' IN ORBIT</span></div></div>'+
-     '<div class="orbit-solar-track" aria-hidden="true"><i></i><i></i></div></div>'+
+     '<div class="orbit-solar-track" aria-hidden="true">'+
+      '<i class="orbit-solar-path orbit-solar-path-a"><b></b></i>'+
+      '<i class="orbit-solar-path orbit-solar-path-b"><b></b></i>'+
+      '<i class="orbit-solar-path orbit-solar-path-c"><b></b></i>'+
+      '<em class="orbit-solar-center-star"></em></div></div>'+
     '<div class="orbit-solar-planets" role="list" aria-label="Ideas in '+safe(cluster)+'">'+
      sorted.map(({name,response},i)=>
-      '<article class="orbit-solar-planet" role="listitem" data-orbit-planet="'+(i+1)+'">'+
-       '<span class="orbit-solar-moon" aria-hidden="true">'+icons[(index*3+i)%icons.length]+'</span>'+
+      '<article class="orbit-solar-planet'+arriveClass(arrivals,name,response)+'" role="listitem" data-orbit-planet="'+(i+1)+'">'+
+       '<span class="orbit-solar-moon" aria-hidden="true"><span class="orbit-solar-moon-glyph">'+icons[(index*3+i)%icons.length]+'</span></span>'+
        '<div class="orbit-solar-idea">'+(ideaLabel(name,run)?
         '<strong>'+safe(ideaLabel(name,run))+'</strong>':'')+
         '<p>'+safe(response?.text||'')+'</p></div></article>').join('')+
