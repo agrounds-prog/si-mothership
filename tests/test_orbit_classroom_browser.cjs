@@ -158,6 +158,19 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    mount.innerHTML=orbitSharedMarkup(run,true);
    document.querySelector('#shared').append(mount);
   });
+  const ambience=await shared.evaluate(()=>{
+   const mount=document.querySelector('#siOrbitTestStage');
+   const sky=mount.querySelector('.orbit-cosmic-atmosphere');
+   const comet=mount.querySelector('.orbit-shooting-star');
+   return {constellations:sky?.querySelectorAll('.orbit-constellation-cluster').length,
+    hidden:sky?.getAttribute('aria-hidden'),
+    pointer:getComputedStyle(sky).pointerEvents,
+    motion:getComputedStyle(comet).animationName};
+  });
+  assert.equal(ambience.constellations,2);
+  assert.equal(ambience.hidden,'true');
+  assert.equal(ambience.pointer,'none');
+  assert.match(ambience.motion,/orbitDeepComet/);
   const geometry=await shared.evaluate(()=>{
    const stage=document.querySelector('#siOrbitTestStage .orbit-space'),gallery=stage.querySelector('.orbit-idea-gallery'),
     first=gallery.querySelector('.orbit-gallery-card'),second=first.nextElementSibling;
