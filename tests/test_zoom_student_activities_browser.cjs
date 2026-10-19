@@ -189,6 +189,42 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
     'point meter fits Zoom student window '+width+': '+JSON.stringify(status));
   }
   await page.setViewportSize({width:330,height:610});
+  // MILLION must scroll with a wheel/finger over answer cards, not only via
+  // programmatically setting scrollTop. The full game stays in the clipped
+  // compact device; all four buttons and native lock control remain reachable.
+  const beforeScroll=await page.evaluate(()=>{
+   const box=document.querySelector('#studentContent');
+   const panel=box.querySelector('.million-student');
+   const answers=[...panel.querySelectorAll('.million-student-choice')];
+   return {client:box.clientHeight,scroll:box.scrollHeight,
+    y:box.scrollTop,overflowY:getComputedStyle(box).overflowY,
+    touch:getComputedStyle(answers[1]).touchAction,
+    sticky:getComputedStyle(panel.querySelector('.million-student-actions')).position};
+  });
+  assert.ok(beforeScroll.scroll>beforeScroll.client+90,
+    'MILLION must create a vertically scrollable compact answer area: '+JSON.stringify(beforeScroll));
+  assert.equal(beforeScroll.overflowY,'scroll');
+  assert.match(beforeScroll.touch,/pan-y/);
+  assert.equal(beforeScroll.sticky,'static');
+  const firstAnswer=await page.locator('#studentContent .million-student-choice').first().boundingBox();
+  await page.mouse.move(firstAnswer.x+firstAnswer.width/2,firstAnswer.y+firstAnswer.height/2);
+  await page.mouse.wheel(0,1200);
+  await page.waitForFunction(()=>document.querySelector('#studentContent')?.scrollTop>75,
+   null,{timeout:5500});
+  const scrolled=await page.evaluate(()=>{
+   const box=document.querySelector('#studentContent'),br=box.getBoundingClientRect();
+   const fourth=box.querySelector('.million-student-choice:last-child')?.getBoundingClientRect();
+   const lock=box.querySelector('#millionLockBtn')?.getBoundingClientRect();
+   return {top:box.scrollTop,limit:box.scrollHeight-box.clientHeight,
+    fourthVisible:fourth.top>=br.top-5&&fourth.bottom<=br.bottom+5,
+    lockVisible:lock.top>=br.top-5&&lock.bottom<=br.bottom+5,
+    overflow:document.documentElement.scrollWidth-innerWidth};
+  });
+  assert.ok(scrolled.top>75&&scrolled.limit>100,
+    'wheel scrolling over an answer actually moves MILLION content: '+JSON.stringify(scrolled));
+  assert.ok(scrolled.fourthVisible&&scrolled.lockVisible,
+    'answer D and LOCK ANSWER can both be reached in Zoom: '+JSON.stringify(scrolled));
+  assert.ok(scrolled.overflow<=2,'vertical answer scroll must not cause horizontal page scrolling');
   await page.evaluate(()=>{state.activityRun.million.questionIndex=4;});
   await page.waitForFunction(()=>document.querySelector('.ms-million-student-ribbon.is-final .ms-million-student-stake')?.textContent==='★ FINAL QUESTION · 1,000,000 PTS',null,{timeout:8000});
   const finalRibbon=await page.evaluate(()=>{
