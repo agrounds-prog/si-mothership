@@ -67,9 +67,23 @@
     '<path d="M16 29c0-9 4-13 12-13s12 4 12 13v3H16zM1 29c0-7 3-10 9-10s7 2 7 4v9H1zM39 23c0-2 2-4 7-4 6 0 9 3 9 10v3H39z"/></svg>'+
     '<span class="orbit-cosmic-fraction"><b>'+count+' / '+total+'</b> TRANSMITTED</span>'+
     '<span class="orbit-cosmic-progress" aria-hidden="true"><i style="width:'+pct+'%"></i></span></div></header>';
+   // Purely decorative deep-space layer. Never overlays actions and never
+   // changes a classroom response, student identity, or session state.
+   const atmosphere='<div class="orbit-cosmic-atmosphere" aria-hidden="true">'+
+    '<svg class="orbit-constellations" viewBox="0 0 1200 680" preserveAspectRatio="xMidYMid slice" focusable="false">'+
+    '<g class="orbit-constellation-cluster"><path d="M90 190L145 124L211 171L252 105L318 131"/>'+
+    '<circle cx="90" cy="190" r="3"/><circle cx="145" cy="124" r="4"/><circle cx="211" cy="171" r="3"/>'+
+    '<circle cx="252" cy="105" r="4"/><circle cx="318" cy="131" r="3"/></g>'+
+    '<g class="orbit-constellation-cluster"><path d="M929 462L987 399L1056 425L1120 358"/>'+
+    '<circle cx="929" cy="462" r="3"/><circle cx="987" cy="399" r="4"/>'+
+    '<circle cx="1056" cy="425" r="3"/><circle cx="1120" cy="358" r="4"/></g></svg>'+
+    '<i class="orbit-shooting-star"></i>'+
+    '<i class="orbit-space-spark orbit-space-spark-a"></i>'+
+    '<i class="orbit-space-spark orbit-space-spark-b"></i>'+
+    '<i class="orbit-space-spark orbit-space-spark-c"></i></div>';
    let enhanced=html.replace('<div class="orbit-public"',
     '<div class="orbit-public orbit-cosmic" data-orbit-style="cosmic" data-orbit-phase="'+phase+'"').replace('data-orbit-phase="'+phase+'">',
-    'data-orbit-phase="'+phase+'">'+header+'<span class="orbit-cosmic-state" role="status">'+phaseLabel+'</span>');
+    'data-orbit-phase="'+phase+'">'+atmosphere+header+'<span class="orbit-cosmic-state" role="status">'+phaseLabel+'</span>');
    // The first student response must not be required to make the classroom
    // projector look like ORBIT: the waiting question is also a cosmic planet.
    // Leave Spotlight / Clusters / Before vs After intact.
