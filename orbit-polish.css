@@ -628,3 +628,139 @@ body.role-shared .orbit-cosmic-gallery .orbit-gallery-card{min-height:122px!impo
   animation:none!important;transition:none!important;
  }
 }
+
+
+/* ORBIT · full visual parity in teacher-led discussion modes. */
+.orbit-public.orbit-cosmic .orbit-spotlight{
+ display:flex!important;flex:1 1 auto!important;flex-direction:column;
+ align-items:center;justify-content:center;
+ min-width:0!important;min-height:0!important;
+ width:min(85%,930px)!important;max-height:75%!important;
+ padding:clamp(15px,3vw,40px)!important;
+ border:3px solid #a6e9ff!important;border-radius:34px!important;
+ background:
+  radial-gradient(ellipse at 45% 25%,#75bcf354,transparent 60%),
+  radial-gradient(ellipse at 62% 85%,#ab68ed44,transparent 66%),
+  linear-gradient(130deg,#193f7b,#1e285e 75%)!important;
+ box-shadow:0 0 38px #478bff8c,0 0 65px #b46bee3d,inset 0 1px #edfcffb0!important;
+ overflow-y:auto;overflow-x:hidden;scrollbar-color:#8fb7ff #1c2d60;
+}
+.orbit-public.orbit-cosmic .orbit-spotlight .quote{
+ color:#fff!important;
+ font:900 clamp(19px,2.9vw,46px)/1.28 system-ui,sans-serif!important;
+ overflow-wrap:anywhere;white-space:pre-wrap;text-wrap:balance;
+ text-shadow:0 2px 12px #070e4da8!important;
+}
+.orbit-public.orbit-cosmic .orbit-spotlight .who{
+ color:#9effe5!important;
+ font:950 clamp(13px,1.4vw,20px)/1.25 system-ui,sans-serif!important;
+ letter-spacing:.05em;
+}
+.orbit-public.orbit-cosmic .orbit-cluster-wrap,
+.orbit-public.orbit-cosmic .orbit-compare{
+ flex:1 1 auto;min-height:0;max-height:78%;overflow-y:auto;align-content:start;
+ scrollbar-width:thin;scrollbar-color:#b5a0ff #121f4d;
+ gap:clamp(9px,1.1vw,15px)!important;
+}
+.orbit-public.orbit-cosmic .orbit-cluster,
+.orbit-public.orbit-cosmic .orbit-compare-panel{
+ min-width:0;border:2px solid #8ba1e5!important;border-radius:18px!important;
+ background:linear-gradient(145deg,#223a73,#182550 82%)!important;
+ box-shadow:inset 0 1px #d2e6ff57,0 0 17px #638aff46!important;
+ padding:clamp(10px,1.3vw,20px)!important;
+}
+.orbit-public.orbit-cosmic .orbit-cluster h4,
+.orbit-public.orbit-cosmic .orbit-compare-panel h4{
+ font:950 clamp(13px,1.4vw,20px)/1.2 system-ui,sans-serif!important;
+ color:#b6f9ef!important;letter-spacing:.04em;
+}
+.orbit-public.orbit-cosmic .orbit-cluster-idea,
+.orbit-public.orbit-cosmic .orbit-compare-panel .idea{
+ border:1px solid #8996e0!important;border-radius:12px!important;
+ background:linear-gradient(120deg,#31487d,#233360)!important;
+ color:#f0f8ff!important;font:750 clamp(12px,1.05vw,17px)/1.4 system-ui,sans-serif!important;
+ overflow-wrap:anywhere;white-space:pre-wrap;padding:10px!important;
+}
+/* Every teacher operation stays the native button: make it visibly clear
+   which controls are presenter navigation, phase actions or safe returns. */
+#teacher #activityControllerPanel .orbit-control-grid{
+ gap:9px!important;grid-template-columns:repeat(2,minmax(0,1fr));
+}
+#teacher #activityControllerPanel .orbit-control-grid button{
+ min-width:0!important;min-height:49px!important;line-height:1.3!important;
+ border:1px solid #7c97d1!important;border-radius:12px!important;
+ background:linear-gradient(125deg,#244477,#172e61)!important;
+ box-shadow:inset 0 1px #cddffd31,0 3px 8px #010b2188!important;
+ color:#effbff!important;white-space:normal!important;
+ transition:border-color .15s,transform .15s,background .15s;
+}
+#teacher #activityControllerPanel .orbit-control-grid button:disabled{
+ opacity:.43!important;box-shadow:none!important;cursor:default!important;
+}
+#teacher #activityControllerPanel .orbit-control-grid button:not(:disabled):hover{
+ border-color:#b0e9ff!important;transform:translateY(-1px);
+}
+#teacher #activityControllerPanel #orbitPauseBtn.on{
+ border-color:#ffc975!important;
+ background:linear-gradient(110deg,#78441e,#583a54)!important;
+ color:#fff1c4!important;
+}
+#teacher #activityControllerPanel #orbitCrewBtn.on,
+#teacher #activityControllerPanel #orbitCompareBtn.on,
+#teacher #activityControllerPanel #orbitClusterViewBtn.on{
+ border-color:#91f8d3!important;
+ background:linear-gradient(110deg,#146b66,#1d4f7b)!important;
+}
+#teacher #activityControllerPanel #orbitReOrbitBtn,
+#teacher #activityControllerPanel #orbitFollowUpBtn{
+ border:2px solid #a2dffb!important;
+ background:linear-gradient(118deg,#164e83,#235891)!important;
+}
+#teacher #activityControllerPanel .orbit-response-list{
+ max-height:370px;scrollbar-width:thin;scrollbar-color:#97b7ed #14224c;
+}
+#teacher #activityControllerPanel .orbit-response-row{
+ border:1px solid #5b72b4!important;background:#182b58!important;
+ border-radius:12px!important;padding:11px!important;
+}
+#teacher #activityControllerPanel .orbit-response-actions button{
+ min-height:38px!important;border:1px solid #a5e2f2!important;
+ background:#184e78!important;font-size:11px!important;
+}
+#teacher #activityControllerPanel .orbit-response-actions select{
+ min-height:38px!important;font-size:11px!important;
+ background:#091d41!important;border:1px solid #7598d4!important;
+}
+/* The child-facing response screen mirrors the cosmic branding without
+   reducing writing room or moving the Send button off the screen. */
+body.role-student #studentContent .orbit-student-box::before{
+ content:"✦  YOUR IDEA · ONE TRANSMISSION";
+ display:block;margin:5px 0 9px;padding:8px 12px;width:fit-content;max-width:100%;
+ border:1px solid #81bafd;border-radius:99px;
+ background:linear-gradient(110deg,#203f7c,#35296a);
+ color:#e5f5ff;font:950 11px/1.3 system-ui,sans-serif;letter-spacing:.04em;
+}
+body.role-student #studentContent #orbitStudentText:focus-visible{
+ outline:3px solid #ffdea1!important;outline-offset:2px!important;
+ box-shadow:0 0 20px #7369ff88!important;
+}
+body.role-student #studentContent .orbit-transmitted{
+ box-shadow:0 0 16px #5ed6d055,inset 0 1px #fff5!important;
+}
+@media(max-width:620px){
+ #teacher #activityControllerPanel .orbit-control-grid{
+  grid-template-columns:1fr!important;
+ }
+ .orbit-public.orbit-cosmic .orbit-spotlight{
+  width:94%!important;max-height:78%!important;
+  padding:13px!important;border-radius:19px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #teacher #activityControllerPanel .orbit-control-grid button{
+  transition:none!important;
+ }
+ #teacher #activityControllerPanel .orbit-control-grid button:hover{
+  transform:none!important;
+ }
+}
