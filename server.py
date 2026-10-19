@@ -5063,11 +5063,11 @@ async def index(request: web.Request) -> web.Response:
                 '<script src="/signal-sequence-bridge.js?v=5" defer></script>' +
                 f'<script src="/quick-poll.js?v={QUICK_POLL_ASSET_VERSION}" defer></script>' +
                 '<script src="/dashboard-polish.js?v=80" defer></script>' +
-                 '<script src="/orbit-polish.js?v=2" defer></script>' +
                 '<script src="/million-studio.js?v=1" defer></script>' +
                 '<script src="/word-grid.js?v=1" defer></script>' +
                 '<script src="/dominoes.js?v=1" defer></script>' +
                 f'<script src="/si-plus-polish.js?v={SI_PLUS_ASSET_VERSION}" defer></script>' +
+                '<script src="/orbit-polish.js?v=2" defer></script>' +
                 text[body_close:])
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
