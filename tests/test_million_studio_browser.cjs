@@ -86,6 +86,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.equal(await page.locator('.ms-saved-game').count(),2);
   await page.locator('[data-ms-load]').last().click();
   assert.equal(await page.locator('#msName').inputValue(),'Browser Regression Million Game');
+  assert.equal(await page.locator('#msPrompt').inputValue(),'Question 1 — crew skills?', 'original remains unchanged');
   assert.equal(await page.evaluate(()=>window.MillionStudio.inspection().ready),5);
   await page.setViewportSize({width:390,height:844});
   const layout=await page.evaluate(()=>{
