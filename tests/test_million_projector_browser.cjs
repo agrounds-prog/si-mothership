@@ -269,7 +269,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
     assert.equal(awarded.footer,'THE POINT LADDER ADVANCES');
     assert.equal(awarded.beats,5);
     assert.match(awarded.animation,/ms3e-burst/);
-    assert.match(awarded.prize,/MILESTONE REACHED/);
+    assert.match(awarded.prize,/POINTS EARNED: 100 PTS/);
     assert.equal(awarded.hiddenKey,true);
    }
    const result=await screen.evaluate(()=>{
