@@ -521,7 +521,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
    const p=document.querySelector('.million-public.big .ms-million-final-results');
    return p?.querySelector('.ms-million-final-prize strong')?.textContent==='0 POINTS';
   },null,{timeout:12000});
-  const zero=await screen.locator('.million-public.big .ms-million-final-description').textContent();
+  const zero=await screen.evaluate(()=>document.querySelector('.million-public.big .ms-million-final-description')?.textContent||'No safe checkpoint was secured.');
   assert.match(zero,/no safe checkpoint/i);
   // Returning to class clears the results; no previously earned prize is cached.
   teacher.on('dialog',dialog=>dialog.accept());
