@@ -107,6 +107,7 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
     statusAnnouncement:signal.getAttribute('aria-live')};
   });
   assert.equal(pair.status,true);
+  assert.equal(await shared.evaluate(()=>document.querySelector('.ma-present')?.dataset.turnPhase),'matched');
   assert.match(pair.text,/PAIR FOUND!/);
   assert.match(pair.text,/AUTOMATIC POINT AWARDED/);
   assert.equal(pair.pointer,'none');
@@ -148,6 +149,7 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
     staysInBoard:bannerRect.left>=boardRect.left-3&&bannerRect.right<=boardRect.right+3};
   });
   assert.equal(victory.status,true);
+  assert.equal(await shared.evaluate(()=>document.querySelector('.ma-present')?.dataset.turnPhase),'complete');
   assert.match(victory.text,/MISSION COMPLETE/);
   assert.match(victory.text,/8 OF 8 PAIRS DISCOVERED/);
   assert.equal(victory.matched,16);
