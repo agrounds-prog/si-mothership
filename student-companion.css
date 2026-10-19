@@ -2185,7 +2185,7 @@ body.role-student #student #studentContent:has(.million-student){
  -webkit-overflow-scrolling:touch!important;
  scroll-padding-block:8px 25px;
  padding-bottom:24px!important;
- scrollbar-width:auto!important;
+ scrollbar-width:thin!important;
  scrollbar-color:#7ae3f4 #0b2641;
 }
 body.role-student #student #studentContent .million-student{
