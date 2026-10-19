@@ -11,24 +11,53 @@
  // prompt, anonymous-name and turn state. No response is dropped at 16.
  const icons=['✦','♫','♥','✧','◎','★','✺','◆','❖','✿'];
  const tones=['violet','cyan','gold','pink','mint','blue','coral','indigo','teal','lime'];
+
+ // A lightweight, per-page observation ledger ensures incoming student ideas
+ // get an entrance only once. Existing responses are seeded without a replay
+ // after refresh, switching roles, reopening, or returning from Spotlight.
+ let observedRun=null,seenResponseKeys=new Set(),newArrivalUntil=new Map();
+ const arrivalFor=(run,entries)=>{
+  const identity=String(run?.runToken||run?.orbitRound||run?.orbitConfig?.prompt||'orbit');
+  if(identity!==observedRun){
+   observedRun=identity;
+   seenResponseKeys=new Set();
+   newArrivalUntil=new Map();
+   entries.forEach(([name,r])=>seenResponseKeys.add(JSON.stringify([name,r?.at,r?.text])));
+   return newArrivalUntil;
+  }
+  const now=performance.now();
+  entries.forEach(([name,r])=>{
+   const key=JSON.stringify([name,r?.at,r?.text]);
+   if(!seenResponseKeys.has(key)){
+    seenResponseKeys.add(key);
+    newArrivalUntil.set(key,now+1500);
+   }
+  });
+  newArrivalUntil.forEach((until,key)=>{if(until<=now)newArrivalUntil.delete(key)});
+  return newArrivalUntil;
+ };
+ const arriveClass=(arrivals,name,response)=>{
+  const key=JSON.stringify([name,response?.at,response?.text]);
+  return arrivals.has(key)?' orbit-new-arrival':'';
+ };
  const originalIdeas=typeof window.orbitIdeasMarkup==='function'?window.orbitIdeasMarkup:null;
  const originalPublic=typeof window.orbitSharedMarkup==='function'?window.orbitSharedMarkup:null;
  const noName=(run)=>Boolean(run?.orbitConfig?.anonymous&&!run?.orbitRevealCrew);
  function ideaLabel(name,run){return noName(run)?'':String(name||'')}
- function gallery(entries,run){
+ function gallery(entries,run,arrivals){
   return '<div class="orbit-idea-gallery orbit-cosmic-gallery" role="list" aria-label="All crew ideas">'+
-   entries.map(([name,r],i)=>'<article class="orbit-gallery-card orbit-tone-'+tones[i%tones.length]+'" role="listitem">'+
+   entries.map(([name,r],i)=>'<article class="orbit-gallery-card orbit-tone-'+tones[i%tones.length]+arriveClass(arrivals,name,r)+'" role="listitem">'+
     '<span class="orbit-gallery-number" aria-hidden="true">'+icons[i%icons.length]+'</span>'+
     '<div class="orbit-gallery-copy">'+(ideaLabel(name,run)?
      '<strong class="orbit-gallery-author">'+safe(ideaLabel(name,run))+'</strong>':'')+
      '<p>'+safe(r?.text||'')+'</p></div></article>').join('')+'</div>';
  }
- function satellites(entries,run){
+ function satellites(entries,run,arrivals){
   const total=entries.length,rows=Math.ceil(total/2);
   return '<div class="orbit-satellites" role="list" aria-label="Ideas orbiting the question">'+
    entries.map(([name,r],i)=>{
     const side=i%2,slot=Math.floor(i/2),y=((slot+.5)/rows*100).toFixed(2);
-    return '<article class="orbit-satellite orbit-tone-'+tones[i%tones.length]+'" role="listitem"'+
+    return '<article class="orbit-satellite orbit-tone-'+tones[i%tones.length]+arriveClass(arrivals,name,r)+'" role="listitem"'+
      ' style="--orb-x:'+(side?'75.5':'1.2')+'%;--orb-y:'+y+'%;">'+
      '<span class="orbit-sat-moon" aria-hidden="true"><span class="orbit-sat-icon">'+icons[i%icons.length]+'</span></span>'+
      '<div class="orbit-sat-content">'+(ideaLabel(name,run)?
@@ -39,13 +68,14 @@
  if(originalIdeas){
   window.orbitIdeasMarkup=function(run,big){
    const entries=Object.entries(run?.orbitResponses||{});
+   const arrivals=arrivalFor(run,entries);
    if(!entries.length)return originalIdeas(run,big);
    // The projector presents up to ten brief contributions as glowing planets.
    // Full-length text and larger classes use a scrollable, equally styled
    // gallery so no student's response is visually cut off or omitted.
    if(big&&entries.length<=10&&entries.every(([,r])=>String(r?.text||'').length<=(noName(run)?62:47)))
-    return satellites(entries,run);
-   return gallery(entries,run);
+    return satellites(entries,run,arrivals);
+   return gallery(entries,run,arrivals);
   };
  }
  if(originalPublic){
