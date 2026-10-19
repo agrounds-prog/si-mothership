@@ -276,7 +276,7 @@ body.role-student .orbit-student-controls button{
  box-shadow:0 0 23px #00bcff54,inset 0 1px #cafbff33;
  color:#f5f9ff;
 }
-.orbit-cosmic-crew{color:#42d6ff;font-size:19px;line-height:1;letter-spacing:-.15em}
+.orbit-cosmic-crew{color:#42d6ff;fill:currentColor;width:52px;height:32px;filter:drop-shadow(0 0 6px #42d6ff88)}
 .orbit-cosmic-fraction{font:900 clamp(10px,1vw,15px)/1.25 system-ui,sans-serif;white-space:nowrap}
 .orbit-cosmic-fraction b{font-size:clamp(15px,1.4vw,24px);font-variant-numeric:tabular-nums}
 .orbit-cosmic-progress{
