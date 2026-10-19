@@ -209,3 +209,295 @@ body.role-student .orbit-student-controls button{
  .orbit-public::before{animation:none!important}
  .si-orbit-track i{transition:none!important}
 }
+
+
+/* ORBIT COSMIC SHOW — the illustrated concept translated into live components.
+   Every planet, label and progress value uses the native activity data. */
+.orbit-public.orbit-cosmic{
+ --orbit-ice:#8aeeff;
+ position:relative!important;isolation:isolate!important;overflow:hidden!important;
+ display:flex!important;flex-direction:column!important;align-items:center!important;
+ gap:8px!important;justify-content:flex-start!important;
+ background:
+  radial-gradient(ellipse at 50% 49%,#3946bb53,transparent 55%),
+  radial-gradient(ellipse at 3% 82%,#4a13bd6a,transparent 39%),
+  radial-gradient(ellipse at 94% 17%,#036cb35a,transparent 42%),
+  radial-gradient(circle at 50% 50%,#101d56 0%,#071438 64%,#020820 100%)!important;
+ border:2px solid #4870cc!important;border-radius:22px!important;
+ box-shadow:0 0 45px #3a79f43d,inset 0 0 65px #4c30dd36!important;
+ color:#eef8ff;
+}
+.orbit-public.orbit-cosmic::before{
+ position:absolute!important;inset:0!important;transform:none!important;
+ background-image:
+  radial-gradient(circle,#defbff 0 1px,transparent 1.7px),
+  radial-gradient(circle,#cb9cff 0 1.4px,transparent 2px),
+  radial-gradient(circle,#80d6ff 0 1px,transparent 1.7px),
+  radial-gradient(ellipse at 18% 86%,#6750bd28,transparent 50%)!important;
+ background-size:83px 83px,137px 137px,193px 193px,100% 100%!important;
+ background-position:8px 17px,44px 60px,9px 88px,0 0!important;
+ opacity:.75!important;animation:none!important;pointer-events:none!important;z-index:0!important;
+}
+.orbit-public.orbit-cosmic::after{
+ content:"";position:absolute;inset:10% -8% -15%;
+ background:repeating-radial-gradient(ellipse at 50% 49%,transparent 0 104px,#5481ec21 106px 108px,transparent 111px 164px);
+ pointer-events:none;opacity:.7;
+}
+.orbit-cosmic > *{position:relative;z-index:1}
+.orbit-cosmic .orbit-cosmic-header{
+ flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+ gap:12px;width:100%;max-width:100%;padding:8px clamp(12px,2vw,30px) 0;
+ min-height:70px;
+}
+.orbit-cosmic-brand{display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:0}
+.orbit-cosmic-wordmark{
+ color:#f9f7ff;font:1000 clamp(23px,3vw,48px)/1.05 system-ui,sans-serif;
+ letter-spacing:.09em;text-shadow:0 0 7px #9af6ff,0 0 26px #5d66ff,0 0 39px #c350ff;
+}
+.orbit-cosmic-logo{
+ display:inline-grid;place-items:center;position:relative;
+ width:clamp(28px,3vw,46px);height:clamp(28px,3vw,46px);
+ margin-right:9px;color:#c6fcff;font-size:clamp(28px,3vw,46px);
+ text-shadow:0 0 11px #40efff;
+}
+.orbit-cosmic-logo::after{
+ content:"";position:absolute;width:117%;height:36%;border:2px solid #e68bff;
+ border-radius:50%;transform:rotate(-26deg);box-shadow:0 0 9px #ad58ff;
+}
+.orbit-cosmic-subtitle{
+ color:#d7eafa;font:850 clamp(9px,.9vw,14px)/1.35 system-ui,sans-serif;
+ letter-spacing:.09em;overflow-wrap:anywhere;
+}
+.orbit-cosmic-tally{
+ display:grid;grid-template-columns:auto auto;align-items:center;column-gap:9px;row-gap:5px;
+ min-width:195px;padding:11px 15px;border:2px solid #22c9fc;
+ border-radius:999px;background:linear-gradient(125deg,#072149,#132e66);
+ box-shadow:0 0 23px #00bcff54,inset 0 1px #cafbff33;
+ color:#f5f9ff;
+}
+.orbit-cosmic-crew{color:#42d6ff;font-size:19px;line-height:1;letter-spacing:-.15em}
+.orbit-cosmic-fraction{font:900 clamp(10px,1vw,15px)/1.25 system-ui,sans-serif;white-space:nowrap}
+.orbit-cosmic-fraction b{font-size:clamp(15px,1.4vw,24px);font-variant-numeric:tabular-nums}
+.orbit-cosmic-progress{
+ display:block;grid-column:2;height:6px;overflow:hidden;border-radius:99px;background:#26457c;
+}
+.orbit-cosmic-progress i{
+ display:block;height:100%;border-radius:99px;
+ background:linear-gradient(90deg,#39b7ff,#4bffe1);box-shadow:0 0 9px #6bfcea;
+ transition:width .3s ease;
+}
+body.role-shared .orbit-public.orbit-cosmic{
+ width:min(1480px,97vw)!important;
+ height:min(88vh,830px)!important;max-height:calc(100dvh - 24px)!important;
+ padding:8px!important;
+}
+body.role-shared .orbit-cosmic .orbit-cosmic-header{min-height:75px}
+.orbit-public.orbit-cosmic .orbit-space{
+ flex:1 1 auto!important;min-height:0!important;
+ background:
+  radial-gradient(ellipse at 50% 45%,#3545b844,transparent 55%),
+  radial-gradient(ellipse at 5% 50%,#13376891,transparent 62%),
+  #060e2d!important;
+ border:1px solid #456ab473!important;border-radius:24px!important;
+}
+body.role-shared .orbit-public.orbit-cosmic .orbit-space{
+ width:100%!important;max-width:none!important;height:auto!important;
+ max-height:none!important;min-height:0!important;
+}
+.orbit-cosmic .orbit-space::before,.orbit-cosmic .orbit-space::after{
+ content:"";position:absolute;inset:11% 12%;border:2px solid #6888ff55;
+ border-radius:50%;transform:rotate(-8deg);pointer-events:none;
+ box-shadow:0 0 19px #5679fa25;
+}
+.orbit-cosmic .orbit-space::after{
+ inset:21% 23%;border-color:#c177ff66;transform:rotate(13deg);
+}
+.orbit-cosmic .orbit-space:has(>.orbit-satellites){
+ position:relative!important;display:block!important;overflow:hidden!important;
+}
+.orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core{
+ position:absolute!important;z-index:2!important;
+ left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;
+ width:clamp(220px,40%,490px)!important;min-width:0!important;max-width:43%!important;
+ height:auto!important;aspect-ratio:1.04!important;padding:clamp(20px,3vw,40px)!important;
+ border:4px solid #b3f3ff!important;border-radius:50%!important;
+ background:
+  radial-gradient(circle at 29% 25%,#f7fdffed 0%,transparent 36%),
+  radial-gradient(circle at 66% 70%,#c9a1ff 5%,#97c8ffad 39%,transparent 67%),
+  radial-gradient(circle at 45% 42%,#d8faff,#b0c8ff 69%,#8556ed 100%)!important;
+ box-shadow:0 0 0 11px #75baff2d,0 0 28px 12px #54cfff95,0 0 70px 26px #9d58ff8c,
+  inset -23px -26px 48px #4d69dc58,inset 16px 20px 38px #fff9!important;
+}
+.orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core::before{
+ content:"";position:absolute;inset:-16%;z-index:-1;
+ border:3px solid #af91ff6c;border-radius:50%;
+ box-shadow:0 0 30px #8885ed6b;
+}
+.orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core h3{
+ position:relative;z-index:1;color:#121954!important;text-shadow:0 1px #fff8;
+ font:1000 clamp(16px,2.2vw,36px)/1.2 system-ui,sans-serif!important;
+ text-align:center;overflow-wrap:anywhere;hyphens:auto;
+ max-height:90%;overflow:auto;scrollbar-width:thin;
+}
+.orbit-satellites{position:absolute;z-index:4;inset:0;pointer-events:none}
+.orbit-satellite,.orbit-gallery-card{
+ --orb-strong:#a86bff;--orb-bright:#d7b6ff;--orb-pale:#f2ddff;
+}
+.orbit-tone-cyan{--orb-strong:#19d6f7;--orb-bright:#8cefff;--orb-pale:#d4faff}
+.orbit-tone-gold{--orb-strong:#f9ba3f;--orb-bright:#ffe092;--orb-pale:#fff0c8}
+.orbit-tone-pink{--orb-strong:#eb66ea;--orb-bright:#f8b5ff;--orb-pale:#ffe5ff}
+.orbit-tone-mint{--orb-strong:#34e2bc;--orb-bright:#83ffe4;--orb-pale:#d9fff3}
+.orbit-tone-blue{--orb-strong:#5489ff;--orb-bright:#a5c5ff;--orb-pale:#e1eaff}
+.orbit-tone-coral{--orb-strong:#ff8381;--orb-bright:#ffb2b3;--orb-pale:#ffe3e3}
+.orbit-tone-indigo{--orb-strong:#8277ff;--orb-bright:#bbb8ff;--orb-pale:#e5e2ff}
+.orbit-tone-teal{--orb-strong:#1cdbc8;--orb-bright:#86fcee;--orb-pale:#defff8}
+.orbit-tone-lime{--orb-strong:#7deb94;--orb-bright:#b4ffbc;--orb-pale:#e4ffe6}
+.orbit-satellite{
+ position:absolute;left:var(--orb-x);top:var(--orb-y);transform:translateY(-50%);
+ width:23.4%;min-width:0;min-height:65px;display:flex;align-items:center;
+ gap:0;border:2px solid var(--orb-bright);border-radius:999px;
+ padding:6px 10px 6px 0;
+ background:linear-gradient(115deg,var(--orb-bright),var(--orb-pale));
+ box-shadow:0 0 8px var(--orb-strong),0 0 27px var(--orb-strong),
+  inset 0 1px #fff9;
+ pointer-events:auto;
+}
+.orbit-satellite::before{
+ content:"";position:absolute;width:21px;height:2px;left:-22px;top:50%;
+ background:var(--orb-strong);box-shadow:0 0 8px var(--orb-strong);
+}
+.orbit-satellite:nth-child(odd)::before{left:auto;right:-22px}
+.orbit-sat-moon{
+ display:grid;place-items:center;position:relative;isolation:isolate;
+ flex:0 0 clamp(44px,5.1vw,72px);width:clamp(44px,5.1vw,72px);
+ aspect-ratio:1;margin:-10px 8px -10px -8px;border:2px solid var(--orb-pale);
+ border-radius:50%;background:
+  radial-gradient(circle at 32% 24%,#fff8 0 7%,transparent 14%),
+  radial-gradient(circle at 72% 72%,#0003 0 7%,transparent 13%),
+  radial-gradient(circle at 38% 39%,var(--orb-bright),var(--orb-strong) 68%,#2b3180 100%);
+ box-shadow:0 0 10px var(--orb-strong),0 0 25px var(--orb-strong),inset -6px -8px 17px #15275988;
+}
+.orbit-sat-icon{
+ display:grid;place-items:center;width:65%;aspect-ratio:1;
+ border-radius:50%;background:#0d245bc4;color:#fff;
+ font:950 clamp(19px,2vw,30px)/1 system-ui,sans-serif;
+ text-shadow:0 0 8px #fff9;
+}
+.orbit-sat-content{display:flex;flex-direction:column;justify-content:center;min-width:0;flex:1;gap:2px}
+.orbit-sat-author{
+ color:#37416d;font:950 clamp(9px,.78vw,12px)/1.18 system-ui,sans-serif;
+ letter-spacing:.045em;overflow-wrap:anywhere;
+}
+.orbit-sat-text{
+ display:block;color:#101a4d;
+ font:900 clamp(12px,1.12vw,18px)/1.2 system-ui,sans-serif;
+ letter-spacing:-.01em;overflow-wrap:anywhere;white-space:pre-wrap;
+}
+body.role-shared .orbit-cosmic > .orbit-count{display:none!important}
+/* The teacher preview renders all contributions as cosmic idea capsules.
+   11+ responses also use these cards on the big shared screen. */
+.orbit-cosmic .orbit-space:has(>.orbit-idea-gallery){
+ background:radial-gradient(ellipse at 50% 0%,#3b4cbd8c,transparent 62%),#060e2d!important;
+ border:1px solid #6e91f588!important;
+}
+.orbit-cosmic .orbit-space:has(>.orbit-idea-gallery)>.orbit-core{
+ border:2px solid #b1edff!important;
+ border-radius:22px!important;
+ background:linear-gradient(105deg,#d7f6ff,#d2ceff,#e3b3ff)!important;
+ box-shadow:0 0 28px #688cff88,inset 0 1px #fff!important;
+}
+.orbit-cosmic .orbit-space:has(>.orbit-idea-gallery)>.orbit-core h3{
+ color:#111c57!important;font:950 clamp(15px,1.6vw,26px)/1.22 system-ui,sans-serif!important;
+}
+.orbit-cosmic-gallery .orbit-gallery-card{
+ border:2px solid var(--orb-bright)!important;border-radius:22px!important;
+ background:linear-gradient(108deg,var(--orb-bright),var(--orb-pale))!important;
+ box-shadow:0 0 14px var(--orb-strong),inset 0 1px #fffa!important;
+ padding:10px 14px!important;min-height:98px!important;align-items:center!important;
+}
+.orbit-cosmic-gallery .orbit-gallery-number{
+ flex:0 0 42px;width:42px;height:42px;border:2px solid #fff9;
+ border-radius:50%;background:
+ radial-gradient(circle at 33% 22%,#ffffffad,transparent 33%),
+ radial-gradient(circle,var(--orb-strong),#24338a 100%)!important;
+ box-shadow:0 0 13px var(--orb-strong);color:#fff!important;font-size:23px;
+}
+.orbit-cosmic-gallery .orbit-gallery-copy p{
+ color:#111940!important;font:850 clamp(12px,1.2vw,18px)/1.35 system-ui,sans-serif!important;
+}
+.orbit-cosmic-gallery .orbit-gallery-author{color:#313e6e!important}
+body.role-shared .orbit-cosmic-gallery{grid-template-columns:repeat(3,minmax(0,1fr))}
+body.role-shared .orbit-cosmic-gallery .orbit-gallery-card{min-height:122px!important}
+#teacher #activityControllerPanel .orbit-cosmic{
+ min-height:310px!important;max-height:480px!important;
+ padding:7px!important;
+}
+#teacher #activityControllerPanel .orbit-cosmic-header{
+ padding:4px 7px 0!important;min-height:48px!important;gap:5px!important;
+}
+#teacher #activityControllerPanel .orbit-cosmic-wordmark{font-size:19px!important}
+#teacher #activityControllerPanel .orbit-cosmic-logo{font-size:22px!important;width:24px;height:24px}
+#teacher #activityControllerPanel .orbit-cosmic-subtitle{font-size:7px!important}
+#teacher #activityControllerPanel .orbit-cosmic-tally{
+ min-width:0;padding:7px 9px;gap:4px;font-size:9px;
+}
+#teacher #activityControllerPanel .orbit-cosmic-crew{display:none}
+#teacher #activityControllerPanel .orbit-cosmic-fraction{font-size:9px;grid-column:1/-1}
+#teacher #activityControllerPanel .orbit-cosmic-fraction b{font-size:12px}
+#teacher #activityControllerPanel .orbit-cosmic-progress{grid-column:1/-1}
+#teacher #activityControllerPanel .orbit-cosmic .orbit-space{
+ width:100%!important;min-height:220px!important;flex:1 1 0%!important;
+}
+#teacher #activityControllerPanel .orbit-cosmic-gallery{
+ grid-template-columns:repeat(2,minmax(0,1fr));
+}
+#teacher #activityControllerPanel .orbit-cosmic-gallery .orbit-gallery-card{
+ min-height:84px!important;padding:8px!important;box-shadow:0 0 6px var(--orb-strong)!important;
+}
+#teacher #activityControllerPanel .orbit-cosmic-gallery .orbit-gallery-number{flex-basis:27px;width:27px;height:27px;font-size:14px}
+#teacher #activityControllerPanel .orbit-cosmic-gallery .orbit-gallery-copy p{font-size:11px!important}
+@media(max-width:1050px){
+ body.role-shared .orbit-cosmic .orbit-space:has(>.orbit-satellites){
+  display:flex!important;flex-direction:column!important;gap:8px!important;
+  padding:10px!important;
+ }
+ body.role-shared .orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core{
+  position:relative!important;left:auto!important;top:auto!important;transform:none!important;
+  aspect-ratio:auto!important;width:100%!important;max-width:100%!important;
+  min-height:65px!important;max-height:145px!important;padding:13px!important;
+  border-radius:16px!important;flex:0 0 auto;
+ }
+ body.role-shared .orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core h3{
+  font-size:clamp(16px,2.5vw,25px)!important;
+ }
+ body.role-shared .orbit-satellites{
+  position:relative;inset:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;padding:8px 6px;flex:1;min-height:0;width:100%;
+  overflow-y:auto;scrollbar-color:#8ec8ff #111e4d;
+ }
+ body.role-shared .orbit-satellite{
+  position:relative;top:auto;left:auto;transform:none;width:100%;
+  min-height:72px;
+ }
+ body.role-shared .orbit-satellite::before{display:none}
+}
+@media(max-width:650px){
+ .orbit-cosmic .orbit-cosmic-header{padding:5px!important;gap:7px!important;min-height:52px}
+ .orbit-cosmic-wordmark{font-size:19px}
+ .orbit-cosmic-logo{width:23px;height:23px;font-size:22px;margin-right:3px}
+ .orbit-cosmic-subtitle{font-size:7px}
+ .orbit-cosmic-tally{min-width:120px;padding:7px 9px;column-gap:2px}
+ .orbit-cosmic-crew{display:none}
+ .orbit-cosmic-fraction{grid-column:1/-1;font-size:8px}
+ .orbit-cosmic-fraction b{font-size:13px}
+ .orbit-cosmic-progress{grid-column:1/-1}
+ body.role-shared .orbit-satellites{grid-template-columns:1fr}
+ body.role-shared .orbit-satellite{min-height:60px}
+ body.role-shared .orbit-sat-moon{flex-basis:43px;width:43px}
+ body.role-shared .orbit-sat-text{font-size:13px}
+ body.role-shared .orbit-cosmic-gallery{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+ .orbit-cosmic-progress i{transition:none!important}
+ .orbit-public.orbit-cosmic::before{animation:none!important}
+}
