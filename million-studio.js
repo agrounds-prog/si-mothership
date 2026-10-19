@@ -220,7 +220,7 @@ function millionTurnCue(){
   let phase='choose',title='CHOOSE AN ANSWER',message=pilot?'Select A, B, C, or D before locking.':'Choose your private prediction.';
   if(selected){phase='selected';title=pilot?'ANSWER '+selected+' SELECTED':'PREDICTION '+selected+' SENT';message=pilot?'Review your selection, then lock it when ready.':'Your prediction is private.'}
   if(m.lockedAnswer){phase='locked';title='FINAL ANSWER LOCKED';message='Waiting for the teacher to reveal the answer.'}
-  if(m.revealed){phase=m.result==='correct'?'correct':'wrong';title=m.result==='correct'?'MILESTONE EARNED':'ANSWER REVEALED';message=m.complete?'Million complete!':m.over?'Run complete.':'Review the answer before continuing.'}
+  if(m.revealed){phase=m.result==='correct'?'correct':'wrong';title=m.result==='correct'?'POINTS EARNED':'ANSWER REVEALED';message=m.complete?'Million complete!':m.over?'Run complete.':'Review the answer. The teacher will start the next question.'}
   let cue=game.querySelector('#msMillionTurnCue');
   if(!cue){
    cue=document.createElement('div');cue.id='msMillionTurnCue';
@@ -232,6 +232,7 @@ function millionTurnCue(){
    if(!cue.isConnected)game.prepend(cue);
   }
   cue.dataset.phase=phase;
+  cue.dataset.question=String((Number(m.questionIndex)||0)+1);
   if(cue.firstElementChild.textContent!==title)cue.firstElementChild.textContent=title;
   if(cue.lastElementChild.textContent!==message)cue.lastElementChild.textContent=message;
   if(role==='student')game.querySelectorAll('[data-million-choice]').forEach(button=>{
@@ -439,7 +440,7 @@ installMillionLifelineCues();
 function installMillionShowHUD(){
  const role=new URLSearchParams(location.search).get('role');
  if(!['shared','student'].includes(role))return;
- let queued=false;
+ let queued=false,lastQuestionKey='',questionEntranceUntil=0;
  const money=value=>Math.max(0,Number(value)||0).toLocaleString('en-US')+' PTS';
  const setText=(element,value)=>{
   if(element&&element.textContent!==value)element.textContent=value;
@@ -457,7 +458,9 @@ function installMillionShowHUD(){
  function update(){
   queued=false;
   const run=typeof state!=='undefined'&&!state.ended?state.activityRun:null;
-  if(!run||run.activityId!=='million-game'||run.phase!=='running')return;
+  if(!run||run.activityId!=='million-game'||run.phase!=='running'){
+   lastQuestionKey='';questionEntranceUntil=0;return;
+  }
   const m=run.million||{},cfg=run.millionConfig||{};
   const ladder=Array.isArray(cfg.ladder)?cfg.ladder:[];
   const total=Array.isArray(cfg.questions)?cfg.questions.length:0;
@@ -466,6 +469,11 @@ function installMillionShowHUD(){
   const earned=Math.max(0,Math.min(ladder.length,Number(m.ladderLevel)||0));
   const complete=!!(m.complete||m.over);
   const finalQuestion=!complete&&q===total-1;
+  // Visual entrance is tied to the synchronized question number, never a
+  // countdown or any gate on answering. It expires even without a rerender.
+  const key=String(run.runToken||'')+':'+q;
+  if(key!==lastQuestionKey){lastQuestionKey=key;questionEntranceUntil=Date.now()+850}
+  const entering=Date.now()<questionEntranceUntil&&!complete;
   if(role==='shared'){
    const board=document.querySelector('.million-public.big');
    const stage=board?.querySelector('.million-stage');
@@ -473,6 +481,10 @@ function installMillionShowHUD(){
    if(!stage||!prizeSide)return;
    const f=finalQuestion?'true':'false';
    if(board.dataset.msFinalQuestion!==f)board.dataset.msFinalQuestion=f;
+   const entrance=entering?'true':'false';
+   if(board.dataset.msEntering!==entrance)board.dataset.msEntering=entrance;
+   const step=m.revealed?'revealed':m.lockedAnswer?'locked':'ready';
+   if(board.dataset.msRevealStep!==step)board.dataset.msRevealStep=step;
    let band=stage.querySelector(':scope > .ms-million-question-band');
    if(!band){
     band=make('ms-million-question-band',[
@@ -505,6 +517,10 @@ function installMillionShowHUD(){
   }else{
    const student=document.querySelector('#studentContent .million-student');
    if(!student)return;
+   const entrance=entering?'true':'false';
+   if(student.dataset.msEntering!==entrance)student.dataset.msEntering=entrance;
+   const step=m.revealed?'revealed':m.lockedAnswer?'locked':'ready';
+   if(student.dataset.msRevealStep!==step)student.dataset.msRevealStep=step;
    let ribbon=student.querySelector(':scope > .ms-million-student-ribbon');
    if(!ribbon){
     ribbon=make('ms-million-student-ribbon',[
