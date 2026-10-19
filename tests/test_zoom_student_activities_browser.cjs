@@ -166,7 +166,7 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
     fill:meter?.querySelector('i')?.style.width};
   });
   assert.deepEqual(initialPoints,{name:'Questions secured',role:'progressbar',
-   min:'0',max:'5',now:'0',text:'0 / 5 POINT LEVELS SECURED',fill:'0.00%'});
+   min:'0',max:'5',now:'0',text:'0 / 5 POINT LEVELS SECURED',fill:'0%'});
   await page.evaluate(()=>{state.activityRun.million.ladderLevel=2;});
   await page.waitForFunction(()=>
    document.querySelector('.ms-million-student-points-track')?.getAttribute('aria-valuenow')==='2',
@@ -183,7 +183,7 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
      choiceCount:student.querySelectorAll('.million-student-choice').length};
    });
    assert.equal(status.label,'2 / 5 POINT LEVELS SECURED');
-   assert.equal(status.fill,'40.00%');
+   assert.equal(status.fill,'40%');
    assert.equal(status.choiceCount,4);
    assert.ok(status.overflow<=2&&status.barWidth>170&&status.barWidth<=status.studentWidth+1,
     'point meter fits Zoom student window '+width+': '+JSON.stringify(status));
