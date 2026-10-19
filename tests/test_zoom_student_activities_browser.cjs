@@ -153,6 +153,42 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
    ['QUESTION 1 / 5','PLAYING FOR 100 PTS','3 CREW LIFELINES LEFT']);
   assert.match(ribbon.background,/linear-gradient/);
   assert.ok(ribbon.width>=220&&ribbon.documentWidth<=332,'compact companion status fits 330px');
+  // Phase 3J: pupil progress is a screen-reader-friendly, read-only meter.
+  const initialPoints=await page.evaluate(()=>{
+   const board=document.querySelector('#studentContent .million-student');
+   const meter=board.querySelector('.ms-million-student-points-track');
+   return {name:meter?.getAttribute('aria-label'),
+    role:meter?.getAttribute('role'),
+    min:meter?.getAttribute('aria-valuemin'),
+    max:meter?.getAttribute('aria-valuemax'),
+    now:meter?.getAttribute('aria-valuenow'),
+    text:board.querySelector('.ms-million-student-points-label')?.textContent,
+    fill:meter?.querySelector('i')?.style.width};
+  });
+  assert.deepEqual(initialPoints,{name:'Questions secured',role:'progressbar',
+   min:'0',max:'5',now:'0',text:'0 / 5 POINT LEVELS SECURED',fill:'0.00%'});
+  await page.evaluate(()=>{state.activityRun.million.ladderLevel=2;});
+  await page.waitForFunction(()=>
+   document.querySelector('.ms-million-student-points-track')?.getAttribute('aria-valuenow')==='2',
+   null,{timeout:8000});
+  for(const [width,height] of [[330,610],[390,670],[440,760]]){
+   await page.setViewportSize({width,height});
+   const status=await page.evaluate(()=>{
+    const student=document.querySelector('#studentContent .million-student');
+    const bar=student.querySelector('.ms-million-student-points');
+    const meter=bar.querySelector('.ms-million-student-points-track');
+    const r=bar.getBoundingClientRect(),outer=student.getBoundingClientRect();
+    return {label:bar.querySelector('strong')?.textContent,fill:meter.querySelector('i').style.width,
+     barWidth:r.width,studentWidth:outer.width,overflow:document.documentElement.scrollWidth-innerWidth,
+     choiceCount:student.querySelectorAll('.million-student-choice').length};
+   });
+   assert.equal(status.label,'2 / 5 POINT LEVELS SECURED');
+   assert.equal(status.fill,'40.00%');
+   assert.equal(status.choiceCount,4);
+   assert.ok(status.overflow<=2&&status.barWidth>170&&status.barWidth<=status.studentWidth+1,
+    'point meter fits Zoom student window '+width+': '+JSON.stringify(status));
+  }
+  await page.setViewportSize({width:330,height:610});
   await page.evaluate(()=>{state.activityRun.million.questionIndex=4;});
   await page.waitForFunction(()=>document.querySelector('.ms-million-student-ribbon.is-final .ms-million-student-stake')?.textContent==='★ FINAL QUESTION · 1,000,000 PTS',null,{timeout:8000});
   const finalRibbon=await page.evaluate(()=>{
