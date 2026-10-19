@@ -43,6 +43,60 @@
  let lastSpotlight='',focusUntil=0;
  const originalIdeas=typeof window.orbitIdeasMarkup==='function'?window.orbitIdeasMarkup:null;
  const originalPublic=typeof window.orbitSharedMarkup==='function'?window.orbitSharedMarkup:null;
+
+ // Phase 4C: translate the native teacher-defined categories into living
+ // solar systems. All assignments, responses and identities remain native;
+ // never mutate the teacher's cluster or submission records.
+ function orbitSolarMarkup(run){
+  const clusters=Array.isArray(run?.orbitClusters)?run.orbitClusters:[];
+  const names=[...new Set(clusters.filter(x=>typeof x==='string'&&x.trim()).map(x=>x.trim()))];
+  const groups=new Map(names.map(x=>[x,[]]));
+  const unclustered=[];
+  const assignments=run?.orbitAssignments||{};
+  Object.entries(run?.orbitResponses||{}).forEach(([name,response])=>{
+   const assigned=assignments[name];
+   const destination=groups.has(assigned)?groups.get(assigned):unclustered;
+   destination.push({name,response});
+  });
+  if(unclustered.length)groups.set('Unclustered',unclustered);
+  const populated=[...groups].filter(([,ideas])=>ideas.length);
+  if(!populated.length)return '<div class="orbit-solar-empty" role="status">'+
+   '<span aria-hidden="true">✧</span><strong>Awaiting ideas for the solar systems</strong>'+
+   '<p>Student responses will appear in the teacher’s groups.</p></div>';
+  const total=populated.reduce((sum,[,ideas])=>sum+ideas.length,0);
+  const summary='<div class="orbit-solar-summary" aria-label="'+populated.length+
+   ' solar systems and '+total+' ideas"><span aria-hidden="true">✦</span> '+
+   populated.length+' SOLAR SYSTEM'+(populated.length===1?'':'S')+
+   ' · '+total+' IDEA'+(total===1?'':'S')+'</div>';
+  const systems=populated.map(([cluster,ideas],index)=>{
+   const tone=tones[index%tones.length];
+   const sorted=ideas; // submission order, never alphabetized or truncated
+   return '<section class="orbit-solar-system orbit-tone-'+tone+
+    '" role="listitem" aria-label="'+safe(cluster)+': '+ideas.length+' ideas">'+
+    '<div class="orbit-solar-system-head"><div class="orbit-solar-sun">'+
+     '<span class="orbit-solar-sun-symbol" aria-hidden="true">'+icons[index%icons.length]+'</span>'+
+     '<div class="orbit-solar-sun-copy"><h4>'+safe(cluster)+'</h4>'+
+     '<span>'+ideas.length+' PLANET'+(ideas.length===1?'':'S')+' IN ORBIT</span></div></div>'+
+     '<div class="orbit-solar-track" aria-hidden="true"><i></i><i></i></div></div>'+
+    '<div class="orbit-solar-planets" role="list" aria-label="Ideas in '+safe(cluster)+'">'+
+     sorted.map(({name,response},i)=>
+      '<article class="orbit-solar-planet" role="listitem" data-orbit-planet="'+(i+1)+'">'+
+       '<span class="orbit-solar-moon" aria-hidden="true">'+icons[(index*3+i)%icons.length]+'</span>'+
+       '<div class="orbit-solar-idea">'+(ideaLabel(name,run)?
+        '<strong>'+safe(ideaLabel(name,run))+'</strong>':'')+
+        '<p>'+safe(response?.text||'')+'</p></div></article>').join('')+
+    '</div></section>';
+  }).join('');
+  return '<div class="orbit-cluster-wrap orbit-solar-systems" role="list" aria-label="Grouped crew ideas">'+
+   summary+systems+'</div>';
+ }
+ const originalClusters=typeof window.orbitClusterMarkup==='function'?window.orbitClusterMarkup:null;
+ if(originalClusters){
+  window.orbitClusterMarkup=function(run,big){
+   return orbitSolarMarkup(run);
+  };
+ }
+
  const noName=(run)=>Boolean(run?.orbitConfig?.anonymous&&!run?.orbitRevealCrew);
  function ideaLabel(name,run){return noName(run)?'':String(name||'')}
  function gallery(entries,run,arrivals){
