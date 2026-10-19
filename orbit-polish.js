@@ -40,6 +40,7 @@
   const key=JSON.stringify([name,response?.at,response?.text]);
   return arrivals.has(key)?' orbit-new-arrival':'';
  };
+ let lastSpotlight='',focusUntil=0;
  const originalIdeas=typeof window.orbitIdeasMarkup==='function'?window.orbitIdeasMarkup:null;
  const originalPublic=typeof window.orbitSharedMarkup==='function'?window.orbitSharedMarkup:null;
  const noName=(run)=>Boolean(run?.orbitConfig?.anonymous&&!run?.orbitRevealCrew);
@@ -58,7 +59,7 @@
    entries.map(([name,r],i)=>{
     const side=i%2,slot=Math.floor(i/2),y=((slot+.5)/rows*100).toFixed(2);
     return '<article class="orbit-satellite orbit-tone-'+tones[i%tones.length]+arriveClass(arrivals,name,r)+'" role="listitem"'+
-     ' style="--orb-x:'+(side?'75.5':'1.2')+'%;--orb-y:'+y+'%;">'+
+     ' style="--orb-x:'+(side?'75.5':'1.2')+'%;--orb-y:'+y+'%;--orb-enter-x:'+(side?'-125':'125')+'%;">'+
      '<span class="orbit-sat-moon" aria-hidden="true"><span class="orbit-sat-icon">'+icons[i%icons.length]+'</span></span>'+
      '<div class="orbit-sat-content">'+(ideaLabel(name,run)?
        '<strong class="orbit-sat-author">'+safe(ideaLabel(name,run))+'</strong>':'')+
@@ -125,11 +126,15 @@
    // broadcast frame is decoration only; it never changes the selected idea
    // or reveals a name while anonymous mode is active.
    if(run?.orbitSpotlight&&responses[run.orbitSpotlight]){
+    const focusKey=String(run?.runToken||run?.orbitRound||'orbit')+'|'+String(run.orbitSpotlight);
+    if(lastSpotlight!==focusKey){lastSpotlight=focusKey;focusUntil=performance.now()+1300}
+    const opening=performance.now()<focusUntil?' orbit-focus-new':'';
     enhanced=enhanced.replace('<div class="orbit-spotlight">',
-     '<div class="orbit-spotlight orbit-spotlight-broadcast">'+
+     '<div class="orbit-spotlight orbit-spotlight-broadcast'+opening+'">'+
      '<div class="orbit-focus-rings" aria-hidden="true"><i></i><i></i><i></i></div>'+
      '<div class="orbit-broadcast-heading" aria-hidden="true">✦ CREW IDEA SPOTLIGHT ✦</div>');
    }
+   if(!run?.orbitSpotlight)lastSpotlight='';
    return enhanced;
   };
  }
