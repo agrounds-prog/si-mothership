@@ -502,3 +502,129 @@ body.role-shared .orbit-cosmic-gallery .orbit-gallery-card{min-height:122px!impo
  .orbit-cosmic-progress i{transition:none!important}
  .orbit-public.orbit-cosmic::before{animation:none!important}
 }
+
+
+/* ORBIT · second-pass refinement — elegant opening, clearer live state and
+   small-projector fit. The illustrated background never obscures text. */
+.orbit-public.orbit-cosmic .orbit-cosmic-state{
+ display:inline-flex;align-items:center;justify-content:center;align-self:center;
+ flex:0 0 auto;min-height:26px;margin:0 auto;padding:5px 18px;
+ border:1px solid #75d9ff;border-radius:999px;
+ background:linear-gradient(100deg,#183e77,#133563);
+ box-shadow:0 0 11px #48b6ff55,inset 0 1px #cbf8ff55;
+ color:#dffaff;font:950 clamp(10px,1vw,14px)/1.2 system-ui,sans-serif;
+ letter-spacing:.085em;text-align:center;
+}
+.orbit-public.orbit-cosmic .orbit-cosmic-state::before{
+ content:"";display:inline-block;flex:0 0 7px;height:7px;margin-right:10px;
+ border-radius:50%;background:#54f9e1;box-shadow:0 0 10px #54f9e1;
+}
+.orbit-public.orbit-cosmic[data-orbit-phase="waiting"] .orbit-cosmic-state{
+ border-color:#ae9ef6;color:#e8ddff;background:linear-gradient(95deg,#302868,#202357);
+}
+.orbit-public.orbit-cosmic[data-orbit-phase="waiting"] .orbit-cosmic-state::before{
+ background:#c5aaff;box-shadow:0 0 10px #d0b5ff;
+}
+.orbit-public.orbit-cosmic[data-orbit-phase="paused"] .orbit-cosmic-state{
+ border-color:#ffc875;color:#ffefd2;background:linear-gradient(100deg,#69401d,#422449);
+}
+.orbit-public.orbit-cosmic[data-orbit-phase="paused"] .orbit-cosmic-state::before{
+ background:#ffc86f;box-shadow:0 0 10px #ffc86f;
+}
+.orbit-public.orbit-cosmic[data-orbit-phase="complete"] .orbit-cosmic-state{
+ border-color:#84ffdf;color:#d9fff3;background:linear-gradient(100deg,#1a615d,#194363);
+}
+.orbit-public.orbit-cosmic[data-orbit-phase="complete"] .orbit-cosmic-state::before{
+ background:#a3ffcf;box-shadow:0 0 10px #a3ffcf;
+}
+/* The center-question planet also appears *before* a single idea arrives. */
+.orbit-public.orbit-cosmic .orbit-space[data-orbit-waiting="true"]{
+ position:relative!important;min-height:0!important;overflow:hidden!important;
+ display:grid!important;place-items:center!important;
+}
+.orbit-public.orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core{
+ position:relative!important;left:auto!important;top:auto!important;
+ transform:none!important;
+ width:clamp(240px,43%,500px)!important;min-width:0!important;
+ max-width:min(84%,500px)!important;
+ aspect-ratio:1!important;height:auto!important;
+ border:4px solid #a9edff!important;border-radius:50%!important;
+ background:
+  radial-gradient(circle at 30% 24%,#f8fbffeb 0,transparent 35%),
+  radial-gradient(circle at 68% 69%,#c7a6ff 2%,#8cb4e6aa 41%,transparent 72%),
+  radial-gradient(circle at 40% 45%,#d4faff,#a9bdff 67%,#7955e7 100%)!important;
+ box-shadow:0 0 0 11px #75baff24,0 0 30px 15px #54cfff94,
+  0 0 72px 27px #9d58ff71,inset -25px -20px 45px #435dc65d,
+  inset 15px 21px 35px #fff8!important;
+ z-index:2!important;padding:clamp(18px,3vw,40px)!important;
+}
+.orbit-public.orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core h3{
+ color:#11174b!important;font:1000 clamp(18px,2.3vw,36px)/1.18 system-ui,sans-serif!important;
+ text-shadow:0 1px #fffa;overflow-wrap:anywhere;
+ max-height:90%;overflow:auto;
+}
+.orbit-public.orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core::before{
+ content:"";position:absolute;inset:-15%;z-index:-1;
+ border:2px solid #b9a4ff80;border-radius:50%;
+ box-shadow:0 0 25px #6aa5ffa8;
+}
+.orbit-public.orbit-cosmic .orbit-wait-caption{
+ position:absolute;bottom:clamp(12px,3%,26px);left:50%;z-index:3;
+ transform:translateX(-50%);width:max-content;max-width:92%;
+ padding:8px 15px;border:1px solid #8bbffd;border-radius:99px;
+ background:#10295ddf;color:#e7f8ff;text-align:center;
+ font:900 clamp(10px,1.05vw,15px)/1.25 system-ui,sans-serif;
+ letter-spacing:.055em;box-shadow:0 0 16px #628cff60;
+}
+/* The teacher's preview uses a smaller status and planet, not a cropped
+   big-screen question that spills into the command deck. */
+#teacher #activityControllerPanel .orbit-cosmic .orbit-cosmic-state{
+ font-size:9px!important;min-height:21px;padding:4px 10px;letter-spacing:.035em;
+}
+#teacher #activityControllerPanel .orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core{
+ width:clamp(115px,45%,225px)!important;max-width:70%!important;
+ padding:13px!important;border-width:2px!important;
+}
+#teacher #activityControllerPanel .orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core h3{
+ font-size:clamp(11px,1.1vw,16px)!important;
+}
+#teacher #activityControllerPanel .orbit-cosmic .orbit-wait-caption{
+ font-size:8px;bottom:9px;padding:5px 8px;
+}
+/* Keep all five rows of neon planets fully separate on short 16:9
+   projector surfaces without sacrificing touch/keyboard accessibility. */
+@media(max-height:750px) and (min-width:1051px){
+ body.role-shared .orbit-cosmic .orbit-cosmic-header{min-height:61px!important}
+ body.role-shared .orbit-cosmic .orbit-cosmic-state{
+  font-size:10px;min-height:20px;padding:3px 12px;
+ }
+ body.role-shared .orbit-cosmic .orbit-satellite{
+  min-height:52px!important;padding-top:4px;padding-bottom:4px;
+ }
+ body.role-shared .orbit-cosmic .orbit-sat-moon{
+  flex-basis:clamp(41px,4.4vw,56px);width:clamp(41px,4.4vw,56px);
+ }
+ body.role-shared .orbit-cosmic .orbit-sat-icon{font-size:clamp(17px,1.6vw,25px)}
+ body.role-shared .orbit-cosmic .orbit-sat-text{font-size:clamp(11px,1.05vw,16px)}
+ body.role-shared .orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core{
+  width:clamp(190px,35%,400px)!important;max-width:40%!important;
+ }
+ body.role-shared .orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core h3{
+  font-size:clamp(16px,2vw,28px)!important;
+ }
+}
+@media(max-width:1050px){
+ body.role-shared .orbit-cosmic .orbit-wait-caption{
+  font-size:10px!important;padding:6px 9px;
+ }
+ body.role-shared .orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core{
+  width:clamp(210px,53%,390px)!important;max-width:80%!important;
+ }
+}
+/* Stage rings and waiting statuses must be silent when reduced motion is set. */
+@media(prefers-reduced-motion:reduce){
+ .orbit-public.orbit-cosmic .orbit-cosmic-state,
+ .orbit-public.orbit-cosmic .orbit-wait-caption{
+  animation:none!important;transition:none!important;
+ }
+}
