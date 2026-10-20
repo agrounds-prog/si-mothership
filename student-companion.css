@@ -2227,3 +2227,301 @@ body.role-student #student #studentContent .million-student-actions button{
   gap:9px!important;
  }
 }
+
+
+/* Phase 4K · calm student companion language.
+   Visual-only consistency pass for remaining games. Do not change game
+   buttons/IDs, board dimensions, scrolling mechanics, scoring, timers,
+   sound controls, or teacher/projector presentation. */
+body.role-student {
+ --si4k-panel:#0b243b;
+ --si4k-panel-border:#4e829f;
+ --si4k-heading:#f7fdff;
+ --si4k-subtle:#c0dceb;
+ --si4k-cyan:#9eeafb;
+ --si4k-focus:#ffe3a2;
+ --si4k-success:#a0f5d6;
+ --si4k-shadow:inset 0 1px 0 #e9faff26,0 11px 24px #0005;
+}
+body.role-student #student #studentContent{
+ scrollbar-width:thin;
+ scrollbar-color:#508ca7 #081c30;
+ overscroll-behavior-y:contain;
+}
+body.role-student #student #studentContent > .si-student-game-cue{
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ gap:5px!important;min-width:0!important;width:100%!important;max-width:100%!important;
+ margin:0 0 7px!important;padding:10px 12px!important;
+ border:1px solid #5488a8!important;border-radius:13px!important;
+ background:radial-gradient(ellipse at 91% 0%,#3484bc31,transparent 63%),
+  linear-gradient(130deg,#123554,#09253b)!important;
+ box-shadow:var(--si4k-shadow)!important;
+}
+body.role-student #student #studentContent > .si-student-game-cue .si-cue-app{
+ color:var(--si4k-cyan)!important;
+ font:950 10px/1.3 system-ui,sans-serif!important;
+ letter-spacing:.12em!important;
+}
+body.role-student #student #studentContent > .si-student-game-cue .si-cue-heading{
+ color:var(--si4k-heading)!important;
+ font:950 clamp(15px,3.8vw,19px)/1.18 system-ui,sans-serif!important;
+ letter-spacing:-.012em!important;
+ text-shadow:none!important;overflow-wrap:anywhere;
+}
+body.role-student #student #studentContent > .si-student-game-cue .si-cue-help{
+ color:var(--si4k-subtle)!important;
+ font:650 clamp(11px,2.6vw,13px)/1.38 system-ui,sans-serif!important;
+ letter-spacing:normal!important;overflow-wrap:anywhere;
+}
+/* Standard framing only. Grids/racks and compact scroll surfaces retain
+   their own purpose-built geometry. */
+body.role-student #student #studentContent :is(
+ .cc-device.cc-cinematic,.dm-device,.fil-student,.ss-student,.wg-student
+){
+ min-width:0!important;max-width:100%!important;
+ border:1px solid var(--si4k-panel-border)!important;
+ border-radius:15px!important;
+ box-shadow:var(--si4k-shadow)!important;
+}
+body.role-student #student #studentContent .student-game-foundation:has(.bingo-student-board) .student-game-card,
+body.role-student #student #studentContent .response-device:has(.starwheel-student-grid),
+body.role-student #student #studentContent .response-device:has(.minefield-student-board),
+body.role-student #student #studentContent .crew-survey-student{
+ min-width:0!important;max-width:100%!important;
+ border:1px solid var(--si4k-panel-border)!important;
+ border-radius:15px!important;
+ box-shadow:var(--si4k-shadow)!important;
+}
+body.role-student #student #studentContent :is(
+ .student-game-card,.response-device,.crew-survey-student,
+ .cc-device,.dm-device,.fil-student,.ss-student,.wg-student
+) :is(h2,h3){
+ color:var(--si4k-heading)!important;
+ overflow-wrap:anywhere;
+}
+body.role-student #student #studentContent :is(
+ .student-game-card,.response-device,.crew-survey-student,
+ .cc-device,.dm-device,.fil-student,.ss-student,.wg-student
+) > .eyebrow{
+ color:var(--si4k-cyan)!important;
+ font:950 clamp(9px,2.3vw,11px)/1.3 system-ui,sans-serif!important;
+ letter-spacing:.11em!important;
+}
+/* Consistent secondary text and supporting instructions — legible, but
+   visually quieter than the current question or primary action. */
+body.role-student #student #studentContent :is(
+ .cc-help,.dm-device-help,.ss-sound-help,.wg-student-hint,
+ .minefield-narrator-latest,.starwheel-turn-instruction,
+ .crew-survey-student>p,.student-game-card>p
+){
+ color:var(--si4k-subtle)!important;
+ line-height:1.4!important;
+ overflow-wrap:anywhere!important;
+}
+body.role-student #student #studentContent :is(
+ .cc-device-status,.dm-hand-head,.fil-student-status,.ss-student-status,
+ .starwheel-turn-instruction,.minefield-turn-banner,.wg-student-hint
+){
+ border-color:#5b91b4!important;border-radius:10px!important;
+ box-shadow:inset 0 1px #c8ecff24!important;
+}
+body.role-student #student #studentContent :is(
+ .cc-device-status,.fil-student-status,.ss-student-status,
+ .starwheel-turn-instruction,.minefield-turn-banner
+){
+ background:linear-gradient(128deg,#153e60,#0c2c49)!important;
+}
+body.role-student #student #studentContent :is(
+ .cc-device-status>span,.dm-hand-head,.fil-student-status,.ss-student-status,
+ .minefield-turn-banner,.starwheel-turn-instruction
+){
+ font-weight:850!important;
+}
+/* Every actual action remains native. Match touchability and affordance
+   without making cards/keys share fixed dimensions. */
+body.role-student #student #studentContent :is(
+ .cc-device-actions button,.dm-device-controls button,.fil-drop-button,
+ .ss-touch-key,.starwheel-main-spin,.starwheel-student-grid button,
+ .crew-survey-aac button,#crewSurveyAnswerSend,
+ #starwheelSendSolve,#studentBingoClaimBtn
+){
+ border-radius:11px!important;border-width:2px!important;
+ font-family:system-ui,sans-serif!important;
+ font-weight:900!important;
+ box-shadow:inset 0 1px #fff5,0 3px 0 #05192e,0 5px 12px #0005!important;
+ touch-action:manipulation!important;
+}
+body.role-student #student #studentContent :is(
+ .cc-device-actions button,.dm-device-controls button,
+ .starwheel-main-spin,#studentBingoClaimBtn,#crewSurveyAnswerSend
+){
+ min-height:48px!important;
+}
+body.role-student #student #studentContent :is(
+ .dm-pick-actions button,.cc-hand-button,.bingo-student-cell,
+ .wg-student-rack button,.minefield-cell.selectable
+){
+ touch-action:manipulation!important;
+}
+body.role-student #student #studentContent :is(
+ .cc-device-actions button,.dm-device-controls button,.fil-drop-button,
+ .ss-touch-key,.starwheel-main-spin,.starwheel-student-grid button,
+ .crew-survey-aac button,#crewSurveyAnswerSend,
+ #starwheelSendSolve,#studentBingoClaimBtn,.dm-pick-actions button,
+ .bingo-student-cell,.wg-student-rack button,.minefield-cell.selectable,
+ .cc-hand-button
+):focus-visible{
+ outline:3px solid var(--si4k-focus)!important;
+ outline-offset:2px!important;
+ box-shadow:0 0 0 5px #133e56,0 0 19px #f6d88840!important;
+}
+body.role-student #student #studentContent :is(
+ .cc-device-actions button,.dm-device-controls button,.fil-drop-button,
+ .ss-touch-key,.starwheel-main-spin,.starwheel-student-grid button,
+ .crew-survey-aac button,#crewSurveyAnswerSend,
+ #starwheelSendSolve,#studentBingoClaimBtn,.dm-pick-actions button
+):disabled{
+ opacity:.55!important;filter:saturate(.55);
+ cursor:not-allowed!important;
+}
+body.role-student #student #studentContent :is(
+ .cc-device-actions button,.dm-device-controls button,.starwheel-main-spin,
+ #studentBingoClaimBtn,#crewSurveyAnswerSend
+):enabled:active{
+ transform:translateY(1px);
+}
+/* BINGO: visually grouped 4x4/5x5 board with clear call states.
+   Keep the selected board width, row count and disabled behavior native. */
+body.role-student #student #studentContent .bingo-student-board{
+ border-radius:11px!important;overflow:visible!important;
+ gap:clamp(3px,1.1vw,6px)!important;
+}
+body.role-student #student #studentContent .bingo-student-cell{
+ border:1.5px solid #598bb4!important;border-radius:9px!important;
+ font-weight:850!important;
+ box-shadow:inset 0 1px #ffffff29,0 2px 6px #0004!important;
+}
+body.role-student #student #studentContent .bingo-student-cell.marked{
+ border-color:#adffe1!important;
+ box-shadow:inset 0 1px #ddfff352,0 0 13px #62ecb957!important;
+}
+body.role-student #student #studentContent .bingo-student-cell.uncalled{
+ opacity:.53!important;filter:saturate(.65);
+}
+body.role-student #student #studentContent #studentBingoClaimBtn{
+ border-color:#99efd6!important;
+ background:linear-gradient(125deg,#137b68,#185d77)!important;color:#fff!important;
+}
+/* STARWHEEL / CREW SURVEY: one obvious main action, supporting text quieter. */
+body.role-student #student #studentContent .starwheel-main-spin{
+ border-color:#b1e5f4!important;
+ background:linear-gradient(125deg,#1b8dbb,#3067a2)!important;
+ color:#fff!important;
+}
+body.role-student #student #studentContent .starwheel-student-grid button{
+ border-color:#7ea9c7!important;
+ background:linear-gradient(135deg,#235986,#194267)!important;color:#fff!important;
+}
+body.role-student #student #studentContent .crew-survey-big-buzz{
+ border:2px solid #ffe1a6!important;
+ box-shadow:inset 0 1px #fff7d36b,0 9px 20px #0006!important;
+}
+body.role-student #student #studentContent .crew-survey-type input,
+body.role-student #student #studentContent .starwheel-solve-box input{
+ min-width:0!important;color:#fff!important;
+ border:1.5px solid #639dbd!important;border-radius:10px!important;
+ background:#092743!important;font-size:clamp(14px,3.3vw,17px)!important;
+}
+body.role-student #student #studentContent :is(
+ .crew-survey-type input,.starwheel-solve-box input
+):focus-visible{
+ outline:3px solid var(--si4k-focus)!important;outline-offset:2px!important;
+}
+/* Cosmic Cards and Dominoes: retain colors, tile visibility and playable
+   stacks; strengthen distinction between a hand/rack and its actions. */
+body.role-student #student #studentContent :is(
+ .cc-hand-heading,.dm-hand-head
+){
+ color:#dcf5ff!important;font-weight:950!important;
+ letter-spacing:.06em!important;
+}
+body.role-student #student #studentContent :is(
+ .cc-device-actions,.dm-device-controls
+){
+ padding:9px!important;border:1px solid #426e94!important;
+ border-radius:12px!important;background:linear-gradient(140deg,#0e304d,#0b233e)!important;
+}
+body.role-student #student #studentContent :is(
+ .cc-hand-button,.dm-hand-item
+):focus-within{
+ outline:2px solid #b6e6fc!important;outline-offset:1px!important;
+}
+/* Four In Line and Signal Sequence keep native column/color logic. */
+body.role-student #student #studentContent .fil-student-status,
+body.role-student #student #studentContent .ss-student-status{
+ padding:9px 11px!important;color:#f1fcff!important;
+}
+body.role-student #student #studentContent .fil-drop-button:enabled{
+ border-color:#78c4ed!important;
+}
+body.role-student #student #studentContent .ss-touch-key:enabled{
+ border-color:#82c6e5!important;
+}
+/* Word Grid and Minefield MUST keep independently scrollable boards,
+   full keyboard racks, 44px sectors and separate confirmation dock. */
+body.role-student #student #studentContent .wg-student-hint,
+body.role-student #student #studentContent .minefield-turn-banner{
+ padding:9px 10px!important;font-size:12px!important;line-height:1.35!important;
+}
+body.role-student #student #studentContent .minefield-narrator{
+ border:1px solid #467b9d!important;border-radius:10px!important;
+ background:linear-gradient(120deg,#123450,#0d2844)!important;
+}
+body.role-student #student #studentContent .si-mf-scroll,
+body.role-student #student #studentContent .wg-student-board{
+ scrollbar-width:thin;scrollbar-color:#6eb5d4 #081a31;
+}
+/* Quick Poll has its own full-screen overlay, not #studentContent. */
+body.role-student #qpPublicOverlay .qp-voter{
+ border-color:#548aad!important;
+ background:radial-gradient(ellipse at 85% 0%,#326e9b38,transparent 58%),
+ linear-gradient(150deg,#0c2945,#09192e)!important;
+}
+body.role-student #qpPublicOverlay .qp-vote-card{
+ border:1.5px solid #6396bb!important;border-radius:12px!important;
+ box-shadow:inset 0 1px #e8ffff33,0 5px 13px #0004!important;
+}
+body.role-student #qpPublicOverlay .qp-vote-card:focus-visible,
+body.role-student #qpPublicOverlay .qp-submit:focus-visible{
+ outline:3px solid var(--si4k-focus)!important;outline-offset:2px!important;
+}
+body.role-student #qpPublicOverlay .qp-submit{
+ min-height:49px!important;border-radius:11px!important;
+ font-weight:950!important;
+}
+/* Use extra space for content rather than ornament; avoid mandatory
+   animations on short Zoom windows and honor reduced-motion. */
+@media(max-width:390px),(max-height:690px){
+ body.role-student #student #studentContent > .si-student-game-cue{
+  gap:4px!important;padding:8px 10px!important;margin-bottom:5px!important;
+ }
+ body.role-student #student #studentContent > .si-student-game-cue .si-cue-heading{
+  font-size:15px!important;
+ }
+ body.role-student #student #studentContent :is(
+  .cc-device-actions,.dm-device-controls
+ ){padding:6px!important}
+ body.role-student #student #studentContent .wg-student-hint,
+ body.role-student #student #studentContent .minefield-turn-banner{
+  padding:7px 9px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body.role-student #student #studentContent :is(
+  .cc-device-actions button,.dm-device-controls button,.fil-drop-button,
+  .ss-touch-key,.starwheel-main-spin,.starwheel-student-grid button,
+  .crew-survey-aac button,.bingo-student-cell,.dm-pick-actions button
+ ){
+  animation:none!important;transition:none!important;
+ }
+}
