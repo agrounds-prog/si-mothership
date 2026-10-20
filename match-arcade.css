@@ -1045,3 +1045,213 @@ body.role-student #studentContent .ma-student-earned b{color:#aeffda!important}
   animation:none!important;transition:none!important;
  }
 }
+
+
+/* Phase 4I · MATCH clarity pass. All states are read-only reflections of the
+   native MATCH engine; no scoring, save, turn or teacher handlers are changed. */
+#teacher #activityControllerPanel:has(.ma-4i-teacher){
+ border:1px solid #4d93be!important;border-radius:20px!important;
+ background:radial-gradient(ellipse at 4% 0%,#2886be28,transparent 57%),
+  linear-gradient(150deg,#071b37,#080f27 85%)!important;
+}
+#teacher #activityControllerPanel .ma-4i-teacher{
+ border:1px solid #5085b4!important;border-radius:17px!important;
+ background:radial-gradient(ellipse at 80% 0%,#2a78b02f,transparent 60%),
+  linear-gradient(135deg,#122e53,#08182f)!important;
+ box-shadow:inset 0 1px #dbf9ff2e,0 9px 26px #0005!important;
+}
+#teacher #activityControllerPanel .ma-4i-teacher-guide{
+ margin:10px 0 15px;padding:12px;border:1px solid #4e85ba;border-radius:12px;
+ background:linear-gradient(145deg,#0a2346,#102a4e);
+ box-shadow:inset 0 1px #b7dff12a;
+}
+#teacher #activityControllerPanel .ma-4i-teacher-guide-head{
+ display:flex;align-items:center;justify-content:space-between;gap:8px;
+ flex-wrap:wrap;color:#a8e9fa;
+ font:950 10px/1.3 system-ui,sans-serif;letter-spacing:.13em;
+}
+#teacher #activityControllerPanel .ma-4i-teacher-guide-head strong{
+ font-size:13px;letter-spacing:.04em;color:#f3fdff;
+}
+#teacher #activityControllerPanel .ma-4i-teacher-track{
+ height:11px;overflow:hidden;margin:10px 0;
+ border:1px solid #577f9d;border-radius:50px;background:#071327;
+ box-shadow:inset 0 1px 5px #000b;
+}
+#teacher #activityControllerPanel .ma-4i-teacher-track i{
+ display:block;height:100%;border-radius:50px;
+ background:linear-gradient(90deg,#56d9ff,#60c6ff 50%,#98ffe1);
+ box-shadow:0 0 13px #66e9ffac;transition:width .25s ease-out;
+}
+#teacher #activityControllerPanel .ma-4i-teacher-guidance{
+ color:#d3e5f6;font:650 11px/1.5 system-ui,sans-serif;
+}
+#teacher #activityControllerPanel .ma-4i-teacher .match-control-grid{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:9px!important;
+}
+#teacher #activityControllerPanel .ma-4i-teacher .match-control-grid button{
+ min-height:53px!important;border-radius:11px!important;
+ background:linear-gradient(145deg,#204b79,#13385e)!important;
+ border:1px solid #639bca!important;color:#f6fcff!important;
+ box-shadow:inset 0 1px #ffffff29,0 5px 10px #0004!important;
+ font-size:clamp(11px,1vw,14px)!important;
+ line-height:1.3!important;
+}
+#teacher #activityControllerPanel .ma-4i-teacher .match-control-grid button[data-ma-action-group="resolve"]:enabled{
+ background:linear-gradient(125deg,#179579,#12837f)!important;
+ border-color:#b3ffe1!important;color:#fff!important;
+ box-shadow:inset 0 1px #ffffff4a,0 0 19px #4bebbf45!important;
+}
+#teacher #activityControllerPanel .ma-4i-teacher .match-control-grid button[data-ma-action-group="next"]:enabled{
+ background:linear-gradient(125deg,#235a99,#25447f)!important;
+ border-color:#8cb6ef!important;
+}
+#teacher #activityControllerPanel .ma-4i-teacher .match-control-grid button[data-ma-action-group="assist"]:enabled{
+ background:linear-gradient(125deg,#67501f,#384570)!important;
+ border-color:#d9b87d!important;color:#fff6db!important;
+}
+#teacher #activityControllerPanel .ma-4i-teacher .match-control-grid button[data-ma-action-group="pause"]{
+ border-color:#b6a2df!important;
+}
+#teacher #activityControllerPanel .ma-4i-teacher .match-control-grid button[data-ma-action-group="correct"]{
+ background:linear-gradient(125deg,#233a56,#152f50)!important;
+ border-color:#6688ac!important;
+}
+#teacher #activityControllerPanel .ma-4i-teacher .match-control-grid button:disabled{
+ opacity:.5!important;filter:saturate(.55)!important;box-shadow:none!important;
+ cursor:not-allowed!important;
+}
+#teacher #activityControllerPanel .ma-4i-teacher .match-control-grid button:enabled:hover{
+ filter:brightness(1.15)!important;transform:translateY(-1px);
+}
+#teacher #activityControllerPanel .ma-4i-teacher .match-control-grid button:focus-visible{
+ outline:3px solid #ffe4a2!important;outline-offset:2px!important;
+}
+/* Student: one short turn cue, fewer chips, and cards large enough to
+   distinguish pictures and words on the 440 x 780 Zoom companion. */
+#student .ma-phase4i-student{gap:10px!important;padding:10px!important}
+#student .ma-phase4i-student .ma-student-heading{
+ padding:9px 10px 7px!important;gap:6px!important;
+ border:1px solid #417fa5;border-radius:13px!important;
+ background:radial-gradient(ellipse at 90% 0%,#1c7dbb39,transparent 60%),
+  linear-gradient(130deg,#112c4d,#0a203a)!important;
+}
+#student .ma-phase4i-student .ma-student-heading .ma-eyebrow{
+ font-size:10px!important;letter-spacing:.11em!important;color:#a5eaff!important;
+}
+#student .ma-phase4i-student .ma-student-heading h2{
+ font-size:clamp(20px,5vw,26px)!important;line-height:1.12!important;
+ letter-spacing:-.01em!important;
+}
+#student .ma-phase4i-student .ma-student-heading p{
+ font-size:clamp(12px,2.8vw,14px)!important;line-height:1.35!important;
+ margin:0!important;
+}
+#student .ma-phase4i-student .ma-student-pilot{
+ gap:6px!important;font-size:10px!important;
+}
+#student .ma-phase4i-student .ma-student-pilot .ma-avatar{
+ width:32px!important;height:32px!important;font-size:19px!important;
+}
+#student .ma-phase4i-student .ma-student-status{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:6px!important;align-items:stretch;
+}
+#student .ma-phase4i-student .ma-student-status>span{
+ display:flex!important;align-items:center;justify-content:center;
+ min-width:0!important;min-height:34px!important;
+ padding:7px 5px!important;font:900 10px/1.2 system-ui,sans-serif!important;
+ white-space:normal!important;text-align:center!important;
+ border:1px solid #527e9e!important;border-radius:9px!important;
+ background:#102b49!important;color:#cfeefa!important;
+}
+#student .ma-phase4i-student .ma-student-status>.ma-phase-pill{
+ border-color:#9fe6f8!important;color:#fff!important;
+ background:linear-gradient(125deg,#185676,#204777)!important;
+}
+#student .ma-phase4i-student .ma-student-status>.ma-student-earned{
+ border-color:#5aaea9!important;color:#aaf7e1!important;
+ background:#10434e!important;
+}
+#student .ma-phase4i-student .ma-4i-turn-guide{
+ display:flex;justify-content:space-between;align-items:center;gap:8px;
+ padding:9px 10px;min-height:52px;border:1px solid #70badb;
+ border-radius:12px;background:linear-gradient(125deg,#163d68,#0f2b4e);
+ box-shadow:inset 0 1px #cdf5ff27;
+ color:#effbff;
+}
+#student .ma-phase4i-student .ma-4i-turn-guide>div:first-child{
+ display:flex;align-items:center;gap:8px;min-width:0;
+}
+#student .ma-phase4i-student .ma-4i-guide-icon{
+ flex:0 0 31px;width:31px;height:31px;display:grid;place-items:center;
+ border:1px solid #9fe6f2;border-radius:10px;background:#225d8a;
+ font-size:18px;color:#c7f5ff;
+}
+#student .ma-phase4i-student .ma-4i-turn-guide strong{
+ font-size:clamp(12px,3vw,15px)!important;line-height:1.3!important;
+}
+#student .ma-phase4i-student .ma-4i-guide-steps{
+ display:flex;align-items:center;gap:5px;flex:0 0 auto;
+}
+#student .ma-phase4i-student .ma-4i-guide-steps>span{
+ display:grid;place-items:center;width:26px;height:26px;
+ border:1px solid #5c85b3;border-radius:8px;color:#a5c5dd;
+ background:#0c2546;font-size:11px;font-weight:950;
+}
+#student .ma-phase4i-student .ma-4i-guide-steps>span.is-done{
+ border-color:#8effd7;background:#1d746d;color:white;
+ box-shadow:0 0 10px #66e5c43d;
+}
+#student .ma-phase4i-student .ma-4i-guide-steps>i{
+ width:14px;height:2px;background:#517da1;display:block;
+}
+#student .ma-phase4i-student .ma-board-surround{
+ border:1.5px solid #79c8ed!important;border-radius:14px!important;
+ padding:clamp(6px,1.9vw,12px)!important;
+ background:linear-gradient(155deg,#0c2850,#08162f)!important;
+}
+#student .ma-phase4i-student .ma-grid{
+ gap:clamp(5px,1.5vw,10px)!important;min-width:0!important;
+}
+#student .ma-phase4i-student .ma-tile{
+ min-width:0!important;min-height:55px!important;
+ aspect-ratio:.93!important;border-width:2px!important;
+ border-radius:10px!important;
+ box-shadow:inset 0 1px #edfbff4d,0 5px 12px #0006!important;
+}
+#student .ma-phase4i-student .ma-tile-front{
+ font-size:clamp(12px,3.4vw,18px)!important;
+ line-height:1.2!important;overflow-wrap:anywhere!important;
+}
+#student .ma-phase4i-student .ma-tile-front img{
+ max-width:100%!important;max-height:100%!important;
+ width:auto!important;height:auto!important;object-fit:contain!important;
+}
+#student .ma-phase4i-student .ma-tile:enabled:focus-visible{
+ outline:3px solid #ffdf9c!important;outline-offset:2px!important;
+}
+#student .ma-phase4i-student .ma-device-tip{
+ padding:8px 10px!important;border-radius:9px!important;font-size:11px!important;
+}
+#student .ma-phase4i-student .ma-device-bottom{display:none!important}
+#student .ma-phase4i-student[data-turn-phase="complete"] .ma-4i-guide-steps,
+#student .ma-phase4i-student[data-turn-phase="preview"] .ma-4i-guide-steps,
+#student .ma-phase4i-student[data-turn-phase="hold"] .ma-4i-guide-steps{opacity:.5}
+@media(max-width:440px){
+ #student .ma-phase4i-student{gap:7px!important;padding:8px!important}
+ #student .ma-phase4i-student .ma-student-heading{padding:8px!important}
+ #student .ma-phase4i-student .ma-student-status>span{
+  min-height:30px!important;font-size:9px!important;padding:4px!important;
+ }
+ #student .ma-phase4i-student .ma-4i-turn-guide{min-height:46px;padding:7px!important}
+ #student .ma-phase4i-student .ma-4i-guide-steps>span{width:23px;height:23px}
+ #student .ma-phase4i-student .ma-grid{gap:4px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #student .ma-phase4i-student *,#student .ma-phase4i-student *::before,
+ #teacher .ma-4i-teacher-guide *,#teacher .ma-4i-teacher button{
+  animation:none!important;transition:none!important;
+ }
+}
