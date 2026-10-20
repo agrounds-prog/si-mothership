@@ -111,14 +111,14 @@ function matchArcadeShared(run=state.activityRun,big=false){
     '<div class="ma-stage-celebration ma-stage-pair" aria-hidden="true"><span class="ma-pair-streaks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="ma-celebration-sparks">✦ &nbsp; ✧ &nbsp; ✦</span><strong>PAIR FOUND!</strong><small>'+ (cfg.scoring==='no_score'?'MEMORY MISSION · WELL DONE':'AUTOMATIC POINT AWARDED') +'</small></div>':
     status.type==='victory'?
     '<div class="ma-stage-celebration ma-stage-victory" role="region" aria-label="MATCH final standings"><span class="ma-victory-halo" aria-hidden="true"><i></i><i></i><i></i></span><span class="ma-celebration-sparks">✦ &nbsp; ★ &nbsp; ✦</span><span class="ma-celebration-trophy">🏆</span><strong>MISSION COMPLETE</strong><small>'+matched+' OF '+pairs+' PAIRS DISCOVERED</small>'+matchArcadeFinalStandings(m,run)+'</div>':'';
-  return '<div class="ma-game ma-shared '+(big?'ma-present':'ma-compact')+' ma-status-'+status.type+'" data-turn-phase="'+matchArcadePresentationPhase(m,run)+'">'+
+  return '<div class="ma-game ma-shared '+(big?'ma-present':'ma-compact')+' ma-status-'+status.type+' ma-phase4i" data-turn-phase="'+matchArcadePresentationPhase(m,run)+'">'+
     '<div class="ma-cosmos" aria-hidden="true"><span class="ma-planet ma-planet-one"></span><span class="ma-planet ma-planet-two"></span><span class="ma-space-grid"></span></div>'+
     '<header class="ma-header"><div class="ma-brand"><span class="ma-brand-icon">✦</span><span>MISSION <b>MATCH</b></span></div><span class="ma-round-label">MEMORY CHALLENGE</span></header>'+
     '<div class="ma-topline"><div class="ma-turn-identity">'+matchArcadePlayerArt(active?.n||'',run)+
     '<div><small>CURRENT NAVIGATOR'+(team?' · '+esc(team.name.toUpperCase()):'')+'</small><strong>'+esc(active?.n||'Awaiting player')+'</strong></div></div>'+
     '<div class="ma-counter-strip"><span><b>'+matched+'</b> / '+pairs+' <small>PAIRS FOUND</small></span><span><b>'+Number(m.attempts||0)+'</b> <small>TRIES</small></span></div></div>'+
     '<div class="ma-signal ma-signal-'+status.type+'" aria-live="polite" aria-atomic="true"><span class="ma-signal-icon" aria-hidden="true">'+({victory:'🏆',preview:'◉',matched:'✦',miss:'↶',hold:'Ⅱ',ready:'◇'}[status.type])+'</span><div><strong>'+status.title+'</strong><span>'+status.detail+'</span></div></div>'+
-    '<div class="ma-board-wrap"><div class="ma-board-surround"><div class="ma-grid" style="--ma-cols:'+cols+'">'+cards.map((card,i)=>
+    '<div class="ma-board-wrap"><div class="ma-board-surround"><div class="ma-grid" role="group" aria-label="Memory board" style="--ma-cols:'+cols+'">'+cards.map((card,i)=>
       matchArcadeTile(card,i,m,{preview})).join('')+'</div>'+celebration+'</div></div>'+
     '<div class="ma-bottomline"><div class="ma-progress"><span>MISSION PROGRESS</span><div class="ma-progress-track"><i style="width:'+(pairs?Math.min(100,Math.round(matched/pairs*100)):0)+'%"></i></div></div>'+
     '<div class="ma-log">⌁ '+esc(m.message||'Find the hidden pairs.')+'</div></div>'+
@@ -135,17 +135,28 @@ function matchArcadeStudent(run=state.activityRun,student=selectedStudent()){
   const turn= m.complete?'MISSION COMPLETE':preview?'MEMORIZE THE BOARD':mine?'YOUR TURN, '+esc(student?.n||'PILOT')+'!':'WATCH '+esc(active?.n||'THE PLAYER');
   const instruction= m.complete?'Every pair has been found!':preview?'Look closely. The cards will flip back automatically.':
     mine?(m.pendingResolution?'See whether your two cards match.':m.selected?.length===1?'Great! Find the matching card.':'Tap any glowing card to uncover its partner.'):'Watch the shared board and remember card locations.';
+  const chosen=(m.selected||[]).length;
+  const guideText=m.complete?'All pairs found':preview?'Study the locations':
+   m.locked?'Wait for your teacher':m.pendingResolution?'Checking the pair':
+   mine?(chosen===1?'Pick your second card':'Pick your first card'):'Watch the current player';
+  const turnGuide='<div class="ma-4i-turn-guide" role="status" aria-live="polite">'+
+   '<div><span class="ma-4i-guide-icon" aria-hidden="true">'+
+    (mine&&!m.complete&&!m.locked?'✦':'◉')+'</span>'+
+    '<strong>'+guideText+'</strong></div>'+
+   '<div class="ma-4i-guide-steps" aria-label="'+chosen+' cards chosen">'+
+    '<span class="'+(chosen>=1?'is-done':'')+'" aria-hidden="true">1</span>'+
+    '<i aria-hidden="true"></i><span class="'+(chosen>=2?'is-done':'')+'" aria-hidden="true">2</span></div></div>';
   const consult=cfg.crewConsult&&mine&&m.selected?.length===1&&!m.consult?.open?'<button class="ma-consult-btn" id="matchAskCrewBtn">◉ ASK MY CREW</button>':'';
   const consultGroup=m.consult?.open&&cfg.mode==='teams'&&matchTeamIndexForStudent(student?.n,run)===Number(m.activeTeam)&&!mine?
     '<div class="ma-consult-box"><b>CREW CONSULT</b><p>Suggest the second card for '+esc(active?.n||'your teammate')+'</p><div class="ma-consult-grid">'+
     cards.map((card,i)=>'<button data-match-consult-pick="'+esc(card.id)+'" '+((m.matched||[]).includes(card.id)||(m.selected||[]).includes(card.id)?'disabled':'')+'>'+String(i+1)+'</button>').join('')+'</div></div>':'';
   const suggestions=m.consult?.open&&mine?'<div class="ma-consult-box"><b>CREW SUGGESTIONS</b><p>'+esc(matchConsultAggregate(run).map(x=>'Card '+x.number+' ×'+x.count).join(' · ')||'Waiting for your crew…')+'</p><button id="matchCloseConsultBtn">Close Consult</button></div>':'';
-  return '<div class="ma-game ma-student ma-status-'+status.type+'" data-turn-phase="'+matchArcadePresentationPhase(m,run)+'">'+
+  return '<div class="ma-game ma-student ma-phase4i-student ma-status-'+status.type+'" data-turn-phase="'+matchArcadePresentationPhase(m,run)+'">'+
     '<div class="ma-cosmos" aria-hidden="true"><span class="ma-planet ma-planet-one"></span><span class="ma-space-grid"></span></div>'+
     '<div class="ma-student-heading"><div class="ma-student-pilot">'+matchArcadePlayerArt(active?.n||'',run)+'<span>CURRENT NAVIGATOR</span></div><span class="ma-eyebrow">✦ MOTHERSHIP · MATCH</span><h2 aria-live="polite">'+turn+'</h2><p>'+instruction+'</p></div>'+
     '<div class="ma-student-status"><span class="ma-phase-pill" aria-hidden="true">'+
-      ({complete:'★ MISSION COMPLETE',preview:'◉ STUDY THE BOARD',matched:'✦ PAIR FOUND',miss:'↶ REMEMBER THE PAIR',hold:'Ⅱ ON HOLD','second-card':mine?'◇ FIND A MATCH':'◉ WATCH THE TURN',choose:mine?'◇ CHOOSE A CARD':'◉ WATCH THE TURN'}[matchArcadePresentationPhase(m,run)])+'</span><span>◈ <b>'+matched+' / '+(cards.length/2)+'</b> PAIRS</span><span>◎ <b>'+Number(m.attempts||0)+'</b> TRIES</span><span>✦ '+(mine?'ACTIVE PILOT':'CREW OBSERVER')+'</span><span class="ma-student-earned">'+(cfg.scoring==='no_score'?'◈ MEMORY MODE · NO POINTS':'★ <b>'+earnedPairs+'</b> AUTO POINTS')+'</span></div>'+
-    '<div class="ma-board-wrap"><div class="ma-board-surround"><div class="ma-grid" style="--ma-cols:'+cols+'">'+
+      ({complete:'★ COMPLETE',preview:'◉ PREVIEW',matched:'✦ MATCH',miss:'↶ TRY AGAIN',hold:'Ⅱ ON HOLD','second-card':mine?'◇ SECOND CARD':'◉ WATCH',choose:mine?'◇ YOUR TURN':'◉ WATCH'}[matchArcadePresentationPhase(m,run)])+'</span><span class="ma-4i-pairs">◈ <b>'+matched+' / '+(cards.length/2)+'</b> PAIRS</span><span class="ma-4i-attempts">◎ <b>'+Number(m.attempts||0)+'</b> TRIES</span><span class="ma-student-earned">'+(cfg.scoring==='no_score'?'◈ MEMORY MODE':'★ <b>'+earnedPairs+'</b> EARNED')+'</span></div>'+turnGuide+
+    '<div class="ma-board-wrap"><div class="ma-board-surround"><div class="ma-grid" role="group" aria-label="MATCH cards" style="--ma-cols:'+cols+'">'+
     cards.map((card,i)=>matchArcadeTile(card,i,m,{student:true,canPick,preview})).join('')+'</div></div></div>'+
     (m.complete?'<div class="ma-student-final" role="status"><strong>✦ ALL '+matched+' PAIRS FOUND</strong><span>'+
       (cfg.scoring==='no_score'?'Crew memory challenge complete. Great teamwork.':cfg.mode==='teams'?
@@ -175,6 +186,40 @@ function matchArcadeRefreshAtExpiry(){
   },Math.max(75,until-Date.now()+100));
 }
 function matchArcadeWireTeacher(){
+  const panel=document.querySelector('#activityControllerPanel'),run=typeof state!=='undefined'?state.activityRun:null;
+  if(panel&&run?.activityId==='match-game'){
+   const card=panel.querySelector('.match-teacher-card'),grid=card?.querySelector('.match-control-grid');
+   const m=run.match||{},total=(m.cards||[]).length/2,found=(m.matched||[]).length/2;
+   if(card&&grid){
+    card.classList.add('ma-4i-teacher');
+    let hud=card.querySelector('.ma-4i-teacher-guide');
+    if(!hud){
+     hud=document.createElement('div');hud.className='ma-4i-teacher-guide';
+     hud.innerHTML='<div class="ma-4i-teacher-guide-head"><span>MISSION PROGRESS</span><strong></strong></div>'+
+      '<div class="ma-4i-teacher-track" role="progressbar" aria-label="Pairs matched" aria-valuemin="0"><i></i></div>'+
+      '<div class="ma-4i-teacher-guidance" role="status"></div>';
+     grid.before(hud);
+    }
+    hud.querySelector('strong').textContent=found+' of '+total+' PAIRS FOUND';
+    const track=hud.querySelector('[role="progressbar"]');
+    track.setAttribute('aria-valuemax',String(total));
+    track.setAttribute('aria-valuenow',String(found));
+    track.firstElementChild.style.width=(total?Math.round(found/total*100):0)+'%';
+    hud.querySelector('.ma-4i-teacher-guidance').textContent=m.complete?'All pairs found · choose what happens next':
+     m.pendingResolution?'Resolve this pair with CONTINUE':
+     m.teacherLocked?'Board locked · resume to allow selections':
+     (m.selected||[]).length===1?'First card revealed · waiting for the second card':
+     'Students select two cards · matching pairs score automatically';
+    for(const [id,group] of Object.entries({
+     matchContinueBtn:'resolve',matchMemoryPreviewBtn:'assist',
+     matchLockBtn:'pause',matchPauseRevealBtn:'pause',
+     matchUndoBtn:'correct',matchRetryBtn:'correct',matchReturnPairBtn:'correct',
+     matchSkipBtn:'next',matchNextTeamBtn:'next'
+    })){
+     const b=grid.querySelector('#'+id);if(b)b.dataset.maActionGroup=group;
+    }
+   }
+  }
   const preview=document.querySelector('#matchMemoryPreviewBtn');
   if(preview)preview.onclick=()=>teacherMatchAction(matchArcadePreviewActive()?'preview_stop':'preview');
   // Valid matching pairs are already detected and scored by the server.
