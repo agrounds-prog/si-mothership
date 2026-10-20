@@ -30,6 +30,13 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    assert.ok(bounds.right<=4&&bounds.overflow<=4,"DOMINOES does not stretch Activities workspace");
   }
   await page.setViewportSize({width:1440,height:960});
+  // DOMINOES can legitimately preselect up to three connected students.
+  // This two-player smoke test selects exactly two seats explicitly, rather
+  // than depending on whatever roster the isolated classroom started with.
+  const teacherSeat=page.locator('.dm-setup [data-dm-teacher-seat].chosen');
+  if(await teacherSeat.count())await teacherSeat.click();
+  const chosen=page.locator('.dm-setup .dm-seats [data-dm-seat].chosen');
+  while(await chosen.count()>2)await chosen.last().click();
   await page.locator("#dmStart").click();
   await page.waitForFunction(()=>!!state.activityRun?.dominoes&&!!document.querySelector("#activityControllerPanel .dm-teacher"),{timeout:12000});
   const initial=await page.evaluate(()=>({type:activeActivity()?.type,players:state.activityRun.dominoes.players,hand:state.activityRun.dominoes.hands[state.activityRun.dominoes.players[0]].length,tiles:state.activityRun.dominoes.chain.length,bag:state.activityRun.dominoes.bag.length}));
