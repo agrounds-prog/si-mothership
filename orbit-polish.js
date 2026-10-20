@@ -203,6 +203,164 @@
    return enhanced;
   };
  }
+
+ // ORBIT Phase 4G teacher mission deck. All controls are existing native
+ // buttons/selects, moved after the native handlers are wired; classroom
+ // state and projector privacy still belong to the original activity engine.
+ let teacherFilter='all';
+ const el=(tag,className,textContent)=>{
+  const node=document.createElement(tag);node.className=className;
+  if(textContent!=null)node.textContent=textContent;return node;
+ };
+ function polishTeacher(run,controller){
+  const cards=controller.querySelectorAll(':scope > .orbit-control-card');
+  if(cards.length<2)return;
+  const [preview,command]=cards,grid=command.querySelector('.orbit-control-grid');
+  const list=command.querySelector('.orbit-response-list');
+  if(!grid||!list)return;
+  controller.classList.add('si-orbit-teacher-deck');
+  const responses=run.orbitResponses||{},assign=run.orbitAssignments||{};
+  const clusterNames=[...new Set((run.orbitClusters||[]).filter(c=>typeof c==='string'&&c.trim()))];
+  const mode=run.orbitSpotlight&&responses[run.orbitSpotlight]?'SPOTLIGHT':
+   run.orbitCompare?'BEFORE / AFTER':run.orbitClusterView?'SOLAR SYSTEMS':'LIVE ORBIT';
+  const privacy=run.orbitConfig?.anonymous&&!run.orbitRevealCrew?'NAMES HIDDEN ON PROJECTOR':
+   'NAMES VISIBLE ON PROJECTOR';
+  if(!preview.querySelector('.si-orbit-preview-heading')){
+   const bar=el('div','si-orbit-preview-heading');
+   bar.innerHTML='<span>✦ PROJECTOR PREVIEW</span><small>Matches the classroom display</small>';
+   preview.prepend(bar);
+  }
+  if(!command.querySelector('.si-orbit-command-head')){
+   const heading=el('div','si-orbit-command-head');
+   heading.innerHTML='<span>MISSION CONTROL · LIVE</span><strong>Guide the conversation</strong>'+
+    '<div class="si-orbit-broadcast-status"><b></b><span></span></div>';
+   command.prepend(heading);
+   const oldTitle=command.querySelector(':scope > h3');
+   if(oldTitle)oldTitle.classList.add('si-orbit-native-heading');
+  }
+  const status=command.querySelector('.si-orbit-broadcast-status');
+  if(status){
+   const modeNode=status.querySelector('b'),privacyNode=status.querySelector('span');
+   if(modeNode.textContent!==mode)modeNode.textContent=mode;
+   if(privacyNode.textContent!==privacy)privacyNode.textContent=privacy;
+   status.dataset.privacy=privacy.startsWith('NAMES HIDDEN')?'hidden':'visible';
+  }
+  if(!grid.dataset.siOrbitGrouped){
+   grid.dataset.siOrbitGrouped='true';
+   const makeGroup=(label,ids)=>{
+    const group=el('section','si-orbit-action-group');
+    const heading=el('div','si-orbit-action-heading',label);
+    const controls=el('div','si-orbit-actions');
+    group.append(heading,controls);
+    ids.forEach(id=>{const button=grid.querySelector('#'+id);if(button)controls.append(button)});
+    grid.append(group);
+    return group;
+   };
+   makeGroup('01 · CLASSROOM DISPLAY',['orbitReturnViewBtn','orbitClusterViewBtn','orbitCrewBtn','orbitCompareBtn']);
+   const lesson=makeGroup('02 · LESSON CONTROLS',['orbitPauseBtn','orbitNewClusterBtn',
+    'orbitFollowUpBtn','orbitReOrbitBtn']);
+   const newBtn=lesson.querySelector('#orbitNewClusterBtn');
+   if(newBtn){
+    const form=el('form','si-orbit-create-system');
+    form.hidden=true;
+    form.innerHTML='<label for="siOrbitNewCluster">New solar-system name</label>'+
+     '<div class="si-orbit-create-fields"><input id="siOrbitNewCluster" maxlength="55" '+
+     'autocomplete="off" placeholder="e.g., Kindness" required>'+
+     '<button type="submit">Add system</button><button type="button" class="si-orbit-cancel-system">Cancel</button></div>'+
+     '<p role="status" aria-live="polite"></p>';
+    lesson.append(form);
+    newBtn.onclick=()=>{
+     form.hidden=!form.hidden;
+     if(!form.hidden)form.querySelector('input').focus();
+    };
+    form.querySelector('.si-orbit-cancel-system').onclick=()=>{
+     form.hidden=true;newBtn.focus();
+    };
+    form.onsubmit=event=>{
+     event.preventDefault();
+     const input=form.querySelector('input'),name=input.value.trim();
+     const feedback=form.querySelector('p');
+     if(!name){feedback.textContent='Enter a name for the solar system.';return}
+     const current=state.activityRun;if(!current||current.activityId!=='orbit-game')return;
+     current.orbitClusters=current.orbitClusters||[];
+     if(current.orbitClusters.includes(name)){
+      feedback.textContent='That solar system already exists.';input.focus();return;
+     }
+     current.orbitClusters.push(name);teacherFilter='all';
+     render();if(typeof toast==='function')toast('Solar system created: '+name);
+    };
+   }
+  }
+  if(!command.querySelector('.si-orbit-ideas-tools')){
+   const tools=el('div','si-orbit-ideas-tools');
+   tools.innerHTML='<div class="si-orbit-ideas-heading"><div><span>CREW TRANSMISSIONS</span>'+
+    '<h4>Sort the ideas</h4></div><b></b></div>'+
+    '<div class="si-orbit-filter-bar" role="group" aria-label="Filter ideas by solar system"></div>'+
+    '<p class="si-orbit-sorting-tip">Choose a solar system beside each idea. Use Spotlight to feature it on the projector.</p>';
+   list.before(tools);
+  }
+  const tools=command.querySelector('.si-orbit-ideas-tools');
+  const rows=[...list.querySelectorAll('.orbit-response-row')];
+  const activeRows=rows.filter(row=>row.querySelector('[data-orbit-cluster]'));
+  const waitingCount=rows.length-activeRows.length;
+  const filterDefs=[
+   {key:'all',text:'All ideas',count:rows.length},
+   {key:'unassigned',text:'Unassigned',count:activeRows.filter(row=>{
+    const select=row.querySelector('select');return !select?.value}).length}
+  ].concat(clusterNames.map(name=>({key:'cluster:'+name,text:name,
+   count:activeRows.filter(row=>row.querySelector('select')?.value===name).length})));
+  if(!filterDefs.some(item=>item.key===teacherFilter))teacherFilter='all';
+  const filterBar=tools.querySelector('.si-orbit-filter-bar');
+  const filterStamp=filterDefs.map(x=>x.key+'\t'+x.text+'\t'+x.count).join('|');
+  if(filterBar.dataset.stamp!==filterStamp){
+   filterBar.dataset.stamp=filterStamp;filterBar.replaceChildren();
+   filterDefs.forEach(item=>{
+    const button=el('button','si-orbit-filter',item.text+' · '+item.count);
+    button.type='button';button.dataset.orbitFilter=item.key;
+    button.addEventListener('click',()=>{teacherFilter=item.key;polishTeacher(state.activityRun,controller)});
+    filterBar.append(button);
+   });
+  }
+  filterBar.querySelectorAll('button').forEach(button=>{
+   const selected=button.dataset.orbitFilter===teacherFilter;
+   if(button.getAttribute('aria-pressed')!==String(selected))
+    button.setAttribute('aria-pressed',String(selected));
+   button.classList.toggle('is-active',selected);
+  });
+  const counter=tools.querySelector('.si-orbit-ideas-heading b');
+  const countLabel=activeRows.length+' received · '+waitingCount+' waiting';
+  if(counter.textContent!==countLabel)counter.textContent=countLabel;
+  rows.forEach(row=>{
+   const select=row.querySelector('[data-orbit-cluster]');
+   const name=select?.dataset.orbitCluster||'';
+   const assigned=select?.value||'';
+   const stateLabel=!select?'Awaiting response':assigned||'Not assigned yet';
+   row.dataset.orbitSortState=!select?'waiting':assigned?'assigned':'unassigned';
+   row.dataset.orbitSystem=assigned;
+   if(select){
+    select.setAttribute('aria-label','Assign '+name+' to a solar system');
+    const spotlight=row.querySelector('[data-orbit-spotlight]');
+    if(spotlight)spotlight.setAttribute('aria-label','Spotlight idea from '+name);
+   }
+   const copy=row.firstElementChild;
+   if(copy){
+    let tag=copy.querySelector('.si-orbit-idea-tag');
+    if(!tag){tag=el('span','si-orbit-idea-tag');copy.append(tag)}
+    if(tag.textContent!==stateLabel)tag.textContent=stateLabel;
+   }
+   const visible=teacherFilter==='all'||
+    (teacherFilter==='unassigned'&&select&&!assigned)||
+    (teacherFilter.startsWith('cluster:')&&assigned===teacherFilter.slice(8));
+   row.hidden=!visible;
+  });
+  let empty=list.querySelector('.si-orbit-filter-empty');
+  if(!empty){empty=el('div','si-orbit-filter-empty');empty.hidden=true;list.append(empty)}
+  const visibleRows=rows.filter(row=>!row.hidden);
+  empty.hidden=visibleRows.length>0;
+  if(!visibleRows.length)empty.textContent=teacherFilter==='unassigned'?
+   'All received ideas are assigned to solar systems.':'No ideas in this view yet.';
+  controller.dataset.orbitBroadcast=mode.toLowerCase().replace(/[^a-z]+/g,'-');
+ }
  function enhance(){
   if(document.body.classList.contains('role-shared')||document.body.classList.contains('role-student')){
    const r=typeof state!=='undefined'?state.activityRun:null;
@@ -264,6 +422,7 @@
     if(fill.style.width!==width)fill.style.width=width;
     meter.dataset.phase=r.orbitPaused?'paused':done===total&&total?'complete':'live';
    }
+   polishTeacher(r,controller);
   }
  }
  let pending=false;
