@@ -18,7 +18,26 @@ const students=()=>[{n:'Alex',offline:false},{n:'Blair',offline:false},{n:'Casey
    state.assigningSlot=null;state.ended=false;state.activityRun=null;
    render();
   },{app,roster:students()});
-  await page.locator('#activitiesPanel.si-setup-view[data-si-setup="'+app+'"]').waitFor();
+  // Native setup controls, not the optional unified-studio badge, determine
+  // whether the game is ready. The badge is installed asynchronously and can
+  // lag the actual setup after a saved-game page reload.
+  const setup={ 'cosmic-cards':'.cc-setup',dominoes:'.dm-setup',
+   'four-in-line':'.fil-setup','signal-sequence':'.ss-setup'}[app];
+  if(!setup)throw Error('No setup fixture configured for '+app);
+  try{
+   await page.locator('#activitiesPanel #activityGrid '+setup)
+    .waitFor({state:'visible',timeout:16000});
+  }catch(error){
+   const info=await page.evaluate(()=>({
+    screen:state.screen,app:state.activeApp,run:state.activityRun?.activityId||null,
+    bridge:!!window.__signalSequenceBridge,hydrated:networkHydrated,
+    setup:document.querySelector('#activityGrid')?.querySelector('.ss-setup')?.outerHTML.slice(0,250)||null,
+    panel:document.querySelector('#activitiesPanel')?.getAttribute('class'),
+    banner:document.querySelector('#activitiesPanel')?.dataset.siSetup||null
+   }));
+   console.error('Phase 2F setup diagnostic '+app,JSON.stringify(info));
+   throw error;
+  }
  };
  const fit=async(app,selector)=>{
   await page.setViewportSize({width:500,height:900});
@@ -142,7 +161,8 @@ const students=()=>[{n:'Alex',offline:false},{n:'Blair',offline:false},{n:'Casey
   await page.locator('#activityControllerPanel [data-ss-action="save"]').click();
   assert.ok(await page.evaluate(()=>SignalSequence.readLibrary().length>0));
   await page.reload({waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>!!window.SignalSequence&&networkHydrated===true,null,{timeout:20000});
+  await page.waitForFunction(()=>!!window.SignalSequence&&
+   !!window.__signalSequenceBridge&&networkHydrated===true,null,{timeout:20000});
   await open('signal-sequence');
   await page.locator('[data-ss-load]').first().click();
   assert.deepEqual(await page.evaluate(()=>({
