@@ -6,7 +6,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
 const cards=Array.from({length:8},(_,i)=>'<button class="cc-hand-button" data-cosmic-card="card'+i+'"><span class="cc-card"><b>'+((i%9)+1)+'</b><small>Card</small></span></button>').join("");
 const dominoes=Array.from({length:7},(_,i)=>'<div class="dm-hand-item playable"><span class="dm-tile">'+i+' / '+(i+1)+'</span><div class="dm-pick-actions"><button data-dm-play="'+i+'" data-dm-side="first">▶ PLACE TILE</button>'+(i%3===0?'<button class="dm-rotate" data-dm-rotate="'+i+'">⟳ DOUBLE · HORIZONTAL</button>':'')+'</div></div>').join("");
 const samples={
- million:'<div class="student-prompt million-student command-seat"><span class="eyebrow">MILLION · COMMAND SEAT</span><h2>Which choice would keep everyone on the same team?</h2><div class="million-student-choices">'+
+ million:'<div class="student-prompt million-student command-seat million-4j-student"><span class="eyebrow">MILLION · COMMAND SEAT</span><h2>Which choice would keep everyone on the same team?</h2><div class="million-4j-choice-guide" data-phase="choose"><span class="million-4j-guide-mark">✦</span><strong>Choose your answer</strong><small>Select A, B, C or D.</small></div><div class="million-student-choices">'+
   ["A","B","C","D"].map(k=>'<button class="million-student-choice" data-million-choice="'+k+'"><b>'+k+'</b><span>Choose the strongest answer for your classroom mission</span></button>').join("")+
   '</div><div class="million-student-actions"><button id="millionLockBtn">LOCK ANSWER</button><button id="millionLifeBtn">USE LIFELINE</button></div></div>',
  cosmic:'<div class="cc-device cc-cinematic"><div class="cc-scene-mobile"></div><span class="eyebrow">COSMIC CARDS · PRIVATE HAND</span>'+
@@ -106,6 +106,8 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
     if(game==="cosmic")assert.ok(ui.grids[1].every(x=>x.h>=44)&&ui.scene<=75,JSON.stringify(ui));
     if(game==="dominoes")assert.ok(ui.grids[0].every(x=>x.h>=44&&x.w>=80)&&ui.grids[1].every(x=>x.h>=44),JSON.stringify(ui));
     if(game==="million")assert.ok(ui.grids[0].every(x=>x.h>=70&&x.w>=190)&&ui.grids[1].every(x=>x.h>=44)&&ui.visual.labelFont>=13,JSON.stringify(ui));
+    if(game==="million")assert.ok(ui.visual.selectionContrast&&ui.actionWidth>=ui.mainWidth-58,
+      'Phase 4J MILLION answer cards must remain full-width and visibly selected');
     console.log("ZOOM "+game+" "+w+"x"+h+" "+JSON.stringify({columns:ui.cols,buttons:ui.grids[0].length}));
    }
    const pv=await page.evaluate(poll=>{
