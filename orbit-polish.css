@@ -1550,3 +1550,326 @@ body.role-shared .orbit-solar-system{animation:none!important}
   animation:none!important;transition:none!important;filter:none!important;
  }
 }
+
+
+/* ORBIT Phase 4G — teacher mission deck. Scope strictly to live ORBIT,
+   keeping native session safety buttons, assignments and projector intact. */
+#teacher #activityControllerPanel:has(.si-orbit-teacher-deck){
+ padding:clamp(12px,1.8vw,23px)!important;border:1px solid #537bca!important;
+ border-radius:20px!important;
+ background:radial-gradient(ellipse at 4% 0%,#5576da2e,transparent 57%),
+  radial-gradient(ellipse at 95% 88%,#af5cff22,transparent 58%),
+  linear-gradient(155deg,#091a36,#080f26)!important;
+ box-shadow:inset 0 1px #ddf5ff39,0 18px 39px #0005!important;
+}
+#teacher #activityControllerPanel:has(.si-orbit-teacher-deck)>.activity-controller-head{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:14px;flex-wrap:wrap;padding:13px 16px!important;margin-bottom:14px!important;
+ border:1px solid #596fab;border-radius:15px;
+ background:linear-gradient(125deg,#243b82a8,#142950d9 71%,#372c6da9);
+ box-shadow:inset 0 1px #ffffff2d!important;
+}
+#teacher #activityControllerPanel:has(.si-orbit-teacher-deck)>.activity-controller-head h2{
+ font:1000 clamp(23px,2.2vw,32px)/1.08 system-ui,sans-serif!important;
+ color:#fff!important;letter-spacing:-.03em;margin:5px 0!important;
+}
+#teacher #activityControllerPanel:has(.si-orbit-teacher-deck)>.activity-controller-head p{
+ max-width:680px;margin-top:4px;font-size:13px!important;
+ color:#cde0f5!important;line-height:1.45;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck{
+ display:grid!important;grid-template-columns:minmax(0,.87fr) minmax(330px,1.13fr)!important;
+ align-items:start;gap:15px!important;min-width:0!important;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck>.orbit-control-card{
+ min-width:0!important;padding:clamp(11px,1.35vw,17px)!important;
+ border:1px solid #5677b2!important;border-radius:18px!important;
+ background:radial-gradient(ellipse at 20% 0%,#477cde2a,transparent 63%),
+  linear-gradient(145deg,#132856,#0a1635 80%)!important;
+ box-shadow:inset 0 1px #ecfbff25,0 14px 27px #0004!important;
+}
+#teacher #activityControllerPanel .si-orbit-preview-heading{
+ display:flex;justify-content:space-between;align-items:center;gap:8px;
+ flex-wrap:wrap;padding-bottom:11px;margin-bottom:9px;
+ border-bottom:1px solid #6791bb69;color:#a6ebff;
+ font:950 10px/1.25 system-ui,sans-serif;letter-spacing:.12em;
+}
+#teacher #activityControllerPanel .si-orbit-preview-heading small{
+ color:#b6cde8;font:700 10px/1.3 system-ui,sans-serif;letter-spacing:normal;
+}
+#teacher #activityControllerPanel .si-orbit-preview-heading+ .orbit-public{
+ min-width:0;width:100%!important;max-width:100%!important;margin:0!important;
+ padding:10px!important;border:1px solid #5a83ba!important;
+ border-radius:13px!important;background:#081e40!important;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck>.orbit-control-card:first-child{
+ position:sticky;top:10px;overflow:visible;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck>.orbit-control-card:first-child .orbit-space{
+ width:100%!important;max-width:100%!important;min-width:0!important;
+ height:clamp(230px,38vh,390px)!important;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck>.orbit-control-card:first-child .orbit-public h3{
+ font-size:clamp(12px,1.25vw,18px)!important;
+}
+#teacher #activityControllerPanel .si-orbit-command-head{
+ display:flex;flex-direction:column;align-items:start;gap:5px;
+ padding-bottom:13px;margin-bottom:12px;border-bottom:1px solid #5c83ba79;
+}
+#teacher #activityControllerPanel .si-orbit-command-head>span{
+ color:#a9edff;font:950 10px/1.3 system-ui,sans-serif;letter-spacing:.17em;
+}
+#teacher #activityControllerPanel .si-orbit-command-head>strong{
+ color:#fff;font:950 clamp(20px,1.7vw,25px)/1.15 system-ui,sans-serif;
+ letter-spacing:-.025em;
+}
+#teacher #activityControllerPanel .si-orbit-native-heading{display:none!important}
+#teacher #activityControllerPanel .si-orbit-broadcast-status{
+ display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-top:6px;
+}
+#teacher #activityControllerPanel .si-orbit-broadcast-status>b,
+#teacher #activityControllerPanel .si-orbit-broadcast-status>span{
+ padding:6px 9px;border:1px solid #6a9ab9;border-radius:999px;
+ background:linear-gradient(100deg,#194a7a,#22396c);
+ color:#dbf8ff;font:900 9px/1.25 system-ui,sans-serif;letter-spacing:.06em;
+}
+#teacher #activityControllerPanel .si-orbit-broadcast-status>span{
+ border-color:#a68ccc;background:#382b68;color:#f6dcff;
+}
+#teacher #activityControllerPanel .si-orbit-broadcast-status[data-privacy="hidden"]>span{
+ border-color:#5ba79c;background:#16473f;color:#b5fbe6;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-completion{gap:9px;margin-bottom:8px}
+#teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-completion>div{
+ background:#0c2146!important;border:1px solid #4f6a9f!important;
+ padding:9px!important;border-radius:11px!important;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-completion b{
+ font-size:clamp(19px,1.8vw,24px)!important;color:#fff;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck .si-orbit-participation{
+ padding:11px!important;margin-bottom:12px!important;
+ border:1px solid #4b79b3!important;border-radius:11px!important;
+ background:linear-gradient(135deg,#143764,#15264d)!important;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-control-grid{
+ display:flex!important;flex-direction:column;gap:10px!important;
+ width:100%;min-width:0;margin:0 0 15px;
+}
+#teacher #activityControllerPanel .si-orbit-action-group{
+ width:100%;min-width:0;padding:11px;border:1px solid #425f93;
+ border-radius:13px;background:linear-gradient(135deg,#102448,#0b1d3f);
+}
+#teacher #activityControllerPanel .si-orbit-action-heading{
+ margin:0 0 10px;color:#9ee5fb;
+ font:950 10px/1.3 system-ui,sans-serif;letter-spacing:.13em;
+}
+#teacher #activityControllerPanel .si-orbit-actions{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
+}
+#teacher #activityControllerPanel .si-orbit-actions>button{
+ min-width:0!important;min-height:45px!important;
+ padding:8px 7px!important;border:1px solid #6d9cc4!important;
+ border-radius:9px!important;white-space:normal!important;
+ font:850 11px/1.2 system-ui,sans-serif!important;
+ background:linear-gradient(135deg,#1f4a83,#1b3364)!important;color:#f6fcff!important;
+ box-shadow:inset 0 1px #e6f7ff2d,0 5px 9px #0003!important;
+}
+#teacher #activityControllerPanel .si-orbit-actions>button.on{
+ border-color:#a1ebd9!important;
+ background:linear-gradient(130deg,#146b68,#224b87)!important;
+ box-shadow:inset 0 1px #b8ffe52b,0 0 15px #56eec12a!important;
+}
+#teacher #activityControllerPanel .si-orbit-actions>button:disabled{
+ opacity:.5!important;cursor:not-allowed!important;box-shadow:none!important;
+}
+#teacher #activityControllerPanel .si-orbit-actions>button:not(:disabled):hover{
+ transform:translateY(-1px);filter:brightness(1.15);
+}
+#teacher #activityControllerPanel #orbitNewClusterBtn{
+ background:linear-gradient(140deg,#23587f,#216a78)!important;
+ border-color:#70cccb!important;
+}
+#teacher #activityControllerPanel .si-orbit-create-system{
+ display:grid;gap:7px;min-width:0;margin-top:10px;
+ border:1px solid #71c7d17a;border-radius:10px;
+ background:#0c2a43;padding:10px;
+}
+#teacher #activityControllerPanel .si-orbit-create-system[hidden]{display:none!important}
+#teacher #activityControllerPanel .si-orbit-create-system>label{
+ color:#dcf6ff;font-size:11px;font-weight:900;
+}
+#teacher #activityControllerPanel .si-orbit-create-fields{
+ display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;
+}
+#teacher #activityControllerPanel .si-orbit-create-system input{
+ min-width:0;width:100%;height:41px;border:1px solid #7baccf;border-radius:8px;
+ background:#071b35;color:#fff;padding:0 9px;font-size:13px;
+}
+#teacher #activityControllerPanel .si-orbit-create-system button{
+ min-width:0;min-height:41px;padding:6px 9px;border:1px solid #8ed9e4;
+ border-radius:8px;background:#205f89;color:white;font-size:11px;font-weight:900;
+}
+#teacher #activityControllerPanel .si-orbit-create-system p{
+ min-height:0;margin:0;color:#ffda92;font-size:11px;
+}
+#teacher #activityControllerPanel .si-orbit-ideas-tools{
+ display:grid;gap:9px;padding:14px 0 10px;
+ margin-top:5px;border-top:1px solid #5d7eab7f;
+}
+#teacher #activityControllerPanel .si-orbit-ideas-heading{
+ display:flex;justify-content:space-between;align-items:center;
+ gap:10px;flex-wrap:wrap;
+}
+#teacher #activityControllerPanel .si-orbit-ideas-heading span{
+ display:block;color:#9ce8ff;font:950 9px/1.3 system-ui,sans-serif;letter-spacing:.13em;
+}
+#teacher #activityControllerPanel .si-orbit-ideas-heading h4{
+ margin:4px 0 0!important;color:#fff;font:950 19px/1.2 system-ui,sans-serif!important;
+}
+#teacher #activityControllerPanel .si-orbit-ideas-heading b{
+ padding:6px 9px;border:1px solid #5c83b1;border-radius:99px;
+ color:#c7eaff;background:#122f5a;font-size:10px;font-weight:850;
+}
+#teacher #activityControllerPanel .si-orbit-filter-bar{
+ display:flex;flex-wrap:wrap;gap:6px;min-width:0;
+}
+#teacher #activityControllerPanel .si-orbit-filter{
+ min-width:0;min-height:36px;padding:7px 11px;
+ border:1px solid #6086b2;border-radius:99px;
+ background:#122750;color:#ccdfef;font-size:10px;font-weight:900;
+ white-space:normal;overflow-wrap:anywhere;
+}
+#teacher #activityControllerPanel .si-orbit-filter.is-active,
+#teacher #activityControllerPanel .si-orbit-filter[aria-pressed="true"]{
+ border-color:#88f1df;background:linear-gradient(115deg,#166861,#234e77);
+ color:#fff;box-shadow:0 0 12px #66e5c82b;
+}
+#teacher #activityControllerPanel .si-orbit-sorting-tip{
+ margin:0!important;color:#afc7e0!important;font:650 11px/1.4 system-ui,sans-serif;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-response-list{
+ display:flex;flex-direction:column;gap:8px;
+ min-width:0;max-height:min(44vh,470px);overflow-y:auto;overflow-x:hidden;
+ scrollbar-color:#719dd0 #112345;
+ padding-right:4px;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-response-row{
+ display:flex;align-items:center;justify-content:space-between;gap:10px;
+ min-width:0;padding:10px 12px!important;
+ border:1px solid #4e709f!important;border-radius:12px!important;
+ background:linear-gradient(122deg,#193667,#10284c)!important;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-response-row[hidden]{
+ display:none!important;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-response-row[data-orbit-sort-state="unassigned"]{
+ border-left:3px solid #f0c878!important;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-response-row[data-orbit-sort-state="assigned"]{
+ border-left:3px solid #73ebd0!important;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-response-row>div:first-child{
+ flex:1 1 50%;min-width:0;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-response-row b{
+ display:block;font-size:12px!important;color:#fff;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-response-row p{
+ margin:5px 0!important;white-space:normal;overflow-wrap:anywhere;
+ font-size:12px!important;line-height:1.42!important;color:#d4e5fa!important;
+}
+#teacher #activityControllerPanel .si-orbit-idea-tag{
+ display:inline-block;max-width:100%;margin-top:7px;
+ padding:4px 7px;border:1px solid #947f53;border-radius:7px;
+ background:#34304c;color:#fce1a8;
+ font:850 9px/1.25 system-ui,sans-serif;
+ overflow-wrap:anywhere;
+}
+#teacher #activityControllerPanel [data-orbit-sort-state="assigned"] .si-orbit-idea-tag{
+ border-color:#428f85;background:#154c50;color:#aaf9e1;
+}
+#teacher #activityControllerPanel .orbit-response-actions{
+ display:flex;align-items:stretch;flex-wrap:wrap;gap:7px;min-width:0;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-response-actions button{
+ min-height:39px!important;border:1px solid #7ec9ed!important;border-radius:8px!important;
+ background:linear-gradient(125deg,#286793,#1c4276)!important;
+ font-size:11px!important;font-weight:900!important;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-response-actions select{
+ min-height:39px!important;min-width:125px;max-width:100%;
+ border:1px solid #83aac8!important;border-radius:8px!important;
+ background:#0d2345!important;color:#e7fbff!important;
+ padding:5px;font-size:11px!important;
+}
+#teacher #activityControllerPanel .si-orbit-filter-empty{
+ padding:20px;border:1px dashed #6384b1;border-radius:13px;
+ color:#bfd6ed;text-align:center;font-size:12px;line-height:1.45;
+}
+#teacher #activityControllerPanel .si-orbit-filter-empty[hidden]{
+ display:none!important;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-safe{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:8px;padding-top:14px;margin-top:13px;
+ border-top:1px solid #51709c;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-safe button{
+ min-height:48px!important;border:1px solid #558fb9!important;border-radius:10px!important;
+ padding:9px!important;white-space:normal!important;
+ background:linear-gradient(140deg,#215178,#183660)!important;
+ color:#fff!important;font-size:11px!important;font-weight:900!important;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-safe #returnClassBtn{
+ background:linear-gradient(135deg,#146565,#1b6375)!important;
+ border-color:#7be4c3!important;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-safe #emergencyActivityBtn{
+ grid-column:1/-1;min-height:38px!important;
+ border-color:#9c6d80!important;background:#39283c!important;color:#ffd9df!important;
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck button:focus-visible,
+#teacher #activityControllerPanel .si-orbit-teacher-deck input:focus-visible,
+#teacher #activityControllerPanel .si-orbit-teacher-deck select:focus-visible{
+ outline:3px solid #f8db92!important;outline-offset:2px!important;
+}
+@media(max-width:1060px){
+ #teacher #activityControllerPanel .si-orbit-teacher-deck{
+  grid-template-columns:minmax(0,1fr)!important;
+ }
+ #teacher #activityControllerPanel .si-orbit-teacher-deck>.orbit-control-card:first-child{
+  position:static;
+ }
+ #teacher #activityControllerPanel .si-orbit-teacher-deck>.orbit-control-card:first-child .orbit-space{
+  height:clamp(220px,40vh,340px)!important;
+ }
+}
+@media(max-width:560px){
+ #teacher #activityControllerPanel:has(.si-orbit-teacher-deck){padding:9px!important}
+ #teacher #activityControllerPanel .si-orbit-teacher-deck{gap:10px!important}
+ #teacher #activityControllerPanel .si-orbit-teacher-deck>.orbit-control-card{padding:10px!important}
+ #teacher #activityControllerPanel .si-orbit-actions{gap:6px}
+ #teacher #activityControllerPanel .si-orbit-actions>button{
+  font-size:10px!important;padding:6px!important;min-height:43px!important;
+ }
+ #teacher #activityControllerPanel .si-orbit-create-fields{
+  grid-template-columns:minmax(0,1fr) auto;
+ }
+ #teacher #activityControllerPanel .si-orbit-create-fields input{grid-column:1/-1}
+ #teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-response-row{
+  align-items:stretch;flex-direction:column;
+ }
+ #teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-response-actions{
+  width:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);
+ }
+ #teacher #activityControllerPanel .si-orbit-teacher-deck .orbit-response-actions select{
+  min-width:0;width:100%;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #teacher #activityControllerPanel .si-orbit-teacher-deck *,
+ #teacher #activityControllerPanel .si-orbit-teacher-deck *::before{
+  animation:none!important;transition:none!important;
+ }
+}
