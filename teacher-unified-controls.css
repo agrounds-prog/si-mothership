@@ -989,3 +989,33 @@ body:not(.role-student):not(.role-shared) #activityControllerPanel
   animation:none!important;transition:none!important;
  }
 }
+
+/* Phase 4M · teacher-only setup readability.
+   Retain all native game form controls, actions, and lobby navigation. */
+body:not(.role-student):not(.role-shared) #activitiesPanel #activityGrid :is(
+ .cc-setup,.dm-setup,.fil-setup,.ss-setup
+) {
+ min-width:0;
+ max-width:100%;
+ overflow-wrap:break-word;
+}
+body:not(.role-student):not(.role-shared) #activitiesPanel #activityGrid :is(
+ .cc-setup,.dm-setup,.fil-setup,.ss-setup
+) :is(input,select,textarea) {
+ max-width:100%;
+ min-width:0;
+ box-sizing:border-box;
+}
+body:not(.role-student):not(.role-shared) #activitiesPanel #activityGrid :is(
+ .cc-setup,.dm-setup,.fil-setup,.ss-setup
+) button:focus-visible {
+ outline:3px solid #ffe0a3;
+ outline-offset:2px;
+}
+@media(max-width:600px){
+ body:not(.role-student):not(.role-shared) #activitiesPanel #activityGrid :is(
+  .cc-setup,.dm-setup,.fil-setup,.ss-setup
+ ) {
+  width:100%;
+ }
+}
