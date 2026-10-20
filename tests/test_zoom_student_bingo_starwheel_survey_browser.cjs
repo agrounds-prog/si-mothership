@@ -78,6 +78,33 @@ const fixture={
        JSON.stringify({width,height,name,data}));
     assert.ok(data.action.every(b=>b.w>=44&&b.h>=44),JSON.stringify({width,height,name,data}));
     assert.equal(data.footer,"none",name+" should not have duplicate or empty footer");
+
+    // Phase 4K: shared student design language without changing game click IDs,
+    // tile counts, buttons or the special Bingo quiet-call privacy mode.
+    const phase4k=await page.evaluate(()=>{
+      const root=document.querySelector('#studentContent'),body=getComputedStyle(document.body);
+      const panel=root.querySelector('.student-game-card,.response-device,.crew-survey-student');
+      const button=root.querySelector('button:not(:disabled)');
+      const cue=root.querySelector(':scope > .si-student-game-cue');
+      const buttonRect=button?.getBoundingClientRect();
+      button?.focus();
+      return {accent:body.getPropertyValue('--si4k-focus').trim(),
+        frame:panel?getComputedStyle(panel).borderTopColor:'',
+        cue:cue?getComputedStyle(cue).backgroundImage:'',
+        click:!!button,buttonHeight:Math.round(buttonRect?.height||0),
+        focus:button?getComputedStyle(button).outlineWidth:'',
+        gameWidth:Math.round(panel?.getBoundingClientRect().width||0),
+        cardOverflow:panel?panel.scrollWidth-panel.clientWidth:0};
+    });
+    assert.equal(phase4k.accent,'#ffe3a2');
+    assert.ok(phase4k.click&&phase4k.buttonHeight>=44,JSON.stringify({name,phase4k}));
+    assert.ok(phase4k.cardOverflow<=3,JSON.stringify({name,phase4k}));
+    assert.match(phase4k.frame,/rgb\(/);
+    if(name.startsWith('bingo')){
+      assert.match(phase4k.cue,/gradient/);
+      assert.ok(parseFloat(phase4k.focus)>=3,'Bingo accessibility focus ring remains visible');
+    }
+
     if(name.startsWith("bingo")){
       const size=Number(name.slice(-1));assert.equal(data.grid,size);
       assert.equal(data.buttons.length,size*size);
