@@ -254,14 +254,7 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.deepEqual(standings.rows.map(x=>x.score),['5 PAIRS','3 PAIRS']);
   assert.ok(victory.staysInBoard,'victory graphic stays inside the game card arena');
   // Phase 3C: native team points, shared ranks, score-free crew, and small projector.
-  await teacher.evaluate(()=>{
-   const run=state.activityRun;
-   run.matchConfig.mode='teams';run.matchConfig.scoring='pairs';run.matchConfig.teamCount=3;
-   run.match.teamScores=[4,4,1];render();
-  });
-  // Fixture-only mode switches are not broadcast as real game actions. Mirror
-  // the synthetic config in the projector browser to test the same native
-  // standings renderer deterministically without touching actual sessions.
+  // Fixture-only standings modes are set in the projector browser only.\n  // Avoid teacher-side synthetic renders that can race the shared snapshot.
   await shared.evaluate(()=>{
    const run=state.activityRun;
    run.matchConfig.mode='teams';run.matchConfig.scoring='pairs';run.matchConfig.teamCount=3;
@@ -276,7 +269,6 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
     score:row.querySelector('.ma-final-points').textContent.trim()})));
   assert.deepEqual(teams.map(x=>x.rank),['01','01','03'],'team ties share first rank');
   assert.deepEqual(teams.map(x=>x.score),['4 PAIRS','4 PAIRS','1 PAIR']);
-  await teacher.evaluate(()=>{state.activityRun.matchConfig.scoring='no_score';render()});
   await shared.evaluate(()=>{state.activityRun.matchConfig.scoring='no_score';renderPublic()});
   await shared.waitForFunction(()=>document.querySelector('.ma-present .ma-final-results')?.dataset.mode==='memory',null,{timeout:12000});
   const memory=await shared.evaluate(()=>{
