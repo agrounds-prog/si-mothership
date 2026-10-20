@@ -121,6 +121,10 @@ const students=()=>[{n:'Alex',offline:false},{n:'Blair',offline:false},{n:'Casey
   assert.ok(await page.evaluate(()=>FourLine.saved().length>0));
   await page.reload({waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>!!window.FourLine&&networkHydrated===true&&window.__fourLineBridgeInstalled===true,null,{timeout:25000});
+  // After a reload, the WebSocket may deliver its authoritative saved-run
+  // snapshot just after the initial local setup render. Wait for that
+  // restoration to settle, then reopen the teacher setup deliberately.
+  await page.waitForTimeout(700);
   await open('four-in-line');
   const fourBoot=await page.evaluate(()=>{
    const err=document.querySelector('#bootError');
