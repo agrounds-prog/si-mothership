@@ -2533,3 +2533,37 @@ body.role-student #qpPublicOverlay .qp-submit{
   animation:none!important;transition:none!important;
  }
 }
+
+/* Phase 4L — compact student readability and resilient content flow.
+   Student role only; no activity state, interaction, or teacher style changes. */
+@media (max-width: 440px) {
+  body.role-student #student #studentContent {
+    min-width:0!important;
+    overflow-wrap:break-word;
+  }
+  /* Long teacher-authored prompts and room labels must not widen the
+     440px Zoom sidecar or conceal the student's primary interaction. */
+  body.role-student #student #studentContent :is(
+    .si-cue-heading,.si-cue-subtitle,.ma-student-heading h2,
+    .wg-student-hint,.minefield-turn-banner,.fil-student-status,
+    .ss-student-status,.dm-device-center h3
+  ) {
+    max-width:100%!important;
+    min-width:0!important;
+    overflow-wrap:anywhere!important;
+  }
+  /* Reserve the full tap area even when a classroom label wraps. */
+  body.role-student #student #studentContent :is(
+    .cc-device-actions button,.dm-device-controls button,
+    .fil-drop-button,.ss-touch-key,.starwheel-student-grid button
+  ) {
+    white-space:normal!important;
+    overflow-wrap:break-word!important;
+    line-height:1.25!important;
+  }
+}
+@media (max-height: 620px) {
+  body.role-student #student #studentContent > .si-student-game-cue {
+    margin-bottom:5px!important;
+  }
+}
