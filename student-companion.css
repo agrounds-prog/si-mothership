@@ -2423,6 +2423,9 @@ body.role-student #student #studentContent .starwheel-main-spin{
  background:linear-gradient(125deg,#1b8dbb,#3067a2)!important;
  color:#fff!important;
 }
+body.role-student #student #studentContent .starwheel-main-spin{
+ min-height:62px!important;
+}
 body.role-student #student #studentContent .starwheel-student-grid button{
  border-color:#7ea9c7!important;
  background:linear-gradient(135deg,#235986,#194267)!important;color:#fff!important;
