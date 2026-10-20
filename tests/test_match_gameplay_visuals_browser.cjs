@@ -160,21 +160,22 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    m.message='The crew found a matching pair!';
    render();
   });
-  await shared.waitForFunction(()=>{
-   const p=document.querySelector('.ma-present');
-   return p?.dataset.turnPhase==='matched'&&p.classList.contains('ma-status-matched')&&
-    !!p.querySelector('.ma-stage-pair');
-  },null,{timeout:18000});
-  const pair=await shared.evaluate(()=>{
-   const root=document.querySelector('.ma-present'),burst=root.querySelector('.ma-stage-pair'),
-    signal=root.querySelector('.ma-signal'),board=root.querySelector('.ma-board-surround');
+  // Capture one coherent projector render. Live synchronization may replace
+  // the MATCH subtree between separate wait/evaluate calls.
+  const pairHandle=await shared.waitForFunction(()=>{
+   const root=document.querySelector('.ma-present');
+   if(!root||root.dataset.turnPhase!=='matched'||!root.classList.contains('ma-status-matched'))return false;
+   const burst=root.querySelector('.ma-stage-pair'),signal=root.querySelector('.ma-signal'),
+    board=root.querySelector('.ma-board-surround');
+   if(!burst||!signal||!board)return false;
    return {text:burst.textContent,status:root.classList.contains('ma-status-matched'),
     aria:burst.getAttribute('aria-hidden'),pointer:getComputedStyle(burst).pointerEvents,
     boardPosition:getComputedStyle(board).position,
     animation:getComputedStyle(burst).animationName,
     cards:root.querySelectorAll('.ma-tile').length,
     statusAnnouncement:signal.getAttribute('aria-live')};
-  });
+  },null,{timeout:18000});
+  const pair=await pairHandle.jsonValue();
   assert.equal(pair.status,true);
   assert.equal(await shared.evaluate(()=>document.querySelector('.ma-present')?.dataset.turnPhase),'matched');
   assert.match(pair.text,/PAIR FOUND!/);
