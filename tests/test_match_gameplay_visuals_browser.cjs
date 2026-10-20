@@ -60,6 +60,72 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    'Teacher actions readable and tappable: '+JSON.stringify(teacherStyle));
   assert.ok(teacherStyle.scoreRows>=2&&teacherStyle.playerFont>=20);
   assert.match(teacherStyle.background,/gradient/);
+  // Phase 4I: read-only teacher progress, original action buttons, and
+  // compact student view. No production classroom or saved games touched.
+  const controllerHUD=await teacher.evaluate(()=>{
+   const root=document.querySelector('#activityControllerPanel'),bar=root.querySelector('.ma-4i-teacher-track');
+   const action=Object.fromEntries(['matchContinueBtn','matchMemoryPreviewBtn',
+    'matchLockBtn','matchSkipBtn','matchUndoBtn'].map(id=>[id,
+    root.querySelector('#'+id)?.dataset.maActionGroup]));
+   return {label:root.querySelector('.ma-4i-teacher-guide-head strong')?.textContent,
+    progress:bar?.getAttribute('aria-valuenow'),
+    max:bar?.getAttribute('aria-valuemax'),
+    help:root.querySelector('.ma-4i-teacher-guidance')?.textContent,
+    actions:root.querySelectorAll('.match-control-grid button').length,action};
+  });
+  assert.deepEqual({progress:controllerHUD.progress,max:controllerHUD.max},
+   {progress:'0',max:'8'});
+  assert.match(controllerHUD.label,/0 of 8 PAIRS FOUND/);
+  assert.match(controllerHUD.help,/matching pairs score automatically/);
+  assert.ok(controllerHUD.actions>=8);
+  assert.deepEqual(controllerHUD.action,{
+   matchContinueBtn:'resolve',matchMemoryPreviewBtn:'assist',
+   matchLockBtn:'pause',matchSkipBtn:'next',matchUndoBtn:'correct'
+  });
+  await teacher.setViewportSize({width:440,height:780});
+  const student4i=await teacher.evaluate(()=>{
+   state.selectedStudent='Alex';
+   const page=document.querySelector('#studentContent');
+   const original=page.innerHTML;
+   document.body.classList.add('role-student');
+   document.querySelector('#teacher')?.classList.remove('active');
+   document.querySelector('#student')?.classList.add('active');
+   page.innerHTML=matchArcadeStudent(state.activityRun,{n:'Alex',offline:false});
+   const panel=page.querySelector('.ma-phase4i-student'),grid=panel.querySelector('.ma-grid');
+   const cue=panel.querySelector('.ma-4i-turn-guide');
+   const rect=el=>el.getBoundingClientRect();
+   const cards=[...grid.querySelectorAll('[data-match-pick]')];
+   const result={
+    heading:panel.querySelector('.ma-student-heading h2')?.textContent,
+    guide:cue.querySelector('strong')?.textContent,
+    steps:cue.querySelectorAll('.ma-4i-guide-steps span').length,
+    status:panel.querySelectorAll('.ma-student-status>span').length,
+    cards:cards.length,enabled:cards.filter(x=>!x.disabled).length,
+    cardMinWidth:Math.min(...cards.map(x=>rect(x).width)),
+    cardMinHeight:Math.min(...cards.map(x=>rect(x).height)),
+    group:grid.getAttribute('role'),
+    overflow:page.scrollWidth-page.clientWidth,
+    panelOverflow:panel.scrollWidth-panel.clientWidth,
+    graphic:getComputedStyle(cue).backgroundImage,
+    duplicateFooter:getComputedStyle(panel.querySelector('.ma-device-bottom')).display
+   };
+   page.innerHTML=original;
+   document.body.classList.remove('role-student');
+   document.querySelector('#student')?.classList.remove('active');
+   document.querySelector('#teacher')?.classList.add('active');
+   return result;
+  });
+  assert.ok(student4i.heading&&student4i.guide);
+  assert.equal(student4i.steps,2);
+  assert.equal(student4i.status,4,'short student scoreboard replaces repeated status text');
+  assert.equal(student4i.cards,16);
+  assert.equal(student4i.group,'group');
+  assert.ok(student4i.cardMinWidth>=45&&student4i.cardMinHeight>=50,
+   'MATCH cards remain large enough in a 440x780 Zoom companion');
+  assert.ok(student4i.overflow<=3&&student4i.panelOverflow<=3);
+  assert.match(student4i.graphic,/gradient/);
+  assert.equal(student4i.duplicateFooter,'none');
+  await teacher.setViewportSize({width:1440,height:900});
   const layouts=[];
   for(const [width,height] of [[1920,1080],[1366,768],[880,720],[700,500]]){
    await shared.setViewportSize({width,height});
