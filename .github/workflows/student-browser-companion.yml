@@ -35,6 +35,7 @@ on:
       - 'tests/test_scientific_calculator_popup_browser.cjs'
       - 'tests/test_zoom_student_activities_browser.cjs'
       - 'tests/test_dominoes_multiplayer_browser.cjs'
+      - 'tests/test_dominoes_browser.cjs'
       - 'tests/test_zoom_student_remaining_browser.cjs'
       - 'tests/test_zoom_student_bingo_starwheel_survey_browser.cjs'
       - 'tests/test_signal_sequence_mobile_browser.cjs'
