@@ -142,6 +142,106 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
     max:bar.getAttribute('aria-valuemax'),fill:bar.firstElementChild.style.width};
   });
   assert.deepEqual(meter,{label:'24 of 24 crew responses',now:'24',max:'24',fill:'100%'});
+  // Phase 4G: actual native teacher controller, no production mutations.
+  await t.evaluate(()=>{
+   state.screen='activities';state.view='teacher';
+   state.activities=state.activities||[];
+   if(!state.activities.some(a=>a.id==='orbit-game'))
+    state.activities.push({id:'orbit-game',type:'orbit',name:'Crew Ideas',prompt:'What makes a good friend?'});
+   state.activityRun.orbitClusters=['Cooperate','Kindness'];
+   state.activityRun.orbitAssignments={'Student 01':'Kindness'};
+   state.activityRun.orbitClusterView=false;
+   state.activityRun.orbitRevealCrew=false;
+   state.activityRun.orbitSpotlight=null;
+   state.activityRun.orbitCompare=false;
+   renderActivityController();
+   SIOrbitPolish.enhance();
+  });
+  const teacherDeck=await t.evaluate(()=>{
+   const root=document.querySelector('#activityControllerPanel .si-orbit-teacher-deck');
+   const sections=[...root.querySelectorAll('.si-orbit-action-heading')].map(n=>n.textContent);
+   return {root:!!root,sections,
+    preview:root.querySelector('.si-orbit-preview-heading')?.textContent,
+    actions:root.querySelectorAll('.si-orbit-actions>button').length,
+    list:root.querySelectorAll('.orbit-response-row').length,
+    count:root.querySelector('.si-orbit-ideas-heading b')?.textContent,
+    privacy:root.querySelector('.si-orbit-broadcast-status')?.dataset.privacy,
+    hiddenNames:!root.querySelector('.orbit-public')?.textContent.includes('Student 01'),
+    unassigned:root.querySelector('[data-orbit-filter="unassigned"]')?.textContent,
+    linked:root.querySelector('[data-orbit-cluster="Student 01"]')?.value};
+  });
+  assert.equal(teacherDeck.root,true);
+  assert.deepEqual(teacherDeck.sections,['01 · CLASSROOM DISPLAY','02 · LESSON CONTROLS']);
+  assert.match(teacherDeck.preview,/PROJECTOR PREVIEW/);
+  assert.equal(teacherDeck.actions,8,'all eight original teacher controls remain available');
+  assert.equal(teacherDeck.list,24);
+  assert.match(teacherDeck.count,/24 received/);
+  assert.equal(teacherDeck.privacy,'hidden');
+  assert.equal(teacherDeck.hiddenNames,true,'anonymous projector preview never reveals crew identity');
+  assert.match(teacherDeck.unassigned,/23/);
+  assert.equal(teacherDeck.linked,'Kindness');
+  await t.locator('#activityControllerPanel [data-orbit-filter="unassigned"]').click();
+  const filtered=await t.evaluate(()=>{
+   const root=document.querySelector('#activityControllerPanel .si-orbit-teacher-deck');
+   return {visible:[...root.querySelectorAll('.orbit-response-row')].filter(r=>!r.hidden).length,
+    total:root.querySelectorAll('.orbit-response-row').length,
+    privacy:state.activityRun.orbitRevealCrew,
+    active:root.querySelector('[data-orbit-filter="unassigned"]')?.getAttribute('aria-pressed')};
+  });
+  assert.deepEqual(filtered,{visible:23,total:24,privacy:false,active:'true'},
+   'teacher-only filters hide rows visually without deleting responses or revealing names');
+  await t.locator('#activityControllerPanel [data-orbit-filter="all"]').click();
+  await t.locator('#activityControllerPanel #orbitNewClusterBtn').click();
+  await t.locator('#siOrbitNewCluster').fill('Teamwork');
+  await t.locator('.si-orbit-create-system button[type="submit"]').click();
+  await t.waitForFunction(()=>state.activityRun.orbitClusters.includes('Teamwork'));
+  await t.waitForFunction(()=>!!document.querySelector('#activityControllerPanel [data-orbit-filter="cluster:Teamwork"]'));
+  await t.locator('[data-orbit-cluster="Student 02"]').selectOption('Teamwork');
+  await t.waitForFunction(()=>state.activityRun.orbitAssignments['Student 02']==='Teamwork');
+  await t.locator('[data-orbit-filter="cluster:Teamwork"]').click();
+  const assignedView=await t.evaluate(()=>{
+   const root=document.querySelector('#activityControllerPanel .si-orbit-teacher-deck');
+   const visible=[...root.querySelectorAll('.orbit-response-row')].filter(r=>!r.hidden);
+   return {visible:visible.length,name:visible[0]?.querySelector('b')?.textContent,
+    assigned:state.activityRun.orbitAssignments['Student 02'],
+    all:Object.keys(state.activityRun.orbitResponses).length,
+    system:visible[0]?.querySelector('.si-orbit-idea-tag')?.textContent};
+  });
+  assert.deepEqual(assignedView,{visible:1,name:'Student 02',assigned:'Teamwork',
+   all:24,system:'Teamwork'},'assignment persists and filters follow the native selection');
+  await t.locator('[data-orbit-filter="all"]').click();
+  await t.locator('[data-orbit-spotlight="Student 02"]').click();
+  await t.waitForFunction(()=>state.activityRun.orbitSpotlight==='Student 02');
+  const teacherSpot=await t.evaluate(()=>({
+   mode:document.querySelector('.si-orbit-broadcast-status b')?.textContent,
+   private:!document.querySelector('#activityControllerPanel .orbit-public')?.textContent.includes('Student 02'),
+   selected:state.activityRun.orbitSpotlight}));
+  assert.deepEqual(teacherSpot,{mode:'SPOTLIGHT',private:true,selected:'Student 02'});
+  await t.locator('#orbitReturnViewBtn').click();
+  await t.waitForFunction(()=>state.activityRun.orbitSpotlight===null);
+  await t.locator('#orbitClusterViewBtn').click();
+  await t.waitForFunction(()=>state.activityRun.orbitClusterView===true);
+  const groupPreview=await t.evaluate(()=>({
+   mode:document.querySelector('.si-orbit-broadcast-status b')?.textContent,
+   team:!![...document.querySelectorAll('#activityControllerPanel .orbit-solar-system h4')]
+    .find(el=>el.textContent==='Teamwork'),
+   private:!document.querySelector('#activityControllerPanel .orbit-public')?.textContent.includes('Student 02')}));
+  assert.deepEqual(groupPreview,{mode:'SOLAR SYSTEMS',team:true,private:true},
+   'teacher preview matches the projector grouping while preserving anonymity');
+  await t.setViewportSize({width:490,height:830});
+  const teacherNarrow=await t.evaluate(()=>{
+   const root=document.querySelector('.si-orbit-teacher-deck');
+   const right=root.querySelectorAll(':scope>.orbit-control-card')[1];
+   return {columns:getComputedStyle(root).gridTemplateColumns.split(' ').length,
+    rootOverflow:root.scrollWidth-root.clientWidth,
+    rightOverflow:right.scrollWidth-right.clientWidth};
+  });
+  assert.equal(teacherNarrow.columns,1,'compact teacher screen stacks preview and controls');
+  assert.ok(teacherNarrow.rootOverflow<=3&&teacherNarrow.rightOverflow<=3,
+   'compact clustering controls have no horizontal overflow');
+  await t.setViewportSize({width:1400,height:920});
+  console.log('ORBIT Phase 4G teacher grouping, inline create, native assignments, Spotlight, anonymous previews and compact layout PASSED',
+   JSON.stringify({teacherDeck,filtered,assignedView,teacherSpot,groupPreview,teacherNarrow}));
   const sctx=await browser.newContext({viewport:{width:1180,height:760}});
   const shared=await sctx.newPage();
   shared.on('pageerror',e=>errors.push('shared '+String(e)));
