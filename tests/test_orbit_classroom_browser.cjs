@@ -242,6 +242,129 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   await t.setViewportSize({width:1400,height:920});
   console.log('ORBIT Phase 4G teacher grouping, inline create, native assignments, Spotlight, anonymous previews and compact layout PASSED',
    JSON.stringify({teacherDeck,filtered,assignedView,teacherSpot,groupPreview,teacherNarrow}));
+  // Phase 4H: exercise a real ORBIT student UI with native submission, not a
+  // mock visual. Only the isolated localhost classroom fixture is modified.
+  await t.setViewportSize({width:440,height:780});
+  await t.evaluate(()=>{
+   state.selectedStudent='Student 01';
+   state.activityRun.orbitPaused=true;
+   state.activityRun.orbitRevealCrew=false;
+   delete state.activityRun.orbitResponses['Student 01'];
+   document.body.classList.add('role-student');
+   document.querySelector('#teacher')?.classList.remove('active');
+   document.querySelector('#student')?.classList.add('active');
+   renderPublic();SIOrbitPolish.enhance();
+  });
+  await t.locator('#studentContent .si-orbit-student').waitFor();
+  const pausedStudent=await t.evaluate(()=>{
+   const card=document.querySelector('#studentContent .si-orbit-student');
+   const field=card.querySelector('#orbitStudentText');
+   const send=card.querySelector('#sendOrbitBtn');
+   const zone=document.querySelector('.student-control-zone');
+   const main=document.querySelector('#studentContent');
+   const rect=el=>el.getBoundingClientRect();
+   return {title:card.querySelector('h2')?.textContent,
+    marker:card.querySelector('.si-orbit-student-round')?.textContent,
+    paused:card.classList.contains('si-orbit-student-paused'),
+    prompt:card.querySelector('.si-orbit-entry-note')?.textContent,
+    privacy:card.querySelector('.si-orbit-student-privacy')?.textContent,
+    send:send?.textContent.trim(),disabled:send?.disabled,
+    sendInCard:!!send,duplicate:document.querySelectorAll('#sendOrbitBtn').length,
+    order:rect(send).top>=rect(field).bottom,
+    gap:Math.round(rect(send).top-rect(field).bottom),
+    height:Math.round(rect(card).height),
+    zone:getComputedStyle(zone).display,
+    deviceOverflow:document.querySelector('#student .device').scrollWidth-
+      document.querySelector('#student .device').clientWidth,
+    mainOverflow:main.scrollWidth-main.clientWidth,
+    fieldLabel:field.getAttribute('aria-label')};
+  });
+  assert.match(pausedStudent.title,/What makes a good friend/);
+  assert.equal(pausedStudent.marker,'ROUND 1');
+  assert.equal(pausedStudent.paused,true);
+  assert.match(pausedStudent.prompt,/paused/i);
+  assert.match(pausedStudent.privacy,/name is hidden/i);
+  assert.match(pausedStudent.send,/Sending paused/);
+  assert.equal(pausedStudent.disabled,true);
+  assert.equal(pausedStudent.sendInCard,true);
+  assert.equal(pausedStudent.duplicate,1);
+  assert.equal(pausedStudent.order,true);
+  assert.ok(pausedStudent.gap>=0&&pausedStudent.gap<70);
+  assert.ok(pausedStudent.height<620);
+  assert.equal(pausedStudent.zone,'none');
+  assert.equal(pausedStudent.fieldLabel,'Your idea for the ORBIT question');
+  assert.ok(pausedStudent.deviceOverflow<=3&&pausedStudent.mainOverflow<=3,
+   'the compact 440x780 response fits without sideways scroll');
+  await t.locator('#orbitStudentText').fill('Invite someone new to join.');
+  assert.match(await t.locator('#orbitCharCount').innerText(),/27\s*\/\s*500/);
+  assert.equal(await t.locator('#sendOrbitBtn').isDisabled(),true,
+   'the teacher pause cannot be bypassed with the relocated button');
+  assert.equal(await t.evaluate(()=>!!state.activityRun.orbitResponses['Student 01']),false);
+  await t.evaluate(()=>{
+   // The native screen can be regenerated on incoming class updates.
+   renderPublic();SIOrbitPolish.enhance();
+  });
+  assert.equal(await t.locator('#orbitStudentText').inputValue(),'Invite someone new to join.',
+   'unsent ORBIT ideas are retained across classroom redraws');
+  await t.evaluate(()=>{state.activityRun.orbitPaused=false;renderPublic();SIOrbitPolish.enhance()});
+  assert.equal(await t.locator('#orbitStudentText').inputValue(),'Invite someone new to join.',
+   'teacher resuming transmissions does not erase a student draft');
+  assert.equal(await t.locator('#sendOrbitBtn').isEnabled(),true);
+  const layout=await t.evaluate(()=>{
+   const field=document.querySelector('#orbitStudentText').getBoundingClientRect();
+   const button=document.querySelector('#sendOrbitBtn').getBoundingClientRect();
+   return {field:Math.round(field.width),button:Math.round(button.width),
+    buttonHeight:Math.round(button.height),below:button.top>=field.bottom};
+  });
+  assert.ok(layout.buttonHeight>=48&&layout.button>=layout.field-3&&layout.below);
+  await t.locator('#sendOrbitBtn').click();
+  await t.waitForFunction(()=>state.activityRun.orbitResponses['Student 01']?.text==='Invite someone new to join.');
+  await t.waitForFunction(()=>document.querySelector('#studentContent .si-orbit-student-sent'));
+  const sent=await t.evaluate(()=>{
+   SIOrbitPolish.enhance();
+   const card=document.querySelector('#studentContent .si-orbit-student-sent');
+   return {title:card?.querySelector('h2')?.textContent,
+    idea:card?.querySelector('.si-orbit-own-idea')?.textContent,
+    status:card?.querySelector('.si-orbit-student-confirm b')?.textContent,
+    buttonCount:card?.querySelectorAll('#sendOrbitBtn').length,
+    zone:getComputedStyle(document.querySelector('.student-control-zone')).display,
+    responses:Object.keys(state.activityRun.orbitResponses).length};
+  });
+  assert.deepEqual(sent,{title:'Idea sent!',idea:'Invite someone new to join.',
+   status:'Your idea is on its way.',buttonCount:0,zone:'none',responses:24},
+   'native one-response locking becomes a compact, accessible confirmation');
+  await t.setViewportSize({width:390,height:740});
+  const narrow=await t.evaluate(()=>{
+   const device=document.querySelector('#student .device'),
+    card=document.querySelector('#studentContent .si-orbit-student');
+   return {deviceOverflow:device.scrollWidth-device.clientWidth,
+    cardOverflow:card.scrollWidth-card.clientWidth,
+    cardWidth:Math.round(card.getBoundingClientRect().width)};
+  });
+  assert.ok(narrow.deviceOverflow<=3&&narrow.cardOverflow<=3,
+   'the sent confirmation stays inside the iPhone companion');
+  // A teacher follow-up is a fresh run; an older student's draft must not
+  // prefill the new prompt or allow duplicate submissions from the old round.
+  await t.evaluate(()=>{
+   state.activityRun.runToken='orbit-4h-follow-up-test';
+   state.activityRun.orbitRound=2;
+   state.activityRun.orbitConfig.prompt='What else could we try?';
+   delete state.activityRun.orbitResponses['Student 01'];
+   renderPublic();SIOrbitPolish.enhance();
+  });
+  assert.equal(await t.locator('#orbitStudentText').inputValue(),'');
+  assert.equal(await t.locator('#sendOrbitBtn').isDisabled(),true);
+  assert.equal(await t.locator('#studentContent .si-orbit-student-round').innerText(),'ROUND 2');
+  await t.evaluate(()=>{
+   document.body.classList.remove('role-student');
+   document.querySelector('#student')?.classList.remove('active');
+   document.querySelector('#teacher')?.classList.add('active');
+   state.selectedStudent='';
+   state.activityRun=null;
+  });
+  await t.setViewportSize({width:1400,height:920});
+  console.log('ORBIT Phase 4H compact student layout, drafts, pause, native submit and follow-up PASSED',
+   JSON.stringify({pausedStudent,layout,sent,narrow}));
   const sctx=await browser.newContext({viewport:{width:1180,height:760}});
   const shared=await sctx.newPage();
   shared.on('pageerror',e=>errors.push('shared '+String(e)));
