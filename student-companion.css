@@ -2353,7 +2353,7 @@ body.role-student #student #studentContent :is(
 }
 body.role-student #student #studentContent :is(
  .cc-device-actions button,.dm-device-controls button,
- .starwheel-main-spin,#studentBingoClaimBtn,#crewSurveyAnswerSend
+ #studentBingoClaimBtn,#crewSurveyAnswerSend
 ){
  min-height:48px!important;
 }
