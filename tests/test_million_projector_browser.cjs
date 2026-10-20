@@ -127,6 +127,28 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
    'Projected MILLION stage, answers, ladder readable: '+JSON.stringify(phase3Visual));
   assert.match(phase3Visual[1].stageBackground,/gradient/);
 
+  // Phase 4J: live teacher controls and synced projector stage.
+  await teacher.locator('.million-4j-progress').waitFor();
+  await screen.locator('.million-4j-stage-status').waitFor();
+  const phase4JTeacher=await teacher.evaluate(()=>{
+   const root=document.querySelector('#activityControllerPanel');
+   const bar=root.querySelector('.million-4j-progress [role="progressbar"]');
+   return {progress:bar?.getAttribute('aria-valuenow'),
+    max:bar?.getAttribute('aria-valuemax'),
+    controls:[...root.querySelectorAll('.million-teacher-actions button')].map(x=>x.dataset.millionAction),
+    lifelines:root.querySelectorAll('.million-4j-lifelines [data-million-teacher-life]').length};
+  });
+  assert.deepEqual(phase4JTeacher,{progress:'0',max:'5',
+   controls:['reveal','signal-lost','advance'],lifelines:4});
+  const phase4JScreen=await screen.evaluate(()=>{
+   const board=document.querySelector('.million-public.big');
+   return {state:board.dataset.million4jPhase,
+    label:board.querySelector('.million-4j-stage-status')?.textContent,
+    choices:board.querySelectorAll('.million-choice').length};
+  });
+  assert.deepEqual(phase4JScreen,{state:'ready',label:'WAITING FOR ANSWER',choices:4});
+
+
   assert.equal(first.noKey,true);
   const entranceState=await screen.evaluate(()=>{
    const b=document.querySelector('.million-public.big');
