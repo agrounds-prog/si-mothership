@@ -160,8 +160,11 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    m.message='The crew found a matching pair!';
    render();
   });
-  await shared.waitForFunction(()=>!!document.querySelector('.ma-present .ma-stage-pair'),
-   null,{timeout:12000});
+  await shared.waitForFunction(()=>{
+   const p=document.querySelector('.ma-present');
+   return p?.dataset.turnPhase==='matched'&&p.classList.contains('ma-status-matched')&&
+    !!p.querySelector('.ma-stage-pair');
+  },null,{timeout:18000});
   const pair=await shared.evaluate(()=>{
    const root=document.querySelector('.ma-present'),burst=root.querySelector('.ma-stage-pair'),
     signal=root.querySelector('.ma-signal'),board=root.querySelector('.ma-board-surround');
