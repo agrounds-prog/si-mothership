@@ -361,16 +361,141 @@
    'All received ideas are assigned to solar systems.':'No ideas in this view yet.';
   controller.dataset.orbitBroadcast=mode.toLowerCase().replace(/[^a-z]+/g,'-');
  }
+
+ // ORBIT Phase 4H student companion. This is a visual layout enhancement,
+ // not a new transmission pathway. Native submitOrbitForStudent still owns
+ // pause checks, one-response locking, teacher anonymity and classroom sync.
+ let orbitStudentDraftIdentity='';
+ const orbitStudentDrafts=new Map();
+ function polishStudent(run){
+  if(!document.body.classList.contains('role-student')||run?.phase!=='running')return;
+  const prompt=document.querySelector('#studentContent .student-prompt.response-device');
+  if(!prompt)return;
+  const pupil=typeof selectedStudent==='function'?selectedStudent():null;
+  if(!pupil?.n)return;
+  const identity=String(run.runToken||run.orbitRound||run.orbitConfig?.prompt||'orbit');
+  if(orbitStudentDraftIdentity!==identity){
+   orbitStudentDraftIdentity=identity;orbitStudentDrafts.clear();
+  }
+  const draftKey=identity+'|'+pupil.n;
+  const submitted=run.orbitResponses?.[pupil.n];
+  prompt.classList.add('si-orbit-student');
+  prompt.classList.toggle('si-orbit-student-sent',!!submitted);
+  prompt.classList.toggle('si-orbit-student-paused',!!run.orbitPaused&&!submitted);
+  let head=prompt.querySelector('.si-orbit-student-top');
+  if(!head){
+   head=document.createElement('div');head.className='si-orbit-student-top';
+   const eyebrow=prompt.querySelector(':scope > .eyebrow');
+   if(eyebrow){eyebrow.before(head);head.append(eyebrow)}
+   const round=document.createElement('span');round.className='si-orbit-student-round';
+   head.append(round);
+  }
+  const roundLabel='ROUND '+Math.max(1,Number(run.orbitRound||1));
+  const round=head.querySelector('.si-orbit-student-round');
+  if(round&&round.textContent!==roundLabel)round.textContent=roundLabel;
+  const eyebrow=head.querySelector('.eyebrow');
+  if(eyebrow&&eyebrow.textContent!=='ORBIT')eyebrow.textContent='ORBIT';
+  const heading=prompt.querySelector(':scope > h2');
+  if(submitted){
+   orbitStudentDrafts.delete(draftKey);
+   if(heading&&heading.textContent!=='Idea sent!')heading.textContent='Idea sent!';
+   const confirm=prompt.querySelector('.orbit-transmitted');
+   if(confirm){
+    confirm.classList.add('si-orbit-student-confirm');
+    const first=confirm.querySelector(':scope > b');
+    if(first&&first.textContent!=='Your idea is on its way.')first.textContent='Your idea is on its way.';
+    const msg=confirm.querySelector(':scope > p');
+    if(msg&&msg.textContent!=='Watch it appear on the classroom screen.')
+     msg.textContent='Watch it appear on the classroom screen.';
+    let own=confirm.querySelector('.si-orbit-own-idea');
+    if(!own){own=document.createElement('blockquote');own.className='si-orbit-own-idea';confirm.append(own)}
+    if(own.textContent!==String(submitted.text||''))own.textContent=String(submitted.text||'');
+   }
+  }else{
+   const entry=prompt.querySelector('.orbit-student-box');
+   const textarea=entry?.querySelector('#orbitStudentText');
+   if(!entry||!textarea)return;
+   entry.classList.add('si-orbit-student-entry');
+   textarea.setAttribute('aria-label','Your idea for the ORBIT question');
+   textarea.setAttribute('aria-describedby','orbitCharCount');
+   textarea.setAttribute('placeholder','Type your idea…');
+   textarea.setAttribute('rows','4');
+   textarea.setAttribute('enterkeyhint','enter'); // Enter remains a new line
+   const restore=orbitStudentDrafts.get(draftKey);
+   if(restore!=null&&!textarea.value){
+    textarea.value=restore;
+    if(typeof textarea.oninput==='function')textarea.oninput({target:textarea});
+   }
+   let helper=entry.querySelector('.si-orbit-entry-note');
+   if(!helper){
+    helper=document.createElement('p');helper.className='si-orbit-entry-note';
+    entry.insertBefore(helper,textarea);
+   }
+   const instructions=run.orbitPaused?'Your teacher has paused sending. You can still write your idea.':
+    'Share one idea with your class.';
+   if(helper.textContent!==instructions)helper.textContent=instructions;
+   let privacy=entry.querySelector('.si-orbit-student-privacy');
+   if(!privacy){
+    privacy=document.createElement('p');privacy.className='si-orbit-student-privacy';
+    entry.append(privacy);
+   }
+   const privacyText=run.orbitConfig?.anonymous?
+    'Your name is hidden on the classroom display.':
+    'Your idea will appear on the classroom display.';
+   if(privacy.textContent!==privacyText)privacy.textContent=privacyText;
+   let note=prompt.querySelector(':scope > .prompt-caption, :scope > .submitted-banner');
+   if(note)note.hidden=true; // same instructions now beside the text field
+   // renderStudentControls is recreated on each native render. Move its
+   // currently wired button; never add a second submit action or endpoint.
+   const from=document.querySelector('#studentControls #sendOrbitBtn');
+   if(from){
+    entry.querySelector('#sendOrbitBtn')?.remove();
+    from.type='button';
+    from.classList.add('si-orbit-student-send');
+    // Native control handler can otherwise remain attached to the old
+    // button after a keyed DOM reconciliation or partial state redraw.
+    if(typeof submitOrbitForStudent==='function')from.onclick=submitOrbitForStudent;
+    entry.append(from);
+   }
+   const send=entry.querySelector('#sendOrbitBtn');
+   const count=entry.querySelector('#orbitCharCount');
+   const update=()=>{
+    const current=entry.querySelector('#sendOrbitBtn');
+    const value=textarea.value.slice(0,500);
+    if(count){const label=value.length+' / 500';if(count.textContent!==label)count.textContent=label}
+    orbitStudentDrafts.set(draftKey,value);
+    if(!current)return;
+    const disabled=!!run.orbitPaused||!value.trim();
+    if(current.disabled!==disabled)current.disabled=disabled;
+    const title=run.orbitPaused?'Sending paused':'Send my idea';
+    if(current.dataset.orbitActionLabel!==title){
+     current.dataset.orbitActionLabel=title;
+     current.innerHTML='<span aria-hidden="true">'+(run.orbitPaused?'Ⅱ':'➜')+'</span> '+title;
+    }
+    current.setAttribute('aria-label',title);
+   };
+   if(!textarea.dataset.siOrbitWired){
+    textarea.dataset.siOrbitWired='true';
+    textarea.addEventListener('input',update);
+    textarea.addEventListener('keydown',event=>{
+     if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)&&!event.isComposing){
+      const button=entry.querySelector('#sendOrbitBtn');
+      if(button&&!button.disabled){event.preventDefault();button.click()}
+     }
+    });
+   }
+   update();
+  }
+  const wrap=document.querySelector('#studentControls');
+  // Native "transmission received" disabled indicator is redundant next
+  // to the confirmation. The footer remains available in every other app.
+  if(wrap?.dataset.app==='orbit')wrap.dataset.siOrbitStudentSimple='true';
+ }
  function enhance(){
   if(document.body.classList.contains('role-shared')||document.body.classList.contains('role-student')){
    const r=typeof state!=='undefined'?state.activityRun:null;
-   if(document.body.classList.contains('role-student')&&r?.activityId==='orbit-game'){
-    const t=document.querySelector('#orbitStudentText');
-    if(t){
-     t.setAttribute('aria-label','Your idea for the ORBIT question');
-     t.setAttribute('aria-describedby','orbitCharCount');
-    }
-   }
+   if(document.body.classList.contains('role-student')&&r?.activityId==='orbit-game')
+    polishStudent(r);
    return;
   }
   const setup=document.querySelector('#activityGrid .orbit-setup');
