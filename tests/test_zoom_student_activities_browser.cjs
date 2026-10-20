@@ -92,6 +92,24 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
     assert.ok(ui.panelWidth>=ui.mainWidth-24&&ui.actionWidth>=ui.mainWidth-58,
       game+" action surface must use student device width: "+JSON.stringify({w,h,ui}));
     assert.equal(ui.footer,"none",game+" has no unused footer");
+
+    // Phase 4K: shared cue hierarchy and game-specific action geometry.
+    const style=await page.evaluate(game=>{
+      const root=document.querySelector('#studentContent');
+      const cue=root.querySelector('#siTestGameCue');
+      const card=root.querySelector(game==='million'?'.million-student':game==='cosmic'?'.cc-device':'.dm-device');
+      const dock=root.querySelector(game==='cosmic'?'.cc-device-actions':game==='dominoes'?'.dm-device-controls':'.million-student-actions');
+      return {cueRadius:parseFloat(getComputedStyle(cue).borderTopLeftRadius),
+        cueFont:parseFloat(getComputedStyle(cue.querySelector('.si-cue-heading')).fontSize),
+        cardRadius:parseFloat(getComputedStyle(card).borderTopLeftRadius),
+        dockBackground:getComputedStyle(dock).backgroundImage,
+        horizontal:document.documentElement.scrollWidth-innerWidth};
+    },game);
+    assert.ok(style.cueRadius>=10&&style.cueFont>=15);
+    assert.ok(style.cardRadius>=10&&style.horizontal<=2);
+    if(game!=='million')assert.match(style.dockBackground,/gradient/,
+      game+' keeps a visually distinct action dock');
+
     assert.match(ui.visual.cueBack,/gradient/i,game+" has a styled status banner");
     assert.ok(parseFloat(ui.visual.focusWidth)>=3,
       game+" has a high-visibility keyboard outline: "+JSON.stringify({w,h,ui}));
