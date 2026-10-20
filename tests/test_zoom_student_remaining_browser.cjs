@@ -133,6 +133,26 @@ const minefieldFixture=(cols=8)=>{
    assert.ok(mine.scrollWidth>mine.viewportWidth&&mine.touches.length===64,JSON.stringify(mine));
    assert.ok(mine.touches.every(t=>t.w>=44&&t.h>=44),JSON.stringify({width,height,mine}));
    assert.notEqual(mine.footer,"none","Minefield requires its separate confirmation controls");
+
+   // Phase 4K: the shared chrome is calm and readable, while Minefield
+   // retains its independent scrolling board and confirmation dock.
+   const phase4k=await page.evaluate(()=>{
+    const content=document.querySelector('#studentContent'),cue=content.querySelector('.si-student-game-cue');
+    const hint=content.querySelector('.minefield-turn-banner'),focus=content.querySelector('.minefield-cell.selectable');
+    focus?.focus();
+    return {tone:getComputedStyle(cue).backgroundImage,
+     hintFont:parseFloat(getComputedStyle(hint).fontSize),
+     focusWidth:parseFloat(getComputedStyle(focus).outlineWidth),
+     scrollSurface:!!content.querySelector('.si-mf-scroll'),
+     horizontal:document.documentElement.scrollWidth-innerWidth,
+     nativeCount:content.querySelectorAll('[data-mf-cell]').length};
+   });
+   assert.match(phase4k.tone,/gradient/);
+   assert.ok(phase4k.hintFont>=13&&phase4k.focusWidth>=3);
+   assert.equal(phase4k.scrollSurface,true);
+   assert.equal(phase4k.nativeCount,64);
+   assert.ok(phase4k.horizontal<=2);
+
    assert.match(mine.label,/Swipe/);
    assert.ok(mine.turnFont>=13&&mine.narratorFont>=12,
      "Minefield turn and narrator must stay readable on short phones: "+JSON.stringify(mine));
