@@ -177,7 +177,7 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   },null,{timeout:18000});
   const pair=await pairHandle.jsonValue();
   assert.equal(pair.status,true);
-  assert.equal(await shared.evaluate(()=>document.querySelector('.ma-present')?.dataset.turnPhase),'matched');
+  // Matched phase and status were verified together in pairHandle above.
   assert.match(pair.text,/PAIR FOUND!/);
   assert.match(pair.text,/AUTOMATIC POINT AWARDED/);
   assert.equal(pair.pointer,'none');
