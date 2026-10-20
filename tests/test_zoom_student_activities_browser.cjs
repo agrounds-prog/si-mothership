@@ -263,6 +263,31 @@ const poll='<div class="qp-voter"><header>🚀 MOTHERSHIP <span>QUICK POLL</span
   await page.evaluate(()=>{state.activityRun=null;document.querySelector('#studentContent').innerHTML='';});
   assert.equal(await page.locator('.ms-million-student-ribbon').count(),0,
    'classroom return clears MILLION student ribbon');
+  // Phase 4L: teacher-written long headings and button labels must wrap
+  // within the compact window without hiding the native game controls.
+  for(const [width,height] of [[440,780],[390,670],[330,610]]){
+   await page.setViewportSize({width,height});
+   const textFit=await page.evaluate(()=>{
+    const root=document.querySelector('#studentContent');
+    root.innerHTML='<section class="si-student-game-cue"><strong class="si-cue-heading">A VERY LONG CLASSROOM INSTRUCTION WITHOUT ANY SPACES THAT MUST REMAIN WITHIN THE COMPANION</strong></section>'+
+     '<div class="dm-device"><div class="dm-device-center"><h3>CHOOSE THE MOST HELPFUL WAY TO RESPOND TO YOUR CLASSMATE</h3></div>'+
+     '<div class="dm-device-controls"><button type="button" id="phase4lLongAction">DRAW ANOTHER DOMINO AND CONTINUE YOUR TURN</button>'+
+     '<button type="button">PASS TO THE NEXT CLASSMATE</button></div></div>';
+    const main=root.getBoundingClientRect();
+    const targets=[...root.querySelectorAll('.si-cue-heading,.dm-device-center h3,.dm-device-controls button')];
+    return {documentOverflow:document.documentElement.scrollWidth-innerWidth,
+     mainRight:main.right,mainLeft:main.left,
+     targets:targets.map(el=>{const rect=el.getBoundingClientRect();return {
+      left:rect.left,right:rect.right,height:rect.height,width:rect.width,
+      scrollWidth:el.scrollWidth,clientWidth:el.clientWidth};})};
+   });
+   assert.ok(textFit.documentOverflow<=2,
+    'Phase 4L no horizontal overflow at '+width+': '+JSON.stringify(textFit));
+   assert.ok(textFit.targets.every(t=>t.left>=textFit.mainLeft-2&&t.right<=textFit.mainRight+2&&t.scrollWidth<=t.clientWidth+2),
+    'Phase 4L labels stay inside student device: '+JSON.stringify(textFit));
+   assert.ok(textFit.targets.slice(-2).every(t=>t.height>=48),
+    'Phase 4L wrapped action buttons remain tappable: '+JSON.stringify(textFit));
+  }
   assert.deepEqual(errors,[]);
   console.log("ZOOM companion student vote, answer, hand, and domino tile geometry PASS");
  }finally{await context.close();await browser.close()}
