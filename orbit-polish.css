@@ -1873,3 +1873,212 @@ body.role-shared .orbit-solar-system{animation:none!important}
   animation:none!important;transition:none!important;
  }
 }
+
+
+/* ORBIT Phase 4H — student quiet mode.
+   One prompt, one textarea, one Send action in the compact Zoom companion.
+   The student avatar, connection state and all other activities are untouched. */
+body.role-student #studentContent:has(.si-orbit-student){
+ flex:0 0 auto!important;height:auto!important;min-height:0!important;
+ max-height:none!important;overflow-x:hidden!important;overflow-y:visible!important;
+ padding:clamp(10px,2.5vw,19px)!important;
+ background:radial-gradient(ellipse at 60% 0%,#356fb023,transparent 73%),
+  linear-gradient(#081a2b,#071422)!important;
+}
+body.role-student #studentContent .si-orbit-student{
+ position:relative!important;isolation:isolate;overflow:hidden!important;
+ display:flex!important;flex-direction:column!important;justify-content:flex-start!important;
+ align-items:stretch!important;
+ width:100%!important;max-width:650px!important;min-width:0!important;
+ height:auto!important;min-height:0!important;margin:0 auto!important;
+ padding:clamp(17px,3.9vw,27px)!important;
+ border:1px solid #386f96!important;border-radius:19px!important;
+ background:
+  radial-gradient(ellipse at 90% 0%,#2db6db20,transparent 58%),
+  linear-gradient(150deg,#102b44,#0a2034 65%,#091729)!important;
+ box-shadow:inset 0 1px #e2f6ff1c,0 14px 30px #0005!important;
+ text-align:left!important;
+}
+body.role-student #studentContent .si-orbit-student::before{
+ content:"";position:absolute;top:0;right:0;width:140px;height:135px;
+ pointer-events:none;background:radial-gradient(ellipse at 74% 10%,#5cc9ff1b,transparent 70%);
+ opacity:1;z-index:0;
+}
+body.role-student #studentContent .si-orbit-student::after{
+ content:none!important;display:none!important;
+}
+body.role-student #studentContent .si-orbit-student>*{
+ position:relative;z-index:1;
+}
+body.role-student #studentContent .si-orbit-student-top{
+ display:flex;align-items:center;justify-content:space-between;
+ flex-wrap:wrap;gap:8px;margin:0 0 21px;
+}
+body.role-student #studentContent .si-orbit-student-top .eyebrow{
+ display:inline-flex;align-items:center;gap:8px;
+ margin:0!important;color:#9deaff!important;
+ font:950 11px/1.3 system-ui,sans-serif!important;
+ letter-spacing:.15em!important;
+}
+body.role-student #studentContent .si-orbit-student-top .eyebrow::before{
+ content:"✧";display:inline-grid;place-items:center;
+ width:31px;height:31px;flex:0 0 31px;
+ color:#d3fcff;font-size:20px!important;
+ border:1px solid #78dafa9c;border-radius:10px;
+ background:radial-gradient(circle at 33% 28%,#468cc6,#164276 74%)!important;
+ box-shadow:inset 0 1px #e8fcff50,0 0 11px #60c9ef2f;
+}
+body.role-student #studentContent .si-orbit-student-round{
+ display:inline-flex;align-items:center;min-height:28px;
+ padding:5px 11px;border:1px solid #5383a8;border-radius:999px;
+ background:#102f4b;color:#d3eaff;
+ font:900 10px/1.25 system-ui,sans-serif;letter-spacing:.085em;
+}
+body.role-student #studentContent .si-orbit-student>h2{
+ margin:0 0 18px!important;color:#fff!important;
+ font:950 clamp(23px,5.5vw,35px)/1.15 system-ui,sans-serif!important;
+ letter-spacing:-.026em!important;text-align:left!important;
+ overflow-wrap:anywhere!important;text-shadow:none!important;
+}
+body.role-student #studentContent .si-orbit-student-entry{
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ gap:0!important;margin:0!important;
+ width:100%!important;min-width:0!important;max-width:none!important;
+ padding:0!important;
+}
+body.role-student #studentContent .si-orbit-entry-note{
+ margin:0 0 10px!important;color:#bbd5e9!important;
+ font:600 clamp(12px,2.7vw,14px)/1.4 system-ui,sans-serif!important;
+}
+body.role-student #studentContent .si-orbit-student-entry #orbitStudentText{
+ display:block;box-sizing:border-box;width:100%!important;min-width:0!important;
+ min-height:132px!important;height:clamp(132px,23vh,174px)!important;
+ max-height:35vh!important;margin:0!important;
+ padding:14px 15px!important;border:1.5px solid #6694bb!important;
+ border-radius:13px!important;background:#09192c!important;color:#fff!important;
+ font:650 clamp(16px,3.6vw,19px)/1.35 system-ui,sans-serif!important;
+ resize:vertical!important;text-align:left!important;
+ box-shadow:inset 0 2px 9px #0003!important;
+}
+body.role-student #studentContent .si-orbit-student-entry #orbitStudentText::placeholder{
+ color:#95aec3!important;opacity:1;
+}
+body.role-student #studentContent .si-orbit-student-entry #orbitStudentText:focus{
+ outline:3px solid #79dbea!important;outline-offset:2px!important;
+ border-color:#b0efff!important;background:#0d2540!important;
+}
+body.role-student #studentContent .si-orbit-student-entry .char-count{
+ align-self:flex-end;margin:6px 2px 10px!important;
+ color:#9bb9d0!important;font:800 11px/1.2 system-ui,sans-serif!important;
+ letter-spacing:.055em;
+}
+body.role-student #studentContent .si-orbit-student-send{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ gap:10px;width:100%!important;max-width:100%!important;
+ min-height:58px!important;margin:0!important;
+ padding:12px 15px!important;
+ border:1px solid #a0f0fa!important;border-radius:13px!important;
+ background:linear-gradient(125deg,#1594bc,#267ab7 65%,#5557a7)!important;
+ color:#fff!important;text-shadow:0 1px #173b68;
+ font:950 clamp(15px,3.9vw,19px)/1.2 system-ui,sans-serif!important;
+ box-shadow:inset 0 1px #ffffff63,0 7px 16px #0004!important;
+ transition:filter .16s,transform .16s;
+}
+body.role-student #studentContent .si-orbit-student-send>span{
+ display:grid;place-items:center;width:28px;height:28px;flex:0 0 28px;
+ border-radius:50%;background:#ffffff29;font-size:18px;
+}
+body.role-student #studentContent .si-orbit-student-send:enabled:hover{
+ filter:brightness(1.08);
+}
+body.role-student #studentContent .si-orbit-student-send:enabled:active{
+ transform:scale(.985);
+}
+body.role-student #studentContent .si-orbit-student-send:disabled{
+ opacity:.55!important;filter:saturate(.6)!important;
+ cursor:not-allowed!important;box-shadow:none!important;
+}
+body.role-student #studentContent .si-orbit-student-send:focus-visible{
+ outline:3px solid #ffe6a3!important;outline-offset:3px!important;
+}
+body.role-student #studentContent .si-orbit-student-privacy{
+ display:flex;align-items:center;gap:8px;
+ margin:12px 0 0!important;color:#9dc4d6!important;
+ font:650 11px/1.4 system-ui,sans-serif!important;
+}
+body.role-student #studentContent .si-orbit-student-privacy::before{
+ content:"";display:block;width:9px;height:9px;flex:0 0 9px;
+ border-radius:50%;background:#70e0c7;box-shadow:0 0 9px #70e0c76b;
+}
+body.role-student #studentContent .si-orbit-student>.prompt-caption[hidden],
+body.role-student #studentContent .si-orbit-student>.submitted-banner[hidden]{
+ display:none!important;
+}
+body.role-student #studentContent .si-orbit-student-confirm{
+ display:flex;flex-direction:column;gap:12px;min-width:0;
+ margin:2px 0 0!important;padding:17px!important;
+ border:1px solid #61c5b9!important;border-radius:13px!important;
+ background:linear-gradient(140deg,#114d58,#0e354b 70%)!important;
+ color:#d9fff5!important;text-align:left!important;
+ box-shadow:inset 0 1px #dffff52e,0 0 19px #4cdeb126!important;
+}
+body.role-student #studentContent .si-orbit-student-confirm::before{
+ content:"✓";display:grid;place-items:center;
+ width:40px;height:40px;flex:0 0 40px;
+ color:#093a41;background:#8ef6d9;border:1px solid #c5ffee;
+ border-radius:50%;font:1000 24px/1 system-ui,sans-serif;
+}
+body.role-student #studentContent .si-orbit-student-confirm>b{
+ color:#fff;font:950 clamp(16px,4vw,21px)/1.2 system-ui,sans-serif!important;
+}
+body.role-student #studentContent .si-orbit-student-confirm>p{
+ margin:0!important;color:#c1e4e9!important;
+ font:600 12px/1.45 system-ui,sans-serif!important;
+}
+body.role-student #studentContent .si-orbit-own-idea{
+ max-width:100%;max-height:min(25vh,154px);overflow-y:auto;
+ margin:1px 0 0!important;padding:11px 13px!important;
+ border:1px solid #528c98;border-left:3px solid #93e7e2;
+ border-radius:8px;background:#0b293b;
+ color:#fff;font:650 clamp(13px,3vw,16px)/1.4 system-ui,sans-serif;
+ overflow-wrap:anywhere;white-space:pre-wrap;
+}
+body.role-student #studentContent .si-orbit-student-paused .si-orbit-entry-note{
+ color:#ffe0a5!important;
+}
+body.role-student #studentContent .si-orbit-student-paused .si-orbit-student-round{
+ border-color:#cfae6a;background:#594125;color:#ffeabf;
+}
+body.role-student:has(#studentContent .si-orbit-student) .student-control-zone{
+ display:none!important;
+}
+@media(max-width:500px){
+ body.role-student #studentContent:has(.si-orbit-student){
+  padding:9px!important;
+ }
+ body.role-student #studentContent .si-orbit-student{
+  padding:18px 14px!important;border-radius:16px!important;
+ }
+ body.role-student #studentContent .si-orbit-student-top{margin-bottom:17px}
+ body.role-student #studentContent .si-orbit-student>h2{
+  font-size:clamp(22px,6vw,30px)!important;margin-bottom:14px!important;
+ }
+ body.role-student #studentContent .si-orbit-student-entry #orbitStudentText{
+  min-height:119px!important;height:clamp(119px,20vh,153px)!important;
+ }
+}
+@media(max-height:690px){
+ body.role-student #studentContent .si-orbit-student{padding-top:13px!important;padding-bottom:13px!important}
+ body.role-student #studentContent .si-orbit-student-top{margin-bottom:11px}
+ body.role-student #studentContent .si-orbit-student>h2{font-size:22px!important;margin-bottom:11px!important}
+ body.role-student #studentContent .si-orbit-student-entry #orbitStudentText{
+  height:116px!important;min-height:116px!important;
+ }
+ body.role-student #studentContent .si-orbit-student-send{min-height:50px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ body.role-student #studentContent .si-orbit-student *,
+ body.role-student #studentContent .si-orbit-student *::before{
+  animation:none!important;transition:none!important;
+ }
+}
