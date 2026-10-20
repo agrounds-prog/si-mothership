@@ -1862,3 +1862,293 @@ body.role-student #studentContent .million-student .ms-million-student-ribbon.is
  .ms-studio .ms-library-tools{align-items:stretch;padding:9px}
  .ms-studio .ms-library-summary{padding:0}
 }
+
+
+/* MILLION Phase 4J — cleaner game-show command, answer and projector surfaces.
+   Native controls, lifeline inventory, scoring and result timing are untouched. */
+#teacher #activityControllerPanel:has(.million-4j-teacher){
+ border:1px solid #508fbb!important;border-radius:19px!important;
+ padding:clamp(12px,1.5vw,23px)!important;
+ background:radial-gradient(ellipse at 4% 0%,#266ca12c,transparent 58%),
+ linear-gradient(150deg,#091d39,#081229 90%)!important;
+ box-shadow:inset 0 1px #d7f8ff2c,0 16px 36px #0005!important;
+}
+#teacher #activityControllerPanel .million-4j-teacher{
+ display:grid!important;grid-template-columns:minmax(0,1.2fr) minmax(270px,.8fr)!important;
+ gap:14px!important;align-items:start;min-width:0;
+}
+#teacher #activityControllerPanel .million-4j-teacher>.million-teacher-card{
+ min-width:0;border:1px solid #5e95be!important;border-radius:17px!important;
+ background:radial-gradient(ellipse at 50% 0%,#2e78b13b,transparent 65%),
+ linear-gradient(145deg,#123354,#091b35)!important;
+ box-shadow:inset 0 1px #dcf8ff28,0 11px 25px #0005!important;
+}
+#teacher #activityControllerPanel .million-4j-teacher .game-show-card-head{
+ display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;
+ margin:0 0 12px;padding-bottom:11px;border-bottom:1px solid #4d7298;
+}
+#teacher #activityControllerPanel .million-4j-teacher .game-show-card-head h4{
+ color:#a7f0ff!important;font:950 11px/1.3 system-ui,sans-serif!important;letter-spacing:.12em;
+}
+#teacher #activityControllerPanel .million-4j-teacher #millionTeacherPilot{
+ max-width:100%!important;min-height:41px;padding:7px 10px!important;
+ border:1px solid #7cc1e4!important;border-radius:10px!important;
+ background:#082749!important;color:#f3fdff!important;font-size:13px!important;
+}
+#teacher #activityControllerPanel .million-4j-teacher .million-teacher-choices{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;
+}
+#teacher #activityControllerPanel .million-4j-teacher .million-teacher-choices>div{
+ min-width:0;min-height:61px!important;display:grid!important;
+ grid-template-columns:34px minmax(0,1fr) auto!important;align-items:center;
+ gap:8px!important;padding:9px!important;border:1px solid #537eb1!important;
+ border-radius:11px!important;background:linear-gradient(130deg,#0d2c56,#122548)!important;
+ box-shadow:inset 0 1px #ffffff1e;
+}
+#teacher #activityControllerPanel .million-4j-teacher .million-teacher-choices b{
+ display:grid;place-items:center;width:34px;height:34px;
+ border:1px solid #86bfeb;border-radius:9px;background:#215584;
+ color:#fff;font-size:16px!important;
+}
+#teacher #activityControllerPanel .million-4j-teacher .million-teacher-choices>div span{
+ min-width:0;overflow-wrap:anywhere;color:#f1f8ff!important;
+ font:800 clamp(11px,1vw,14px)/1.35 system-ui,sans-serif!important;
+}
+#teacher #activityControllerPanel .million-4j-teacher .million-teacher-choices .correct-key{
+ border-color:#72bca3!important;
+}
+#teacher #activityControllerPanel .million-4j-teacher .million-teacher-choices .locked{
+ border-color:#f9d48c!important;background:linear-gradient(130deg,#49391c,#223551)!important;
+}
+#teacher #activityControllerPanel .million-4j-teacher .million-teacher-choices em{
+ color:#a9ffe5!important;font-size:8px!important;letter-spacing:.04em;
+}
+#teacher #activityControllerPanel .million-4j-teacher .million-teacher-status{
+ display:flex!important;gap:7px!important;margin:12px 0!important;flex-wrap:wrap;
+}
+#teacher #activityControllerPanel .million-4j-teacher .million-teacher-status>span{
+ flex:1 1 112px;padding:8px!important;border:1px solid #557da6!important;
+ border-radius:9px!important;color:#e5f5ff!important;
+ background:#0c2949!important;font:800 11px/1.35 system-ui,sans-serif!important;
+}
+#teacher #activityControllerPanel .million-4j-progress{
+ display:grid;gap:9px;padding:13px;margin:12px 0 13px;
+ border:1px solid #4b81b2;border-radius:12px;
+ background:linear-gradient(130deg,#112a4c,#0b2440);
+ box-shadow:inset 0 1px #ffffff25;
+}
+#teacher #activityControllerPanel .million-4j-progress-top{
+ display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;
+ color:#a7edff;font:950 10px/1.3 system-ui,sans-serif;letter-spacing:.08em;
+}
+#teacher #activityControllerPanel .million-4j-progress-top strong{color:#fff;font-size:11px}
+#teacher #activityControllerPanel .million-4j-progress-track{
+ height:11px;overflow:hidden;border-radius:999px;border:1px solid #6284ad;
+ background:#071528;box-shadow:inset 0 2px 5px #0007;
+}
+#teacher #activityControllerPanel .million-4j-progress-track i{
+ display:block;height:100%;border-radius:999px;width:0;
+ background:linear-gradient(90deg,#54b5e9,#77d8f8,#e9d085);
+ box-shadow:0 0 12px #9ef3ffc0;transition:width .3s ease-out;
+}
+#teacher #activityControllerPanel .million-4j-next-step{
+ margin:0!important;color:#cfe2f3!important;
+ font:700 11px/1.45 system-ui,sans-serif!important;
+}
+#teacher #activityControllerPanel .million-4j-teacher .million-teacher-actions{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;
+}
+#teacher #activityControllerPanel .million-4j-teacher .million-teacher-actions>button{
+ min-height:55px!important;min-width:0!important;white-space:normal!important;
+ padding:9px!important;border-radius:11px!important;
+ color:#fff!important;font:950 12px/1.3 system-ui,sans-serif!important;
+ border:1px solid #8bb7d6!important;background:linear-gradient(130deg,#205b8a,#16365c)!important;
+ box-shadow:inset 0 1px #ffffff30,0 5px 13px #0003!important;
+}
+#teacher #activityControllerPanel .million-4j-teacher .million-teacher-actions>button[data-million-action="reveal"]{
+ border-color:#9df5d5!important;background:linear-gradient(125deg,#148268,#0d695f)!important;
+}
+#teacher #activityControllerPanel .million-4j-teacher .million-teacher-actions>button[data-million-action="signal-lost"]{
+ border-color:#f8b0bd!important;background:linear-gradient(125deg,#804152,#552942)!important;
+}
+#teacher #activityControllerPanel .million-4j-teacher .million-teacher-actions>button[data-million-action="advance"]{
+ grid-column:1/-1;min-height:49px!important;border-color:#bcb6ff!important;
+ background:linear-gradient(125deg,#494899,#284e8c)!important;
+}
+#teacher #activityControllerPanel .million-4j-teacher .million-teacher-actions>button:disabled{
+ opacity:.45!important;filter:saturate(.55)!important;cursor:not-allowed!important;box-shadow:none!important;
+}
+#teacher #activityControllerPanel .million-4j-teacher .million-teacher-lifelines>div{
+ display:grid!important;grid-template-columns:minmax(0,1fr) 43px 42px!important;gap:8px!important;
+ align-items:center;padding:5px 0!important;
+}
+#teacher #activityControllerPanel .million-4j-teacher .million-teacher-lifelines button{
+ min-height:45px!important;min-width:0!important;border-radius:10px!important;
+ border:1px solid #6489ae!important;background:linear-gradient(140deg,#224676,#182f56)!important;
+ color:#f4faff!important;font:850 11px/1.3 system-ui,sans-serif!important;
+ white-space:normal!important;
+}
+#teacher #activityControllerPanel .million-4j-teacher .million-teacher-lifelines>div.is-spent{
+ opacity:.5;
+}
+#teacher #activityControllerPanel .million-4j-teacher .million-teacher-lifelines span{
+ color:#f9e0a8!important;font-size:13px!important;font-weight:950;
+}
+/* Student card: one clear cue, four large actions, and retained native
+   Lock Answer and lifeline buttons. Layout fits 440x780 companion. */
+body.role-student #studentContent .million-4j-student{
+ max-width:min(650px,100%)!important;min-width:0!important;
+ padding:clamp(11px,2.7vw,19px)!important;margin:auto!important;
+ border:1px solid #587fac!important;border-radius:19px!important;
+ background:radial-gradient(ellipse at 68% 0%,#3a82c028,transparent 66%),
+ linear-gradient(150deg,#0c2a46,#081a31 82%)!important;
+ box-shadow:inset 0 1px #dbf5ff26,0 14px 29px #0005!important;
+}
+body.role-student #studentContent .million-4j-student h2{
+ margin:10px 0 13px!important;color:#fff!important;
+ font:950 clamp(21px,5.5vw,32px)/1.18 system-ui,sans-serif!important;
+ letter-spacing:-.02em!important;text-wrap:balance;
+}
+body.role-student #studentContent .million-4j-choice-guide{
+ display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+ padding:10px 12px;margin:3px 0 12px;border:1px solid #669abe;
+ border-radius:12px;background:linear-gradient(130deg,#153a63,#102d4d);
+ color:#eefbff;box-shadow:inset 0 1px #d8f9ff27;
+}
+body.role-student #studentContent .million-4j-guide-mark{
+ display:grid;place-items:center;flex:0 0 31px;width:31px;height:31px;
+ border:1px solid #9ee9fe;border-radius:9px;background:#235e88;color:#f7fdff;font-size:16px;
+}
+body.role-student #studentContent .million-4j-choice-guide strong{
+ flex:1 1 160px;font:950 14px/1.3 system-ui,sans-serif;
+}
+body.role-student #studentContent .million-4j-choice-guide small{
+ flex:1 1 100%;color:#c2dcef;font:650 11px/1.3 system-ui,sans-serif;
+}
+body.role-student #studentContent .million-4j-choice-guide[data-phase="locked"]{
+ border-color:#e9c988;background:linear-gradient(130deg,#51411e,#283952);
+}
+body.role-student #studentContent .million-4j-choice-guide[data-phase="revealed"]{
+ border-color:#98e7cb;background:linear-gradient(130deg,#15564f,#17445c);
+}
+body.role-student #studentContent .million-4j-student .million-student-choices{
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:8px!important;
+}
+body.role-student #studentContent .million-4j-student .million-student-choice{
+ min-width:0!important;min-height:67px!important;
+ display:grid!important;grid-template-columns:44px minmax(0,1fr)!important;gap:0!important;
+ align-items:stretch;padding:0!important;border:1px solid #5f95be!important;
+ border-radius:12px!important;background:linear-gradient(135deg,#1a4277,#0d2a55)!important;
+ box-shadow:inset 0 1px #f3fcff23,0 4px 12px #0003!important;
+ white-space:normal!important;overflow:hidden;
+}
+body.role-student #studentContent .million-4j-student .million-student-choice b{
+ display:grid!important;place-items:center;width:44px;height:100%;
+ min-height:64px;border-right:1px solid #83b6dd;
+ color:#edfbff;background:#214b82;font:1000 21px/1 system-ui,sans-serif;
+}
+body.role-student #studentContent .million-4j-student .million-student-choice span{
+ min-width:0;align-self:center;padding:11px 13px!important;
+ color:#fff!important;text-align:left;
+ font:850 clamp(15px,3.8vw,19px)/1.25 system-ui,sans-serif!important;
+ overflow-wrap:anywhere!important;
+}
+body.role-student #studentContent .million-4j-student .million-student-choice.selected,
+body.role-student #studentContent .million-4j-student .million-student-choice[aria-pressed="true"]{
+ border-color:#ffdd96!important;background:linear-gradient(120deg,#735521,#42416b)!important;
+ box-shadow:inset 0 1px #ffebaf55,0 0 19px #edc87151!important;
+}
+body.role-student #studentContent .million-4j-student .million-student-choice.correct{
+ border-color:#b7ffdc!important;background:linear-gradient(130deg,#18714f,#135341)!important;
+}
+body.role-student #studentContent .million-4j-student .million-student-choice.wrong{
+ border-color:#ffb7c1!important;background:linear-gradient(130deg,#87394c,#522539)!important;
+}
+body.role-student #studentContent .million-4j-student .million-student-choice.eliminated{
+ opacity:.43!important;filter:saturate(.45)!important;
+}
+body.role-student #studentContent .million-4j-student .million-student-actions{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;
+ margin-top:11px!important;
+}
+body.role-student #studentContent .million-4j-student .million-student-actions button{
+ min-width:0!important;min-height:52px!important;padding:9px 7px!important;
+ border-radius:11px!important;font:950 clamp(11px,2.9vw,14px)/1.3 system-ui,sans-serif!important;
+ white-space:normal!important;
+}
+body.role-student #studentContent .million-4j-student #millionLockBtn:enabled{
+ border-color:#f6deab!important;background:linear-gradient(120deg,#926a2c,#6b462a)!important;
+}
+body.role-student #studentContent .million-4j-student .million-student-lifelines.open{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;
+}
+body.role-student #studentContent .million-4j-student .million-student-lifelines button{
+ min-height:44px!important;font-size:11px!important;white-space:normal!important;
+}
+body.role-student #studentContent .million-4j-student .million-student-choice:focus-visible{
+ outline:3px solid #fce8ac!important;outline-offset:3px!important;
+}
+/* Projector: stronger visual hierarchy without hiding the prize ladder. */
+body.role-shared .million-4j-stage{
+ border:2px solid #72b9de!important;
+ background:radial-gradient(ellipse at 48% 4%,#1d5e9160,transparent 64%),
+ linear-gradient(150deg,#091c3b,#080e27)!important;
+}
+body.role-shared .million-4j-stage .million-stage h3{
+ border-color:#9dddf7!important;box-shadow:inset 0 1px #e6f6ff36,0 12px 26px #0007,
+  0 0 22px #44a4ee2a!important;
+}
+body.role-shared .million-4j-stage .million-choice{
+ border-color:#6b99d7!important;box-shadow:inset 0 1px #ebfbff22,0 6px 13px #0004!important;
+}
+body.role-shared .million-4j-stage .million-choice.locked{
+ border-color:#f7d995!important;box-shadow:0 0 23px #f0cb675c!important;
+}
+body.role-shared .million-4j-stage .million-choice.correct{
+ border-color:#b0fbd2!important;box-shadow:0 0 24px #65ffbd66!important;
+}
+body.role-shared .million-4j-stage .million-choice.wrong{
+ border-color:#ffc0d4!important;box-shadow:0 0 21px #ff729e59!important;
+}
+body.role-shared .million-4j-stage .million-4j-stage-status{
+ margin:8px 0 0;padding:8px 12px;text-align:center;letter-spacing:.12em;
+ color:#b5eaff;font:950 clamp(10px,1vw,14px)/1.3 system-ui,sans-serif;
+ border:1px solid #4b80af;border-radius:10px;
+ background:linear-gradient(130deg,#113759,#16355f);
+}
+body.role-shared .million-4j-stage[data-million4j-phase="locked"] .million-4j-stage-status{
+ color:#ffe6ac;border-color:#d9b86c;background:#534222;
+}
+body.role-shared .million-4j-stage[data-million4j-phase="correct"] .million-4j-stage-status{
+ color:#ccffe4;border-color:#71d4b5;background:#185c4d;
+}
+body.role-shared .million-4j-stage .million-lifelines .million-4j-spent{
+ opacity:.43;filter:saturate(.55);
+}
+@media(max-width:1100px){
+ #teacher #activityControllerPanel .million-4j-teacher{
+  grid-template-columns:minmax(0,1fr)!important;
+ }
+}
+@media(max-width:520px){
+ body.role-student #studentContent .million-4j-student{padding:10px!important;border-radius:15px!important}
+ body.role-student #studentContent .million-4j-student .million-student-choice{
+  min-height:64px!important;
+ }
+ body.role-student #studentContent .million-4j-student .million-student-choice span{font-size:15px!important}
+ body.role-student #studentContent .million-4j-choice-guide{padding:8px 10px;gap:7px;margin:3px 0 8px}
+ #teacher #activityControllerPanel .million-4j-teacher .million-teacher-choices{
+  grid-template-columns:minmax(0,1fr)!important;
+ }
+}
+@media(max-height:680px){
+ body.role-shared .million-4j-stage .million-4j-stage-status{margin:3px 0;padding:5px 8px;font-size:10px}
+ body.role-shared .million-4j-stage .million-choice{min-height:52px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #teacher #activityControllerPanel .million-4j-teacher *,
+ body.role-student #studentContent .million-4j-student *,
+ body.role-shared .million-4j-stage *{
+  animation:none!important;transition:none!important;
+ }
+}
