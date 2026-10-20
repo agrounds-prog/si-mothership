@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'student-companion.css'
+      - 'scripts/release_gate.py'
       - 'student-companion.js'
       - 'teacher-unified-controls.js'
       - 'teacher-unified-controls.css'
