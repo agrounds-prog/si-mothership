@@ -2408,6 +2408,11 @@ body.role-student #student #studentContent .bingo-student-cell.marked{
 body.role-student #student #studentContent .bingo-student-cell.uncalled{
  opacity:.53!important;filter:saturate(.65);
 }
+/* Teacher quiet mode must not reveal called-vs-uncalled identity by opacity. */
+body.role-student #student #studentContent.si-bingo-call-alerts-off
+ .bingo-student-cell.uncalled{
+ opacity:1!important;filter:none!important;
+}
 body.role-student #student #studentContent #studentBingoClaimBtn{
  border-color:#99efd6!important;
  background:linear-gradient(125deg,#137b68,#185d77)!important;color:#fff!important;
@@ -2471,7 +2476,7 @@ body.role-student #student #studentContent .ss-touch-key:enabled{
    full keyboard racks, 44px sectors and separate confirmation dock. */
 body.role-student #student #studentContent .wg-student-hint,
 body.role-student #student #studentContent .minefield-turn-banner{
- padding:9px 10px!important;font-size:12px!important;line-height:1.35!important;
+ padding:9px 10px!important;font-size:13px!important;line-height:1.35!important;
 }
 body.role-student #student #studentContent .minefield-narrator{
  border:1px solid #467b9d!important;border-radius:10px!important;
