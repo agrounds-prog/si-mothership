@@ -1019,3 +1019,30 @@ body:not(.role-student):not(.role-shared) #activitiesPanel #activityGrid :is(
   width:100%;
  }
 }
+
+/* Phase 4M · shared teacher setup focus and responsive form polish.
+   Native game layout owns columns and controls; this layer only constrains
+   content and ensures visible keyboard focus. */
+body:not(.role-student):not(.role-shared) #activitiesPanel #activityGrid :is(
+ .ma-setup,.million-setup,.bingo-setup,.wg-setup,.minefield-setup,
+ .starwheel-setup,.crew-survey-setup
+){
+ min-width:0;
+ max-width:100%;
+ overflow-wrap:break-word;
+}
+body:not(.role-student):not(.role-shared) #activitiesPanel #activityGrid :is(
+ .ma-setup,.million-setup,.bingo-setup,.wg-setup,.minefield-setup,
+ .starwheel-setup,.crew-survey-setup
+) :is(input,select,textarea){
+ box-sizing:border-box;
+ min-width:0;
+ max-width:100%;
+}
+body:not(.role-student):not(.role-shared) #activitiesPanel #activityGrid :is(
+ .ma-setup,.million-setup,.bingo-setup,.wg-setup,.minefield-setup,
+ .starwheel-setup,.crew-survey-setup
+) :is(button,input,select,textarea):focus-visible{
+ outline:3px solid #ffe0a3;
+ outline-offset:2px;
+}
