@@ -703,6 +703,22 @@ def main() -> int:
     check("starwheel: puzzle-pack persistence remains", "siMothership.starwheelPuzzlePacks.v1" in persisted_keys)
     check("starwheel: special sectors and Final Signal remain", "STARWHEEL_SPECIALS" in html and "finalSignal" in html)
 
+    # Phase 4L: compact companion safeguards. These checks are static;
+    # real browser geometry remains covered by the Playwright regression.
+    companion_css = (ROOT / "student-companion.css").read_text(encoding="utf-8")
+    check("student companion: all new text rules are role-scoped",
+          "body.role-student #student #studentContent" in companion_css
+          and "Phase 4L — compact student readability" in companion_css)
+    check("student companion: long classroom instructions wrap safely",
+          "overflow-wrap:anywhere!important" in companion_css
+          and "white-space:normal!important" in companion_css)
+    check("student companion: starwheel primary action remains 62px",
+          ".starwheel-main-spin{\n min-height:62px!important;" in companion_css
+          or ".starwheel-main-spin{\n  min-height:62px!important;" in companion_css)
+    check("student companion: Bingo quiet mode preserves neutral tile appearance",
+          ".si-bingo-call-alerts-off" in companion_css
+          and ".bingo-student-cell.uncalled" in companion_css)
+
     # Existing teacher persistence and runtime basics.
     check("persistence: presets and recents remain present", {"siMothership.activityPresets.v1", "siMothership.recentActivities.v1"} <= persisted_keys)
     check("server: /api/health remains configured", "/api/health" in server)
