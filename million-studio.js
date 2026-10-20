@@ -765,6 +765,141 @@ function installMillionNativePoints(){
 }
 installMillionNativePoints();
 
+
+/* Phase 4J · MILLION live interface refinement.
+   DOM-only decorations from the synchronized native MILLION state. Buttons,
+   answers, lifelines, scoring, navigation and saved classrooms stay native. */
+function installMillionPhase4J(){
+ const role=new URLSearchParams(location.search).get('role');
+ if(!['teacher','student','shared'].includes(role))return;
+ let pending=false;
+ const applyText=(el,s)=>{if(el&&el.textContent!==s)el.textContent=s};
+ const add=(parent,tag,cls,before)=>{
+  let el=parent.querySelector(':scope > .'+cls);
+  if(!el){el=document.createElement(tag);el.className=cls;
+   if(before)parent.insertBefore(el,before);else parent.append(el)}
+  return el;
+ };
+ function update(){
+  pending=false;
+  const run=typeof state==='undefined'||state.ended?null:state.activityRun;
+  if(!run||run.activityId!=='million-game'||run.phase!=='running')return;
+  const m=run.million||{},cfg=run.millionConfig||{},q=Number(m.questionIndex||0);
+  const count=Array.isArray(cfg.questions)?cfg.questions.length:0;
+  const ladder=Array.isArray(cfg.ladder)?cfg.ladder:[];
+  const level=Math.max(0,Math.min(ladder.length,Number(m.ladderLevel||0)));
+  const choices=[...('ABCD')];
+  const locked=!!m.lockedAnswer,finished=!!(m.complete||m.over);
+  const reveal=!!m.revealed;
+  const stateLabel=finished?'MISSION COMPLETE':reveal?
+   m.result==='correct'?'CORRECT ANSWER REVEALED':'ANSWER REVEALED':
+   locked?'ANSWER LOCKED':m.selectedAnswer?'ANSWER SELECTED':'WAITING FOR ANSWER';
+  if(role==='teacher'){
+   const root=document.querySelector('#activityControllerPanel .million-teacher-grid');
+   const primary=root?.querySelector('.million-teacher-card');
+   const controls=primary?.querySelector('.million-teacher-actions');
+   if(!controls)return;
+   root.classList.add('million-4j-teacher');
+   const progress=add(primary,'section','million-4j-progress',controls);
+   if(!progress.firstElementChild){
+    progress.setAttribute('aria-label','Million current question and game progress');
+    progress.innerHTML='<div class="million-4j-progress-top"><span></span><strong></strong></div>'+
+     '<div class="million-4j-progress-track" role="progressbar" aria-label="Questions secured" aria-valuemin="0"><i></i></div>'+
+     '<p class="million-4j-next-step" role="status"></p>';
+   }
+   applyText(progress.querySelector('.million-4j-progress-top span'),
+    'QUESTION '+Math.min(count,q+1)+' OF '+count);
+   applyText(progress.querySelector('.million-4j-progress-top strong'),
+    level+' / '+ladder.length+' LEVELS SECURED');
+   const track=progress.querySelector('[role="progressbar"]');
+   if(track){
+    track.setAttribute('aria-valuemax',String(ladder.length));
+    track.setAttribute('aria-valuenow',String(level));
+    track.firstElementChild.style.width=(ladder.length?level/ladder.length*100:0)+'%';
+   }
+   applyText(progress.querySelector('.million-4j-next-step'),
+    finished?'This run is complete. Review the final result.':
+    reveal?'Answer revealed · advance when ready.':
+    locked?'Answer locked · reveal it or mark signal lost.':
+    m.selectedAnswer?'Answer selected · waiting for the Command Seat to lock.':
+    'Students choose an answer · use lifelines when needed.');
+   controls.dataset.millionPhase=reveal?'revealed':locked?'locked':'waiting';
+   const labels=[
+    ['millionCorrectBtn','reveal'],['millionWrongBtn','signal-lost'],
+    ['millionNextBtn','advance']
+   ];
+   labels.forEach(([id,name])=>{const btn=controls.querySelector('#'+id);
+    if(btn)btn.dataset.millionAction=name});
+   const life=root.querySelector('.million-teacher-lifelines');
+   if(life){
+    life.classList.add('million-4j-lifelines');
+    life.querySelectorAll('[data-million-teacher-life]').forEach(button=>{
+     const k=button.getAttribute('data-million-teacher-life'),n=Math.max(0,Number(m.inventory?.[k]||0));
+     button.setAttribute('aria-label',button.textContent.trim()+' · '+n+' available');
+     button.parentElement?.classList.toggle('is-spent',n===0);
+    });
+   }
+  } else if(role==='student'){
+   const card=document.querySelector('#studentContent .million-student');
+   if(!card||finished||!card.querySelector('.million-student-choices'))return;
+   card.classList.add('million-4j-student');
+   const pilot=typeof selectedStudent==='function'?selectedStudent():null;
+   const seat=!!pilot&&m.pilot===pilot.n;
+   const selected=seat?m.selectedAnswer:(m.crewPredictions?.[pilot?.n]||'');
+   const cue=add(card,'div','million-4j-choice-guide',card.querySelector('.million-student-choices'));
+   if(!cue.firstElementChild)cue.innerHTML='<span class="million-4j-guide-mark" aria-hidden="true">✦</span>'+
+    '<strong></strong><small></small>';
+   let title=seat?'Choose your answer':'Play along with the crew';
+   let desc=seat?'Select A, B, C or D.':'Pick one answer. Your prediction is private.';
+   if(reveal){title='Answer revealed';desc='Watch the classroom screen for the result.'}
+   else if(locked){title='Answer locked';desc='Your teacher will reveal the result.'}
+   else if(selected){title=seat?'Ready to lock your answer':'Your answer is selected';
+    desc=seat?'Use Lock Answer when you are ready.':'Watch the Command Seat decide.'}
+   applyText(cue.querySelector('strong'),title);
+   applyText(cue.querySelector('small'),desc);
+   cue.dataset.phase=reveal?'revealed':locked?'locked':selected?'selected':'choose';
+   const buttons=card.querySelectorAll('.million-student-choice');
+   buttons.forEach(btn=>{
+    const key=btn.getAttribute('data-million-choice');
+    btn.setAttribute('aria-pressed',String(!!selected&&key===selected));
+    btn.setAttribute('aria-label','Answer '+key+': '+(btn.querySelector('span')?.textContent||''));
+   });
+   const life=card.querySelector('#millionLifeBtn');
+   if(life){const available=Object.entries(m.inventory||{}).reduce((sum,[k,n])=>
+    ['poll','reduce','clue','tryAgain'].includes(k)?sum+Math.max(0,Number(n)||0):sum,0);
+    life.setAttribute('aria-label','Use a lifeline · '+available+' available');
+    life.setAttribute('aria-expanded',String(!!card.querySelector('.million-student-lifelines.open')));
+   }
+  } else {
+   const board=document.querySelector('.million-public.big');
+   if(!board||!board.querySelector('.million-stage h3'))return;
+   board.classList.add('million-4j-stage');
+   const phase=reveal?m.result==='correct'?'correct':'wrong':locked?'locked':'ready';
+   if(board.dataset.million4jPhase!==phase)board.dataset.million4jPhase=phase;
+   const side=board.querySelector('.million-lifelines');
+   if(side){
+    side.setAttribute('aria-label','Public lifelines remaining');
+    side.querySelectorAll('span').forEach(el=>{
+     el.classList.toggle('million-4j-spent',el.classList.contains('spent'));
+    });
+   }
+   const stage=board.querySelector('.million-stage');
+   const tag=add(stage,'div','million-4j-stage-status',stage.querySelector('.million-message'));
+   tag.setAttribute('role','status');
+   applyText(tag,stateLabel);
+  }
+ }
+ function queue(){if(pending)return;pending=true;requestAnimationFrame(update)}
+ function start(){
+  if(!document.body)return;
+  new MutationObserver(queue).observe(document.body,{childList:true,subtree:true});
+  setInterval(queue,780);queue();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+ else start();
+}
+installMillionPhase4J();
+
 syncEngine();
 window.MillionStudio={markup,wire,questions,ladder,checkpoints:n=>n===5?[3]:n===10?[5]:[5,10],
  currentName:()=>draft.name||'MILLION',inspection:()=>({count:draft.count,ready:readyCount(),saved:listGames().length,loadedId})};
