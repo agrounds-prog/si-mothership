@@ -1047,3 +1047,36 @@ body.role-student:has(#studentContent .pixel-student-locked) .student-control-zo
   grid-template-columns:repeat(2,minmax(0,1fr));max-height:380px;gap:8px}
  #teacher #activityGrid .pixel-setup .pixel-batch-manager{padding:12px;border-radius:14px}
 }
+
+/* Phase 4M-B · clearly ordered teacher workflow and native actions. */
+#teacher #activityGrid .pixel-setup .pixel-studio-workflow{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;
+ margin:0 0 16px;min-width:0;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-workflow span{
+ display:flex;align-items:center;gap:8px;min-width:0;
+ padding:10px 9px;border:1px solid #548db6;border-radius:11px;
+ background:linear-gradient(135deg,#173d61,#0a2b49);
+ color:#e4f7ff;font:850 12px/1.35 system-ui,sans-serif;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-workflow b{
+ display:grid;place-items:center;flex:0 0 26px;width:26px;height:26px;
+ border:1px solid #78dbf4;border-radius:8px;background:#1e668a;
+ color:#fff;font:950 13px system-ui,sans-serif;
+}
+#teacher #activityGrid .pixel-setup #pixelImageFile{
+ max-width:100%;min-height:42px;
+}
+#teacher #activityGrid .pixel-setup :is(button,input,select,textarea):focus-visible{
+ outline:3px solid #ffe69b!important;outline-offset:3px!important;
+}
+@media(max-width:760px){
+ #teacher #activityGrid .pixel-setup .pixel-studio-workflow{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+ }
+}
+@media(max-width:420px){
+ #teacher #activityGrid .pixel-setup .pixel-studio-workflow span{
+  font-size:11px;padding:8px 6px;gap:5px;
+ }
+}
