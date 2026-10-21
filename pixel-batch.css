@@ -1006,3 +1006,44 @@ body.role-student:has(#studentContent .pixel-student-locked) .student-control-zo
   transition:none!important;animation:none!important;
  }
 }
+
+/* Phase 4M-B: Bingo-inspired PIXEL REVEAL teacher Create/Edit studio. */
+#teacher #activitiesPanel:has(.pixel-setup){width:min(1480px,calc(100vw - 26px))!important;max-width:none!important}
+#teacher #activityGrid .pixel-setup{min-width:0;max-width:100%;box-sizing:border-box}
+#teacher #activityGrid .pixel-setup *{box-sizing:border-box}
+#teacher #activityGrid .pixel-setup .pixel-batch-manager{
+ margin:16px 0;padding:clamp(14px,1.8vw,24px);border:2px solid #6dbbe6;border-radius:20px;
+ background:radial-gradient(ellipse at 94% 0%,#3475b55c,transparent 54%),linear-gradient(145deg,#123a63,#071b38 76%);
+ box-shadow:inset 0 2px #ffffff24,0 12px 25px #0006}
+#teacher #activityGrid .pixel-setup .pixel-batch-heading{gap:8px;margin-bottom:16px}
+#teacher #activityGrid .pixel-setup .pixel-studio-kicker{color:#9cecff;font:950 11px/1.4 system-ui,sans-serif;letter-spacing:.15em}
+#teacher #activityGrid .pixel-setup .pixel-studio-intro{color:#d4eaff;font:650 13px/1.45 system-ui,sans-serif}
+#teacher #activityGrid .pixel-setup .pixel-batch-heading strong{
+ display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:#fff;
+ font:1000 clamp(23px,2.8vw,34px)/1.1 system-ui,sans-serif;letter-spacing:-.02em}
+#teacher #activityGrid .pixel-setup .pixel-batch-heading strong span{
+ display:inline-flex;padding:7px 12px;border:1px solid #6ad4c8;border-radius:12px;
+ background:#0b344c;color:#bcffea;font-size:clamp(13px,1.4vw,17px);letter-spacing:0}
+#teacher #activityGrid .pixel-setup .pixel-batch-heading small{color:#b9d8eb;font:650 12px/1.5 system-ui,sans-serif}
+#teacher #activityGrid .pixel-setup .pixel-batch-list{
+ grid-template-columns:repeat(auto-fill,minmax(154px,1fr));max-height:440px;gap:12px;padding:5px}
+#teacher #activityGrid .pixel-setup .pixel-batch-item{
+ padding:8px;gap:8px;border:2px solid #4a7fa7;border-radius:15px;
+ background:linear-gradient(155deg,#102c4c,#061a33)}
+#teacher #activityGrid .pixel-setup .pixel-batch-item.selected{
+ border-color:#9cf6ff;background:#174667;box-shadow:0 0 0 2px #75e7ff45,0 7px 19px #0006}
+#teacher #activityGrid .pixel-setup .pixel-batch-pick{font:950 12px/1.4 system-ui,sans-serif}
+#teacher #activityGrid .pixel-setup .pixel-batch-pick img{
+ height:auto;aspect-ratio:16/10;object-fit:contain;background:#061124;border-radius:9px}
+#teacher #activityGrid .pixel-setup .pixel-batch-item-actions{gap:6px}
+#teacher #activityGrid .pixel-setup .pixel-batch-item-actions button{min-height:42px;border-radius:9px;font-size:20px}
+#teacher #activityGrid .pixel-setup .pixel-batch-upload-status{
+ margin-top:13px;padding:11px 14px;border:1px solid #508fac;border-radius:10px;
+ background:#0a2a43;color:#d5f0ff;font:750 12px/1.45 system-ui,sans-serif}
+#teacher #activityGrid .pixel-setup :is(input,select,textarea){max-width:100%;min-width:0}
+#teacher #activityGrid .pixel-setup :is(button,input,select,textarea):focus-visible{outline:3px solid #ffe69b;outline-offset:3px}
+@media(max-width:640px){
+ #teacher #activityGrid .pixel-setup .pixel-batch-list{
+  grid-template-columns:repeat(2,minmax(0,1fr));max-height:380px;gap:8px}
+ #teacher #activityGrid .pixel-setup .pixel-batch-manager{padding:12px;border-radius:14px}
+}
