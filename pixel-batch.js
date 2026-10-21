@@ -178,6 +178,15 @@
     (lastUploadDraft===d&&lastUploadSummary?escapeHtml(lastUploadSummary):
      d.images.length+' mystery image'+(d.images.length===1?'':'s')+' ready. Each image has its own answer and guesses.')+'</p>';
   preview.after(manager);
+  // Teacher-only studio hierarchy: preserve native inputs and their handlers.
+  const heading=setup.querySelector('.pixel-batch-heading');
+  if(heading){
+   heading.insertAdjacentHTML('afterbegin',
+    '<div class="pixel-studio-kicker">PIXEL REVEAL · ACTIVITY BUILDER</div>'+
+    '<div class="pixel-studio-intro">Organize image rounds, edit each answer, then save and launch.</div>');
+  }
+  const count=heading?.querySelector('strong');
+  if(count)count.setAttribute('aria-label',d.images.length+' of '+MAX_IMAGES+' image rounds');
  }
  function snapshot(run){
   return {pixelGuesses:structuredClone(run.pixelGuesses||{}),
