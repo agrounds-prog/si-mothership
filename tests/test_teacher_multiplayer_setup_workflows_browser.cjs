@@ -25,8 +25,17 @@ const students=()=>[{n:'Alex',offline:false},{n:'Blair',offline:false},{n:'Casey
    'four-in-line':'.fil-setup','signal-sequence':'.ss-setup'}[app];
   if(!setup)throw Error('No setup fixture configured for '+app);
   try{
-   await page.locator('#activitiesPanel #activityGrid '+setup)
-    .waitFor({state:'visible',timeout:16000});
+   // A delayed authoritative classroom snapshot may briefly reopen the
+   // previously running activity. Re-enter setup once after hydration settles.
+   const target=page.locator('#activitiesPanel #activityGrid '+setup);
+   try{await target.waitFor({state:'visible',timeout:3500});}
+   catch{
+    await page.evaluate(({app,roster})=>{
+     state.students=roster;state.screen='activities';state.activeApp=app;
+     state.assigningSlot=null;state.ended=false;state.activityRun=null;render();
+    },{app,roster:students()});
+    await target.waitFor({state:'visible',timeout:16000});
+   }
   }catch(error){
    const info=await page.evaluate(()=>({
     screen:state.screen,app:state.activeApp,run:state.activityRun?.activityId||null,
