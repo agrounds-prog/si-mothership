@@ -185,6 +185,15 @@
     '<div class="pixel-studio-kicker">PIXEL REVEAL · ACTIVITY BUILDER</div>'+
     '<div class="pixel-studio-intro">Organize image rounds, edit each answer, then save and launch.</div>');
   }
+  // Visual workflow guide only. All upload/save/load/launch actions remain native.
+  const guide=document.createElement('div');
+  guide.className='pixel-studio-workflow';
+  guide.setAttribute('aria-label','Activity setup steps');
+  guide.innerHTML='<span><b>1</b> Upload images</span>'+
+   '<span><b>2</b> Set answers</span>'+
+   '<span><b>3</b> Save activity</span>'+
+   '<span><b>4</b> Launch game</span>';
+  manager.insertBefore(guide,manager.querySelector('.pixel-batch-list'));
   const count=heading?.querySelector('strong');
   if(count)count.setAttribute('aria-label',d.images.length+' of '+MAX_IMAGES+' image rounds');
  }
