@@ -1080,3 +1080,122 @@ body.role-student:has(#studentContent .pixel-student-locked) .student-control-zo
   font-size:11px;padding:8px 6px;gap:5px;
  }
 }
+
+
+/* Phase 4M-C: saved mysteries and native Save/Launch actions. Teacher only. */
+#teacher #activityGrid .pixel-setup .pixel-studio-finish{
+ margin:18px 0 0;padding:14px 16px 10px;
+ border:1px solid #548eb5;border-radius:15px 15px 0 0;
+ background:linear-gradient(120deg,#183c64,#112e50 70%,#162b54);
+ min-width:0;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-finish strong{
+ color:#e9faff;font:950 13px/1.35 system-ui,sans-serif;letter-spacing:.09em;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-finish p{
+ margin:5px 0 10px;color:#bcdbf2;font:650 12px/1.45 system-ui,sans-serif;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-save-state{
+ padding:9px 12px;border:1px solid #687b9c;border-radius:9px;
+ background:#081e38;color:#ffdcad;font:850 12px/1.4 system-ui,sans-serif;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-save-state[data-saved="yes"]{
+ color:#b5ffe5;border-color:#48a9a8;background:#092c3b;
+}
+#teacher #activityGrid .pixel-setup .pixel-save-actions{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:10px;margin:0 0 20px!important;padding:12px 14px 14px;
+ background:#102845;border:1px solid #548eb5;border-top:0;
+ border-radius:0 0 15px 15px;min-width:0;
+}
+#teacher #activityGrid .pixel-setup .pixel-save-actions button{
+ min-width:0;min-height:54px;padding:10px 13px;border-radius:12px!important;
+ font:950 13px/1.25 system-ui,sans-serif;white-space:normal;
+}
+#teacher #activityGrid .pixel-setup #savePixelBtn{
+ color:#ddf6ff!important;border:2px solid #7aafd8!important;
+ background:linear-gradient(140deg,#254b70,#163757)!important;
+}
+#teacher #activityGrid .pixel-setup #launchPixelBtn{
+ color:#062632!important;border:2px solid #affff2!important;
+ background:linear-gradient(140deg,#9cffe9,#52d6ff)!important;
+ box-shadow:0 7px 20px #22d9ff35!important;
+}
+#teacher #activityGrid .pixel-setup #savePixelPresetBtn{
+ grid-column:1/-1;min-height:40px;
+ border:1px solid #486f94!important;background:#142d4b!important;
+ color:#bedaf2!important;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-native-library-label{display:none!important}
+#teacher #activityGrid .pixel-setup .pixel-studio-library-head{
+ margin:20px 0 12px;padding:0 2px;
+ color:#e8f9ff;font:950 16px/1.3 system-ui,sans-serif;letter-spacing:.06em;
+}
+#teacher #activityGrid .pixel-setup .orbit-saved-list{
+ display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));
+ gap:12px!important;max-width:100%;min-width:0;
+}
+#teacher #activityGrid .pixel-setup .orbit-saved-row.pixel-studio-saved-card{
+ display:grid!important;grid-template-columns:94px minmax(0,1fr);
+ grid-template-rows:auto auto;gap:8px 12px;align-items:start;min-width:0;
+ padding:11px!important;border:1px solid #488bb7!important;border-radius:14px!important;
+ background:linear-gradient(145deg,#123759,#091b35)!important;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-saved-thumb{
+ grid-column:1;grid-row:1/3;min-width:0;width:94px;height:94px;
+ display:grid;place-items:center;border:1px solid #396b95;border-radius:10px;
+ background:#051629;color:#72dfff;font-size:35px;overflow:hidden;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-saved-thumb img{
+ display:block;width:100%;height:100%;object-fit:contain;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-saved-card>div:nth-child(2){
+ grid-column:2;grid-row:1;min-width:0;display:grid;gap:6px;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-saved-card b{
+ color:#f3fbff;font:950 14px/1.35 system-ui,sans-serif;overflow-wrap:anywhere;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-saved-card small{
+ color:#b5d5ec!important;font:700 11px/1.4 system-ui,sans-serif!important;
+ overflow-wrap:anywhere;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-card-tag{
+ width:fit-content;max-width:100%;padding:4px 7px;border-radius:8px;
+ border:1px solid #4a879a;background:#133d51;color:#a9f5e3;
+ font:850 10px/1.2 system-ui,sans-serif;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-saved-card>div:last-child{
+ grid-column:2;grid-row:2;min-width:0;
+ display:flex!important;gap:7px;flex-wrap:wrap;align-items:end;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-saved-card button{
+ min-height:39px;min-width:0;padding:7px 10px;border-radius:8px;
+ color:#e4f6ff;font:900 11px/1.25 system-ui,sans-serif;
+ border:1px solid #68ace1;background:#1b4a70;cursor:pointer;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-saved-card [data-delete-pixel],
+#teacher #activityGrid .pixel-setup .pixel-studio-saved-card [data-pixel-studio-delete]{
+ background:#3b2038;border-color:#ab6479;color:#ffcad5;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-more{grid-column:1/-1;min-width:0}
+#teacher #activityGrid .pixel-setup .pixel-studio-more summary{
+ cursor:pointer;list-style-position:inside;padding:11px 14px;
+ border:1px solid #5987ac;border-radius:11px;
+ background:#153351;color:#d9f3ff;font:900 12px/1.5 system-ui,sans-serif;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-older-grid{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));
+ gap:11px;margin-top:12px;min-width:0;
+}
+#teacher #activityGrid .pixel-setup :is(.pixel-studio-more summary,
+ .pixel-studio-saved-card button,.pixel-save-actions button):focus-visible{
+ outline:3px solid #ffe69b!important;outline-offset:3px!important;
+}
+@media(max-width:450px){
+ #teacher #activityGrid .pixel-setup .pixel-save-actions{gap:7px;padding:9px}
+ #teacher #activityGrid .pixel-setup .pixel-save-actions button{min-height:50px;font-size:12px}
+ #teacher #activityGrid .pixel-setup .orbit-saved-row.pixel-studio-saved-card{
+  grid-template-columns:72px minmax(0,1fr);gap:7px;padding:8px!important;
+ }
+ #teacher #activityGrid .pixel-setup .pixel-studio-saved-thumb{width:72px;height:77px}
+}

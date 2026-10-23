@@ -63,6 +63,18 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.ok(organized.accepted.includes('Red apple'));
   assert.ok(organized.size.every(x=>x<200000),'batch uploads compressed for browser save');
   await page.locator('#savePixelBtn').click();
+  await page.locator('.pixel-studio-saved-card').first().waitFor();
+  assert.match(await page.locator('.pixel-studio-library-head').innerText(),/SAVED ACTIVITIES/);
+  assert.equal(await page.locator('.pixel-studio-saved-card img').count(),1,
+   'saved card shows an actual mystery image thumbnail');
+  assert.match(await page.locator('.pixel-studio-saved-card small').first().innerText(),
+   /3 images .* 3\/3 answers set/,
+   'saved card summarizes multiple rounds and completed answers');
+  assert.equal(await page.locator('[data-load-pixel]').first().innerText(),'Edit / Load',
+   'saved activity opens through the native edit/load control');
+  assert.equal(await page.locator('#launchPixelBtn').innerText(),'▶ Launch game',
+   'launch remains a distinct native action');
+  assert.match(await page.locator('.pixel-studio-save-state').innerText(),/Saved in this browser/);
   const saved=await page.evaluate(()=>loadSavedPixels().find(x=>x.name==='Giraffe Mystery'));
   assert.equal(saved?.images?.length,3,'saved activity includes all images');
   await page.reload({waitUntil:'domcontentloaded'});
@@ -371,6 +383,24 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    columns:getComputedStyle(document.querySelector('.pixel-batch-list')).gridTemplateColumns
   }));
   assert.ok(width.overflow<=3,'compact teacher batch organizer has no horizontal overflow');
+  // Saved activities beyond the eight native preview cards remain accessible.
+  await page.evaluate(()=>{
+   const source=loadSavedPixels()[0];
+   const older=Array.from({length:11},(_,i)=>({...source,
+    savedId:'pixel_fixture_'+i,name:'Archived Mystery '+i}));
+   localStorage.setItem(PIXEL_STORE,JSON.stringify(older));
+   renderActivities();
+  });
+  await page.locator('.pixel-studio-more summary').click();
+  assert.equal(await page.locator('[data-pixel-studio-load]').count(),3,
+   'all eleven saved records remain accessible beyond the first eight');
+  await page.locator('[data-pixel-studio-load]').last().click();
+  assert.equal(await page.evaluate(()=>state.pixelDraft.name),'Archived Mystery 10',
+   'older saved activities load through the same teacher editor');
+  await page.locator('#pixelName').fill('Edited Archived Mystery');
+  assert.match(await page.locator('.pixel-studio-save-state').innerText(),/Changes not saved/);
+  assert.ok((await page.locator('.pixel-setup').evaluate(e=>e.scrollWidth-e.clientWidth))<=3,
+   'compact saved-library and studio actions do not overflow');
   assert.deepEqual(errors,[],'no PIXEL REVEAL browser errors');
   console.log('PIXEL batch upload + per-image answers + save/reload + teacher navigation PASSED',
    JSON.stringify({organized,second,first,width}));

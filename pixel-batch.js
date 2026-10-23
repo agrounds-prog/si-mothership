@@ -125,6 +125,141 @@
   selectImage(d,Math.min(index,d.images.length-1),false);
   renderActivities();
  }
+
+ // Phase 4M-C: improve the native PIXEL REVEAL library and Save/Launch
+ // affordances without replacing server sync, browser storage, or handlers.
+ function studioRounds(entry){
+  return Array.isArray(entry?.images)&&entry.images.length?entry.images:[entry];
+ }
+ function studioSignature(entry){
+  if(!entry)return '';
+  const rounds=studioRounds(entry),selected=validIndex(entry.imageIndex||0,rounds.length);
+  return JSON.stringify([
+   String(entry.name||'').trim(),entry.revealStyle||'',entry.difficulty||'',
+   entry.scoring||'',!!entry.allowUpdates,
+   rounds.map((item,i)=>{
+    const image=String(item.image||'');
+    return [image.length,image.slice(0,80),image.slice(-80),
+     i===selected?String(entry.answer||''):String(item.answer||''),
+     i===selected?copyAnswers(entry.acceptedAnswers):copyAnswers(item.acceptedAnswers)];
+   })
+  ]);
+ }
+ function studioSavedMeta(saved){
+  const rounds=studioRounds(saved),answered=rounds.filter(item=>String(item.answer||'').trim()).length;
+  return {rounds,answered,
+   description:rounds.length+' image'+(rounds.length===1?'':'s')+
+    ' · '+answered+'/'+rounds.length+' answers set · '+
+    (saved.revealStyle==='focus'?'Focus reveal':'Tile reveal')};
+ }
+ function decorateSavedRow(row,saved){
+  if(!row||!saved||row.dataset.pixelStudioCard)return;
+  row.dataset.pixelStudioCard='1';
+  row.classList.add('pixel-studio-saved-card');
+  const meta=studioSavedMeta(saved);
+  const thumb=document.createElement('div');
+  thumb.className='pixel-studio-saved-thumb';
+  const first=meta.rounds[0]?.image;
+  if(typeof first==='string'&&/^(data:image\/(?:png|jpeg|webp|gif|bmp);base64,|\/)/i.test(first)){
+   const img=document.createElement('img');
+   img.src=first;img.alt='';img.loading='lazy';img.decoding='async';
+   thumb.appendChild(img);
+  }else thumb.textContent='▦';
+  row.prepend(thumb);
+  const info=row.children[1];
+  if(info){
+   const details=info.querySelector('small');
+   if(details)details.textContent=meta.description;
+   const tag=document.createElement('span');
+   tag.className='pixel-studio-card-tag';
+   tag.textContent=meta.answered===meta.rounds.length?'Answers ready':'Set remaining answers';
+   info.appendChild(tag);
+  }
+  const edit=row.querySelector('[data-load-pixel], [data-pixel-studio-load]');
+  if(edit){
+   edit.textContent='Edit / Load';
+   edit.setAttribute('aria-label','Edit or load '+String(saved.name||'saved activity'));
+  }
+  const remove=row.querySelector('[data-delete-pixel], [data-pixel-studio-delete]');
+  if(remove){
+   remove.textContent='Delete';
+   remove.setAttribute('aria-label','Delete '+String(saved.name||'saved activity'));
+   remove.setAttribute('title','Delete this saved activity from this browser');
+  }
+ }
+ function enhanceSavedStudio(setup,d){
+  const actions=setup.querySelector('.pixel-save-actions');
+  if(!actions)return;
+  let heading=setup.querySelector('.pixel-studio-finish');
+  if(!heading){
+   heading=document.createElement('section');
+   heading.className='pixel-studio-finish';
+   heading.innerHTML='<strong>READY TO SAVE OR LAUNCH?</strong>'+
+    '<p>Save keeps this activity in this browser. Launch starts the classroom game.</p>'+
+    '<div class="pixel-studio-save-state" role="status" aria-live="polite"></div>';
+   actions.before(heading);
+  }
+  const save=actions.querySelector('#savePixelBtn');
+  const launch=actions.querySelector('#launchPixelBtn');
+  const preset=actions.querySelector('#savePixelPresetBtn');
+  if(save)save.textContent=d.savedId?'▣ Save changes':'▣ Save activity';
+  if(launch)launch.textContent='▶ Launch game';
+  if(preset)preset.textContent='▤ Save preset';
+  const stored=typeof loadSavedPixels==='function'?loadSavedPixels():[];
+  const current=stored.find(item=>item.savedId&&item.savedId===d.savedId);
+  const synced=!!current&&studioSignature(current)===studioSignature(d);
+  const meta=studioSavedMeta(d);
+  const status=heading.querySelector('.pixel-studio-save-state');
+  const message=(synced?'✓ Saved in this browser':current?'● Changes not saved':'○ New unsaved activity')+
+   (meta.answered<meta.rounds.length?' · '+(meta.rounds.length-meta.answered)+' image answer'+
+    (meta.rounds.length-meta.answered===1?'':'s')+' missing':' · Answers ready');
+  if(status.textContent!==message)status.textContent=message;
+  status.dataset.saved=synced?'yes':'no';
+  const nativeList=setup.querySelector('.orbit-saved-list');
+  if(!nativeList)return;
+  let libraryHead=setup.querySelector('.pixel-studio-library-head');
+  if(!libraryHead){
+   libraryHead=document.createElement('div');
+   libraryHead.className='pixel-studio-library-head';
+   nativeList.before(libraryHead);
+   const nativeLabel=nativeList.previousElementSibling===libraryHead?
+    libraryHead.previousElementSibling:null;
+   if(nativeLabel?.classList.contains('vector-label'))nativeLabel.classList.add('pixel-studio-native-library-label');
+  }
+  libraryHead.textContent='SAVED ACTIVITIES · '+stored.length+' / 20';
+  const nativeRows=[...nativeList.children].filter(node=>node.classList?.contains('orbit-saved-row'));
+  nativeRows.forEach(row=>{
+   const id=row.querySelector('[data-load-pixel]')?.getAttribute('data-load-pixel');
+   decorateSavedRow(row,stored.find(item=>String(item.savedId)===id));
+  });
+  if(stored.length>nativeRows.length&&!nativeList.querySelector('.pixel-studio-more')){
+   const more=document.createElement('details');
+   more.className='pixel-studio-more';
+   const summary=document.createElement('summary');
+   summary.textContent='Show '+(stored.length-nativeRows.length)+' older saved activities';
+   more.appendChild(summary);
+   const older=document.createElement('div');
+   older.className='pixel-studio-older-grid';
+   for(const entry of stored.slice(nativeRows.length)){
+    const row=document.createElement('div');
+    row.className='orbit-saved-row';
+    const info=document.createElement('div');
+    const name=document.createElement('b');
+    name.textContent=String(entry.name||'Untitled Pixel Reveal');
+    const detail=document.createElement('small');
+    info.append(name,detail);
+    const controls=document.createElement('div');
+    const edit=document.createElement('button');
+    edit.type='button';edit.setAttribute('data-pixel-studio-load',String(entry.savedId));
+    const remove=document.createElement('button');
+    remove.type='button';remove.setAttribute('data-pixel-studio-delete',String(entry.savedId));
+    controls.append(edit,remove);row.append(info,controls);
+    decorateSavedRow(row,entry);
+    older.appendChild(row);
+   }
+   more.appendChild(older);nativeList.appendChild(more);
+  }
+ }
  function enhanceSetup(){
   const setup=document.querySelector('#activityGrid .pixel-setup');
   if(!setup||busy)return;
@@ -159,6 +294,7 @@
    accepted.dataset.pixelBatchWired='true';
    accepted.addEventListener('input',()=>{d.images[d.imageIndex].acceptedAnswers=copyAnswers(d.acceptedAnswers)});
   }
+  enhanceSavedStudio(setup,d);
   if(setup.querySelector('.pixel-batch-manager'))return;
   const preview=setup.querySelector('.pixel-setup-preview');
   if(!preview)return;
@@ -535,9 +671,29 @@
    item.acceptedAnswers=copyAnswers(d.acceptedAnswers);
   }
  });
+ document.addEventListener('input',e=>{
+  if(['pixelName','pixelAnswer','pixelAcceptedAnswers'].includes(e.target.id))schedule();
+ });
  document.addEventListener('click',e=>{
   const btn=e.target.closest('button');
   if(!btn)return;
+  // Native save has already completed at the button before document bubbling.
+  // Repaint only after a successful local-storage save so its library card appears.
+  if(btn.id==='savePixelBtn'){
+   if(state.screen==='activities'&&state.activeApp==='pixel'&&
+      loadSavedPixels().some(entry=>entry.savedId&&entry.savedId===state.pixelDraft?.savedId))
+    renderActivities();
+   return;
+  }
+  if(btn.hasAttribute('data-pixel-studio-load')){
+   const entry=loadSavedPixels().find(item=>String(item.savedId)===btn.getAttribute('data-pixel-studio-load'));
+   if(entry){state.pixelDraft=structuredClone(entry);renderActivities();toast('Saved PIXEL REVEAL loaded')}
+   return;
+  }
+  if(btn.hasAttribute('data-pixel-studio-delete')){
+   deleteSavedPixel(btn.getAttribute('data-pixel-studio-delete'));
+   return;
+  }
   if(btn.matches('[data-pixel-round-prev]'))return switchRound((state.activityRun.pixelImageIndex||0)-1);
   if(btn.matches('[data-pixel-round-next]'))return switchRound((state.activityRun.pixelImageIndex||0)+1);
   const d=state.activeApp==='pixel'?currentDraft():null;
@@ -558,5 +714,5 @@
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
  else boot();
- window.SIPixelBatch={version:'4e',upload,normalize,switchRound,snapshot,enhanceCinematic,enhanceStudent,MAX_IMAGES};
+ window.SIPixelBatch={version:'4m-c',upload,normalize,switchRound,snapshot,enhanceCinematic,enhanceStudent,MAX_IMAGES};
 })();
