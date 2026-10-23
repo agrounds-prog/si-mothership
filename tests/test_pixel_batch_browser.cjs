@@ -77,6 +77,8 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.match(await page.locator('.pixel-studio-save-state').innerText(),/Saved in this browser/);
   const saved=await page.evaluate(()=>loadSavedPixels().find(x=>x.name==='Giraffe Mystery'));
   assert.equal(saved?.images?.length,3,'saved activity includes all images');
+  assert.ok(saved.images[1].acceptedAnswers.includes('Train'),
+   'native save preserves the current image primary answer as accepted');
   await page.reload({waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.SIPixelBatch&&typeof render==='function',null,{timeout:20000});
   await setup();
