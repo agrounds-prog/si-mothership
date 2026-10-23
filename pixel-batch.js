@@ -425,6 +425,20 @@
   if(footer)footer.insertAdjacentHTML('afterbegin',
    '<span class="pixel-teacher-session-label">SESSION ACTIONS</span>');
  }
+ // Save all current-round answers alongside the native saved draft.
+ // The legacy save normalizes the primary accepted answer, but without this
+ // synchronization the image entry could lag behind the saved root fields.
+ const originalSave=typeof savePixelDraft==='function'?savePixelDraft:null;
+ if(originalSave){
+  savePixelDraft=function(){
+   const d=currentDraft();
+   const answer=String(d.answer||'').trim();
+   if(answer&&!copyAnswers(d.acceptedAnswers).some(value=>
+     pixelAnswerKey(value)===pixelAnswerKey(answer)))d.acceptedAnswers.unshift(answer);
+   syncAnswer(d);
+   originalSave();
+  };
+ }
  const originalLaunch=typeof launchPixel==='function'?launchPixel:null;
  if(originalLaunch){
   launchPixel=function(){
