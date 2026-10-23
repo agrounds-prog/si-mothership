@@ -686,7 +686,12 @@
   }
  });
  document.addEventListener('input',e=>{
-  if(['pixelName','pixelAnswer','pixelAcceptedAnswers'].includes(e.target.id))schedule();
+  if(!['pixelName','pixelAnswer','pixelAcceptedAnswers'].includes(e.target.id))return;
+  // Native field handlers ran at target phase. Refresh status now so Save
+  // never displays a stale state while the teacher is editing a field.
+  const setup=document.querySelector('#activityGrid .pixel-setup');
+  if(setup&&state.activeApp==='pixel')enhanceSavedStudio(setup,currentDraft());
+  else schedule();
  });
  document.addEventListener('click',e=>{
   const btn=e.target.closest('button');
