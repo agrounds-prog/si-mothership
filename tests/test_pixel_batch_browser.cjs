@@ -44,6 +44,15 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(await page.locator('#pixelImageFile').inputValue(),'',
    'teacher can retry the same selected files after an upload');
   assert.equal(await page.locator('.pixel-batch-item').count(),3);
+  assert.match(await page.locator('.pixel-studio-round-progress strong').innerText(),
+   /0 of 3 image answers ready/,'fresh images show missing answers');
+  assert.equal(await page.locator('.pixel-batch-item[data-answer-ready="no"]').count(),3,
+   'all uploaded images are flagged as requiring a main answer');
+  await page.locator('[data-pixel-next-missing]').click();
+  assert.equal(await page.evaluate(()=>state.pixelDraft.imageIndex),1,
+   'next missing answer shortcut selects the next unanswered image');
+  assert.match(await page.locator('#pixel-studio-answer-help').innerText(),/Image 2 of 3/);
+  await page.locator('[data-pixel-batch-select="0"]').click();
   assert.equal(await page.locator('.pixel-batch-pick[aria-pressed="true"]').count(),1);
   await page.locator('#pixelAnswer').fill('Apple');
   await page.locator('#pixelAcceptedAnswers').fill('Apple\nRed apple');
@@ -59,6 +68,12 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    size:state.pixelDraft.images.map(x=>x.image.length)
   }));
   assert.deepEqual(organized.answers,['Apple','Train','Boat']);
+  assert.equal(await page.locator('.pixel-batch-item[data-answer-ready="yes"]').count(),3,
+   'each image thumbnail reflects its configured answer');
+  assert.match(await page.locator('.pixel-studio-round-progress strong').innerText(),
+   /3 of 3 image answers ready/);
+  assert.equal(await page.locator('[data-pixel-next-missing]').isDisabled(),true,
+   'the next-missing shortcut becomes disabled when all images are answered');
   assert.equal(organized.selected,1);
   assert.ok(organized.accepted.includes('Red apple'));
   assert.ok(organized.size.every(x=>x<200000),'batch uploads compressed for browser save');
@@ -75,6 +90,14 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(await page.locator('#launchPixelBtn').innerText(),'▶ Launch game',
    'launch remains a distinct native action');
   assert.match(await page.locator('.pixel-studio-save-state').innerText(),/Saved in this browser/);
+  assert.equal(await page.locator('#pixelStudioSearch').count(),1);
+  await page.locator('#pixelStudioSearch').fill('does not exist');
+  assert.equal(await page.locator('.pixel-studio-saved-card:visible').count(),0,
+   'saved-activity search hides nonmatching cards without deleting them');
+  await page.locator('#pixelStudioSearch').fill('Giraffe Mystery');
+  assert.equal(await page.locator('.pixel-studio-saved-card:visible').count(),1,
+   'saved-activity search finds the matching mystery');
+  await page.locator('#pixelStudioSearch').fill('');
   const saved=await page.evaluate(()=>loadSavedPixels().find(x=>x.name==='Giraffe Mystery'));
   assert.equal(saved?.images?.length,3,'saved activity includes all images');
   assert.ok(saved.images[1].acceptedAnswers.includes('Train'),
@@ -394,6 +417,13 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    renderActivities();
   });
   await page.locator('.pixel-studio-more summary').click();
+  await page.locator('#pixelStudioSearch').fill('Archived Mystery 10');
+  assert.equal(await page.locator('.pixel-studio-saved-card:visible').count(),1,
+   'saved-activity search includes older activities and expands matching results');
+  assert.equal(await page.locator('.pixel-studio-more').getAttribute('open'),'',
+   'older results open automatically during search');
+  await page.locator('#pixelStudioSearch').fill('');
+  
   assert.equal(await page.locator('[data-pixel-studio-load]').count(),3,
    'all eleven saved records remain accessible beyond the first eight');
   await page.locator('[data-pixel-studio-load]').last().click();

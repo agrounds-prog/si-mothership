@@ -155,6 +155,7 @@
  function decorateSavedRow(row,saved){
   if(!row||!saved||row.dataset.pixelStudioCard)return;
   row.dataset.pixelStudioCard='1';
+  row.dataset.pixelStudioName=String(saved.name||'');
   row.classList.add('pixel-studio-saved-card');
   const meta=studioSavedMeta(saved);
   const thumb=document.createElement('div');
@@ -185,6 +186,96 @@
    remove.textContent='Delete';
    remove.setAttribute('aria-label','Delete '+String(saved.name||'saved activity'));
    remove.setAttribute('title','Delete this saved activity from this browser');
+  }
+ }
+
+ // Phase 4M-D: teacher-only readiness and saved-library discovery.
+ // No changes to activity persistence, lobby launch, or the student view.
+ let savedLibraryQuery='';
+ function studioProgress(d){
+  const rounds=studioRounds(d);
+  const complete=rounds.map((item,i)=>Boolean(String(
+   i===d.imageIndex?d.answer??item.answer:item.answer||''
+  ).trim()));
+  return {complete,answered:complete.filter(Boolean).length,total:rounds.length};
+ }
+ function updateStudioRoundStatus(setup,d){
+  const manager=setup.querySelector('.pixel-batch-manager');
+  if(!manager)return;
+  const progress=studioProgress(d);
+  let bar=manager.querySelector('.pixel-studio-round-progress');
+  if(!bar){
+   bar=document.createElement('div');bar.className='pixel-studio-round-progress';
+   bar.innerHTML='<div class="pixel-studio-round-progress-line"><strong></strong>'+
+    '<span class="pixel-studio-progress-meter" role="progressbar" aria-label="Image answers completed" aria-valuemin="0">'+
+    '<i></i></span></div><button type="button" data-pixel-next-missing></button>';
+   manager.querySelector('.pixel-batch-list')?.before(bar);
+  }
+  const count=bar.querySelector('strong');
+  const summary=progress.answered+' of '+progress.total+' image answers ready';
+  if(count.textContent!==summary)count.textContent=summary;
+  const meter=bar.querySelector('[role="progressbar"]');
+  meter.setAttribute('aria-valuenow',String(progress.answered));
+  meter.setAttribute('aria-valuemax',String(progress.total));
+  meter.querySelector('i').style.width=(100*progress.answered/progress.total)+'%';
+  const current=validIndex(d.imageIndex,progress.total);
+  const next=progress.complete.findIndex((ready,i)=>!ready&&i>current);
+  const wrap=next<0?progress.complete.findIndex((ready,i)=>!ready&&i<current):next;
+  const nextButton=bar.querySelector('[data-pixel-next-missing]');
+  const target=next>=0?next:wrap;
+  nextButton.disabled=target<0;
+  nextButton.dataset.targetIndex=String(target);
+  nextButton.textContent=target>=0?'→ Go to image '+(target+1)+' missing an answer':
+   progress.answered===progress.total?'✓ All answers ready':'Finish this image answer';
+  manager.querySelectorAll('.pixel-batch-item').forEach((row,i)=>{
+   const ready=progress.complete[i];
+   row.dataset.answerReady=ready?'yes':'no';
+   const button=row.querySelector('.pixel-batch-pick');
+   if(!button)return;
+   let status=row.querySelector('.pixel-studio-round-status');
+   if(!status){
+    status=document.createElement('span');status.className='pixel-studio-round-status';
+    button.appendChild(status);
+   }
+   const label=ready?'✓ Answer ready':'○ Needs answer';
+   if(status.textContent!==label)status.textContent=label;
+   button.setAttribute('aria-label','Edit image '+(i+1)+': '+(ready?'answer ready':'needs answer'));
+  });
+  const answer=setup.querySelector('#pixelAnswer');
+  if(answer){
+   let help=setup.querySelector('#pixel-studio-answer-help');
+   if(!help){
+    help=document.createElement('p');help.id='pixel-studio-answer-help';
+    help.className='pixel-studio-answer-help';
+    answer.after(help);
+   }
+   const words='Image '+(current+1)+' of '+progress.total+
+    ' · Enter the main answer for this picture. Add alternate answers below, one per line.';
+   if(help.textContent!==words)help.textContent=words;
+   answer.setAttribute('aria-describedby','pixel-studio-answer-help');
+  }
+ }
+ function applySavedLibraryQuery(setup){
+  const list=setup.querySelector('.orbit-saved-list');
+  if(!list)return;
+  const query=savedLibraryQuery.trim().toLocaleLowerCase();
+  let visible=0;
+  const cards=[...list.querySelectorAll('.pixel-studio-saved-card')];
+  for(const card of cards){
+   const matches=(card.dataset.pixelStudioName||'').toLocaleLowerCase().includes(query);
+   card.hidden=!matches;
+   if(matches)visible++;
+  }
+  const older=list.querySelector('.pixel-studio-more');
+  if(older){
+   const anyOlder=[...older.querySelectorAll('.pixel-studio-saved-card')].some(card=>!card.hidden);
+   older.hidden=!anyOlder;
+   if(query&&anyOlder)older.open=true;
+  }
+  const count=setup.querySelector('.pixel-studio-search-count');
+  if(count){
+   const line=visible+' of '+cards.length+' saved activities'+(query?' match':'');
+   if(count.textContent!==line)count.textContent=line;
   }
  }
  function enhanceSavedStudio(setup,d){
@@ -227,6 +318,25 @@
    if(nativeLabel?.classList.contains('vector-label'))nativeLabel.classList.add('pixel-studio-native-library-label');
   }
   libraryHead.textContent='SAVED ACTIVITIES · '+stored.length+' / 20';
+  let search=setup.querySelector('#pixelStudioSearch');
+  if(!search){
+   const searchWrap=document.createElement('div');
+   searchWrap.className='pixel-studio-search-wrap';
+   const searchLabel=document.createElement('label');
+   searchLabel.setAttribute('for','pixelStudioSearch');
+   searchLabel.textContent='Find a saved mystery';
+   search=document.createElement('input');
+   search.type='search';search.id='pixelStudioSearch';
+   search.setAttribute('autocomplete','off');
+   search.setAttribute('placeholder','Search by activity name');
+   search.setAttribute('aria-label','Find saved PIXEL REVEAL activities');
+   const searchCount=document.createElement('span');
+   searchCount.className='pixel-studio-search-count';
+   searchCount.setAttribute('role','status');
+   searchWrap.append(searchLabel,search,searchCount);
+   libraryHead.after(searchWrap);
+   search.value=savedLibraryQuery;
+  }
   const nativeRows=[...nativeList.children].filter(node=>node.classList?.contains('orbit-saved-row'));
   nativeRows.forEach(row=>{
    const id=row.querySelector('[data-load-pixel]')?.getAttribute('data-load-pixel');
@@ -259,6 +369,7 @@
    }
    more.appendChild(older);nativeList.appendChild(more);
   }
+  applySavedLibraryQuery(setup);
  }
  function enhanceSetup(){
   const setup=document.querySelector('#activityGrid .pixel-setup');
@@ -295,7 +406,9 @@
    accepted.addEventListener('input',()=>{d.images[d.imageIndex].acceptedAnswers=copyAnswers(d.acceptedAnswers)});
   }
   enhanceSavedStudio(setup,d);
-  if(setup.querySelector('.pixel-batch-manager'))return;
+  if(setup.querySelector('.pixel-batch-manager')){
+   updateStudioRoundStatus(setup,d);return;
+  }
   const preview=setup.querySelector('.pixel-setup-preview');
   if(!preview)return;
   const manager=document.createElement('section');
@@ -332,6 +445,7 @@
   manager.insertBefore(guide,manager.querySelector('.pixel-batch-list'));
   const count=heading?.querySelector('strong');
   if(count)count.setAttribute('aria-label',d.images.length+' of '+MAX_IMAGES+' image rounds');
+  updateStudioRoundStatus(setup,d);
  }
  function snapshot(run){
   return {pixelGuesses:structuredClone(run.pixelGuesses||{}),
@@ -686,11 +800,19 @@
   }
  });
  document.addEventListener('input',e=>{
+  if(e.target.id==='pixelStudioSearch'){
+   savedLibraryQuery=e.target.value;
+   applySavedLibraryQuery(document.querySelector('#activityGrid .pixel-setup'));
+   return;
+  }
   if(!['pixelName','pixelAnswer','pixelAcceptedAnswers'].includes(e.target.id))return;
   // Native field handlers ran at target phase. Refresh status now so Save
   // never displays a stale state while the teacher is editing a field.
   const setup=document.querySelector('#activityGrid .pixel-setup');
-  if(setup&&state.activeApp==='pixel')enhanceSavedStudio(setup,currentDraft());
+  if(setup&&state.activeApp==='pixel'){
+   const d=currentDraft();enhanceSavedStudio(setup,d);
+   updateStudioRoundStatus(setup,d);
+  }
   else schedule();
  });
  document.addEventListener('click',e=>{
@@ -717,6 +839,13 @@
   if(btn.matches('[data-pixel-round-next]'))return switchRound((state.activityRun.pixelImageIndex||0)+1);
   const d=state.activeApp==='pixel'?currentDraft():null;
   if(!d)return;
+  if(btn.matches('[data-pixel-next-missing]')){
+   const target=Number(btn.dataset.targetIndex);
+   if(!btn.disabled&&Number.isInteger(target)&&target>=0&&target<d.images.length){
+    selectImage(d,target);renderActivities();
+   }
+   return;
+  }
   for(const [attr,fn] of [
    ['data-pixel-batch-select',i=>{selectImage(d,i);renderActivities()}],
    ['data-pixel-batch-left',i=>reorder(d,i,-1)],
@@ -733,5 +862,5 @@
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
  else boot();
- window.SIPixelBatch={version:'4m-c',upload,normalize,switchRound,snapshot,enhanceCinematic,enhanceStudent,MAX_IMAGES};
+ window.SIPixelBatch={version:'4m-d',upload,normalize,switchRound,snapshot,enhanceCinematic,enhanceStudent,MAX_IMAGES};
 })();

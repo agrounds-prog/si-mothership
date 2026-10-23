@@ -1199,3 +1199,84 @@ body.role-student:has(#studentContent .pixel-student-locked) .student-control-zo
  }
  #teacher #activityGrid .pixel-setup .pixel-studio-saved-thumb{width:72px;height:77px}
 }
+
+/* Phase 4M-D · simple image-answer guidance and saved-activity search.
+   All selectors remain inside the teacher PIXEL REVEAL studio. */
+#teacher #activityGrid .pixel-setup .pixel-studio-answer-help{
+ color:#b8def3;font:700 11px/1.5 system-ui,sans-serif;
+ margin:5px 0 11px;padding:8px 10px;border-left:3px solid #65c7ee;
+ border-radius:0 7px 7px 0;background:#0a2a43;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-round-progress{
+ display:grid;gap:10px;margin:2px 0 14px;padding:12px;
+ border:1px solid #39799f;border-radius:12px;background:#092a45;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-round-progress-line{
+ display:grid;gap:9px;grid-template-columns:minmax(0,1fr) minmax(80px,35%);
+ align-items:center;min-width:0;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-round-progress-line strong{
+ font:900 12px/1.4 system-ui,sans-serif;color:#e5f8ff;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-progress-meter{
+ height:10px;border-radius:999px;background:#04192c;overflow:hidden;
+ border:1px solid #457f9d;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-progress-meter i{
+ display:block;height:100%;width:0;border-radius:999px;
+ background:linear-gradient(90deg,#6bcbf8,#8bffe4);
+ transition:width .2s ease;
+}
+#teacher #activityGrid .pixel-setup [data-pixel-next-missing]{
+ min-height:39px;max-width:100%;padding:7px 12px;justify-self:start;
+ border:1px solid #65bed9;border-radius:9px;
+ background:#154566;color:#eafcff;font:900 11px/1.4 system-ui,sans-serif;
+ cursor:pointer;
+}
+#teacher #activityGrid .pixel-setup [data-pixel-next-missing]:disabled{
+ cursor:default;color:#a3c6d1;background:#123447;border-color:#3e748b;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-round-status{
+ display:block;width:100%;padding:5px 6px;border:1px solid #a9eccc;
+ border-radius:7px;background:#143b41;color:#a9ffe5;
+ font:850 10px/1.25 system-ui,sans-serif;
+}
+#teacher #activityGrid .pixel-setup .pixel-batch-item[data-answer-ready="no"] .pixel-studio-round-status{
+ border-color:#b08c69;background:#433023;color:#ffdda9;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-search-wrap{
+ display:grid;grid-template-columns:minmax(0,1fr) auto;
+ gap:6px 12px;align-items:end;min-width:0;
+ margin:0 0 14px;padding:12px;
+ border:1px solid #457f9e;border-radius:12px;background:#0b2942;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-search-wrap label{
+ grid-column:1/-1;color:#cbeefe;font:850 11px/1.2 system-ui,sans-serif;
+}
+#teacher #activityGrid .pixel-setup #pixelStudioSearch{
+ grid-column:1;min-height:42px;width:100%;min-width:0;
+ border:1px solid #6da9c9;border-radius:9px;padding:9px 12px;
+ background:#06192b;color:#f2faff;font:750 12px system-ui,sans-serif;
+}
+#teacher #activityGrid .pixel-setup #pixelStudioSearch::placeholder{color:#9bbdd1}
+#teacher #activityGrid .pixel-setup .pixel-studio-search-count{
+ grid-column:2;align-self:center;color:#abd4ec;
+ font:800 11px/1.4 system-ui,sans-serif;white-space:normal;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-saved-card[hidden],
+#teacher #activityGrid .pixel-setup .pixel-studio-more[hidden]{
+ display:none!important;
+}
+@media(max-width:600px){
+ #teacher #activityGrid .pixel-setup .pixel-studio-search-wrap{
+  grid-template-columns:minmax(0,1fr);
+ }
+ #teacher #activityGrid .pixel-setup #pixelStudioSearch,
+ #teacher #activityGrid .pixel-setup .pixel-studio-search-count{
+  grid-column:1;
+ }
+ #teacher #activityGrid .pixel-setup .pixel-studio-search-count{justify-self:start}
+}
+@media(prefers-reduced-motion:reduce){
+ #teacher #activityGrid .pixel-setup .pixel-studio-progress-meter i{transition:none}
+}
