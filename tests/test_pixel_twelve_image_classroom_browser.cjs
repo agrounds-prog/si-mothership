@@ -185,6 +185,8 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   const student=await page.evaluate(()=>{
    const run=state.activityRun;
    run.pixelGuesses={};run.pixelShowResults=false;run.pixelRevealAll=false;
+   // Single-submission classroom mode displays a locked receipt after Send.
+   run.pixelConfig.allowUpdates=false;
    run.phase='running';state.selectedStudent='Alex';
    state.students=[{n:'Alex',offline:false},{n:'Blair',offline:false}];
    state.screen='activity';
