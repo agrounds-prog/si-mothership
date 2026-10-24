@@ -1,0 +1,57 @@
+name: Crew Survey Verbal and Mixed-Mode Browser Verification
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'server.py'
+      - 'bingo-board-studio.js'
+      - 'bingo-board-studio.css'
+      - 'tests/test_crew_survey_server.py'
+      - 'tests/test_teacher_remaining_setup_workflows_browser.cjs'
+      - '.github/workflows/crew-survey-verbal.yml'
+  workflow_dispatch:
+
+permissions: {contents: read}
+jobs:
+  survey-verbal-mixed:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      MOTHERSHIP_NO_BROWSER: '1'
+      MOTHERSHIP_DATA_DIR: /tmp/mothership-crew-verbal
+      LOCAL_URL: http://127.0.0.1:8883
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Source syntax and release gate
+        run: |
+          node --check bingo-board-studio.js
+          node --check tests/test_teacher_remaining_setup_workflows_browser.cjs
+          python -m py_compile server.py tests/test_crew_survey_server.py
+          python scripts/release_gate.py --require-node
+      - name: Install isolated classroom dependencies
+        run: |
+          pip install -r requirements.txt
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Spoken answer server authority and legacy text mode
+        run: python -m unittest discover -s tests -p test_crew_survey_server.py -v
+      - name: Launch disposable localhost classroom
+        run: |
+          mkdir -p /tmp/mothership-crew-verbal
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-crew-verbal PORT=8883 python server.py >/tmp/crew-verbal.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8883/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          tail -90 /tmp/crew-verbal.log
+          exit 1
+      - name: Crew Survey save/reload, verbal approval and three mixed-mode rounds
+        run: LOCAL_URL=http://127.0.0.1:8883 node tests/test_teacher_remaining_setup_workflows_browser.cjs
+      - name: Classroom diagnostics on failure
+        if: failure()
+        run: tail -140 /tmp/crew-verbal.log || true

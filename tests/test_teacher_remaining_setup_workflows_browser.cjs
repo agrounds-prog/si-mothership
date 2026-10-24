@@ -441,6 +441,85 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   });
   assert.deepEqual(typed,{mode:'type',hasInput:true},
    'older saved typed games retain their normal student answer field');
+
+  // Full saved 3-board dress rehearsal: spoken -> typed/AAC -> spoken.
+  // The prior round's score persists and the answer-input controls switch
+  // with each board rather than staying stuck in the starting game's mode.
+  await launchSetup('crew-survey');
+  await page.locator('#surveyNewBoard').click();
+  await page.locator('#crewSurveyPrompt').fill('Name a way to help a friend.');
+  for(const [i,word] of ['Listen','Share','Invite','Encourage'].entries()){
+   await page.locator('[data-cs-answer-text="'+i+'"]').fill(word);
+   await page.locator('[data-cs-answer-value="'+i+'"]').fill(String(20-i*5));
+  }
+  await page.locator('[name="crewSurveyAnswerMode"][value="verbal"]').check();
+  await page.locator('#surveyBoardName').fill('Verbal Friendship Board');
+  await page.locator('#surveySaveBoard').click();
+  const friendship=page.locator('.survey-studio-board .survey-library-item')
+   .filter({hasText:'Verbal Friendship Board'});
+  await friendship.waitFor();
+  const friendshipId=await friendship.locator('[data-survey-add-round]')
+   .getAttribute('data-survey-add-round');
+  await page.locator('#surveyNewGame').click();
+  await page.locator('[data-survey-length="3"]').click();
+  await page.locator('[data-survey-round="0"]').selectOption(verbalBoardId);
+  await page.locator('[data-survey-round="1"]').selectOption(boardId);
+  await page.locator('[data-survey-round="2"]').selectOption(friendshipId);
+  assert.match(await page.locator('.survey-builder-readiness').innerText(),/3 \/ 3 ROUNDS READY/);
+  await page.locator('#surveyGameName').fill('Three Round Mixed Answer Mode QA');
+  await page.locator('#surveySaveGame').click();
+  await page.locator('.survey-studio-game .survey-library-item')
+   .filter({hasText:'Three Round Mixed Answer Mode QA'}).waitFor();
+  await reload();await launchSetup('crew-survey');
+  const mixedGame=page.locator('.survey-studio-game .survey-library-item')
+   .filter({hasText:'Three Round Mixed Answer Mode QA'});
+  assert.match(await mixedGame.innerText(),/Buzz \+ Speak/);
+  await mixedGame.locator('[data-survey-play-game]').click();
+  const modeFlow=await page.evaluate(()=>{
+   const r=state.activityRun;
+   const initial={mode:r.crewSurveyConfig.answerMode,round:r.crewSurveyRoundIndex,total:r.crewSurveyTotal,
+    buzz:crewSurveyStudentMarkup(r,{n:r.crewSurvey.buzzer.eligible[0]}).includes('id="crewSurveyBuzzBtn"')};
+   let cs=r.crewSurvey;
+   cs.buzzer.winner=cs.buzzer.eligible[0];cs.buzzer.armed=false;
+   const firstStudent=crewSurveyStudentMarkup(r,{n:cs.buzzer.winner});
+   crewSurveyReveal(0);crewSurveyAwardRound(0);
+   const firstScore=[...cs.scores];
+   crewSurveyNewRound();
+   cs=r.crewSurvey;
+   const second={mode:r.crewSurveyConfig.answerMode,round:r.crewSurveyRoundIndex,
+    prompt:r.crewSurveyConfig.prompt,buzzArmed:cs.buzzer.armed,scores:[...cs.scores]};
+   cs.buzzer.winner=cs.buzzer.eligible[0];cs.buzzer.armed=false;
+   const secondStudent=crewSurveyStudentMarkup(r,{n:cs.buzzer.winner});
+   crewSurveyReveal(0);crewSurveyAwardRound(0);
+   const secondScore=[...cs.scores];
+   crewSurveyNewRound();
+   cs=r.crewSurvey;
+   const third={mode:r.crewSurveyConfig.answerMode,round:r.crewSurveyRoundIndex,
+    prompt:r.crewSurveyConfig.prompt,buzzArmed:cs.buzzer.armed,scores:[...cs.scores]};
+   cs.buzzer.winner=cs.buzzer.eligible[0];cs.buzzer.armed=false;
+   const thirdStudent=crewSurveyStudentMarkup(r,{n:cs.buzzer.winner});
+   return {initial,firstSpoken:firstStudent.includes('SAY YOUR ANSWER OUT LOUD'),
+    firstNoInput:!firstStudent.includes('crewSurveyAnswerInput'),
+    firstScore,second,secondHasInput:secondStudent.includes('crewSurveyAnswerInput'),
+    secondNoSpoken:!secondStudent.includes('SAY YOUR ANSWER OUT LOUD'),
+    secondScore,third,thirdSpoken:thirdStudent.includes('SAY YOUR ANSWER OUT LOUD'),
+    thirdNoInput:!thirdStudent.includes('crewSurveyAnswerInput'),
+    teacherApproval:document.querySelector('[data-cs-reveal="0"]')?.textContent?.trim()};
+  });
+  assert.deepEqual(modeFlow.initial,{mode:'verbal',round:0,total:3,buzz:true});
+  assert.equal(modeFlow.firstSpoken,true);assert.equal(modeFlow.firstNoInput,true);
+  assert.deepEqual(modeFlow.firstScore,[40,0]);
+  assert.deepEqual(modeFlow.second,{mode:'type',round:1,
+   prompt:'Which school supplies help us learn?',buzzArmed:true,scores:[40,0]});
+  assert.equal(modeFlow.secondHasInput,true);assert.equal(modeFlow.secondNoSpoken,true);
+  assert.deepEqual(modeFlow.secondScore,[40,0],
+   'a legacy no-scoring typed round does not erase earned points');
+  assert.deepEqual(modeFlow.third,{mode:'verbal',round:2,
+   prompt:'Name a way to help a friend.',buzzArmed:true,scores:[40,0]});
+  assert.equal(modeFlow.thirdSpoken,true);assert.equal(modeFlow.thirdNoInput,true);
+  assert.equal(modeFlow.teacherApproval,'✓ Approve',
+   'the teacher approval control follows the new verbal round');
+
   // Calculator: QR and share URL update immediately when settings change.
   await launchSetup('scientific-calculator');
   await page.locator('#calculatorAngleMode').selectOption('rad');
