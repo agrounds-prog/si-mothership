@@ -2965,3 +2965,118 @@ body.role-student #student .si-bingo-call-alerts-off .bingo-student-board
 @media(prefers-reduced-motion:reduce){
  #teacher .crew-survey-setup .survey-builder-progress i{transition:none!important}
 }
+
+/* Phase 4N-D — final teacher-deck and compact shared-screen QA.
+   Presentation-only: no changes to stored games, roles or socket protocol. */
+#teacher #activityControllerPanel .cs-teacher-show-controls{
+ max-width:100%;min-width:0;padding:12px!important;
+}
+#teacher #activityControllerPanel .cs-teacher-action-row{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));
+ align-items:stretch!important;gap:10px!important;
+}
+#teacher #activityControllerPanel .cs-teacher-action-group{
+ box-sizing:border-box;min-width:0;display:flex;flex-direction:column;gap:7px;
+ padding:10px;border:1px solid #3e7297;border-radius:12px;
+ background:linear-gradient(145deg,#0a223d,#0f2c4d);
+}
+#teacher #activityControllerPanel .cs-teacher-group-label{
+ color:#b3dff2;font:950 10px/1.25 system-ui,sans-serif;letter-spacing:.12em;
+}
+#teacher #activityControllerPanel .cs-teacher-group-buttons{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;
+ min-width:0;flex:1;
+}
+#teacher #activityControllerPanel .cs-teacher-action-group .cs-quick{
+ box-sizing:border-box;min-width:0;min-height:47px!important;
+ padding:9px 8px!important;font:900 clamp(11px,1vw,13px)/1.3 system-ui,sans-serif!important;
+ white-space:normal!important;overflow-wrap:anywhere;text-align:center;
+}
+#teacher #activityControllerPanel .cs-teacher-audio-group{
+ grid-column:1/-1;padding:7px 10px;flex-direction:row;align-items:center;
+ justify-content:space-between;gap:12px;background:#091c33;
+}
+#teacher #activityControllerPanel .cs-teacher-audio-group .cs-teacher-group-buttons{
+ display:block;flex:0 1 200px;
+}
+#teacher #activityControllerPanel .cs-teacher-audio-group .cs-quick{
+ width:100%;min-height:37px!important;padding:7px 12px!important;
+ border-color:#4c7798;background:#112c49;
+}
+#teacher #activityControllerPanel .cs-teacher-show-head span[role="status"]{
+ overflow-wrap:anywhere;min-width:0;
+}
+@media(min-width:1180px){
+ #teacher #activityControllerPanel .cs-teacher-action-row{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+ }
+ #teacher #activityControllerPanel .cs-teacher-audio-group{
+  grid-column:1/-1;
+ }
+}
+@media(max-width:680px){
+ #teacher #activityControllerPanel .cs-teacher-action-row{
+  grid-template-columns:minmax(0,1fr)!important;gap:8px!important;
+ }
+ #teacher #activityControllerPanel .cs-teacher-audio-group{grid-column:1}
+ #teacher #activityControllerPanel .cs-teacher-show-controls{padding:9px!important}
+ #teacher #activityControllerPanel .cs-teacher-action-group{padding:8px}
+ #teacher #activityControllerPanel .cs-teacher-action-group .cs-quick{min-height:46px!important}
+}
+/* Compact projector windows: keep every scoreboard/answer in the viewport
+   width, and prefer readable answers over decorative padding. */
+@media(max-width:900px){
+ .crew-survey-public.cs-showtime{
+  box-sizing:border-box!important;width:calc(100% - 12px)!important;
+  max-width:100%!important;margin:6px auto!important;
+  padding:clamp(7px,1vw,13px)!important;
+ }
+ .crew-survey-public.cs-showtime .cs-show-status{
+  padding:6px 9px;gap:5px;
+ }
+ .crew-survey-public.cs-showtime .cs-show-status span{
+  white-space:normal!important;overflow-wrap:anywhere;
+ }
+ .crew-survey-public.cs-showtime .cs-faceoff-spotlight,
+ .crew-survey-public.cs-showtime .crew-survey-stage-head,
+ .crew-survey-public.cs-showtime .crew-survey-footer{
+  min-width:0!important;
+ }
+ .crew-survey-public.cs-showtime .crew-survey-panel{
+  min-width:0!important;overflow:hidden;
+ }
+ .crew-survey-public.cs-showtime .crew-survey-panel>span{
+  font-size:clamp(13px,2.4vw,21px)!important;
+ }
+}
+@media(max-width:520px){
+ .crew-survey-public.cs-showtime .crew-survey-stage-head,
+ .crew-survey-public.cs-showtime .crew-survey-footer{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+ .crew-survey-public.cs-showtime .crew-survey-stage-head .crew-survey-prompt,
+ .crew-survey-public.cs-showtime .crew-survey-footer .crew-survey-round{
+  grid-column:1/-1!important;
+ }
+ .crew-survey-public.cs-showtime .crew-survey-footer{
+  gap:7px!important;
+ }
+ .crew-survey-public.cs-showtime .crew-survey-score{
+  min-width:0!important;padding:8px!important;
+ }
+ .crew-survey-public.cs-showtime .crew-survey-panel{
+  min-height:57px!important;
+  grid-template-columns:37px minmax(0,1fr) 47px!important;
+ }
+ .crew-survey-public.cs-showtime .crew-survey-panel>span{
+  font-size:clamp(13px,3.1vw,17px)!important;padding:5px 7px!important;
+ }
+ .crew-survey-public.cs-showtime .crew-survey-panel>strong{
+  font-size:clamp(15px,3.8vw,23px)!important;
+ }
+ .crew-survey-public.cs-showtime .cs-faceoff-spotlight{
+  grid-template-columns:minmax(0,1fr) 36px minmax(0,1fr)!important;
+ }
+ .crew-survey-public.cs-showtime .cs-faceoff-vs>strong{font-size:25px}
+ .crew-survey-public.cs-showtime .cs-show-cue{letter-spacing:.03em}
+}

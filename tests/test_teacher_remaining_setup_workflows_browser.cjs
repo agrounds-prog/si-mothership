@@ -143,6 +143,65 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.deepEqual(faceoff,{armed:true,eligible:['Alex','Blair'],stage:'faceoff',
    firstHasBuzzer:true,secondHasBuzzer:true,spectatorBuzzer:false},
    'playing a Survey must immediately show the buzzer on both contestants devices');
+
+  // Phase 4N-D: teacher controls stay legible and only valid actions enable.
+  const teacherDeck=await page.evaluate(()=>{
+    const panel=document.querySelector('#activityControllerPanel');
+    const deck=panel?.querySelector('.cs-teacher-show-controls');
+    const button=action=>deck?.querySelector('[data-cs-quick="'+action+'"]');
+    return {groupLabels:[...(deck?.querySelectorAll('.cs-teacher-group-label')||[])].map(el=>el.textContent),
+      armDisabled:button('arm')?.disabled,resetDisabled:button('reset')?.disabled,
+      nextDisabled:button('player')?.disabled,awardDisabled:button('award')?.disabled,
+      soundPresent:!!button('sound'),roundButtons:[...(deck?.querySelectorAll('.cs-teacher-action-group button')||[])].length};
+  });
+  assert.deepEqual(teacherDeck,{
+    groupLabels:['FACE-OFF','GAMEPLAY','SCORE & ROUNDS','AUDIO'],
+    armDisabled:true,resetDisabled:false,nextDisabled:true,awardDisabled:true,
+    soundPresent:true,roundButtons:7
+  },'Crew Survey groups teacher commands and disables turn controls during the face-off');
+  await page.setViewportSize({width:500,height:780});
+  const compactDeck=await page.evaluate(()=>{
+    const root=document.querySelector('#activityControllerPanel .cs-teacher-show-controls');
+    const groups=[...root.querySelectorAll('.cs-teacher-action-group')];
+    const bounds=root.getBoundingClientRect();
+    const within=groups.every(el=>{const b=el.getBoundingClientRect();
+      return b.left>=bounds.left-2&&b.right<=bounds.right+2});
+    return {groups:groups.length,within,scrollWidth:root.scrollWidth,clientWidth:root.clientWidth,
+      buttons:[...root.querySelectorAll('.cs-quick')].map(b=>({height:b.getBoundingClientRect().height,width:b.getBoundingClientRect().width}))};
+  });
+  assert.equal(compactDeck.groups,4);
+  assert.ok(compactDeck.within&&compactDeck.scrollWidth<=compactDeck.clientWidth+3,
+   'teacher controls stay within the compact Mission Control panel');
+  assert.ok(compactDeck.buttons.every(b=>b.height>=37&&b.width>=50),
+   'teacher controls retain readable touch targets in compact layout');
+  // Use the real shared markup in an isolated visual fixture; never write state.
+  const surveyProjectorSizes=[];
+  for(const [width,height] of [[440,780],[880,600],[1280,720]]){
+    await page.setViewportSize({width,height});
+    const geometry=await page.evaluate(()=>{
+      const shell=document.createElement('div');
+      shell.id='surveyQaProjector';
+      shell.style.cssText='position:fixed;inset:0;z-index:999999;overflow:auto;background:#041326';
+      shell.innerHTML=crewSurveySharedMarkup(state.activityRun,true);
+      document.body.appendChild(shell);
+      const stage=shell.querySelector('.crew-survey-public.cs-showtime');
+      const bounds=el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width}};
+      const outer=bounds(stage),answerPanels=[...stage.querySelectorAll('.crew-survey-panel')].map(bounds);
+      const scores=[...stage.querySelectorAll('.crew-survey-score')].map(bounds);
+      const data={stage:outer,answers:answerPanels.length,scores:scores.length,
+        clipped:[...answerPanels,...scores].filter(b=>b.left<outer.left-3||b.right>outer.right+3).length,
+        overflows:stage.scrollWidth-stage.clientWidth,
+        publicPrompt:stage.querySelector('.crew-survey-prompt h3')?.textContent};
+      shell.remove();return data;
+    });
+    surveyProjectorSizes.push({width,height,...geometry});
+    assert.ok(geometry.stage.right<=width+3&&geometry.stage.left>=-3&&geometry.overflows<=4&&
+      geometry.clipped===0&&geometry.answers>=4&&geometry.scores===2,
+      'Crew Survey projector fits '+width+'x'+height+': '+JSON.stringify(geometry));
+    assert.equal(geometry.publicPrompt,'Which school supplies help us learn?');
+  }
+  await page.setViewportSize({width:1366,height:950});
+
   await page.locator('#crewSurveyResetBuzzBtn').click();
   assert.equal(await page.evaluate(()=>state.activityRun.crewSurvey.buzzer.armed),false,
    'teacher may still reset the face-off without auto-rearming');

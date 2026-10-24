@@ -853,28 +853,36 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const selected=control===0?'BLUE':control===1?'RED':'';
       const done=cs.stage==='roundwon',winnerName=String(cs.buzzer?.winner||'');
       const canStrike=!done&&cs.stage!=='steal'&&(control!==null||!!winnerName);
-      const canNext=!done&&control!==null&&(cs.teams?.[control]||[]).length>0;
+      const canNext=['play','steal'].includes(cs.stage)&&control!==null&&(cs.teams?.[control]||[]).length>0;
       const strip=document.createElement('section');
       strip.className='cs-teacher-show-controls';
       strip.setAttribute('aria-label','CREW SURVEY show controls');
       const roundDots=Array.from({length:total},(_,i)=>
         '<span class="'+(i===idx-1?'now':i<idx-1?'done':'')+'" aria-label="Board '+(i+1)+'">'+(i+1)+'</span>').join('');
       const stage=done?'ROUND COMPLETE':cs.stage==='steal'?'STEAL CHANCE':
-        cs.stage==='faceoff'?(cs.buzzer?.armed?'BUZZERS ARMED':winnerName?'FIRST BUZZ':'FACE-OFF READY'):
+        cs.stage==='faceoff'?(winnerName?'FIRST BUZZ':cs.buzzer?.armed?'BUZZERS ARMED':'FACE-OFF READY'):
         selected+' CREW IN CONTROL';
       const btn=(action,label,enabled=true,style='')=>'<button type="button" data-cs-quick="'+action+
         '" class="cs-quick '+style+'" '+(enabled?'':'disabled')+'>'+label+'</button>';
+      const group=(label,buttons,extra='')=>'<div class="cs-teacher-action-group '+extra+
+        '" role="group" aria-label="'+label+'"><span class="cs-teacher-group-label">'+
+        label+'</span><div class="cs-teacher-group-buttons">'+buttons+'</div></div>';
       strip.innerHTML='<div class="cs-teacher-show-head"><div><b>ϟ FACE-OFF COMMAND DECK</b>'+
-        '<span>'+safe(stage)+(winnerName?' · '+safe(winnerName):'')+'</span></div>'+
+        '<span role="status">'+safe(stage)+(winnerName?' · '+safe(winnerName):'')+'</span></div>'+
         '<div class="cs-teacher-round-dots">'+roundDots+'</div></div>'+
         '<div class="cs-teacher-action-row">'+
-        btn('arm','ϟ ARM BUZZERS',cs.stage==='faceoff'&&!cs.buzzer?.armed&&!winnerName,'cs-quick-primary')+
-        btn('reset','↻ RESET BUZZERS',cs.stage==='faceoff')+
-        btn('strike','✕ STRIKE',canStrike,'cs-quick-strike')+
-        btn('player','→ NEXT PLAYER',canNext)+
-        btn('award','★ AWARD '+(selected||'ROUND'),!done&&control!==null,'cs-quick-award')+
-        btn('round',idx<total?'NEXT BOARD →':'↻ PLAY AGAIN',done,'cs-quick-primary')+
-        btn('sound',soundEnabled?'♪ SOUND ON':'♫ SOUND OFF',true,'cs-quick-sound')+'</div>'+
+        group('FACE-OFF',
+          btn('arm','ϟ ARM BUZZERS',cs.stage==='faceoff'&&!cs.buzzer?.armed&&!winnerName,'cs-quick-primary')+
+          btn('reset','↻ RESET',cs.stage==='faceoff'))+
+        group('GAMEPLAY',
+          btn('strike','✕ STRIKE',canStrike,'cs-quick-strike')+
+          btn('player','→ NEXT PLAYER',canNext))+
+        group('SCORE & ROUNDS',
+          btn('award','★ AWARD '+(selected||'ROUND'),!done&&control!==null,'cs-quick-award')+
+          btn('round',idx<total?'NEXT BOARD →':'↻ PLAY AGAIN',done,'cs-quick-primary'))+
+        group('AUDIO',
+          btn('sound',soundEnabled?'♪ SOUND ON':'♫ SOUND OFF',true,'cs-quick-sound'),'cs-teacher-audio-group')+
+        '</div>'+
         '<p class="cs-teacher-tip">'+(done?'Round awarded. '+(idx<total?'Move to the next faceoff.':'Final results are ready.'):
           cs.stage==='steal'?'Three strikes! The opposing crew gets the steal attempt.':
           cs.stage==='faceoff'?(winnerName?winnerName+' buzzed first. Listen to the answer, then reveal it or assign a strike.':cs.buzzer?.armed?'Buzzers are live on the selected student devices. First valid buzz wins.':'Choose the face-off contestants and arm the buzzers.'):
