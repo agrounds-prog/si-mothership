@@ -10,7 +10,7 @@ const LABELS=['Poll the Crew','Reduce Signal 50/50','Mothership Clue','Try Again
 const LIFE=['poll','reduce','clue','tryAgain'];
 const LADDER=[100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
 const blank=()=>({prompt:'',choices:['','','',''],correct:'A',mothershipClue:'',explanation:''});
-const fresh=()=>({name:'',count:15,questions:Array.from({length:15},blank),pilot:'',pilotMode:'rotate',risk:'practice',
+const fresh=()=>({name:'',count:15,questions:Array.from({length:15},blank),pilot:'',pilotMode:'rotate',risk:'practice',answerMode:'type',
  lifelines:{poll:2,reduce:1,clue:1,tryAgain:1}});
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clamp=(x,min,max)=>Math.max(min,Math.min(max,Number(x)||min));
@@ -30,6 +30,7 @@ const normalize=o=>{
  x.pilot=String(o.pilot||'').slice(0,80);
  x.pilotMode=['rotate','individual','every'].includes(o.pilotMode)?o.pilotMode:'rotate';
  x.risk=['practice','friendly','classic'].includes(o.risk)?o.risk:'practice';
+ x.answerMode=o.answerMode==='verbal'?'verbal':'type';
  LIFE.forEach(k=>x.lifelines[k]=clamp(o.lifelines?.[k]??x.lifelines[k],0,5));
  return x;
 };
@@ -47,6 +48,7 @@ const queueDraft=()=>{clearTimeout(draftTimer);draftTimer=setTimeout(persistDraf
 const syncEngine=()=>{
  if(typeof millionDraft==='undefined')return;
  millionDraft.pilot=draft.pilot;millionDraft.pilotMode=draft.pilotMode;millionDraft.risk=draft.risk;
+ millionDraft.answerMode=draft.answerMode;
  millionDraft.lifelines=JSON.parse(JSON.stringify(draft.lifelines));
 };
 const redraw=()=>{syncEngine();if(typeof renderActivities==='function')renderActivities()};
@@ -58,7 +60,7 @@ const controls=()=>{
  return '<section class="ms-settings"><div class="ms-block-head"><span>02 · GAME SETTINGS</span><small>Saved with your game</small></div>'+
  '<div class="ms-settings-grid"><label>Starting pilot<select id="msPilot"><option value="">First connected student</option>'+options+'</select></label>'+
  '<label>Pilot turns<select id="msPilotMode"><option value="rotate"'+(draft.pilotMode==='rotate'?' selected':'')+'>Rotate each question</option><option value="individual"'+(draft.pilotMode==='individual'?' selected':'')+'>Keep same pilot</option></select></label>'+
- '<label>Wrong answer rule<select id="msRisk"><option value="practice"'+(draft.risk==='practice'?' selected':'')+'>Practice · continue</option><option value="friendly"'+(draft.risk==='friendly'?' selected':'')+'>Friendly · stop</option><option value="classic"'+(draft.risk==='classic'?' selected':'')+'>Classic · checkpoint</option></select></label></div>'+
+ '<label>Answer method<select id="msAnswerMode"><option value="type"'+(draft.answerMode!=='verbal'?' selected':'')+'>Tap answers (default)</option><option value="verbal"'+(draft.answerMode==='verbal'?' selected':'')+'>🎤 Say Aloud · Teacher Approves</option></select></label><label>Wrong answer rule<select id="msRisk"><option value="practice"'+(draft.risk==='practice'?' selected':'')+'>Practice · continue</option><option value="friendly"'+(draft.risk==='friendly'?' selected':'')+'>Friendly · stop</option><option value="classic"'+(draft.risk==='classic'?' selected':'')+'>Classic · checkpoint</option></select></label></div>'+
  '<div class="ms-life-grid">'+LIFE.map((k,i)=>'<label><span>'+LABELS[i]+'</span><input type="number" min="0" max="5" data-ms-life="'+k+'" value="'+Number(draft.lifelines[k])+'"></label>').join('')+'</div></section>';
 };
 const cardMarkup=()=>{
@@ -197,6 +199,7 @@ function wire(){
  on('#msPilot','change',e=>{draft.pilot=e.target.value;syncEngine();queueDraft()});
  on('#msPilotMode','change',e=>{draft.pilotMode=e.target.value;syncEngine();queueDraft()});
  on('#msRisk','change',e=>{draft.risk=e.target.value;syncEngine();queueDraft()});
+ on('#msAnswerMode','change',e=>{draft.answerMode=e.target.value==='verbal'?'verbal':'type';syncEngine();queueDraft()});
  root.querySelectorAll('[data-ms-life]').forEach(el=>el.oninput=e=>{draft.lifelines[el.dataset.msLife]=clamp(e.target.value,0,5);syncEngine();queueDraft()});
  on('#msSaveGame','click',()=>save(false));on('#msSaveNew','click',()=>save(true));
  on('#msLaunch','click',()=>{persistDraft();syncEngine();if(typeof launchMillion==='function')launchMillion()});

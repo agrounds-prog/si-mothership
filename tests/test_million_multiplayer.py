@@ -131,6 +131,20 @@ class MillionPrivacy(unittest.TestCase):
         self.assertEqual(m["selectedAnswer"],"")
         self.assertEqual(m["lastRequestId"] if "lastRequestId" in m else "", "")
 
+    def test_spoken_million_blocks_all_student_gameplay_requests(self):
+        state,run,m=fixture()
+        run["millionConfig"]["answerMode"]="verbal"
+        inventory=dict(m["inventory"])
+        for i,(name,action,value) in enumerate([
+            ("Crew","predict","A"),("Pilot","select","B"),
+            ("Pilot","lock",""),("Pilot","lifeline","reduce")]):
+            server._million_apply_request(state,run,name,{
+                "id":"spoken-"+str(i),"name":name,"type":action,"value":value})
+        self.assertEqual(m["selectedAnswer"],"")
+        self.assertEqual(m["lockedAnswer"],"")
+        self.assertEqual(m["crewPredictions"],{})
+        self.assertEqual(m["inventory"],inventory)
+
     def test_crew_cannot_lock_or_use_pilot_lifelines(self):
         state,run,m=fixture()
         server._million_apply_request(state,run,"Crew",{"name":"Crew","id":"p1","type":"select","value":"C"})

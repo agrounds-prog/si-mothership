@@ -4410,6 +4410,9 @@ def _million_apply_request(state: dict, run: dict, name: str, request: dict) -> 
     value = str(request.get("value") or "").strip()
     key = value.upper()
 
+    if cfg.get("answerMode") == "verbal":
+        return  # Teacher selects and approves spoken MILLION answers.
+
     if action == "predict":
         if million.get("revealed") or key not in valid_keys or key in eliminated:
             return
@@ -4722,6 +4725,8 @@ def merge_student_snapshot(canonical: Optional[dict], incoming: dict, token: str
                 can_map[name] = {"text": text_value, "at": rr[name].get("at")}
 
     elif aid == "pixel-game":
+        if str((can_run.get("pixelConfig") or {}).get("answerMode") or "type") == "verbal":
+            return  # Teacher records verbal guesses; students cannot inject guesses.
         pg = inc_run.get("pixelGuesses") or {}
         if isinstance(pg, dict) and isinstance(pg.get(name), dict):
             can_map = can_run.setdefault("pixelGuesses", {})

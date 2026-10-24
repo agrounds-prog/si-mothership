@@ -2171,3 +2171,22 @@ body.role-shared .million-4j-stage .million-4o-question-clock{
   padding:5px;font-size:11px;
  }
 }
+
+/* MILLION optional spoken response: teacher chooses and approves the key. */
+#teacher #activityControllerPanel .million-say-teacher-tip{
+ padding:12px 13px;margin:10px 0;border:1px solid #7be7ba;border-radius:10px;
+ color:#d5fff3;background:#16483d;font:800 12px/1.5 system-ui,sans-serif;
+}
+#teacher #activityControllerPanel [data-million-spoken-choice]{
+ min-height:37px;padding:7px 10px;border:1px solid #76cda5;border-radius:9px;
+ color:#f2fff7;background:#195846;font:900 12px system-ui,sans-serif;
+}
+#teacher #activityControllerPanel [data-million-spoken-choice]:disabled{opacity:.45}
+body.role-student .million-verbal-mode .million-say-cue{
+ box-sizing:border-box;padding:17px 13px;margin:15px 0;
+ border:2px solid #8ee7bf;border-radius:14px;color:#ecfff9;
+ background:linear-gradient(125deg,#135748,#17385b);text-align:center;
+}
+body.role-student .million-verbal-mode .million-say-cue strong{font:1000 19px/1.35 system-ui,sans-serif}
+body.role-student .million-verbal-mode .million-say-cue p{font:700 14px/1.45 system-ui,sans-serif}
+body.role-student .million-verbal-mode .million-say-cue small{color:#d3f2eb;font:700 12px system-ui,sans-serif}

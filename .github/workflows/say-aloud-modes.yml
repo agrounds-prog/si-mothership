@@ -1,0 +1,55 @@
+name: Say Aloud — MILLION and PIXEL classroom regression
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'server.py'
+      - 'million-studio.js'
+      - 'million-studio.css'
+      - 'pixel-batch.js'
+      - 'pixel-batch.css'
+      - 'tests/test_say_aloud_modes_browser.cjs'
+      - '.github/workflows/say-aloud-modes.yml'
+
+permissions: {contents: read}
+jobs:
+  spoken-answer-regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Validate scripts and game engine
+        run: |
+          node --check tests/test_say_aloud_modes_browser.cjs
+          node --check million-studio.js
+          node --check pixel-batch.js
+          python -m py_compile server.py
+          python scripts/release_gate.py --require-node
+      - name: Install test dependencies
+        run: |
+          pip install -r requirements.txt
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: MILLION verbal response server enforcement
+        run: python -m unittest discover -s tests -p test_million_multiplayer.py -v
+      - name: Start disposable local classroom
+        run: |
+          mkdir -p /tmp/mothership-say-aloud
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-say-aloud PORT=8877 python server.py >/tmp/say-aloud.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8877/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          tail -100 /tmp/say-aloud.log
+          exit 1
+      - name: Spoken options — save, student view, teacher scoring, privacy
+        run: LOCAL_URL=http://127.0.0.1:8877 node tests/test_say_aloud_modes_browser.cjs
+      - name: Diagnostics on failure
+        if: failure()
+        run: tail -120 /tmp/say-aloud.log || true

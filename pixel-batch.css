@@ -1382,3 +1382,30 @@ body.role-student:has(#studentContent .pixel-student-locked) .student-control-zo
   min-width:0!important;width:100%;box-sizing:border-box;height:23px!important;
  }
 }
+
+/* Optional Say Aloud mode; teacher does the scoring, student cannot type. */
+#teacher #activityGrid .pixel-setup .pixel-answer-mode{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:7px 0 15px;
+}
+#teacher #activityGrid .pixel-setup .pixel-answer-mode button{
+ border:1px solid #477d9f;border-radius:11px;padding:13px 10px;min-height:49px;
+ font:850 12px/1.4 system-ui,sans-serif;background:#0c2946;color:#cce7f4;
+}
+#teacher #activityGrid .pixel-setup .pixel-answer-mode button.active{
+ border-color:#86edc8;background:#185248;color:#e3fff4;box-shadow:inset 0 0 0 1px #4ecaab;
+}
+#teacher #activityControllerPanel [data-pixel-spoken-correct],
+#teacher #activityControllerPanel [data-pixel-spoken-wrong]{
+ font:900 12px/1.25 system-ui,sans-serif;border-radius:8px;min-height:36px;
+}
+#teacher #activityControllerPanel [data-pixel-spoken-correct]{background:#155a49;color:#ebfff3;border:1px solid #79e4ae}
+#teacher #activityControllerPanel [data-pixel-spoken-wrong]{background:#642e39;color:#fff0ef;border:1px solid #f0aaa4}
+body.role-student .pixel-verbal-mode .pixel-verbal-cue{
+ padding:18px 12px;margin:15px 0;border:2px solid #76e6c4;border-radius:15px;
+ color:#ddfff3;background:linear-gradient(130deg,#13524d,#103858);
+ text-align:center;font:850 14px/1.45 system-ui,sans-serif;
+}
+@media(max-width:500px){
+ #teacher #activityGrid .pixel-setup .pixel-answer-mode{grid-template-columns:minmax(0,1fr)}
+ #teacher #activityControllerPanel .pixel-guess-row>div:last-child{flex-wrap:wrap}
+}

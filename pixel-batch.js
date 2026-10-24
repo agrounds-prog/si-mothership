@@ -759,6 +759,11 @@
    if(badge.getAttribute('aria-label')!=='Image '+(index+1)+' of '+rounds)
     badge.setAttribute('aria-label','Image '+(index+1)+' of '+rounds);
   }
+  if(run.pixelConfig?.answerMode==='verbal'){
+   prompt.classList.add('pixel-student-verbal');
+   document.body.classList.add('pixel-student-current');
+   return;
+  }
   const heading=prompt.querySelector('h2');
   if(heading)heading.textContent=locked?'Guess sent!':'What do you see?';
   const description=prompt.querySelector(':scope > p');
