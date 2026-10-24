@@ -193,6 +193,68 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    'awarding points closes both student answer forms');
   assert.deepEqual(flow.closed,{scores:[0,40],points:40,strikes:[3,0],stage:'roundwon'},
    'a closed round ignores duplicate awards, reveals, strikes and turn changes');
+  // Phase 4N-B: verify the screen's animations follow transitions only.
+  // A cloned run avoids modifying the live browser test's local classroom.
+  const cinematic=await page.evaluate(()=>{
+   const r=structuredClone(state.activityRun);r.runToken='cs4nb_visual_fixtures';
+   r.crewSurvey.stage='faceoff';r.crewSurvey.buzzer={armed:true,eligible:['Casey','Blair'],winner:null};
+   r.crewSurvey.scores=[0,0];r.crewSurvey.strikes=[0,0];r.crewSurvey.revealed=[];r.crewSurvey.controlTeam=null;
+   crewSurveySharedMarkup(r,false);crewSurveySharedMarkup(r,true);
+   r.crewSurvey.buzzer.winner='Casey';r.crewSurvey.buzzer.armed=false;
+   const first=crewSurveySharedMarkup(r,false);
+   const big=crewSurveySharedMarkup(r,true);
+   const stable=crewSurveySharedMarkup(r,false);
+   r.crewSurvey.stage='play';r.crewSurvey.controlTeam=0;
+   r.crewSurvey.revealed=[0];
+   const reveal=crewSurveySharedMarkup(r,false);
+   r.crewSurvey.strikes=[3,0];r.crewSurvey.stage='steal';r.crewSurvey.controlTeam=1;
+   const steal=crewSurveySharedMarkup(r,false);
+   r.crewSurvey.stage='roundwon';r.crewSurvey.scores=[0,40];r.crewSurvey.roundPoints=40;
+   const award=crewSurveySharedMarkup(r,false);
+   const persistent=crewSurveySharedMarkup(r,false);
+   r.crewSurveyRoundIndex=1;r.crewSurveyTotal=3;r.runToken='cs4nb_next_round';
+   r.crewSurvey.stage='faceoff';r.crewSurvey.controlTeam=null;
+   r.crewSurvey.buzzer={armed:true,eligible:['Casey','Blair'],winner:null};
+   r.crewSurvey.revealed=[];r.crewSurvey.strikes=[0,0];r.crewSurvey.roundPoints=0;
+   const next=crewSurveySharedMarkup(r,false);
+   const el=document.createElement('div');el.innerHTML=award;
+   const strip=el.querySelector('.cs-round-winner');
+   return {
+    firstFlash:first.includes('class="cs-buzz-flash"'),
+    bigFlash:big.includes('class="cs-buzz-flash"'),
+    stableFlash:stable.includes('class="cs-buzz-flash"'),
+    persistentWinner:stable.includes('cs-buzz-winner-strip'),
+    answerFlips:reveal.includes('cs-new-reveal'),
+    stealCue:steal.includes('cs-steal-enter'),
+    scorePulse:award.includes('cs-score-pop'),
+    awardTransition:award.includes('cs-award-enter'),
+    roundWinner:strip?.textContent,
+    persistentScorePop:persistent.includes('cs-score-pop'),
+    persistentRoundWinner:persistent.includes('cs-round-winner'),
+    freshRound:next.includes('cs-round-intro'),
+    noPrematureAnswer:first.includes('Pencils')
+   };
+  });
+  assert.deepEqual(cinematic,{
+    firstFlash:true,bigFlash:true,stableFlash:false,persistentWinner:true,
+    answerFlips:true,stealCue:true,scorePulse:true,awardTransition:true,
+    roundWinner:'★ BOARD 1 AWARDED ★RED CREW WINS THE ROUND40 ROUND POINTS',
+    persistentScorePop:false,persistentRoundWinner:true,freshRound:true,
+    noPrematureAnswer:false
+  },'Crew Survey projected and teacher animations only trigger on state changes');
+  await page.emulateMedia({reducedMotion:'reduce'});
+  const calm=await page.evaluate(()=>{
+   const style=document.createElement('style');
+   const root=document.createElement('div');
+   root.innerHTML='<div class="crew-survey-public cs-showtime"><div class="cs-buzz-flash"></div></div>';
+   document.body.appendChild(root);
+   const flash=root.querySelector('.cs-buzz-flash');
+   const result=getComputedStyle(flash).display;
+   root.remove();return result;
+  });
+  assert.equal(calm,'none','reduced-motion devices do not show an obstructing buzz flash');
+  await page.emulateMedia({reducedMotion:'no-preference'});
+
 
   // Calculator: QR and share URL update immediately when settings change.
   await launchSetup('scientific-calculator');

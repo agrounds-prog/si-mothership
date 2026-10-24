@@ -2755,3 +2755,128 @@ body.role-student #student .si-bingo-call-alerts-off .bingo-student-board
   .bingo-student-cell:not(.marked):not(.free)::before{
   content:none!important;display:none!important;
 }
+
+
+/* Phase 4N-B — CREW SURVEY cinematic transition polish.
+   Render-only, scoped to the projector and teacher mirror. */
+.crew-survey-public.cs-showtime .cs-buzz-winner-strip{
+ display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:clamp(6px,1.1vw,17px);
+ padding:9px 13px;margin:0 0 clamp(10px,1.3vw,17px);
+ border:2px solid #ffd475;border-radius:12px;
+ background:linear-gradient(110deg,#503065,#7b3b61,#3a376f);
+ box-shadow:inset 0 1px 0 #ffebcc74,0 3px 15px #d9887d34;text-align:center;
+}
+.crew-survey-public.cs-showtime .cs-buzz-winner-strip span{
+ font:1000 clamp(10px,1.05vw,15px)/1.2 system-ui,sans-serif;color:#ffe69c;letter-spacing:.14em;
+}
+.crew-survey-public.cs-showtime .cs-buzz-winner-strip strong{
+ font:1000 clamp(19px,2.4vw,37px)/1.2 system-ui,sans-serif;color:#fff;overflow-wrap:anywhere;
+}
+.crew-survey-public.cs-showtime .cs-buzz-winner-strip em{
+ font:900 clamp(10px,1.1vw,16px)/1.2 system-ui,sans-serif;color:#b9f4ff;font-style:normal;
+}
+.crew-survey-public.cs-showtime .cs-faceoff-card.cs-buzz-winner{
+ border-color:#ffe89a!important;
+ box-shadow:inset 0 2px 0 #fff3d080,0 0 0 2px #fdd37183,0 0 28px #ffe16a8a!important;
+}
+.crew-survey-public.cs-showtime .cs-buzz-flash{
+ position:absolute;inset:0;z-index:32;pointer-events:none;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+ padding:16px;text-align:center;
+ border-radius:inherit;background:radial-gradient(ellipse at 50% 48%,#8d4c79f2,#272963ed 53%,#081536a8 85%);
+ opacity:0;
+}
+.crew-survey-public.cs-showtime .cs-buzz-flash span{
+ font:1000 clamp(58px,11vw,150px)/1 system-ui,sans-serif;color:#ffedab;
+ text-shadow:0 3px 0 #713e64,0 0 45px #ffd27f;
+}
+.crew-survey-public.cs-showtime .cs-buzz-flash strong{
+ max-width:100%;font:1000 clamp(32px,6.2vw,82px)/1.12 system-ui,sans-serif;
+ color:white;overflow-wrap:anywhere;text-shadow:0 6px 15px #09112b;
+}
+.crew-survey-public.cs-showtime .cs-buzz-flash em{
+ font:1000 clamp(15px,2.3vw,32px)/1.2 system-ui,sans-serif;
+ color:#a8f4ff;font-style:normal;letter-spacing:.14em;
+}
+.crew-survey-public.cs-showtime .crew-survey-score.cs-score-pop{
+ border-color:#ffe49a!important;
+ box-shadow:0 0 0 2px #ffeab38c,0 0 37px #ffc56b9c,inset 0 1px 0 #fff9e380!important;
+}
+.crew-survey-public.cs-showtime .cs-round-winner{
+ box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:6px;min-width:0;margin:0 0 14px;padding:clamp(11px,1.4vw,22px);
+ border:2px solid #ffe4a2;border-radius:14px;
+ background:radial-gradient(ellipse at 50% 0%,#f6bf6f4a,transparent 70%),linear-gradient(120deg,#30255a,#174868,#30255a);
+ box-shadow:inset 0 1px 0 #fff9d874,0 0 19px #f1cb8054;text-align:center;
+}
+.crew-survey-public.cs-showtime .cs-round-winner span{
+ font:950 clamp(10px,.98vw,14px)/1.3 system-ui,sans-serif;color:#ffdca0;letter-spacing:.16em;
+}
+.crew-survey-public.cs-showtime .cs-round-winner strong{
+ max-width:100%;font:1000 clamp(19px,2.6vw,41px)/1.15 system-ui,sans-serif;
+ color:#fff8de;text-shadow:0 3px 10px #101530;overflow-wrap:anywhere;
+}
+.crew-survey-public.cs-showtime .cs-round-winner em{
+ font:850 clamp(11px,1.2vw,17px)/1.3 system-ui,sans-serif;color:#c9f8ff;font-style:normal;
+}
+.crew-survey-public.cs-showtime .crew-survey-panel.cs-new-reveal{position:relative;overflow:hidden}
+.crew-survey-public.cs-showtime .crew-survey-panel.cs-new-reveal:after{
+ content:"";position:absolute;inset:0;pointer-events:none;
+ background:linear-gradient(100deg,#fff9dc 0%,#ffe18b 37%,#f4ad47 100%);
+ transform:translateX(110%);opacity:0;
+}
+@media(prefers-reduced-motion:no-preference){
+ .crew-survey-public.cs-showtime .cs-buzz-flash{
+  animation:cs4nb-buzzer-stinger 1.8s cubic-bezier(.2,.8,.2,1) both;
+ }
+ .crew-survey-public.cs-showtime .crew-survey-score.cs-score-pop{
+  animation:cs4nb-score-pop .8s ease-out both;
+ }
+ .crew-survey-public.cs-showtime.cs-award-enter .cs-round-winner{
+  animation:cs4nb-award-enter .7s cubic-bezier(.2,.85,.2,1) both;
+ }
+ .crew-survey-public.cs-showtime.cs-steal-enter .cs-show-cue{
+  animation:cs4nb-steal-entrance .9s ease-in-out both;
+ }
+ .crew-survey-public.cs-showtime .crew-survey-panel.cs-new-reveal:after{
+  animation:cs4nb-curtain-sweep .75s ease-out both;
+ }
+ @keyframes cs4nb-buzzer-stinger{
+  0%{opacity:0;transform:scale(1.08)}
+  18%{opacity:1;transform:scale(1)}
+  63%{opacity:1;transform:scale(1)}
+  100%{opacity:0;transform:scale(1)}
+ }
+ @keyframes cs4nb-score-pop{
+  0%{filter:brightness(1.9);transform:scale(.96)}
+  45%{filter:brightness(1.35);transform:scale(1.055)}
+  100%{filter:brightness(1);transform:scale(1)}
+ }
+ @keyframes cs4nb-award-enter{
+  0%{opacity:.35;transform:scale(.94) translateY(12px)}
+  75%{opacity:1;transform:scale(1.025)}
+  100%{opacity:1;transform:scale(1) translateY(0)}
+ }
+ @keyframes cs4nb-steal-entrance{
+  0%,100%{filter:brightness(1);transform:scale(1)}
+  35%{filter:brightness(1.6);transform:scale(1.025)}
+  70%{filter:brightness(1.1);transform:scale(1)}
+ }
+ @keyframes cs4nb-curtain-sweep{
+  0%{opacity:.98;transform:translateX(0)}
+  55%{opacity:.85;transform:translateX(0)}
+  100%{opacity:0;transform:translateX(110%)}
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .crew-survey-public.cs-showtime .cs-buzz-flash{display:none!important}
+ .crew-survey-public.cs-showtime .crew-survey-panel.cs-new-reveal:after{display:none!important}
+ .crew-survey-public.cs-showtime .cs-round-winner,
+ .crew-survey-public.cs-showtime .crew-survey-score.cs-score-pop{
+  animation:none!important;transform:none!important;filter:none!important
+ }
+}
+@media(max-width:770px){
+ .crew-survey-public.cs-showtime .cs-buzz-winner-strip{padding:7px 9px;gap:6px}
+ .crew-survey-public.cs-showtime .cs-round-winner{padding:10px 8px}
+}
