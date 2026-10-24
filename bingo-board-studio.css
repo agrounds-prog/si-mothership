@@ -3080,3 +3080,52 @@ body.role-student #student .si-bingo-call-alerts-off .bingo-student-board
  .crew-survey-public.cs-showtime .cs-faceoff-vs>strong{font-size:25px}
  .crew-survey-public.cs-showtime .cs-show-cue{letter-spacing:.03em}
 }
+
+/* CREW SURVEY · optional Buzz + Speak answer mode.
+   All choices remain teacher-only; student spoken prompt cannot submit text. */
+#teacher #activityGrid .crew-survey-answer-mode{
+ display:grid;gap:9px;margin:13px 0 0;padding:12px;
+ border:1px solid #629bb8;border-radius:12px;background:#0b2541;
+ min-width:0;
+}
+#teacher #activityGrid .crew-survey-answer-mode legend{
+ padding:0 7px;color:#c0f4ff;font:950 11px/1.2 system-ui,sans-serif;letter-spacing:.08em;
+}
+#teacher #activityGrid .crew-survey-answer-mode label{
+ display:grid;grid-template-columns:22px minmax(0,1fr);
+ align-items:center;gap:3px 10px;min-width:0;padding:11px;
+ border:1px solid #4a7795;border-radius:10px;background:#0c1e35;cursor:pointer;
+}
+#teacher #activityGrid .crew-survey-answer-mode label:has(input:checked){
+ border-color:#80e5bf;background:linear-gradient(105deg,#104a4b,#0b324c);
+ box-shadow:inset 3px 0 #8bf2c6;
+}
+#teacher #activityGrid .crew-survey-answer-mode input{
+ grid-row:1/3;width:18px;height:18px;accent-color:#86efc0;
+}
+#teacher #activityGrid .crew-survey-answer-mode strong{
+ color:#f4fbff;font:950 14px/1.3 system-ui,sans-serif;
+}
+#teacher #activityGrid .crew-survey-answer-mode small{
+ grid-column:2;color:#c4dce9;font:650 12px/1.4 system-ui,sans-serif;
+}
+body.role-student #studentContent .crew-survey-verbal .crew-survey-speak-cue{
+ box-sizing:border-box;display:grid;gap:13px;margin:15px 0;padding:20px 15px;
+ border:2px solid #7fe6bf;border-radius:17px;
+ background:linear-gradient(135deg,#0a504e,#173e6b);
+ color:#fff;text-align:center;box-shadow:0 7px 22px #001e36a1;
+}
+body.role-student #studentContent .crew-survey-verbal .crew-survey-speak-cue strong{
+ font:1000 clamp(18px,4vw,25px)/1.25 system-ui,sans-serif;
+}
+body.role-student #studentContent .crew-survey-verbal .crew-survey-speak-cue span{
+ color:#d9f7ef;font:700 14px/1.4 system-ui,sans-serif;
+}
+#teacher #activityControllerPanel .cs-teacher-verbal .cs-teacher-tip{
+ border:1px solid #68cbb6;background:#0a3843;color:#d0fff2;
+ padding:11px;border-radius:10px;line-height:1.45;
+}
+#teacher #activityControllerPanel [data-cs-reveal]{min-height:37px}
+#teacher #activityControllerPanel .crew-survey-answer-control [data-cs-reveal]:not(:disabled){
+ border-color:#79e3ad;background:#15523e;color:#f1fff8;font-weight:950;
+}

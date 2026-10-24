@@ -33,6 +33,30 @@ class CrewSurveyServerRules(unittest.TestCase):
         _crew_survey_apply_request(state, run, "Blair", req("Blair", "three", "buzz"))
         self.assertEqual(cs["buzzer"]["winner"], "Casey")
 
+    def test_verbal_mode_accepts_buzz_but_rejects_all_student_answer_submissions(self):
+        state, run, cs = fixture()
+        run["crewSurveyConfig"] = {"answerMode": "verbal"}
+        _crew_survey_apply_request(state, run, "Casey", req("Casey", "vb1", "buzz"))
+        self.assertEqual(cs["buzzer"]["winner"], "Casey")
+        _crew_survey_apply_request(state, run, "Casey", req("Casey", "vb2", "answer", "Pencil"))
+        self.assertEqual(cs["privateResponses"], {})
+        self.assertIsNone(cs["lastResponse"])
+        cs["stage"] = "play"
+        cs["controlTeam"] = 0
+        _crew_survey_apply_request(state, run, "Casey", req("Casey", "vb3", "answer", "Notebook"))
+        self.assertEqual(cs["privateResponses"], {})
+        cs["stage"] = "steal"
+        cs["controlTeam"] = 1
+        _crew_survey_apply_request(state, run, "Blair", req("Blair", "vb4", "answer", "Folder"))
+        self.assertEqual(cs["privateResponses"], {})
+
+    def test_older_boards_remain_in_typing_mode(self):
+        state, run, cs = fixture()
+        run["crewSurveyConfig"] = {}  # legacy saved board
+        _crew_survey_apply_request(state, run, "Casey", req("Casey", "old-buzz", "buzz"))
+        _crew_survey_apply_request(state, run, "Casey", req("Casey", "old-answer", "answer", "Pencil"))
+        self.assertEqual(cs["privateResponses"]["Casey"]["text"], "Pencil")
+
     def test_late_buzzer_is_not_accepted_in_play_steal_or_completed_round(self):
         for stage in ("play", "steal", "roundwon"):
             state, run, cs = fixture()

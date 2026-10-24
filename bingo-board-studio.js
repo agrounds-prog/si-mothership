@@ -515,6 +515,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     while(answers.length<4)answers.push({text:'',value:0});
     return {id:String(x.id||'').slice(0,100),name:value(x.name||x.prompt||'Untitled Board').slice(0,90),
       prompt:value(x.prompt).slice(0,240),answers,scoring:x.scoring!==false,
+      answerMode:x.answerMode==='verbal'?'verbal':'type',
       aacVocab:(Array.isArray(x.aacVocab)?x.aacVocab:[]).map(a=>value(a).slice(0,30)).filter(Boolean).slice(0,10),
       createdAt:Number(x.createdAt)||Date.now(),updatedAt:Number(x.updatedAt)||Date.now()};
   }
@@ -522,7 +523,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const b=cleanBoard(x);
     if(!b)return null;
     return {sourceBoardId:String(x.sourceBoardId||x.id||''),name:b.name,prompt:b.prompt,
-      answers:b.answers.map(a=>({...a})),scoring:b.scoring,aacVocab:[...b.aacVocab]};
+      answers:b.answers.map(a=>({...a})),scoring:b.scoring,answerMode:b.answerMode,aacVocab:[...b.aacVocab]};
   }
   function cleanGame(x){
     if(!x||typeof x!=='object')return null;
@@ -565,7 +566,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   function draftBoard(){
     const d=crewSurveyDraft;
     return cleanBoard({id:editingBoardId,name:boardName||d.prompt,prompt:d.prompt,
-      answers:d.answers,scoring:d.scoring,aacVocab:d.aacVocab});
+      answers:d.answers,scoring:d.scoring,answerMode:d.answerMode,aacVocab:d.aacVocab});
   }
   function boardValid(b){
     return !!b&&!!b.prompt&&b.answers.filter(a=>a.text).length>=4;
@@ -575,14 +576,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const b=boards.find(x=>x.id===id);if(!b)return tell('Board not found');
     editingBoardId=b.id;boardName=b.name;
     crewSurveyDraft={prompt:b.prompt,answers:b.answers.map(a=>({...a})),
-      scoring:b.scoring,aacVocab:[...b.aacVocab],aacStudents:[...(crewSurveyDraft.aacStudents||[])]};
+      scoring:b.scoring,answerMode:b.answerMode,aacVocab:[...b.aacVocab],aacStudents:[...(crewSurveyDraft.aacStudents||[])]};
     renderActivities();tell('Editing board: '+b.name);
   }
   function newBoard(){
     if(busy)return;
     editingBoardId='';boardName='';
     crewSurveyDraft={prompt:'',answers:Array.from({length:4},()=>({text:'',value:0})),
-      scoring:true,aacVocab:['Yes','No','Maybe','Other','Pass'],
+      scoring:true,answerMode:'type',aacVocab:['Yes','No','Maybe','Other','Pass'],
       aacStudents:[...(crewSurveyDraft.aacStudents||[])]};
     renderActivities();
   }
@@ -753,7 +754,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const board=freezeBoard({
       id:'survey-replay-current',name:'Current Survey Board',prompt:cfg.prompt,
       answers:(cfg.answers||[]).map(a=>({text:a.text,value:a.value})),
-      scoring:cfg.scoring,aacVocab:cfg.aacVocab||[]
+      scoring:cfg.scoring,answerMode:cfg.answerMode,aacVocab:cfg.aacVocab||[]
     });
     return boardValid(board)?[board]:null;
   }
@@ -787,7 +788,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     r.crewSurveyConfig={
       prompt:next.prompt,
       answers:next.answers.filter(a=>a.text).map((a,i)=>({id:i+1,text:a.text,value:Number(a.value||0)})),
-      scoring:next.scoring,aacVocab:[...next.aacVocab],
+      scoring:next.scoring,answerMode:next.answerMode,aacVocab:[...next.aacVocab],
       aacStudents:[...(oldConfig.aacStudents||[])]
     };
     r.crewSurveyRoundIndex=nextIndex;
@@ -855,7 +856,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const canStrike=!done&&cs.stage!=='steal'&&(control!==null||!!winnerName);
       const canNext=['play','steal'].includes(cs.stage)&&control!==null&&(cs.teams?.[control]||[]).length>0;
       const strip=document.createElement('section');
-      strip.className='cs-teacher-show-controls';
+      strip.className='cs-teacher-show-controls'+(r.crewSurveyConfig?.answerMode==='verbal'?' cs-teacher-verbal':'');
       strip.setAttribute('aria-label','CREW SURVEY show controls');
       const roundDots=Array.from({length:total},(_,i)=>
         '<span class="'+(i===idx-1?'now':i<idx-1?'done':'')+'" aria-label="Board '+(i+1)+'">'+(i+1)+'</span>').join('');
@@ -875,7 +876,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           btn('arm','ϟ ARM BUZZERS',cs.stage==='faceoff'&&!cs.buzzer?.armed&&!winnerName,'cs-quick-primary')+
           btn('reset','↻ RESET',cs.stage==='faceoff'))+
         group('GAMEPLAY',
-          btn('strike','✕ STRIKE',canStrike,'cs-quick-strike')+
+          btn('strike',r.crewSurveyConfig?.answerMode==='verbal'?'✕ INCORRECT':'✕ STRIKE',canStrike,'cs-quick-strike')+
           btn('player','→ NEXT PLAYER',canNext))+
         group('SCORE & ROUNDS',
           btn('award','★ AWARD '+(selected||'ROUND'),!done&&control!==null,'cs-quick-award')+
@@ -883,7 +884,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         group('AUDIO',
           btn('sound',soundEnabled?'♪ SOUND ON':'♫ SOUND OFF',true,'cs-quick-sound'),'cs-teacher-audio-group')+
         '</div>'+
-        '<p class="cs-teacher-tip">'+(done?'Round awarded. '+(idx<total?'Move to the next faceoff.':'Final results are ready.'):
+        '<p class="cs-teacher-tip">'+(r.crewSurveyConfig?.answerMode==='verbal'
+          ?'<strong>🎤 BUZZ + SPEAK:</strong> Students say their answers aloud. Approve the matching answer below or choose Incorrect / Strike.'
+          :'')+(done?'Round awarded. '+(idx<total?'Move to the next faceoff.':'Final results are ready.'):
           cs.stage==='steal'?'Three strikes! The opposing crew gets the steal attempt.':
           cs.stage==='faceoff'?(winnerName?winnerName+' buzzed first. Listen to the answer, then reveal it or assign a strike.':cs.buzzer?.armed?'Buzzers are live on the selected student devices. First valid buzz wins.':'Choose the face-off contestants and arm the buzzers.'):
           'Reveal answers below; rotate players or assign a strike as needed.')+'</p>';
@@ -939,6 +942,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       activityId:'crew-survey-game',runToken:newActivityRunToken(),phase:'running',responses:{},
       crewSurveyConfig:{
         prompt:first.prompt.slice(0,240),answers,scoring:!!first.scoring,
+        answerMode:first.answerMode==='verbal'?'verbal':'type',
         aacStudents:(crewSurveyDraft.aacStudents||[]).filter(n=>students.some(s=>s.n===n)),
         aacVocab:[...first.aacVocab]
       },
@@ -1078,7 +1082,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       (boards.length?'<div class="survey-library-list">'+boards.map(b=>
         '<article class="survey-library-item'+(b.id===editingBoardId?' selected':'')+'">'+
         '<div class="survey-library-item-text"><strong>'+safe(b.name)+'</strong><span>'+safe(b.prompt)+'</span>'+
-        '<small>'+b.answers.filter(a=>a.text).length+' answers</small></div>'+
+        '<small>'+b.answers.filter(a=>a.text).length+' answers · '+(b.answerMode==='verbal'?'BUZZ + SPEAK':'TYPE / AAC')+'</small></div>'+
         '<div class="survey-library-item-buttons"><button type="button" class="survey-add-round" data-survey-add-round="'+safe(b.id)+'">＋ Add to Next Round</button>'+
         '<button type="button" data-survey-load="'+safe(b.id)+'">Edit</button>'+
         '<button type="button" data-survey-delete="'+safe(b.id)+'" class="survey-delete" aria-label="Delete '+safe(b.name)+'">×</button></div></article>').join('')+'</div>':
@@ -1098,7 +1102,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         '<select data-survey-round="'+i+'"><option value="">— Choose a board —</option>'+
         (snapshot?'<option value="'+safe(id)+'" selected>'+safe(name)+' (Saved Game Copy)</option>':'')+
         boards.map(b=>'<option value="'+safe(b.id)+'" '+(b.id===id?'selected':'')+'>'+safe(b.name)+'</option>').join('')+'</select>'+
-        '<span class="survey-round-description">'+(name?safe(copy?.prompt||boards.find(b=>b.id===id)?.prompt||''):'Choose a saved Board Library item')+'</span></label>';
+        '<span class="survey-round-description">'+(name?safe(copy?.prompt||boards.find(b=>b.id===id)?.prompt||'')+
+          ' · '+((copy||boards.find(b=>b.id===id))?.answerMode==='verbal'?'BUZZ + SPEAK':'TYPE / AAC'):'Choose a saved Board Library item')+'</span></label>';
     }).join('');
     const readiness=gameReadiness();
     return '<section class="survey-rounds-panel survey-studio-game" aria-label="Build and save Survey Games">'+
@@ -1132,7 +1137,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       (games.length?'<div class="survey-library-list">'+games.map(g=>
         '<article class="survey-library-item'+(g.id===editingGameId?' selected':'')+'">'+
         '<div class="survey-library-item-text"><strong>'+safe(g.name)+'</strong>'+
-        '<span>'+g.length+' boards · '+g.rounds.map(b=>safe(b.name)).join(' → ')+'</span></div>'+
+        '<span>'+g.length+' boards · '+g.rounds.map(b=>safe(b.name)+(b.answerMode==='verbal'?' (Buzz + Speak)':'')).join(' → ')+'</span></div>'+
         '<div class="survey-library-item-buttons"><button type="button" data-survey-load-game="'+safe(g.id)+'">Load / Edit</button>'+
         '<button class="survey-play" type="button" data-survey-play-game="'+safe(g.id)+'">▶ Play</button>'+
         '<button class="survey-delete" type="button" data-survey-delete-game="'+safe(g.id)+'" aria-label="Delete saved game '+safe(g.name)+'">×</button></div></article>').join('')+'</div>':

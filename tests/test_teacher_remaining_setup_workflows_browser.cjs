@@ -365,6 +365,82 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    id:'crew-survey-game',prompt:'Which school supplies help us learn?',
    buzzerArmed:true,boards:1
   },'saved games launch with the original board and active face-off buzzer');
+  // Verbal-only Survey: saved drafts, board library and game library retain
+  // the answer mode; the student never sees type/AAC controls.
+  await launchSetup('crew-survey');
+  await page.locator('#surveyNewBoard').click();
+  await page.locator('#crewSurveyPrompt').fill('Name a helpful classroom tool.');
+  const verbalAnswers=['Pencil','Notebook','Folder','Calculator'];
+  for(let n=0;n<4;n++){
+   await page.locator('[data-cs-answer-text="'+n+'"]').fill(verbalAnswers[n]);
+   await page.locator('[data-cs-answer-value="'+n+'"]').fill(String((4-n)*10));
+  }
+  assert.equal(await page.locator('[name="crewSurveyAnswerMode"][value="type"]').isChecked(),true,
+   'old and new boards default to typed answers');
+  await page.locator('[name="crewSurveyAnswerMode"][value="verbal"]').check();
+  assert.match(await page.locator('#crewSurveyCommunicationHint').innerText(),/only buzzers and spoken answers/i);
+  await page.locator('#crewSurveySaveDraftBtn').click();
+  await reload();await launchSetup('crew-survey');
+  assert.equal(await page.locator('[name="crewSurveyAnswerMode"][value="verbal"]').isChecked(),true,
+   'verbal mode survives teacher draft reload');
+  await page.locator('#surveyBoardName').fill('Verbal Classroom Tools');
+  await page.locator('#surveySaveBoard').click();
+  await page.waitForFunction(()=>document.querySelector('.survey-library-item')?.textContent.includes('BUZZ + SPEAK'));
+  await page.locator('#surveyNewGame').click();
+  await page.locator('[data-survey-length="3"]').click();
+  const verbalBoardId=await page.locator('.survey-studio-board [data-survey-add-round]').first().getAttribute('data-survey-add-round');
+  await page.locator('[data-survey-round="0"]').selectOption(verbalBoardId);
+  // A legacy typed board follows the verbal round; the game must switch modes.
+  await page.locator('[data-survey-round="1"]').selectOption(boardId);
+  await page.locator('[data-survey-length="1"]').click();
+  await page.locator('#surveyGameName').fill('Spoken Survey Challenge');
+  await page.locator('#surveySaveGame').click();
+  await page.locator('[data-survey-play-game]').first().waitFor();
+  await reload();await launchSetup('crew-survey');
+  const gameToPlay=page.locator('.survey-studio-game .survey-library-item').filter({hasText:'Spoken Survey Challenge'});
+  assert.match(await gameToPlay.innerText(),/Buzz \+ Speak/);
+  await gameToPlay.locator('[data-survey-play-game]').click();
+  const verbal=await page.evaluate(()=>{
+    const run=state.activityRun,cs=run.crewSurvey;
+    const before=crewSurveyStudentMarkup(run,{n:cs.buzzer.eligible[0]});
+    cs.buzzer.winner=cs.buzzer.eligible[0];cs.buzzer.armed=false;render();
+    const winner=crewSurveyStudentMarkup(run,{n:cs.buzzer.winner});
+    const other=crewSurveyStudentMarkup(run,{n:cs.buzzer.eligible[1]});
+    return {mode:run.crewSurveyConfig.answerMode,
+      buzz:before.includes('id="crewSurveyBuzzBtn"'),
+      noEntry:!winner.includes('crewSurveyAnswerInput')&&!winner.includes('data-cs-aac'),
+      verbalPrompt:winner.includes('SAY YOUR ANSWER OUT LOUD'),
+      otherNoEntry:!other.includes('crewSurveyAnswerInput'),
+      teacher:document.querySelector('[data-cs-reveal="0"]')?.textContent?.trim(),
+      incorrect:document.querySelector('#crewSurveyStrikeBtn')?.textContent?.trim()};
+  });
+  assert.deepEqual(verbal,{mode:'verbal',buzz:true,noEntry:true,verbalPrompt:true,
+    otherNoEntry:true,teacher:'✓ Approve',incorrect:'✕ INCORRECT / STRIKE'},
+   'verbal round has a buzz, spoken prompt, and teacher-only approval/incorrect buttons');
+  await page.locator('[data-cs-reveal="0"]').click();
+  const approved=await page.evaluate(()=>({stage:state.activityRun.crewSurvey.stage,
+    revealed:[...state.activityRun.crewSurvey.revealed],points:state.activityRun.crewSurvey.roundPoints,
+    visible:crewSurveySharedMarkup(state.activityRun,true).includes('Pencil')}));
+  assert.deepEqual(approved,{stage:'play',revealed:[0],points:40,visible:true},
+   'teacher approval reveals the matching answer and scores it exactly once');
+  await page.locator('#crewSurveyStrikeBtn').click();
+  assert.deepEqual(await page.evaluate(()=>state.activityRun.crewSurvey.strikes),[1,0],
+   'Incorrect adds a strike while retaining the standard rules');
+  await page.evaluate(()=>crewSurveyAwardRound(0));
+  assert.deepEqual(await page.evaluate(()=>state.activityRun.crewSurvey.scores),[40,0],
+   'teacher awards the spoken round to the winning crew');
+  // Existing typed game library entries continue using the original input path.
+  await launchSetup('crew-survey');
+  const typedGame=page.locator('.survey-studio-game .survey-library-item').filter({hasText:'School Supplies Showdown'});
+  await typedGame.locator('[data-survey-play-game]').click();
+  const typed=await page.evaluate(()=>{
+    const run=state.activityRun,cs=run.crewSurvey;
+    cs.buzzer.winner=cs.buzzer.eligible[0];cs.buzzer.armed=false;
+    return {mode:run.crewSurveyConfig.answerMode,
+      hasInput:crewSurveyStudentMarkup(run,{n:cs.buzzer.winner}).includes('crewSurveyAnswerInput')};
+  });
+  assert.deepEqual(typed,{mode:'type',hasInput:true},
+   'older saved typed games retain their normal student answer field');
   // Calculator: QR and share URL update immediately when settings change.
   await launchSetup('scientific-calculator');
   await page.locator('#calculatorAngleMode').selectOption('rad');

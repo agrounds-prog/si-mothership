@@ -4353,6 +4353,8 @@ def _crew_survey_apply_request(state: dict, run: dict, name: str, request: dict)
         return
 
     if action == "answer":
+        if str((run.get("crewSurveyConfig") or {}).get("answerMode") or "type") == "verbal":
+            return  # Spoken answers are approved by the teacher; students cannot submit text.
         stage = str(cs.get("stage") or "faceoff")
         winner = str((cs.get("buzzer") or {}).get("winner") or "")
         team = _crew_survey_team_for(run, name)
