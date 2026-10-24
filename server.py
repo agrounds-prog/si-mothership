@@ -4341,7 +4341,7 @@ def _crew_survey_apply_request(state: dict, run: dict, name: str, request: dict)
     if action == "buzz":
         buzzer = cs.get("buzzer") if isinstance(cs.get("buzzer"), dict) else {}
         eligible = [str(x) for x in buzzer.get("eligible", [])] if isinstance(buzzer.get("eligible"), list) else []
-        if not buzzer.get("armed") or buzzer.get("winner") or name not in eligible:
+        if cs.get("stage") != "faceoff" or not buzzer.get("armed") or buzzer.get("winner") or name not in eligible:
             return
         # This handler executes inside one asyncio event loop. The first accepted
         # message clears armed before the next queued message can be accepted.

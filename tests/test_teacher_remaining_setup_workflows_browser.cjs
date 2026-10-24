@@ -149,6 +149,51 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   await page.locator('#crewSurveyArmBtn').click();
   assert.equal(await page.evaluate(()=>state.activityRun.crewSurvey.buzzer.armed),true,
    'teacher can manually re-arm a reset face-off');
+  // Phase 4N-A: a complete face-off, steal, and award using the actual
+  // teacher engine; no real classroom data is modified by this localhost test.
+  const flow=await page.evaluate(()=>{
+   const cs=state.activityRun.crewSurvey,run=state.activityRun;
+   crewSurveySetContestant(0,'Casey');
+   const selection={eligible:[...cs.buzzer.eligible],turn:cs.activeIndexes[0],armed:cs.buzzer.armed};
+   crewSurveyArmBuzzers();
+   const buzzers={casey:crewSurveyStudentMarkup(run,{n:'Casey'}).includes('id="crewSurveyBuzzBtn"'),
+    alex:crewSurveyStudentMarkup(run,{n:'Alex'}).includes('id="crewSurveyBuzzBtn"'),
+    blair:crewSurveyStudentMarkup(run,{n:'Blair'}).includes('id="crewSurveyBuzzBtn"')};
+   cs.buzzer.winner='Casey';cs.buzzer.armed=false;cs.message='Casey buzzed first.';render();
+   const firstAnswer=crewSurveyStudentMarkup(run,{n:'Casey'}).includes('id="crewSurveyAnswerSend"');
+   run.crewSurveyConfig.scoring=true;crewSurveyReveal(0);
+   const play={team:cs.controlTeam,stage:cs.stage,points:cs.roundPoints,
+    selected:crewSurveyStudentMarkup(run,{n:'Casey'}).includes('id="crewSurveyAnswerSend"'),
+    former:crewSurveyStudentMarkup(run,{n:'Alex'}).includes('id="crewSurveyAnswerSend"')};
+   crewSurveyReveal(0);const duplicateReveal=cs.roundPoints;
+   crewSurveyStrike();crewSurveyStrike();crewSurveyStrike();
+   const steal={stage:cs.stage,control:cs.controlTeam,strikes:[...cs.strikes],
+    canAnswer:crewSurveyStudentMarkup(run,{n:'Blair'}).includes('id="crewSurveyAnswerSend"')};
+   crewSurveyStrike();const duplicateStrike=[...cs.strikes];
+   crewSurveyAwardRound(1);
+   const award={stage:cs.stage,scores:[...cs.scores],points:cs.roundPoints,
+    casey:crewSurveyStudentMarkup(run,{n:'Casey'}).includes('id="crewSurveyAnswerSend"'),
+    blair:crewSurveyStudentMarkup(run,{n:'Blair'}).includes('id="crewSurveyAnswerSend"')};
+   crewSurveyAwardRound(1);crewSurveyReveal(1);crewSurveyStrike();crewSurveyNextPlayer();
+   const closed={scores:[...cs.scores],points:cs.roundPoints,strikes:[...cs.strikes],stage:cs.stage};
+   return {selection,buzzers,firstAnswer,play,duplicateReveal,steal,duplicateStrike,award,closed};
+  });
+  assert.deepEqual(flow.selection,{eligible:['Casey','Blair'],turn:1,armed:false},
+   'changing Blue contestant preserves the Red contestant and selects the correct first turn');
+  assert.deepEqual(flow.buzzers,{casey:true,alex:false,blair:true},
+   'only the current contestants see the buzzer');
+  assert.equal(flow.firstAnswer,true,'first buzzer winner receives the answer form');
+  assert.deepEqual(flow.play,{team:0,stage:'play',points:40,selected:true,former:false},
+   'revealing an answer grants control to the winning contestant');
+  assert.equal(flow.duplicateReveal,40,'a repeated reveal does not score twice');
+  assert.deepEqual(flow.steal,{stage:'steal',control:1,strikes:[3,0],canAnswer:true},
+   'three strikes open the opposing team steal');
+  assert.deepEqual(flow.duplicateStrike,[3,0],'no additional strike after a steal');
+  assert.deepEqual(flow.award,{stage:'roundwon',scores:[0,40],points:40,casey:false,blair:false},
+   'awarding points closes both student answer forms');
+  assert.deepEqual(flow.closed,{scores:[0,40],points:40,strikes:[3,0],stage:'roundwon'},
+   'a closed round ignores duplicate awards, reveals, strikes and turn changes');
+
   // Calculator: QR and share URL update immediately when settings change.
   await launchSetup('scientific-calculator');
   await page.locator('#calculatorAngleMode').selectOption('rad');

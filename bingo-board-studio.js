@@ -801,8 +801,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         '<span>'+safe(stage)+(winnerName?' · '+safe(winnerName):'')+'</span></div>'+
         '<div class="cs-teacher-round-dots">'+roundDots+'</div></div>'+
         '<div class="cs-teacher-action-row">'+
-        btn('arm','ϟ ARM BUZZERS',!done&&!cs.buzzer?.armed,'cs-quick-primary')+
-        btn('reset','↻ RESET',!done)+
+        btn('arm','ϟ ARM BUZZERS',cs.stage==='faceoff'&&!cs.buzzer?.armed&&!winnerName,'cs-quick-primary')+
+        btn('reset','↻ RESET BUZZERS',cs.stage==='faceoff')+
         btn('strike','✕ STRIKE',canStrike,'cs-quick-strike')+
         btn('player','→ NEXT PLAYER',canNext)+
         btn('award','★ AWARD '+(selected||'ROUND'),!done&&control!==null,'cs-quick-award')+
@@ -810,7 +810,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         btn('sound',soundEnabled?'♪ SOUND ON':'♫ SOUND OFF',true,'cs-quick-sound')+'</div>'+
         '<p class="cs-teacher-tip">'+(done?'Round awarded. '+(idx<total?'Move to the next faceoff.':'Final results are ready.'):
           cs.stage==='steal'?'Three strikes! The opposing crew gets the steal attempt.':
-          cs.stage==='faceoff'?'Choose contestants below, arm buzzers, then reveal their answer.':
+          cs.stage==='faceoff'?(winnerName?winnerName+' buzzed first. Listen to the answer, then reveal it or assign a strike.':cs.buzzer?.armed?'Buzzers are live on the selected student devices. First valid buzz wins.':'Choose the face-off contestants and arm the buzzers.'):
           'Reveal answers below; rotate players or assign a strike as needed.')+'</p>';
       const header=root.querySelector('.activity-controller-head');
       if(header)header.after(strip);else root.prepend(strip);
