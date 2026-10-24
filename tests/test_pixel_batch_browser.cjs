@@ -65,6 +65,7 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    'next missing answer shortcut selects the next unanswered image');
   assert.match(await page.locator('#pixel-studio-answer-help').innerText(),/Image 2 of 3/);
   await page.locator('[data-pixel-batch-select="0"]').click();
+  await page.waitForFunction(()=>document.querySelectorAll('.pixel-batch-pick[aria-pressed="true"]').length===1,null,{timeout:12000});
   assert.equal(await page.locator('.pixel-batch-pick[aria-pressed="true"]').count(),1);
   await page.locator('#pixelAnswer').fill('Apple');
   await page.locator('#pixelAcceptedAnswers').fill('Apple\nRed apple');
