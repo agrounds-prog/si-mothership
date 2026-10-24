@@ -390,12 +390,14 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   const badgeRefresh=await page.evaluate(()=>{
     const card=document.querySelector('#studentContent .pixel-student-simple');
     const badge=card?.querySelector('.pixel-student-round');
+    document.body.classList.add('role-student');
     state.activityRun.pixelImageIndex=1;
     window.SIPixelBatch.enhanceStudent();
     const updated=badge?.textContent;
     const aria=badge?.getAttribute('aria-label');
     state.activityRun.pixelImageIndex=0;
     window.SIPixelBatch.enhanceStudent();
+    document.body.classList.remove('role-student');
     return {updated,aria,restored:badge?.textContent};
   });
   assert.deepEqual(badgeRefresh,{updated:'IMAGE 2 / 3',aria:'Image 2 of 3',
