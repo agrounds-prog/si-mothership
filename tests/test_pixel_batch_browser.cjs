@@ -445,6 +445,7 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    d.imageIndex=0;d.image=base;d.answer='Picture 1';d.acceptedAnswers=['Picture 1'];
    renderActivities();
   });
+  await page.waitForFunction(()=>document.querySelectorAll('.pixel-batch-item').length===12,null,{timeout:12000});
   assert.equal(await page.locator('.pixel-batch-item').count(),12);
   assert.equal(await page.locator('.pixel-studio-round-progress [role="progressbar"]').getAttribute('aria-valuemax'),'12');
   await page.locator('[data-pixel-batch-select="11"]').click();
