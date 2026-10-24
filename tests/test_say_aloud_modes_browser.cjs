@@ -57,7 +57,7 @@ if(!/^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?$/.test(BASE))
   assert.ok(pixel.firstCorrect>0);
 
   await page.reload({waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.SIPixelBatch&&window.MillionStudio,null,{timeout:12000});
+  await page.waitForFunction(()=>networkHydrated===true&&window.SIPixelBatch&&window.MillionStudio,null,{timeout:20000});
   await page.evaluate(()=>{
    state.activityRun=null;state.screen='activities';state.activeApp='pixel';
    state.students=[{n:'Alex',offline:false},{n:'Blair',offline:false}];
@@ -105,7 +105,7 @@ if(!/^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?$/.test(BASE))
     selected:played.selected,ladderAdvance:1,result:'correct'});
   assert.ok('ABCD'.includes(played.selected));
   await page.reload({waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.MillionStudio,null,{timeout:12000});
+  await page.waitForFunction(()=>networkHydrated===true&&window.MillionStudio,null,{timeout:20000});
   await page.evaluate(()=>{state.activityRun=null;state.screen='activities';state.activeApp='million';render()});
   await page.locator('#msAnswerMode').waitFor();
   assert.equal(await page.locator('#msAnswerMode').inputValue(),'verbal',
