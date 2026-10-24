@@ -199,10 +199,48 @@
   ).trim()));
   return {complete,answered:complete.filter(Boolean).length,total:rounds.length};
  }
+ // Phase 4M-E: one large teacher-only inspector, without changing the
+ // native file picker, answer editor, round snapshots, or persisted schema.
+ function updateStudioInspector(manager,d){
+  const list=manager.querySelector('.pixel-batch-list');
+  if(!list)return;
+  let inspector=manager.querySelector('.pixel-studio-inspector');
+  if(!inspector){
+   inspector=document.createElement('section');
+   inspector.className='pixel-studio-inspector';
+   inspector.setAttribute('aria-label','Selected mystery image large preview');
+   inspector.innerHTML='<div class="pixel-studio-inspector-art">'+
+    '<img alt="Selected mystery image large teacher preview" decoding="async">'+
+    '</div><div class="pixel-studio-inspector-details">'+
+    '<span class="pixel-studio-inspector-eyebrow">TEACHER PREVIEW · NOT SHARED</span>'+
+    '<strong class="pixel-studio-inspector-heading"></strong>'+
+    '<p class="pixel-studio-inspector-help">Review this image here; students only see the covered mystery on the shared screen.</p>'+
+    '<div class="pixel-studio-inspector-answer" role="status"></div>'+
+    '<div class="pixel-studio-inspector-actions">'+
+    '<button type="button" data-pixel-inspector-prev>← Previous</button>'+
+    '<button type="button" data-pixel-inspector-next>Next image →</button></div>'+
+    '</div>';
+   list.before(inspector);
+  }
+  const current=validIndex(d.imageIndex,d.images.length),item=d.images[current];
+  const img=inspector.querySelector('img');
+  if(img&&img.getAttribute('src')!==item.image)img.src=item.image;
+  const heading=inspector.querySelector('.pixel-studio-inspector-heading');
+  const label='IMAGE '+(current+1)+' OF '+d.images.length;
+  if(heading.textContent!==label)heading.textContent=label;
+  const ready=String(d.answer||item.answer||'').trim();
+  const answer=inspector.querySelector('.pixel-studio-inspector-answer');
+  const copy=ready?'✓ Main answer: '+ready:'○ Answer needed · set it in the editor below';
+  if(answer.textContent!==copy)answer.textContent=copy;
+  answer.dataset.ready=ready?'yes':'no';
+  inspector.querySelector('[data-pixel-inspector-prev]').disabled=current===0;
+  inspector.querySelector('[data-pixel-inspector-next]').disabled=current===d.images.length-1;
+ }
  function updateStudioRoundStatus(setup,d){
   const manager=setup.querySelector('.pixel-batch-manager');
   if(!manager)return;
   const progress=studioProgress(d);
+  updateStudioInspector(manager,d);
   let bar=manager.querySelector('.pixel-studio-round-progress');
   if(!bar){
    bar=document.createElement('div');bar.className='pixel-studio-round-progress';
@@ -713,6 +751,14 @@
      'IMAGE '+(index+1)+' / '+rounds+'</span>');
    }
   }
+  // Reused student DOM must reflect a new round even without a full remount.
+  const badge=prompt.querySelector('.pixel-student-round');
+  if(badge){
+   const label='IMAGE '+(index+1)+' / '+rounds;
+   if(badge.textContent!==label)badge.textContent=label;
+   if(badge.getAttribute('aria-label')!=='Image '+(index+1)+' of '+rounds)
+    badge.setAttribute('aria-label','Image '+(index+1)+' of '+rounds);
+  }
   const heading=prompt.querySelector('h2');
   if(heading)heading.textContent=locked?'Guess sent!':'What do you see?';
   const description=prompt.querySelector(':scope > p');
@@ -839,6 +885,14 @@
   if(btn.matches('[data-pixel-round-next]'))return switchRound((state.activityRun.pixelImageIndex||0)+1);
   const d=state.activeApp==='pixel'?currentDraft():null;
   if(!d)return;
+  if(btn.matches('[data-pixel-inspector-prev],[data-pixel-inspector-next]')){
+   const delta=btn.matches('[data-pixel-inspector-prev]')?-1:1;
+   if(!btn.disabled){
+    selectImage(d,validIndex(d.imageIndex+delta,d.images.length));
+    renderActivities();
+   }
+   return;
+  }
   if(btn.matches('[data-pixel-next-missing]')){
    const target=Number(btn.dataset.targetIndex);
    if(!btn.disabled&&Number.isInteger(target)&&target>=0&&target<d.images.length){
@@ -862,5 +916,5 @@
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
  else boot();
- window.SIPixelBatch={version:'4m-d',upload,normalize,switchRound,snapshot,enhanceCinematic,enhanceStudent,MAX_IMAGES};
+ window.SIPixelBatch={version:'4m-e',upload,normalize,switchRound,snapshot,enhanceCinematic,enhanceStudent,MAX_IMAGES};
 })();

@@ -44,6 +44,18 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(await page.locator('#pixelImageFile').inputValue(),'',
    'teacher can retry the same selected files after an upload');
   assert.equal(await page.locator('.pixel-batch-item').count(),3);
+  assert.equal(await page.locator('.pixel-studio-inspector-art img').count(),1,
+   'the teacher has a large selected-image preview');
+  assert.match(await page.locator('.pixel-studio-inspector-heading').innerText(),/IMAGE 1 OF 3/);
+  await page.locator('[data-pixel-inspector-next]').click();
+  assert.equal(await page.evaluate(()=>state.pixelDraft.imageIndex),1,
+   'large preview Next control edits the following image');
+  assert.match(await page.locator('.pixel-studio-inspector-heading').innerText(),/IMAGE 2 OF 3/);
+  await page.locator('[data-pixel-inspector-prev]').click();
+  assert.equal(await page.evaluate(()=>state.pixelDraft.imageIndex),0,
+   'large preview Previous returns to the original image');
+  assert.equal(await page.locator('[data-pixel-inspector-prev]').isDisabled(),true);
+
   assert.match(await page.locator('.pixel-studio-round-progress strong').innerText(),
    /0 of 3 image answers ready/,'fresh images show missing answers');
   assert.equal(await page.locator('.pixel-batch-item[data-answer-ready="no"]').count(),3,
@@ -75,6 +87,12 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(await page.locator('[data-pixel-next-missing]').isDisabled(),true,
    'the next-missing shortcut becomes disabled when all images are answered');
   assert.equal(organized.selected,1);
+  assert.match(await page.locator('.pixel-studio-inspector-answer').innerText(),/Train/,
+   'large preview follows the selected image and shows only the teacher its answer');
+  const previewImage=await page.locator('.pixel-studio-inspector-art img').getAttribute('src');
+  assert.equal(previewImage,await page.evaluate(()=>state.pixelDraft.images[1].image),
+   'large teacher preview uses the correctly reordered image');
+
   assert.ok(organized.accepted.includes('Red apple'));
   assert.ok(organized.size.every(x=>x<200000),'batch uploads compressed for browser save');
   await page.locator('#savePixelBtn').click();
@@ -368,6 +386,21 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(studentCompact.header,'What do you see?');
   assert.equal(studentCompact.button,true);
   assert.equal(studentCompact.disabled,true);
+  // Reusing a compact student panel must never leave an outdated round badge.
+  const badgeRefresh=await page.evaluate(()=>{
+    const card=document.querySelector('#studentContent .pixel-student-simple');
+    const badge=card?.querySelector('.pixel-student-round');
+    state.activityRun.pixelImageIndex=1;
+    window.SIPixelBatch.enhanceStudent();
+    const updated=badge?.textContent;
+    const aria=badge?.getAttribute('aria-label');
+    state.activityRun.pixelImageIndex=0;
+    window.SIPixelBatch.enhanceStudent();
+    return {updated,aria,restored:badge?.textContent};
+  });
+  assert.deepEqual(badgeRefresh,{updated:'IMAGE 2 / 3',aria:'Image 2 of 3',
+   restored:'IMAGE 1 / 3'},'student counter updates when a reused panel switches images');
+
   assert.ok(studentCompact.gap>=0&&studentCompact.gap<=23);
   assert.ok(studentCompact.overflow<=3);
   const studentSent=await page.evaluate(()=>{
@@ -401,6 +434,40 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   await page.locator('.pixel-batch-manager').waitFor();
   assert.equal(await page.locator('.pixel-batch-item').count(),1,
    'legacy single-image draft still works');
+  // Test all twelve real organizer cards without uploading large classroom
+  // images. Each entry reuses a tiny isolated fixture picture.
+  await page.evaluate(()=>{
+   const d=state.pixelDraft,base=d.images[0].image;
+   d.images=Array.from({length:12},(_,i)=>({image:base,
+    answer:'Picture '+(i+1),acceptedAnswers:['Picture '+(i+1)]}));
+   d.imageIndex=0;d.image=base;d.answer='Picture 1';d.acceptedAnswers=['Picture 1'];
+   renderActivities();
+  });
+  assert.equal(await page.locator('.pixel-batch-item').count(),12);
+  assert.equal(await page.locator('.pixel-studio-round-progress [role="progressbar"]').getAttribute('aria-valuemax'),'12');
+  await page.locator('[data-pixel-batch-select="11"]').click();
+  assert.match(await page.locator('.pixel-studio-inspector-heading').innerText(),/IMAGE 12 OF 12/);
+  assert.equal(await page.locator('[data-pixel-inspector-next]').isDisabled(),true);
+  const twelveDesktop=await page.evaluate(()=>{
+   const el=document.querySelector('.pixel-batch-list');
+   return {cols:getComputedStyle(el).gridTemplateColumns.split(' ').length,overflow:el.scrollWidth-el.clientWidth};
+  });
+  assert.equal(twelveDesktop.cols,4,'desktop organizes twelve images in four visible columns');
+  assert.ok(twelveDesktop.overflow<=3);
+  await page.setViewportSize({width:440,height:780});
+  const twelveCompact=await page.evaluate(()=>{
+   const panel=document.querySelector('.pixel-batch-manager');
+   const list=panel.querySelector('.pixel-batch-list');
+   const inspector=panel.querySelector('.pixel-studio-inspector');
+   return {cols:getComputedStyle(list).gridTemplateColumns.split(' ').length,
+    overflow:panel.scrollWidth-panel.clientWidth,
+    inspectorOverflow:inspector.scrollWidth-inspector.clientWidth};
+  });
+  assert.equal(twelveCompact.cols,2);
+  assert.ok(twelveCompact.overflow<=3&&twelveCompact.inspectorOverflow<=3,
+   'all twelve editable rounds and large preview fit the compact teacher viewport');
+  await page.setViewportSize({width:1366,height:920});
+
   await page.setViewportSize({width:490,height:820});
   const width=await page.evaluate(()=>({
    overflow:document.querySelector('.pixel-batch-manager').scrollWidth-

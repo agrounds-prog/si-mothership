@@ -1280,3 +1280,105 @@ body.role-student:has(#studentContent .pixel-student-locked) .student-control-zo
 @media(prefers-reduced-motion:reduce){
  #teacher #activityGrid .pixel-setup .pixel-studio-progress-meter i{transition:none}
 }
+
+/* Phase 4M-E — spacious teacher image inspector, 12-image overview and
+   low-noise compact student/projector round markers. */
+#teacher #activityGrid .pixel-setup .pixel-studio-inspector{
+ display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);
+ align-items:stretch;gap:clamp(12px,2vw,20px);width:100%;min-width:0;
+ margin:0 0 16px;padding:clamp(10px,1.8vw,18px);
+ border:1px solid #70b5d9;border-radius:16px;
+ background:radial-gradient(ellipse at 12% 0%,#25568b87,transparent 70%),#091c37;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-inspector-art{
+ display:flex;align-items:center;justify-content:center;
+ min-width:0;min-height:200px;max-height:315px;
+ aspect-ratio:16/10;overflow:hidden;
+ border:2px solid #75b9df;border-radius:12px;background:#041125;
+ box-shadow:inset 0 0 14px #04142b,0 0 20px #51bcf02b;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-inspector-art img{
+ display:block;width:100%;height:100%;object-fit:contain;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-inspector-details{
+ display:flex;flex-direction:column;justify-content:center;
+ min-width:0;gap:11px;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-inspector-eyebrow{
+ color:#9adcf6;font:950 10px/1.4 system-ui,sans-serif;letter-spacing:.14em;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-inspector-heading{
+ color:#fff;font:1000 clamp(20px,2.5vw,31px)/1.15 system-ui,sans-serif;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-inspector-help{
+ color:#c3dff0;font:650 12px/1.5 system-ui,sans-serif;margin:0;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-inspector-answer{
+ padding:10px 12px;border-radius:9px;border:1px solid #bc906a;
+ background:#352c30;color:#ffe0bd;
+ font:850 12px/1.45 system-ui,sans-serif;overflow-wrap:anywhere;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-inspector-answer[data-ready="yes"]{
+ border-color:#59bfa8;background:#123a45;color:#c1ffeb;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-inspector-actions{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-inspector-actions button{
+ box-sizing:border-box;min-height:46px;min-width:0;padding:9px;
+ border:1px solid #6fb9e4;border-radius:10px;
+ color:#f1fbff;background:#194e74;
+ font:900 12px/1.3 system-ui,sans-serif;cursor:pointer;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-inspector-actions button:disabled{
+ opacity:.43;cursor:not-allowed;
+}
+#teacher #activityGrid .pixel-setup .pixel-batch-list{
+ grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ max-height:465px;gap:9px!important;
+}
+#teacher #activityGrid .pixel-setup .pixel-batch-item{gap:6px!important}
+#teacher #activityGrid .pixel-setup .pixel-batch-pick img{
+ height:104px!important;aspect-ratio:16/10;object-fit:contain!important;
+}
+#teacher #activityGrid .pixel-setup .pixel-studio-round-status{
+ box-sizing:border-box;min-width:0;white-space:normal;
+}
+@media(max-width:920px){
+ #teacher #activityGrid .pixel-setup .pixel-batch-list{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ }
+}
+@media(max-width:680px){
+ #teacher #activityGrid .pixel-setup .pixel-studio-inspector{grid-template-columns:minmax(0,1fr)}
+ #teacher #activityGrid .pixel-setup .pixel-studio-inspector-art{
+  min-height:150px;max-height:260px;width:100%;
+ }
+ #teacher #activityGrid .pixel-setup .pixel-batch-list{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+ #teacher #activityGrid .pixel-setup .pixel-batch-pick img{height:100px!important}
+}
+@media(max-width:420px){
+ #teacher #activityGrid .pixel-setup .pixel-studio-inspector{padding:9px}
+ #teacher #activityGrid .pixel-setup .pixel-studio-inspector-actions button{
+  min-height:44px;font-size:11px;
+ }
+ #teacher #activityGrid .pixel-setup .pixel-batch-pick img{height:83px!important}
+}
+/* Twelve rounds remain legible without using the full projector width. */
+@media(max-width:680px){
+ .pixel-cinematic-public .pixel-cinematic-hud-bottom,
+ .pixel-cinematic-results .pixel-cinematic-hud-bottom{
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:7px;
+ }
+ .pixel-cinematic-public .pixel-cinematic-rounds,
+ .pixel-cinematic-results .pixel-cinematic-rounds{
+  display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:5px!important;max-width:100%!important;width:100%;
+ }
+ .pixel-cinematic-public .pixel-cinematic-round,
+ .pixel-cinematic-results .pixel-cinematic-round{
+  min-width:0!important;width:100%;box-sizing:border-box;height:23px!important;
+ }
+}
