@@ -729,7 +729,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     if(fresh){
       fresh.activeIndexes=[nextIndex%Math.max(1,members[0]?.length||1),nextIndex%Math.max(1,members[1]?.length||1)];
       fresh.buzzer.eligible=[members[0]?.[fresh.activeIndexes[0]],members[1]?.[fresh.activeIndexes[1]]].filter(Boolean);
-      fresh.message='Board '+(nextIndex+1)+' of '+total+' · New faceoff! Arm the buzzers.';
+      // New rounds must expose the buzzer on the selected student devices
+      // immediately; the teacher may still reset or change contestants.
+      fresh.buzzer.armed=fresh.buzzer.eligible.length>0;
+      fresh.message='Board '+(nextIndex+1)+' of '+total+
+        (fresh.buzzer.armed?' · Buzzers live for selected face-off players.':' · Awaiting face-off contestants.');
     }
     render();tell('Round '+(nextIndex+1)+' of '+total+': '+next.name);
   }
@@ -866,13 +870,16 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       crewSurvey:{
         stage:'faceoff',teams,scores:[0,0],strikes:[0,0],revealed:[],
         controlTeam:null,activeIndexes:[0,0],stealAvailable:false,roundPoints:0,
-        buzzer:{armed:false,eligible,winner:null,lockedAt:null},
+        // Launching a playable survey arms its face-off immediately. Before
+        // this change, the survey was running but the students saw no BUZZ
+        // button until the teacher found and pressed a second control.
+        buzzer:{armed:eligible.length>0,eligible,winner:null,lockedAt:null},
         privateResponses:{},lastResponse:null,
         message:students.length===0
-          ?'Teacher preview ready. Reveal answers using Mission Control.'
+          ?'Teacher preview ready. Connect students to enable the face-off.'
           :students.length===1
-            ?'One-student practice ready. Arm the buzzer or reveal answers from Mission Control.'
-            :'Face-off ready. Assign contestants and arm the buzzers.'
+            ?'One-student practice · Buzzer live for the first contestant.'
+            :'Face-off buzzers live for selected Blue and Red contestants.'
       },
       crewSurveyTotal:chosen.length,crewSurveyRoundIndex:0,
       crewSurveyGameId:editingGameId||'',
@@ -897,8 +904,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     tell(students.length===0
       ?'CREW SURVEY is LIVE in teacher preview · no students connected'
       :students.length===1
-        ?'CREW SURVEY is LIVE for one student · connect another for two-crew faceoffs'
-        :'CREW SURVEY is LIVE · faceoff ready for students');
+        ?'CREW SURVEY is LIVE · buzzer ready for one student; connect another for a team face-off'
+        :'CREW SURVEY is LIVE · face-off buzzers ready on both selected student devices');
     return true;
   }
   function wrapGameplay(){

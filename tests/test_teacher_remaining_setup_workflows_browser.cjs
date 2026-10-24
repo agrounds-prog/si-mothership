@@ -130,6 +130,25 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.deepEqual(survey,{id:'crew-survey-game',phase:'running',
    prompt:'Which school supplies help us learn?',count:7,first:'Pencils',
    scoring:false,aac:['Alex']});
+  // Launch must arm the actual face-off, not merely render its board.
+  // Previously both students saw a waiting card until teachers armed it.
+  const faceoff=await page.evaluate(()=>{
+   const run=state.activityRun,cs=run.crewSurvey;
+   const eligible=cs.buzzer.eligible;
+   return {armed:cs.buzzer.armed,eligible,stage:cs.stage,
+    firstHasBuzzer:crewSurveyStudentMarkup(run,{n:eligible[0]}).includes('id="crewSurveyBuzzBtn"'),
+    secondHasBuzzer:crewSurveyStudentMarkup(run,{n:eligible[1]}).includes('id="crewSurveyBuzzBtn"'),
+    spectatorBuzzer:crewSurveyStudentMarkup(run,{n:'Casey'}).includes('id="crewSurveyBuzzBtn"')};
+  });
+  assert.deepEqual(faceoff,{armed:true,eligible:['Alex','Blair'],stage:'faceoff',
+   firstHasBuzzer:true,secondHasBuzzer:true,spectatorBuzzer:false},
+   'playing a Survey must immediately show the buzzer on both contestants devices');
+  await page.locator('#crewSurveyResetBuzzBtn').click();
+  assert.equal(await page.evaluate(()=>state.activityRun.crewSurvey.buzzer.armed),false,
+   'teacher may still reset the face-off without auto-rearming');
+  await page.locator('#crewSurveyArmBtn').click();
+  assert.equal(await page.evaluate(()=>state.activityRun.crewSurvey.buzzer.armed),true,
+   'teacher can manually re-arm a reset face-off');
   // Calculator: QR and share URL update immediately when settings change.
   await launchSetup('scientific-calculator');
   await page.locator('#calculatorAngleMode').selectOption('rad');
