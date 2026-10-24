@@ -95,6 +95,42 @@ class MillionPrivacy(unittest.TestCase):
         self.assertEqual(m["eliminated"],[])
         self.assertEqual(m["inventory"]["reduce"],1)
 
+    def test_repeat_poll_clue_and_idle_try_again_do_not_spend_charges(self):
+        state,run,m=fixture()
+        m["inventory"]["poll"]=2
+        m["inventory"]["clue"]=2
+        m["inventory"]["tryAgain"]=2
+        def use(action,ident):
+            server._million_apply_request(state,run,"Pilot",{
+                "id":ident,"name":"Pilot","type":"lifeline","value":action})
+        use("tryAgain","idle")
+        self.assertEqual(m["inventory"]["tryAgain"],2)
+        use("poll","poll-one")
+        self.assertEqual(m["inventory"]["poll"],1)
+        use("poll","poll-again")
+        self.assertEqual(m["inventory"]["poll"],1)
+        use("clue","clue-one")
+        self.assertEqual(m["inventory"]["clue"],1)
+        use("clue","clue-again")
+        self.assertEqual(m["inventory"]["clue"],1)
+        m["revealed"]=True
+        use("clue","late-clue")
+        self.assertEqual(m["inventory"]["clue"],1)
+        # Once the teacher moves to the next question, lifelines may be used again.
+        m["revealed"]=False
+        m["pollOpen"]=False
+        m["publicClue"]=""
+        use("poll","next-question-poll")
+        self.assertEqual(m["inventory"]["poll"],0)
+
+    def test_no_student_action_before_lobby_start(self):
+        state,run,m=fixture()
+        run["phase"]="lobby"
+        server._million_apply_request(state,run,"Pilot",{
+            "id":"before-start","name":"Pilot","type":"select","value":"B"})
+        self.assertEqual(m["selectedAnswer"],"")
+        self.assertEqual(m["lastRequestId"] if "lastRequestId" in m else "", "")
+
     def test_crew_cannot_lock_or_use_pilot_lifelines(self):
         state,run,m=fixture()
         server._million_apply_request(state,run,"Crew",{"name":"Crew","id":"p1","type":"select","value":"C"})

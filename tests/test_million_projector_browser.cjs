@@ -55,6 +55,21 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
     noKey:state.activityRun.millionConfig.questions.every(q=>!('correct' in q)),role:document.body.className};
   });
   assert.equal(first.rungCount,5);
+  await teacher.locator('#activityControllerPanel .million-4o-question-clock').waitFor();
+  await screen.locator('.million-public.big .million-4o-question-clock').waitFor();
+  const clock=await teacher.evaluate(()=>{
+   const run=state.activityRun;
+   return {started:run.million.questionStartedAt>0,ended:run.million.questionEndedAt,
+    teacherText:document.querySelector('#activityControllerPanel .million-4o-question-clock')?.textContent,
+    phase:run.phase};
+  });
+  assert.equal(clock.started,true,'timer begins when the teacher starts the activity, not during the lobby');
+  assert.equal(clock.ended,null);
+  assert.equal(clock.phase,'running');
+  assert.match(clock.teacherText,/QUESTION ELAPSED · \d+:\d{2}/);
+  assert.match(await screen.locator('.million-public.big .million-4o-question-clock').innerText(),
+   /QUESTION ELAPSED · \d+:\d{2}/,'the projector shows the same non-expiring question clock');
+
   const currencyAudit=await screen.evaluate(()=>{
    const b=document.querySelector('.million-public.big');
    const list=['.million-rung','.million-stakes-amount','.ms-million-question-prize'];

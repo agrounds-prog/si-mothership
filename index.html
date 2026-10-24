@@ -17079,12 +17079,24 @@ function activityWorkflowAppLabel(a=activeActivity()){
 }
 function startOrResumeActivityRun(){
   const a=activeActivity(),run=state.activityRun;if(!run)return;
-  if(run.resumePending){run.resumePending=false;run.phase='running';render();toast(`${a?.name||'Activity'} resumed — progress restored`);return}
+  if(run.resumePending){
+    if(a?.type==='million'&&run.million?.pausedAt){
+      const elapsedPause=Math.max(0,Date.now()-Number(run.million.pausedAt));
+      if(run.million.questionStartedAt)run.million.questionStartedAt+=elapsedPause;
+      if(run.million.questionEndedAt)run.million.questionEndedAt+=elapsedPause;
+      run.million.pausedAt=null;
+    }
+    run.resumePending=false;run.phase='running';render();toast(`${a?.name||'Activity'} resumed — progress restored`);return
+  }
   if(run.phase==='running'){toast(`${a?.name||'Activity'} is already live`);return}
   run.phase='running';run.slideIndex=0;run.showResults=false;run.revealAnswer=false;
   if(a?.type==='minefield')initializeMinefieldRun(run);
   if(a?.type==='vector'){run.vectorResponses={};run.vectorReveal=run.vectorConfig.revealMode==='live';run.vectorShowTarget=false;run.vectorHeat=false;run.vectorShowCrew=!!run.vectorConfig.showCrew}
   if(a?.type==='orbit'){run.orbitResponses={};run.orbitPaused=false;run.orbitRevealCrew=!run.orbitConfig.anonymous;run.orbitSpotlight=null;run.orbitClusters=[];run.orbitAssignments={};run.orbitClusterView=false;run.orbitBefore=null;run.orbitCompare=false;run.orbitRound=1}
+  if(a?.type==='million'&&run.million){
+    run.million.questionStartedAt=Date.now();
+    run.million.questionEndedAt=null;run.million.pausedAt=null;
+  }
   if(a?.type==='pixel')initializePixelRun(run);
   if(a?.type==='sketch')initializeSketchRun(run);
   if(a?.type==='match'){
@@ -17158,6 +17170,7 @@ function sendActivityToLobby(){
   if(run.phase==='lobby'){toast('Students are already in the Activity Lobby');return}
   run.runToken=newActivityRunToken();
   run.resumePending=true;
+  if(run.activityId==='million-game'&&run.million)run.million.pausedAt=Date.now();
   run.phase='lobby';
   state.screen='activity';
   state.promptActive=false;
@@ -17602,20 +17615,37 @@ function millionPollCounts(run=state.activityRun){
   Object.values(m?.crewPredictions||{}).forEach(v=>{if(out[v]!==undefined)out[v]++});return out
 }
 function millionUseLifeline(type,renderNow=true){
-  const run=state.activityRun,m=millionState(run),cfg=millionConfig(run),q=millionQuestion(run);if(!m||!q)return;
-  const k=String(type||''),left=Number(m.inventory?.[k]||0);if(left<=0)return toast('That lifeline is not available');if(m.complete||(m.revealed&&m.result==='correct'))return toast('This question has already been scored');if(k==='reduce'&&(m.lockedAnswer||m.revealed||m.over||(m.eliminated||[]).length>=2))return toast('50/50 can only be used once, before an answer is locked');
+  const run=state.activityRun,m=millionState(run),q=millionQuestion(run);
+  if(!m||!q||run?.phase!=='running')return;
+  const k=String(type||'');
+  if(!['poll','reduce','clue','tryAgain'].includes(k))return;
+  const left=Math.max(0,Number(m.inventory?.[k]||0));
+  if(!left)return toast('That lifeline is not available');
+  if(m.complete||(m.revealed&&m.result==='correct'))return toast('This question has already been scored');
+  if((m.revealed||m.over)&&k!=='tryAgain')return toast('This question has already been revealed');
+  if(k==='poll'&&m.pollOpen)return toast('Crew Poll is already open for this question');
+  if(k==='clue'&&m.publicClue)return toast('The clue is already visible');
+  if(k==='tryAgain'&&!m.selectedAnswer&&!m.lockedAnswer&&!m.revealed)
+   return toast('Select an answer before using Try Again');
+  if(k==='reduce'&&(m.lockedAnswer||m.revealed||m.over||(m.eliminated||[]).length))
+   return toast('50/50 is available once, before an answer is locked');
+  let wrong=[];
+  if(k==='reduce'){
+    wrong=(q.choices||[]).map(c=>String(c.key||''))
+      .filter(key=>['A','B','C','D'].includes(key)&&key!==q.correct&&key!==m.selectedAnswer);
+    if(wrong.length<2||!['A','B','C','D'].includes(q.correct))
+      return toast('50/50 is unavailable for this question');
+  }
   m.inventory[k]=left-1;
   if(k==='poll'){m.pollOpen=true;m.pollVisible=false;m.message='POLL THE CREW is open. Everyone choose A, B, C, or D.'}
-  if(k==='reduce'){
-    const wrong=(q.choices||[]).map(c=>c.key).filter(key=>key!==q.correct&&key!==m.selectedAnswer);if(wrong.length<2)return toast('50/50 is unavailable for this question');m.eliminated=wrong.slice(0,2);m.message='50/50 ACTIVATED — two incorrect answers removed. Choose from the two remaining signals.'
-  }
+  if(k==='reduce'){m.eliminated=wrong.slice(0,2);m.message='50/50 ACTIVATED — two incorrect answers removed. Choose from the two remaining signals.'}
   if(k==='clue'){m.publicClue=q.mothershipClue||'Think carefully about what the question is asking.';m.message='MOTHERSHIP CLUE transmitted.'}
-  if(k==='tryAgain'){m.selectedAnswer='';m.lockedAnswer='';m.revealed=false;m.result='';m.publicCorrect='';m.over=false;m.message='TRY AGAIN activated. Choose another answer.'}
+  if(k==='tryAgain'){m.selectedAnswer='';m.lockedAnswer='';m.revealed=false;m.result='';m.publicCorrect='';m.over=false;m.questionEndedAt=null;m.message='TRY AGAIN activated. Choose another answer.'}
   if(renderNow){render();toast('Lifeline activated')}
 }
 function millionResolve(correct){
   const run=state.activityRun,m=millionState(run),cfg=millionConfig(run),q=millionQuestion(run);if(!m||!q||!m.lockedAnswer||m.revealed)return;correct=m.lockedAnswer===q.correct;
-  m.revealed=true;m.publicCorrect=q.correct;m.result=correct?'correct':'incorrect';
+  m.revealed=true;m.questionEndedAt=Date.now();m.publicCorrect=q.correct;m.result=correct?'correct':'incorrect';
   if(correct){
     m.ladderLevel=Math.min((cfg.ladder||MILLION_LADDER_DEFAULT).length,Number(m.ladderLevel||0)+1);
     m.message='SIGNAL CONFIRMED — '+m.pilot+' climbs the ladder.';
@@ -17632,15 +17662,19 @@ function millionResolve(correct){
 function millionRotatePilot(run=state.activityRun){
   const m=millionState(run),cfg=millionConfig(run),crew=connectedStudents();if(!m||!crew.length)return;
   if(cfg.pilotMode==='individual')return;
-  m.pilotIndex=(Number(m.pilotIndex||0)+1)%crew.length;m.pilot=crew[m.pilotIndex].n
+  // Roster changes must not cause a repeat or skipped Command Seat turn.
+  const at=crew.findIndex(student=>student.n===m.pilot);
+  m.pilotIndex=(at+1+crew.length)%crew.length;m.pilot=crew[m.pilotIndex].n
 }
 function millionNextQuestion(){
   const run=state.activityRun,m=millionState(run),cfg=millionConfig(run);if(!m)return;
   if(m.complete)return toast('Mission complete');if(m.over)return toast('Run complete — finish or load another game');if(!m.revealed)return toast('Reveal the answer before moving on');
   const next=Number(m.questionIndex||0)+1;if(next>=(cfg.questions||[]).length){m.complete=true;render();return}
-  m.questionIndex=next;millionRotatePilot(run);m.selectedAnswer='';m.lockedAnswer='';m.crewPredictions={};m.eliminated=[];m.publicClue='';m.pollOpen=false;m.pollVisible=false;m.revealed=false;m.result='';m.publicCorrect='';m.over=false;m.message='New question. Everyone think before the Command Seat locks an answer.';run.runToken=newActivityRunToken();render()
+  m.questionIndex=next;millionRotatePilot(run);m.selectedAnswer='';m.lockedAnswer='';m.crewPredictions={};m.publicPollCounts=null;m.eliminated=[];m.publicClue='';m.pollOpen=false;m.pollVisible=false;m.revealed=false;m.result='';m.publicCorrect='';m.over=false;m.questionStartedAt=Date.now();m.questionEndedAt=null;m.pausedAt=null;m.message='New question. Everyone think before the Command Seat locks an answer.';run.runToken=newActivityRunToken();render()
 }
-function millionSetPilot(name){const m=millionState();if(!m||!studentByName(name))return;m.pilot=name;m.pilotIndex=Math.max(0,connectedStudents().findIndex(s=>s.n===name));m.selectedAnswer='';m.lockedAnswer='';render()}
+function millionSetPilot(name){const m=millionState();if(!m||!studentByName(name))return;
+ if(m.lockedAnswer||m.revealed||m.over||m.complete)return toast('Change pilot before locking an answer');
+ m.pilot=name;m.pilotIndex=Math.max(0,connectedStudents().findIndex(s=>s.n===name));m.selectedAnswer='';m.lockedAnswer='';render()}
 function millionGrantLifeline(type){const m=millionState();if(!m)return;m.inventory=m.inventory||{};m.inventory[type]=Math.min(9,Number(m.inventory[type]||0)+1);render()}
 function millionSharedMarkup(run=state.activityRun,big=false){
   const m=millionState(run),cfg=millionConfig(run),q=millionQuestion(run);if(!m||!q)return'';

@@ -88,6 +88,55 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.equal(await page.locator('#msName').inputValue(),'Browser Regression Million Game');
   assert.equal(await page.locator('#msPrompt').inputValue(),'Question 1 — crew skills?', 'original remains unchanged');
   assert.equal(await page.evaluate(()=>window.MillionStudio.inspection().ready),5);
+  // Isolated engine exercise: rotation follows current student by name, even
+  // if a new classmate joins or the roster is reordered.
+  const checks=await page.evaluate(()=>{
+   const savedRun=state.activityRun,oldStudents=state.students;
+   const cfg={questions:[{prompt:'First',choices:['A','B','C','D'].map(k=>({key:k,text:k})),correct:'B'}],
+    ladder:[100,200],risk:'practice',pilotMode:'rotate',checkpoints:[]};
+   const m={pilot:'Crew',pilotIndex:1,questionIndex:0,selectedAnswer:'',lockedAnswer:'',
+    inventory:{poll:2,reduce:2,clue:2,tryAgain:2},pollOpen:false,pollVisible:false,
+    crewPredictions:{},eliminated:[],publicClue:'',revealed:false,result:'',
+    complete:false,over:false,ladderLevel:0};
+   state.students=[{n:'Crew',offline:false},{n:'Pilot',offline:false},{n:'New Student',offline:false}];
+   state.activityRun={activityId:'million-game',phase:'running',millionConfig:cfg,million:m,runToken:'qa-million'};
+   millionRotatePilot();
+   const rotation=m.pilot;
+   millionUseLifeline('tryAgain',false);
+   const idle=m.inventory.tryAgain;
+   millionUseLifeline('poll',false);millionUseLifeline('poll',false);
+   const poll={left:m.inventory.poll,open:m.pollOpen};
+   millionUseLifeline('clue',false);millionUseLifeline('clue',false);
+   const clue={left:m.inventory.clue,text:m.publicClue};
+   m.selectedAnswer='A';
+   millionUseLifeline('reduce',false);
+   const eliminated=[...m.eliminated],stock=m.inventory.reduce;
+   millionUseLifeline('reduce',false);
+   m.lockedAnswer='A';
+   const selectedBefore=m.selectedAnswer;
+   millionSetPilot('Crew');
+   const locked={pilot:m.pilot,selected:m.selectedAnswer};
+   const start=Date.now()-62000;
+   m.questionStartedAt=start;m.questionEndedAt=null;
+   const elapsedBefore=Math.round((Date.now()-m.questionStartedAt)/1000);
+   const pausedAt=Date.now()-4000;
+   m.pausedAt=pausedAt;
+   m.questionStartedAt+=Date.now()-m.pausedAt;
+   const pausedTime=Math.round((Date.now()-m.questionStartedAt)/1000);
+   state.activityRun=savedRun;state.students=oldStudents;
+   return {rotation,idle,poll,clue,eliminated,stock,selectedBefore,locked,
+    elapsedBefore,pausedTime};
+  });
+  assert.equal(checks.rotation,'Pilot','rotation uses the active pilot identity');
+  assert.equal(checks.idle,2,'an unused Try Again does not spend a charge');
+  assert.deepEqual(checks.poll,{left:1,open:true},'poll cannot be spent twice in one round');
+  assert.equal(checks.clue.left,1,'repeating the same clue does not consume stock');
+  assert.deepEqual(checks.eliminated,['C','D']);
+  assert.equal(checks.stock,1,'50/50 remains one-use per question');
+  assert.deepEqual(checks.locked,{pilot:'Pilot',selected:'A'},
+   'a locked answer cannot be overwritten by changing pilot');
+  assert.ok(checks.elapsedBefore>=60&&checks.pausedTime<checks.elapsedBefore,
+   'the question clock can account for paused time without a cutoff');
   await page.setViewportSize({width:390,height:844});
   const layout=await page.evaluate(()=>{
    const r=document.querySelector('.ms-studio').getBoundingClientRect();

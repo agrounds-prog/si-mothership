@@ -4386,6 +4386,8 @@ def _million_apply_request(state: dict, run: dict, name: str, request: dict) -> 
     cfg = run.get("millionConfig") if isinstance(run.get("millionConfig"), dict) else {}
     if not isinstance(million, dict) or million.get("complete") or million.get("over"):
         return
+    if run.get("phase") == "lobby":  # no student actions until teacher starts
+        return
     request_id = str(request.get("id") or "")[:120]
     if not request_id or request_id == str(million.get("lastRequestId") or ""):
         return
@@ -4448,6 +4450,16 @@ def _million_apply_request(state: dict, run: dict, name: str, request: dict) -> 
         return
     # 50/50 is only available before a final lock/reveal and once per question.
     # Refuse stale/duplicate requests BEFORE spending another lifeline.
+    if million.get("revealed") and lifeline != "tryAgain":
+        return
+    if lifeline == "poll" and million.get("pollOpen"):
+        return
+    if lifeline == "clue" and million.get("publicClue"):
+        return
+    if lifeline == "tryAgain" and not (
+        million.get("selectedAnswer") or million.get("lockedAnswer") or million.get("revealed")
+    ):
+        return
     if lifeline == "reduce" and (
         million.get("lockedAnswer") or million.get("revealed") or eliminated
     ):

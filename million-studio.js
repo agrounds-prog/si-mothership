@@ -791,6 +791,10 @@ function installMillionPhase4J(){
   const choices=[...('ABCD')];
   const locked=!!m.lockedAnswer,finished=!!(m.complete||m.over);
   const reveal=!!m.revealed;
+  const started=Number(m.questionStartedAt||0);
+  const stopped=Number(m.questionEndedAt||m.pausedAt||Date.now());
+  const elapsed=started?Math.max(0,Math.floor((stopped-started)/1000)):0;
+  const clockText=started?Math.floor(elapsed/60)+':'+String(elapsed%60).padStart(2,'0'):'—';
   const stateLabel=finished?'MISSION COMPLETE':reveal?
    m.result==='correct'?'CORRECT ANSWER REVEALED':'ANSWER REVEALED':
    locked?'ANSWER LOCKED':m.selectedAnswer?'ANSWER SELECTED':'WAITING FOR ANSWER';
@@ -800,6 +804,10 @@ function installMillionPhase4J(){
    const controls=primary?.querySelector('.million-teacher-actions');
    if(!controls)return;
    root.classList.add('million-4j-teacher');
+   const clock=add(primary,'div','million-4o-question-clock',controls);
+   clock.setAttribute('role','timer');
+   clock.setAttribute('aria-label','Elapsed question time without an automatic time limit');
+   applyText(clock,(reveal?'QUESTION TIME':'QUESTION ELAPSED')+' · '+clockText);
    const progress=add(primary,'section','million-4j-progress',controls);
    if(!progress.firstElementChild){
     progress.setAttribute('aria-label','Million current question and game progress');
@@ -884,6 +892,10 @@ function installMillionPhase4J(){
     });
    }
    const stage=board.querySelector('.million-stage');
+   const clock=add(stage,'div','million-4o-question-clock',stage.querySelector('.million-message'));
+   clock.setAttribute('role','timer');
+   clock.setAttribute('aria-label','Elapsed question time');
+   applyText(clock,(reveal?'QUESTION TIME':'QUESTION ELAPSED')+' · '+clockText);
    const tag=add(stage,'div','million-4j-stage-status',stage.querySelector('.million-message'));
    tag.setAttribute('role','status');
    applyText(tag,stateLabel);

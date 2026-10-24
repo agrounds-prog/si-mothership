@@ -2151,3 +2151,23 @@ body.role-shared .million-4j-stage .million-lifelines .million-4j-spent{
   animation:none!important;transition:none!important;
  }
 }
+
+/* Phase 4O-A: synchronized but non-expiring question elapsed time.
+   The teacher controls the pace; the lobby pauses the clock. */
+#teacher #activityControllerPanel .million-4o-question-clock,
+body.role-shared .million-4j-stage .million-4o-question-clock{
+ box-sizing:border-box;display:flex;align-items:center;justify-content:center;
+ min-width:0;min-height:35px;margin:8px 0;padding:8px 12px;
+ border:1px solid #649abf;border-radius:9px;
+ background:linear-gradient(110deg,#133457,#0d2945);
+ color:#c8f3ff;font:900 clamp(11px,1.2vw,15px)/1.25 system-ui,sans-serif;
+ letter-spacing:.065em;font-variant-numeric:tabular-nums;
+}
+body.role-shared .million-4j-stage .million-4o-question-clock{
+ margin:6px 0 2px;border-color:#5787ab;min-height:28px;
+}
+@media(max-width:520px){
+ body.role-shared .million-4j-stage .million-4o-question-clock{
+  padding:5px;font-size:11px;
+ }
+}

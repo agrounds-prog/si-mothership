@@ -9,6 +9,8 @@ on:
       - 'server.py'
       - 'tests/test_classroom_transport_smoke.py'
       - 'tests/test_crew_survey_server.py'
+      - 'tests/test_million_multiplayer.py'
+      - 'tests/test_million_websocket_live.py'
       - 'tests/test_student_status_ui.js'
       - 'tests/test_floating_game_dock.cjs'
       - 'tests/test_quick_poll.py'
@@ -49,6 +51,10 @@ jobs:
         run: node tests/test_student_status_ui.js
       - name: Quick Poll server authority, privacy, voting and replay regressions
         run: python -m unittest discover -s tests -p test_quick_poll.py -v
+      - name: MILLION server lifeline, student privacy and multiplayer rules
+        run: python -m unittest discover -s tests -p test_million_multiplayer.py -v
+      - name: MILLION real websocket synchronization and saved library tests
+        run: python -m unittest discover -s tests -p test_million_websocket_live.py -v
       - name: Crew Survey authoritative buzz and private response tests
         run: python -m unittest discover -s tests -p test_crew_survey_server.py -v
       - name: Teacher, students, shared-screen websocket regressions
