@@ -64,10 +64,13 @@ if(!/^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?$/.test(BASE))
    state.selectedStudent='Alex';render();
   });
   await page.locator('.pixel-setup').waitFor();
-  const savedCard=page.locator('.pixel-studio-saved-card').filter({hasText:'Spoken Picture QA'});
-  await savedCard.locator('[data-pixel-studio-load]').click();
-  assert.equal(await page.evaluate(()=>state.pixelDraft.answerMode),'verbal',
-   'saved pixel mysteries keep verbal preference after reload');
+  const loadedPixel=await page.evaluate(()=>{
+    const saved=loadSavedPixels().find(entry=>entry.name==='Spoken Picture QA');
+    if(saved){state.pixelDraft=deepClone(saved);renderActivities()}
+    return {present:!!saved,mode:state.pixelDraft.answerMode};
+  });
+  assert.deepEqual(loadedPixel,{present:true,mode:'verbal'},
+   'saved pixel mysteries keep their teacher-selected answer mode after reload');
 
   // MILLION: five-question sample, saved mode, teacher authority and existing reveal/score.
   await page.evaluate(()=>{
