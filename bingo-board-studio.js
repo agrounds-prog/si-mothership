@@ -502,6 +502,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   };
   let boards=[],games=[],editingBoardId='',editingGameId='',boardName='',gameName='';
   let gameLength=1,roundIds=[''],roundCopies=[null],activeCopies=[],busy=false,installed=false;
+  // Teacher-only view preferences. Search never mutates persisted board or game data.
+  let boardSearchQuery='',gameSearchQuery='';
   const id=kind=>kind+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9);
   const value=v=>String(v??'').trim();
   const clamp=(n,min,max)=>Math.min(max,Math.max(min,Number(n)||0));
@@ -618,6 +620,71 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const chosen=roundCopies[i];
     if(chosen&&chosen.sourceBoardId===roundIds[i])return freezeBoard(chosen);
     return freezeBoard(boards.find(b=>b.id===roundIds[i]));
+  }
+  function addBoardToNextRound(idToAdd){
+    if(busy)return;
+    const board=boards.find(b=>b.id===idToAdd);
+    if(!board||!boardValid(board))return tell('This board needs a question and four answers before use.');
+    if(roundIds.includes(idToAdd))return tell('That board is already in the Game Builder. Choose a different board.');
+    const empty=roundIds.findIndex(id=>!id);
+    if(empty<0)return tell('All '+gameLength+' round slots are filled. Choose another game length or change a round below.');
+    roundIds[empty]=idToAdd;roundCopies[empty]=null;
+    renderActivities();
+    tell('Added '+board.name+' to Round '+(empty+1)+'.');
+  }
+  function gameReadiness(){
+    const rounds=Array.from({length:gameLength},(_,i)=>boardForRound(i));
+    const completed=rounds.filter(boardValid).length;
+    const ids=rounds.map((board,i)=>board?.sourceBoardId||'missing-'+i);
+    const hasDuplicate=new Set(ids.filter(id=>!id.startsWith('missing-'))).size<
+      ids.filter(id=>!id.startsWith('missing-')).length;
+    const missingIndex=rounds.findIndex(board=>!boardValid(board));
+    const ready=missingIndex===-1&&!hasDuplicate;
+    let explanation=ready?'All '+gameLength+' boards are ready to launch.':
+      hasDuplicate?'A board is selected more than once. Choose a different board for each round.':
+      'Round '+(missingIndex+1)+' needs a saved board with a question and at least four answers.';
+    if(ready&&!value(gameName))explanation+=' Add a game name to save the complete game.';
+    return {completed,ready,explanation};
+  }
+  function studioStatusMarkup(){
+    const board=draftBoard(),answerCount=board?.answers?.filter(a=>a.text).length||0;
+    const ready=boardValid(board);
+    return '<div class="survey-studio-board-ready" data-ready="'+ready+'" role="status">'+
+      (ready?'✓ Board answers ready · ':'○ Board needs at least 4 answers · ')+
+      answerCount+' entered'+(!value(boardName)?' · Add a board name to save':'')+'</div>';
+  }
+  function updateStudioStatus(studio){
+    const boardStatus=studio.querySelector('.survey-studio-board-ready');
+    if(boardStatus){
+      const board=draftBoard(),answers=board?.answers?.filter(a=>a.text).length||0;
+      const ready=boardValid(board);
+      boardStatus.dataset.ready=String(ready);
+      boardStatus.textContent=(ready?'✓ Board answers ready · ':'○ Board needs at least 4 answers · ')+
+        answers+' entered'+(!value(boardName)?' · Add a board name to save':'');
+    }
+    const status=studio.querySelector('.survey-builder-status-text');
+    if(status){
+      const readiness=gameReadiness();
+      status.textContent=readiness.explanation;
+      status.parentElement.dataset.ready=String(readiness.ready);
+    }
+  }
+  function applyStudioLibrarySearch(studio){
+    for(const [kind,query] of [['board',boardSearchQuery],['game',gameSearchQuery]]){
+      const section=studio.querySelector(kind==='board'?'.survey-studio-board':'.survey-studio-game');
+      const list=section?.querySelector('.survey-library-list');
+      if(!list)continue;
+      const entries=[...list.querySelectorAll('.survey-library-item')];
+      let count=0;
+      for(const item of entries){
+        const haystack=item.querySelector('.survey-library-item-text')?.textContent.toLocaleLowerCase()||'';
+        const match=haystack.includes(query.trim().toLocaleLowerCase());
+        item.hidden=!match;
+        if(match)count++;
+      }
+      const label=section.querySelector('.survey-studio-search-count');
+      if(label)label.textContent=count+' of '+entries.length+(query.trim()?' matching':' saved');
+    }
   }
   function compileRounds(){
     const rounds=Array.from({length:gameLength},(_,i)=>boardForRound(i));
@@ -991,16 +1058,21 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       '</div><span class="survey-library-count">'+boards.length+' BOARDS</span></div>'+
       '<div class="survey-library-editor"><label for="surveyBoardName">BOARD NAME</label>'+
       '<input id="surveyBoardName" maxlength="90" placeholder="e.g. Kitchen Tools · Round 1" value="'+safe(boardName)+'">'+
+      studioStatusMarkup()+
       '<div class="survey-library-actions"><button id="surveySaveBoard" type="button" class="survey-save-primary">'+
       (board?'✓ Update Board':'💾 Save to Board Library')+'</button>'+
       '<button id="surveySaveCopy" type="button">Save Copy</button>'+
       '<button id="surveyNewBoard" type="button">＋ New Board</button></div></div>'+
-      '<div class="survey-library-bottom"><h5>Saved Boards <small>Load a board to edit it, or assign it in Step 2 below.</small></h5>'+
+      '<div class="survey-library-bottom"><h5>Saved Boards <small>Find a board or send it directly to the next free game round.</small></h5>'+
+      '<div class="survey-studio-search"><label for="surveyBoardSearch">FIND A BOARD</label>'+
+      '<input id="surveyBoardSearch" type="search" placeholder="Search names or questions" autocomplete="off">'+
+      '<span class="survey-studio-search-count" role="status"></span></div>'+
       (boards.length?'<div class="survey-library-list">'+boards.map(b=>
         '<article class="survey-library-item'+(b.id===editingBoardId?' selected':'')+'">'+
         '<div class="survey-library-item-text"><strong>'+safe(b.name)+'</strong><span>'+safe(b.prompt)+'</span>'+
         '<small>'+b.answers.filter(a=>a.text).length+' answers</small></div>'+
-        '<div class="survey-library-item-buttons"><button type="button" data-survey-load="'+safe(b.id)+'">Load / Edit</button>'+
+        '<div class="survey-library-item-buttons"><button type="button" class="survey-add-round" data-survey-add-round="'+safe(b.id)+'">＋ Add to Next Round</button>'+
+        '<button type="button" data-survey-load="'+safe(b.id)+'">Edit</button>'+
         '<button type="button" data-survey-delete="'+safe(b.id)+'" class="survey-delete" aria-label="Delete '+safe(b.name)+'">×</button></div></article>').join('')+'</div>':
         '<p class="survey-library-empty">No boards saved yet. Create a question below and save it to begin.</p>')+
       '</div></section>';
@@ -1012,12 +1084,15 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const id=roundIds[i]||'',copy=roundCopies[i],found=boards.some(b=>b.id===id);
       const snapshot=!found&&copy?.sourceBoardId===id;
       const name=copy?.name||boards.find(b=>b.id===id)?.name||'';
-      return '<label class="survey-round-select"><b>ROUND '+(i+1)+'</b>'+
+      const complete=boardValid(boardForRound(i));
+      return '<label class="survey-round-select" data-ready="'+complete+'"><b>ROUND '+(i+1)+'</b>'+
+        '<small class="survey-round-ready">'+(complete?'✓ Board ready':'○ Choose a board')+'</small>'+
         '<select data-survey-round="'+i+'"><option value="">— Choose a board —</option>'+
         (snapshot?'<option value="'+safe(id)+'" selected>'+safe(name)+' (Saved Game Copy)</option>':'')+
         boards.map(b=>'<option value="'+safe(b.id)+'" '+(b.id===id?'selected':'')+'>'+safe(b.name)+'</option>').join('')+'</select>'+
         '<span class="survey-round-description">'+(name?safe(copy?.prompt||boards.find(b=>b.id===id)?.prompt||''):'Choose a saved Board Library item')+'</span></label>';
     }).join('');
+    const readiness=gameReadiness();
     return '<section class="survey-rounds-panel survey-studio-game" aria-label="Build and save Survey Games">'+
       '<div class="survey-rounds-heading"><div><span class="survey-library-eyebrow">STEP 2 · ASSEMBLE AND SAVE A GAME</span>'+
       '<h4>Game Builder</h4><p>Choose 1, 3, or 5 different saved boards. They play in this order, with a new faceoff and running crew scores.</p>'+
@@ -1027,6 +1102,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       '<div class="survey-game-name"><label for="surveyGameName">GAME NAME</label>'+
       '<input id="surveyGameName" maxlength="90" placeholder="e.g. Friday Survey Showdown" value="'+safe(gameName)+'"></div>'+
       '<div class="survey-round-order">'+rows+'</div>'+
+      '<div class="survey-builder-readiness" data-ready="'+readiness.ready+'" role="status">'+
+      '<div class="survey-builder-readiness-head"><strong>'+readiness.completed+' / '+gameLength+' ROUNDS READY</strong>'+
+      '<span>'+ (readiness.ready?'✓ READY':'SET UP ROUNDS')+'</span></div>'+
+      '<div class="survey-builder-progress" role="progressbar" aria-label="Survey rounds ready" aria-valuemin="0" aria-valuemax="'+gameLength+'" aria-valuenow="'+readiness.completed+'">'+
+      '<i style="width:'+(readiness.completed/gameLength*100)+'%"></i></div>'+
+      '<p class="survey-builder-status-text">'+safe(readiness.explanation)+'</p></div>'+
       '<p class="survey-round-note">Saved games keep their own copies of each selected board. Editing or deleting a library board later will not change an existing saved game.</p>'+
       '<div class="survey-game-actions">'+
       '<button id="surveySaveGame" type="button" class="survey-save-primary">'+(selected?'✓ Update Saved Game':'💾 Save Complete Game')+'</button>'+
@@ -1037,6 +1118,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       '<p class="survey-round-note">Play Current Board runs one unsaved practice round using the question and answers in the editor. Launch Selected Game uses your selected saved boards in the chosen 1-, 3-, or 5-round order.</p>'+
       '<div id="surveyLaunchStatus" role="status" aria-live="polite" '+(lastLaunchStatus?'':'hidden')+' style="margin:9px 0;padding:10px 12px;border:1px solid #5485a1;border-radius:9px;background:#0a2840;color:#c1ffed;font-weight:750;">'+safe(lastLaunchStatus)+'</div>'+
       '<div class="survey-library-bottom survey-game-library"><h5>Saved Games <small>Load / Edit or play a complete game.</small></h5>'+
+      '<div class="survey-studio-search"><label for="surveyGameSearch">FIND A SAVED GAME</label>'+
+      '<input id="surveyGameSearch" type="search" placeholder="Search games and included boards" autocomplete="off">'+
+      '<span class="survey-studio-search-count" role="status"></span></div>'+
       (games.length?'<div class="survey-library-list">'+games.map(g=>
         '<article class="survey-library-item'+(g.id===editingGameId?' selected':'')+'">'+
         '<div class="survey-library-item-text"><strong>'+safe(g.name)+'</strong>'+
@@ -1064,10 +1148,22 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const n=byId('surveyBoardName'),gn=byId('surveyGameName');
     if(n)n.oninput=e=>boardName=e.target.value;
     if(gn)gn.oninput=e=>gameName=e.target.value;
+    const boardSearch=byId('surveyBoardSearch'),gameSearch=byId('surveyGameSearch');
+    if(boardSearch)boardSearch.value=boardSearchQuery;
+    if(gameSearch)gameSearch.value=gameSearchQuery;
+    studio.addEventListener('input',event=>{
+      if(event.target===boardSearch)boardSearchQuery=boardSearch.value;
+      if(event.target===gameSearch)gameSearchQuery=gameSearch.value;
+      applyStudioLibrarySearch(studio);
+      updateStudioStatus(studio);
+    });
+    applyStudioLibrarySearch(studio);
+    updateStudioStatus(studio);
     const wire=(name,fn)=>{const el=byId(name);if(el)el.onclick=fn};
     wire('surveySaveBoard',()=>saveBoard(false));wire('surveySaveCopy',()=>saveBoard(true));wire('surveyNewBoard',newBoard);
     wire('surveySaveGame',()=>saveGame(false));wire('surveyCopyGame',()=>saveGame(true));wire('surveyNewGame',newGame);
     wire('surveyPlayDraft',launchDraft);
+    studio.querySelectorAll('[data-survey-add-round]').forEach(b=>b.onclick=()=>addBoardToNextRound(b.dataset.surveyAddRound));
     studio.querySelectorAll('[data-survey-load]').forEach(b=>b.onclick=()=>loadBoard(b.dataset.surveyLoad));
     studio.querySelectorAll('[data-survey-delete]').forEach(b=>b.onclick=()=>deleteBoard(b.dataset.surveyDelete));
     studio.querySelectorAll('[data-survey-length]').forEach(b=>b.onclick=()=>setLength(Number(b.dataset.surveyLength)));

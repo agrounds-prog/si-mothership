@@ -256,6 +256,56 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   await page.emulateMedia({reducedMotion:'no-preference'});
 
 
+  // Phase 4N-C: Board Library search, one-click round assignment, readiness,
+  // Save/Load and Launch all remain backed by the isolated localhost server.
+  await launchSetup('crew-survey');
+  await page.locator('#surveyBoardName').fill('School Supplies Board');
+  assert.match(await page.locator('.survey-studio-board-ready').innerText(),/Board answers ready/);
+  await page.locator('#surveySaveBoard').click();
+  await page.locator('[data-survey-load]').first().waitFor();
+  await page.locator('#surveyBoardSearch').fill('unrelated mystery');
+  assert.equal(await page.locator('.survey-studio-board .survey-library-item:visible').count(),0,
+   'Board Library search hides nonmatching boards without modifying storage');
+  await page.locator('#surveyBoardSearch').fill('School Supplies');
+  assert.equal(await page.locator('.survey-studio-board .survey-library-item:visible').count(),1,
+   'board search locates a saved question');
+  const boardId=await page.locator('[data-survey-add-round]').first().getAttribute('data-survey-add-round');
+  await page.locator('[data-survey-add-round]').first().click();
+  assert.equal(await page.locator('[data-survey-round="0"]').inputValue(),boardId,
+   'one click adds a saved board to the next available round');
+  assert.match(await page.locator('.survey-builder-readiness').innerText(),/1 \/ 1 ROUNDS READY/);
+  assert.equal(await page.locator('.survey-builder-readiness').getAttribute('data-ready'),'true');
+  await page.locator('[data-survey-length="3"]').click();
+  assert.match(await page.locator('.survey-builder-readiness').innerText(),/1 \/ 3 ROUNDS READY/);
+  assert.equal(await page.locator('.survey-builder-readiness').getAttribute('data-ready'),'false',
+   'missing board slots show incomplete preparation');
+  await page.locator('[data-survey-round="1"]').selectOption(boardId);
+  assert.match(await page.locator('.survey-builder-status-text').innerText(),/selected more than once/i,
+   'duplicate boards are flagged before playing');
+  await page.locator('[data-survey-length="1"]').click();
+  await page.locator('#surveyGameName').fill('School Supplies Showdown');
+  await page.locator('#surveySaveGame').click();
+  await page.locator('[data-survey-play-game]').first().waitFor();
+  await page.locator('#surveyGameSearch').fill('unrelated game');
+  assert.equal(await page.locator('.survey-studio-game .survey-library-item:visible').count(),0);
+  await page.locator('#surveyGameSearch').fill('School Supplies');
+  assert.equal(await page.locator('.survey-studio-game .survey-library-item:visible').count(),1,
+   'Saved Game search includes game and round names');
+  const surveyStudioLayout=await layout('crew-survey','.crew-survey-setup');
+  await reload();await launchSetup('crew-survey');
+  assert.ok(await page.locator('[data-survey-play-game]').count(),
+   'saved complete game persists after teacher reload');
+  await page.locator('[data-survey-play-game]').first().click();
+  const restoredSurvey=await page.evaluate(()=>({
+   id:state.activityRun?.activityId,
+   prompt:state.activityRun?.crewSurveyConfig?.prompt,
+   buzzerArmed:state.activityRun?.crewSurvey?.buzzer?.armed,
+   boards:state.activityRun?.crewSurveyTotal
+  }));
+  assert.deepEqual(restoredSurvey,{
+   id:'crew-survey-game',prompt:'Which school supplies help us learn?',
+   buzzerArmed:true,boards:1
+  },'saved games launch with the original board and active face-off buzzer');
   // Calculator: QR and share URL update immediately when settings change.
   await launchSetup('scientific-calculator');
   await page.locator('#calculatorAngleMode').selectOption('rad');

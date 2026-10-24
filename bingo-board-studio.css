@@ -2880,3 +2880,88 @@ body.role-student #student .si-bingo-call-alerts-off .bingo-student-board
  .crew-survey-public.cs-showtime .cs-buzz-winner-strip{padding:7px 9px;gap:6px}
  .crew-survey-public.cs-showtime .cs-round-winner{padding:10px 8px}
 }
+
+
+/* Phase 4N-C — streamlined Survey teacher workflow; never affects students. */
+#teacher .crew-survey-setup .survey-studio-search{
+ display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
+ gap:6px 12px;margin:12px 0;padding:12px;
+ border:1px solid #4e91b2;border-radius:12px;
+ background:linear-gradient(125deg,#102e4b,#0b2441);
+}
+#teacher .crew-survey-setup .survey-studio-search label{
+ grid-column:1/-1;color:#b3f6e6;font:900 11px/1.3 system-ui,sans-serif;
+ letter-spacing:.08em;
+}
+#teacher .crew-survey-setup .survey-studio-search input{
+ box-sizing:border-box;min-width:0;width:100%;min-height:44px;
+ padding:10px 13px;border:1px solid #7cb4d6;border-radius:9px;
+ background:#07182e;color:#f5fcff;font:750 13px system-ui,sans-serif;
+}
+#teacher .crew-survey-setup .survey-studio-search input::placeholder{color:#a3c0d5}
+#teacher .crew-survey-setup .survey-studio-search-count{
+ color:#b7dbee;font:800 11px/1.3 system-ui,sans-serif;
+}
+#teacher .crew-survey-setup .survey-library-item[hidden]{display:none!important}
+#teacher .crew-survey-setup .survey-library-item-buttons .survey-add-round{
+ background:linear-gradient(145deg,#166f65,#0d5059);
+ border:1px solid #91f3ce;color:#edfff9;
+ min-height:39px;
+}
+#teacher .crew-survey-setup .survey-studio-board-ready{
+ margin:0 0 10px;padding:10px 12px;border:1px solid #c89868;
+ border-radius:9px;background:#3a2b2a;
+ color:#ffe4bf;font:850 12px/1.45 system-ui,sans-serif;
+}
+#teacher .crew-survey-setup .survey-studio-board-ready[data-ready="true"]{
+ border-color:#74e7b6;background:#123d3f;color:#b7ffe5;
+}
+#teacher .crew-survey-setup .survey-round-ready{
+ display:inline-flex;align-items:center;min-height:24px;justify-content:center;
+ padding:5px 9px;border:1px solid #b5926e;border-radius:8px;
+ color:#ffdfb8;background:#412f2c;font:900 11px/1.3 system-ui,sans-serif;
+}
+#teacher .crew-survey-setup .survey-round-select[data-ready="true"] .survey-round-ready{
+ border-color:#6de7b8;color:#b9ffe8;background:#0b3d3f;
+}
+#teacher .crew-survey-setup .survey-builder-readiness{
+ box-sizing:border-box;padding:13px;margin:4px 0;
+ border:1px solid #b29163;border-radius:13px;
+ background:linear-gradient(125deg,#382f36,#142d43);
+ color:#ffe3b8;
+}
+#teacher .crew-survey-setup .survey-builder-readiness[data-ready="true"]{
+ border-color:#78e9c3;background:linear-gradient(125deg,#0f4b46,#102e43);
+ color:#baffeb;
+}
+#teacher .crew-survey-setup .survey-builder-readiness-head{
+ display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;
+ gap:8px;font:900 12px/1.25 system-ui,sans-serif;
+}
+#teacher .crew-survey-setup .survey-builder-readiness-head span{
+ color:inherit;letter-spacing:.08em;
+}
+#teacher .crew-survey-setup .survey-builder-progress{
+ box-sizing:border-box;display:block;width:100%;height:11px;
+ margin:10px 0;border:1px solid #5f8fa2;border-radius:99px;
+ overflow:hidden;background:#061d35;
+}
+#teacher .crew-survey-setup .survey-builder-progress i{
+ display:block;height:100%;width:0;background:linear-gradient(90deg,#49c8e4,#8dffbb);
+ border-radius:inherit;transition:width .25s ease-out;
+}
+#teacher .crew-survey-setup .survey-builder-status-text{
+ margin:6px 0 0;font:750 12px/1.45 system-ui,sans-serif;color:inherit;
+}
+#teacher .crew-survey-setup .survey-studio-search input:focus-visible,
+#teacher .crew-survey-setup .survey-add-round:focus-visible{
+ outline:3px solid #ffdc93!important;outline-offset:3px!important;
+}
+@media(max-width:580px){
+ #teacher .crew-survey-setup .survey-studio-search{grid-template-columns:1fr}
+ #teacher .crew-survey-setup .survey-studio-search-count{grid-column:1}
+ #teacher .crew-survey-setup .survey-add-round{flex:1 1 100%}
+}
+@media(prefers-reduced-motion:reduce){
+ #teacher .crew-survey-setup .survey-builder-progress i{transition:none!important}
+}
