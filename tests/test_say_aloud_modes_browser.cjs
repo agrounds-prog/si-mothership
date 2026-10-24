@@ -63,7 +63,7 @@ if(!/^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?$/.test(BASE))
    state.students=[{n:'Alex',offline:false},{n:'Blair',offline:false}];
    state.selectedStudent='Alex';render();
   });
-  await page.locator('.pixel-setup').waitFor();
+  await page.locator('.pixel-setup').waitFor({state:'attached'});
   const loadedPixel=await page.evaluate(()=>{
     const saved=loadSavedPixels().find(entry=>entry.name==='Spoken Picture QA');
     if(saved){state.pixelDraft=deepClone(saved);renderActivities()}
