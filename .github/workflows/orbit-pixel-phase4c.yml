@@ -10,6 +10,7 @@ on:
       - 'pixel-batch.css'
       - 'tests/test_orbit_classroom_browser.cjs'
       - 'tests/test_pixel_batch_browser.cjs'
+      - 'tests/test_pixel_twelve_image_classroom_browser.cjs'
       - '.github/workflows/orbit-pixel-phase4c.yml'
 
 permissions: {contents: read}
@@ -29,6 +30,7 @@ jobs:
           node --check pixel-batch.js
           node --check tests/test_orbit_classroom_browser.cjs
           node --check tests/test_pixel_batch_browser.cjs
+          node --check tests/test_pixel_twelve_image_classroom_browser.cjs
           python scripts/release_gate.py --require-node
       - name: Install isolated browser dependencies
         run: |
@@ -49,6 +51,8 @@ jobs:
         run: LOCAL_URL=http://127.0.0.1:8877 node tests/test_orbit_classroom_browser.cjs
       - name: PIXEL REVEAL 12-image-ready workflow, save/reload and round isolation
         run: LOCAL_URL=http://127.0.0.1:8877 node tests/test_pixel_batch_browser.cjs
+      - name: PIXEL twelve distinct images — classroom dress rehearsal
+        run: LOCAL_URL=http://127.0.0.1:8877 node tests/test_pixel_twelve_image_classroom_browser.cjs
       - name: Diagnostics on failure
         if: failure()
         run: tail -100 /tmp/orbit-pixel-phase4c.log || true
