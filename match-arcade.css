@@ -1409,3 +1409,37 @@ body.role-student #studentContent .ma-student-earned b{color:#aeffda!important}
 @media(prefers-reduced-motion:reduce){#student .ma-phase4i-student[data-turn-phase="miss"] .ma-4i-turn-guide{
  animation:none!important;transition:none!important
 }}
+
+
+/* Phase 4P-D: streamlined teacher controls and student Zoom companion. */
+#teacher #activityControllerPanel .ma-4pd-advanced{
+ grid-column:1/-1;min-width:0;border:1px solid #477f9f;
+ background:linear-gradient(145deg,#102c44,#0c2139);border-radius:11px;
+}
+#teacher #activityControllerPanel .ma-4pd-advanced summary{
+ list-style:none;cursor:pointer;padding:14px 13px;min-height:48px;
+ color:#b8e7fc;font:900 12px/1.35 system-ui,sans-serif;letter-spacing:.02em;
+ display:flex;align-items:center;justify-content:space-between;
+}
+#teacher #activityControllerPanel .ma-4pd-advanced summary::-webkit-details-marker{display:none}
+#teacher #activityControllerPanel .ma-4pd-advanced summary:after{
+ content:"＋";font:900 22px/1 system-ui;color:#91e8d7;
+}
+#teacher #activityControllerPanel .ma-4pd-advanced[open] summary:after{content:"−"}
+#teacher #activityControllerPanel .ma-4pd-advanced summary:focus-visible{
+ outline:3px solid #ffe39c;outline-offset:3px;border-radius:9px;
+}
+#teacher #activityControllerPanel .ma-4pd-advanced-actions{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:9px;padding:0 11px 11px;min-width:0;
+}
+#teacher #activityControllerPanel .ma-4pd-advanced-actions button{min-height:50px;min-width:0}
+#teacher #activityControllerPanel .ma-4pd-advanced-actions #matchReturnPairBtn{grid-column:1/-1}
+#student .student-control-zone[data-app="match"]{display:none!important}
+@media(max-width:500px){
+ #teacher #activityControllerPanel .ma-4pd-advanced summary{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){
+ #teacher #activityControllerPanel .ma-4pd-advanced,
+ #teacher #activityControllerPanel .ma-4pd-advanced summary{transition:none!important}
+}

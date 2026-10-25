@@ -261,6 +261,7 @@ function matchArcadeRefreshAtExpiry(){
     }
   },Math.max(75,until-Date.now()+100));
 }
+let matchArcadeAdvancedOpen=false;
 function matchArcadeWireTeacher(){
   const panel=document.querySelector('#activityControllerPanel'),run=typeof state!=='undefined'?state.activityRun:null;
   if(panel&&run?.activityId==='match-game'){
@@ -330,6 +331,25 @@ function matchArcadeWireTeacher(){
     for(const id of ['matchSkipBtn','matchNextTeamBtn']){
       const b=grid?.querySelector('#'+id);
       if(b&&pending){b.disabled=true;b.title='Wait for this pair to resolve';}
+    }
+  }
+  // Keep corrective actions available without crowding routine teacher controls.
+  // Reparent native buttons before their original handlers are attached.
+  if(panel&&run?.activityId==='match-game'){
+    const grid=panel.querySelector('.match-control-grid');
+    if(grid){
+      const buttons=['matchUndoBtn','matchRetryBtn','matchReturnPairBtn']
+        .map(id=>grid.querySelector('#'+id)).filter(Boolean);
+      if(buttons.length){
+        const details=document.createElement('details');
+        details.className='ma-4pd-advanced';details.open=matchArcadeAdvancedOpen;
+        const summary=document.createElement('summary');
+        summary.textContent='More controls · Undo / Retry / Return pair';
+        const actions=document.createElement('div');actions.className='ma-4pd-advanced-actions';
+        buttons.forEach(button=>actions.appendChild(button));
+        details.append(summary,actions);grid.appendChild(details);
+        details.addEventListener('toggle',()=>{matchArcadeAdvancedOpen=details.open});
+      }
     }
   }
   const preview=document.querySelector('#matchMemoryPreviewBtn');

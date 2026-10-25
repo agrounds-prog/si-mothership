@@ -45,7 +45,9 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   const teacherStyle=await teacher.evaluate(()=>{
    const panel=document.querySelector('#activityControllerPanel'),grid=panel?.querySelector('.match-control-grid');
    const buttons=[...grid.querySelectorAll('button')];
-   const boxes=buttons.map(el=>{const r=el.getBoundingClientRect();return {w:r.width,h:r.height}});
+   const boxes=buttons.filter(el=>el.getClientRects().length>0).map(el=>{
+    const r=el.getBoundingClientRect();return {w:r.width,h:r.height};
+   });
    const card=panel.querySelector('.match-teacher-card');
    const row=panel.querySelector('.match-current-player');
    return {columns:getComputedStyle(grid).gridTemplateColumns.split(' ').length,
@@ -53,9 +55,11 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
     scoreRows:panel.querySelectorAll('.match-teacher-score>div').length,
     background:getComputedStyle(card).backgroundImage,
     playerFont:parseFloat(getComputedStyle(row).fontSize),
-    preview:!!document.querySelector('.ma-compact')};
+    preview:!!document.querySelector('.ma-compact'),advanced:!!panel.querySelector('.ma-4pd-advanced'),advancedClosed:!panel.querySelector('.ma-4pd-advanced')?.open};
   });
   assert.equal(teacherStyle.columns,2,'MATCH command deck has two readable button columns');
+  assert.equal(teacherStyle.advanced,true,'teacher correction buttons have a dedicated group');
+  assert.equal(teacherStyle.advancedClosed,true,'advanced group is closed by default');
   assert.ok(teacherStyle.actions>=8&&teacherStyle.controls.every(x=>x.w>95&&x.h>=49),
    'Teacher actions readable and tappable: '+JSON.stringify(teacherStyle));
   assert.ok(teacherStyle.scoreRows>=2&&teacherStyle.playerFont>=20);
@@ -82,6 +86,11 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    matchContinueBtn:'resolve',matchMemoryPreviewBtn:'assist',
    matchLockBtn:'pause',matchSkipBtn:'next',matchUndoBtn:'correct'
   });
+  await teacher.locator('.ma-4pd-advanced summary').click();
+  assert.equal(await teacher.locator('#matchUndoBtn').isVisible(),true);
+  assert.equal(await teacher.locator('#matchReturnPairBtn').isVisible(),true);
+  await teacher.locator('.ma-4pd-advanced summary').click();
+  assert.equal(await teacher.locator('#matchUndoBtn').isVisible(),false);
 
   // Phase 4P-C: next player/next team, repeat turn, miss cue and round finish.
   const turnFlow=await teacher.evaluate(()=>{
@@ -173,6 +182,30 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.ok(student4i.overflow<=3&&student4i.panelOverflow<=3);
   assert.match(student4i.graphic,/gradient/);
   assert.equal(student4i.duplicateFooter,'none');
+  // 4P-D: a single authoritative state yields identical phases on student and projector.
+  const stages=await teacher.evaluate(()=>{
+    const run=JSON.parse(JSON.stringify(state.activityRun)),m=run.match;
+    const ids=m.cards.map(c=>c.id),navigator=matchActiveStudent(run)?.n||'Alex';
+    const both=()=>({
+      student:matchArcadeStudent(run,{n:navigator}).match(/data-turn-phase="([^"]+)"/)?.[1],
+      shared:matchArcadeShared(run,true).match(/data-turn-phase="([^"]+)"/)?.[1]
+    });
+    const ready=both();
+    m.selected=[ids[0]];const chosen=both();
+    m.selected=[ids[0],ids[5]];
+    m.pendingResolution={result:'miss',cards:m.selected.slice(),player:navigator};
+    m.locked=true;const missed=both();
+    m.pendingResolution.result='match';const matched=both();
+    m.pendingResolution=null;m.complete=true;const complete=both();
+    return {ready,chosen,missed,matched,complete};
+  });
+  assert.deepEqual(stages,{
+    ready:{student:'choose',shared:'choose'},
+    chosen:{student:'second-card',shared:'second-card'},
+    missed:{student:'miss',shared:'miss'},
+    matched:{student:'matched',shared:'matched'},
+    complete:{student:'complete',shared:'complete'}
+  });
   // Phase 4P-B: a newly selected card animates once; ordinary synchronization
   // and a brand-new run never replay old card flips.
   const flips=await teacher.evaluate(()=>{
