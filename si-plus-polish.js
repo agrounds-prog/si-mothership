@@ -1052,7 +1052,13 @@
      // Let the native select finish dispatching change before rebuilding its
      // card. Otherwise Chrome can re-enter with a shifted selected option.
      const from=Number(event.target.dataset.orgPosition),to=Number(event.target.value);
-     queueMicrotask(()=>siPlusOrganizerMove(from,to));
+     const trace={from,to,selectedIndex:event.target.selectedIndex,
+       before:state.presentationEditor?.draft?.slides.map(x=>x.listTitle)};
+     (window.__siPlusOrgMoveTraces??=[]).push(trace);
+     queueMicrotask(()=>{
+       siPlusOrganizerMove(from,to);
+       trace.after=state.presentationEditor?.draft?.slides.map(x=>x.listTitle);
+     });
    }
  }
  function onClick(event){

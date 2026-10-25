@@ -45,9 +45,11 @@ const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.match(await page.locator('.sipreview-slide-label').innerText(),/03 Finish/);
   await page.locator('.sipreview-close').click();
   await page.locator('[data-org-position="0"]').selectOption('4');
-  assert.deepEqual(await page.evaluate(()=>state.presentationEditor.draft.slides.map(s=>s.listTitle)),[
+  const actualMoved=await page.evaluate(()=>state.presentationEditor.draft.slides.map(s=>s.listTitle));
+  const trace=await page.evaluate(()=>window.__siPlusOrgMoveTraces);
+  assert.deepEqual(actualMoved,[
    '02 Practice','03 Finish','Understanding Check','Class Poll','01 Opening'
-  ]);
+  ],'Position picker trace '+JSON.stringify(trace));
   await page.locator('[data-org-position="4"]').selectOption('0');
   assert.deepEqual(await page.evaluate(()=>state.presentationEditor.draft.slides.map(s=>s.listTitle)),[
    '01 Opening','02 Practice','03 Finish','Understanding Check','Class Poll'
