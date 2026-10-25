@@ -159,6 +159,14 @@
    position=Math.min(Math.max(Number(state.editorSlide)||0,0),slideCount()-1);
    showPreview();
  }
+ function openAt(index){
+   savedDeck=null;
+   if(!permitted()||!slideCount())return;
+   if(overlay){go(index);return}
+   returnFocus=document.activeElement;
+   position=Math.max(0,Math.min(slideCount()-1,Number(index)||0));
+   showPreview();
+ }
  function openSaved(id){
    if(typeof state==="undefined" || !state.presentationLibraryOpen
       || state.activeApp!=="si-plus" || state.activityRun)return;
@@ -254,7 +262,7 @@
    roots.forEach(root=>observer.observe(root,{childList:true,subtree:true}));
    mount();
  }
- window.SIPlusPresentationPreview={open,openSaved,close,get active(){return !!overlay;}};
+ window.SIPlusPresentationPreview={open,openAt,openSaved,close,get active(){return !!overlay;}};
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});
  else start();
 })();
@@ -979,4 +987,91 @@
    get parked(){return !!parked()},get data(){return parked()}};
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});
  else start();
+})();
+
+/* Phase 4P-D: organize SI+ slides in the teacher's existing thumbnail
+   workspace. These controls reuse the native draft and image import paths.
+   The saved presentation library is changed only by Save Presentation. */
+(()=>{
+ "use strict";
+ if(window.SIPlusOrganizerParity)return;
+ const isTeacher=()=>typeof SESSION_ROLE!=="undefined"&&SESSION_ROLE==="teacher";
+ function mount(){
+   if(!isTeacher()||typeof state==="undefined"||!state.presentationEditor||typeof siPlusOrganizerMove!=='function')return;
+   const root=document.querySelector("#presentationBuilderPanel .si-org");
+   if(!root)return;
+   const bar=root.querySelector(".si-org-bulk");
+   if(bar&&!bar.querySelector("#siOrgBatchImages")){
+     const label=document.createElement("label");
+     label.className="si-org-import";
+     label.textContent="＋ Add Images";
+     const input=document.createElement("input");
+     input.type="file";input.multiple=true;input.id="siOrgBatchImages";
+     input.accept="image/png,image/jpeg,image/webp,image/gif,image/avif,image/bmp";
+     input.disabled=!!siPlusBatchImportBusy;
+     label.appendChild(input);bar.appendChild(label);
+     const status=document.createElement("p");
+     status.className="si-org-import-status";status.id="siOrgBatchStatus";
+     status.setAttribute("role","status");status.setAttribute("aria-live","polite");
+     root.querySelector(".si-org-header").appendChild(status);
+   }
+   const status=root.querySelector("#siOrgBatchStatus");
+   if(status){
+     const source=document.querySelector("#siPlusBatchStatus");
+     const msg=source?.textContent||siPlusBatchImportStatus||
+       "New images are appended to your current draft. Save Presentation when ready.";
+     if(status.textContent!==msg)status.textContent=msg;
+   }
+   root.querySelectorAll(".si-org-card").forEach(card=>{
+     const index=Number(card.dataset.orgDrag),actions=card.querySelector(".si-org-card-actions");
+     if(!actions||actions.querySelector("[data-org-preview]"))return;
+     const preview=document.createElement("button");
+     preview.type="button";preview.className="si-org-preview-btn";
+     preview.dataset.orgPreview=String(index);preview.textContent="◉ Preview";
+     preview.setAttribute("aria-label","Preview slide "+(index+1)+" privately");
+     actions.appendChild(preview);
+     const label=document.createElement("label");
+     label.className="si-org-position";label.textContent="Move to";
+     const select=document.createElement("select");
+     select.dataset.orgPosition=String(index);
+     select.setAttribute("aria-label","Move slide "+(index+1)+" to position");
+     state.presentationEditor.draft.slides.forEach((slide,i)=>{
+       const option=document.createElement("option");
+       option.value=String(i);option.textContent=String(i+1);
+       option.selected=i===index;select.appendChild(option);
+     });
+     label.appendChild(select);actions.appendChild(label);
+   });
+ }
+ function onChange(event){
+   if(event.target?.id==="siOrgBatchImages"){
+     const imgs=Array.from(event.target.files||[]);
+     event.target.value="";
+     if(imgs.length)void siPlusImportImageSlides(imgs);
+   }else if(event.target?.matches("[data-org-position]")){
+     const select=event.target;
+     siPlusOrganizerMove(Number(select.dataset.orgPosition),Number(select.value));
+   }
+ }
+ function onClick(event){
+   const button=event.target.closest?.("[data-org-preview]");
+   if(!button||!isTeacher())return;
+   window.SIPlusPresentationPreview?.openAt?.(Number(button.dataset.orgPreview));
+ }
+ function start(){
+   document.addEventListener("change",onChange,true);
+   document.addEventListener("click",onClick,true);
+   const root=document.querySelector("#activitiesPanel");
+   if(root){
+     let busy=false;
+     new MutationObserver(()=>{
+       if(busy)return;busy=true;
+       queueMicrotask(()=>{busy=false;mount()});
+     }).observe(root,{subtree:true,childList:true});
+   }
+   mount();
+ }
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});
+ else start();
+ window.SIPlusOrganizerParity={mount};
 })();

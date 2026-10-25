@@ -988,3 +988,43 @@ body.sipreview-open{
     width:100%!important;min-width:0!important;
   }
 }
+
+/* Phase 4P-D: match standalone SI+ organizer navigation and 16:9 slides. */
+#teacher #presentationBuilderPanel .si-org-thumb{aspect-ratio:16/9!important}
+#teacher #presentationBuilderPanel .si-org-header{position:relative}
+#teacher #presentationBuilderPanel .si-org-import{
+ position:relative;display:inline-flex;align-items:center;justify-content:center;
+ min-height:44px;padding:8px 13px;border:1px solid #74d6bc;border-radius:9px;
+ background:linear-gradient(145deg,#177a73,#12556d);color:#fff;
+ font:900 12px/1.3 system-ui,sans-serif;cursor:pointer;
+}
+#teacher #presentationBuilderPanel .si-org-import input{
+ position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;
+}
+#teacher #presentationBuilderPanel .si-org-import:focus-within{outline:3px solid #ffe9a6;outline-offset:2px}
+#teacher #presentationBuilderPanel .si-org-import:has(input:disabled){opacity:.5;cursor:wait}
+#teacher #presentationBuilderPanel .si-org-import-status{
+ flex-basis:100%;width:100%;margin:0;color:#c8e9f1;
+ font:750 11px/1.4 system-ui,sans-serif;
+}
+#teacher #presentationBuilderPanel .si-org-card-actions .si-org-preview-btn{
+ background:linear-gradient(145deg,#244f7c,#183d61);border-color:#7ba6db;
+}
+#teacher #presentationBuilderPanel .si-org-card-actions .si-org-dup{grid-column:auto}
+#teacher #presentationBuilderPanel .si-org-position{
+ display:flex;grid-column:1/-1;align-items:center;justify-content:space-between;gap:7px;
+ min-height:44px;padding:6px 9px;border-radius:8px;
+ background:#09243b;border:1px solid #497895;
+ color:#d9f3ff;font:800 11px/1.2 system-ui,sans-serif;
+}
+#teacher #presentationBuilderPanel .si-org-position select{
+ min-width:64px;max-width:100%;padding:7px 12px;
+ border:1px solid #77b2d1;border-radius:7px;background:#174867;color:#fff;
+ font:900 12px/1.3 system-ui,sans-serif;
+}
+#teacher #presentationBuilderPanel .si-org-position select:focus-visible{outline:3px solid #ffe9a6}
+@media(max-width:560px){
+ #teacher #presentationBuilderPanel .si-org-bulk{width:100%}
+ #teacher #presentationBuilderPanel .si-org-bulk .si-org-import{flex:1}
+ #teacher #presentationBuilderPanel .si-org-card-actions{gap:5px;padding:6px}
+}

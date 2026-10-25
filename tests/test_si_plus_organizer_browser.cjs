@@ -34,6 +34,24 @@ const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   await page.locator('#siOrgToggle').click();
   assert.equal(await page.locator('.si-org-card').count(),5);
   assert.equal(await page.locator('.si-org-thumb img').count(),3);
+  await page.waitForSelector('#siOrgBatchImages');
+  assert.equal(await page.locator('#siOrgBatchImages').getAttribute('multiple'),'');
+  const ratio=await page.locator('.si-org-thumb').first().evaluate(el=>{
+    const r=el.getBoundingClientRect();return r.width/r.height;
+  });
+  assert.ok(Math.abs(ratio-16/9)<0.05,'Slide organizer displays real 16:9 thumbnails');
+  await page.locator('[data-org-preview="2"]').click();
+  assert.match(await page.locator('.sipreview-count').innerText(),/Slide 3 of 5/);
+  assert.match(await page.locator('.sipreview-slide-label').innerText(),/03 Finish/);
+  await page.locator('.sipreview-close').click();
+  await page.locator('[data-org-position="0"]').selectOption('4');
+  assert.deepEqual(await page.evaluate(()=>state.presentationEditor.draft.slides.map(s=>s.listTitle)),[
+   '02 Practice','03 Finish','Understanding Check','Class Poll','01 Opening'
+  ]);
+  await page.locator('[data-org-position="4"]').selectOption('0');
+  assert.deepEqual(await page.evaluate(()=>state.presentationEditor.draft.slides.map(s=>s.listTitle)),[
+   '01 Opening','02 Practice','03 Finish','Understanding Check','Class Poll'
+  ]);
   assert.equal(await page.locator('.si-org-empty').count(),2);
   assert.equal(await page.locator('.builder-layout').evaluate(x=>getComputedStyle(x).display),'none');
   const buttons=await page.evaluate(()=>[...document.querySelectorAll('.si-org-card-actions button')].map(x=>({
@@ -72,6 +90,10 @@ const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.deepEqual(await page.evaluate(()=>state.presentationEditor.draft.slides.map(s=>s.listTitle)),[
    '02 Practice','Understanding Check','01 Opening','Class Poll'
   ]);
+  await page.locator('#siOrgBatchImages').setInputFiles([image(0,'05 Appendix.png')]);
+  await page.waitForFunction(()=>state.presentationEditor?.draft.slides.length===5&&!siPlusBatchImportBusy,
+   null,{timeout:20000});
+  await page.waitForFunction(()=>document.querySelectorAll('.si-org-card').length===5);
   await page.locator('#siOrgSelectAll').click();
   assert.equal(await page.locator('#siOrgDelete').isDisabled(),true,'cannot delete final remaining slide');
   await page.locator('#siOrgClear').click();
@@ -88,7 +110,7 @@ const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   const saved=decks.find(d=>d.deckTitle==='Organized SI+ Lesson');
   assert.ok(saved,'organizer changes saved to Railway library');
   assert.deepEqual(saved.slides.map(s=>s.listTitle),[
-   '02 Practice','Understanding Check','Opening Visual','Class Poll'
+   '02 Practice','Understanding Check','Opening Visual','Class Poll','05 Appendix'
   ]);
   assert.ok(saved.slides[0].image.startsWith('data:image/'));
   assert.equal(saved.slides[1].type,'question');
@@ -96,7 +118,7 @@ const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   const reset=await page.request.post(BASE+'/api/session/new',{data:{}});
   assert.equal(reset.status(),200);
   const restored=JSON.parse((await (await page.request.get(BASE+'/api/storage')).json()).items['siMothership.presentations.v1']);
-  assert.equal(restored.find(d=>d.deckTitle==='Organized SI+ Lesson').slides.length,4);
+  assert.equal(restored.find(d=>d.deckTitle==='Organized SI+ Lesson').slides.length,5);
   assert.deepEqual(errors,[],'SI+ must not produce client JS errors');
   console.log('SI+ ORGANIZER PASSED',JSON.stringify({slides:saved.slides.map(s=>s.listTitle),responsive,drag:true,duplicate:true,multiDelete:true,reset:true}));
  }finally{await browser.close()}
