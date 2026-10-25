@@ -313,12 +313,16 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    const burst=root.querySelector('.ma-stage-pair'),signal=root.querySelector('.ma-signal'),
     board=root.querySelector('.ma-board-surround');
    if(!burst||!signal||!board)return false;
+   const streak=burst.querySelector('.ma-pair-streaks i');
    return {text:burst.textContent,status:root.classList.contains('ma-status-matched'),
     aria:burst.getAttribute('aria-hidden'),pointer:getComputedStyle(burst).pointerEvents,
     boardPosition:getComputedStyle(board).position,
     animation:getComputedStyle(burst).animationName,
     cards:root.querySelectorAll('.ma-tile').length,
-    statusAnnouncement:signal.getAttribute('aria-live')};
+    statusAnnouncement:signal.getAttribute('aria-live'),
+    rays:{count:burst.querySelectorAll('.ma-pair-streaks i').length,
+      decorative:burst.querySelector('.ma-pair-streaks')?.getAttribute('aria-hidden'),
+      animation:streak?getComputedStyle(streak).animationName:''}};
   },null,{timeout:18000});
   const pair=await pairHandle.jsonValue();
   assert.equal(pair.status,true);
@@ -330,13 +334,7 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(pair.aria,'true','native status banner, not decoration, announces the pair');
   assert.equal(pair.statusAnnouncement,'polite');
   assert.equal(pair.cards,16,'celebration must not replace the game board');
-  const pairRays=await shared.evaluate(()=>{
-   const burst=document.querySelector('.ma-present .ma-stage-pair');
-   const streak=burst.querySelector('.ma-pair-streaks i');
-   return {count:burst.querySelectorAll('.ma-pair-streaks i').length,
-    decorative:burst.querySelector('.ma-pair-streaks')?.getAttribute('aria-hidden'),
-    animation:streak?getComputedStyle(streak).animationName:''};
-  });
+  const pairRays=pair.rays;
   assert.equal(pairRays.count,5,'pair-found visual has five rays');
   assert.equal(pairRays.decorative,'true','pair graphic is not a duplicate live announcement');
   assert.match(pairRays.animation,/ma3h-pair-rays/);
