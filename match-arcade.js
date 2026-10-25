@@ -134,10 +134,16 @@ function matchArcadeStudent(run=state.activityRun,student=selectedStudent()){
   const canPick=mine&&!preview&&!m.locked&&!m.complete&&!m.pendingResolution&&(m.selected||[]).length<2;
   const turn= m.complete?'MISSION COMPLETE':preview?'MEMORIZE THE BOARD':mine?'YOUR TURN, '+esc(student?.n||'PILOT')+'!':'WATCH '+esc(active?.n||'THE PLAYER');
   const instruction= m.complete?'Every pair has been found!':preview?'Look closely. The cards will flip back automatically.':
-    mine?(m.pendingResolution?'See whether your two cards match.':m.selected?.length===1?'Great! Find the matching card.':'Tap any glowing card to uncover its partner.'):'Watch the shared board and remember card locations.';
+    m.pendingResolution?.result==='match'?'The pair is correct! Points update automatically.':
+    m.pendingResolution?.result==='miss'?'These cards are different. Remember their positions.':
+    mine?(m.selected?.length===1?'Now find the matching card.':'Choose your first card to begin.'):
+    'Watch the current navigator and remember the card locations.';
   const chosen=(m.selected||[]).length;
   const guideText=m.complete?'All pairs found':preview?'Study the locations':
-   m.locked?'Wait for your teacher':m.pendingResolution?'Checking the pair':
+   m.pendingResolution?.result==='match'?
+    (cfg.scoring==='no_score'?'✓ Pair found!':'✓ Pair found · +1 automatically'):
+   m.pendingResolution?.result==='miss'?'Not a match · remember both cards':
+   m.locked?'Wait for your teacher':
    mine?(chosen===1?'Pick your second card':'Pick your first card'):'Watch the current player';
   const turnGuide='<div class="ma-4i-turn-guide" role="status" aria-live="polite">'+
    '<div><span class="ma-4i-guide-icon" aria-hidden="true">'+
@@ -205,11 +211,16 @@ function matchArcadeWireTeacher(){
     track.setAttribute('aria-valuemax',String(total));
     track.setAttribute('aria-valuenow',String(found));
     track.firstElementChild.style.width=(total?Math.round(found/total*100):0)+'%';
+    const pending=m.pendingResolution;
     hud.querySelector('.ma-4i-teacher-guidance').textContent=m.complete?'All pairs found · choose what happens next':
-     m.pendingResolution?'Resolve this pair with CONTINUE':
+     pending?.result==='match'?(run.matchConfig?.scoring==='no_score'?'Pair confirmed · no-score mode · press CONTINUE':
+       '✓ Pair credited automatically · press CONTINUE to advance'):
+     pending?.result==='miss'?'Different cards · press CONTINUE to hide and advance':
      m.teacherLocked?'Board locked · resume to allow selections':
      (m.selected||[]).length===1?'First card revealed · waiting for the second card':
      'Students select two cards · matching pairs score automatically';
+    hud.dataset.maScorePhase=pending?.result==='match'?'matched':pending?.result==='miss'?'miss':
+      m.complete?'complete':'ready';
     for(const [id,group] of Object.entries({
      matchContinueBtn:'resolve',matchMemoryPreviewBtn:'assist',
      matchLockBtn:'pause',matchPauseRevealBtn:'pause',

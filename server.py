@@ -5503,9 +5503,15 @@ def _match_advance_turn(state: dict, run: dict, force_team: bool = False) -> Non
 
 
 def _match_restore(match: dict, snapshot: dict) -> None:
+    """Rewind a turn without discarding the immutable cards or presentation data.
+
+    Snapshots intentionally capture only gameplay fields; clearing the entire
+    match also discarded the card list, custom avatars and preview settings.
+    Overlay the snapshot instead, preserving the current saved-board identity.
+    """
     keep_history = match.get("history") if isinstance(match.get("history"), list) else []
-    match.clear()
-    match.update(copy.deepcopy(snapshot))
+    for key, value in snapshot.items():
+        match[key] = copy.deepcopy(value)
     match["history"] = keep_history
     match["turnStart"] = None
 

@@ -1255,3 +1255,50 @@ body.role-student #studentContent .ma-student-earned b{color:#aeffda!important}
   animation:none!important;transition:none!important;
  }
 }
+
+
+/* Phase 4P-A · instant automatic-score confirmation and calm compact MATCH visuals.
+   No gameplay data, points, or turn order is modified by these styles. */
+#teacher #activityControllerPanel .ma-4i-teacher-guide[data-ma-score-phase="matched"]{
+ border-color:#80eed0;background:linear-gradient(135deg,#154d50,#113d60);
+ box-shadow:inset 0 1px #e9fff044,0 0 17px #4de2af4a;
+}
+#teacher #activityControllerPanel .ma-4i-teacher-guide[data-ma-score-phase="matched"] .ma-4i-teacher-guidance{
+ color:#c7ffdf;font-size:13px;font-weight:900;
+}
+#teacher #activityControllerPanel .ma-4i-teacher-guide[data-ma-score-phase="miss"]{
+ border-color:#dda97d;background:linear-gradient(135deg,#4a372e,#183253);
+}
+#teacher #activityControllerPanel .ma-4i-teacher-guide[data-ma-score-phase="miss"] .ma-4i-teacher-guidance{
+ color:#ffe1bf;font-weight:850;
+}
+#student .ma-phase4i-student.ma-status-matched .ma-4i-turn-guide{
+ border-color:#89f4c7!important;background:linear-gradient(130deg,#145f51,#184d66)!important;
+}
+#student .ma-phase4i-student.ma-status-miss .ma-4i-turn-guide{
+ border-color:#f7bf8f!important;background:linear-gradient(130deg,#504024,#193b5f)!important;
+}
+#student .ma-phase4i-student.ma-status-matched .ma-student-earned{
+ border-color:#aaffd4!important;background:#125b45!important;color:#f2fff8!important;
+}
+#shared .ma-present.ma-status-matched .ma-counter-strip{
+ border-color:#77f5c5!important;box-shadow:0 0 20px #4fffa83a;
+}
+@media(prefers-reduced-motion:no-preference){
+ #student .ma-phase4i-student.ma-status-matched .ma-student-earned{
+  animation:ma4pa-score-pulse .8s ease-out 1 both;
+ }
+ #shared .ma-present.ma-status-matched .ma-counter-strip{
+  animation:ma4pa-score-pulse .85s ease-out 1 both;
+ }
+ @keyframes ma4pa-score-pulse{
+  0%{filter:brightness(1.5);transform:scale(1.025)}
+  100%{filter:brightness(1);transform:scale(1)}
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #student .ma-phase4i-student.ma-status-matched .ma-student-earned,
+ #shared .ma-present.ma-status-matched .ma-counter-strip{
+  animation:none!important;transition:none!important;transform:none!important;
+ }
+}
