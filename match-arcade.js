@@ -28,11 +28,22 @@ function matchArcadeGridColumns(cards){
   const n=(cards||[]).length;
   return n<=8?4:n<=16?4:n<=20?5:6;
 }
-function matchArcadeTile(card,index,match,{student=false,canPick=false,preview=false}={}){
+/* Local-only display state: flip entrances play once when an actual selection
+   changes, never on periodic synchronized rerenders. New runs reset the key. */
+const matchArcadeFlipHistory=new Map();
+function matchArcadeFreshReveals(run,view){
+ const token=String(run?.runToken||''),selected=new Set(run?.match?.selected||[]);
+ const before=matchArcadeFlipHistory.get(view);
+ matchArcadeFlipHistory.set(view,{token,selected});
+ if(!before||before.token!==token)return new Set();
+ return new Set([...selected].filter(id=>!before.selected.has(id)));
+}
+function matchArcadeTile(card,index,match,{student=false,canPick=false,preview=false,freshReveals=null}={}){
   const matched=(match.matched||[]).includes(card.id);
   const flipped=(match.selected||[]).includes(card.id);
   const visible=matched||flipped||preview;
-  const classes=['ma-tile',visible?'is-open':'is-hidden',matched?'is-matched':'',flipped?'is-selected':'',preview&&!matched&&!flipped?'is-preview':''].filter(Boolean).join(' ');
+  const classes=['ma-tile',visible?'is-open':'is-hidden',matched?'is-matched':'',flipped?'is-selected':'',
+    preview&&!matched&&!flipped?'is-preview':'',flipped&&freshReveals?.has(card.id)?'is-fresh-flip':''].filter(Boolean).join(' ');
   const label=visible?(matched?'Matched card ':preview?'Memory preview card ':'Revealed card '):'Hidden card ';
   const inside='<span class="ma-tile-face ma-tile-back"><span class="ma-tile-stars" aria-hidden="true">✦</span><b>'+String(index+1)+'</b><small>SECTOR '+String(index+1).padStart(2,'0')+'</small></span>'+
     (visible?'<span class="ma-tile-face ma-tile-front">'+contentMarkup(card.content)+(matched?'<span class="ma-tile-found" aria-hidden="true">✓ MATCH</span>':'')+'</span>':'');
@@ -88,9 +99,14 @@ function matchArcadeFinalStandings(match,run){
   }).join('');
   const more=entries.length>top.length?
     '<p class="ma-final-more">+'+(entries.length-top.length)+(unscored?' additional crew members':' more · full results on teacher scoreboard')+'</p>':'';
+  const total=Math.floor((match.cards||[]).length/2),found=Math.floor((match.matched||[]).length/2);
+  const tries=Math.max(0,Number(match.attempts||0));
+  const metrics='<div class="ma-4pb-final-summary" aria-label="MATCH final round statistics">'+
+   '<span><b>'+found+' / '+total+'</b> PAIRS FOUND</span>'+
+   '<span><b>'+tries+'</b> ATTEMPTS</span></div>';
   return '<div class="ma-final-results" data-mode="'+(unscored?'memory':cfg.mode==='teams'?'teams':'individual')+'">'+
     '<div class="ma-final-heading">'+(unscored?'CREW MEMORY MISSION':'FINAL STANDINGS')+'</div>'+
-    '<div class="ma-final-rows">'+(rows||'<p class="ma-final-more">Crew mission completed.</p>')+'</div>'+more+'</div>';
+    metrics+'<div class="ma-final-rows">'+(rows||'<p class="ma-final-more">Crew mission completed.</p>')+'</div>'+more+'</div>';
 }
 /* Phase 3I visual phase is derived exclusively from native MATCH state. */
 function matchArcadePresentationPhase(m,run){
@@ -104,11 +120,12 @@ function matchArcadeShared(run=state.activityRun,big=false){
   const m=run?.match||{},cfg=run?.matchConfig||{},cards=m.cards||[],active=matchActiveStudent(run);
   const preview=matchArcadePreviewActive(run),status=matchArcadeStatus(m,run),matched=(m.matched||[]).length/2,pairs=cards.length/2;
   const cols=matchArcadeGridColumns(cards);
+  const freshReveals=matchArcadeFreshReveals(run,big?'projector':'teacher-preview');
   const team=cfg.mode==='teams'?matchTeamMeta(m.activeTeam):null;
   // Decorative, pointer-transparent state accents. The existing status banner
   // remains the accessible announcer and native MATCH retains all scoring.
   const celebration=status.type==='matched'?
-    '<div class="ma-stage-celebration ma-stage-pair" aria-hidden="true"><span class="ma-pair-streaks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="ma-celebration-sparks">✦ &nbsp; ✧ &nbsp; ✦</span><strong>PAIR FOUND!</strong><small>'+ (cfg.scoring==='no_score'?'MEMORY MISSION · WELL DONE':'AUTOMATIC POINT AWARDED') +'</small></div>':
+    '<div class="ma-stage-celebration ma-stage-pair" aria-hidden="true"><span class="ma-pair-streaks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="ma-celebration-sparks">✦ &nbsp; ✧ &nbsp; ✦</span><strong>PAIR FOUND!</strong><small>'+ (cfg.scoring==='no_score'?'MEMORY MISSION · WELL DONE':'AUTOMATIC POINT AWARDED') +'</small><span class="ma-4pb-pair-credit">'+esc(m.pendingResolution?.player||active?.n||'THE CREW')+'</span></div>':
     status.type==='victory'?
     '<div class="ma-stage-celebration ma-stage-victory" role="region" aria-label="MATCH final standings"><span class="ma-victory-halo" aria-hidden="true"><i></i><i></i><i></i></span><span class="ma-celebration-sparks">✦ &nbsp; ★ &nbsp; ✦</span><span class="ma-celebration-trophy">🏆</span><strong>MISSION COMPLETE</strong><small>'+matched+' OF '+pairs+' PAIRS DISCOVERED</small>'+matchArcadeFinalStandings(m,run)+'</div>':'';
   return '<div class="ma-game ma-shared '+(big?'ma-present':'ma-compact')+' ma-status-'+status.type+' ma-phase4i" data-turn-phase="'+matchArcadePresentationPhase(m,run)+'">'+
@@ -119,7 +136,7 @@ function matchArcadeShared(run=state.activityRun,big=false){
     '<div class="ma-counter-strip"><span><b>'+matched+'</b> / '+pairs+' <small>PAIRS FOUND</small></span><span><b>'+Number(m.attempts||0)+'</b> <small>TRIES</small></span></div></div>'+
     '<div class="ma-signal ma-signal-'+status.type+'" aria-live="polite" aria-atomic="true"><span class="ma-signal-icon" aria-hidden="true">'+({victory:'🏆',preview:'◉',matched:'✦',miss:'↶',hold:'Ⅱ',ready:'◇'}[status.type])+'</span><div><strong>'+status.title+'</strong><span>'+status.detail+'</span></div></div>'+
     '<div class="ma-board-wrap"><div class="ma-board-surround"><div class="ma-grid" role="group" aria-label="Memory board" style="--ma-cols:'+cols+'">'+cards.map((card,i)=>
-      matchArcadeTile(card,i,m,{preview})).join('')+'</div>'+celebration+'</div></div>'+
+      matchArcadeTile(card,i,m,{preview,freshReveals})).join('')+'</div>'+celebration+'</div></div>'+
     '<div class="ma-bottomline"><div class="ma-progress"><span>MISSION PROGRESS</span><div class="ma-progress-track"><i style="width:'+(pairs?Math.min(100,Math.round(matched/pairs*100)):0)+'%"></i></div></div>'+
     '<div class="ma-log">⌁ '+esc(m.message||'Find the hidden pairs.')+'</div></div>'+
     '<div class="ma-scoreboard">'+matchArcadeScoreline(m,run)+'</div>'+
@@ -129,6 +146,8 @@ function matchArcadeStudent(run=state.activityRun,student=selectedStudent()){
   const m=run?.match||{},cfg=run?.matchConfig||{},cards=m.cards||[],active=matchActiveStudent(run);
   const mine=active?.n===student?.n,preview=matchArcadePreviewActive(run),matched=(m.matched||[]).length/2;
   const status=matchArcadeStatus(m,run),cols=matchArcadeGridColumns(cards);
+  const freshReveals=matchArcadeFreshReveals(run,'student-'+String(student?.n||'anonymous'));
+  const density=cards.length<=16?'standard':cards.length<=32?'dense':'maximum';
   const teamIndex=cfg.mode==='teams'?matchTeamIndexForStudent(student?.n,run):-1;
   const earnedPairs=cfg.mode==='teams'?Number(m.teamScores?.[teamIndex]||0):Number(m.scores?.[student?.n]||0);
   const canPick=mine&&!preview&&!m.locked&&!m.complete&&!m.pendingResolution&&(m.selected||[]).length<2;
@@ -157,13 +176,13 @@ function matchArcadeStudent(run=state.activityRun,student=selectedStudent()){
     '<div class="ma-consult-box"><b>CREW CONSULT</b><p>Suggest the second card for '+esc(active?.n||'your teammate')+'</p><div class="ma-consult-grid">'+
     cards.map((card,i)=>'<button data-match-consult-pick="'+esc(card.id)+'" '+((m.matched||[]).includes(card.id)||(m.selected||[]).includes(card.id)?'disabled':'')+'>'+String(i+1)+'</button>').join('')+'</div></div>':'';
   const suggestions=m.consult?.open&&mine?'<div class="ma-consult-box"><b>CREW SUGGESTIONS</b><p>'+esc(matchConsultAggregate(run).map(x=>'Card '+x.number+' ×'+x.count).join(' · ')||'Waiting for your crew…')+'</p><button id="matchCloseConsultBtn">Close Consult</button></div>':'';
-  return '<div class="ma-game ma-student ma-phase4i-student ma-status-'+status.type+'" data-turn-phase="'+matchArcadePresentationPhase(m,run)+'">'+
+  return '<div class="ma-game ma-student ma-phase4i-student ma-status-'+status.type+'" data-ma-density="'+density+'" data-turn-phase="'+matchArcadePresentationPhase(m,run)+'">'+
     '<div class="ma-cosmos" aria-hidden="true"><span class="ma-planet ma-planet-one"></span><span class="ma-space-grid"></span></div>'+
     '<div class="ma-student-heading"><div class="ma-student-pilot">'+matchArcadePlayerArt(active?.n||'',run)+'<span>CURRENT NAVIGATOR</span></div><span class="ma-eyebrow">✦ MOTHERSHIP · MATCH</span><h2 aria-live="polite">'+turn+'</h2><p>'+instruction+'</p></div>'+
     '<div class="ma-student-status"><span class="ma-phase-pill" aria-hidden="true">'+
       ({complete:'★ COMPLETE',preview:'◉ PREVIEW',matched:'✦ MATCH',miss:'↶ TRY AGAIN',hold:'Ⅱ ON HOLD','second-card':mine?'◇ SECOND CARD':'◉ WATCH',choose:mine?'◇ YOUR TURN':'◉ WATCH'}[matchArcadePresentationPhase(m,run)])+'</span><span class="ma-4i-pairs">◈ <b>'+matched+' / '+(cards.length/2)+'</b> PAIRS</span><span class="ma-4i-attempts">◎ <b>'+Number(m.attempts||0)+'</b> TRIES</span><span class="ma-student-earned">'+(cfg.scoring==='no_score'?'◈ MEMORY MODE':'★ <b>'+earnedPairs+'</b> EARNED')+'</span></div>'+turnGuide+
     '<div class="ma-board-wrap"><div class="ma-board-surround"><div class="ma-grid" role="group" aria-label="MATCH cards" style="--ma-cols:'+cols+'">'+
-    cards.map((card,i)=>matchArcadeTile(card,i,m,{student:true,canPick,preview})).join('')+'</div></div></div>'+
+    cards.map((card,i)=>matchArcadeTile(card,i,m,{student:true,canPick,preview,freshReveals})).join('')+'</div></div></div>'+
     (m.complete?'<div class="ma-student-final" role="status"><strong>✦ ALL '+matched+' PAIRS FOUND</strong><span>'+
       (cfg.scoring==='no_score'?'Crew memory challenge complete. Great teamwork.':cfg.mode==='teams'?
       esc(matchTeamMeta(teamIndex).name)+' · '+earnedPairs+' team '+(earnedPairs===1?'pair':'pairs'):

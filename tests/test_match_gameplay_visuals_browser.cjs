@@ -125,6 +125,50 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.ok(student4i.overflow<=3&&student4i.panelOverflow<=3);
   assert.match(student4i.graphic,/gradient/);
   assert.equal(student4i.duplicateFooter,'none');
+  // Phase 4P-B: a newly selected card animates once; ordinary synchronization
+  // and a brand-new run never replay old card flips.
+  const flips=await teacher.evaluate(()=>{
+   const r={runToken:'4pb-a',match:{selected:[]}},view='4pb-fixture';
+   const f=()=>[...matchArcadeFreshReveals(r,view)];
+   const init=f();r.match.selected=['c1'];const first=f(),steady=f();
+   r.match.selected=['c1','c2'];const second=f(),steady2=f();
+   r.match.selected=[];const clear=f();r.match.selected=['c1'];const again=f();
+   r.runToken='4pb-b';const newRun=f();
+   return {init,first,steady,second,steady2,clear,again,newRun};
+  });
+  assert.deepEqual(flips,{init:[],first:['c1'],steady:[],second:['c2'],
+   steady2:[],clear:[],again:['c1'],newRun:[]});
+  // Test dense and maximum boards inside the same 440 x 780 mock student.
+  const density=await teacher.evaluate(()=>{
+   const page=document.querySelector('#studentContent'),before=page.innerHTML;
+   document.body.classList.add('role-student');
+   document.querySelector('#teacher')?.classList.remove('active');
+   document.querySelector('#student')?.classList.add('active');
+   const answer=[];
+   for(const n of [16,24,40]){
+    const r=JSON.parse(JSON.stringify(state.activityRun));
+    r.match.cards=Array.from({length:n},(_,i)=>({
+     id:'4pb-'+i,pairId:'p'+Math.floor(i/2),content:{type:'text',value:'Card '+(i+1)}
+    }));
+    page.innerHTML=matchArcadeStudent(r,{n:'Alex'});
+    const panel=page.querySelector('.ma-phase4i-student'),grid=panel.querySelector('.ma-grid');
+    const cells=[...grid.querySelectorAll('[data-match-pick]')];
+    answer.push({n,mode:panel.dataset.maDensity,columns:getComputedStyle(grid).gridTemplateColumns.split(' ').length,
+     minWidth:Math.floor(Math.min(...cells.map(x=>x.getBoundingClientRect().width))),
+     overflow:Math.max(0,panel.scrollWidth-panel.clientWidth)});
+   }
+   page.innerHTML=before;
+   document.body.classList.remove('role-student');
+   document.querySelector('#teacher')?.classList.add('active');
+   document.querySelector('#student')?.classList.remove('active');
+   return answer;
+  });
+  assert.deepEqual(density.map(x=>[x.n,x.mode,x.columns]),[
+   [16,'standard',4],[24,'dense',5],[40,'maximum',6]
+  ]);
+  assert.ok(density.every(x=>x.minWidth>=45&&x.overflow<=3),
+   '440px MATCH board stays readable: '+JSON.stringify(density));
+
   await teacher.setViewportSize({width:1440,height:900});
   const layouts=[];
   for(const [width,height] of [[1920,1080],[1366,768],[880,720],[700,500]]){
@@ -180,6 +224,7 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   // Matched phase and status were verified together in pairHandle above.
   assert.match(pair.text,/PAIR FOUND!/);
   assert.match(pair.text,/AUTOMATIC POINT AWARDED/);
+  assert.match(pair.text,/Alex/,'projection shows current navigator');
   assert.equal(pair.pointer,'none');
   assert.equal(pair.aria,'true','native status banner, not decoration, announces the pair');
   assert.equal(pair.statusAnnouncement,'polite');
@@ -227,6 +272,12 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(victory.pointer,'none');
   assert.equal(victory.aria,null,'final results must be available to screen readers');
   assert.deepEqual([victory.region,victory.label],['region','MATCH final standings']);
+  const finalMetrics=await shared.evaluate(()=>{
+   const root=document.querySelector('.ma-present .ma-4pb-final-summary');
+   return {label:root?.getAttribute('aria-label'),
+    figures:[...root?.querySelectorAll('b')||[]].map(x=>x.textContent)};
+  });
+  assert.deepEqual(finalMetrics,{label:'MATCH final round statistics',figures:['8 / 8','0']});
   const winnerLights=await shared.evaluate(()=>{
    const root=document.querySelector('.ma-present .ma-stage-victory');
    const halo=root.querySelector('.ma-victory-halo');

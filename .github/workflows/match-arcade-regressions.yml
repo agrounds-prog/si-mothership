@@ -5,6 +5,7 @@ on:
       - index.html
       - match-arcade.js
       - match-arcade.css
+      - tests/test_match_gameplay_visuals_browser.cjs
       - server.py
       - tests/test_match_arcade_preview.py
       - .github/workflows/match-arcade-regressions.yml
@@ -40,5 +41,18 @@ jobs:
           PY
       - name: Run MATCH gameplay and teacher authorization regressions
         run: python -m unittest discover -s tests -p 'test_match_arcade_preview.py' -v
+      - name: Install Chromium for isolated MATCH stage regression
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verify MATCH teacher, compact student, projector and final stage
+        run: |
+          mkdir -p /tmp/mothership-match-4pb-regression
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-match-4pb-regression PORT=8885 python server.py >/tmp/match-4pb-regression.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8885/api/health >/dev/null; then break; fi
+            sleep 1
+          done
+          LOCAL_URL=http://127.0.0.1:8885 node tests/test_match_gameplay_visuals_browser.cjs
       - name: Verify clean patch
         run: git diff --check

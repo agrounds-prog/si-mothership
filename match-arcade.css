@@ -1302,3 +1302,72 @@ body.role-student #studentContent .ma-student-earned b{color:#aeffda!important}
   animation:none!important;transition:none!important;transform:none!important;
  }
 }
+
+/* Phase 4P-B: a true one-shot flip, not repeated on routine redraws. */
+.ma-game .ma-tile.is-selected:not(.is-matched):not(.is-preview){animation:none}
+@media(prefers-reduced-motion:no-preference){
+ .ma-game .ma-tile.is-fresh-flip{
+  backface-visibility:hidden;transform-origin:50% 50%;
+  animation:ma4pb-flip-in .46s cubic-bezier(.17,.77,.24,1) both!important;
+ }
+ @keyframes ma4pb-flip-in{
+  0%{transform:perspective(850px) rotateY(-77deg) scale(.93);filter:brightness(1.35);opacity:.72}
+  58%{transform:perspective(850px) rotateY(11deg) scale(1.035);filter:brightness(1.13);opacity:1}
+  100%{transform:perspective(850px) rotateY(0deg) scale(1);filter:brightness(1);opacity:1}
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .ma-game .ma-tile.is-fresh-flip{animation:none!important;transition:none!important;transform:none!important}
+}
+#shared .ma-present .ma-4pb-pair-credit{
+ display:inline-flex;justify-content:center;max-width:95%;overflow:hidden;
+ text-overflow:ellipsis;white-space:nowrap;padding:5px 17px;
+ border:1px solid #b2ffdc;border-radius:999px;color:#f0fff7;background:#0d614b;
+ font:900 clamp(11px,1.4vw,19px)/1.15 system-ui,sans-serif;letter-spacing:.09em;
+ box-shadow:0 0 16px #42e1a552;
+}
+.ma-game .ma-4pb-final-summary{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;
+}
+.ma-game .ma-4pb-final-summary>span{
+ min-width:0;padding:7px 9px;border:1px solid #618eb0;border-radius:10px;
+ background:linear-gradient(135deg,#124765,#0b2e4b);color:#c8eafb;
+ font:850 clamp(10px,1.1vw,13px)/1.25 system-ui,sans-serif;
+ text-align:center;letter-spacing:.05em;
+}
+.ma-game .ma-4pb-final-summary b{
+ color:#f6e9b3;font:1000 clamp(13px,1.55vw,21px)/1.2 system-ui,sans-serif;
+}
+@media(max-height:600px){
+ #shared .ma-present .ma-stage-victory .ma-4pb-final-summary{gap:4px}
+ #shared .ma-present .ma-stage-victory .ma-4pb-final-summary>span{padding:3px 5px;font-size:9px}
+ #shared .ma-present .ma-stage-victory .ma-4pb-final-summary b{font-size:11px}
+}
+/* On compact student devices, show larger sets efficiently without shrinking
+   standard 16-card touch targets or adding extra labels to the board. */
+@media(min-width:390px) and (max-width:580px){
+ #student .ma-phase4i-student[data-ma-density="dense"] .ma-grid{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ }
+ #student .ma-phase4i-student[data-ma-density="maximum"] .ma-grid{
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+ }
+}
+@media(min-width:350px) and (max-width:389px){
+ #student .ma-phase4i-student[data-ma-density="dense"] .ma-grid,
+ #student .ma-phase4i-student[data-ma-density="maximum"] .ma-grid{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ }
+}
+@media(max-width:440px){
+ #student .ma-phase4i-student .ma-device-tip{
+  padding:5px 8px!important;gap:6px!important;font-size:10px!important;
+  border-color:#345f83!important;opacity:.86;
+ }
+ #student .ma-phase4i-student .ma-device-tip .ma-info-dot{
+  width:20px;height:20px;flex-basis:20px;font-size:11px;
+ }
+ #student .ma-phase4i-student .ma-student-heading .ma-eyebrow{font-size:9px!important}
+ #student .ma-phase4i-student .ma-student-heading p{font-size:12px!important}
+ #student .ma-phase4i-student .ma-4i-turn-guide{position:relative;z-index:2}
+}
