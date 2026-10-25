@@ -15466,14 +15466,14 @@ function rematchCurrentMatch(newTeams=false){
   launchMatchSet(set);
 }
 function sendMatchAction(type,value=''){
-  const s=selectedStudent(),name=s?.n||'',request={id:'match_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),type,value,name,at:Date.now()};
+  const s=selectedStudent(),name=s?.n||'',request={id:'match_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),type,value,name,runToken:state.activityRun?.runToken||'',at:Date.now()};
   if(NETWORK_SYNC&&networkHydrated&&networkSocket&&networkSocket.readyState===WebSocket.OPEN){
     try{networkSocket.send(JSON.stringify({type:'match_action',request,student_name:name,student_token:currentStudentIdentity()?.student_token||''}));return}catch(e){}
   }
   applyMatchLocalAction(type,value,name);render();
 }
 function teacherMatchAction(type,value=''){
-  const request={id:'match_teacher_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),type,value,at:Date.now()};
+  const request={id:'match_teacher_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),type,value,runToken:state.activityRun?.runToken||'',at:Date.now()};
   if(NETWORK_SYNC&&networkHydrated&&networkSocket&&networkSocket.readyState===WebSocket.OPEN){
     try{networkSocket.send(JSON.stringify({type:'match_action',request}));return}catch(e){}
   }
@@ -15532,12 +15532,12 @@ function applyBingoLocalAction(type,value,name){
   }else if(type==='clear_reveal'){b.reveal=null;b.message='Continue calling when ready.'}
 }
 function sendBingoAction(type,value=''){
-  const s=selectedStudent(),name=s?.n||'',request={id:'bingo_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),type,value,name,at:Date.now()};
+  const s=selectedStudent(),name=s?.n||'',request={id:'bingo_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),type,value,name,runToken:state.activityRun?.runToken||'',at:Date.now()};
   if(NETWORK_SYNC&&networkHydrated&&networkSocket&&networkSocket.readyState===WebSocket.OPEN){try{networkSocket.send(JSON.stringify({type:'bingo_action',request,student_name:name,student_token:currentStudentIdentity()?.student_token||''}));return}catch(e){}}
   applyBingoLocalAction(type,value,name);render();
 }
 function teacherBingoAction(type,value=''){
-  const request={id:'bingo_teacher_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),type,value,at:Date.now()};
+  const request={id:'bingo_teacher_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),type,value,runToken:state.activityRun?.runToken||'',at:Date.now()};
   if(NETWORK_SYNC&&networkHydrated&&networkSocket&&networkSocket.readyState===WebSocket.OPEN){try{networkSocket.send(JSON.stringify({type:'bingo_action',request}));return}catch(e){}}
   applyBingoLocalAction(type,value,'Teacher');render();
 }
@@ -17509,7 +17509,7 @@ function crewSurveyActiveName(team,run=state.activityRun){
 function crewSurveyPrivateResponse(name,run=state.activityRun){return crewSurveyState(run)?.privateResponses?.[name]||null}
 function sendGameShowAction(game,type,value=''){
   const s=selectedStudent(),run=state.activityRun;if(!run||!s)return;
-  const request={id:'gs_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),game,type,value,at:Date.now(),name:s.n};
+  const request={id:'gs_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),game,type,value,runToken:run.runToken||'',at:Date.now(),name:s.n};
   if(NETWORK_SYNC&&networkHydrated&&networkSocket&&networkSocket.readyState===WebSocket.OPEN){
     try{networkSocket.send(JSON.stringify({type:'game_show_action',request,student_name:s.n,student_token:currentStudentIdentity()?.student_token||''}));return}catch(e){}
   }

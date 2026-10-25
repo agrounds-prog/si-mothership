@@ -8,6 +8,7 @@ on:
       - 'bingo-board-studio.css'
       - 'server.py'
       - 'tests/test_classroom_transport_smoke.py'
+      - 'tests/test_multiplayer_reliability.py'
       - 'tests/test_crew_survey_server.py'
       - 'tests/test_million_multiplayer.py'
       - 'tests/test_million_websocket_live.py'
@@ -59,3 +60,5 @@ jobs:
         run: python -m unittest discover -s tests -p test_crew_survey_server.py -v
       - name: Teacher, students, shared-screen websocket regressions
         run: python -m unittest discover -s tests -p test_classroom_transport_smoke.py -v
+      - name: Phase 4Q identity, replay protection, reconnect and persisted multiplayer state
+        run: python -m unittest discover -s tests -p test_multiplayer_reliability.py -v

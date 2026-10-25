@@ -5386,12 +5386,67 @@ def student_connection_present(token: str = "", name: str = "") -> bool:
         meta = CLIENT_META.get(candidate, {})
         if meta.get("role") != "student":
             continue
-        if token and str(meta.get("student_token") or "") == token:
-            return True
-        if name and str(meta.get("student_name") or "") == name:
+        if token:
+            if str(meta.get("student_token") or "") == token:
+                return True
+        elif name and not str(meta.get("student_token") or "") and str(meta.get("student_name") or "") == name:
             return True
     return False
 
+
+
+
+def _multiplayer_student_identity(state: Optional[dict], token: str, name: str) -> bool:
+    """Check a game actor against its enrolled roster identity."""
+    if not isinstance(state, dict) or not name:
+        return False
+    if token:
+        enrolled = _student_by_identity(state, token, "")
+        return isinstance(enrolled, dict) and str(enrolled.get("n") or "") == name
+    legacy = _student_by_identity(state, "", name)
+    return isinstance(legacy, dict) and not str(legacy.get("studentToken") or "")
+
+
+def _multiplayer_action_key(channel: str, actor: str, request: dict) -> str:
+    rid = request.get("id")
+    if not isinstance(rid, str) or not rid or len(rid) > 120:
+        return ""
+    return f"{channel}:{actor}:{rid}"
+
+
+def _multiplayer_action_replayed(run: dict, channel: str, actor: str, request: dict) -> bool:
+    # New clients can optionally scope a message to the exact game instance.
+    if request.get("runToken") and str(request["runToken"]) != str(run.get("runToken") or ""):
+        return True
+    key = _multiplayer_action_key(channel, actor, request)
+    return bool(key) and key in (run.get("_recentMultiplayerActions") or [])
+
+
+def _multiplayer_remember_action(run: dict, channel: str, actor: str, request: dict) -> None:
+    key = _multiplayer_action_key(channel, actor, request)
+    if not key:
+        return
+    seen = run.get("_recentMultiplayerActions")
+    if not isinstance(seen, list):
+        seen = []
+    if key not in seen:
+        seen.append(key)
+    # Persist a bounded deduplication window across connection and server restarts.
+    run["_recentMultiplayerActions"] = seen[-160:]
+
+
+def _multiplayer_set_presence(token: str, name: str, online: bool) -> bool:
+    """Update authoritative roster presence, preserving scores and game progress."""
+    if not _multiplayer_student_identity(LATEST_STATE, token, name):
+        return False
+    own = _student_by_identity(LATEST_STATE, token, "" if token else name)
+    if bool(own.get("offline")) == (not online):
+        return False
+    current = copy.deepcopy(LATEST_STATE)
+    own = _student_by_identity(current, token, "" if token else name)
+    own["offline"] = not online
+    save_runtime_state(current)
+    return True
 
 
 def _match_connected_names(state: dict) -> list[str]:
@@ -6028,8 +6083,14 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                     if data.get("student_name") and not meta.get("student_name"):
                         meta["student_name"] = str(data.get("student_name"))
                     CLIENT_META[ws] = meta
-                    if role == "student" and meta.get("student_name"):
-                        await broadcast({"type": "presence", "student_token": meta.get("student_token", ""), "student_name": meta.get("student_name", ""), "online": True}, exclude=ws)
+                    if role == "student" and _multiplayer_student_identity(
+                        LATEST_STATE, str(meta.get("student_token") or ""), str(meta.get("student_name") or "")
+                    ):
+                        token = str(meta.get("student_token") or "")
+                        name = str(meta.get("student_name") or "")
+                        if _multiplayer_set_presence(token, name, True):
+                            await broadcast({"type": "state", "state": LATEST_STATE})
+                        await broadcast({"type": "presence", "student_token": token, "student_name": name, "online": True}, exclude=ws)
                     await _send_current_state(ws)
                 elif mtype == "starwheel_action" and isinstance(data.get("request"), dict):
                     request_data = copy.deepcopy(data["request"])
@@ -6049,8 +6110,15 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                     current = copy.deepcopy(LATEST_STATE) if isinstance(LATEST_STATE, dict) else None
                     run = current.get("activityRun") if isinstance(current, dict) else None
                     if isinstance(run, dict) and str(run.get("activityId") or "") == "starwheel-game" and str(run.get("phase") or "") == "running" and name:
+                        if role == "student" and not _multiplayer_student_identity(
+                            current, str(CLIENT_META.get(ws, {}).get("student_token") or ""), name
+                        ):
+                            continue
+                        if _multiplayer_action_replayed(run, "starwheel", name, request_data):
+                            continue
                         request_data["name"] = name
                         _starwheel_apply_request(current, run, name, request_data)
+                        _multiplayer_remember_action(run, "starwheel", name, request_data)
                         save_runtime_state(current)
                         await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
                 elif mtype == "match_action" and isinstance(data.get("request"), dict):
@@ -6068,12 +6136,18 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                         if name and not meta.get("student_name"):
                             meta["student_name"] = name
                         CLIENT_META[ws] = meta
-                        request_data["name"] = name
-                        _match_apply_request(current, run, name, request_data, teacher=False)
+                        if not _multiplayer_student_identity(current, token, name):
+                            continue
+                        actor = name
                     elif role == "teacher":
-                        _match_apply_request(current, run, "Teacher", request_data, teacher=True)
+                        actor = "Teacher"
                     else:
                         continue
+                    if _multiplayer_action_replayed(run, "match", actor, request_data):
+                        continue
+                    request_data["name"] = actor
+                    _match_apply_request(current, run, actor, request_data, teacher=role == "teacher")
+                    _multiplayer_remember_action(run, "match", actor, request_data)
                     save_runtime_state(current)
                     await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
                 elif mtype == "bingo_action" and isinstance(data.get("request"), dict):
@@ -6099,11 +6173,15 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                         if not isinstance(identity, dict) or str(identity.get("n") or "") != name:
                             continue
                         request_data["name"] = name
-                        _bingo_apply_request(current, run, name, request_data, teacher=False)
                     elif role == "teacher":
-                        _bingo_apply_request(current, run, "Teacher", request_data, teacher=True)
+                        actor = "Teacher"
                     else:
                         continue
+                    if _multiplayer_action_replayed(run, "bingo", actor, request_data):
+                        continue
+                    _bingo_apply_request(current, run, actor, request_data, teacher=role == "teacher")
+                    actor = name if role == "student" else "Teacher"
+                    _multiplayer_remember_action(run, "bingo", actor, request_data)
                     save_runtime_state(current)
                     await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
                 elif mtype == "signal_sequence_action" and isinstance(data.get("request"), dict):
@@ -6121,10 +6199,20 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                     run = current.get("activityRun")
                     if not isinstance(run, dict):
                         continue
+                    if _multiplayer_action_replayed(run, "signal", name, data["request"]):
+                        # Duplicate accepted button presses still get an ACK so
+                        # a reconnecting student's pending UI can clear safely.
+                        await ws.send_json({
+                            "type": "signal_sequence_ack",
+                            "id": str(data["request"].get("id") or "")[:100],
+                            "ok": True,
+                        })
+                        continue
                     # A confirmed response lets the student distinguish an
                     # accepted press from an unavailable or stale round.
                     accepted = apply_signal_sequence_action(current, run, name, data["request"])
                     if accepted:
+                        _multiplayer_remember_action(run, "signal", name, data["request"])
                         save_runtime_state(current)
                     await ws.send_json({
                         "type": "signal_sequence_ack",
@@ -6148,7 +6236,10 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                     run = current.get("activityRun")
                     if not isinstance(run, dict):
                         continue
+                    if _multiplayer_action_replayed(run, "four", name, data["request"]):
+                        continue
                     if apply_four_in_line_action(current, run, name, data["request"]):
+                        _multiplayer_remember_action(run, "four", name, data["request"])
                         save_runtime_state(current)
                         await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
                 elif mtype == "dominoes_action" and isinstance(data.get("request"), dict):
@@ -6166,7 +6257,10 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                     run = current.get("activityRun")
                     if not isinstance(run, dict):
                         continue
+                    if _multiplayer_action_replayed(run, "dominoes", name, data["request"]):
+                        continue
                     if apply_dominoes_action(current, run, name, data["request"]):
+                        _multiplayer_remember_action(run, "dominoes", name, data["request"])
                         save_runtime_state(current)
                         await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
                 elif mtype == "cosmic_action" and isinstance(data.get("request"), dict):
@@ -6184,7 +6278,10 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                     run = current.get("activityRun")
                     if not isinstance(run, dict):
                         continue
+                    if _multiplayer_action_replayed(run, "cosmic", name, data["request"]):
+                        continue
                     if apply_cosmic_action(current, run, name, data["request"]):
+                        _multiplayer_remember_action(run, "cosmic", name, data["request"])
                         save_runtime_state(current)
                         await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
                 elif mtype == "game_show_action" and isinstance(data.get("request"), dict):
@@ -6216,12 +6313,15 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                     request_data["name"] = name
                     game = str(request_data.get("game") or "")
                     activity_id = str(run.get("activityId") or "")
+                    if _multiplayer_action_replayed(run, "game-show-" + game, name, request_data):
+                        continue
                     if game == "crew-survey" and activity_id == "crew-survey-game":
                         _crew_survey_apply_request(current, run, name, request_data)
                     elif game == "million" and activity_id == "million-game":
                         _million_apply_request(current, run, name, request_data)
                     else:
                         continue
+                    _multiplayer_remember_action(run, "game-show-" + game, name, request_data)
                     save_runtime_state(current)
                     await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
                 elif mtype == "state" and isinstance(data.get("state"), dict):
@@ -6240,7 +6340,8 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                         CLIENT_META[ws] = meta
                         merged = merge_student_snapshot(LATEST_STATE, data["state"], token, name)
                         save_runtime_state(merged)
-                        if name:
+                        if _multiplayer_student_identity(LATEST_STATE, token, name):
+                            _multiplayer_set_presence(token, name, True)
                             await broadcast({"type": "presence", "student_token": token, "student_name": name, "online": True}, exclude=ws)
                     else:
                         # Shared-screen clients are view-only.
@@ -6263,7 +6364,10 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
             name = str(meta.get("student_name") or "")
             if not student_connection_present(token, name):
                 try:
-                    await broadcast({"type": "presence", "student_token": token, "student_name": name, "online": False})
+                    if _multiplayer_set_presence(token, name, False):
+                        await broadcast({"type": "state", "state": LATEST_STATE})
+                    if _multiplayer_student_identity(LATEST_STATE, token, name):
+                        await broadcast({"type": "presence", "student_token": token, "student_name": name, "online": False})
                 except Exception:
                     pass
     return ws
