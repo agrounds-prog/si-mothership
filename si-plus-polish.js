@@ -1049,8 +1049,10 @@
      event.target.value="";
      if(imgs.length)void siPlusImportImageSlides(imgs);
    }else if(event.target?.matches("[data-org-position]")){
-     const select=event.target;
-     siPlusOrganizerMove(Number(select.dataset.orgPosition),Number(select.value));
+     // Let the native select finish dispatching change before rebuilding its
+     // card. Otherwise Chrome can re-enter with a shifted selected option.
+     const from=Number(event.target.dataset.orgPosition),to=Number(event.target.value);
+     queueMicrotask(()=>siPlusOrganizerMove(from,to));
    }
  }
  function onClick(event){
