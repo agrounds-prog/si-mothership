@@ -11,6 +11,7 @@ on:
       - 'pixel-batch.js'
       - 'pixel-batch.css'
       - 'tests/test_say_aloud_modes_browser.cjs'
+      - 'tests/test_spoken_view_privacy.py'
       - '.github/workflows/say-aloud-modes.yml'
 
 permissions: {contents: read}
@@ -38,6 +39,8 @@ jobs:
           npx playwright install --with-deps chromium
       - name: MILLION verbal response server enforcement
         run: python -m unittest discover -s tests -p test_million_multiplayer.py -v
+      - name: Verify spoken-answer privacy on independent roles
+        run: python -m unittest discover -s tests -p test_spoken_view_privacy.py -v
       - name: Start disposable local classroom
         run: |
           mkdir -p /tmp/mothership-say-aloud

@@ -3836,6 +3836,31 @@ def _state_for_role(state: dict, role: str, token: str = "", name: str = "") -> 
                 million["crewPredictions"] = {}
                 million["selectedAnswer"] = ""
 
+    # PIXEL REVEAL: an obscured image must not carry its solution or other
+    # students' guesses in a non-teacher websocket payload. Hiding the answer
+    # in HTML is not sufficient: a student can inspect received JSON.
+    # Keep guess *keys* on the shared screen for the progress counter.
+    if isinstance(run, dict) and str(run.get("activityId") or "") == "pixel-game":
+        published = bool(run.get("pixelRevealAll") and run.get("pixelShowResults"))
+        cfg = run.get("pixelConfig")
+        if isinstance(cfg, dict) and not published:
+            cfg.pop("answer", None)
+            cfg.pop("acceptedAnswers", None)
+        guesses = run.get("pixelGuesses")
+        if isinstance(guesses, dict) and not published:
+            if role != "student":
+                run["pixelGuesses"] = {
+                    str(student_name): {"at": guess.get("at")}
+                    for student_name, guess in guesses.items()
+                    if isinstance(guess, dict)
+                }
+            else:
+                # Older saved spoken rounds may have stored the key as guess.
+                # Preserve teacher evaluation, never echo that key to students.
+                for guess in guesses.values():
+                    if isinstance(guess, dict) and guess.get("source") == "verbal":
+                        guess["guess"] = "Spoken answer"
+
     if isinstance(run, dict) and str(run.get("activityId") or "") == "match-game":
         match = run.get("match")
         cfg = run.get("matchConfig") if isinstance(run.get("matchConfig"), dict) else {}
