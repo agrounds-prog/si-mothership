@@ -12,6 +12,7 @@ on:
       - 'pixel-batch.css'
       - 'tests/test_say_aloud_modes_browser.cjs'
       - 'tests/test_spoken_view_privacy.py'
+      - 'tests/test_spoken_live_views_browser.cjs'
       - '.github/workflows/say-aloud-modes.yml'
 
 permissions: {contents: read}
@@ -51,6 +52,8 @@ jobs:
           done
           tail -100 /tmp/say-aloud.log
           exit 1
+      - name: Three independent browser roles — teacher, students, shared screen
+        run: LOCAL_URL=http://127.0.0.1:8877 node tests/test_spoken_live_views_browser.cjs
       - name: Spoken options — save, student view, teacher scoring, privacy
         run: LOCAL_URL=http://127.0.0.1:8877 node tests/test_say_aloud_modes_browser.cjs
       - name: Diagnostics on failure
