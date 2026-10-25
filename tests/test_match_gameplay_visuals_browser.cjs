@@ -446,7 +446,18 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    compactFinal.stage.right<=compactFinal.board.right+4&&
    compactFinal.scrollWidth<=compactFinal.viewport+6,
    'compact MATCH final results stay inside projector: '+JSON.stringify(compactFinal));
+  // The projector checks above deliberately mutate a temporary game render.
+  // Reassert completion in the teacher's own fixture before inspecting the
+  // asynchronous unified control dock; no real student gameplay is changed.
   const matchFinalHUD=await teacher.evaluate(()=>{
+   const run=state.activityRun;
+   if(run?.activityId==='match-game'){
+     run.match.pendingResolution=null;
+     run.match.complete=true;
+     run.match.matched=run.match.cards.map(card=>card.id);
+     renderActivityController();
+     window.__siUnifiedTeacherControls?.refresh?.();
+   }
    const dock=document.querySelector('#siUnifiedTeacherDeck');
    return {finished:dock?.dataset.finished,
     returnText:dock?.querySelector('.si-utc-finish')?.textContent};
