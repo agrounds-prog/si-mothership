@@ -1028,3 +1028,13 @@ body.sipreview-open{
  #teacher #presentationBuilderPanel .si-org-bulk .si-org-import{flex:1}
  #teacher #presentationBuilderPanel .si-org-card-actions{gap:5px;padding:6px}
 }
+
+/* Drag starts from the numbered slide heading; action buttons stay clickable. */
+#teacher #presentationBuilderPanel .si-org-drag-handle{
+ cursor:grab;user-select:none;display:flex;align-items:center;gap:5px;
+}
+#teacher #presentationBuilderPanel .si-org-drag-handle:before{
+ content:"⋮⋮";font:900 19px/1 system-ui,sans-serif;
+ color:#91dce5;letter-spacing:-.28em;padding-right:8px;
+}
+#teacher #presentationBuilderPanel .si-org-card.dragging .si-org-drag-handle{cursor:grabbing}

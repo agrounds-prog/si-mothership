@@ -1024,6 +1024,8 @@
    }
    root.querySelectorAll(".si-org-card").forEach(card=>{
      const index=Number(card.dataset.orgDrag),actions=card.querySelector(".si-org-card-actions");
+     const handle=card.querySelector(".si-org-card-top>b");
+     if(handle){handle.classList.add("si-org-drag-handle");handle.title="Drag this slide to reorder";}
      if(!actions||actions.querySelector("[data-org-preview]"))return;
      const preview=document.createElement("button");
      preview.type="button";preview.className="si-org-preview-btn";

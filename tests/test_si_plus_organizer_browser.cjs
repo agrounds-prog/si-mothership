@@ -67,7 +67,9 @@ const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.deepEqual(await page.evaluate(()=>state.presentationEditor.draft.slides.map(s=>s.listTitle)),[
    '01 Opening','02 Practice','03 Finish','02 Practice (Copy)','Understanding Check','Class Poll'
   ]);
-  await page.locator('[data-org-drag="0"]').dragTo(page.locator('[data-org-drag="4"]'));
+  // Grab the dedicated numbered-slide handle, not the editor/position buttons.
+  await page.locator('[data-org-drag="0"] .si-org-card-top').dragTo(
+    page.locator('[data-org-drag="4"] .si-org-card-top'));
   assert.deepEqual(await page.evaluate(()=>state.presentationEditor.draft.slides.map(s=>s.listTitle)),[
    '02 Practice','03 Finish','02 Practice (Copy)','Understanding Check','01 Opening','Class Poll'
   ],'Native drag/drop should reorder draft slides');
