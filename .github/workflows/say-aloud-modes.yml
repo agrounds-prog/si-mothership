@@ -54,8 +54,23 @@ jobs:
           exit 1
       - name: Three independent browser roles — teacher, students, shared screen
         run: LOCAL_URL=http://127.0.0.1:8877 node tests/test_spoken_live_views_browser.cjs
+      # Independent localhost session: the three-view test intentionally leaves
+      # a running Crew Survey and joined roster, so the older save/reload
+      # regression must not inherit that activity or its persistent drafts.
+      - name: Launch fresh localhost classroom for saved-mode regression
+        run: |
+          mkdir -p /tmp/mothership-say-aloud-saved
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-say-aloud-saved PORT=8878 python server.py >/tmp/say-aloud-saved.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8878/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          tail -100 /tmp/say-aloud-saved.log
+          exit 1
       - name: Spoken options — save, student view, teacher scoring, privacy
-        run: LOCAL_URL=http://127.0.0.1:8877 node tests/test_say_aloud_modes_browser.cjs
+        run: LOCAL_URL=http://127.0.0.1:8878 node tests/test_say_aloud_modes_browser.cjs
       - name: Diagnostics on failure
         if: failure()
-        run: tail -120 /tmp/say-aloud.log || true
+        run: |
+          tail -120 /tmp/say-aloud.log || true
+          tail -120 /tmp/say-aloud-saved.log || true
