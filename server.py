@@ -6206,12 +6206,12 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                     if not isinstance(run, dict):
                         continue
                     if _multiplayer_action_replayed(run, "signal", name, data["request"]):
-                        # Duplicate accepted button presses still get an ACK so
-                        # a reconnecting student's pending UI can clear safely.
+                        # A retry is already processed: preserve the one accepted
+                        # press while reporting this repeat as unaccepted.
                         await ws.send_json({
                             "type": "signal_sequence_ack",
                             "id": str(data["request"].get("id") or "")[:100],
-                            "ok": True,
+                            "ok": False,
                         })
                         continue
                     # A confirmed response lets the student distinguish an
