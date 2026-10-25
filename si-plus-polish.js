@@ -1061,7 +1061,8 @@
  function start(){
    document.addEventListener("change",onChange,true);
    document.addEventListener("click",onClick,true);
-   const root=document.querySelector("#activitiesPanel");
+   // The presentation editor is a sibling of the Activity Library, not its child.
+   const root=document.querySelector("#presentationBuilderPanel");
    if(root){
      let busy=false;
      new MutationObserver(()=>{
