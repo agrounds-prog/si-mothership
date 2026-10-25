@@ -135,11 +135,11 @@ class MultiplayerReliability(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.game()["match"]["attempts"], 1)
         self.assertEqual(self.game()["match"]["scores"]["Ada"], 1)
         self.assertEqual(self.game()["match"]["matched"], ["a1", "a2"])
-        await self.action(teacher, "match_action", "teacher-resolve", "resolve",
+        await self.action(teacher, "match_action", "teacher-resolve", "continue",
                           run_token=self.game()["runToken"])
         await self.until(lambda: self.game()["match"]["activeStudentIndex"] == 1,
                          "next turn after pair")
-        await self.action(teacher, "match_action", "teacher-resolve", "resolve",
+        await self.action(teacher, "match_action", "teacher-resolve", "continue",
                           run_token=self.game()["runToken"])
         await asyncio.sleep(0.06)
         self.assertEqual(self.game()["match"]["activeStudentIndex"], 1,

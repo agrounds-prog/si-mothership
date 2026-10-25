@@ -6146,7 +6146,10 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                     if _multiplayer_action_replayed(run, "match", actor, request_data):
                         continue
                     request_data["name"] = actor
-                    _match_apply_request(current, run, actor, request_data, teacher=role == "teacher")
+                    if role == "teacher":
+                        _match_apply_request(current, run, actor, request_data, teacher=True)
+                    else:
+                        _match_apply_request(current, run, actor, request_data, teacher=False)
                     _multiplayer_remember_action(run, "match", actor, request_data)
                     save_runtime_state(current)
                     await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
@@ -6173,14 +6176,17 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                         if not isinstance(identity, dict) or str(identity.get("n") or "") != name:
                             continue
                         request_data["name"] = name
+                        actor = name
                     elif role == "teacher":
                         actor = "Teacher"
                     else:
                         continue
                     if _multiplayer_action_replayed(run, "bingo", actor, request_data):
                         continue
-                    _bingo_apply_request(current, run, actor, request_data, teacher=role == "teacher")
-                    actor = name if role == "student" else "Teacher"
+                    if role == "teacher":
+                        _bingo_apply_request(current, run, actor, request_data, teacher=True)
+                    else:
+                        _bingo_apply_request(current, run, actor, request_data, teacher=False)
                     _multiplayer_remember_action(run, "bingo", actor, request_data)
                     save_runtime_state(current)
                     await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
