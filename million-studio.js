@@ -263,11 +263,18 @@ function millionTurnCue(){
   if(!r||r.activityId!=='million-game'||r.phase!=='running'||!game){
    parent?.querySelector('#msMillionTurnCue')?.remove();return;
   }
-  const m=r.million||{},pilot=role==='teacher'||typeof selectedStudent==='function'&&m.pilot===selectedStudent()?.n;
+  const m=r.million||{},spoken=r.millionConfig?.answerMode==='verbal';
+  if(spoken&&role==='student'){game.querySelector('#msMillionTurnCue')?.remove();return}
+  const pilot=role==='teacher'||typeof selectedStudent==='function'&&m.pilot===selectedStudent()?.n;
   const selected=pilot?m.selectedAnswer:m.crewPredictions?.[selectedStudent()?.n]||'';
   let phase='choose',title='CHOOSE AN ANSWER',message=pilot?'Select A, B, C, or D before locking.':'Choose your private prediction.';
-  if(selected){phase='selected';title=pilot?'ANSWER '+selected+' SELECTED':'PREDICTION '+selected+' SENT';message=pilot?'Review your selection, then lock it when ready.':'Your prediction is private.'}
-  if(m.lockedAnswer){phase='locked';title='FINAL ANSWER LOCKED';message='Waiting for the teacher to reveal the answer.'}
+  if(spoken){
+   title='LISTEN TO THE COMMAND SEAT';message='Hear the spoken answer, then select A, B, C, or D on the teacher controls.';
+   if(m.lockedAnswer){phase='locked';title='SPOKEN ANSWER RECORDED';message='Reveal the selected answer when the crew is ready.'}
+  }else{
+   if(selected){phase='selected';title=pilot?'ANSWER '+selected+' SELECTED':'PREDICTION '+selected+' SENT';message=pilot?'Review your selection, then lock it when ready.':'Your prediction is private.'}
+   if(m.lockedAnswer){phase='locked';title='FINAL ANSWER LOCKED';message='Waiting for the teacher to reveal the answer.'}
+  }
   if(m.revealed){phase=m.result==='correct'?'correct':'wrong';title=m.result==='correct'?'POINTS EARNED':'ANSWER REVEALED';message=m.complete?'Million complete!':m.over?'Run complete.':'Review the answer. The teacher will start the next question.'}
   let cue=game.querySelector('#msMillionTurnCue');
   if(!cue){
@@ -800,7 +807,9 @@ function installMillionPhase4J(){
   const clockText=started?Math.floor(elapsed/60)+':'+String(elapsed%60).padStart(2,'0'):'—';
   const stateLabel=finished?'MISSION COMPLETE':reveal?
    m.result==='correct'?'CORRECT ANSWER REVEALED':'ANSWER REVEALED':
-   locked?'ANSWER LOCKED':m.selectedAnswer?'ANSWER SELECTED':'WAITING FOR ANSWER';
+   locked?(cfg.answerMode==='verbal'?'SPOKEN ANSWER RECORDED':'ANSWER LOCKED'):
+   cfg.answerMode==='verbal'?'WAITING FOR SPOKEN ANSWER':
+   m.selectedAnswer?'ANSWER SELECTED':'WAITING FOR ANSWER';
   if(role==='teacher'){
    const root=document.querySelector('#activityControllerPanel .million-teacher-grid');
    const primary=root?.querySelector('.million-teacher-card');
@@ -831,7 +840,8 @@ function installMillionPhase4J(){
    applyText(progress.querySelector('.million-4j-next-step'),
     finished?'This run is complete. Review the final result.':
     reveal?'Answer revealed · advance when ready.':
-    locked?'Answer locked · reveal it or mark signal lost.':
+    locked?(cfg.answerMode==='verbal'?'Spoken answer recorded · reveal when ready.':'Answer locked · reveal it or mark signal lost.'):
+    cfg.answerMode==='verbal'?'Listen to the spoken answer · choose A–D to record it.':
     m.selectedAnswer?'Answer selected · waiting for the Command Seat to lock.':
     'Students choose an answer · use lifelines when needed.');
    controls.dataset.millionPhase=reveal?'revealed':locked?'locked':'waiting';
@@ -852,7 +862,68 @@ function installMillionPhase4J(){
    }
   } else if(role==='student'){
    const card=document.querySelector('#studentContent .million-student');
-   if(!card||finished||!card.querySelector('.million-student-choices'))return;
+   if(!card)return;
+   if(cfg.answerMode==='verbal'){
+    card.classList.add('million-4ob-verbal');
+    const me=typeof selectedStudent==='function'?selectedStudent():null,seat=!!me&&m.pilot===me.n;
+    const phase=reveal?(m.result==='correct'?'correct':'wrong'):locked?'locked':'speaking';
+    card.dataset.msSpokenPhase=phase;
+    const title=m.complete?'🏆 Mission complete!':m.over?'Mission finished':
+      reveal?(m.result==='correct'?'✓ Signal confirmed!':'✕ Signal lost'):
+      locked?'Spoken answer recorded':'🎤 Say your answer aloud';
+    const detail=m.complete?'The crew reached the final milestone.':
+      m.over?'Your teacher can launch another game from the activity lobby.':
+      reveal?(m.result==='correct'?'Your crew earned the next point level. Great teamwork.':
+        'The teacher revealed the correct answer. Keep trying.'):
+      locked?'The teacher recorded the spoken answer. Watch for the reveal.':
+      seat?'You are in the Command Seat. Say A, B, C, or D to your teacher.':
+        'Listen while the Command Seat says an answer out loud.';
+    const foot=m.complete||m.over?'Review the final result on the shared screen.':
+      reveal?'Your teacher controls when the next question begins.':
+      locked?'No buttons to press.':'Your teacher selects and judges the spoken answer.';
+    const prompt=card.querySelector('.million-say-cue');
+    if(prompt){
+     applyText(prompt.querySelector('strong'),title);
+     applyText(prompt.querySelector('p'),detail);
+     applyText(prompt.querySelector('small'),foot);
+     prompt.setAttribute('aria-live','polite');
+    }
+    // Teacher-only answer key remains on the server. Student choices are
+    // read-only public labels, not clickable answer submissions.
+    let list=card.querySelector(':scope > .ms-million-spoken-choices');
+    if(!list&&prompt){
+     list=document.createElement('div');list.className='ms-million-spoken-choices';
+     list.setAttribute('role','list');list.setAttribute('aria-label','Read-only answer choices');
+     prompt.after(list);
+    }
+    if(list){
+     const question=cfg.questions?.[q]||{},eliminated=Array.isArray(m.eliminated)?m.eliminated:[];
+     const key=[run.runToken,q,reveal,m.publicCorrect,m.lockedAnswer,
+       eliminated.join(','),JSON.stringify(question.choices||[])].join('|');
+     if(list.dataset.msRenderKey!==key){
+      list.replaceChildren(...(question.choices||[]).map(choice=>{
+       const removed=eliminated.includes(choice.key),correct=reveal&&m.publicCorrect===choice.key;
+       const wrong=reveal&&m.lockedAnswer===choice.key&&!correct;
+       const node=document.createElement('div');
+       node.className='ms-million-spoken-option'+(removed?' is-removed':'')+
+        (correct?' is-correct':'')+(wrong?' is-wrong':'');
+       node.setAttribute('role','listitem');
+       const badge=document.createElement('b');badge.textContent=String(choice.key||'');
+       const answer=document.createElement('span');
+       answer.textContent=removed?'SIGNAL REMOVED':String(choice.text||'');
+       node.append(badge,answer);return node;
+      }));
+      list.dataset.msRenderKey=key;
+     }
+    }
+    let clue=card.querySelector(':scope > .ms-million-spoken-clue');
+    if(m.publicClue){
+     if(!clue){clue=document.createElement('div');clue.className='ms-million-spoken-clue';card.append(clue)}
+     applyText(clue,'MOTHERSHIP CLUE · '+String(m.publicClue));
+    }else clue?.remove();
+    return;
+   }
+   if(finished||!card.querySelector('.million-student-choices'))return;
    card.classList.add('million-4j-student');
    const pilot=typeof selectedStudent==='function'?selectedStudent():null;
    const seat=!!pilot&&m.pilot===pilot.n;
@@ -895,6 +966,17 @@ function installMillionPhase4J(){
     });
    }
    const stage=board.querySelector('.million-stage');
+   if(cfg.answerMode==='verbal'){
+    const pill=add(stage,'div','ms-million-spoken-stage-pill',stage.querySelector('.million-stakes'));
+    const spokenPhase=reveal?'revealed':locked?'locked':'waiting';
+    pill.dataset.phase=spokenPhase;
+    applyText(pill,'🎤 '+(reveal?'TEACHER REVIEWED THE ANSWER':
+     locked?'SPOKEN ANSWER RECORDED':'SAY ALOUD · TEACHER APPROVES'));
+   }else stage.querySelector(':scope > .ms-million-spoken-stage-pill')?.remove();
+   board.querySelectorAll('.million-ladder .million-rung').forEach(rung=>{
+    const number=Number(rung.querySelector('span')?.textContent||0);
+    rung.classList.toggle('just-earned',reveal&&m.result==='correct'&&number===level);
+   });
    const clock=add(stage,'div','million-4o-question-clock',stage.querySelector('.million-message'));
    clock.setAttribute('role','timer');
    clock.setAttribute('aria-label','Elapsed question time');

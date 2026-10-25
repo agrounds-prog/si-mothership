@@ -89,15 +89,34 @@ if(!/^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?$/.test(BASE))
    null,{timeout:18000});
   assert.equal(await alex.locator('#studentContent [data-million-choice], #studentContent #millionLockBtn').count(),0);
   assert.match(await alex.locator('#studentContent .million-verbal-mode').innerText(),/Say your answer aloud/);
+  await alex.locator('#studentContent .ms-million-spoken-option').first().waitFor({timeout:12000});
+  assert.deepEqual(await alex.evaluate(()=>({
+   phase:document.querySelector('#studentContent .million-verbal-mode')?.dataset.msSpokenPhase,
+   choices:document.querySelectorAll('#studentContent .ms-million-spoken-option').length,
+   buttons:document.querySelectorAll('#studentContent .ms-million-spoken-option button').length,
+   overflow:Math.max(0,document.documentElement.scrollWidth-innerWidth)
+  })),{phase:'speaking',choices:4,buttons:0,overflow:0});
+  await shared.locator('.ms-million-spoken-stage-pill').waitFor({timeout:11000});
+  assert.match(await shared.locator('.ms-million-spoken-stage-pill').innerText(),/SAY ALOUD · TEACHER APPROVES/);
+  assert.match(await teacher.locator('.million-4j-next-step').innerText(),/Listen to the spoken answer/);
+
   assert.deepEqual(await shared.evaluate(()=>({
    correct:Object.hasOwn(state.activityRun.millionConfig.questions[0],'correct'),
    next:state.activityRun.millionConfig.questions[1].prompt
   })),{correct:false,next:''});
+  await teacher.locator('[data-million-teacher-life="reduce"]').click();
+  await alex.waitForFunction(()=>document.querySelectorAll('#studentContent .ms-million-spoken-option.is-removed').length===2,null,{timeout:15000});
   const correct=await teacher.evaluate(()=>state.activityRun.millionConfig.questions[0].correct);
   await teacher.locator('[data-million-spoken-choice="'+correct+'"]').click();
+  await alex.waitForFunction(()=>document.querySelector('#studentContent .million-verbal-mode')?.dataset.msSpokenPhase==='locked',null,{timeout:15000});
+  await shared.waitForFunction(()=>document.querySelector('.ms-million-spoken-stage-pill')?.dataset.phase==='locked',null,{timeout:13000});
   await teacher.locator('#millionCorrectBtn').click();
   await shared.waitForFunction(()=>state.activityRun?.million?.result==='correct'&&
    state.activityRun.million.ladderLevel===1,null,{timeout:15000});
+  await alex.waitForFunction(()=>document.querySelector('#studentContent .million-verbal-mode')?.dataset.msSpokenPhase==='correct',null,{timeout:15000});
+  assert.match(await alex.locator('#studentContent .million-say-cue').innerText(),/Signal confirmed/);
+  assert.equal(await alex.locator('#studentContent .ms-million-spoken-option.is-correct').count(),1);
+  await shared.waitForFunction(()=>!!document.querySelector('.million-public.big .million-rung.just-earned'),null,{timeout:12000});
 
   // Crew Survey: actual student buzzer, spoken cue, teacher approval, public reveal.
   await teacher.evaluate(()=>{state.activityRun=null;state.screen='activities';
