@@ -82,6 +82,54 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    matchContinueBtn:'resolve',matchMemoryPreviewBtn:'assist',
    matchLockBtn:'pause',matchSkipBtn:'next',matchUndoBtn:'correct'
   });
+
+  // Phase 4P-C: next player/next team, repeat turn, miss cue and round finish.
+  const turnFlow=await teacher.evaluate(()=>{
+   const run=JSON.parse(JSON.stringify(state.activityRun)),m=run.match,ids=m.cards.map(c=>c.id);
+   m.pendingResolution={result:'miss',cards:[ids[0],ids[5]],player:'Alex'};
+   m.selected=m.pendingResolution.cards.slice();m.locked=true;
+   const miss={next:matchArcadeHandoff(run),status:matchArcadeStatus(m,run),markup:matchArcadeStudent(run,{n:'Alex'})};
+   run.matchConfig.turnRule='match_go_again';m.pendingResolution.result='match';
+   const same=matchArcadeHandoff(run);
+   run.matchConfig.mode='teams';run.matchConfig.teamCount=2;
+   run.matchConfig.teamAssignments={Alex:0,Blair:1};m.activeTeam=0;
+   run.matchConfig.turnRule='one_each';const team=matchArcadeHandoff(run);
+   run.matchConfig.turnRule='match_go_again';const sameTeam=matchArcadeHandoff(run);
+   m.matched=ids.slice();const final=matchArcadeHandoff(run);
+   return {miss,same,team,sameTeam,final};
+  });
+  assert.equal(turnFlow.miss.next.name,'Blair');
+  assert.match(turnFlow.miss.status.detail,/cards 1 and 6/);
+  assert.match(turnFlow.miss.markup,/NOT A MATCH/);
+  assert.match(turnFlow.miss.markup,/Remember cards 1 and 6/);
+  assert.deepEqual([turnFlow.same.name,turnFlow.same.again],['Alex',true]);
+  assert.deepEqual([turnFlow.team.name,turnFlow.team.team],['Blair','Red Crew']);
+  assert.deepEqual([turnFlow.sameTeam.name,turnFlow.sameTeam.again],['Alex',true]);
+  assert.equal(turnFlow.final.complete,true);
+  const teacherControls=await teacher.evaluate(()=>{
+   const run=state.activityRun,m=run.match,copy=JSON.parse(JSON.stringify(m));
+   try{
+    m.pendingResolution={result:'miss',cards:[m.cards[0].id,m.cards[5].id],player:'Alex'};
+    m.selected=m.pendingResolution.cards.slice();m.locked=true;m.pauseAfterReveal=true;
+    renderActivityController();
+    const root=document.querySelector('#activityControllerPanel');
+    const held={message:root.querySelector('.ma-4i-teacher-guidance')?.textContent,
+      next:root.querySelector('.ma-4pc-handoff strong')?.textContent,
+      button:root.querySelector('#matchContinueBtn')?.textContent,
+      pressed:root.querySelector('#matchPauseRevealBtn')?.getAttribute('aria-pressed'),
+      skip:root.querySelector('#matchSkipBtn')?.disabled};
+    m.pauseAfterReveal=false;renderActivityController();
+    return {held,auto:document.querySelector('#matchContinueBtn')?.textContent};
+   }finally{run.match=copy;renderActivityController();}
+  });
+  assert.match(teacherControls.held.message,/cards 1 and 6/);
+  assert.match(teacherControls.held.message,/press CONTINUE/);
+  assert.match(teacherControls.held.next,/Blair/);
+  assert.match(teacherControls.held.button,/CONTINUE/);
+  assert.equal(teacherControls.held.pressed,'true');
+  assert.equal(teacherControls.held.skip,true);
+  assert.match(teacherControls.auto,/ADVANCE NOW/);
+
   await teacher.setViewportSize({width:440,height:780});
   const student4i=await teacher.evaluate(()=>{
    state.selectedStudent='Alex';

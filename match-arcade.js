@@ -51,13 +51,47 @@ function matchArcadeTile(card,index,match,{student=false,canPick=false,preview=f
     '<button type="button" class="'+classes+'" data-match-pick="'+esc(card.id)+'" aria-label="'+label+String(index+1)+'" '+(!canPick||visible?'disabled':'')+'>'+inside+'</button>':
     '<div class="'+classes+'">'+inside+'</div>';
 }
+/* Phase 4P-C: upcoming turn is read-only and follows the native rotation. */
+function matchArcadeHandoff(run=state.activityRun){
+ const m=run?.match||{},cfg=run?.matchConfig||{},crew=connectedStudents();
+ const p=m.pendingResolution;
+ const complete=!!(m.complete||p?.result==='match'&&(m.cards||[]).length>0&&
+   (m.matched||[]).length>=(m.cards||[]).length);
+ if(!p||complete||!crew.length)return {name:'',team:'',again:false,complete};
+ if(p.result==='match'&&cfg.turnRule==='match_go_again')
+  return {name:matchActiveStudent(run)?.n||'',team:cfg.mode==='teams'?matchTeamMeta(m.activeTeam).name:'',
+   again:true,complete:false};
+ if(cfg.mode!=='teams'){
+  const i=((Number(m.activeStudentIndex||0)+1)%crew.length+crew.length)%crew.length;
+  return {name:crew[i]?.n||'',team:'',again:false,complete:false};
+ }
+ const count=Math.max(2,Math.min(4,Number(cfg.teamCount||3))),current=((Number(m.activeTeam||0)%count)+count)%count;
+ for(let step=1;step<=count;step++){
+  const team=(current+step)%count,members=matchTeamMembers(team,run);
+  if(!members.length)continue;
+  const i=Number(m.teamPlayerIndexes?.[team]||0)+(team===current?1:0);
+  return {name:members[i%members.length]?.n||'',team:matchTeamMeta(team).name,again:false,complete:false};
+ }
+ return {name:'',team:'',again:false,complete:false};
+}
+function matchArcadeMissCards(m){
+ const cards=m?.cards||[],ids=m?.pendingResolution?.cards||[];
+ const nums=ids.map(id=>cards.findIndex(c=>c.id===id)+1).filter(n=>n>0);
+ return nums.length===2?'cards '+nums[0]+' and '+nums[1]:'both cards';
+}
 function matchArcadeStatus(match,run){
   if(match.complete)return {type:'victory',title:'ALL SIGNALS MATCHED!',detail:'Every pair has been discovered'};
   if(matchArcadePreviewActive(run))return {type:'preview',title:'MEMORY BOOST',detail:'Study the locations! Cards hide in a moment'};
-  if(match.pendingResolution)return match.pendingResolution.result==='match'?
-    {type:'matched',title:'PAIR FOUND!',detail:'Excellent memory · Mission success'}:
-    {type:'miss',title:'REMEMBER THESE CARDS',detail:'No match · Watch where they return'};
-  if(match.locked)return {type:'hold',title:'MISSION CONTROL HOLD',detail:'The teacher has paused selections'};
+  if(match.pendingResolution){
+  const turn=matchArcadeHandoff(run);
+  const next=turn.complete?'Last pair':turn.again?'Same player goes again':turn.name?'Next: '+turn.name:'Next turn';
+  return match.pendingResolution.result==='match'?
+   {type:'matched',title:'PAIR FOUND!',detail:
+    (run?.matchConfig?.scoring==='no_score'?'Great memory':'Point added automatically')+' · '+next}:
+   {type:'miss',title:'REMEMBER THESE CARDS',detail:
+    'No match · remember '+matchArcadeMissCards(match)+' · '+next};
+ }
+ if(match.locked)return {type:'hold',title:'MISSION CONTROL HOLD',detail:'The teacher has paused selections'};
   return {type:'ready',title:'FIND THE MATCH',detail:'Flip two cards and remember their locations'};
 }
 function matchArcadeScoreline(match,run){
@@ -134,7 +168,7 @@ function matchArcadeShared(run=state.activityRun,big=false){
     '<div class="ma-topline"><div class="ma-turn-identity">'+matchArcadePlayerArt(active?.n||'',run)+
     '<div><small>CURRENT NAVIGATOR'+(team?' · '+esc(team.name.toUpperCase()):'')+'</small><strong>'+esc(active?.n||'Awaiting player')+'</strong></div></div>'+
     '<div class="ma-counter-strip"><span><b>'+matched+'</b> / '+pairs+' <small>PAIRS FOUND</small></span><span><b>'+Number(m.attempts||0)+'</b> <small>TRIES</small></span></div></div>'+
-    '<div class="ma-signal ma-signal-'+status.type+'" aria-live="polite" aria-atomic="true"><span class="ma-signal-icon" aria-hidden="true">'+({victory:'🏆',preview:'◉',matched:'✦',miss:'↶',hold:'Ⅱ',ready:'◇'}[status.type])+'</span><div><strong>'+status.title+'</strong><span>'+status.detail+'</span></div></div>'+
+    '<div class="ma-signal ma-signal-'+status.type+'" aria-live="polite" aria-atomic="true"><span class="ma-signal-icon" aria-hidden="true">'+({victory:'🏆',preview:'◉',matched:'✦',miss:'↶',hold:'Ⅱ',ready:'◇'}[status.type])+'</span><div><strong>'+esc(status.title)+'</strong><span>'+esc(status.detail)+'</span></div></div>'+
     '<div class="ma-board-wrap"><div class="ma-board-surround"><div class="ma-grid" role="group" aria-label="Memory board" style="--ma-cols:'+cols+'">'+cards.map((card,i)=>
       matchArcadeTile(card,i,m,{preview,freshReveals})).join('')+'</div>'+celebration+'</div></div>'+
     '<div class="ma-bottomline"><div class="ma-progress"><span>MISSION PROGRESS</span><div class="ma-progress-track"><i style="width:'+(pairs?Math.min(100,Math.round(matched/pairs*100)):0)+'%"></i></div></div>'+
@@ -156,21 +190,31 @@ function matchArcadeStudent(run=state.activityRun,student=selectedStudent()){
   const studentGridStyle='--ma-cols:'+cols+';'+(cards.length>16?
     'grid-template-columns:repeat('+studentCols+',minmax(0,1fr))!important;':'');
   const teamIndex=cfg.mode==='teams'?matchTeamIndexForStudent(student?.n,run):-1;
+  const teamName=cfg.mode==='teams'?matchTeamMeta(m.activeTeam).name:'';
+  const viewerTeam=cfg.mode==='teams'&&teamIndex>=0?matchTeamMeta(teamIndex).name:'';
+  const handoff=matchArcadeHandoff(run),missCards=matchArcadeMissCards(m);
+  const nextCue=handoff.complete?'Round complete':handoff.again?'Same player goes again':
+    handoff.name?'Next: '+handoff.name:'Waiting for next player';
   const earnedPairs=cfg.mode==='teams'?Number(m.teamScores?.[teamIndex]||0):Number(m.scores?.[student?.n]||0);
   const canPick=mine&&!preview&&!m.locked&&!m.complete&&!m.pendingResolution&&(m.selected||[]).length<2;
-  const turn= m.complete?'MISSION COMPLETE':preview?'MEMORIZE THE BOARD':mine?'YOUR TURN, '+esc(student?.n||'PILOT')+'!':'WATCH '+esc(active?.n||'THE PLAYER');
-  const instruction= m.complete?'Every pair has been found!':preview?'Look closely. The cards will flip back automatically.':
-    m.pendingResolution?.result==='match'?'The pair is correct! Points update automatically.':
-    m.pendingResolution?.result==='miss'?'These cards are different. Remember their positions.':
-    mine?(m.selected?.length===1?'Now find the matching card.':'Choose your first card to begin.'):
-    'Watch the current navigator and remember the card locations.';
+  const turn=m.complete?'MISSION COMPLETE':preview?'MEMORIZE THE BOARD':
+   m.pendingResolution?.result==='miss'?'NOT A MATCH':
+   m.pendingResolution?.result==='match'?'PAIR FOUND!':
+   mine?'YOUR TURN, '+esc(student?.n||'PILOT')+'!':'WATCH '+esc(active?.n||'THE PLAYER');
+  const instruction=m.complete?'Every pair has been found!':preview?'Look closely. The cards will flip back automatically.':
+   m.pendingResolution?.result==='match'?(cfg.scoring==='no_score'?'Great memory!':'Point added automatically!')+' '+nextCue+'.':
+   m.pendingResolution?.result==='miss'?'Remember '+missCards+'. '+nextCue+'.':
+   mine?(m.selected?.length===1?'Find the second card.':'Choose your first card.'):
+   cfg.mode==='teams'&&viewerTeam===teamName?'Watch and support your teammate.':
+   'Watch the current navigator and remember card locations.';
   const chosen=(m.selected||[]).length;
   const guideText=m.complete?'All pairs found':preview?'Study the locations':
-   m.pendingResolution?.result==='match'?
-    (cfg.scoring==='no_score'?'✓ Pair found!':'✓ Pair found · +1 automatically'):
-   m.pendingResolution?.result==='miss'?'Not a match · remember both cards':
+   m.pendingResolution?.result==='match'?(cfg.scoring==='no_score'?'✓ Pair found!':'✓ Pair found · +1 automatically'):
+   m.pendingResolution?.result==='miss'?'Different cards · remember '+missCards:
    m.locked?'Wait for your teacher':
-   mine?(chosen===1?'Pick your second card':'Pick your first card'):'Watch the current player';
+   m.consult?.open&&cfg.mode==='teams'&&viewerTeam===teamName&&!mine?'Suggest a card for your team':
+   mine?(chosen===1?'Pick your second card':'Pick your first card'):
+   cfg.mode==='teams'&&viewerTeam===teamName?'Support your teammate':'Watch the current player';
   const turnGuide='<div class="ma-4i-turn-guide" role="status" aria-live="polite">'+
    '<div><span class="ma-4i-guide-icon" aria-hidden="true">'+
     (mine&&!m.complete&&!m.locked?'✦':'◉')+'</span>'+
@@ -185,9 +229,9 @@ function matchArcadeStudent(run=state.activityRun,student=selectedStudent()){
   const suggestions=m.consult?.open&&mine?'<div class="ma-consult-box"><b>CREW SUGGESTIONS</b><p>'+esc(matchConsultAggregate(run).map(x=>'Card '+x.number+' ×'+x.count).join(' · ')||'Waiting for your crew…')+'</p><button id="matchCloseConsultBtn">Close Consult</button></div>':'';
   return '<div class="ma-game ma-student ma-phase4i-student ma-status-'+status.type+'" data-ma-density="'+density+'" data-turn-phase="'+matchArcadePresentationPhase(m,run)+'">'+
     '<div class="ma-cosmos" aria-hidden="true"><span class="ma-planet ma-planet-one"></span><span class="ma-space-grid"></span></div>'+
-    '<div class="ma-student-heading"><div class="ma-student-pilot">'+matchArcadePlayerArt(active?.n||'',run)+'<span>CURRENT NAVIGATOR</span></div><span class="ma-eyebrow">✦ MOTHERSHIP · MATCH</span><h2 aria-live="polite">'+turn+'</h2><p>'+instruction+'</p></div>'+
+    '<div class="ma-student-heading"><div class="ma-student-pilot">'+matchArcadePlayerArt(active?.n||'',run)+'<span>CURRENT NAVIGATOR'+(cfg.mode==='teams'?' · '+esc(teamName.toUpperCase()):'')+'</span></div><span class="ma-eyebrow">✦ MOTHERSHIP · MATCH</span><h2 aria-live="polite">'+turn+'</h2><p>'+instruction+'</p></div>'+
     '<div class="ma-student-status"><span class="ma-phase-pill" aria-hidden="true">'+
-      ({complete:'★ COMPLETE',preview:'◉ PREVIEW',matched:'✦ MATCH',miss:'↶ TRY AGAIN',hold:'Ⅱ ON HOLD','second-card':mine?'◇ SECOND CARD':'◉ WATCH',choose:mine?'◇ YOUR TURN':'◉ WATCH'}[matchArcadePresentationPhase(m,run)])+'</span><span class="ma-4i-pairs">◈ <b>'+matched+' / '+(cards.length/2)+'</b> PAIRS</span><span class="ma-4i-attempts">◎ <b>'+Number(m.attempts||0)+'</b> TRIES</span><span class="ma-student-earned">'+(cfg.scoring==='no_score'?'◈ MEMORY MODE':'★ <b>'+earnedPairs+'</b> EARNED')+'</span></div>'+turnGuide+
+      ({complete:'★ COMPLETE',preview:'◉ PREVIEW',matched:'✦ MATCH',miss:'↶ TRY AGAIN',hold:'Ⅱ ON HOLD','second-card':mine?'◇ SECOND CARD':'◉ WATCH',choose:mine?'◇ YOUR TURN':'◉ WATCH'}[matchArcadePresentationPhase(m,run)])+'</span><span class="ma-4i-pairs">◈ <b>'+matched+' / '+(cards.length/2)+'</b> PAIRS</span><span class="ma-4i-attempts">◎ <b>'+Number(m.attempts||0)+'</b> TRIES</span><span class="ma-student-earned">'+(cfg.scoring==='no_score'?'◈ MEMORY MODE':cfg.mode==='teams'?'★ <b>'+earnedPairs+'</b> TEAM PAIRS':'★ <b>'+earnedPairs+'</b> EARNED')+'</span></div>'+turnGuide+
     '<div class="ma-board-wrap"><div class="ma-board-surround"><div class="ma-grid" role="group" aria-label="MATCH cards" style="'+studentGridStyle+'">'+
     cards.map((card,i)=>matchArcadeTile(card,i,m,{student:true,canPick,preview,freshReveals})).join('')+'</div></div></div>'+
     (m.complete?'<div class="ma-student-final" role="status"><strong>✦ ALL '+matched+' PAIRS FOUND</strong><span>'+
@@ -237,16 +281,28 @@ function matchArcadeWireTeacher(){
     track.setAttribute('aria-valuemax',String(total));
     track.setAttribute('aria-valuenow',String(found));
     track.firstElementChild.style.width=(total?Math.round(found/total*100):0)+'%';
-    const pending=m.pendingResolution;
-    hud.querySelector('.ma-4i-teacher-guidance').textContent=m.complete?'All pairs found · choose what happens next':
-     pending?.result==='match'?(run.matchConfig?.scoring==='no_score'?'Pair confirmed · no-score mode · press CONTINUE':
-       '✓ Pair credited automatically · press CONTINUE to advance'):
-     pending?.result==='miss'?'Different cards · press CONTINUE to hide and advance':
-     m.teacherLocked?'Board locked · resume to allow selections':
-     (m.selected||[]).length===1?'First card revealed · waiting for the second card':
-     'Students select two cards · matching pairs score automatically';
-    hud.dataset.maScorePhase=pending?.result==='match'?'matched':pending?.result==='miss'?'miss':
-      m.complete?'complete':'ready';
+    const pending=m.pendingResolution,rotation=matchArcadeHandoff(run),held=!!m.pauseAfterReveal;
+     const next=rotation.complete?'LAST PAIR · ROUND COMPLETE':
+       rotation.again?'GO AGAIN · '+rotation.name:
+       rotation.name?'UP NEXT · '+rotation.name+(rotation.team?' · '+rotation.team:''):'WAITING FOR PLAYERS';
+     hud.querySelector('.ma-4i-teacher-guidance').textContent=m.complete?'All pairs found · choose what happens next':
+       pending?.result==='match'?(run.matchConfig?.scoring==='no_score'?'✓ Correct pair · memory mode':'✓ Correct pair · +1 automatically')+
+         (held?' · teacher-held reveal':' · auto-advance active'):
+       pending?.result==='miss'?'No match · remember '+matchArcadeMissCards(m)+
+         (held?' · press CONTINUE when ready':' · cards hide automatically'):
+       m.teacherLocked?'Board locked · resume to allow selections':
+       (m.selected||[]).length===1?'First card revealed · waiting for the second card':
+       'Students select two cards · matching pairs score automatically';
+     hud.dataset.maScorePhase=pending?.result==='match'?'matched':pending?.result==='miss'?'miss':
+       m.complete?'complete':'ready';
+     let handoff=hud.querySelector('.ma-4pc-handoff');
+     if(!handoff){
+      handoff=document.createElement('div');handoff.className='ma-4pc-handoff';
+      handoff.innerHTML='<span>TURN HANDOFF</span><strong></strong>';hud.appendChild(handoff);
+     }
+     handoff.hidden=!pending&&!m.complete;
+     handoff.querySelector('strong').textContent=m.complete?'MISSION COMPLETE':next;
+     handoff.dataset.maHold=held?'held':'automatic';
     for(const [id,group] of Object.entries({
      matchContinueBtn:'resolve',matchMemoryPreviewBtn:'assist',
      matchLockBtn:'pause',matchPauseRevealBtn:'pause',
@@ -256,6 +312,25 @@ function matchArcadeWireTeacher(){
      const b=grid.querySelector('#'+id);if(b)b.dataset.maActionGroup=group;
     }
    }
+  }
+  if(panel&&run?.activityId==='match-game'){
+    const grid=panel.querySelector('.match-control-grid'),m=run.match||{};
+    const pending=m.pendingResolution,continueBtn=grid?.querySelector('#matchContinueBtn');
+    if(continueBtn){
+      continueBtn.textContent=pending?(m.pauseAfterReveal?'▶ CONTINUE · NEXT TURN':'▶ ADVANCE NOW'):'CONTINUE';
+      continueBtn.title=pending?(m.pauseAfterReveal?'Release held cards and continue':
+        'Advance now or let MATCH advance automatically'):'Available after two revealed cards';
+    }
+    const pauseBtn=grid?.querySelector('#matchPauseRevealBtn');
+    if(pauseBtn){
+      pauseBtn.setAttribute('aria-pressed',m.pauseAfterReveal?'true':'false');
+      pauseBtn.title=m.pauseAfterReveal?'Wait for CONTINUE after each pair':
+        'Automatically advance after each pair unless paused';
+    }
+    for(const id of ['matchSkipBtn','matchNextTeamBtn']){
+      const b=grid?.querySelector('#'+id);
+      if(b&&pending){b.disabled=true;b.title='Wait for this pair to resolve';}
+    }
   }
   const preview=document.querySelector('#matchMemoryPreviewBtn');
   if(preview)preview.onclick=()=>teacherMatchAction(matchArcadePreviewActive()?'preview_stop':'preview');
