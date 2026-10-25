@@ -4,7 +4,7 @@ function matchArcadePreviewActive(run=state.activityRun){
   return Number(run?.match?.previewUntil||0)>Date.now();
 }
 function matchArcadePlayerArt(name,run=state.activityRun){
-  const st=connectedStudents().find(x=>x.n===name);
+  const st=matchRosterStudents(run).find(x=>x.n===name);
   const snapshot=run?.match?.avatarImages?.[name]||'';
   if(!st&&!snapshot)return '<span class="ma-avatar">✦</span>';
   const a=st?avatarAsset(st.avatarKey):null;
@@ -53,7 +53,7 @@ function matchArcadeTile(card,index,match,{student=false,canPick=false,preview=f
 }
 /* Phase 4P-C: upcoming turn is read-only and follows the native rotation. */
 function matchArcadeHandoff(run=state.activityRun){
- const m=run?.match||{},cfg=run?.matchConfig||{},crew=connectedStudents();
+ const m=run?.match||{},cfg=run?.matchConfig||{},crew=matchRosterStudents(run);
  const p=m.pendingResolution;
  const complete=!!(m.complete||p?.result==='match'&&(m.cards||[]).length>0&&
    (m.matched||[]).length>=(m.cards||[]).length);
@@ -99,7 +99,7 @@ function matchArcadeScoreline(match,run){
   if(cfg.scoring==='no_score')return '<span class="ma-score-chip">◈ CREW MEMORY · NO POINTS</span>';
   if(cfg.mode==='teams')return Array.from({length:Number(cfg.teamCount||3)},(_,i)=>
     '<span class="ma-score-chip '+(i===Number(match.activeTeam||0)?'active':'')+'">'+matchTeamMeta(i).icon+' '+esc(matchTeamMeta(i).name)+' <b>'+Number(match.teamScores?.[i]||0)+'</b></span>').join('');
-  return connectedStudents().slice(0,8).map(st=>
+  return matchRosterStudents(run).slice(0,8).map(st=>
     '<span class="ma-score-chip">'+esc(st.n)+' <b>'+Number(match.scores?.[st.n]||0)+'</b></span>').join('');
 }
 /* End-of-round standings are derived from MATCH's authoritative scores.
@@ -115,7 +115,7 @@ function matchArcadeFinalStandings(match,run){
       score:Math.max(0,Number(match.teamScores?.[i]||0)||0)
     }));
   }else{
-    const names=[...new Set([...connectedStudents().map(x=>String(x.n||'')),
+    const names=[...new Set([...matchRosterStudents(run).map(x=>String(x.n||'')),
       ...Object.keys(match.scores||{})].filter(Boolean))];
     entries=names.map(name=>({label:name,symbol:'✦',
       score:Math.max(0,Number(match.scores?.[name]||0)||0)}));

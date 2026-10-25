@@ -200,6 +200,43 @@ class MultiplayerReliability(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(app.LATEST_STATE["students"][0]["offline"])
         await returned.close()
 
+    async def test_match_crew_rotation_stays_stable_during_disconnect_and_rejoin(self):
+        current = classroom("match")
+        current["activityRun"]["matchConfig"]["playerOrder"] = ["Ada", "Bob"]
+        current["activityRun"]["match"]["activeStudentIndex"] = 1
+        app.save_runtime_state(current)
+        teacher = await self.join("teacher")
+        bob = await self.join("student", "Bob", BOB["studentToken"])
+        self.assertEqual(app._match_active_name(app.LATEST_STATE, self.game()), "Bob")
+        await bob.close()
+        await self.until(lambda: app.LATEST_STATE["students"][1].get("offline"),
+                         "Bob marked offline")
+        self.assertEqual(app._match_active_name(app.LATEST_STATE, self.game()), "Bob",
+                         "temporary disconnection must not transfer the active turn")
+        self.assertEqual(self.disk_run()["match"]["activeStudentIndex"], 1)
+        returned = await self.join("student", "Bob", BOB["studentToken"])
+        await self.until(lambda: not app.LATEST_STATE["students"][1].get("offline"),
+                         "Bob marked online")
+        self.assertEqual(app._match_active_name(app.LATEST_STATE, self.game()), "Bob")
+        # Team membership and rotation also remain fixed by the saved launch.
+        current = app.LATEST_STATE.copy()
+        current["activityRun"] = json.loads(json.dumps(current["activityRun"]))
+        current["activityRun"]["matchConfig"].update(
+            {"mode": "teams", "teamAssignments": {"Ada": 0, "Bob": 1}, "teamCount": 2}
+        )
+        current["activityRun"]["match"]["activeTeam"] = 1
+        app.save_runtime_state(current)
+        await returned.close()
+        await self.until(lambda: app.LATEST_STATE["students"][1].get("offline"),
+                         "Bob offline during team turn")
+        self.assertEqual(app._match_team_members(app.LATEST_STATE, self.game(), 1), ["Bob"])
+        self.assertEqual(app._match_active_name(app.LATEST_STATE, self.game()), "Bob")
+        await self.action(teacher, "match_action", "teacher-skip-offline", "skip",
+                          run_token=self.game()["runToken"])
+        await self.until(lambda: self.game()["match"]["activeTeam"] == 0,
+                         "teacher skips offline team")
+        self.assertEqual(app._match_active_name(app.LATEST_STATE, self.game()), "Ada")
+
     async def test_other_engines_deduplicate_accepted_moves(self):
         ada = await self.join("student", "Ada", ADA["studentToken"])
         channels = [

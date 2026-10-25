@@ -5449,12 +5449,23 @@ def _multiplayer_set_presence(token: str, name: str, online: bool) -> bool:
     return True
 
 
-def _match_connected_names(state: dict) -> list[str]:
-    return [
-        str(st.get("n") or "")
-        for st in state.get("students", [])
-        if isinstance(st, dict) and not st.get("offline") and str(st.get("n") or "")
-    ]
+def _match_connected_names(state: dict, run: Optional[dict] = None) -> list[str]:
+    """Stable MATCH turn order even while an enrolled player reconnects.
+
+    The initial launch roster is authoritative for newer rounds. Older saved
+    games without playerOrder retain the roster in its original order, including
+    temporarily offline students; these can still be skipped by the teacher.
+    """
+    names = list(dict.fromkeys(
+        str(st.get("n") or "") for st in state.get("students", [])
+        if isinstance(st, dict) and str(st.get("n") or "")
+    ))
+    cfg = run.get("matchConfig") if isinstance(run, dict) else None
+    order = cfg.get("playerOrder") if isinstance(cfg, dict) else None
+    if isinstance(order, list) and order:
+        allowed = set(names)
+        return list(dict.fromkeys(str(name) for name in order if str(name) in allowed))
+    return names
 
 
 def _match_team_index(run: dict, name: str) -> int:
@@ -5470,7 +5481,7 @@ def _match_team_index(run: dict, name: str) -> int:
 
 def _match_team_members(state: dict, run: dict, team_index: int) -> list[str]:
     return [
-        name for name in _match_connected_names(state)
+        name for name in _match_connected_names(state, run)
         if _match_team_index(run, name) == int(team_index)
     ]
 
@@ -5498,7 +5509,7 @@ def _match_snapshot(match: dict) -> dict:
 def _match_active_name(state: dict, run: dict) -> str:
     match = run.get("match") if isinstance(run.get("match"), dict) else {}
     cfg = run.get("matchConfig") if isinstance(run.get("matchConfig"), dict) else {}
-    names = _match_connected_names(state)
+    names = _match_connected_names(state, run)
     if not names:
         return ""
     if str(cfg.get("mode") or "individual") == "teams":

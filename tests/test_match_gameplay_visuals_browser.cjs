@@ -92,6 +92,26 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   await teacher.locator('.ma-4pd-advanced summary').click();
   assert.equal(await teacher.locator('#matchUndoBtn').isVisible(),false);
 
+  // Phase 4Q: roster and teacher HUD must keep turn identity if a player
+  // momentarily drops offline; never rewrite a saved round during this test.
+  const stableTurn=await teacher.evaluate(()=>{
+    const run=JSON.parse(JSON.stringify(state.activityRun));
+    run.matchConfig.playerOrder=['Alex','Blair'];
+    run.match.activeStudentIndex=1;
+    const blair=state.students.find(s=>s.n==='Blair');
+    const original=blair.offline;
+    try{
+      const before=matchActiveStudent(run)?.n;
+      blair.offline=true;
+      const during=matchActiveStudent(run)?.n;
+      const order=matchRosterStudents(run).map(x=>x.n);
+      run.match.pendingResolution={result:'miss',cards:[],player:'Blair'};
+      const after=matchArcadeHandoff(run).name;
+      return {before,during,order,after};
+    }finally{blair.offline=original}
+  });
+  assert.deepEqual(stableTurn,{before:'Blair',during:'Blair',
+   order:['Alex','Blair'],after:'Alex'});
   // Phase 4P-C: next player/next team, repeat turn, miss cue and round finish.
   const turnFlow=await teacher.evaluate(()=>{
    const run=JSON.parse(JSON.stringify(state.activityRun)),m=run.match,ids=m.cards.map(c=>c.id);
