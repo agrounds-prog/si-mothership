@@ -148,6 +148,13 @@ function matchArcadeStudent(run=state.activityRun,student=selectedStudent()){
   const status=matchArcadeStatus(m,run),cols=matchArcadeGridColumns(cards);
   const freshReveals=matchArcadeFreshReveals(run,'student-'+String(student?.n||'anonymous'));
   const density=cards.length<=16?'standard':cards.length<=32?'dense':'maximum';
+  // Legacy compact CSS forces four columns !important. Give large sets one
+  // scoped inline override so the 440px student companion stays usable.
+  // Small windows retain wider tap targets instead of squeezing six cards.
+  const studentCols=cards.length<=16?cols:
+    innerWidth<350?4:innerWidth<390?5:cards.length<=32?5:6;
+  const studentGridStyle='--ma-cols:'+cols+';'+(cards.length>16?
+    'grid-template-columns:repeat('+studentCols+',minmax(0,1fr))!important;':'');
   const teamIndex=cfg.mode==='teams'?matchTeamIndexForStudent(student?.n,run):-1;
   const earnedPairs=cfg.mode==='teams'?Number(m.teamScores?.[teamIndex]||0):Number(m.scores?.[student?.n]||0);
   const canPick=mine&&!preview&&!m.locked&&!m.complete&&!m.pendingResolution&&(m.selected||[]).length<2;
@@ -181,7 +188,7 @@ function matchArcadeStudent(run=state.activityRun,student=selectedStudent()){
     '<div class="ma-student-heading"><div class="ma-student-pilot">'+matchArcadePlayerArt(active?.n||'',run)+'<span>CURRENT NAVIGATOR</span></div><span class="ma-eyebrow">✦ MOTHERSHIP · MATCH</span><h2 aria-live="polite">'+turn+'</h2><p>'+instruction+'</p></div>'+
     '<div class="ma-student-status"><span class="ma-phase-pill" aria-hidden="true">'+
       ({complete:'★ COMPLETE',preview:'◉ PREVIEW',matched:'✦ MATCH',miss:'↶ TRY AGAIN',hold:'Ⅱ ON HOLD','second-card':mine?'◇ SECOND CARD':'◉ WATCH',choose:mine?'◇ YOUR TURN':'◉ WATCH'}[matchArcadePresentationPhase(m,run)])+'</span><span class="ma-4i-pairs">◈ <b>'+matched+' / '+(cards.length/2)+'</b> PAIRS</span><span class="ma-4i-attempts">◎ <b>'+Number(m.attempts||0)+'</b> TRIES</span><span class="ma-student-earned">'+(cfg.scoring==='no_score'?'◈ MEMORY MODE':'★ <b>'+earnedPairs+'</b> EARNED')+'</span></div>'+turnGuide+
-    '<div class="ma-board-wrap"><div class="ma-board-surround"><div class="ma-grid" role="group" aria-label="MATCH cards" style="--ma-cols:'+cols+'">'+
+    '<div class="ma-board-wrap"><div class="ma-board-surround"><div class="ma-grid" role="group" aria-label="MATCH cards" style="'+studentGridStyle+'">'+
     cards.map((card,i)=>matchArcadeTile(card,i,m,{student:true,canPick,preview,freshReveals})).join('')+'</div></div></div>'+
     (m.complete?'<div class="ma-student-final" role="status"><strong>✦ ALL '+matched+' PAIRS FOUND</strong><span>'+
       (cfg.scoring==='no_score'?'Crew memory challenge complete. Great teamwork.':cfg.mode==='teams'?
