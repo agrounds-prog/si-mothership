@@ -65,6 +65,25 @@ const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   await page.locator('[data-org-edit="2"]').click();
   assert.equal(await page.locator('#siPlusSlideType').inputValue(),'poll');
   assert.equal(await page.locator('#slideYoutube').inputValue(),'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+  // Multi-select group moves happen in the unsaved draft only; preserve
+  // ordering within the group and keep the active edited slide selected.
+  await page.locator('#siOrgToggle').click();
+  await page.locator('[data-org-select="1"]').check();
+  await page.locator('[data-org-select="2"]').check();
+  await page.locator('#siOrgGroupMoves [data-org-group="end"]').click();
+  assert.deepEqual((await current()).map(s=>s.listTitle),
+    ['00 Welcome','03 Finish','01 Start','02 Talk']);
+  assert.equal(await page.evaluate(()=>state.presentationEditor.draft.slides[state.editorSlide].listTitle),'02 Talk');
+  await page.locator('[data-org-select="2"]').check();
+  await page.locator('[data-org-select="3"]').check();
+  await page.locator('#siOrgGroupMoves [data-org-group="start"]').click();
+  assert.deepEqual((await current()).map(s=>s.listTitle),
+    ['01 Start','02 Talk','00 Welcome','03 Finish']);
+  assert.equal(await page.evaluate(()=>state.presentationEditor.draft.slides[state.editorSlide].listTitle),'02 Talk');
+  assert.deepEqual(await page.evaluate(()=>state.activities.find(a=>a.deckTitle==='SI+ 4R Classroom Test')
+    .slides.map(s=>s.listTitle)),['00 Welcome','01 Start','02 Talk','03 Finish'],
+    'Organizer changes stay in draft until teacher saves');
+
   assert.deepEqual(errors,[]);
   console.log('SI+ PHASE 4R POSITION IMPORT / TYPE SWITCH / SAVE AND RELOAD PASSED');
  }finally{await browser.close()}
