@@ -398,6 +398,38 @@
         if(scroller)scroller.scrollTop=0;
       });
     }
+    // Keyboard and switch users can explore the same native avatar buttons
+    // without needing the paging arrows or an additional selection interface.
+    // Navigation never picks a name or sends a classroom action by itself.
+    grid.addEventListener("keydown",event=>{
+      if(event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
+      const current=event.target.closest?.("[data-join-avatar]");
+      if(!current||current.hidden||current.disabled)return;
+      const query=view.query.trim().toLocaleLowerCase();
+      const options=[...grid.querySelectorAll("[data-join-avatar]")].filter(el=>
+        !query||(el.textContent+" "+(el.dataset.joinAvatar||"")).toLocaleLowerCase().includes(query));
+      const index=options.indexOf(current);
+      if(index<0)return;
+      const columns=window.innerWidth<360?2:3,step=pageSize();
+      const moves={ArrowRight:1,ArrowLeft:-1,ArrowDown:columns,ArrowUp:-columns,
+        PageDown:step,PageUp:-step};
+      let next;
+      if(event.key==="Home")next=0;
+      else if(event.key==="End")next=options.length-1;
+      else if(Object.prototype.hasOwnProperty.call(moves,event.key))
+        next=Math.max(0,Math.min(options.length-1,index+moves[event.key]));
+      else return;
+      event.preventDefault();
+      view.page=Math.floor(next/step);
+      paint();
+      options[next]?.focus({preventScroll:true});
+      options[next]?.scrollIntoView({block:"nearest",inline:"nearest"});
+    });
+    search.addEventListener("keydown",event=>{
+      if(event.key!=="Escape"||!search.value)return;
+      event.preventDefault();
+      search.value="";view.query="";view.page=0;paint();
+    });
     grid.dataset.siAvatarEnhanced="1";
     paint();
   }
@@ -562,4 +594,85 @@
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
   else install();
+})();
+
+/* Phase 4S — truthful student connection/recovery feedback.
+   A student who has joined may lose WebSocket sync while the cached class
+   board remains visible. Do not claim Connected until the socket is healthy.
+   This is a UI-only indicator: no mutations to student identity, game data,
+   scores, or the server-authoritative reconnection protocol. */
+(function(){
+ "use strict";
+ if(new URLSearchParams(location.search).get("role")!=="student")return;
+ function install(){
+   const head=document.querySelector("body.role-student #student .device-head");
+   const badge=document.getElementById("studentConnectionLabel");
+   if(!head||!badge||document.getElementById("siStudentConnectionNotice"))return;
+   const notice=document.createElement("div");
+   notice.id="siStudentConnectionNotice";
+   notice.setAttribute("role","status");
+   notice.setAttribute("aria-live","polite");
+   notice.setAttribute("aria-atomic","true");
+   notice.hidden=true;
+   const message=document.createElement("span");
+   const retry=document.createElement("button");
+   retry.type="button";retry.textContent="Retry";
+   retry.setAttribute("aria-label","Retry connecting to the classroom");
+   retry.addEventListener("click",()=>{
+     if(typeof connectNetworkSync==="function")connectNetworkSync();
+     refresh();
+   });
+   notice.append(message,retry);
+   head.insertAdjacentElement("afterend",notice);
+   const hasJoined=()=>typeof studentNeedsJoin==="function"&&!studentNeedsJoin();
+   let last="";let currentNetwork="";let painting=false;
+   function refresh(){
+     if(painting||!head.isConnected)return;
+     painting=true;
+     try{
+       const joined=hasJoined();
+       const remote=typeof NETWORK_SYNC!=="undefined"&&NETWORK_SYNC;
+       const offline=typeof navigator!=="undefined"&&navigator.onLine===false;
+       const ready=!remote||(typeof networkHydrated!=="undefined"&&networkHydrated&&
+         typeof networkSocket!=="undefined"&&networkSocket?.readyState===WebSocket.OPEN);
+       const mode=remote?(offline?"offline":ready?"connected":"reconnecting"):"connected";
+       const caption=mode==="offline"?"Offline":mode==="reconnecting"?"Reconnecting…":
+         joined?"Connected":"Join Class";
+       const key=mode+"|"+(joined?"joined":"join");
+       badge.dataset.siNetwork=mode;
+       if(badge.textContent.trim()!==caption)badge.textContent=caption;
+       badge.setAttribute("aria-label",caption==="Join Class"?"Student needs to join class":
+         caption==="Connected"?"Classroom connection active":caption==="Offline"?
+           "Classroom connection offline":"Reconnecting to classroom");
+       if(key!==last){
+         notice.hidden=!joined||mode==="connected";
+         if(!notice.hidden){
+           const copy=mode==="offline"?
+             "Connection lost. Check your Wi-Fi; your class will update when you reconnect.":
+             "Reconnecting to class. Please wait before sending an answer.";
+           message.textContent=copy;
+           retry.hidden=mode==="offline";
+         }
+         last=key;
+       }
+       currentNetwork=mode;
+     }finally{painting=false}
+   }
+   // renderPublic() owns the stock Connected chip and may recreate its
+   // contents after game updates. Repair only this small header node.
+   let queued=false;
+   new MutationObserver(()=>{
+     if(queued)return;
+     queued=true;
+     queueMicrotask(()=>{queued=false;refresh()});
+   }).observe(badge,{childList:true,subtree:true,characterData:true});
+   document.addEventListener("visibilitychange",refresh);
+   window.addEventListener("online",refresh);
+   window.addEventListener("offline",refresh);
+   setInterval(refresh,650);
+   refresh();
+   window.SIStudentConnection={refresh,get mode(){return currentNetwork}};
+ }
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
+ else install();
 })();
