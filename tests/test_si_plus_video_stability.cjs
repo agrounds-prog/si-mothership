@@ -71,7 +71,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.ok(sid,"Synthetic classroom has a session identifier");
   const shared=await browser.newPage({viewport:{width:1280,height:720}});
   shared.on("pageerror",e=>errors.push(String(e.message||e)));
-  await shared.route(/youtube\\.com|youtube-nocookie\\.com|youtu\\.be|ytimg\\.com/,r=>r.abort());
+  await shared.route(/youtube\.com|youtube-nocookie\.com|youtu\.be|ytimg\.com/,r=>r.abort());
   await shared.goto(BASE+"/?role=shared&sid="+encodeURIComponent(sid),
     {waitUntil:"domcontentloaded",timeout:40000});
   await shared.waitForFunction(()=>networkHydrated===true&&
