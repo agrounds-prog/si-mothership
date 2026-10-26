@@ -65,6 +65,33 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(restarted.command.action,"restart");
   assert.equal(restarted.shared,true,"Commands must not recreate the projector iframe");
   assert.equal(restarted.mirror,true,"Commands must not recreate teacher video preview");
+  // Verify delivery to the actual public projector view, not just the
+  // teacher's local mirror. No production class/student data is involved.
+  const sid=await page.evaluate(()=>String(__SI_SESSION_ID__||""));
+  assert.ok(sid,"Synthetic classroom has a session identifier");
+  const shared=await browser.newPage({viewport:{width:1280,height:720}});
+  shared.on("pageerror",e=>errors.push(String(e.message||e)));
+  await shared.route(/youtube\\.com|youtube-nocookie\\.com|youtu\\.be|ytimg\\.com/,r=>r.abort());
+  await shared.goto(BASE+"/?role=shared&sid="+encodeURIComponent(sid),
+    {waitUntil:"domcontentloaded",timeout:40000});
+  await shared.waitForFunction(()=>networkHydrated===true&&
+    state.activityRun?.runToken==="si-stability-browser"&&
+    document.querySelector("#sharedContent .si-plus-video-frame iframe"),
+    null,{timeout:18000});
+  await page.locator('[data-si-video="pause"]').click();
+  await shared.waitForFunction(()=>state.activityRun?.siPlusVideoControl?.action==="pause"&&
+    document.querySelector("#sharedContent .si-plus-video-frame iframe")
+      ?.__siPlusVideoLastCommand==="pause",null,{timeout:12000});
+  const projector=await shared.evaluate(()=>({
+    command:state.activityRun.siPlusVideoControl.action,
+    wired:document.querySelector("#sharedContent iframe")?.dataset.siPlusVideoControlsWired,
+    url:document.querySelector("#sharedContent iframe")?.src
+  }));
+  assert.equal(projector.command,"pause");
+  assert.equal(projector.wired,"1","Shared video receiver must accept classroom playback commands");
+  assert.ok(projector.url.includes("enablejsapi=1"));
+  await shared.close();
+
 
   // Mirror may render a compact static preview; only assert if it has an iframe.
   await page.evaluate(()=>{
