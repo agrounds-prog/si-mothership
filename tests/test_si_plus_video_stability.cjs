@@ -9,7 +9,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
  const page=await browser.newPage({viewport:{width:1440,height:960}}),errors=[];
  page.on("pageerror",e=>errors.push(String(e.message||e)));
  // Exercise DOM stability, not a real network video player.
- await page.route(/youtube\.com|youtu\.be|ytimg\.com/,r=>r.abort());
+ await page.route(/youtube\.com|youtube-nocookie\.com|youtu\.be|ytimg\.com/,r=>r.abort());
  try{
   const auth=await page.request.post(BASE+"/api/teacher/login",{data:{key:"5030"}});
   assert.equal(auth.status(),200);
