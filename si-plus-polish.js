@@ -1026,6 +1026,21 @@
      status.setAttribute("role","status");status.setAttribute("aria-live","polite");
      root.querySelector(".si-org-header").appendChild(status);
    }
+   // Organize selected slides as one ordered group; no persistent writes.
+   if(bar&&typeof siPlusOrganizerSelection!=="undefined"){
+     let group=bar.querySelector("#siOrgGroupMoves");
+     if(!group){
+       group=document.createElement("span");group.id="siOrgGroupMoves";
+       group.className="si-org-group-moves";
+       group.innerHTML='<button type="button" data-org-group="start">⇤ To Start</button>'+
+         '<button type="button" data-org-group="end">To End ⇥</button>';
+       bar.appendChild(group);
+     }
+     group.querySelectorAll("button").forEach(button=>{
+       button.disabled=siPlusOrganizerSelection.size===0||!!siPlusBatchImportBusy;
+       button.title="Move selected slides together without changing their order";
+     });
+   }
    const status=root.querySelector("#siOrgBatchStatus");
    if(status){
      const source=document.querySelector("#siPlusBatchStatus");
@@ -1070,10 +1085,27 @@
      queueMicrotask(()=>siPlusOrganizerMove(from,to));
    }
  }
+ function moveGroup(place){
+   if(!isTeacher()||siPlusBatchImportBusy||typeof siPlusOrganizerSelection==="undefined")return;
+   const slides=state.presentationEditor?.draft?.slides;
+   if(!Array.isArray(slides))return;
+   const selected=new Set([...siPlusOrganizerSelection].filter(i=>Number.isInteger(i)&&i>=0&&i<slides.length));
+   if(!selected.size||selected.size===slides.length)return;
+   const current=slides[state.editorSlide],
+      chosen=slides.filter((v,i)=>selected.has(i)),
+      others=slides.filter((v,i)=>!selected.has(i));
+   slides.splice(0,slides.length,...(place==="start"?chosen.concat(others):others.concat(chosen)));
+   state.editorSlide=Math.max(0,slides.indexOf(current));
+   siPlusOrganizerSelection.clear();
+   renderPresentationBuilder();
+   if(typeof toast==="function")toast(chosen.length+" slides moved in draft");
+ }
  function onClick(event){
+   if(!isTeacher())return;
+   const group=event.target.closest?.("[data-org-group]");
+   if(group){moveGroup(group.dataset.orgGroup);return}
    const button=event.target.closest?.("[data-org-preview]");
-   if(!button||!isTeacher())return;
-   window.SIPlusPresentationPreview?.openAt?.(Number(button.dataset.orgPreview));
+   if(button)window.SIPlusPresentationPreview?.openAt?.(Number(button.dataset.orgPreview));
  }
  function start(){
    document.addEventListener("change",onChange,true);
@@ -1092,4 +1124,105 @@
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});
  else start();
  window.SIPlusOrganizerParity={mount};
+})();
+
+/* Phase 4R: controls for the active SI+ video on teacher mirror/projector.
+   Video commands are temporary per-run state, not saved deck data. */
+(()=>{
+ "use strict";
+ if(window.SIPlusVideoControls)return;
+ const role=typeof SESSION_ROLE==="undefined"?"":SESSION_ROLE;
+ const teacher=role==="teacher",seen=new WeakMap();
+ function active(){
+   if(typeof state==="undefined"||typeof activeActivity!=="function")return null;
+   const run=state.activityRun,deck=activeActivity();
+   if(!run||run.phase!=="running"||deck?.type!=="presentation")return null;
+   const index=Number(run.slideIndex)||0,slide=deck.slides?.[index];
+   const id=slide&&typeof ytId==="function"?ytId(slide.youtube):null;
+   return id&&/^[a-zA-Z0-9_-]{11}$/.test(id)?
+     {run,index,id,token:String(run.runToken||"")}:null;
+ }
+ function deliver(){
+   const info=active(),cmd=info?.run.siPlusVideoControl;
+   if(!info||!cmd||cmd.token!==info.token||cmd.index!==info.index||cmd.videoId!==info.id)return;
+   const host=role==="shared"?"#sharedContent":teacher?"#mirrorContent":null;
+   if(!host)return;
+   const key=cmd.token+"|"+cmd.index+"|"+cmd.nonce;
+   document.querySelectorAll(host+" .si-plus-video-frame iframe").forEach(frame=>{
+     let url;
+     try{url=new URL(frame.src)}catch(e){return}
+     if(url.hostname!=="www.youtube-nocookie.com"||url.pathname!=="/embed/"+info.id||
+         url.searchParams.get("enablejsapi")!=="1")return;
+     if(!frame.dataset.siPlusVideoControlsWired){
+       frame.dataset.siPlusVideoControlsWired="1";
+       frame.addEventListener("load",()=>{seen.delete(frame);setTimeout(deliver,180)});
+     }
+     if(seen.get(frame)===key)return;
+     function command(func,args=[]){
+       frame.contentWindow?.postMessage(JSON.stringify({event:"command",func,args}),
+         "https://www.youtube-nocookie.com");
+     }
+     try{
+       if(cmd.action==="play")command("playVideo");
+       if(cmd.action==="pause")command("pauseVideo");
+       if(cmd.action==="restart"){command("seekTo",[0,true]);command("playVideo")}
+       seen.set(frame,key);
+     }catch(e){console.warn("SI+ YouTube controls unavailable in this browser",e)}
+   });
+ }
+ function send(action){
+   if(!teacher||!["play","pause","restart"].includes(action))return false;
+   const info=active();
+   if(!info)return false;
+   info.run.siPlusVideoControl={
+     token:info.token,index:info.index,videoId:info.id,action,
+     nonce:Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7)
+   };
+   if(typeof publishSyncedState==="function")publishSyncedState();
+   deliver();sync();
+   return true;
+ }
+ function sync(){
+   if(!teacher)return;
+   const row=document.querySelector("#activityControllerPanel .presentation-controls"),info=active();
+   let box=document.getElementById("siPlusVideoControls");
+   if(!row||!info){box?.remove();return}
+   if(!box||box.parentElement!==row){
+     box?.remove();box=document.createElement("div");
+     box.id="siPlusVideoControls";box.className="si-plus-video-controls";
+     box.innerHTML='<div class="si-plus-video-controls-label"><strong>▶ YOUTUBE · CLASSROOM VIDEO</strong>'+
+       '<small>Play, pause, or restart this slide video on the shared screen. Browser video restrictions still apply.</small></div>'+
+       '<div class="si-plus-video-controls-buttons">'+
+       '<button type="button" data-si-video="play">▶ Play</button>'+
+       '<button type="button" data-si-video="pause">Ⅱ Pause</button>'+
+       '<button type="button" data-si-video="restart">↺ Restart</button></div>';
+     box.addEventListener("click",e=>{
+       const button=e.target.closest("[data-si-video]");
+       if(button)send(button.dataset.siVideo);
+     });
+     row.appendChild(box);
+   }
+   const cmd=info.run.siPlusVideoControl;
+   box.querySelectorAll("[data-si-video]").forEach(button=>
+     button.setAttribute("aria-pressed",String(!!cmd&&cmd.token===info.token&&
+       cmd.index===info.index&&cmd.videoId===info.id&&cmd.action===button.dataset.siVideo)));
+ }
+ function start(){
+   if(!teacher&&role!=="shared")return;
+   const panel=document.getElementById("activityControllerPanel");
+   if(teacher&&panel){
+     let queued=false;
+     new MutationObserver(()=>{
+       if(queued)return;queued=true;
+       queueMicrotask(()=>{queued=false;sync();deliver()});
+     }).observe(panel,{subtree:true,childList:true});
+   }
+   // Existing live iframe is never rebuilt for a remote command.
+   setInterval(()=>{if(teacher)sync();deliver()},550);
+   if(teacher)sync();
+   deliver();
+ }
+ window.SIPlusVideoControls={send,refresh:sync,deliver,get available(){return !!active()}};
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});
+ else start();
 })();
