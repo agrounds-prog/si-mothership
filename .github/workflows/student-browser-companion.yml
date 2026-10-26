@@ -32,6 +32,7 @@ on:
       - 'tests/test_bingo_student_call_alerts.py'
       - 'tests/test_bingo_image_upload_browser.cjs'
       - 'tests/test_student_companion_browser.cjs'
+      - 'tests/test_student_companion_phase4s_browser.cjs'
       - 'tests/test_student_popup_window_chromium.cjs'
       - 'tests/test_scientific_calculator_popup_browser.cjs'
       - 'tests/test_zoom_student_activities_browser.cjs'
@@ -52,7 +53,7 @@ permissions: {contents: read}
 jobs:
   student-companion:
     runs-on: ubuntu-24.04
-    timeout-minutes: 14
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -119,6 +120,15 @@ jobs:
         run: node tests/test_bingo_image_upload_browser.cjs
       - name: Student device desktop, Zoom window, join, controls and popup
         run: node tests/test_student_companion_browser.cjs
+      - name: Phase 4S student avatar keyboard navigation and real reconnection
+        run: |
+          mkdir -p /tmp/mothership-phase4s-student
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-phase4s-student PORT=8891 python server.py >/tmp/phase4s-student.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8891/api/health >/dev/null; then break; fi
+            sleep 1
+          done
+          LOCAL_URL=http://127.0.0.1:8891 node tests/test_student_companion_phase4s_browser.cjs
       - name: Verify real Chrome outer window size (headed Xvfb) and snapped desktop
         run: xvfb-run -a -s '-screen 0 1600x1100x24' node tests/test_student_popup_window_chromium.cjs
       - name: 'Scientific Calculator popup — seven-row keypad, hidden toolbar and no overlap'
