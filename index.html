@@ -18972,6 +18972,29 @@ async function savePresentation(){
   state.presentationEditor=null;state.editorSlide=0;state.activeApp='si-plus';
   state.presentationLibraryOpen=false;render();toast('Presentation saved to Railway library');
 }
+function siPlusChangeSlideType(type){
+  const ed=state.presentationEditor;if(!ed||siPlusBatchImportBusy)return;
+  const slide=ed.draft.slides[state.editorSlide];
+  if(!slide||!['instruction','question','poll'].includes(type)||slide.type===type)return;
+  if(type==='question'||type==='poll'){
+    const defaults=freshSlide(type);
+    const previous=Array.isArray(slide.choices)?slide.choices:[];
+    slide.choices=['A','B','C','D'].map(key=>{
+      const existing=previous.find(x=>x?.key===key);
+      const fallback=defaults.choices.find(x=>x.key===key);
+      return {key,text:String(existing?.text??fallback?.text??''),image:String(existing?.image||'')};
+    });
+    // A poll never carries the previous quiz answer key.
+    if(type==='question')slide.correct=['A','B','C','D'].includes(slide.correct)?slide.correct:'A';
+    else delete slide.correct;
+  }else{
+    // Keep choices for reversible editing, but no hidden answer key on
+    // instructional slides. Do not touch text, media, or slide identity.
+    delete slide.correct;
+  }
+  slide.type=type;
+  renderPresentationBuilder();
+}
 function addPresentationSlide(type){const ed=state.presentationEditor;if(!ed)return;ed.draft.slides.push(freshSlide(type));state.editorSlide=ed.draft.slides.length-1;render()}
 function moveEditorSlide(delta){const ed=state.presentationEditor;if(!ed)return;const slides=ed.draft.slides,i=state.editorSlide,j=i+delta;if(j<0||j>=slides.length)return;[slides[i],slides[j]]=[slides[j],slides[i]];state.editorSlide=j;render()}
 function deleteEditorSlide(){const ed=state.presentationEditor;if(!ed)return;if(ed.draft.slides.length<=1)return toast('A presentation needs at least one slide');ed.draft.slides.splice(state.editorSlide,1);state.editorSlide=Math.max(0,Math.min(state.editorSlide,ed.draft.slides.length-1));render()}
@@ -19010,7 +19033,7 @@ async function siPlusPrepareBatchImage(file){
     return webp.startsWith('data:image/webp;')?webp:canvas.toDataURL('image/png');
   }finally{URL.revokeObjectURL(url)}
 }
-async function siPlusImportImageSlides(files){
+async function siPlusImportImageSlides(files,options={}){
   const ed=state.presentationEditor;
   if(!ed||siPlusBatchImportBusy||!files?.length)return;
   const items=Array.from(files),limit=100;
@@ -19026,6 +19049,11 @@ async function siPlusImportImageSlides(files){
     +JSON.stringify(ed.draft).length;
   const replaceStarter=ed.draft.slides.length===1&&siPlusEmptyStarter(ed.draft.slides[0]);
   if(replaceStarter)size-=JSON.stringify(ed.draft.slides[0]).length;
+  // Capture insertion point before decoding any files; do not move or
+  // replace existing slides while uploads are being prepared.
+  const append=options?.insertAt===undefined||options?.insertAt===null||options?.insertAt==='end';
+  const requested=append?ed.draft.slides.length:Number(options.insertAt);
+  const insertAt=Number.isInteger(requested)?Math.max(0,Math.min(requested,ed.draft.slides.length)):ed.draft.slides.length;
   try{
     for(const file of items.slice(0,limit)){
       if(state.presentationEditor!==ed)break;
@@ -19046,14 +19074,15 @@ async function siPlusImportImageSlides(files){
     }
     if(state.presentationEditor===ed&&ready.length){
       if(replaceStarter&&siPlusEmptyStarter(ed.draft.slides[0]))ed.draft.slides.splice(0,1);
-      ed.draft.slides.push(...ready);
-      state.editorSlide=ed.draft.slides.length-ready.length;
+      const target=replaceStarter?0:Math.min(insertAt,ed.draft.slides.length);
+      ed.draft.slides.splice(target,0,...ready);
+      state.editorSlide=target;
     }
   }finally{
     siPlusBatchImportBusy=false;
     const skipped=failed+Math.max(0,items.length-limit);
     siPlusBatchImportStatus=ready.length
-      ?ready.length+' image slide'+(ready.length===1?'':'s')+' added. Save Presentation to keep them.'
+      ?ready.length+' image slide'+(ready.length===1?'':'s')+' inserted. Save Presentation to keep them.'
       :'No image slides added.';
     if(skipped)siPlusBatchImportStatus+=' '+skipped+' unsupported or unreadable file'+(skipped===1?'':'s')+' skipped.';
     if(overBudget)siPlusBatchImportStatus+=' Library image size limit reached; import fewer or smaller images.';
@@ -19198,14 +19227,15 @@ function renderPresentationBuilder(){
   box.innerHTML=`<div class="builder-top"><div class="builder-title-group"><span class="eyebrow">PRESENTATION BUILDER</span><input id="presentationTitleInput" class="builder-title-input" value="${esc(d.deckTitle||d.name)}" aria-label="Presentation title"></div><div class="builder-top-actions"><button id="cancelPresentationEdit">← Library</button><button type="button" id="siOrgToggle" aria-pressed="${siPlusOrganizerOpen}">${siPlusOrganizerOpen?'← Back to Editor':'▦ Organize Slides'}</button><button class="builder-load-btn" id="loadSavedFromBuilder">▣ Load Saved</button><button class="save" id="savePresentationBtn">💾 Save Presentation</button></div></div><div id="siPlusSaveStatus" class="si-plus-save-status" role="status">Saved presentations stay in your Railway library after Reset Session.</div>
   ${siPlusOrganizerOpen?siPlusOrganizerHTML(d):''}
   <div class="builder-layout"><div class="builder-box"><h3>Slides (${d.slides.length})</h3><div class="slide-nav">${d.slides.map((s,i)=>`<button class="slide-nav-item ${i===state.editorSlide?'active':''}" data-editor-slide="${i}"><b>${i+1}. ${esc(s.listTitle||s.title||'Slide')}</b><small class="slide-badge ${s.type}">${s.type==='instruction'&&s.image&&!s.title&&!s.text?'IMAGE':s.type.toUpperCase()}</small></button>`).join('')}</div></div>
-  <div class="builder-box"><div class="editor-form"><span class="slide-badge ${slide.type}">${slide.type.toUpperCase()}</span><label>Slide List Title<input id="slideListTitle" type="text" value="${esc(slide.listTitle||'')}" placeholder="Example: Warm-Up Question"></label><label>${slide.type==='instruction'?'Slide Title':'Question / Prompt'}<input id="slideTitle" type="text" value="${esc(slide.title||'')}"></label><label>${slide.type==='instruction'?'Text / Prompt':'Supporting text'}<textarea id="slideText">${esc(slide.text||'')}</textarea></label>
+  <div class="builder-box"><div class="editor-form"><div class="si-plus-type-row"><span class="slide-badge ${slide.type}">${slide.type.toUpperCase()}</span><label>Slide Type<select id="siPlusSlideType" aria-label="Change this slide to instruction, question, or poll"><option value="instruction" ${slide.type==='instruction'?'selected':''}>Instruction</option><option value="question" ${slide.type==='question'?'selected':''}>Question</option><option value="poll" ${slide.type==='poll'?'selected':''}>Poll</option></select></label><small>Keep this slide’s images and text when switching.</small></div><label>Slide List Title<input id="slideListTitle" type="text" value="${esc(slide.listTitle||'')}" placeholder="Example: Warm-Up Question"></label><label>${slide.type==='instruction'?'Slide Title':'Question / Prompt'}<input id="slideTitle" type="text" value="${esc(slide.title||'')}"></label><label>${slide.type==='instruction'?'Text / Prompt':'Supporting text'}<textarea id="slideText">${esc(slide.text||'')}</textarea></label>
   <div class="editor-row"><div class="editor-media"><b style="font-size:10px">Slide Image</b><div style="margin-top:7px"><label class="file-label">＋ Attach Image<input id="slideImageInput" type="file" accept="image/*"></label>${slide.image?' <button class="remove-media" id="removeSlideImage">Remove</button>':''}</div><div class="editor-media-preview">${slide.image?`<img src="${slide.image}" alt="Slide preview"><span>Image attached</span>`:'No image attached'}</div></div><div class="editor-media si-plus-video-editor"><div class="si-plus-video-label"><b>YouTube Video</b><span>Optional · 16:9 widescreen</span></div><input id="slideYoutube" type="url" value="${esc(slide.youtube||'')}" placeholder="Paste a YouTube watch or share link"><div class="si-plus-video-preview" id="siPlusVideoPreview">${siPlusVideoPreview(slide.youtube)}</div></div></div>
   ${['question','poll'].includes(slide.type)?`<div><label style="display:block;margin-bottom:5px">Answer Choices${slide.type==='question'?' · click A/B/C/D circle to mark correct':''}</label>${answerHTML}</div>`:''}
   <div class="slide-tools"><button id="moveSlideUp">↑ Move Up</button><button id="moveSlideDown">↓ Move Down</button><button class="delete" id="deleteSlideBtn">Delete Slide</button></div></div></div>
   <div class="builder-box"><h3>Add a New Slide</h3>
   <div class="si-plus-batch-import"><div class="si-plus-batch-copy"><b>⇧ Import Images as Slides</b><span>Choose multiple photos or screenshots. Each image becomes a full-screen slide, in file order.</span></div>
   <label class="si-plus-batch-button">＋ Choose Images <input id="siPlusBatchImages" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif,image/bmp" multiple ${siPlusBatchImportBusy?'disabled':''}></label>
-  <small>Appends slides to this presentation · Up to 100 at a time · Images optimized for saving.</small>
+  <label class="si-plus-batch-position">Insert images<select id="siPlusBatchInsertPosition" aria-label="Choose where image slides are inserted"><option value="end">At end</option>${d.slides.map((s,i)=>`<option value="${i}">Before slide ${i+1} · ${esc(s.listTitle||s.title||'Slide')}</option>`).join('')}</select></label>
+  <small>Up to 100 images · Keeps the order you select · Existing slides are preserved.</small>
   <p id="siPlusBatchStatus" role="status" aria-live="polite">${esc(siPlusBatchImportStatus)}</p></div>
   <div class="add-slide-grid"><button class="add-instruction" data-add-slide="instruction">▤ Instruction Slide<small>Text, image, or YouTube</small></button><button class="add-question" data-add-slide="question">? Question Slide<small>A/B/C/D + correct answer</small></button><button class="add-poll" data-add-slide="poll">▥ Poll Slide<small>A/B/C/D with no correct answer</small></button></div><p class="builder-note">Saved presentations appear back in the Activity Library and can be assigned to any Favorite button.</p></div></div>`;
   siPlusOrganizerWire();
@@ -19213,8 +19243,9 @@ function renderPresentationBuilder(){
   if(batchImages)batchImages.onchange=e=>{
     const files=Array.from(e.target.files||[]);
     e.target.value='';
-    void siPlusImportImageSlides(files);
+    void siPlusImportImageSlides(files,{insertAt:$('#siPlusBatchInsertPosition')?.value||'end'});
   };
+  $('#siPlusSlideType').onchange=e=>siPlusChangeSlideType(e.target.value);
   $('#presentationTitleInput').oninput=e=>{d.deckTitle=e.target.value;d.name=e.target.value};
   $('#slideListTitle').oninput=e=>slide.listTitle=e.target.value;$('#slideTitle').oninput=e=>slide.title=e.target.value;$('#slideText').oninput=e=>slide.text=e.target.value;$('#slideYoutube').oninput=e=>{
     slide.youtube=e.target.value;

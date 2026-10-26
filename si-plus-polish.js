@@ -1010,6 +1010,17 @@
      input.accept="image/png,image/jpeg,image/webp,image/gif,image/avif,image/bmp";
      input.disabled=!!siPlusBatchImportBusy;
      label.appendChild(input);bar.appendChild(label);
+     const at=document.createElement("label");
+     at.className="si-org-import-position";at.textContent="Insert images";
+     const picker=document.createElement("select");
+     picker.id="siOrgInsertPosition";
+     picker.setAttribute("aria-label","Choose where new image slides go");
+     picker.appendChild(new Option("At end","end"));
+     state.presentationEditor.draft.slides.forEach((slide,i)=>{
+       const name=String(slide.listTitle||slide.title||"Slide").slice(0,50);
+       picker.appendChild(new Option("Before "+(i+1)+" · "+name,String(i)));
+     });
+     at.appendChild(picker);bar.appendChild(at);
      const status=document.createElement("p");
      status.className="si-org-import-status";status.id="siOrgBatchStatus";
      status.setAttribute("role","status");status.setAttribute("aria-live","polite");
@@ -1019,7 +1030,7 @@
    if(status){
      const source=document.querySelector("#siPlusBatchStatus");
      const msg=source?.textContent||siPlusBatchImportStatus||
-       "New images are appended to your current draft. Save Presentation when ready.";
+       "Choose an insertion position, then add images. Save Presentation when ready.";
      if(status.textContent!==msg)status.textContent=msg;
    }
    root.querySelectorAll(".si-org-card").forEach(card=>{
@@ -1049,7 +1060,9 @@
    if(event.target?.id==="siOrgBatchImages"){
      const imgs=Array.from(event.target.files||[]);
      event.target.value="";
-     if(imgs.length)void siPlusImportImageSlides(imgs);
+     if(imgs.length)void siPlusImportImageSlides(imgs,{
+       insertAt:document.querySelector("#siOrgInsertPosition")?.value||"end"
+     });
    }else if(event.target?.matches("[data-org-position]")){
      // Let the native select finish dispatching change before rebuilding its
      // card. Otherwise Chrome can re-enter with a shifted selected option.
