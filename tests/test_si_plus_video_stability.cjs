@@ -16,13 +16,15 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await page.goto(BASE+"/?role=teacher",{waitUntil:"domcontentloaded",timeout:40000});
   await page.waitForFunction(()=>typeof render==="function"&&typeof renderPublic==="function",{timeout:12000});
   await page.waitForFunction(()=>!NETWORK_SYNC||networkHydrated,{timeout:15000});
-  const initial=await page.evaluate(()=>{
+  const initial=await page.evaluate(async()=>{
     const id="si-plus-no-flicker-regression";
     const deck={id,type:"presentation",name:"SI+ stable video test",deckTitle:"SI+ stable video test",
       userCreated:true,slides:[{id:"si-slide-1",type:"instruction",title:"Video Example",
         text:"Keep the video playing",image:"",
         youtube:"https://www.youtube.com/watch?v=dQw4w9WgXcQ",choices:[]}]};
     state.activities.push(deck);
+    await persistPresentations();
+    if(!state.activities.some(a=>a.id===id))state.activities.push(deck);
     state.activityRun={activityId:id,phase:"running",slideIndex:0,responses:{},runToken:"si-stability-browser"};
     state.screen="activity";render();
     const player=document.querySelector("#sharedContent iframe");
