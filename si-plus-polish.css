@@ -1075,3 +1075,48 @@ body.sipreview-open{
  #teacher #presentationBuilderPanel .si-plus-type-row{align-items:stretch;gap:8px}
  #teacher #presentationBuilderPanel .si-org-import-position{flex:1 1 100%}
 }
+
+/* Phase 4R — bulk organizer movement + teacher-only video transport */
+#teacher #presentationBuilderPanel .si-org-group-moves{
+ display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap;
+ padding-left:7px;border-left:1px solid rgba(125,167,214,.25);
+}
+#teacher #presentationBuilderPanel .si-org-group-moves button{
+ min-height:36px;padding:7px 11px;font-size:12px;font-weight:800;
+ border:1px solid #6077b1;border-radius:8px;background:#1a2851;color:#e9efff;
+}
+#teacher #presentationBuilderPanel .si-org-group-moves button:disabled{opacity:.45;cursor:not-allowed}
+#teacher #presentationBuilderPanel .si-org-group-moves button:not(:disabled):hover{
+ border-color:#9baaff;background:#27366b;
+}
+#teacher #activityControllerPanel .presentation-controls .si-plus-video-controls{
+ grid-column:1 / -1;display:flex;flex-wrap:wrap;justify-content:space-between;
+ align-items:center;gap:10px;padding:12px 14px;min-width:0;
+ border:1px solid #37658a;border-radius:13px;background:linear-gradient(120deg,#102e44,#121e3e);
+}
+#teacher #activityControllerPanel .si-plus-video-controls-label{flex:1 1 230px;min-width:0}
+#teacher #activityControllerPanel .si-plus-video-controls-label strong{
+ display:block;font-size:11px;letter-spacing:.065em;color:#9fe8ff;
+}
+#teacher #activityControllerPanel .si-plus-video-controls-label small{
+ display:block;font-size:11px;line-height:1.35;margin-top:5px;color:#b3c6de;
+}
+#teacher #activityControllerPanel .si-plus-video-controls-buttons{
+ display:flex;flex:0 1 auto;flex-wrap:wrap;gap:6px;
+}
+#teacher #activityControllerPanel .si-plus-video-controls-buttons button{
+ min-height:38px!important;min-width:68px!important;padding:8px 12px!important;
+ border:1px solid #41698b!important;border-radius:9px!important;
+ background:#17314c!important;color:#effaff!important;font-size:12px!important;font-weight:850!important;
+}
+#teacher #activityControllerPanel .si-plus-video-controls-buttons button[aria-pressed="true"]{
+ border-color:#69daeb!important;background:#20576a!important;color:white!important;
+}
+#teacher #activityControllerPanel .si-plus-video-controls-buttons button:focus-visible,
+#teacher #presentationBuilderPanel .si-org-group-moves button:focus-visible{
+ outline:2px solid #5be8ff;outline-offset:2px;
+}
+@media(max-width:520px){
+ #teacher #activityControllerPanel .si-plus-video-controls-buttons{width:100%}
+ #teacher #activityControllerPanel .si-plus-video-controls-buttons button{flex:1 1 70px}
+}
