@@ -31,6 +31,41 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
        slide:document.querySelector("#sharedContent")?.textContent?.slice(0,100)||""};
   });
   assert.equal(initial.player,true,"SI+ YouTube iframe present on shared screen");
+  // Phase 4R: a presentation video enables the iframe API and shows a
+  // teacher-only playback toolbar; commands must keep the slide in place.
+  await page.locator("#siPlusVideoControls").waitFor({state:"visible",timeout:12000});
+  const frameBefore=await page.evaluate(()=>{
+    const frame=document.querySelector("#sharedContent .si-plus-video-frame iframe");
+    const mirror=document.querySelector("#mirrorContent .si-plus-video-frame iframe");
+    if(frame)frame.__transportStable=true;
+    if(mirror)mirror.__transportStable=true;
+    return {api:frame?.src.includes("enablejsapi=1"),
+      origin:frame?.src.includes("origin="),
+      buttons:document.querySelectorAll("#siPlusVideoControls [data-si-video]").length};
+  });
+  assert.equal(frameBefore.api,true,"YouTube iframe API enabled on presentation videos");
+  assert.equal(frameBefore.origin,true,"Iframe API restricted to this classroom origin");
+  assert.equal(frameBefore.buttons,3,"Teacher can play, pause, and restart");
+  await page.locator('[data-si-video="play"]').click();
+  const play=await page.evaluate(()=>state.activityRun.siPlusVideoControl);
+  assert.equal(play.action,"play");
+  assert.equal(play.token,"si-stability-browser");
+  assert.equal(play.index,0);
+  assert.equal(play.videoId,"dQw4w9WgXcQ");
+  await page.locator('[data-si-video="pause"]').click();
+  const paused=await page.evaluate(()=>state.activityRun.siPlusVideoControl);
+  assert.equal(paused.action,"pause");
+  assert.notEqual(paused.nonce,play.nonce);
+  await page.locator('[data-si-video="restart"]').click();
+  const restarted=await page.evaluate(()=>({
+    command:state.activityRun.siPlusVideoControl,
+    shared:!!document.querySelector("#sharedContent iframe")?.__transportStable,
+    mirror:!!document.querySelector("#mirrorContent iframe")?.__transportStable
+  }));
+  assert.equal(restarted.command.action,"restart");
+  assert.equal(restarted.shared,true,"Commands must not recreate the projector iframe");
+  assert.equal(restarted.mirror,true,"Commands must not recreate teacher video preview");
+
   // Mirror may render a compact static preview; only assert if it has an iframe.
   await page.evaluate(()=>{
     const player=document.querySelector("#sharedContent iframe");
