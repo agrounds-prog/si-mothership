@@ -8,7 +8,7 @@ permissions: {contents: read}
 jobs:
   si-plus-batch:
     runs-on: ubuntu-24.04
-    timeout-minutes: 11
+    timeout-minutes: 26
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
