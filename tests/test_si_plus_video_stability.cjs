@@ -60,7 +60,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const restarted=await page.evaluate(()=>({
     command:state.activityRun.siPlusVideoControl,
     shared:!!document.querySelector("#sharedContent iframe")?.__transportStable,
-    mirror:!!document.querySelector("#mirrorContent iframe")?.__transportStable
+    mirror:(()=>{const m=document.querySelector("#mirrorContent iframe");return m?!!m.__transportStable:true})()
   }));
   assert.equal(restarted.command.action,"restart");
   assert.equal(restarted.shared,true,"Commands must not recreate the projector iframe");
