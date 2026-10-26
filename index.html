@@ -17066,7 +17066,7 @@ function siPlusVideoPreview(value){
 }
 function siPlusVideoMarkup(value){
  const id=ytId(value);if(!id)return '';
- return '<div class="si-plus-video-unit"><div class="si-plus-video-frame"><iframe src="'+ytEmbed(id,false)+
+ return '<div class="si-plus-video-unit"><div class="si-plus-video-frame"><iframe src="'+ytEmbed(id,false)+'&enablejsapi=1&origin='+encodeURIComponent(location.origin)+
   '" title="YouTube video" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" '+
   'allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>'+
   '<a class="si-plus-video-fallback" href="'+ytWatch(id)+'" target="_blank" rel="noopener noreferrer">Video not playing? Open on YouTube ↗</a></div>';
