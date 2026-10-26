@@ -1166,7 +1166,8 @@
        if(cmd.action==="play")command("playVideo");
        if(cmd.action==="pause")command("pauseVideo");
        if(cmd.action==="restart"){command("seekTo",[0,true]);command("playVideo")}
-       frame.__siPlusVideoLastCommand=cmd.action;\n       seen.set(frame,key);
+       frame.__siPlusVideoLastCommand=cmd.action;
+       seen.set(frame,key);
      }catch(e){console.warn("SI+ YouTube controls unavailable in this browser",e)}
    });
  }
