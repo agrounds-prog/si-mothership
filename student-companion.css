@@ -2567,3 +2567,55 @@ body.role-student #qpPublicOverlay .qp-submit{
     margin-bottom:5px!important;
   }
 }
+
+/* Phase 4S · student network visibility and keyboard-friendly avatar selection.
+   No classroom game board, teacher view, or saved layout is rewritten. */
+body.role-student #studentConnectionLabel[data-si-network]{
+  display:inline-flex!important;align-items:center!important;gap:6px!important;
+  white-space:nowrap!important;color:#d7f7ff!important;
+  border-color:#497c9d!important;
+}
+body.role-student #studentConnectionLabel[data-si-network]::before{
+  content:"";display:block;flex:0 0 8px;width:8px;height:8px;
+  border-radius:50%;background:#50d8ac;box-shadow:0 0 0 3px #50d8ac1e;
+}
+body.role-student #studentConnectionLabel[data-si-network="reconnecting"]{
+  color:#ffe8b8!important;border-color:#ad8754!important;background:#392b19!important;
+}
+body.role-student #studentConnectionLabel[data-si-network="reconnecting"]::before{
+  background:#f5bd69;box-shadow:0 0 0 3px #f5bd6928;
+}
+body.role-student #studentConnectionLabel[data-si-network="offline"]{
+  color:#ffe0df!important;border-color:#c57979!important;background:#3a2029!important;
+}
+body.role-student #studentConnectionLabel[data-si-network="offline"]::before{
+  background:#ff8c8c;box-shadow:0 0 0 3px #ff8c8c26;
+}
+body.role-student #siStudentConnectionNotice[hidden]{display:none!important}
+body.role-student #siStudentConnectionNotice{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  gap:10px!important;flex:0 0 auto!important;width:100%!important;
+  min-width:0!important;padding:10px 12px!important;
+  border-bottom:1px solid #956738!important;background:#392b1f!important;
+  color:#fff1d9!important;font:700 12px/1.35 system-ui,sans-serif!important;
+}
+body.role-student #siStudentConnectionNotice>span{
+  flex:1 1 auto!important;min-width:0!important;overflow-wrap:anywhere!important;
+}
+body.role-student #siStudentConnectionNotice button{
+  min-width:64px!important;min-height:44px!important;flex:0 0 auto!important;
+  border:1px solid #f1c17a!important;border-radius:9px!important;
+  background:#6b4826!important;color:#fff9ed!important;
+  font:850 12px system-ui,sans-serif!important;cursor:pointer!important;
+  touch-action:manipulation!important;
+}
+body.role-student #siStudentConnectionNotice button[hidden]{display:none!important}
+body.role-student #siStudentConnectionNotice button:focus-visible,
+body.role-student #studentContent .join-avatar-choice:focus-visible{
+  outline:3px solid #ffe293!important;outline-offset:2px!important;
+}
+@media(max-width:360px){
+  body.role-student #siStudentConnectionNotice{
+    padding:8px 9px!important;font-size:11px!important;
+  }
+}
