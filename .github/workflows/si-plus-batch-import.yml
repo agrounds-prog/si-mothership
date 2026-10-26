@@ -59,7 +59,16 @@ jobs:
       - name: SI+ Quick Poll classroom bridge, safe draft handoff and projector toggle
         run: node tests/test_si_plus_quick_poll_bridge_browser.cjs
       - name: SI+ intermission — launch real games and restore exact classroom slide
-        run: node tests/test_si_plus_activity_break_browser.cjs
+        run: |
+          # A dedicated session avoids Quick Poll's prior test storage and
+          # tests saved intermission recovery without cross-fixture races.
+          mkdir -p /tmp/mothership-si-plus-intermission
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-si-plus-intermission PORT=8884 python server.py >/tmp/mothership-si-plus-intermission.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8884/api/health >/dev/null; then break; fi
+            sleep 1
+          done
+          LOCAL_URL=http://127.0.0.1:8884 node tests/test_si_plus_activity_break_browser.cjs
       - name: SI+ video link, player persistence, and editor polish
         run: |
           node tests/test_si_plus_polish_browser.cjs
