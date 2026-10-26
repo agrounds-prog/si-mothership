@@ -19082,7 +19082,7 @@ async function siPlusImportImageSlides(files,options={}){
     siPlusBatchImportBusy=false;
     const skipped=failed+Math.max(0,items.length-limit);
     siPlusBatchImportStatus=ready.length
-      ?ready.length+' image slide'+(ready.length===1?'':'s')+' inserted. Save Presentation to keep them.'
+      ?ready.length+' image slide'+(ready.length===1?'':'s')+' added. Save Presentation to keep them.'
       :'No image slides added.';
     if(skipped)siPlusBatchImportStatus+=' '+skipped+' unsupported or unreadable file'+(skipped===1?'':'s')+' skipped.';
     if(overBudget)siPlusBatchImportStatus+=' Library image size limit reached; import fewer or smaller images.';

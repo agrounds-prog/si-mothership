@@ -2,7 +2,7 @@ name: SI+ Presentation Editor Regression
 on:
   push:
     branches: [main]
-    paths: ['index.html','si-plus-polish.css','si-plus-polish.js','quick-poll.js','quick-poll.css','tests/test_si_plus_batch_browser.cjs','tests/test_si_plus_organizer_browser.cjs','tests/test_si_plus_uniform_slides_browser.cjs','tests/test_si_plus_preview_browser.cjs','tests/test_si_plus_draft_recovery_browser.cjs','tests/test_si_plus_video_stability.cjs','tests/test_si_plus_polish_browser.cjs','tests/test_si_plus_live_navigation_browser.cjs','tests/test_si_plus_quick_poll_bridge_browser.cjs','tests/test_si_plus_activity_break_browser.cjs','.github/workflows/si-plus-batch-import.yml']
+    paths: ['index.html','si-plus-polish.css','si-plus-polish.js','quick-poll.js','quick-poll.css','tests/test_si_plus_batch_browser.cjs','tests/test_si_plus_organizer_browser.cjs','tests/test_si_plus_phase4r_browser.cjs','tests/test_si_plus_uniform_slides_browser.cjs','tests/test_si_plus_preview_browser.cjs','tests/test_si_plus_draft_recovery_browser.cjs','tests/test_si_plus_video_stability.cjs','tests/test_si_plus_polish_browser.cjs','tests/test_si_plus_live_navigation_browser.cjs','tests/test_si_plus_quick_poll_bridge_browser.cjs','tests/test_si_plus_activity_break_browser.cjs','.github/workflows/si-plus-batch-import.yml']
   workflow_dispatch:
 permissions: {contents: read}
 jobs:
@@ -38,6 +38,8 @@ jobs:
         run: node tests/test_si_plus_batch_browser.cjs
       - name: Organize slides and verify saved presentation
         run: node tests/test_si_plus_organizer_browser.cjs
+      - name: Phase 4R insert-at-position and convert existing slides
+        run: node tests/test_si_plus_phase4r_browser.cjs
       - name: Same-size SI+ presentation canvases across image dimensions
         run: node tests/test_si_plus_uniform_slides_browser.cjs
       - name: SI+ unfinished draft recovery, Railway save, teacher reload, and class reset
