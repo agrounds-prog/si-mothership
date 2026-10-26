@@ -42,7 +42,9 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8891";
      visible:document.querySelectorAll("#studentContent [data-join-avatar]:not([hidden])").length,
      hidden:document.activeElement?.hidden
    }));
-   assert.ok(end.focus&&end.page?.startsWith("3 /"),JSON.stringify(end));
+   const totalAvatars=await student.locator("#studentContent [data-join-avatar]").count();
+   const lastPage=Math.ceil(totalAvatars/9);
+   assert.ok(end.focus&&end.page?.startsWith(lastPage+" /"),JSON.stringify({end,totalAvatars}));
    assert.equal(end.hidden,false,"The last avatar must be visible and focused");
    await student.keyboard.press("Home");
    assert.equal(await student.evaluate(()=>document.activeElement?.dataset.joinAvatar),keys[0]);
