@@ -1,0 +1,52 @@
+name: Phase 4T Multiplayer Browser Stress
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/test_multiplayer_phase4t_browser.cjs'
+      - 'four-in-line.js'
+      - 'four_in_line_server.py'
+      - 'server.py'
+      - 'index.html'
+      - '.github/workflows/multiplayer-phase4t-browser.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  multiplayer-five-views:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check application and test syntax
+        run: |
+          node --check four-in-line.js
+          node --check tests/test_multiplayer_phase4t_browser.cjs
+          python -m py_compile server.py four_in_line_server.py
+          python scripts/release_gate.py --require-node
+      - name: Install isolated test dependencies
+        run: |
+          pip install -r requirements.txt
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Start isolated classroom (not Railway /data)
+        run: |
+          mkdir -p /tmp/phase4t-browser-sandbox
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/phase4t-browser-sandbox PORT=8892 python server.py >/tmp/phase4t-browser.log 2>&1 &
+          for i in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:8892/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          tail -80 /tmp/phase4t-browser.log
+          exit 1
+      - name: Five real browser views, seven turns, reconnect, privacy and shared win
+        run: LOCAL_URL=http://127.0.0.1:8892 node tests/test_multiplayer_phase4t_browser.cjs
+      - name: Local test server diagnostics
+        if: failure()
+        run: tail -120 /tmp/phase4t-browser.log || true
