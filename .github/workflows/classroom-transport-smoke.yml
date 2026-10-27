@@ -10,6 +10,7 @@ on:
       - 'tests/test_classroom_transport_smoke.py'
       - 'tests/test_multiplayer_reliability.py'
       - 'tests/test_multiplayer_phase4t_stress.py'
+      - 'tests/test_multiplayer_phase4t_extended_stress.py'
       - 'tests/test_crew_survey_server.py'
       - 'tests/test_million_multiplayer.py'
       - 'tests/test_million_websocket_live.py'
@@ -65,3 +66,5 @@ jobs:
         run: python -m unittest discover -s tests -p test_multiplayer_reliability.py -v
       - name: Phase 4T eighteen-student concurrent game stress and privacy
         run: python -m unittest discover -s tests -p test_multiplayer_phase4t_stress.py -v
+      - name: Phase 4T-B twelve-student MILLION, Survey, Dominoes, Cosmic Cards and Signal stress
+        run: python -m unittest discover -s tests -p test_multiplayer_phase4t_extended_stress.py -v
