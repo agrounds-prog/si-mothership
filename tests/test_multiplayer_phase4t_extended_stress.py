@@ -125,6 +125,7 @@ class Phase4TExtendedStress(unittest.IsolatedAsyncioTestCase):
             "/api/teacher/login", json={"key": app.TEACHER_KEY})
         self.assertEqual(login.status, 200)
         self.sockets = []
+        self.initial_views = {}
 
     async def asyncTearDown(self):
         for socket in self.sockets:
@@ -147,12 +148,20 @@ class Phase4TExtendedStress(unittest.IsolatedAsyncioTestCase):
             await ws.send_json({
                 "type": "hello", "student_name": student["n"],
                 "student_token": student["studentToken"]})
-            # The first snapshot is emitted before "hello" authenticates
-            # the socket. Wait for the server to bind this exact new socket,
-            # or private hands can appear to be missing in the initial frame.
-            await self.until(lambda: app.CLIENT_META.get(ws, {}).get(
-                "student_token") == student["studentToken"],
-                "socket identity for " + student["n"])
+            # The client and server have DIFFERENT WebSocket objects. Read
+            # until this exact connection receives the post-hello private
+            # snapshot, rather than consulting server CLIENT_META by client
+            # object identity or accidentally using the unauthenticated frame.
+            for _ in range(8):
+                packet = await ws.receive_json(timeout=8)
+                state = packet.get("state") if packet.get("type") == "state" else None
+                if isinstance(state, dict) and any(
+                    st.get("studentToken") == student["studentToken"]
+                    for st in state.get("students", [])):
+                    self.initial_views[ws] = state
+                    break
+            else:
+                self.fail("Missing authenticated student state for " + student["n"])
         return ws
 
     async def room(self):
@@ -203,6 +212,11 @@ class Phase4TExtendedStress(unittest.IsolatedAsyncioTestCase):
         return json.loads(record["state_json"])["activityRun"]
 
     async def view(self, socket, matches, description):
+        # A late private observer may not receive another broadcast.
+        # Preserve its first authenticated frame for the next assertion.
+        cached = self.initial_views.pop(socket, None)
+        if cached is not None and matches(cached):
+            return cached
         async def read():
             while True:
                 packet = await socket.receive_json(timeout=10)
