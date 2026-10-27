@@ -152,7 +152,10 @@ class Phase4TExtendedStress(unittest.IsolatedAsyncioTestCase):
             # until this exact connection receives the post-hello private
             # snapshot, rather than consulting server CLIENT_META by client
             # object identity or accidentally using the unauthenticated frame.
-            for _ in range(8):
+            # Concurrent hello/presence fan-out may place several other
+            # students' broadcasts ahead of this socket's own hello result.
+            # Drain bounded messages until its authenticated frame arrives.
+            for _ in range(96):
                 packet = await ws.receive_json(timeout=8)
                 state = packet.get("state") if packet.get("type") == "state" else None
                 if isinstance(state, dict) and any(
