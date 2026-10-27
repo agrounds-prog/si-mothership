@@ -135,12 +135,16 @@ class Phase4TStress(unittest.IsolatedAsyncioTestCase):
 
     async def send(self, socket, channel, request_id, action, value,
                    run_token, student=None):
+        request = {"id": request_id, "type": action, "value": value,
+                   "runToken": run_token}
+        if channel == "four_in_line_action":
+            # Four In Line's real wire contract sends a numeric column field.
+            request["column"] = value
         await socket.send_json({
             "type": channel,
             "student_name": student["n"] if student else "",
             "student_token": student["studentToken"] if student else "",
-            "request": {"id": request_id, "type": action, "value": value,
-                        "runToken": run_token},
+            "request": request,
         })
 
     async def latest_view(self, socket, predicate, label):
@@ -181,21 +185,29 @@ class Phase4TStress(unittest.IsolatedAsyncioTestCase):
             lambda s: sum(bool(v) for v in
                           s["activityRun"]["bingo"]["marks"].values()) == 18,
             "teacher scoreboard")
+        # Bingo marks/cards/claims are private to teacher and each student.
+        # The shared screen must NOT see classroom-wide private marks.
+        # Reconnect a projector to request the final, sanitized snapshot.
+        fresh_shared = await self.open("shared")
         shared_state = await self.latest_view(
-            shared,
-            lambda s: sum(bool(v) for v in
-                          s["activityRun"]["bingo"]["marks"].values()) == 18,
-            "shared screen")
+            fresh_shared,
+            lambda s: s["activityRun"]["bingo"]["called"] == ["sun"],
+            "privacy-filtered shared screen")
         self.assertEqual(
-            teacher_state["activityRun"]["bingo"]["marks"],
-            shared_state["activityRun"]["bingo"]["marks"])
+            shared_state["activityRun"]["bingo"]["marks"], {})
+        self.assertEqual(
+            shared_state["activityRun"]["bingo"]["cards"], {})
+        self.assertEqual(
+            teacher_state["activityRun"]["bingo"]["marks"], marks)
         self.assertTrue(all("studentToken" not in st
                             for st in shared_state["students"]))
-        # Each student snapshot may expose only its own identity token.
+        # Each student's state exposes only their own marks and token.
         one_view = await self.latest_view(
             clients[0],
-            lambda s: bool(s["activityRun"]["bingo"]["marks"]["Crew17"]),
+            lambda s: s["activityRun"]["bingo"]["marks"].get("Crew00") == ["sun"],
             "student latest state")
+        self.assertEqual(
+            one_view["activityRun"]["bingo"]["marks"], {"Crew00": ["sun"]})
         self.assertEqual(
             [st.get("studentToken") for st in one_view["students"]
              if st.get("studentToken")], [STUDENTS[0]["studentToken"]])
