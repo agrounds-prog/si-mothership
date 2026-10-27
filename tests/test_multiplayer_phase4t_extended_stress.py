@@ -147,6 +147,12 @@ class Phase4TExtendedStress(unittest.IsolatedAsyncioTestCase):
             await ws.send_json({
                 "type": "hello", "student_name": student["n"],
                 "student_token": student["studentToken"]})
+            # The first snapshot is emitted before "hello" authenticates
+            # the socket. Wait for the server to bind this exact new socket,
+            # or private hands can appear to be missing in the initial frame.
+            await self.until(lambda: app.CLIENT_META.get(ws, {}).get(
+                "student_token") == student["studentToken"],
+                "socket identity for " + student["n"])
         return ws
 
     async def room(self):
@@ -354,7 +360,9 @@ class Phase4TExtendedStress(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(all(x is None for x in game["bag"]))
         player = await self.connect(student=CREW[0])
         own = await self.view(player, lambda s:
-            len(s["activityRun"]["dominoes"]["chain"]) == 2,
+            len(s["activityRun"]["dominoes"]["chain"]) == 2 and any(
+                st.get("studentToken") == CREW[0]["studentToken"]
+                for st in s["students"]),
             "Dominoes student privacy")
         self.assertEqual(set(own["activityRun"]["dominoes"]["hands"]), {"Crew00"})
         self.assertEqual(len(own["activityRun"]["dominoes"]["hands"]["Crew00"]), 1)
@@ -406,7 +414,9 @@ class Phase4TExtendedStress(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(projected["activityRun"]["cosmic"]["hands"], {})
         player = await self.connect(student=CREW[0])
         own = await self.view(player, lambda s:
-            len(s["activityRun"]["cosmic"]["discard"]) == 4,
+            len(s["activityRun"]["cosmic"]["discard"]) == 4 and any(
+                st.get("studentToken") == CREW[0]["studentToken"]
+                for st in s["students"]),
             "Cosmic Cards private hand")
         self.assertEqual(set(own["activityRun"]["cosmic"]["hands"]), {"Crew00"})
 
