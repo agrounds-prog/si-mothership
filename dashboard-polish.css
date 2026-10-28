@@ -1904,3 +1904,35 @@ body.role-shared #sharedContent :is(
     overflow-wrap:anywhere;
   }
 }
+
+
+/* Phase 4Z · uncluttered shared projector.
+   The left JOIN / classroom-status rail is an older projector shell feature.
+   Suppress it ONLY when this window is the shared display, keeping all join
+   details available through teacher Mission Control and the classroom lobby.
+   Leave the native activity/projector renderer and 16:9 game sizing alone. */
+body.role-shared #shared .shared-screen{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:minmax(0,1fr)!important;
+  gap:0!important;
+  width:100%!important;
+  height:100vh!important;
+  height:100dvh!important;
+  min-width:0!important;
+  min-height:0!important;
+}
+body.role-shared #shared .mirror-top,
+body.role-shared #shared .mirror-footer{
+  display:none!important;
+}
+body.role-shared #shared #sharedContent{
+  grid-area:1 / 1 / 2 / 2!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:none!important;
+  align-self:stretch!important;
+  justify-self:stretch!important;
+}
