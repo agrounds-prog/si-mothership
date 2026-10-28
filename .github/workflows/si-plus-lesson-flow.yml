@@ -9,6 +9,7 @@ on:
       - 'quick-poll.css'
       - 'server.py'
       - 'tests/test_si_plus_activity_break_browser.cjs'
+      - 'tests/test_classroom_phase4w_lobby_transition_browser.cjs'
       - 'tests/test_si_plus_quick_poll_bridge_browser.cjs'
       - '.github/workflows/si-plus-lesson-flow.yml'
   workflow_dispatch:
@@ -47,6 +48,16 @@ jobs:
         run: node tests/test_si_plus_quick_poll_bridge_browser.cjs
       - name: SI+ game break, direct poll, exact-slide restore and reload
         run: node tests/test_si_plus_activity_break_browser.cjs
+      - name: Phase 4W native lobby resume and three-view SI+ break/reconnect
+        run: |
+          mkdir -p /tmp/mothership-phase4w-lobby
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-phase4w-lobby PORT=8894 python server.py >/tmp/phase4w-lobby.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8894/api/health >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8894/api/health >/dev/null
+          LOCAL_URL=http://127.0.0.1:8894 node tests/test_classroom_phase4w_lobby_transition_browser.cjs
       - name: Classroom failure diagnostics
         if: failure()
         run: tail -120 /tmp/si-plus-lesson-flow.log || true
