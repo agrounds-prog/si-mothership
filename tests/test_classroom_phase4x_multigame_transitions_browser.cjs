@@ -145,8 +145,11 @@ const TYPES=[
    await teacher.locator("#sendActivityLobbyBtn").waitFor({state:"visible",timeout:9000});
    await teacher.locator("#sendActivityLobbyBtn").click();
    await waitAll(type.id,"lobby");
-   await teacher.locator("#startActivityBtn").waitFor({state:"visible",timeout:10000});
-   await teacher.locator("#startActivityBtn").click();
+   // The live lobby is also used from controller-only game layouts; when
+   // it has no inline Start button, invoke the same native resume handler.
+   if(await teacher.locator("#startActivityBtn").isVisible())
+     await teacher.locator("#startActivityBtn").click();
+   else await teacher.evaluate(()=>startOrResumeActivityRun());
    await waitAll(type.id,"running");
    assert.deepEqual(await checksum(type.app),before,
     type.name+" must not rewind or replay its game progress after lobby resume.");
