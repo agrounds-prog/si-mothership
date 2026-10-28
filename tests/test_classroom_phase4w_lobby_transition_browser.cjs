@@ -19,6 +19,7 @@ const NAME="Phase 4W Pilot",DECK="phase4w-classroom-transition";
   await page.route(/youtube\.com|youtu\.be|ytimg\.com/,r=>r.abort());
  try{
   assert.equal((await tc.request.post(BASE+"/api/teacher/login",{data:{key:"5030"}})).status(),200);
+  teacher.on("dialog",d=>d.type()==="prompt"?d.accept("Phase 4W Saved Game"):d.accept());
   await teacher.goto(BASE+"/?role=teacher",{waitUntil:"domcontentloaded",timeout:40000});
   await teacher.waitForFunction(()=>networkHydrated===true&&STUDENT_JOIN_CODE&&
    STUDENT_SESSION_ID&&window.SIPlusActivityBreak&&!!window.FourLine,
@@ -66,31 +67,38 @@ const NAME="Phase 4W Pilot",DECK="phase4w-classroom-transition";
   assert.equal(disc.filter(Boolean).length,1);
   assert.equal(await shared.locator("#sharedContent .fil-cell.disc-1").count(),1);
 
-  // Pause via the actual lobby button. Resuming must preserve the one disc,
-  // active turn, student identity and public/private view synchronization.
-  await teacher.locator("#sendActivityLobbyBtn").click();
-  await teacher.waitForFunction(()=>state.activityRun?.activityId==="four-in-line-game"&&
-    state.activityRun?.phase==="lobby",null,{timeout:12000});
+  // Four In Line has native Save, Exit and Load controls rather than the
+  // generic lobby-pause button. Exercise that actual teacher workflow.
+  await teacher.locator('#activityControllerPanel [data-fil-action="save"]').click();
+  assert.ok(await teacher.evaluate(()=>FourLine.saved().some(g=>g.name==="Phase 4W Saved Game")));
+  await teacher.locator('#activityControllerPanel [data-fil-action="exit"]').click();
+  await teacher.waitForFunction(()=>state.activityRun===null,null,{timeout:14000});
   await Promise.all([student,shared].map(page=>page.waitForFunction(()=>
-    state.activityRun?.phase==="lobby",null,{timeout:14000})));
-  await teacher.locator("#startActivityBtn").waitFor({state:"visible",timeout:11000});
-  await teacher.locator("#startActivityBtn").click();
+    state.activityRun===null,null,{timeout:14000})));
+  await teacher.locator('#teacherControlBar [data-control="activities"]').click();
+  await teacher.locator("#activitiesPanel .fil-library-card .fil-open").click();
+  await teacher.locator('[data-fil-load]').first().waitFor({state:"visible",timeout:13000});
+  await teacher.locator('[data-fil-load]').first().click();
+  await teacher.waitForFunction(()=>state.activityRun?.activityId==="four-in-line-game"&&
+    state.activityRun?.fourInLine?.moves===1,null,{timeout:14000});
+  if(await teacher.evaluate(()=>state.activityRun?.phase==="lobby")){
+    await teacher.locator("#startActivityBtn").click();
+  }
   await Promise.all([teacher,student,shared].map(page=>page.waitForFunction(()=>
     state.activityRun?.activityId==="four-in-line-game"&&
-    state.activityRun?.phase==="running"&&
-    state.activityRun.fourInLine.moves===1,null,{timeout:15000})));
+    state.activityRun?.fourInLine?.moves===1,null,{timeout:15000})));
   const resumed=await teacher.evaluate(()=>({
     board:state.activityRun.fourInLine.board,
     token:state.activityRun.runToken,
     turn:state.activityRun.fourInLine.turn
   }));
-  assert.deepEqual(resumed.board,disc,"Lobby resume must preserve the exact game board");
+  assert.deepEqual(resumed.board,disc,"Saved lobby game must restore the exact board");
   assert.equal(await student.locator("#studentContent [data-fil-drop]:enabled").count(),0,
     "After pilot's move, no controls must become active for the wrong turn");
   assert.equal(await shared.locator("#sharedContent .fil-cell.disc-1").count(),1);
   assert.equal(await shared.locator("#sharedContent [data-fil-drop]").count(),0);
-  // Finish the game using the native classroom control, not direct state edits.
-  await teacher.locator("#returnClassBtn").click();
+  // Exit again through the native game control before opening SI+.
+  await teacher.locator('#activityControllerPanel [data-fil-action="exit"]').click();
   await teacher.waitForFunction(()=>state.activityRun===null,null,{timeout:14000});
 
   // Start a real SI+ presentation with answer and position already present.
