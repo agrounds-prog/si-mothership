@@ -1,0 +1,49 @@
+name: Phase 4X Four-Game Lobby Reliability
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/test_classroom_phase4x_multigame_transitions_browser.cjs'
+      - '.github/workflows/classroom-phase4x-lobby-reliability.yml'
+      - 'cosmic-cards.js'
+      - 'dominoes.js'
+      - 'million-studio.js'
+      - 'match-arcade.js'
+      - 'server.py'
+      - 'index.html'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  four-game-lobby:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Validate new reliability test and classroom server
+        run: |
+          node --check tests/test_classroom_phase4x_multigame_transitions_browser.cjs
+          python -m py_compile server.py
+      - name: Install Chromium and dependencies
+        run: |
+          pip install -r requirements.txt
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Boot an isolated four-game classroom
+        run: |
+          mkdir -p /tmp/mothership-phase4x-lobby
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-phase4x-lobby PORT=8895 python server.py >/tmp/phase4x-lobby.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8895/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          tail -80 /tmp/phase4x-lobby.log
+          exit 1
+      - name: Dominoes, Cosmic Cards, MILLION and MATCH real four-view lobby/reconnect
+        run: LOCAL_URL=http://127.0.0.1:8895 node tests/test_classroom_phase4x_multigame_transitions_browser.cjs
+      - name: Diagnostics on failure
+        if: failure()
+        run: tail -100 /tmp/phase4x-lobby.log || true
