@@ -96,7 +96,7 @@ const NAME="Phase 4W Pilot",DECK="phase4w-classroom-transition";
   // Start a real SI+ presentation with answer and position already present.
   // The test deck is saved in temporary server storage so browser reload can
   // rehydrate its actual library record just like an existing teacher deck.
-  await teacher.evaluate(async()=>{
+  await teacher.evaluate(async({DECK,NAME})=>{
     const deck={id:DECK,type:"presentation",name:"Phase 4W Lesson",
       deckTitle:"Phase 4W Lesson",userCreated:true,slides:[
       {type:"instruction",title:"Welcome",text:"Let's learn",image:"",youtube:""},
@@ -111,7 +111,7 @@ const NAME="Phase 4W Pilot",DECK="phase4w-classroom-transition";
       slideIndex:1,showResults:true,revealAnswer:true,
       responses:{"1":{[NAME]:"A"}}};
     state.screen="activity";render();
-  });
+  },{DECK,NAME});
   await Promise.all([student,shared].map(page=>page.waitForFunction(id=>
     state.activityRun?.activityId===id&&state.activityRun?.slideIndex===1,
     DECK,{timeout:16000})));
