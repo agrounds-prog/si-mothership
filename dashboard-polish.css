@@ -1860,3 +1860,47 @@ body.si-v80-dashboard #teacher :is(#teacherControlBar,#homeAppGrid,#activitiesPa
   transition:none!important;animation:none!important;
  }
 }
+
+
+/* Phase 4V · projector legibility for long class-created labels.
+   Scoped only to shared-screen game artwork; SI+ slide/media dimensions,
+   individual game grids, card positions and all teacher controls stay intact. */
+body.role-shared #sharedContent :is(
+ .fil-public,.dm-public,.cc-presentation,.ss-public,.million-public,
+ .ma-public,.crew-survey-public,.bingo-public
+),
+#shared .shared-screen #sharedContent :is(
+ .fil-public,.dm-public,.cc-presentation,.ss-public,.million-public,
+ .ma-public,.crew-survey-public,.bingo-public
+){
+  min-width:0;
+  max-width:100%;
+}
+body.role-shared #sharedContent :is(
+ .fil-public,.dm-public,.cc-presentation,.ss-public,.million-public,
+ .ma-public,.crew-survey-public,.bingo-public
+) :is(h1,h2,h3,.fil-team strong,.dm-turn-banner strong,.cc-player-name b),
+#shared .shared-screen #sharedContent :is(
+ .fil-public,.dm-public,.cc-presentation,.ss-public,.million-public,
+ .ma-public,.crew-survey-public,.bingo-public
+) :is(h1,h2,h3,.fil-team strong,.dm-turn-banner strong,.cc-player-name b){
+  min-width:0;
+  max-width:100%;
+  overflow-wrap:anywhere;
+}
+body.role-shared #sharedContent :is(
+ .fil-public,.dm-public,.cc-presentation,.ss-public,.million-public
+) :is(.fil-title,.fil-team,.dm-turn-banner,.cc-player-name,.ss-heading),
+#shared .shared-screen #sharedContent :is(
+ .fil-public,.dm-public,.cc-presentation,.ss-public,.million-public
+) :is(.fil-title,.fil-team,.dm-turn-banner,.cc-player-name,.ss-heading){
+  min-width:0;
+}
+@media(max-width:1100px){
+  body.role-shared #sharedContent :is(
+   .fil-public,.dm-public,.cc-presentation,.ss-public,.million-public,
+   .ma-public,.crew-survey-public,.bingo-public
+  ) :is(h1,h2,h3,.fil-team strong,.dm-turn-banner strong,.cc-player-name b){
+    overflow-wrap:anywhere;
+  }
+}
