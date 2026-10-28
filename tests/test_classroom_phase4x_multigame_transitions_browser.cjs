@@ -17,7 +17,7 @@ const TYPES=[
  const browser=await chromium.launch({headless:true,args:["--no-sandbox","--disable-dev-shm-usage"]});
  const tc=await browser.newContext({viewport:{width:1380,height:900}});
  const pc=await browser.newContext({viewport:{width:1280,height:720}});
- const sctx=await Promise.all(NAMES.map(()=>browser.newContext({viewport:{width:440,height:780}})));
+ const sctx=await Promise.all(NAMES.map(()=>browser.newContext({viewport:{width:1380,height:900}})));
  const teacher=await tc.newPage(),shared=await pc.newPage(),
    students=await Promise.all(sctx.map(ctx=>ctx.newPage())),errors=[];
  for(const [name,page] of [["teacher",teacher],["projector",shared],
@@ -68,6 +68,7 @@ const TYPES=[
    await page.locator("#joinClassBtn").click();
    await page.waitForFunction(n=>state.selectedStudent===n&&!studentNeedsJoin(),
     NAMES[i],{timeout:17000});
+   await page.setViewportSize({width:440,height:780});
   }
   await shared.goto(BASE+"/?role=shared&sid="+encodeURIComponent(session.sid),
    {waitUntil:"domcontentloaded",timeout:40000});
