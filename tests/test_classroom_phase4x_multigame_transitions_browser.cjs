@@ -143,7 +143,12 @@ const TYPES=[
      null,{timeout:10000});
     milestone="one 50/50 lifeline used";
    }else{
+    const originalTurn=await teacher.evaluate(()=>state.activityRun.match.activeStudentIndex);
     await teacher.locator("#matchSkipBtn").click();
+    // MATCH's server-authoritative next-turn message is asynchronous; wait
+    // for the settled turn instead of recording the pre-acknowledgment state.
+    await teacher.waitForFunction(old=>state.activityRun?.match?.activeStudentIndex!==old,
+      originalTurn,{timeout:13000});
     milestone="teacher next-player control used";
    }
    const before=await checksum(type.app);
