@@ -1,0 +1,46 @@
+name: Shared Projector Full-Stage Regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/test_projector_full_stage_browser.cjs'
+      - 'dashboard-polish.css'
+      - '.github/workflows/projector-full-stage.yml'
+      - 'index.html'
+      - 'server.py'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  projector-stage:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Validate code
+        run: |
+          node --check tests/test_projector_full_stage_browser.cjs
+          python -m py_compile server.py
+      - name: Install Chromium dependencies
+        run: |
+          pip install -r requirements.txt
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Start isolated classroom
+        run: |
+          mkdir -p /tmp/mothership-shared-fullstage
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-shared-fullstage PORT=8897 python server.py >/tmp/shared-fullstage.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8897/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          tail -100 /tmp/shared-fullstage.log
+          exit 1
+      - name: Shared screen desktop and projector widths
+        run: LOCAL_URL=http://127.0.0.1:8897 node tests/test_projector_full_stage_browser.cjs
+      - name: Failure logs
+        if: failure()
+        run: tail -100 /tmp/shared-fullstage.log || true
