@@ -128,7 +128,21 @@ def main() -> int:
     projector_style = re.search(r'<style id="v53-5-shared-projector-layout">(.*?)</style>', html, re.S)
     projector_css = projector_style.group(1) if projector_style else ""
     check("shared projector: release style remains", bool(projector_style))
-    check("shared projector: widescreen side HUD remains", "grid-template-columns:clamp(132px,10.5vw,176px) minmax(0,1fr)" in projector_css and "grid-row:1 / 3" in projector_css)
+    # The old two-column projector markup remains for backwards compatibility,
+    # but the shared-only stylesheet intentionally suppresses its side HUD.
+    clean_projector_css = (ROOT / "dashboard-polish.css").read_text(encoding="utf-8")
+    check("shared projector: legacy shell safely superseded",
+          "grid-template-columns:clamp(132px,10.5vw,176px) minmax(0,1fr)" in projector_css
+          and "body.role-shared #shared .shared-screen{" in clean_projector_css
+          and "grid-template-columns:minmax(0,1fr)!important;" in clean_projector_css)
+    check("shared projector: join and status sidebar hidden in shared role",
+          "body.role-shared #shared .mirror-top," in clean_projector_css
+          and "body.role-shared #shared .mirror-footer{" in clean_projector_css
+          and "display:none!important;" in clean_projector_css)
+    check("shared projector: public activity stage occupies full viewport",
+          "body.role-shared #shared #sharedContent{" in clean_projector_css
+          and "grid-area:1 / 1 / 2 / 2!important;" in clean_projector_css
+          and "height:100dvh!important;" in clean_projector_css)
     check("shared projector: BOARD uses full public height", "body.role-shared .board-public-wrap" in projector_css and "height:100%" in projector_css and "body.role-shared .board-shared-stage" in projector_css)
     check("shared projector: BOARD metadata floats over canvas", "body.role-shared .board-public-head" in projector_css and "position:absolute" in projector_css)
     check("shared projector: narrow-screen fallback remains", "@media(max-width:900px),(max-aspect-ratio:4/3)" in projector_css)
