@@ -16,6 +16,7 @@ on:
       - 'tests/test_match_gameplay_visuals_browser.cjs'
       - 'tests/test_million_projector_browser.cjs'
       - 'tests/test_zoom_student_activities_browser.cjs'
+      - 'tests/test_classroom_phase4u_polish_browser.cjs'
       - 'orbit-polish.js'
       - 'pixel-batch.js'
       - 'pixel-batch.css'
@@ -141,6 +142,8 @@ jobs:
         run: LOCAL_URL=http://127.0.0.1:8877 node tests/test_four_in_line_mobile_browser.cjs
       - name: Zoom Quick Poll, Million, Cosmic Cards and Dominoes browser layout
         run: node tests/test_zoom_student_activities_browser.cjs
+      - name: Phase 4U seven-game student focus, 44px actions and projector text resilience
+        run: node tests/test_classroom_phase4u_polish_browser.cjs
       - name: PIXEL REVEAL multi-image upload, save, reorder and round navigation
         run: LOCAL_URL=http://127.0.0.1:8877 node tests/test_pixel_batch_browser.cjs
       - name: ORBIT 24-idea gallery, projector scroll, anonymous privacy and setup
