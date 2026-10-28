@@ -1,0 +1,49 @@
+name: Phase 4Y Live Game Recovery
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/test_classroom_phase4y_saved_game_recovery_browser.cjs'
+      - '.github/workflows/classroom-phase4y-saved-game-recovery.yml'
+      - 'index.html'
+      - 'server.py'
+      - 'cosmic-cards.js'
+      - 'dominoes.js'
+      - 'million-studio.js'
+      - 'match-arcade.js'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  teacher-reconnect-recovery:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Validate regression syntax and server
+        run: |
+          node --check tests/test_classroom_phase4y_saved_game_recovery_browser.cjs
+          python -m py_compile server.py
+      - name: Install Chromium and dependencies
+        run: |
+          pip install -r requirements.txt
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Start disposable classroom with isolated storage
+        run: |
+          mkdir -p /tmp/mothership-phase4y-recovery
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-phase4y-recovery PORT=8896 python server.py >/tmp/mothership-phase4y.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8896/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          tail -80 /tmp/mothership-phase4y.log
+          exit 1
+      - name: Teacher refresh, paused-game restore and all-view reconnect for four games
+        run: LOCAL_URL=http://127.0.0.1:8896 node tests/test_classroom_phase4y_saved_game_recovery_browser.cjs
+      - name: Server log on failure
+        if: failure()
+        run: tail -130 /tmp/mothership-phase4y.log || true
