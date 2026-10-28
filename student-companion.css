@@ -2619,3 +2619,59 @@ body.role-student #studentContent .join-avatar-choice:focus-visible{
     padding:8px 9px!important;font-size:11px!important;
   }
 }
+
+
+/* Phase 4U · consistent compact classroom game controls (visual-only).
+   No coordinates, tile dimensions, board rules or student identity are changed.
+   The Word Grid / Minefield scrolling playfields remain separately scrollable. */
+body.role-student #student #studentContent:has(> .si-student-game-cue) :is(
+  .million-student-choice span,.million-4j-choice-guide,
+  .cc-turn-guide,.cc-device-status>span,.cc-hand-heading,
+  .dm-device-center h3,.dm-tile-guide,.dm-device-help,
+  .fil-student-status,.fil-student>p,
+  .ss-student-status,.ss-personal-progress,
+  .ma-student-heading h2,.ma-device-tip,
+  .wg-student-hint,.minefield-turn-banner,
+  .crew-survey-student-question,.crew-survey-student-status,
+  .pixel-verbal-cue,.starwheel-student-prompt,
+  .si-cue-app,.si-cue-heading,.si-cue-help
+){
+  min-width:0!important;
+  max-width:100%!important;
+  overflow-wrap:anywhere!important;
+}
+body.role-student #student #studentContent:has(> .si-student-game-cue)
+  :is(button,[role="button"][tabindex],input,textarea,select):focus-visible{
+  outline:3px solid #ffe6a3!important;
+  outline-offset:2px!important;
+}
+/* Preserve a full finger-size target for the principal action controls.
+   Do not apply to grid sectors, cards, tiles or the 7-column board itself. */
+body.role-student #student #studentContent:has(> .si-student-game-cue) :is(
+  .million-student-actions button,.cc-device-actions button,
+  .dm-device-controls button,.fil-drop-button,.ss-touch-key,
+  .crew-survey-big-buzz,.crew-survey-aac button,
+  .starwheel-main-spin,.starwheel-student-grid button
+){
+  min-height:44px!important;
+  touch-action:manipulation;
+}
+@media(max-width:390px){
+  body.role-student #student #studentContent:has(> .si-student-game-cue)
+    :is(.cc-device-status,.cc-hand-heading,.dm-hand-head,
+        .fil-student-status,.ss-student-status){
+    min-width:0!important;
+    max-width:100%!important;
+    overflow-wrap:anywhere!important;
+  }
+}
+/* Projectors can display arbitrary teacher-written prompts. Do not allow an
+   unbroken label to widen a 16:9 shared presentation beyond its viewport. */
+body.role-shared #sharedContent :is(
+  .fil-public,.cc-presentation,.million-4j-stage,.ss-public,.dm-public,
+  .ma-public,.crew-survey-public
+) :is(h1,h2,h3){
+  min-width:0;
+  max-width:100%;
+  overflow-wrap:anywhere;
+}
