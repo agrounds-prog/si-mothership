@@ -1046,3 +1046,56 @@ body:not(.role-student):not(.role-shared) #activitiesPanel #activityGrid :is(
  outline:3px solid #ffe0a3;
  outline-offset:2px;
 }
+
+
+/* Phase 4V · teacher command-deck clarity under long classroom names.
+   Presentation only: keeps native action forwarding, states and lobby intact. */
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-deck{
+  overflow-wrap:break-word;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel :is(
+ .si-utc-title,.si-utc-turn-copy,.si-utc-score,.si-utc-rows,.si-utc-row
+){
+  min-width:0;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel :is(
+ .si-utc-title strong,.si-utc-turn-copy strong,
+ .si-utc-score small,.si-utc-score b,
+ .si-utc-status,.si-utc-caption,.si-utc-step-note,.si-utc-complete-note
+){
+  overflow-wrap:anywhere;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-score-strip{
+  min-width:0;max-width:100%;
+  overflow-x:auto;
+  overscroll-behavior-x:contain;
+  scrollbar-width:thin;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-button{
+  overflow-wrap:anywhere;
+}
+body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-button:focus-visible{
+  outline:3px solid #ffe6a2;
+  outline-offset:3px;
+}
+@container si-teacher-dock (max-width:500px){
+  body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-head{
+    grid-template-columns:40px minmax(0,1fr);
+    gap:9px;
+  }
+  body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-emblem{
+    width:40px;height:40px;font-size:23px;
+  }
+  body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-head .si-utc-status{
+    grid-column:1/-1;
+    width:100%;max-width:100%;
+    text-align:left;
+  }
+}
+/* Compact view keeps score cards swipeable rather than squeezing names into
+   unreadable 60px chips; the current turn remains on its own row. */
+@media(max-width:650px){
+ body:not(.role-student):not(.role-shared) #activityControllerPanel .si-utc-button{
+  min-height:48px;
+ }
+}
