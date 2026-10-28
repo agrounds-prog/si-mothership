@@ -84,7 +84,13 @@ const TYPES=[
    await teacher.waitForFunction(()=>state.screen==="activities",null,{timeout:9000});
    const card=teacher.locator('#activitiesPanel .activity-catalog-grid .real-app-card')
     .filter({has:teacher.locator("h3",{hasText:type.name})});
-   await card.locator("[data-open-app]").first().click();
+   if(await card.locator("[data-open-app]").count()){
+     await card.locator("[data-open-app]").first().click();
+   }else{
+     // Cosmic Cards is surfaced by a special activity tile, not the
+     // generic catalog-card selector. Enter its native setup renderer.
+     await teacher.evaluate(app=>{state.screen="activities";state.activeApp=app;render()},type.app);
+   }
    await teacher.waitForFunction(app=>state.activeApp===app,type.app,{timeout:9000});
   }
   const results=[];
