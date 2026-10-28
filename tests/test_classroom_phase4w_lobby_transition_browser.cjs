@@ -38,10 +38,10 @@ const NAME="Phase 4W Pilot",DECK="phase4w-classroom-transition";
    {waitUntil:"domcontentloaded",timeout:40000});
   await shared.waitForFunction(()=>networkHydrated===true,null,{timeout:18000});
   await teacher.waitForFunction(name=>state.students.some(s=>s.n===name),NAME,{timeout:13000});
-  const baseline=await teacher.evaluate(()=>({
-    members:state.students.filter(s=>s.n===NAME).length,
+  const baseline=await teacher.evaluate(name=>({
+    members:state.students.filter(s=>s.n===name).length,
     session:STUDENT_SESSION_ID
-  }));
+  }),NAME);
   assert.equal(baseline.members,1);
 
   // Teacher starts an actual native multiplayer game from Activity Library.
@@ -148,10 +148,10 @@ const NAME="Phase 4W Pilot",DECK="phase4w-classroom-transition";
   assert.equal(await teacher.evaluate(()=>SIPlusActivityBreak.parked),false);
   assert.equal(await shared.evaluate(()=>state.activityRun?.slideIndex),1);
   assert.equal(await shared.locator("#sharedContent .presentation-public").count()>0,true);
-  const identity=await teacher.evaluate(()=>({
-    members:state.students.filter(s=>s.n===NAME).length,
+  const identity=await teacher.evaluate(name=>({
+    members:state.students.filter(s=>s.n===name).length,
     session:STUDENT_SESSION_ID
-  }));
+  }),NAME);
   assert.deepEqual(identity,baseline,"Lobby and SI+ breaks must not duplicate student identities or reset session");
   assert.ok(await student.evaluate(()=>document.documentElement.scrollWidth-innerWidth<=3));
   assert.deepEqual(errors,[]);
