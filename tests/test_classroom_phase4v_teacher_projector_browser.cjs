@@ -37,9 +37,17 @@ const LONG="The-Classroom-Team-With-A-Really-Long-Unbroken-Display-Name-"+
    const data=await teacher.evaluate(({LONG,hostWidth})=>{
     const host=document.getElementById("activityControllerPanel");
     const original={run:state.activityRun,ended:state.ended,
-      html:host.innerHTML,style:host.getAttribute("style")};
+      html:host.innerHTML,style:host.getAttribute("style"),
+      parent:host.parentNode,next:host.nextSibling};
     try{
-     host.style.display="block";host.style.width=hostWidth+"px";
+     // The teacher controller normally lives inside an inactive panel until
+     // a real game starts. Move the SAME node into a visible disposable test
+     // position, then restore its exact parent/contents in finally.
+     document.body.appendChild(host);
+     host.style.setProperty("display","block","important");
+     host.style.setProperty("position","relative","important");
+     host.style.setProperty("visibility","visible","important");
+     host.style.width=hostWidth+"px";
      host.style.maxWidth="none";
      state.ended=false;state.activityRun={
       activityId:"four-in-line-game",phase:"running",
@@ -85,6 +93,7 @@ const LONG="The-Classroom-Team-With-A-Really-Long-Unbroken-Display-Name-"+
      host.innerHTML=original.html;
      if(original.style===null)host.removeAttribute("style");
      else host.setAttribute("style",original.style);
+     original.parent.insertBefore(host,original.next);
     }
    },{LONG,hostWidth});
    assert.ok(data.width>200&&data.width<=data.outerWidth+2,
