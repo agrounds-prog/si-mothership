@@ -34,6 +34,9 @@ const LONG="The-Classroom-Team-With-A-Really-Long-Unbroken-Display-Name-"+
   // from one local test run; original handlers are never clicked.
   for(const [width,hostWidth] of [[1360,780],[900,540],[500,360]]){
    await teacher.setViewportSize({width,height:900});
+   // An actual keyboard input establishes keyboard focus modality before
+   // DOM focus() moves to the first native teacher command.
+   await teacher.keyboard.press("Tab");
    const data=await teacher.evaluate(({LONG,hostWidth})=>{
     const host=document.getElementById("activityControllerPanel");
     const original={run:state.activityRun,ended:state.ended,
@@ -107,7 +110,8 @@ const LONG="The-Classroom-Team-With-A-Really-Long-Unbroken-Display-Name-"+
    assert.ok(data.scoreScrollable&&data.scoreFits,
      "Score strip remains independently scrollable inside the dock");
    assert.ok(data.focus>=3&&data.buttons.every(x=>x.height>=44),
-     "Teacher retains large buttons with visible keyboard focus");
+     "Teacher retains large buttons with visible keyboard focus: "+
+      JSON.stringify({width,data}));
    if(hostWidth<=500)assert.equal(data.headerColumns,2,
      "Compact toolbar separates long status from game name");
    assert.equal(data.text,LONG);
