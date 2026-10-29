@@ -1,4 +1,4 @@
-/* Phase 4Z — isolated Chromium regression for a true edge-to-edge projector.
+/* Phase 5A — isolated Chromium regression for cinematic full-width projector.
  * All tests run against an ephemeral localhost server; never production /data. */
 const assert=require("node:assert/strict");
 const {chromium}=require("playwright");
@@ -50,21 +50,53 @@ if(!/^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/.test(BASE))
    {waitUntil:"domcontentloaded",timeout:40000});
   await projector.waitForFunction(()=>networkHydrated===true&&
     !!document.getElementById("sharedContent"),null,{timeout:18000});
-  console.log("PHASE5A_LOBBY_DOM",await projector.evaluate(()=>{
-    const r=document.getElementById("sharedContent");
-    const s=getComputedStyle(r);
-    return {html:r.innerHTML.slice(0,9000),cls:r.className,css:{display:s.display,justify:s.justifyContent,align:s.alignItems,padding:s.padding},bodyClass:document.body.className}
-  }));
+  async function checkCinematicScene(kind){
+   for(const [width,height] of sizes){
+    await projector.setViewportSize({width,height});
+    const x=await projector.evaluate(kind=>{
+     const stage=document.getElementById("sharedContent");
+     const panel=kind==="lobby"?stage.querySelector(":scope > .join-lobby"):
+       stage.querySelector(":scope > div:has(> .eyebrow)");
+     const title=panel?.querySelector("h3");
+     const b=panel?.getBoundingClientRect();
+     const background=getComputedStyle(stage).backgroundImage;
+     return {panel:!!panel,title:title?.textContent,
+       width:innerWidth,height:innerHeight,
+       left:b?.left,right:b?.right,top:b?.top,bottom:b?.bottom,
+       panelWidth:b?.width,panelHeight:b?.height,
+       backdrop:background,rounded:parseFloat(getComputedStyle(panel).borderTopLeftRadius),
+       overflow:document.documentElement.scrollWidth-innerWidth,
+       joinLinks:stage.querySelectorAll(".join-qr-link[href],.join-url a[href]").length,
+       qr:stage.querySelector(".join-qr")?.getBoundingClientRect().width||0,
+       standbyHeading:kind!=="lobby"?getComputedStyle(title).fontSize:null,
+       ornaments:kind!=="lobby"?getComputedStyle(panel,"::before").content:null};
+    },kind);
+    console.log("PHASE 5A "+kind+" "+width+"x"+height,JSON.stringify(x));
+    assert.ok(x.panel,"Cinematic "+kind+" surface exists");
+    assert.ok(x.backdrop.includes("gradient"),"Projector has cinematic background");
+    assert.ok(x.left>=-2&&x.right<=width+2,
+     kind+" remains within horizontal projector bounds: "+JSON.stringify(x));
+    assert.ok(x.top>=-2&&x.bottom<=height+2,
+     kind+" remains within vertical projector bounds: "+JSON.stringify(x));
+    assert.ok(x.rounded>=18,"Stage gets a distinct softened mission panel");
+    assert.ok(x.overflow<=3,"No horizontal scroll in "+kind);
+    if(kind==="lobby"){
+      assert.equal(x.joinLinks,2,"Join QR and student link remain functional");
+      assert.ok(x.qr>=145,"QR remains readable at "+width);
+    }else{
+      assert.match(x.title,/ACTIVITIES/);
+      assert.ok(parseFloat(x.standbyHeading)>=52,"Cinematic transition title stays visible");
+      assert.notEqual(x.ornaments,"none","Mission ornament is rendered");
+    }
+   }
+  }
+  await checkCinematicScene("lobby");
   await checkFullStage("lobby");
   // Real teacher Activity Library command: projector must stay edge-to-edge.
   await teacher.locator('#teacherControlBar [data-control="activities"]').click();
   await teacher.waitForFunction(()=>state.screen==="activities",null,{timeout:10000});
   await projector.waitForFunction(()=>state.screen==="activities",null,{timeout:13000});
-  console.log("PHASE5A_ACTIVITIES_DOM",await projector.evaluate(()=>{
-    const r=document.getElementById("sharedContent");
-    const s=getComputedStyle(r);
-    return {html:r.innerHTML.slice(0,9000),cls:r.className,css:{display:s.display,justify:s.justifyContent,align:s.alignItems,padding:s.padding},bodyClass:document.body.className}
-  }));
+  await checkCinematicScene("activities");
   await checkFullStage("activities");
   // Native rendering of a public game. No private controls or live classroom
   // mutations; the full stage must also work for game/board content.
@@ -75,7 +107,38 @@ if(!/^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/.test(BASE))
   assert.equal(await projector.locator("#sharedContent .fil-cell").count(),42);
   assert.equal(await projector.locator("#sharedContent [data-fil-drop]").count(),0);
   await checkFullStage("four-in-line");
+  // Exact SI+ media markup must not inherit standby cards, title layout
+  // or the QR treatment. This is a synthetic public slide, not a live lesson.
+  await projector.evaluate(()=>{
+    const root=document.getElementById("sharedContent");
+    root.innerHTML='<div class="si-plus-slide-stage"><div class="presentation-public">'+
+      '<div class="presentation-media-stack"><img alt="Sample slide" width="640" height="360"></div>'+
+      '</div></div>';
+  });
+  await projector.setViewportSize({width:1280,height:720});
+  const slide=await projector.evaluate(()=>{
+    const stage=document.getElementById("sharedContent"),card=stage.querySelector(".si-plus-slide-stage");
+    return {width:stage.getBoundingClientRect().width,
+      standbyCard:!!stage.querySelector(":scope > div:has(> .eyebrow)"),
+      stylesheet: getComputedStyle(stage).backgroundImage,
+      slide:!!card,
+      sideHud:getComputedStyle(document.querySelector("#shared .mirror-top")).display};
+  });
+  assert.equal(slide.standbyCard,false,"SI+ never becomes a standby card");
+  assert.equal(slide.slide,true);
+  assert.equal(slide.sideHud,"none");
+  assert.ok(slide.width>=1279,"SI+ keeps full projector width");
+  await projector.emulateMedia({reducedMotion:"reduce"});
+  await projector.evaluate(()=>{
+    document.getElementById("sharedContent").innerHTML=
+      '<div><span class="eyebrow">CLASSROOM LIVE</span><h3>ACTIVITIES</h3></div>';
+  });
+  const reduced=await projector.evaluate(()=>{
+    const card=document.querySelector("#sharedContent > div:has(> .eyebrow)");
+    return card?getComputedStyle(card).animationName:null;
+  });
+  assert.equal(reduced,"none","Reduced-motion projector users see no entrance animation");
   assert.deepEqual(errors,[],"No browser exceptions");
-  console.log("PHASE 4Z FULL-WIDTH PROJECTOR LAYOUT PASSED");
+  console.log("PHASE 5A SHARED PROJECTOR CINEMATIC EXPERIENCE PASSED");
  }finally{await projectorCtx.close();await teacherCtx.close();await browser.close()}
 })().catch(e=>{console.error(e);process.exit(1)});
