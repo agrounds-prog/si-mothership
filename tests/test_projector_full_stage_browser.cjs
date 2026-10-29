@@ -50,11 +50,21 @@ if(!/^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/.test(BASE))
    {waitUntil:"domcontentloaded",timeout:40000});
   await projector.waitForFunction(()=>networkHydrated===true&&
     !!document.getElementById("sharedContent"),null,{timeout:18000});
+  console.log("PHASE5A_LOBBY_DOM",await projector.evaluate(()=>{
+    const r=document.getElementById("sharedContent");
+    const s=getComputedStyle(r);
+    return {html:r.innerHTML.slice(0,9000),cls:r.className,css:{display:s.display,justify:s.justifyContent,align:s.alignItems,padding:s.padding},bodyClass:document.body.className}
+  }));
   await checkFullStage("lobby");
   // Real teacher Activity Library command: projector must stay edge-to-edge.
   await teacher.locator('#teacherControlBar [data-control="activities"]').click();
   await teacher.waitForFunction(()=>state.screen==="activities",null,{timeout:10000});
   await projector.waitForFunction(()=>state.screen==="activities",null,{timeout:13000});
+  console.log("PHASE5A_ACTIVITIES_DOM",await projector.evaluate(()=>{
+    const r=document.getElementById("sharedContent");
+    const s=getComputedStyle(r);
+    return {html:r.innerHTML.slice(0,9000),cls:r.className,css:{display:s.display,justify:s.justifyContent,align:s.alignItems,padding:s.padding},bodyClass:document.body.className}
+  }));
   await checkFullStage("activities");
   // Native rendering of a public game. No private controls or live classroom
   // mutations; the full stage must also work for game/board content.
