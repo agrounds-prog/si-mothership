@@ -124,18 +124,20 @@ if(!/^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/.test(BASE))
       runToken:"phase5a2-local-projector-fixture",fourInLine:g};
     document.getElementById("sharedContent").innerHTML=FourLine.publicHTML(g,true);
   });
-  await projector.locator(".si-cinema-launch").waitFor({state:"attached",timeout:5000});
+  await projector.locator(".si-cinema-launch--branded").waitFor({state:"attached",timeout:5000});
   const warp=await projector.evaluate(()=>{
     const el=document.querySelector(".si-cinema-launch");
     return {pointerEvents:getComputedStyle(el).pointerEvents,
       ariaHidden:el.getAttribute("aria-hidden"),
-      title:el.textContent.trim(),
+      title:el.querySelector(".si-cinema-launch-game-title")?.textContent,
+      game:el.dataset.game,
       animation:getComputedStyle(el).animationName};
   });
   assert.equal(warp.pointerEvents,"none","Launch overlay cannot intercept classroom controls");
   assert.equal(warp.ariaHidden,"true","Decorative transition stays out of screen readers");
-  assert.match(warp.title,/MISSION LAUNCH/);
-  assert.match(warp.animation,/si5a2-launch-out/);
+  assert.equal(warp.game,"four");
+  assert.equal(warp.title,"FOUR IN LINE");
+  assert.match(warp.animation,/si5a3-branded-exit/);
   await projector.locator(".si-cinema-launch").waitFor({state:"detached",timeout:5000});
   assert.equal(await projector.locator(".si-cinema-launch").count(),0,
     "Brief launch overlay cleans itself up, leaving the actual public game");
@@ -148,7 +150,11 @@ if(!/^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/.test(BASE))
     {id:"bingo-game",key:"bingo",title:"BINGO"},
     {id:"million-game",key:"million",title:"MILLION"},
     {id:"match-game",key:"match",title:"MATCH"},
-    {id:"pixel-game",key:"pixel",title:"PIXEL REVEAL"}
+    {id:"pixel-game",key:"pixel",title:"PIXEL REVEAL"},
+    {id:"orbit-game",key:"orbit",title:"ORBIT"},
+    {id:"cosmic-cards-game",key:"cosmic",title:"COSMIC CARDS"},
+    {id:"dominoes-game",key:"dominoes",title:"DOMINOES"},
+    {id:"four-in-line-game",key:"four",title:"FOUR IN LINE"}
   ]){
     await projector.setViewportSize({width:1280,height:720});
     await projector.evaluate(()=>{
@@ -190,6 +196,25 @@ if(!/^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/.test(BASE))
     assert.equal(report.width,1280);
     assert.equal(report.height,720);
     assert.deepEqual(report.run,{activityId:game.id,runToken:token,phase:"running"});
+    if(["orbit","cosmic","dominoes","four"].includes(game.key)){
+      const visual=await projector.evaluate(()=>{
+        const el=document.querySelector(".si-cinema-launch--branded");
+        const ring=el.querySelector(".si-cinema-launch-ring");
+        const label=el.querySelector(".si-cinema-launch-game-title");
+        const bounds=label.getBoundingClientRect();
+        return {accent:getComputedStyle(el).getPropertyValue("--si-cinema-accent").trim(),
+          background:getComputedStyle(el).backgroundImage,
+          ring:getComputedStyle(ring).animationName,
+          headingWidth:bounds.width,headingLeft:bounds.left,headingRight:bounds.right,
+          overflow:document.documentElement.scrollWidth-innerWidth};
+      });
+      assert.match(visual.accent,/^#[0-9a-f]{6}$/i,"Each game has its own accent");
+      assert.ok(visual.background.includes("gradient"),"Game launch has a cinematic backdrop");
+      assert.ok(visual.headingWidth>80 && visual.headingLeft>=-2 &&
+        visual.headingRight<=1282,"Launch title must fit the full-width projector");
+      assert.ok(visual.overflow<=3,"Game launch must not scroll horizontally");
+      if(game.key==="orbit")assert.match(visual.ring,/si5a4-planetary-orbit/);
+    }
     assert.match(report.native,/NATIVE GAME CONTENT/);
     await target.waitFor({state:"detached",timeout:5000});
     // Routine teacher actions and projector redraws cannot replay a launch.
@@ -270,6 +295,22 @@ if(!/^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/.test(BASE))
     "Reduced motion must bypass the BINGO title effect");
   assert.match(await projector.locator("#sharedContent").textContent(),/REDUCED MOTION BINGO/);
   await projector.evaluate(()=>{
+    state.activityRun=null;
+    document.getElementById("sharedContent").innerHTML=
+      '<div><span class="eyebrow">CLASSROOM LIVE</span><h3>ACTIVITIES</h3></div>';
+  });
+  await projector.waitForFunction(()=>window.__siActivityCinema.stageKind()==="activities",
+    null,{timeout:5000});
+  await projector.evaluate(()=>{
+    state.activityRun={activityId:"orbit-game",phase:"running",runToken:"phase5a4-reduced-orbit"};
+    document.getElementById("sharedContent").innerHTML=
+      '<div class="phase5a4-reduced-game">REDUCED MOTION ORBIT</div>';
+  });
+  await projector.waitForTimeout(130);
+  assert.equal(await projector.locator(".si-cinema-launch").count(),0,
+    "Reduced motion must bypass all new branded intros, including ORBIT");
+  assert.match(await projector.locator("#sharedContent").textContent(),/REDUCED MOTION ORBIT/);
+  await projector.evaluate(()=>{
     const g=FourLine.make(["Blue Crew","Gold Crew"]);
     state.activityRun={activityId:"four-in-line-game",phase:"running",
       runToken:"phase5a2-reduced-fixture",fourInLine:g};
@@ -280,6 +321,6 @@ if(!/^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/.test(BASE))
   assert.equal(await projector.locator("#sharedContent .fil-cell").count(),42,
     "Reduced motion never replaces game content");
   assert.deepEqual(errors,[],"No browser exceptions");
-  console.log("PHASE 5A-3 BRANDED GAME TITLES, RECONNECT-SAFE LAUNCHES, REDUCED MOTION PASSED");
+  console.log("PHASE 5A-4 EIGHT BRANDED LAUNCHES, TURN AND RECONNECT SAFETY PASSED");
  }finally{await projectorCtx.close();await teacherCtx.close();await browser.close()}
 })().catch(e=>{console.error(e);process.exit(1)});
