@@ -98,12 +98,47 @@ if(!/^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/.test(BASE))
   await projector.waitForFunction(()=>state.screen==="activities",null,{timeout:13000});
   await checkCinematicScene("activities");
   await checkFullStage("activities");
+  await projector.waitForFunction(()=>window.__siActivityCinema &&
+    !!document.querySelector("#sharedContent .si-cinema-hud"),null,{timeout:7000});
+  const animated=await projector.evaluate(()=>{
+    const card=document.querySelector("#sharedContent .si-cinema-activities"),
+      hud=card?.querySelector(".si-cinema-hud"),
+      orbit=card?.querySelector(".si-cinema-orbit");
+    return {installed:window.__siActivityCinemaInstalled,scene:window.__siActivityCinema.stageKind(),
+      statusCount:hud?.children.length,orbit:!!orbit,
+      spin:getComputedStyle(orbit,"::before").animationName,
+      nativeTitle:card?.querySelector("h3")?.textContent,
+      teacherScoped:document.querySelector("#teacher")?.querySelector(".si-cinema-activities")?.length||0};
+  });
+  assert.deepEqual({installed:animated.installed,scene:animated.scene,statusCount:animated.statusCount,
+    orbit:animated.orbit,nativeTitle:animated.nativeTitle},
+    {installed:true,scene:"activities",statusCount:3,orbit:true,nativeTitle:"ACTIVITIES"});
+  assert.match(animated.spin,/si5a2-orbit/,"Radar rings rotate in normal-motion mode");
+  assert.equal(await teacher.evaluate(()=>!!window.__siActivityCinemaInstalled),false,
+    "Teacher Mission Control must not install projector decorator");
   // Native rendering of a public game. No private controls or live classroom
   // mutations; the full stage must also work for game/board content.
   await projector.evaluate(()=>{
     const g=FourLine.make(["Blue Crew","Gold Crew"]);
+    state.activityRun={activityId:"four-in-line-game",phase:"running",
+      runToken:"phase5a2-local-projector-fixture",fourInLine:g};
     document.getElementById("sharedContent").innerHTML=FourLine.publicHTML(g,true);
   });
+  await projector.locator(".si-cinema-launch").waitFor({state:"attached",timeout:5000});
+  const warp=await projector.evaluate(()=>{
+    const el=document.querySelector(".si-cinema-launch");
+    return {pointerEvents:getComputedStyle(el).pointerEvents,
+      ariaHidden:el.getAttribute("aria-hidden"),
+      title:el.textContent.trim(),
+      animation:getComputedStyle(el).animationName};
+  });
+  assert.equal(warp.pointerEvents,"none","Launch overlay cannot intercept classroom controls");
+  assert.equal(warp.ariaHidden,"true","Decorative transition stays out of screen readers");
+  assert.match(warp.title,/MISSION LAUNCH/);
+  assert.match(warp.animation,/si5a2-launch-out/);
+  await projector.locator(".si-cinema-launch").waitFor({state:"detached",timeout:5000});
+  assert.equal(await projector.locator(".si-cinema-launch").count(),0,
+    "Brief launch overlay cleans itself up, leaving the actual public game");
   assert.equal(await projector.locator("#sharedContent .fil-cell").count(),42);
   assert.equal(await projector.locator("#sharedContent [data-fil-drop]").count(),0);
   await checkFullStage("four-in-line");
@@ -138,7 +173,28 @@ if(!/^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/.test(BASE))
     return card?getComputedStyle(card).animationName:null;
   });
   assert.equal(reduced,"none","Reduced-motion projector users see no entrance animation");
+  const reducedCard=await projector.evaluate(()=>{
+    const hud=document.querySelector("#sharedContent .si-cinema-hud");
+    const orbit=document.querySelector("#sharedContent .si-cinema-orbit");
+    return {hud:!!hud,orbit:!!orbit,
+      spin:orbit?getComputedStyle(orbit,"::before").animationName:null,
+      pulse:hud?getComputedStyle(hud.querySelector("i")).animationName:null};
+  });
+  assert.equal(reducedCard.hud,true);
+  assert.equal(reducedCard.orbit,true);
+  assert.equal(reducedCard.spin,"none","Reduced-motion disables orbital spinning");
+  assert.equal(reducedCard.pulse,"none","Reduced-motion disables status pulsing");
+  await projector.evaluate(()=>{
+    const g=FourLine.make(["Blue Crew","Gold Crew"]);
+    state.activityRun={activityId:"four-in-line-game",phase:"running",
+      runToken:"phase5a2-reduced-fixture",fourInLine:g};
+    document.getElementById("sharedContent").innerHTML=FourLine.publicHTML(g,true);
+  });
+  assert.equal(await projector.locator(".si-cinema-launch").count(),0,
+    "Reduced-motion preference prevents launch flash");
+  assert.equal(await projector.locator("#sharedContent .fil-cell").count(),42,
+    "Reduced motion never replaces game content");
   assert.deepEqual(errors,[],"No browser exceptions");
-  console.log("PHASE 5A SHARED PROJECTOR CINEMATIC EXPERIENCE PASSED");
+  console.log("PHASE 5A-2 ANIMATED PROJECTOR ACTIVITIES AND SAFE GAME LAUNCH PASSED");
  }finally{await projectorCtx.close();await teacherCtx.close();await browser.close()}
 })().catch(e=>{console.error(e);process.exit(1)});
