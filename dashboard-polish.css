@@ -2435,3 +2435,145 @@ body.role-shared #shared .si-cinema-launch-title{
   }
   body.role-shared #shared .si-cinema-launch{display:none!important}
 }
+
+
+/* Phase 5A-3 · four distinctive cinematic game title cards. The projector
+   overlay never participates in layout, game inputs or synchronized state. */
+body.role-shared #shared .si-cinema-launch--branded{
+  --si-cinema-accent:#79e2ff;
+  --si-cinema-glow:#2c9dc577;
+  --si-cinema-bright:#e9faff;
+  box-sizing:border-box;
+  gap:clamp(8px,1.6vh,18px);
+  padding:clamp(24px,5vw,70px);
+  background:
+    radial-gradient(ellipse at 50% 48%,var(--si-cinema-glow) 0%,transparent 48%),
+    radial-gradient(ellipse at 50% 10%,#235c8265,transparent 65%),
+    linear-gradient(150deg,#06192ae8,#061221ef 80%);
+  animation:si5a3-branded-exit 1.4s ease-in-out both;
+}
+body.role-shared #shared .si-cinema-launch--branded[data-game="bingo"]{
+  --si-cinema-accent:#6cf4cd;--si-cinema-glow:#219c8277;
+  --si-cinema-bright:#e6fff5;
+}
+body.role-shared #shared .si-cinema-launch--branded[data-game="million"]{
+  --si-cinema-accent:#f8d673;--si-cinema-glow:#ad762a7a;
+  --si-cinema-bright:#fff8db;
+}
+body.role-shared #shared .si-cinema-launch--branded[data-game="match"]{
+  --si-cinema-accent:#c4aeff;--si-cinema-glow:#6c56c179;
+  --si-cinema-bright:#f1ebff;
+}
+body.role-shared #shared .si-cinema-launch--branded[data-game="pixel"]{
+  --si-cinema-accent:#76e3ff;--si-cinema-glow:#227ba876;
+  --si-cinema-bright:#e0f8ff;
+}
+body.role-shared #shared .si-cinema-launch--branded .si-cinema-launch-ring{
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:clamp(230px,29vw,430px);
+  height:clamp(230px,29vw,430px);
+  border:2px solid var(--si-cinema-accent);
+  border-left-color:transparent;
+  border-right-color:transparent;
+  box-shadow:0 0 0 38px #80d8fa09,
+    0 0 0 88px #80d8fa06,
+    inset 0 0 60px var(--si-cinema-glow),
+    0 0 48px var(--si-cinema-glow);
+  opacity:.43;
+  transform:translate(-50%,-50%);
+  animation:si5a3-rotate-ring 2.1s linear infinite;
+}
+body.role-shared #shared .si-cinema-launch--branded .si-cinema-launch-kicker,
+body.role-shared #shared .si-cinema-launch--branded .si-cinema-launch-icon,
+body.role-shared #shared .si-cinema-launch--branded .si-cinema-launch-game-title,
+body.role-shared #shared .si-cinema-launch--branded .si-cinema-launch-subtitle{
+  z-index:2;
+  position:relative;
+  justify-self:center;
+  max-width:min(95vw,1100px);
+  overflow-wrap:anywhere;
+}
+body.role-shared #shared .si-cinema-launch--branded .si-cinema-launch-kicker{
+  border:1px solid color-mix(in srgb,var(--si-cinema-accent) 55%,transparent);
+  border-radius:999px;
+  background:#061c2aab;
+  padding:9px 18px;
+  color:var(--si-cinema-accent);
+  font-size:clamp(10px,1vw,15px);
+  font-weight:900;
+  letter-spacing:.24em;
+}
+body.role-shared #shared .si-cinema-launch--branded .si-cinema-launch-icon{
+  display:grid;
+  place-items:center;
+  width:clamp(60px,7.4vw,110px);
+  height:clamp(60px,7.4vw,110px);
+  border-radius:25%;
+  border:2px solid var(--si-cinema-accent);
+  background:
+    radial-gradient(circle at 40% 20%,var(--si-cinema-glow),transparent 75%),
+    linear-gradient(150deg,#102c40f2,#071725eb);
+  color:var(--si-cinema-accent);
+  box-shadow:inset 0 2px #ffffff24,0 0 45px var(--si-cinema-glow);
+  transform:rotate(-6deg);
+}
+body.role-shared #shared .si-cinema-launch--branded .si-cinema-launch-icon svg{
+  width:68%;
+  height:68%;
+  filter:drop-shadow(0 0 8px var(--si-cinema-glow));
+}
+body.role-shared #shared .si-cinema-launch--branded .si-cinema-launch-game-title{
+  display:block;
+  margin:0;
+  font-size:clamp(58px,9vw,144px);
+  font-weight:950;
+  letter-spacing:-.058em;
+  line-height:.97;
+  color:var(--si-cinema-bright);
+  text-shadow:0 5px 0 #0d2435,0 0 60px var(--si-cinema-glow),0 14px 40px #000a;
+}
+body.role-shared #shared .si-cinema-launch--branded .si-cinema-launch-subtitle{
+  font-size:clamp(11px,1.2vw,20px);
+  font-weight:850;
+  letter-spacing:clamp(.06em,.17vw,.22em);
+  line-height:1.4;
+  color:var(--si-cinema-accent);
+}
+@keyframes si5a3-rotate-ring{
+  to{transform:translate(-50%,-50%) rotate(360deg)}
+}
+@keyframes si5a3-branded-exit{
+  0%{opacity:0;clip-path:circle(4% at center)}
+  17%{opacity:1;clip-path:circle(80% at center)}
+  36%,57%{opacity:1;clip-path:circle(145% at center)}
+  100%{opacity:0;clip-path:circle(145% at center)}
+}
+@media(max-width:850px),(max-height:650px){
+  body.role-shared #shared .si-cinema-launch--branded{
+    gap:clamp(5px,1.1vh,10px);
+    padding:16px;
+  }
+  body.role-shared #shared .si-cinema-launch--branded .si-cinema-launch-icon{
+    width:clamp(50px,9vh,78px);
+    height:clamp(50px,9vh,78px);
+    border-radius:23%;
+  }
+  body.role-shared #shared .si-cinema-launch--branded .si-cinema-launch-game-title{
+    font-size:clamp(42px,8.6vw,100px);
+  }
+  body.role-shared #shared .si-cinema-launch--branded .si-cinema-launch-kicker{
+    font-size:10px;padding:6px 12px;
+  }
+  body.role-shared #shared .si-cinema-launch--branded .si-cinema-launch-ring{
+    width:clamp(150px,23vw,250px);height:clamp(150px,23vw,250px);
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  body.role-shared #shared .si-cinema-launch--branded,
+  body.role-shared #shared .si-cinema-launch--branded *{
+    animation:none!important;transition:none!important;
+  }
+  body.role-shared #shared .si-cinema-launch--branded{display:none!important}
+}
