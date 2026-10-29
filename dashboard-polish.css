@@ -2755,3 +2755,51 @@ body.role-shared #shared #sharedContent .bingo-public :is(.bingo-now-calling,.bi
 @media(prefers-reduced-motion:reduce){
  body.role-shared #shared #sharedContent > .join-lobby{animation:none!important}
 }
+
+
+/* Phase 5B-1: compact branded planet insignia and classroom-safe viewport fit.
+   No generated bitmap is used for the QR: it stays live and scannable. */
+body.role-shared #shared #sharedContent > .join-lobby::before{
+  content:"";
+  width:clamp(44px,5vw,64px);height:clamp(44px,5vw,64px);
+  top:clamp(-32px,-3.7vh,-22px);
+  border:2px solid #81ebff;border-radius:50%;
+  background:
+    linear-gradient(0deg,transparent 39%,#d7fbff 40% 46%,transparent 47% 54%,#e0faff 55% 60%,transparent 61%),
+    radial-gradient(circle at 33% 26%,#edfdff,#80dfff 30%,#3963ad 70%,#1c2351);
+  box-shadow:0 0 0 7px #13bfff1c,0 0 30px #55d9ff89,inset 0 0 9px #f6ffff8c;
+}
+body.role-shared #shared #sharedContent > .join-lobby::after{
+  content:"";
+  position:absolute;pointer-events:none;
+  left:50%;top:clamp(-12px,-1.1vh,-6px);
+  width:clamp(70px,8vw,100px);height:clamp(15px,2vh,22px);
+  transform:translateX(-50%) rotate(-12deg);
+  border-top:3px solid #a4f6ff;border-bottom:2px solid #36bfff;
+  border-radius:50%;filter:drop-shadow(0 0 7px #52ddff);
+}
+body.role-shared #shared #sharedContent > .join-lobby .join-code-big{
+  max-width:100%;overflow-wrap:anywhere;
+}
+body.role-shared #shared #sharedContent > .join-lobby .join-qr-link:focus-visible{
+  outline:3px solid #ffffff;outline-offset:6px;
+}
+@media(max-height:760px) and (min-width:801px){
+ body.role-shared #shared #sharedContent > .join-lobby{
+  padding:clamp(14px,2.3vw,30px);
+  row-gap:clamp(4px,1vh,11px);
+  max-height:calc(100dvh - 24px);
+ }
+ body.role-shared #shared #sharedContent .join-lobby .join-qr{
+  width:clamp(145px,22vh,220px)!important;
+ }
+ body.role-shared #shared #sharedContent .join-lobby > h3{
+  font-size:clamp(25px,3vw,42px)!important;
+ }
+ body.role-shared #shared #sharedContent .join-lobby > .join-code-big{
+  font-size:clamp(40px,5.2vh,60px)!important;
+ }
+}
+@media(max-width:850px),(max-height:650px){
+ body.role-shared #shared #sharedContent > .join-lobby::after{display:none}
+}
