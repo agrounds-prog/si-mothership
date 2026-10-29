@@ -78,8 +78,12 @@ class QuickPollSmoke(unittest.IsolatedAsyncioTestCase):
         html = await page.text()
         loader = f'<script src="/quick-poll.js?v={app.QUICK_POLL_ASSET_VERSION}" defer></script>'
         self.assertEqual(html.count(loader), 1)
-        dashboard_loader = '<script src="/dashboard-polish.js?v=80" defer></script>'
-        self.assertEqual(html.count(dashboard_loader), 1)
+        # Dashboard asset versions change with visual releases; preserve one
+        # loader and the required script order without pinning a stale version.
+        dashboard_loaders = __import__("re").findall(
+            r'<script src="/dashboard-polish\\.js\\?v=[A-Za-z0-9._-]+" defer></script>', html)
+        self.assertEqual(len(dashboard_loaders), 1)
+        dashboard_loader = dashboard_loaders[0]
         self.assertEqual(html.rfind(loader) + len(loader), html.rfind(dashboard_loader),
                          "Dashboard script must follow Quick Poll without entering inline JS")
         studio_loader = '<script src="/million-studio.js?v=1" defer></script>'
