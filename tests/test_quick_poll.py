@@ -101,7 +101,10 @@ class QuickPollSmoke(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(html.rfind(si_plus_loader) + len(si_plus_loader), html.rfind("</body>"),
                          "Last external script must precede the final body tag")
         self.assertIn(f'<link rel="stylesheet" href="/quick-poll.css?v={app.QUICK_POLL_ASSET_VERSION}">', html)
-        self.assertIn('<link rel="stylesheet" href="/dashboard-polish.css?v=80">', html)
+        # Dashboard polish is deliberately cache-busted for projector artwork;
+        # only the filename and a safe single versioned stylesheet are required.
+        self.assertRegex(html, r'<link rel="stylesheet" href="/dashboard-polish\\.css\\?v=[A-Za-z0-9._-]+">')
+        self.assertEqual(html.count('/dashboard-polish.css?v='), 1)
         self.assertIn('<link rel="stylesheet" href="/million-studio.css?v=1">', html)
         self.assertIn('<link rel="stylesheet" href="/word-grid.css?v=1">', html)
         self.assertIn('<link rel="stylesheet" href="/dominoes.css?v=1">', html)
