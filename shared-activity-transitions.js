@@ -1,6 +1,6 @@
-/* SI Mothership · cinematic projector activity transitions.
- * Purely visual. Never publishes state, modifies a game run or student data,
- * intercepts classroom input, or changes the teacher's lobby workflow. */
+/* SI Mothership · Shared Screen cinematic transitions.
+ * Presentation-only. Never writes game state, touches persistent storage,
+ * intercepts a student's input, or changes the teacher's lobby workflow. */
 (()=>{
 "use strict";
 if(!document.body?.classList.contains("role-shared"))return;
@@ -10,14 +10,28 @@ const root=document.getElementById("sharedContent");
 const shell=document.querySelector("#shared .shared-screen");
 if(!root||!shell)return;
 const reduced=()=>window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches===true;
-let previous="";
-let overlay=null;
-const animationHTML='<div class="si-cinema-orbit" aria-hidden="true"><span></span></div>'+
+const gameTitles=Object.freeze({
+ "bingo-game":{key:"bingo",title:"BINGO",subtitle:"WATCH · LISTEN · MARK YOUR CARD",kicker:"CLASSROOM CHALLENGE"},
+ "million-game":{key:"million",title:"MILLION",subtitle:"THE NEXT QUESTION AWAITS",kicker:"THE GRAND CHALLENGE"},
+ "match-game":{key:"match",title:"MATCH",subtitle:"FIND THE CONNECTION",kicker:"MEMORY MISSION"},
+ "pixel-game":{key:"pixel",title:"PIXEL REVEAL",subtitle:"UNCOVER THE UNKNOWN",kicker:"IMAGE DISCOVERY"}
+});
+const icons=Object.freeze({
+ bingo:'<rect x="10" y="10" width="11" height="11" rx="2"/><rect x="27" y="10" width="11" height="11" rx="2"/><rect x="10" y="27" width="11" height="11" rx="2"/><path d="m29 32 4 4 7-10"/>',
+ million:'<path d="M24 4 32 16 44 24 32 32 24 44 16 32 4 24 16 16Z"/><path d="M24 15v18M17 21h14M17 29h14"/>',
+ match:'<rect x="5" y="10" width="18" height="23" rx="4"/><rect x="25" y="15" width="18" height="23" rx="4"/><path d="m10 21 5 5 6-9M30 26l4 4 6-9"/>',
+ pixel:'<rect x="5" y="5" width="18" height="18" rx="2"/><rect x="25" y="5" width="18" height="18" rx="2"/><rect x="5" y="25" width="18" height="18" rx="2"/><path d="m28 34 5 5 10-13"/>'
+});
+const decoration='<div class="si-cinema-orbit" aria-hidden="true"><span></span></div>'+
  '<div class="si-cinema-hud" aria-hidden="true">'+
  '<span><i></i> SYSTEMS ONLINE</span>'+
  '<span>CHOOSE YOUR NEXT MISSION</span>'+
  '<span><i></i> READY TO LAUNCH</span>'+
  '</div>';
+let previous="";
+let armed=false;
+let overlay=null;
+const alreadyLaunched=new Set();
 function stageKind(){
  const first=root.firstElementChild;
  if(!first||root.children.length!==1)return "other";
@@ -31,44 +45,66 @@ function stageKind(){
 function removeOverlay(){
  overlay?.remove();overlay=null;
 }
-function launchEffect(){
+function activeRun(){
+ return typeof state==="undefined"?null:state.activityRun;
+}
+function launchEffect(activityId){
  if(reduced())return;
  removeOverlay();
+ const scene=gameTitles[activityId]||null;
  const layer=document.createElement("div");
- layer.className="si-cinema-launch";
+ layer.className="si-cinema-launch"+(scene?" si-cinema-launch--branded":"");
  layer.setAttribute("aria-hidden","true");
- layer.innerHTML='<span class="si-cinema-launch-ring"></span>'+
-   '<span class="si-cinema-launch-title">MISSION LAUNCH</span>';
+ if(scene){
+   layer.dataset.game=scene.key;
+   // Only hardcoded app metadata is inserted. No student or teacher text.
+   layer.innerHTML='<span class="si-cinema-launch-ring"></span>'+
+     '<span class="si-cinema-launch-kicker">'+scene.kicker+'</span>'+
+     '<span class="si-cinema-launch-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">'+icons[scene.key]+'</svg></span>'+
+     '<strong class="si-cinema-launch-game-title">'+scene.title+'</strong>'+
+     '<span class="si-cinema-launch-subtitle">'+scene.subtitle+'</span>';
+ }else{
+   layer.innerHTML='<span class="si-cinema-launch-ring"></span>'+
+     '<span class="si-cinema-launch-title">MISSION LAUNCH</span>';
+ }
  layer.addEventListener("animationend",event=>{
-   if(event.target===layer)removeOverlay();
+   if(event.target===layer&&overlay===layer)removeOverlay();
  },{once:true});
  shell.appendChild(layer);
  overlay=layer;
 }
 function sync(){
  const kind=stageKind();
+ const run=activeRun();
  if(kind==="activities"){
+   armed=true;
    const card=root.firstElementChild;
    if(!card.classList.contains("si-cinema-activities")){
      card.classList.add("si-cinema-activities");
-     card.insertAdjacentHTML("beforeend",animationHTML);
+     card.insertAdjacentHTML("beforeend",decoration);
    }else if(!card.querySelector(".si-cinema-hud")){
-     card.insertAdjacentHTML("beforeend",animationHTML);
+     card.insertAdjacentHTML("beforeend",decoration);
    }
  }
- // Launch only when leaving the teacher's Activities standby for a real
- // running activity. A projector reconnect, lobby return or slide repaint
- // must never replay a launch animation.
- if(previous==="activities"&&kind==="other" &&
-    typeof state!=="undefined" &&
-    state.activityRun?.phase==="running" &&
-    !!state.activityRun?.activityId)launchEffect();
+ // The projector must see a local activity-selection scene before a launch.
+ // This prevents a tab opened/reloaded midway through a running game from
+ // replaying a title, and skips ordinary board/slide redraws.
+ if(armed&&kind==="other"&&run?.phase==="running"&&run.activityId){
+   const launchKey=String(run.activityId)+"|"+String(run.runToken||run.startedAt||"");
+   if(!alreadyLaunched.has(launchKey)){
+     launchEffect(run.activityId);
+     alreadyLaunched.add(launchKey);
+     if(alreadyLaunched.size>24)alreadyLaunched.delete(alreadyLaunched.values().next().value);
+   }
+   armed=false;
+ }
  if(kind==="activities"||kind==="lobby")removeOverlay();
+ if(kind==="lobby")armed=false;
  previous=kind;
 }
 const observer=new MutationObserver(sync);
 observer.observe(root,{childList:true});
 sync();
 window.addEventListener("pagehide",()=>{observer.disconnect();removeOverlay()},{once:true});
-window.__siActivityCinema={stageKind,version:"5A-2"};
+window.__siActivityCinema={stageKind,version:"5A-3",gameTitles};
 })();
