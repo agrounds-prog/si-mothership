@@ -1936,3 +1936,279 @@ body.role-shared #shared #sharedContent{
   align-self:stretch!important;
   justify-self:stretch!important;
 }
+
+
+/* Phase 5A — projector-only cinematic standby and classroom join experience.
+ * The server still owns every public slide and activity. This styles only the
+ * lightweight standby heading and the existing QR lobby; no new controls,
+ * classroom state, game internals, or SI+ slide elements are introduced. */
+body.role-shared #shared #sharedContent:has(> div > .eyebrow),
+body.role-shared #shared #sharedContent:has(> .join-lobby){
+  isolation:isolate;
+  overflow:hidden;
+  background:
+    radial-gradient(ellipse at 48% -18%,#24557867 0%,transparent 57%),
+    radial-gradient(ellipse at 9% 75%,#0d55813b 0%,transparent 49%),
+    radial-gradient(ellipse at 96% 70%,#294e8e37 0%,transparent 44%),
+    radial-gradient(circle at 19% 32%,#c0eaff70 1px,transparent 2px),
+    radial-gradient(circle at 79% 68%,#9ddaff64 1px,transparent 2px),
+    linear-gradient(145deg,#091a2c 0%,#040e1a 58%,#0a1a2d 100%)!important;
+  background-size:auto,auto,auto,223px 191px,331px 263px,auto;
+  color:#f2f9ff;
+}
+body.role-shared #shared #sharedContent:has(> div > .eyebrow)::before,
+body.role-shared #shared #sharedContent:has(> .join-lobby)::before{
+  content:"";
+  pointer-events:none;
+  position:absolute;
+  inset:clamp(16px,2.9vw,48px);
+  border:1px solid #6ad7ff26;
+  border-radius:clamp(20px,2.5vw,36px);
+  background:
+    linear-gradient(90deg,#64d9ff99,#64d9ff00) left top/100px 2px no-repeat,
+    linear-gradient(180deg,#64d9ff99,#64d9ff00) left top/2px 100px no-repeat,
+    linear-gradient(270deg,#64d9ff7c,#64d9ff00) right bottom/100px 2px no-repeat,
+    linear-gradient(0deg,#64d9ff7c,#64d9ff00) right bottom/2px 100px no-repeat;
+  opacity:.8;
+  z-index:0;
+}
+body.role-shared #shared #sharedContent:has(> div > .eyebrow)::after{
+  content:"SI MOTHERSHIP  /  MISSION READY";
+  position:absolute;
+  left:50%;
+  bottom:clamp(42px,6.7vh,84px);
+  transform:translateX(-50%);
+  color:#86bad0;
+  font-size:clamp(10px,.86vw,14px);
+  letter-spacing:.3em;
+  font-weight:850;
+  white-space:nowrap;
+  pointer-events:none;
+  z-index:1;
+}
+body.role-shared #shared #sharedContent > div:has(> .eyebrow){
+  box-sizing:border-box;
+  position:relative;
+  z-index:1;
+  width:min(870px,calc(100vw - 110px));
+  min-width:0;
+  min-height:min(510px,67vh);
+  padding:clamp(36px,5.6vw,78px) clamp(26px,6vw,92px);
+  border:1px solid #6ed9ff54;
+  border-radius:clamp(22px,3vw,38px);
+  background:
+    radial-gradient(ellipse at 50% 0%,#235b8560,transparent 65%),
+    linear-gradient(152deg,#142f47df,#091929ed 75%);
+  box-shadow:inset 0 1px #bceeff38,inset 0 -1px #000a,
+    0 18px 80px #0008,0 0 75px #2f94c51a;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  gap:clamp(14px,3vh,30px);
+  animation:si5a-stage-appear .42s ease-out both;
+}
+body.role-shared #shared #sharedContent > div:has(> .eyebrow)::before{
+  content:"";
+  flex:none;
+  width:clamp(76px,8vw,124px);
+  height:clamp(76px,8vw,124px);
+  border:1px solid #76e2ffb2;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at center,#bef9ff 0 8%,#6adcfb 9% 12%,#145474 13% 24%,transparent 25%),
+    radial-gradient(circle,#123e5a99 0 45%,transparent 46%),
+    conic-gradient(from 12deg,#a9f8ff 0 6deg,transparent 6deg 90deg,#56bbeb 90deg 97deg,transparent 97deg 175deg,#64cfef 175deg 180deg,transparent 180deg);
+  box-shadow:0 0 0 12px #2f9ec015,0 0 0 26px #2f9ec00d,
+    inset 0 0 32px #39caff3e,0 0 32px #39caff35;
+}
+body.role-shared #shared #sharedContent > div > .eyebrow{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  font-size:clamp(11px,1vw,15px)!important;
+  font-weight:900!important;
+  letter-spacing:.27em!important;
+  line-height:1.35;
+  color:#9ff2ff!important;
+  border:1px solid #6bd9f359;
+  border-radius:100px;
+  background:#0d3b556b;
+  padding:10px 19px;
+}
+body.role-shared #shared #sharedContent > div > .eyebrow::before{
+  content:"";
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#5ff5d5;
+  box-shadow:0 0 14px #5ff5d5b5;
+}
+body.role-shared #shared #sharedContent > div > h3{
+  margin:0!important;
+  max-width:100%;
+  font-size:clamp(52px,8.1vw,132px)!important;
+  font-weight:950!important;
+  letter-spacing:-.064em!important;
+  line-height:.96!important;
+  overflow-wrap:anywhere;
+  color:#f4faff!important;
+  text-shadow:0 3px 0 #112b47,0 14px 38px #000c,0 0 45px #6fe1ff2e;
+  text-transform:uppercase;
+}
+/* QR lobby is a separate scene; QR, live code and link remain functional. */
+body.role-shared #shared #sharedContent > .join-lobby{
+  box-sizing:border-box;
+  position:relative;
+  z-index:1;
+  display:grid!important;
+  width:min(1120px,calc(100vw - 110px));
+  max-width:100%;
+  min-width:0;
+  grid-template-columns:minmax(0,1.2fr) minmax(210px,.8fr);
+  grid-template-areas:
+    "tag qr"
+    "title qr"
+    "code qr"
+    "url qr"
+    "note qr";
+  align-items:center;
+  column-gap:clamp(20px,4vw,54px);
+  row-gap:clamp(8px,1.8vh,19px);
+  padding:clamp(30px,4.2vw,66px);
+  border:1px solid #74dbff59;
+  border-radius:clamp(22px,3vw,38px);
+  background:
+    radial-gradient(ellipse at 70% 12%,#2b7ca24c,transparent 68%),
+    linear-gradient(153deg,#143148ea,#071a2be9 90%);
+  box-shadow:inset 0 1px #d2f8ff38,0 18px 76px #0008,0 0 60px #399cce1d;
+  animation:si5a-stage-appear .42s ease-out both;
+}
+body.role-shared #shared #sharedContent .join-lobby > .eyebrow{
+  grid-area:tag;
+  justify-self:start;
+  border:1px solid #72dff35a;
+  border-radius:100px;
+  background:#0e435e84;
+  padding:9px 15px;
+  color:#a0edfc!important;
+  font-size:clamp(10px,1vw,13px)!important;
+  font-weight:900;
+  letter-spacing:.22em;
+}
+body.role-shared #shared #sharedContent .join-lobby > h3{
+  grid-area:title;
+  margin:0!important;
+  max-width:100%;
+  color:#f5faff!important;
+  font-size:clamp(28px,3.4vw,59px)!important;
+  font-weight:950;
+  line-height:1.08;
+  letter-spacing:-.035em;
+  overflow-wrap:anywhere;
+  text-shadow:0 6px 30px #0009;
+}
+body.role-shared #shared #sharedContent .join-lobby > .join-qr-link{
+  box-sizing:border-box;
+  grid-area:qr;
+  place-self:center;
+  display:grid;
+  place-items:center;
+  padding:clamp(15px,2vw,27px)!important;
+  border:1px solid #70dfff82;
+  border-radius:24px;
+  background:#e4f8ff;
+  box-shadow:0 0 0 10px #73d7ff18,0 12px 42px #0008;
+  max-width:100%;
+}
+body.role-shared #shared #sharedContent .join-lobby .join-qr{
+  display:block;
+  width:clamp(155px,19vw,282px)!important;
+  height:auto!important;
+  max-width:100%!important;
+  aspect-ratio:1;
+  object-fit:contain;
+}
+body.role-shared #shared #sharedContent .join-lobby > .join-code-big{
+  grid-area:code;
+  margin:0!important;
+  color:#e7fbff!important;
+  font-size:clamp(46px,5.2vw,88px)!important;
+  font-weight:950!important;
+  line-height:1;
+  letter-spacing:.17em;
+  text-shadow:0 0 35px #6ce4ff4f;
+}
+body.role-shared #shared #sharedContent .join-lobby > .join-url{
+  grid-area:url;
+  min-width:0;
+  max-width:100%;
+  color:#c6dfe9!important;
+  font-size:clamp(12px,1.1vw,17px)!important;
+  line-height:1.45;
+  overflow-wrap:anywhere;
+  margin:0!important;
+}
+body.role-shared #shared #sharedContent .join-lobby > .join-url a{
+  color:#8cefff!important;
+  overflow-wrap:anywhere;
+}
+body.role-shared #shared #sharedContent .join-lobby > .qr-status-note{
+  grid-area:note;
+  color:#92eacb!important;
+  letter-spacing:.09em;
+  font-size:clamp(10px,.9vw,13px);
+  margin:0!important;
+}
+@keyframes si5a-stage-appear{
+  from{opacity:0;transform:translateY(13px) scale(.989)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@media(max-width:800px){
+  body.role-shared #shared #sharedContent > .join-lobby{
+    width:min(610px,calc(100vw - 42px));
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"tag" "title" "qr" "code" "url" "note";
+    justify-items:center;
+    text-align:center;
+    row-gap:10px;
+    padding:clamp(18px,3vw,32px);
+    max-height:calc(100dvh - 32px);
+    overflow:auto;
+  }
+  body.role-shared #shared #sharedContent .join-lobby > .eyebrow{justify-self:center}
+  body.role-shared #shared #sharedContent .join-lobby .join-qr{width:clamp(140px,22vh,225px)!important}
+  body.role-shared #shared #sharedContent > div:has(> .eyebrow){
+    width:calc(100vw - 42px);
+    min-height:min(420px,65vh);
+  }
+  body.role-shared #shared #sharedContent:has(> div > .eyebrow)::after{
+    bottom:clamp(24px,5vh,48px);
+    font-size:10px;
+    letter-spacing:.16em;
+  }
+}
+@media(max-height:530px){
+  body.role-shared #shared #sharedContent > div:has(> .eyebrow){
+    min-height:0;
+    padding-block:16px;
+    gap:10px;
+  }
+  body.role-shared #shared #sharedContent > div:has(> .eyebrow)::before{
+    width:46px;height:46px;box-shadow:none;
+  }
+  body.role-shared #shared #sharedContent > div > h3{
+    font-size:clamp(40px,9vh,72px)!important;
+  }
+  body.role-shared #shared #sharedContent > .join-lobby{
+    max-height:calc(100dvh - 20px);overflow:auto;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  body.role-shared #shared #sharedContent > div:has(> .eyebrow),
+  body.role-shared #shared #sharedContent > .join-lobby{
+    animation:none!important;
+  }
+}
