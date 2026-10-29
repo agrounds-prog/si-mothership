@@ -5084,7 +5084,7 @@ async def index(request: web.Request) -> web.Response:
     # Quick Poll loads alongside existing games. It does not modify activityRun.
     text = text.replace("</head>",
                         f'<link rel="stylesheet" href="/quick-poll.css?v={QUICK_POLL_ASSET_VERSION}">'
-                        '<link rel="stylesheet" href="/dashboard-polish.css?v=80">'
+                        '<link rel="stylesheet" href="/dashboard-polish.css?v=5a2">'
                         '<link rel="stylesheet" href="/million-studio.css?v=1">'
                         '<link rel="stylesheet" href="/word-grid.css?v=1">'
                         '<link rel="stylesheet" href="/dominoes.css?v=1">'
@@ -5110,6 +5110,7 @@ async def index(request: web.Request) -> web.Response:
                 '<script src="/signal-sequence-bridge.js?v=5" defer></script>' +
                 f'<script src="/quick-poll.js?v={QUICK_POLL_ASSET_VERSION}" defer></script>' +
                 '<script src="/dashboard-polish.js?v=80" defer></script>' +
+                '<script src="/shared-activity-transitions.js?v=5a2" defer></script>' +
                 '<script src="/million-studio.js?v=1" defer></script>' +
                 '<script src="/word-grid.js?v=1" defer></script>' +
                 '<script src="/dominoes.js?v=1" defer></script>' +
@@ -6418,6 +6419,7 @@ def create_app() -> web.Application:
     app.router.add_get("/signal-sequence-bridge.js", lambda request: web.FileResponse(ROOT / "signal-sequence-bridge.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/signal-sequence.css", lambda request: web.FileResponse(ROOT / "signal-sequence.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/student-companion.css", lambda request: web.FileResponse(ROOT / "student-companion.css", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/shared-activity-transitions.js", lambda request: web.FileResponse(ROOT / "shared-activity-transitions.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/student-companion.js", lambda request: web.FileResponse(ROOT / "student-companion.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/teacher-unified-controls.js", lambda request: web.FileResponse(ROOT / "teacher-unified-controls.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/teacher-unified-controls.css", lambda request: web.FileResponse(ROOT / "teacher-unified-controls.css", headers={"Cache-Control": "no-store"}))
