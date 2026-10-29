@@ -2577,3 +2577,83 @@ body.role-shared #shared .si-cinema-launch--branded .si-cinema-launch-subtitle{
   }
   body.role-shared #shared .si-cinema-launch--branded{display:none!important}
 }
+
+
+/* Phase 5A-4 · space mission game intros. Scoped to the ephemeral projector
+   launch overlay; never sizes or decorates the underlying game/lesson stage. */
+body.role-shared #shared .si-cinema-launch--branded[data-game="orbit"]{
+ --si-cinema-accent:#8be4ff;
+ --si-cinema-glow:#2a77ce8c;
+ --si-cinema-bright:#ecfaff;
+ background:
+  radial-gradient(ellipse at 50% 45%,#368acf83,transparent 43%),
+  radial-gradient(circle at 16% 24%,#f7fcffb0 1px,transparent 3px),
+  radial-gradient(circle at 81% 73%,#bddefc91 1px,transparent 2px),
+  radial-gradient(ellipse at 50% 40%,#182c6acc,transparent 75%),
+  linear-gradient(147deg,#030a23ed,#0a1737f7 72%);
+ background-size:auto,173px 137px,211px 231px,auto,auto;
+}
+body.role-shared #shared .si-cinema-launch--branded[data-game="cosmic"]{
+ --si-cinema-accent:#ff9cce;
+ --si-cinema-glow:#b74f9786;
+ --si-cinema-bright:#fff0f9;
+ background:
+  linear-gradient(127deg,transparent 20%,#c971de15 20.3% 20.7%,transparent 21% 65%,#d87deb18 65.3% 65.8%,transparent 66%),
+  radial-gradient(ellipse at 49% 48%,#8c2e978c,transparent 53%),
+  linear-gradient(160deg,#21102fee,#090f27f4 77%);
+}
+body.role-shared #shared .si-cinema-launch--branded[data-game="dominoes"]{
+ --si-cinema-accent:#9effdc;
+ --si-cinema-glow:#258e7f84;
+ --si-cinema-bright:#eafff4;
+ background:
+  radial-gradient(circle,#9effdc16 2px,transparent 3px) 0 0/67px 67px,
+  radial-gradient(ellipse at 50% 42%,#1c99836d,transparent 55%),
+  linear-gradient(152deg,#092a31ef,#041722f5 76%);
+}
+body.role-shared #shared .si-cinema-launch--branded[data-game="four"]{
+ --si-cinema-accent:#ffc36a;
+ --si-cinema-glow:#bf783e80;
+ --si-cinema-bright:#fff4db;
+ background:
+  linear-gradient(#efbb5b12 1px,transparent 1px) 0 0/68px 68px,
+  linear-gradient(90deg,#efbb5b12 1px,transparent 1px) 0 0/68px 68px,
+  radial-gradient(ellipse at 50% 44%,#a8693696,transparent 54%),
+  linear-gradient(147deg,#261f2af1,#091827f6 72%);
+}
+body.role-shared #shared .si-cinema-launch--branded[data-game="orbit"] .si-cinema-launch-ring{
+ width:clamp(235px,31vw,470px);
+ height:clamp(235px,31vw,470px);
+ border-left-color:var(--si-cinema-accent);
+ border-right-color:#73c5ff2a;
+ transform:translate(-50%,-50%) rotate(-22deg) scaleY(.65);
+ animation:si5a4-planetary-orbit 2.3s linear infinite;
+}
+body.role-shared #shared .si-cinema-launch--branded[data-game="cosmic"] .si-cinema-launch-icon{
+ transform:rotate(9deg);
+ border-radius:20%;
+ box-shadow:0 0 0 8px #ff9cce1b,0 0 52px var(--si-cinema-glow);
+}
+body.role-shared #shared .si-cinema-launch--branded[data-game="dominoes"] .si-cinema-launch-icon{
+ border-radius:20%;
+ transform:rotate(-8deg);
+}
+body.role-shared #shared .si-cinema-launch--branded[data-game="four"] .si-cinema-launch-icon{
+ border-radius:18%;
+ transform:rotate(0deg);
+}
+@keyframes si5a4-planetary-orbit{
+ from{transform:translate(-50%,-50%) rotate(-22deg) scaleY(.65)}
+ to{transform:translate(-50%,-50%) rotate(338deg) scaleY(.65)}
+}
+@media(max-width:850px),(max-height:650px){
+ body.role-shared #shared .si-cinema-launch--branded[data-game="orbit"] .si-cinema-launch-ring{
+  width:clamp(150px,23vw,270px);
+  height:clamp(150px,23vw,270px);
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body.role-shared #shared .si-cinema-launch--branded[data-game="orbit"] .si-cinema-launch-ring{
+  animation:none!important;
+ }
+}
