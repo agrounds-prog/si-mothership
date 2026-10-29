@@ -5,6 +5,7 @@ on:
     paths:
       - 'tests/test_projector_full_stage_browser.cjs'
       - 'dashboard-polish.css'
+      - 'shared-activity-transitions.js'
       - '.github/workflows/projector-full-stage.yml'
       - 'index.html'
       - 'server.py'
@@ -23,6 +24,7 @@ jobs:
       - name: Validate code
         run: |
           node --check tests/test_projector_full_stage_browser.cjs
+          node --check shared-activity-transitions.js
           python -m py_compile server.py
       - name: Install Chromium dependencies
         run: |
