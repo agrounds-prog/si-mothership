@@ -2212,3 +2212,226 @@ body.role-shared #shared #sharedContent .join-lobby > .qr-status-note{
     animation:none!important;
   }
 }
+
+
+/* Phase 5A-2 · animated Mission Launch standby. All motion is visual-only;
+   classroom state, projector game markup and SI+ controls remain native. */
+body.role-shared #shared #sharedContent > .si-cinema-activities{
+  isolation:isolate;
+  overflow:hidden;
+  border-color:#85e3ff7a;
+  background:
+    radial-gradient(circle at 50% 40%,#24668c57 0%,transparent 48%),
+    linear-gradient(150deg,#14384fcf,#071726f0 77%);
+  box-shadow:inset 0 1px #d1faff56,inset 0 0 52px #00a6e311,
+    0 25px 92px #000c,0 0 95px #2eabd323;
+}
+body.role-shared #shared #sharedContent > .si-cinema-activities > .eyebrow,
+body.role-shared #shared #sharedContent > .si-cinema-activities > h3{
+  position:relative;
+  z-index:3;
+}
+body.role-shared #shared #sharedContent > .si-cinema-activities > h3{
+  animation:si5a2-title-arrive .7s cubic-bezier(.2,.85,.2,1) both;
+}
+body.role-shared #shared #sharedContent > .si-cinema-activities > .eyebrow{
+  animation:si5a2-label-arrive .6s ease-out both;
+}
+body.role-shared #shared #sharedContent > .si-cinema-activities::before{
+  animation:si5a2-beacon 6.5s ease-in-out infinite;
+}
+body.role-shared #shared #sharedContent > .si-cinema-activities::after{
+  content:"";
+  pointer-events:none;
+  position:absolute;
+  z-index:1;
+  inset:0;
+  background:linear-gradient(112deg,transparent 0%,transparent 39%,
+    #8ce7ff07 48%,#b2f4ff0b 50%,#8ce7ff07 52%,transparent 61%,transparent 100%);
+  transform:translateX(-110%);
+  animation:si5a2-sweep 9s ease-in-out infinite;
+}
+body.role-shared #shared #sharedContent > .si-cinema-activities .si-cinema-orbit{
+  pointer-events:none;
+  position:absolute;
+  z-index:2;
+  width:clamp(150px,22vw,270px);
+  height:clamp(150px,22vw,270px);
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  border:1px solid #72e8ff30;
+  border-radius:50%;
+  box-shadow:0 0 0 27px #72e8ff08,0 0 0 62px #72e8ff05,
+    inset 0 0 30px #56daff1e;
+  opacity:.65;
+}
+body.role-shared #shared #sharedContent > .si-cinema-activities .si-cinema-orbit::before{
+  content:"";
+  position:absolute;
+  inset:-16px;
+  border:2px dashed #7be6ff52;
+  border-radius:50%;
+  animation:si5a2-orbit 24s linear infinite;
+}
+body.role-shared #shared #sharedContent > .si-cinema-activities .si-cinema-orbit::after{
+  content:"";
+  position:absolute;
+  inset:-37px;
+  border-radius:50%;
+  border:1px solid transparent;
+  border-top-color:#a3eeffad;
+  border-bottom-color:#7fceff69;
+  animation:si5a2-orbit 17s linear infinite reverse;
+}
+body.role-shared #shared #sharedContent > .si-cinema-activities .si-cinema-orbit span{
+  position:absolute;
+  inset:-53px;
+  border-radius:50%;
+  border:1px dotted #80e5ff46;
+  animation:si5a2-orbit 35s linear infinite;
+}
+body.role-shared #shared #sharedContent > .si-cinema-activities .si-cinema-hud{
+  position:relative;
+  z-index:4;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:clamp(10px,1.9vw,22px);
+  margin-top:clamp(14px,2vh,24px);
+  font-size:clamp(10px,.85vw,13px);
+  font-weight:800;
+  letter-spacing:.13em;
+  color:#bcdaea;
+  line-height:1.45;
+  animation:si5a2-label-arrive .85s ease-out both;
+}
+body.role-shared #shared #sharedContent > .si-cinema-activities .si-cinema-hud > span{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  border:1px solid #77cbe43d;
+  border-radius:999px;
+  background:#06233a9c;
+  white-space:nowrap;
+}
+body.role-shared #shared #sharedContent > .si-cinema-activities .si-cinema-hud > span:nth-child(2){
+  color:#f0f9ff;
+  border-color:#7ce8ff82;
+  background:#19517172;
+  box-shadow:0 0 18px #5acaf21c;
+}
+body.role-shared #shared #sharedContent > .si-cinema-activities .si-cinema-hud i{
+  width:7px;
+  height:7px;
+  flex:none;
+  border-radius:50%;
+  background:#66efcb;
+  box-shadow:0 0 13px #66efcb75;
+  animation:si5a2-status 2.8s ease-in-out infinite;
+}
+body.role-shared #shared .si-cinema-launch{
+  position:absolute;
+  z-index:80;
+  inset:0;
+  pointer-events:none;
+  display:grid;
+  place-content:center;
+  gap:22px;
+  text-align:center;
+  overflow:hidden;
+  background:radial-gradient(ellipse at center,#0e4261dc 0%,#062136d4 43%,#031321d8 100%);
+  animation:si5a2-launch-out .85s ease-in-out both;
+}
+body.role-shared #shared .si-cinema-launch::before,
+body.role-shared #shared .si-cinema-launch::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+  inset:0;
+  background:repeating-linear-gradient(90deg,transparent 0 8%,#87e4ff13 8.04% 8.07%,transparent 8.1% 17%);
+  transform:scaleX(.12);
+  animation:si5a2-warp .85s ease-out both;
+}
+body.role-shared #shared .si-cinema-launch::after{
+  transform:rotate(90deg) scaleX(.12);
+  animation-delay:.06s;
+  opacity:.55;
+}
+body.role-shared #shared .si-cinema-launch-ring{
+  width:clamp(90px,15vw,178px);
+  height:clamp(90px,15vw,178px);
+  place-self:center;
+  border-radius:50%;
+  border:2px solid #8feeff;
+  border-left-color:transparent;
+  border-right-color:#50aee733;
+  box-shadow:0 0 0 22px #53d4ff15,inset 0 0 35px #64d6ff2d,0 0 42px #64d6ff47;
+  animation:si5a2-orbit .9s ease-in-out both;
+}
+body.role-shared #shared .si-cinema-launch-title{
+  color:#f3fdff;
+  font-weight:950;
+  font-size:clamp(26px,3.6vw,62px);
+  letter-spacing:.18em;
+  text-shadow:0 0 34px #84e5ffbb,0 8px 30px #000b;
+}
+@keyframes si5a2-title-arrive{
+  0%{opacity:0;transform:translateY(23px) scale(.93);filter:blur(7px)}
+  100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+}
+@keyframes si5a2-label-arrive{
+  0%{opacity:0;transform:translateY(12px)}
+  100%{opacity:1;transform:translateY(0)}
+}
+@keyframes si5a2-beacon{
+  0%,100%{box-shadow:0 0 0 12px #2f9ec015,0 0 0 26px #2f9ec00d,inset 0 0 32px #39caff3e,0 0 32px #39caff35}
+  50%{box-shadow:0 0 0 18px #2f9ec018,0 0 0 37px #2f9ec008,inset 0 0 40px #39caff55,0 0 45px #39caff60}
+}
+@keyframes si5a2-sweep{
+  0%,23%{transform:translateX(-110%)}
+  47%,100%{transform:translateX(110%)}
+}
+@keyframes si5a2-orbit{to{transform:rotate(360deg)}}
+@keyframes si5a2-status{0%,100%{opacity:1}50%{opacity:.42}}
+@keyframes si5a2-launch-out{
+  0%{opacity:0;clip-path:circle(6% at center)}
+  23%{opacity:1;clip-path:circle(90% at center)}
+  64%{opacity:.95;clip-path:circle(120% at center)}
+  100%{opacity:0;clip-path:circle(140% at center)}
+}
+@keyframes si5a2-warp{
+  0%{opacity:.1;transform:scaleX(.12)}
+  45%{opacity:.6;transform:scaleX(.8)}
+  100%{opacity:0;transform:scaleX(2)}
+}
+@media(max-width:1100px){
+  body.role-shared #shared #sharedContent > .si-cinema-activities .si-cinema-hud{
+    gap:9px;letter-spacing:.07em;
+  }
+  body.role-shared #shared #sharedContent > .si-cinema-activities .si-cinema-hud > span{
+    padding:6px 9px;
+  }
+}
+@media(max-height:650px){
+  body.role-shared #shared #sharedContent > .si-cinema-activities .si-cinema-orbit{
+    width:110px;height:110px;opacity:.4;
+  }
+  body.role-shared #shared #sharedContent > .si-cinema-activities .si-cinema-hud{
+    margin-top:4px;gap:6px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  body.role-shared #shared #sharedContent > .si-cinema-activities *,
+  body.role-shared #shared #sharedContent > .si-cinema-activities::before,
+  body.role-shared #shared #sharedContent > .si-cinema-activities::after,
+  body.role-shared #shared #sharedContent > .si-cinema-activities .si-cinema-orbit::before,
+  body.role-shared #shared #sharedContent > .si-cinema-activities .si-cinema-orbit::after,
+  body.role-shared #shared .si-cinema-launch{
+    animation:none!important;
+    transition:none!important;
+  }
+  body.role-shared #shared .si-cinema-launch{display:none!important}
+}
