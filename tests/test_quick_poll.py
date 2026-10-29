@@ -1,6 +1,7 @@
 """Quick Poll integration/privacy regression. Uses isolated temporary SQLite only."""
 import asyncio
 import json
+import re
 import tempfile
 import time
 import unittest
@@ -80,8 +81,8 @@ class QuickPollSmoke(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(html.count(loader), 1)
         # Dashboard asset versions change with visual releases; preserve one
         # loader and the required script order without pinning a stale version.
-        dashboard_loaders = __import__("re").findall(
-            r'<script src="/dashboard-polish\\.js\\?v=[A-Za-z0-9._-]+" defer></script>', html)
+        dashboard_loaders = re.findall(
+            r'<script src="/dashboard-polish\.js\?v=[A-Za-z0-9._-]+" defer></script>', html)
         self.assertEqual(len(dashboard_loaders), 1)
         dashboard_loader = dashboard_loaders[0]
         self.assertEqual(html.rfind(loader) + len(loader), html.rfind(dashboard_loader),
