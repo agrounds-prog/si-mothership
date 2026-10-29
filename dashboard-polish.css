@@ -2803,3 +2803,85 @@ body.role-shared #shared #sharedContent > .join-lobby .join-qr-link:focus-visibl
 @media(max-width:850px),(max-height:650px){
  body.role-shared #shared #sharedContent > .join-lobby::after{display:none}
 }
+
+
+/* Phase 5B-2 — reformat Bingo's shared-screen presentation for a real 16:9
+   display. Preserve native call/history elements and their live update hooks. */
+body.role-shared #shared #sharedContent:has(.bingo-public){
+  overflow:hidden!important;
+  min-height:0;
+}
+body.role-shared #shared #sharedContent .bingo-public{
+  width:100%!important;height:100%!important;
+  max-height:100dvh!important;
+  display:flex!important;flex-direction:column!important;
+  justify-content:flex-start!important;
+  gap:clamp(8px,1.25vh,16px)!important;
+  padding:clamp(12px,1.6vw,24px)!important;
+  overflow:hidden!important;
+  border-radius:0!important;
+}
+body.role-shared #shared #sharedContent .bingo-public > :is(header,.bingo-header,.bingo-public-header){
+  flex:0 0 auto;min-height:0;
+  margin:0!important;padding:0!important;
+}
+body.role-shared #shared #sharedContent .bingo-public :is(h1,.bingo-title,.bingo-public-title){
+  margin:0 auto!important;
+  font-size:clamp(29px,4.5vw,68px)!important;
+  line-height:1.02!important;
+  max-height:2.1em;
+  text-align:center;
+}
+body.role-shared #shared #sharedContent .bingo-public :is(.bingo-body,.bingo-main,.bingo-public-body,.bingo-public-grid,.bingo-call-layout){
+  display:grid!important;
+  grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr)!important;
+  gap:clamp(10px,1.5vw,24px)!important;
+  flex:1 1 auto!important;
+  min-height:0!important;max-width:100%!important;
+  align-items:stretch!important;
+}
+body.role-shared #shared #sharedContent .bingo-public :is(.bingo-now-calling,.bingo-call-history){
+  box-sizing:border-box;min-height:0!important;
+  max-height:100%;overflow:hidden;
+  padding:clamp(12px,1.6vw,24px)!important;
+  border:2px solid #39caff!important;
+  background:radial-gradient(ellipse at 48% 105%,#0b70d340,transparent 60%),linear-gradient(155deg,#102f59e8,#111c43ed)!important;
+  box-shadow:inset 0 1px #b9f5ff4d,0 0 22px #0cbfff33!important;
+}
+body.role-shared #shared #sharedContent .bingo-public :is(.bingo-now-calling,.bingo-call-history) :is(h2,h3){
+  margin:0 0 clamp(8px,1.3vh,16px)!important;
+  font-size:clamp(16px,2vw,31px)!important;
+  line-height:1.12!important;
+}
+body.role-shared #shared #sharedContent .bingo-public :is(.bingo-now-calling,.bingo-current-call,.bingo-called-item,.bingo-call-current) :is(strong,.big,.value){
+  font-size:clamp(28px,5.1vw,78px)!important;
+  line-height:1.04!important;
+  overflow-wrap:anywhere;
+}
+body.role-shared #shared #sharedContent .bingo-public :is(.bingo-call-history,.bingo-history){
+  overflow:auto!important;
+  scrollbar-width:thin;
+}
+body.role-shared #shared #sharedContent .bingo-public img{
+  max-width:100%;max-height:min(43vh,380px);object-fit:contain;
+}
+@media(max-width:780px){
+ body.role-shared #shared #sharedContent .bingo-public :is(.bingo-body,.bingo-main,.bingo-public-body,.bingo-public-grid,.bingo-call-layout){
+   grid-template-columns:minmax(0,1fr)!important;
+   grid-template-rows:minmax(0,1fr) minmax(0,.65fr);
+ }
+ body.role-shared #shared #sharedContent .bingo-public :is(h1,.bingo-title,.bingo-public-title){
+   font-size:clamp(24px,6vw,46px)!important;
+ }
+}
+@media(max-height:650px){
+ body.role-shared #shared #sharedContent .bingo-public{
+   gap:6px!important;padding:10px!important;
+ }
+ body.role-shared #shared #sharedContent .bingo-public :is(h1,.bingo-title,.bingo-public-title){
+   font-size:clamp(24px,4vw,48px)!important;
+ }
+ body.role-shared #shared #sharedContent .bingo-public :is(.bingo-now-calling,.bingo-call-history){
+   padding:10px!important;
+ }
+}
