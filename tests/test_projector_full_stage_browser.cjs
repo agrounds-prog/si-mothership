@@ -142,6 +142,80 @@ if(!/^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/.test(BASE))
   assert.equal(await projector.locator("#sharedContent .fil-cell").count(),42);
   assert.equal(await projector.locator("#sharedContent [data-fil-drop]").count(),0);
   await checkFullStage("four-in-line");
+  // Phase 5A-3: Each native game identifier has its own brief, projector-
+  // only launch title. Rendering and run state must remain entirely untouched.
+  for(const game of [
+    {id:"bingo-game",key:"bingo",title:"BINGO"},
+    {id:"million-game",key:"million",title:"MILLION"},
+    {id:"match-game",key:"match",title:"MATCH"},
+    {id:"pixel-game",key:"pixel",title:"PIXEL REVEAL"}
+  ]){
+    await projector.setViewportSize({width:1280,height:720});
+    await projector.evaluate(()=>{
+      state.activityRun=null;
+      document.getElementById("sharedContent").innerHTML=
+        '<div><span class="eyebrow">CLASSROOM LIVE</span><h3>ACTIVITIES</h3></div>';
+    });
+    await projector.waitForFunction(()=>window.__siActivityCinema.stageKind()==="activities" &&
+      !!document.querySelector(".si-cinema-hud"),null,{timeout:5000});
+    const token="phase5a3-"+game.key;
+    await projector.evaluate(({id,token})=>{
+      state.activityRun={activityId:id,phase:"running",runToken:token};
+      document.getElementById("sharedContent").innerHTML=
+        '<div class="phase5a3-game-fixture"><strong>NATIVE GAME CONTENT</strong></div>';
+    },{id:game.id,token});
+    const target=projector.locator(".si-cinema-launch--branded");
+    await target.waitFor({state:"attached",timeout:5000});
+    const report=await projector.evaluate(()=>{
+      const layer=document.querySelector(".si-cinema-launch--branded");
+      const run=state.activityRun;
+      const rect=layer.getBoundingClientRect();
+      return {game:layer.dataset.game,
+        title:layer.querySelector(".si-cinema-launch-game-title")?.textContent,
+        subtitle:layer.querySelector(".si-cinema-launch-subtitle")?.textContent,
+        emblem:!!layer.querySelector(".si-cinema-launch-icon svg"),
+        animation:getComputedStyle(layer).animationName,
+        pointerEvents:getComputedStyle(layer).pointerEvents,
+        ariaHidden:layer.getAttribute("aria-hidden"),
+        width:rect.width,height:rect.height,
+        run:{activityId:run.activityId,runToken:run.runToken,phase:run.phase},
+        native:document.querySelector("#sharedContent .phase5a3-game-fixture")?.textContent};
+    });
+    assert.deepEqual({game:report.game,title:report.title,emblem:report.emblem,
+      pointerEvents:report.pointerEvents,ariaHidden:report.ariaHidden},
+      {game:game.key,title:game.title,emblem:true,
+        pointerEvents:"none",ariaHidden:"true"});
+    assert.match(report.animation,/si5a3-branded-exit/);
+    assert.ok(report.subtitle.length>=12);
+    assert.equal(report.width,1280);
+    assert.equal(report.height,720);
+    assert.deepEqual(report.run,{activityId:game.id,runToken:token,phase:"running"});
+    assert.match(report.native,/NATIVE GAME CONTENT/);
+    await target.waitFor({state:"detached",timeout:5000});
+    // Routine teacher actions and projector redraws cannot replay a launch.
+    await projector.evaluate(()=>{
+      document.getElementById("sharedContent").innerHTML=
+        '<div class="phase5a3-game-fixture">NEXT TURN · GAME STILL RUNNING</div>';
+    });
+    await projector.waitForTimeout(100);
+    assert.equal(await target.count(),0,game.title+" must not relaunch on a regular redraw");
+    // Resume from the Activities lobby with the same token also skips the
+    // introduction, preserving the familiar pause/resume workflow.
+    await projector.evaluate(()=>{
+      state.activityRun.phase="lobby";
+      document.getElementById("sharedContent").innerHTML=
+        '<div><span class="eyebrow">CLASSROOM LIVE</span><h3>ACTIVITIES</h3></div>';
+    });
+    await projector.waitForFunction(()=>window.__siActivityCinema.stageKind()==="activities",
+      null,{timeout:5000});
+    await projector.evaluate(()=>{
+      state.activityRun.phase="running";
+      document.getElementById("sharedContent").innerHTML=
+        '<div class="phase5a3-game-fixture">RESUMED GAME</div>';
+    });
+    await projector.waitForTimeout(110);
+    assert.equal(await target.count(),0,game.title+" must not replay after lobby resume");
+  }
   // Exact SI+ media markup must not inherit standby cards, title layout
   // or the QR treatment. This is a synthetic public slide, not a live lesson.
   await projector.evaluate(()=>{
@@ -184,6 +258,17 @@ if(!/^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/.test(BASE))
   assert.equal(reducedCard.orbit,true);
   assert.equal(reducedCard.spin,"none","Reduced-motion disables orbital spinning");
   assert.equal(reducedCard.pulse,"none","Reduced-motion disables status pulsing");
+  // Branded launches are also suppressed for reduced motion, while
+  // the underlying projected activity renders immediately.
+  await projector.evaluate(()=>{
+    state.activityRun={activityId:"bingo-game",phase:"running",runToken:"phase5a3-reduced-bingo"};
+    document.getElementById("sharedContent").innerHTML=
+      '<div class="phase5a3-reduced-game">REDUCED MOTION BINGO</div>';
+  });
+  await projector.waitForTimeout(120);
+  assert.equal(await projector.locator(".si-cinema-launch").count(),0,
+    "Reduced motion must bypass the BINGO title effect");
+  assert.match(await projector.locator("#sharedContent").textContent(),/REDUCED MOTION BINGO/);
   await projector.evaluate(()=>{
     const g=FourLine.make(["Blue Crew","Gold Crew"]);
     state.activityRun={activityId:"four-in-line-game",phase:"running",
@@ -195,6 +280,6 @@ if(!/^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/.test(BASE))
   assert.equal(await projector.locator("#sharedContent .fil-cell").count(),42,
     "Reduced motion never replaces game content");
   assert.deepEqual(errors,[],"No browser exceptions");
-  console.log("PHASE 5A-2 ANIMATED PROJECTOR ACTIVITIES AND SAFE GAME LAUNCH PASSED");
+  console.log("PHASE 5A-3 BRANDED GAME TITLES, RECONNECT-SAFE LAUNCHES, REDUCED MOTION PASSED");
  }finally{await projectorCtx.close();await teacherCtx.close();await browser.close()}
 })().catch(e=>{console.error(e);process.exit(1)});
