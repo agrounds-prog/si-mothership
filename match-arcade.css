@@ -1490,7 +1490,7 @@ body.role-student #studentContent .ma-student-earned b{color:#aeffda!important}
  #shared .ma-present .ma-grid:has(> .ma-tile:nth-child(26):last-child){
   grid-template-columns:repeat(7,minmax(0,1fr))!important;
   grid-template-rows:repeat(4,minmax(0,1fr))!important;
-  width:min(100%,calc(4 * (100dvh - 230px) * 7 / 4))!important;
+  width:min(100%,980px)!important;
  }
  #shared .ma-present .ma-grid:has(> .ma-tile:nth-child(26):last-child) .ma-tile{
   width:min(100%,100%)!important;height:100%!important;
