@@ -84,7 +84,7 @@ function matchArcadeStatus(match,run){
   if(matchArcadePreviewActive(run))return {type:'preview',title:'MEMORY BOOST',detail:'Study the locations! Cards hide in a moment'};
   if(match.pendingResolution){
   const turn=matchArcadeHandoff(run);
-  const next=turn.complete?'Last pair':turn.again?'Same player goes again':turn.name?'Next: '+turn.name:'Next turn';
+  const next=run?.matchConfig?.teacherControlled?(turn.complete?'Mission complete':'Teacher picks the next numbers'):(turn.complete?'Last pair':turn.again?'Same player goes again':turn.name?'Next: '+turn.name:'Next turn');
   return match.pendingResolution.result==='match'?
    {type:'matched',title:'PAIR FOUND!',detail:
     (run?.matchConfig?.scoring==='no_score'?'Great memory':'Point added automatically')+' · '+next}:
@@ -92,7 +92,7 @@ function matchArcadeStatus(match,run){
     'No match · remember '+matchArcadeMissCards(match)+' · '+next};
  }
  if(match.locked)return {type:'hold',title:'MISSION CONTROL HOLD',detail:'The teacher has paused selections'};
-  return {type:'ready',title:'FIND THE MATCH',detail:'Flip two cards and remember their locations'};
+  return {type:'ready',title:'FIND THE MATCH',detail:run?.matchConfig?.teacherControlled?'Students call two card numbers. Teacher reveals the cards.':'Flip two cards and remember their locations'};
 }
 function matchArcadeScoreline(match,run){
   const cfg=run.matchConfig||{};
