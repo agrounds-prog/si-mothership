@@ -158,3 +158,20 @@
   animation:none!important;transition:none!important;
  }
 }
+
+
+/* Teacher-hosted verbal MATCH: numeric card controls in Mission Control. */
+#teacher .match-verbal-grid{
+ display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:7px;
+ margin:12px 0;padding:12px;border:1px solid #4baddb;border-radius:15px;
+ background:linear-gradient(150deg,#0a2749,#091b34);
+}
+#teacher .match-verbal-grid button{
+ min-height:45px;border:1px solid #56cdeb;border-radius:10px;
+ color:#e7fcff;background:linear-gradient(160deg,#194e79,#112c56);
+ font-weight:900;font-size:17px;cursor:pointer;
+}
+#teacher .match-verbal-grid button:hover:not(:disabled){background:#296ca0;box-shadow:0 0 12px #4acfff88}
+#teacher .match-verbal-grid button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+#teacher .match-verbal-grid button:disabled{opacity:.4;cursor:default}
+@media(max-width:900px){#teacher .match-verbal-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
