@@ -1547,3 +1547,36 @@ body.role-student #studentContent .ma-student-earned b{color:#aeffda!important}
  #shared .ma-present .ma-header{flex-wrap:wrap!important}
  #shared .ma-present .ma-header>.ma-topline{justify-content:space-between!important;width:100%}
 }
+
+
+/* Phase 5C-4: board-first sizing for 24/26-card projector games.
+   Keep all card faces and number order; allocate square tiles against height. */
+@media(min-width:1000px) and (min-height:650px){
+ #shared .ma-present .ma-board-wrap{height:100%!important;min-height:0!important}
+ #shared .ma-present .ma-board-surround{width:100%!important;max-width:none!important}
+ #shared .ma-present .ma-grid:has(> .ma-tile:nth-child(24):last-child){
+   grid-template-columns:repeat(6,minmax(0,1fr))!important;
+   grid-template-rows:repeat(4,minmax(0,1fr))!important;
+   width:min(100%,calc((100dvh - 164px) * 1.48))!important;
+   margin-inline:auto!important;
+ }
+ #shared .ma-present .ma-grid:has(> .ma-tile:nth-child(26):last-child){
+   grid-template-columns:repeat(7,minmax(0,1fr))!important;
+   grid-template-rows:repeat(4,minmax(0,1fr))!important;
+   width:min(100%,calc((100dvh - 164px) * 1.73))!important;
+   margin-inline:auto!important;
+ }
+ #shared .ma-present .ma-grid:has(> .ma-tile:nth-child(24):last-child)>.ma-tile,
+ #shared .ma-present .ma-grid:has(> .ma-tile:nth-child(26):last-child)>.ma-tile{
+   height:100%!important;aspect-ratio:auto!important;
+ }
+}
+#shared .ma-present .ma-tile-front{padding:2px!important}
+#shared .ma-present .ma-tile-front img{
+ width:100%!important;height:100%!important;
+ min-width:0!important;min-height:0!important;
+ object-fit:contain!important;
+}
+#shared .ma-present .ma-tile.is-open .ma-tile-front{
+ box-shadow:inset 0 0 0 2px #d5fbff7a!important;
+}
