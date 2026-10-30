@@ -1443,3 +1443,60 @@ body.role-student #studentContent .ma-student-earned b{color:#aeffda!important}
  #teacher #activityControllerPanel .ma-4pd-advanced,
  #teacher #activityControllerPanel .ma-4pd-advanced summary{transition:none!important}
 }
+
+
+/* Phase 5C-2: square presentation cards with image-first revealed faces.
+   Only the shared MATCH projector, not the student's compact device. */
+#shared .ma-present .ma-header{padding:5px 13px!important;min-height:43px!important}
+#shared .ma-present .ma-topline{min-height:0!important}
+#shared .ma-present .ma-turn-identity{padding:5px 12px!important;min-height:0!important}
+#shared .ma-present .ma-avatar{width:46px!important;height:46px!important;font-size:24px!important}
+#shared .ma-present .ma-turn-identity strong{font-size:clamp(15px,1.7vw,25px)!important}
+#shared .ma-present .ma-counter-strip>span{padding:5px 12px!important;min-width:86px!important}
+#shared .ma-present .ma-counter-strip b{font-size:clamp(21px,2.3vw,34px)!important}
+#shared .ma-present .ma-signal{min-height:47px!important;padding:4px 12px!important}
+#shared .ma-present .ma-signal-icon{width:36px!important;height:36px!important}
+#shared .ma-present .ma-signal strong{font-size:clamp(17px,1.8vw,25px)!important}
+#shared .ma-present .ma-board-surround{
+ padding:clamp(8px,1.1vh,14px)!important;
+ display:flex!important;justify-content:center!important;align-items:center!important;
+}
+#shared .ma-present .ma-grid{
+ width:100%!important;height:100%!important;
+ align-content:center!important;justify-content:center!important;
+ gap:clamp(5px,.7vw,11px)!important;
+}
+#shared .ma-present .ma-tile{
+ aspect-ratio:1!important;
+ height:auto!important;width:100%!important;
+ max-height:100%!important;
+ border-radius:14px!important;
+}
+#shared .ma-present .ma-tile-front{
+ padding:clamp(2px,.35vw,5px)!important;
+ background:linear-gradient(145deg,#effbff,#b1e3f9)!important;
+}
+#shared .ma-present .ma-tile-front img{
+ display:block!important;width:100%!important;height:100%!important;
+ max-width:none!important;max-height:none!important;
+ padding:0!important;margin:0!important;
+ object-fit:contain!important;object-position:center!important;
+ border-radius:6px!important;
+}
+#shared .ma-present .ma-tile-back small{display:none!important}
+#shared .ma-present .ma-tile-stars{font-size:clamp(11px,1.6vw,23px)!important}
+/* The 26-card board uses four near-square rows instead of a wide six-column layout. */
+@media(min-width:950px) and (min-height:700px){
+ #shared .ma-present .ma-grid:has(> .ma-tile:nth-child(26):last-child){
+  grid-template-columns:repeat(7,minmax(0,1fr))!important;
+  grid-template-rows:repeat(4,minmax(0,1fr))!important;
+  width:min(100%,calc(4 * (100dvh - 230px) * 7 / 4))!important;
+ }
+ #shared .ma-present .ma-grid:has(> .ma-tile:nth-child(26):last-child) .ma-tile{
+  width:min(100%,100%)!important;height:100%!important;
+  aspect-ratio:auto!important;
+ }
+}
+@media(max-height:699px){
+ #shared .ma-present .ma-tile{aspect-ratio:auto!important;height:100%!important}
+}
