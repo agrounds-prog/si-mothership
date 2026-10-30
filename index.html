@@ -15441,7 +15441,7 @@ function applyMatchLocalAction(type,value,name){
       const goAgain=p.result==='match'&&run.matchConfig?.turnRule==='match_go_again';
       if(!goAgain)matchAdvanceTurn(run);
       m.locked=!!m.teacherLocked;m.consult={open:false,promptCardId:null,suggestions:{}};
-      m.message=(matchActiveStudent(run)?.n||'Next player')+(goAgain?' matched — go again!':' is up — pick two cards.');
+      m.message=run.matchConfig?.teacherControlled?(goAgain?'Pair found! Call the next two numbers.':'Ready for the next two numbers — teacher selects the cards.'):(matchActiveStudent(run)?.n||'Next player')+(goAgain?' matched — go again!':' is up — pick two cards.');
     }
   }else if(type==='toggle_lock'){m.teacherLocked=!m.teacherLocked;m.locked=m.teacherLocked||!!m.pendingResolution;m.message=m.teacherLocked?'Board locked by Mission Control.':'Board resumed.'}
   else if(type==='toggle_pause'){m.pauseAfterReveal=!m.pauseAfterReveal;m.message=m.pauseAfterReveal?'Pause After Reveal is ON.':'Pause After Reveal is OFF.'}
