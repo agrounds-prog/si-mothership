@@ -15449,7 +15449,7 @@ function applyMatchLocalAction(type,value,name){
   else if(type==='undo'){
     const prev=(m.history||[]).pop();if(prev){Object.assign(m,deepClone(prev));m.teacherLocked=false;m.locked=false;m.pendingResolution=null;m.turnStart=null;m.message='Last turn undone by Mission Control.'}
   }else if(type==='retry'){
-    const base=m.turnStart||(m.history||[]).pop();if(base){const keep=Number(base.activeStudentIndex||m.activeStudentIndex||0);Object.assign(m,deepClone(base));m.activeStudentIndex=keep;m.teacherLocked=false;m.locked=false;m.pendingResolution=null;m.turnStart=null;m.message=(matchActiveStudent(run)?.n||'Player')+' retries the turn.'}
+    const base=m.turnStart||(m.history||[]).pop();if(base){const keep=Number(base.activeStudentIndex||m.activeStudentIndex||0);Object.assign(m,deepClone(base));m.activeStudentIndex=keep;m.teacherLocked=false;m.locked=false;m.pendingResolution=null;m.turnStart=null;m.message=run.matchConfig?.teacherControlled?'Teacher may select two numbers again.':(matchActiveStudent(run)?.n||'Player')+' retries the turn.'}
   }else if(type==='skip'){
     m.selected=[];m.pendingResolution=null;m.turnStart=null;m.consult={open:false,promptCardId:null,suggestions:{}};matchAdvanceTurn(run);m.locked=!!m.teacherLocked;m.message=run.matchConfig?.teacherControlled?'Turn skipped. Teacher may select the next two numbers.':(matchActiveStudent(run)?.n||'Next player')+' is up.';
   }else if(type==='next_team'){
