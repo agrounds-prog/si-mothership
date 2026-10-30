@@ -5593,9 +5593,9 @@ def _match_apply_request(state: dict, run: dict, actor: str, request: dict, teac
     value = str(request.get("value") or "")
     active_name = _match_active_name(state, run)
 
-    if not teacher:
+    if not teacher or (teacher and kind == "select" and cfg.get("teacherControlled")):
         if kind == "select":
-            if not actor or actor != active_name:
+            if not actor or (actor != active_name and not (teacher and cfg.get('teacherControlled'))):
                 return
             if match.get("locked") or match.get("complete") or match.get("pendingResolution"):
                 return
