@@ -3173,3 +3173,58 @@ body.role-shared #shared #sharedContent .bingo-history > p,
 body.role-shared #shared #sharedContent .bingo-history > small{
   white-space:normal!important;overflow-wrap:anywhere;
 }
+
+
+/* Phase 5C-1: MATCH and MILLION projector surface finish.
+   Cosmetic only: no changes to score, turn, choices or lifeline handlers. */
+body.role-shared #shared #sharedContent :is(.match-public,.million-public){
+  box-sizing:border-box;max-width:100%;min-width:0;
+  background:
+    radial-gradient(ellipse at 50% -15%,#496ec63b,transparent 53%),
+    radial-gradient(ellipse at 96% 95%,#4730882d,transparent 42%),
+    linear-gradient(150deg,#0a1c3c,#0b1531 70%,#080f29)!important;
+  border:1px solid #51b9ef70!important;
+  border-radius:24px!important;
+  box-shadow:inset 0 1px #ffffff29,0 0 34px #369aff18!important;
+}
+body.role-shared #shared #sharedContent :is(.match-public,.million-public) > .eyebrow{
+  color:#a4edff!important;letter-spacing:.17em!important;
+  text-shadow:0 0 11px #45ccff52;
+}
+body.role-shared #shared #sharedContent .match-public > h3{
+  max-width:100%;font-size:clamp(29px,4.1vw,66px)!important;
+  line-height:1.08!important;text-wrap:balance;overflow-wrap:anywhere;
+  color:#f5fbff!important;text-shadow:0 3px #29447d,0 0 22px #82dcff3d!important;
+}
+body.role-shared #shared #sharedContent .match-public-status{
+  min-width:0;max-width:100%;gap:clamp(6px,.8vw,12px)!important;
+}
+body.role-shared #shared #sharedContent .match-public-status > span{
+  border:1px solid #69d6f17c!important;border-radius:999px!important;
+  background:linear-gradient(145deg,#1649799c,#0a294b9c)!important;
+  color:#d3f3ff!important;box-shadow:inset 0 1px #ffffff22,0 0 12px #49bfff13;
+  overflow-wrap:anywhere;
+}
+body.role-shared #shared #sharedContent .million-public :is(.million-ladder,.million-lifelines){
+  min-width:0;border-color:#5faadd88!important;border-radius:17px!important;
+  background:linear-gradient(155deg,#102c52ed,#091c39f2)!important;
+  box-shadow:inset 0 1px #ffffff24,0 0 18px #3b9ff316;
+}
+body.role-shared #shared #sharedContent .million-public .million-stage{
+  min-width:0;border-color:#60cbfc9c!important;
+  background:radial-gradient(ellipse at 50% 2%,#3465b641,transparent 56%),linear-gradient(150deg,#102b58,#10173a)!important;
+  box-shadow:inset 0 1px #ffffff27,0 0 26px #36b4ff2b!important;
+}
+body.role-shared #shared #sharedContent .million-public .million-stage > h3{
+  max-width:100%;overflow-wrap:anywhere;text-wrap:balance;
+  color:#f6fcff!important;text-shadow:0 3px #1a3d75,0 0 17px #5bbdff3a!important;
+}
+body.role-shared #shared #sharedContent .million-public .million-stakes{
+  border-color:#ffdf8088!important;
+  box-shadow:0 0 18px #ffc64a23!important;
+}
+@media(prefers-reduced-motion:reduce){
+ body.role-shared #shared #sharedContent :is(.match-public,.million-public){
+  transition:none!important;
+ }
+}
