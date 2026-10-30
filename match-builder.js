@@ -58,7 +58,9 @@ function matchBuilderLibraryMarkup(){
     '<span class="mcb-counter">'+selected.length+' SELECTED</span></div>'+
     '<div class="mcb-upload-row"><button type="button" id="mcbUploadOne">＋ Add One Slide</button>'+
     '<button type="button" id="mcbUploadBatch">▦ Upload Multiple Slides</button>'+
-    '<input id="mcbUploadFile" type="file" accept="image/*" multiple hidden></div>'+
+    '<input id="mcbUploadFile" type="file" accept="image/*" hidden>'+
+    '<input id="mcbUploadBatchFile" type="file" accept="image/*" multiple hidden>'+
+    '<div id="mcbUploadStatus" class="mcb-upload-status" role="status" aria-live="polite"></div></div>'+
     '<div class="mcb-image-toolbar"><div class="mcb-image-tabs"><button type="button" data-mcb-imagetab="saved"'+(tab==='saved'?' class="active"':'')+'>SAVED IMAGES</button>'+
     '<button type="button" data-mcb-imagetab="recent"'+(tab==='recent'?' class="active"':'')+'>RECENT</button></div>'+
     '<button type="button" id="mcbClearSelection">Clear Selection</button></div>'+
@@ -189,21 +191,42 @@ function matchBuilderSetMode(mode){
   renderActivities();
 }
 async function matchBuilderImportPictures(files){
-  const sources=Array.from(files||[]).filter(f=>String(f.type||'').startsWith('image/')).slice(0,36);
-  if(!sources.length)return;
+  const all=Array.from(files||[]);
+  const sources=all.filter(f=>String(f.type||'').startsWith('image/')).slice(0,36);
+  if(!sources.length)return toast('Choose image files to import into MATCH.');
+  const status=document.querySelector('#mcbUploadStatus');
+  const buttons=['mcbUploadOne','mcbUploadBatch'].map(id=>document.getElementById(id)).filter(Boolean);
+  buttons.forEach(b=>b.disabled=true);
   const created=[];
-  for(const file of sources){
-    try{created.push({id:newGameAssetId(),name:gameImageName(file),image:await normalizeGameImage(file),
-      collection:'Custom',createdAt:Date.now()})}catch(e){}
-  }
-  if(!created.length)return toast('Unable to process those images.');
-  const next=[...gameImageLibrary,...created];
-  if(!persistGameStore(GAME_IMAGE_LIBRARY_STORE,next))return toast('Could not save new pictures.');
-  gameImageLibrary=next;
-  const chosen=matchBuilderAssetIds();
-  matchDraft.selectedImages=[...new Set([...chosen,...created.map(x=>x.id)])].slice(0,24);
-  renderActivities();
-  toast(created.length+' picture'+(created.length===1?'':'s')+' imported. Choose a board target, then Create Pairs.');
+  try{
+    for(let i=0;i<sources.length;i++){
+      if(status)status.textContent='Preparing image '+(i+1)+' of '+sources.length+'…';
+      const file=sources[i];
+      try{
+        created.push({id:newGameAssetId(),name:gameImageName(file),
+          image:await normalizeGameImage(file),collection:'Custom',createdAt:Date.now()});
+      }catch(e){ /* Keep other valid images in the batch. */ }
+    }
+    if(!created.length){
+      if(status)status.textContent='No pictures were imported.';
+      return toast('Unable to process those images.');
+    }
+    const next=[...gameImageLibrary,...created];
+    if(status)status.textContent='Saving '+created.length+' pictures…';
+    if(!persistGameStore(GAME_IMAGE_LIBRARY_STORE,next)){
+      if(status)status.textContent='Save failed. No MATCH selection was changed.';
+      return toast('Could not save new pictures.');
+    }
+    gameImageLibrary=next;
+    const chosen=matchBuilderAssetIds();
+    matchDraft.selectedImages=[...new Set([...chosen,...created.map(x=>x.id)])].slice(0,24);
+    const selectedNew=matchDraft.selectedImages.filter(id=>created.some(a=>a.id===id)).length;
+    const failed=sources.length-created.length;
+    renderActivities();
+    toast(created.length+' picture'+(created.length===1?'':'s')+' imported; '+selectedNew+
+      ' newly selected for MATCH.'+(failed?' '+failed+' failed.':'')+
+      (created.length>selectedNew?' Additional images remain in Saved Images.':''));
+  }finally{buttons.forEach(b=>b.disabled=false)}
 }
 function matchBuilderMakeIdenticalPairs(){
   const ids=matchBuilderAssetIds(),target=matchBuilderImageCount();
@@ -241,11 +264,23 @@ function matchBuilderWire(){
   if(name)name.oninput=e=>{matchDraft.name=e.target.value;matchBuilderRefreshPreview()};
   all('[data-mcb-mode]').forEach(btn=>btn.onclick=()=>matchBuilderSetMode(btn.dataset.mcbMode));
   const quick=q('#mcbQuickPairs');if(quick)quick.oninput=e=>{matchDraft.quick=e.target.value;matchBuilderRefreshPreview()};
-  const file=q('#mcbUploadFile'),one=q('#mcbUploadOne'),batch=q('#mcbUploadBatch');
-  if(file){
-    if(one)one.onclick=()=>{file.multiple=false;file.click()};
-    if(batch)batch.onclick=()=>{file.multiple=true;file.click()};
-    file.onchange=async e=>{const files=e.target.files;e.target.value='';await matchBuilderImportPictures(files)};
+  const file=q('#mcbUploadFile'),batchFile=q('#mcbUploadBatchFile');
+  const one=q('#mcbUploadOne'),batch=q('#mcbUploadBatch');
+  if(file&&one){
+    one.onclick=()=>file.click();
+    file.onchange=async e=>{
+      const files=Array.from(e.target.files||[]);
+      e.target.value='';
+      await matchBuilderImportPictures(files);
+    };
+  }
+  if(batchFile&&batch){
+    batch.onclick=()=>batchFile.click();
+    batchFile.onchange=async e=>{
+      const files=Array.from(e.target.files||[]);
+      e.target.value='';
+      await matchBuilderImportPictures(files);
+    };
   }
   all('[data-mcb-imagetab]').forEach(btn=>btn.onclick=()=>{matchDraft.imageTab=btn.dataset.mcbImagetab;renderActivities()});
   all('[data-mcb-asset]').forEach(btn=>btn.onclick=()=>{
