@@ -336,7 +336,19 @@ function matchBuilderWire(){
   if(consult)consult.onchange=e=>matchLaunchSettings.crewConsult=e.target.checked;
   const save=q('#mcbSave'),launch=q('#mcbSaveLaunch');
   if(save)save.onclick=saveMatchDraft;
-  if(launch)launch.onclick=()=>{const s=saveMatchDraft();if(s)launchMatchSet(s)};
+  if(launch)launch.onclick=()=>{
+    if(state.activityRun)return toast('Finish the current classroom activity before launching MATCH.');
+    const connected=connectedStudents();
+    if(!connected.length){
+      const note='MATCH needs at least one connected student. Open the student companion, join the classroom, then select Save & Launch again.';
+      toast(note);
+      launch.setAttribute('title',note);
+      return;
+    }
+    const set=saveMatchDraft();
+    if(!set)return;
+    launchMatchSet(set);
+  };
   all('[data-mcb-load]').forEach(btn=>btn.onclick=()=>matchBuilderLoadSet(btn.dataset.mcbLoad));
   all('[data-mcb-copyset]').forEach(btn=>btn.onclick=()=>matchBuilderDuplicateSet(btn.dataset.mcbCopyset));
   all('[data-mcb-launch]').forEach(btn=>btn.onclick=()=>{const s=matchSets.find(x=>x.id===btn.dataset.mcbLaunch);if(s)launchMatchSet(s)});
