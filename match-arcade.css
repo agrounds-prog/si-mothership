@@ -1500,3 +1500,50 @@ body.role-student #studentContent .ma-student-earned b{color:#aeffda!important}
 @media(max-height:699px){
  #shared .ma-present .ma-tile{aspect-ratio:auto!important;height:100%!important}
 }
+
+
+/* Phase 5C-3: one-row projector HUD; maximize card area at 16:9. */
+#shared .ma-present{
+ grid-template-rows:auto auto minmax(0,1fr) auto auto!important;
+ gap:clamp(3px,.5vh,7px)!important;padding:clamp(5px,.7vh,9px)!important;
+}
+#shared .ma-present .ma-header{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:clamp(8px,1.4vw,20px)!important;padding:5px 12px!important;min-height:57px!important;
+}
+#shared .ma-present .ma-brand{flex:0 0 auto;font-size:clamp(16px,1.55vw,26px)!important;gap:8px!important}
+#shared .ma-present .ma-brand-icon{width:34px!important;height:34px!important;font-size:20px!important}
+#shared .ma-present .ma-header>.ma-topline{
+ flex:1 1 auto;min-width:0;display:flex!important;align-items:center!important;
+ justify-content:flex-end!important;gap:clamp(8px,1vw,16px)!important;flex-wrap:nowrap!important;
+}
+#shared .ma-present .ma-header .ma-turn-identity{
+ min-width:0!important;max-width:350px!important;gap:8px!important;padding:4px 9px!important;
+}
+#shared .ma-present .ma-header .ma-avatar{width:33px!important;height:33px!important;font-size:17px!important}
+#shared .ma-present .ma-header .ma-turn-identity small{font-size:clamp(9px,.75vw,12px)!important}
+#shared .ma-present .ma-header .ma-turn-identity strong{font-size:clamp(13px,1.3vw,20px)!important}
+#shared .ma-present .ma-header .ma-counter-strip{gap:6px!important;flex-wrap:nowrap!important}
+#shared .ma-present .ma-header .ma-counter-strip>span{
+ min-width:70px!important;padding:3px 7px!important;font-size:clamp(11px,.85vw,14px)!important;
+}
+#shared .ma-present .ma-header .ma-counter-strip b{font-size:clamp(19px,1.8vw,29px)!important}
+#shared .ma-present .ma-header .ma-counter-strip small{font-size:clamp(8px,.65vw,10px)!important}
+#shared .ma-present .ma-signal{min-height:40px!important;padding:3px 10px!important}
+#shared .ma-present .ma-signal-icon{width:30px!important;height:30px!important}
+#shared .ma-present .ma-signal strong{font-size:clamp(15px,1.5vw,23px)!important}
+#shared .ma-present .ma-signal>div>span{font-size:clamp(10px,.9vw,14px)!important}
+#shared .ma-present .ma-board-surround{
+ width:min(100%,1630px)!important;padding:clamp(5px,.75vh,9px)!important;
+}
+#shared .ma-present .ma-grid{gap:clamp(5px,.65vw,10px)!important}
+#shared .ma-present .ma-tile-front img{width:100%!important;height:100%!important;object-fit:contain!important}
+#shared .ma-present .ma-bottomline{gap:8px!important}
+#shared .ma-present .ma-progress{gap:3px!important}
+#shared .ma-present .ma-progress>span{font-size:10px!important}
+#shared .ma-present .ma-progress-track{height:8px!important}
+#shared .ma-present .ma-log{padding:5px 10px!important;font-size:clamp(11px,.9vw,14px)!important}
+@media(max-width:900px){
+ #shared .ma-present .ma-header{flex-wrap:wrap!important}
+ #shared .ma-present .ma-header>.ma-topline{justify-content:space-between!important;width:100%}
+}
