@@ -93,13 +93,15 @@ function matchBuilderPreviewMarkup(){
     contentMarkup(p.b)+'</span></div>').join(''):'<p>Choose images or enter pairs to preview your cards.</p>')+'</div>';
 }
 function matchBuilderSettingsMarkup(){
+  const teacherOnly=matchLaunchSettings.mode==='teacher';
   const teams=matchLaunchSettings.mode==='teams';
   const crew=teams?Array.from({length:Number(matchLaunchSettings.teamCount||3)},(_,i)=>
     '<span>'+matchTeamMeta(i).icon+' '+matchBuilderEsc(matchTeamMeta(i).name)+'</span>').join(''):
     '<span>Individual rotation</span>';
   return '<div class="mcb-card mcb-settings"><div class="mcb-card-title"><h3>MISSION SETTINGS</h3><span>Each launch</span></div>'+
     '<div class="mcb-settings-grid"><label>MODE<select id="matchMode"><option value="teams"'+(teams?' selected':'')+'>Teams</option>'+
-    '<option value="individual"'+(!teams?' selected':'')+'>Individual Rotation</option></select></label>'+
+    '<option value="individual"'+(matchLaunchSettings.mode==='individual'?' selected':'')+'>Individual Rotation</option>'+ 
+    '<option value="teacher"'+(teacherOnly?' selected':'')+'>Teacher-Controlled · Verbal Zoom</option></select></label>'+
     '<label>TEAMS<select id="matchTeamCount"'+(!teams?' disabled':'')+'>'+
     [2,3,4].map(n=>'<option value="'+n+'"'+(Number(matchLaunchSettings.teamCount)===n?' selected':'')+'>'+n+' Teams</option>').join('')+'</select></label>'+
     '<label>TURN RULE<select id="matchTurnRule"><option value="one_each"'+(matchLaunchSettings.turnRule!=='match_go_again'?' selected':'')+'>One Turn Each</option>'+
@@ -107,7 +109,7 @@ function matchBuilderSettingsMarkup(){
     '<label>SCORING<select id="matchScoring"><option value="pairs"'+(matchLaunchSettings.scoring!=='no_score'?' selected':'')+'>Pairs</option>'+
     '<option value="no_score"'+(matchLaunchSettings.scoring==='no_score'?' selected':'')+'>No Score / Crew Memory</option></select></label></div>'+
     '<label class="mcb-checkline"><input type="checkbox" id="matchCrewConsult"'+(matchLaunchSettings.crewConsult?' checked':'')+'> Enable Crew Consult</label>'+
-    '<div class="mcb-crew">'+crew+'</div></div>';
+    '<div class="mcb-crew">'+(teacherOnly?'No student login required. Students call card numbers aloud; the teacher flips cards.':crew)+'</div></div>';
 }
 function matchBuilderSavedMarkup(){
   return '<div class="mcb-card mcb-saved"><h3>REUSABLE MATCH SETS</h3>'+
@@ -339,7 +341,7 @@ function matchBuilderWire(){
   if(launch)launch.onclick=()=>{
     if(state.activityRun)return toast('Finish the current classroom activity before launching MATCH.');
     const connected=connectedStudents();
-    if(!connected.length){
+    if(matchLaunchSettings.mode!=='teacher'&&!connected.length){
       const note='MATCH needs at least one connected student. Open the student companion, join the classroom, then select Save & Launch again.';
       toast(note);
       launch.setAttribute('title',note);
