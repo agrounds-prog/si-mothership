@@ -5774,7 +5774,7 @@ def _match_apply_request(state: dict, run: dict, actor: str, request: dict, teac
             match["pendingResolution"] = None
             match["turnStart"] = None
             match["consult"] = {"open": False, "promptCardId": None, "suggestions": {}}
-            match["message"] = f"{_match_active_name(state, run) or 'Player'} retries the turn."
+            match["message"] = ("Teacher may select two numbers again." if cfg.get("teacherControlled") else f"{_match_active_name(state, run) or 'Player'} retries the turn.")
         return
 
     if kind == "skip":
@@ -5784,7 +5784,7 @@ def _match_apply_request(state: dict, run: dict, actor: str, request: dict, teac
         match["consult"] = {"open": False, "promptCardId": None, "suggestions": {}}
         _match_advance_turn(state, run)
         match["locked"] = bool(match.get("teacherLocked"))
-        match["message"] = f"{_match_active_name(state, run) or 'Next player'} is up."
+        match["message"] = ("Turn skipped. Teacher may select the next two numbers." if cfg.get("teacherControlled") else f"{_match_active_name(state, run) or 'Next player'} is up.")
         return
 
     if kind == "next_team":
