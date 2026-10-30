@@ -346,12 +346,12 @@ function matchBuilderWire(){
       return;
     }
     const set=saveMatchDraft();
-    if(!set)return;
+    if(!set||!Array.isArray(set.pairs)||set.pairs.length<4)return;
     launchMatchSet(set);
   };
   all('[data-mcb-load]').forEach(btn=>btn.onclick=()=>matchBuilderLoadSet(btn.dataset.mcbLoad));
   all('[data-mcb-copyset]').forEach(btn=>btn.onclick=()=>matchBuilderDuplicateSet(btn.dataset.mcbCopyset));
-  all('[data-mcb-launch]').forEach(btn=>btn.onclick=()=>{const s=matchSets.find(x=>x.id===btn.dataset.mcbLaunch);if(s)launchMatchSet(s)});
+  all('[data-mcb-launch]').forEach(btn=>btn.onclick=()=>{const s=matchSets.find(x=>x.id===btn.dataset.mcbLaunch);if(s&&Array.isArray(s.pairs)&&s.pairs.length>=4)launchMatchSet(s)});
   all('[data-mcb-delete]').forEach(btn=>btn.onclick=()=>{
     const s=matchSets.find(x=>x.id===btn.dataset.mcbDelete);
     if(!s||!confirm('Delete MATCH set "'+s.name+'"? This will not delete library pictures.'))return;
