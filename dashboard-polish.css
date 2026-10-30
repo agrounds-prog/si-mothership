@@ -3077,3 +3077,75 @@ body.role-shared #shared #sharedContent .bingo-history-grid{
    top:98px!important;
  }
 }
+
+
+/* Phase 5B-5 — visual finish only, retain approved header/panel geometry. */
+body.role-shared #shared #sharedContent > .bingo-shared-wrap{
+  background:
+    radial-gradient(ellipse at 50% -25%,#506cd04a,transparent 54%),
+    radial-gradient(circle at 92% 80%,#4a2c8550,transparent 45%),
+    linear-gradient(153deg,#081d42,#101b42 62%,#080f2d)!important;
+  box-shadow:inset 0 1px #d3f7ff36,inset 0 0 75px #1675e81a!important;
+}
+body.role-shared #shared #sharedContent > .bingo-shared-wrap > .eyebrow{
+  border:1px solid #55d9ee8c!important;
+  border-radius:999px!important;background:#0b426a91!important;
+  padding:5px 15px!important;color:#b1f3ff!important;
+  box-shadow:0 0 16px #48caff24,inset 0 1px #ffffff27!important;
+  text-shadow:0 0 9px #73d9ff6e;
+}
+body.role-shared #shared #sharedContent > .bingo-shared-wrap > h3{
+  color:#f5fbff!important;
+  text-shadow:0 3px 0 #304889,0 0 25px #91deff42,0 12px 24px #0008!important;
+}
+body.role-shared #shared #sharedContent .bingo-shared-main .bingo-call-card{
+  position:relative!important;isolation:isolate;
+  border:2px solid #5de2ff!important;
+  background:
+    radial-gradient(ellipse at 50% 87%,#198fd15e,transparent 54%),
+    radial-gradient(ellipse at 52% 23%,#5177dd43,transparent 62%),
+    linear-gradient(155deg,#183e72,#11264f 64%,#101f46)!important;
+  box-shadow:inset 0 1px #e9faff45,inset 0 0 55px #3092ef29,0 0 28px #32bdff39!important;
+  text-shadow:0 3px #263f88,0 0 26px #9ad4ff5c!important;
+}
+body.role-shared #shared #sharedContent .bingo-shared-main .bingo-call-card::before{
+  color:#c5f4ff!important;letter-spacing:.18em!important;
+  text-shadow:0 0 12px #73d7ff86!important;
+}
+body.role-shared #shared #sharedContent .bingo-shared-main .bingo-call-card::after{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  left:18%;right:18%;bottom:-7%;height:29%;border-radius:50%;
+  background:radial-gradient(ellipse,#2bb7ff5c,transparent 70%);
+}
+body.role-shared #shared #sharedContent .bingo-shared-main > .bingo-history{
+  border-color:#54baff!important;
+  background:
+    radial-gradient(ellipse at 85% 0%,#2776aa36,transparent 60%),
+    linear-gradient(155deg,#183d70,#0c244e 70%,#0b1c40)!important;
+  box-shadow:inset 0 1px #e9faff31,0 0 20px #42bfff20!important;
+}
+body.role-shared #shared #sharedContent .bingo-history h4{
+  color:#baf0ff!important;letter-spacing:.05em!important;
+  text-shadow:0 0 14px #6bbfff51!important;
+}
+body.role-shared #shared #sharedContent .bingo-history-grid > span{
+  border:1px solid #6aa7ee9c!important;border-radius:12px!important;
+  background:linear-gradient(155deg,#254d86,#162a59)!important;
+  color:#f4fbff!important;
+  box-shadow:inset 0 1px #ffffff26,0 0 10px #5faeff1b!important;
+}
+body.role-shared #shared #sharedContent .bingo-history > p,
+body.role-shared #shared #sharedContent .bingo-history > small{
+  display:block!important;align-self:flex-start!important;
+  width:fit-content;max-width:100%;
+  margin:0!important;padding:5px 10px!important;
+  border:1px solid #72c7ff54!important;border-radius:999px!important;
+  background:#438bd31c!important;color:#d1f2ff!important;
+  font-size:clamp(11px,1vw,15px)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ body.role-shared #shared #sharedContent .bingo-shared-wrap,
+ body.role-shared #shared #sharedContent .bingo-shared-wrap *{
+  transition:none!important;
+ }
+}
