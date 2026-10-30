@@ -5724,8 +5724,11 @@ def _match_apply_request(state: dict, run: dict, actor: str, request: dict, teac
             if not go_again:
                 _match_advance_turn(state, run)
             match["locked"] = bool(match.get("teacherLocked"))
-            nxt = _match_active_name(state, run) or "Next player"
-            match["message"] = f"{nxt} matched — go again!" if go_again else f"{nxt} is up — pick two cards."
+            if cfg.get("teacherControlled"):
+                match["message"] = "Pair found! Call the next two numbers." if go_again else "Ready for the next two numbers — teacher selects the cards."
+            else:
+                nxt = _match_active_name(state, run) or "Next player"
+                match["message"] = f"{nxt} matched — go again!" if go_again else f"{nxt} is up — pick two cards."
         return
 
     if kind == "toggle_lock":
