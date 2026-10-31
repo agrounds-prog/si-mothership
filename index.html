@@ -14794,6 +14794,14 @@ body.role-student .minefield-cell.simple.revealed.empty::after{
 #student .student-prompt{border-radius:20px}
 @media(prefers-reduced-motion:reduce){#teacher .app-shortcut-icon{transition:none!important}#teacher .app-shortcut:hover .app-shortcut-icon{transform:none!important}}
 </style>
+<style id="phase-4t-tablet-second-screen">
+#teacher #tabletSecondScreenBtn{margin-top:8px;border-color:#48b9dd!important;color:#d8f8ff!important;background:linear-gradient(115deg,#112849,#18325b)!important}
+.tablet-qr-overlay{position:fixed;inset:0;z-index:25000;display:grid;place-items:center;padding:18px;background:rgba(1,6,19,.83)}
+.tablet-qr-panel{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:440px;width:100%;max-height:94dvh;overflow:auto;padding:26px;border:1px solid #63c9f1;border-radius:22px;background:linear-gradient(150deg,#16244b,#081728);box-shadow:0 22px 80px #000a;color:#eff9ff;text-align:center}
+.tablet-qr-panel h2{margin:0;font-size:25px}.tablet-qr-panel p{margin:0;line-height:1.45}.tablet-qr-panel img{background:white;padding:10px;border-radius:12px;width:240px;height:240px;max-width:95%;object-fit:contain}
+.tablet-qr-panel a{color:#88e7ff;overflow-wrap:anywhere}.tablet-qr-panel button{padding:12px 20px;min-width:155px;border-radius:12px;border:1px solid #68bfe9;background:#163d68;color:white;font-weight:700;cursor:pointer}
+.tablet-qr-panel button:focus-visible{outline:3px solid #f2ca66;outline-offset:3px}.tablet-qr-panel small{color:#b4c9da;line-height:1.45}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
@@ -14888,6 +14896,7 @@ body.role-student .minefield-cell.simple.revealed.empty::after{
 <section class="panel screen-dock">
   <div class="screen-dock-head"><span class="screen-dock-title v564-panel-label"><span class="v564-panel-art v562-art v562-control-lobby" aria-hidden="true"></span><span>SHARED SCREEN</span></span><span class="mirror-live">LIVE</span></div>
   <button class="launch-screen-btn" id="launchSecondScreenBtn">↗ Launch 2nd Screen</button>
+  <button class="launch-screen-btn" id="tabletSecondScreenBtn" type="button">▦ Connect Tablet · QR</button>
   <div class="mirror-screen"><div class="mirror-top"><span>🚀&nbsp; <b>SI Mothership</b></span><strong>7K3M</strong></div><div class="mirror-content" id="mirrorContent"></div><div class="mirror-footer"><span><span class="pulse"></span>&nbsp; <span id="mirrorLabel">LOBBY</span></span><span>Mirror</span></div></div>
 </section></aside>
 </div></div></section>
@@ -20015,6 +20024,24 @@ const summaryExport=$('#sessionSummaryExport');if(summaryExport)summaryExport.on
 const emergencyRail=$('#emergencyReturnBtn');if(emergencyRail)emergencyRail.onclick=()=>{if(state.activityRun)returnToClassroom('emergency')};
 $('#copyCode').onclick=async()=>{try{await navigator.clipboard.writeText(STUDENT_JOIN_CODE);toast('Join code copied')}catch(e){toast('Join code: '+STUDENT_JOIN_CODE)}};
 $('#launchSecondScreenBtn').onclick=launchSecondScreen;
+$('#tabletSecondScreenBtn').onclick=async()=>{
+  if(!NETWORK_SYNC){toast('Tablet QR requires the hosted Mothership app.');return}
+  const info=await refreshSessionInfo(),target=info?.shared_url||SHARED_SCREEN_URL;
+  if(!target||!/^https?:\/\//i.test(target)){toast('Shared-screen link unavailable');return}
+  document.getElementById('tabletSecondScreenDialog')?.remove();
+  const overlay=document.createElement('div');overlay.id='tabletSecondScreenDialog';overlay.className='tablet-qr-overlay';
+  const panel=document.createElement('section');panel.className='tablet-qr-panel';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label','Connect a tablet');
+  const heading=document.createElement('h2');heading.textContent='Connect a Tablet Display';
+  const desc=document.createElement('p');desc.textContent='Scan with a tablet camera to open the live shared screen. No student login or app installation required.';
+  const qr=document.createElement('img');qr.alt='QR code for live shared screen';qr.width=240;qr.height=240;qr.src=PUBLIC_ORIGIN+'/api/qr?url='+encodeURIComponent(target);
+  const link=document.createElement('a');link.href=target;link.rel='noopener noreferrer';link.target='_blank';link.textContent='Open shared-screen link';
+  const copy=document.createElement('button');copy.type='button';copy.textContent='Copy Display Link';copy.onclick=async()=>{try{await navigator.clipboard.writeText(target);toast('Display link copied')}catch(e){toast('Unable to copy link')}};
+  const close=document.createElement('button');close.type='button';close.textContent='Close';close.onclick=()=>overlay.remove();
+  const note=document.createElement('small');note.textContent='View-only display. Share this session link only with trusted classroom devices. A new session changes the shared-screen link.';
+  panel.append(heading,desc,qr,link,copy,close,note);overlay.append(panel);document.body.append(overlay);
+  overlay.onclick=e=>{if(e.target===overlay)overlay.remove()};close.focus();
+};
+
 $('#resetBtn').onclick=async()=>{const created=await requestNewServerSession();if(NETWORK_SYNC&&!created)return;teacherSummaryReset();state=initial();joinNameDraft='';joinAvatarDraft='';joinCodeDraft='';joinStep='code';$('#agendaText').value=state.agendaText;$('#agendaYoutube').value='';$('#picturePromptText').value=state.picturePrompt;render();toast('Classroom reset — teacher library kept')};
 
 
