@@ -14766,6 +14766,24 @@ body.role-student .minefield-cell.simple.revealed.empty::after{
 .si-student-setup-link:focus-visible{outline:3px solid #ffdf8a;outline-offset:2px}
 @media(max-width:900px){.si-student-setup-link{display:none!important}}
 </style>
+<style id="phase-4r-million-cinematic-stage">
+.million-public{width:min(1520px,99%)!important;grid-template-columns:minmax(112px,150px) minmax(0,1fr) minmax(118px,150px)!important;gap:12px!important;padding:15px!important}
+.million-stage{min-width:0!important}
+.million-stage h3{max-width:100%!important;margin:13px auto 17px!important;padding:clamp(18px,2.3vw,34px)!important;font-size:clamp(26px,3.1vw,46px)!important;line-height:1.16!important;box-shadow:0 10px 35px #030c27bb,inset 0 1px 0 #c8d6ff44!important}
+.million-choices{gap:clamp(10px,1.35vw,20px)!important}
+.million-choice{min-height:clamp(76px,9vh,120px)!important;grid-template-columns:clamp(44px,4.3vw,64px) minmax(0,1fr)!important;transition:border-color .22s ease,box-shadow .22s ease,background .22s ease}
+.million-choice b{font-size:clamp(21px,2vw,30px)!important}
+.million-choice span{font-size:clamp(18px,1.75vw,27px)!important;line-height:1.25!important;overflow-wrap:anywhere;padding:12px!important}
+.million-choice.locked:not(.correct):not(.wrong){animation:millionSignalPulse 1.7s ease-in-out infinite}
+.million-choice.correct{box-shadow:0 0 30px #45df7980,inset 0 0 24px #45df7928!important}
+.million-choice.wrong{box-shadow:0 0 25px #ff4d6870!important}
+.million-ladder,.million-lifelines{min-width:0!important}
+.million-message{font-size:clamp(14px,1.35vw,19px)!important}
+@keyframes millionSignalPulse{0%,100%{box-shadow:0 0 10px #f4be3c33}50%{box-shadow:0 0 30px #f4be3ca0}}
+@media(max-width:900px){.million-public{grid-template-columns:1fr!important}.million-ladder,.million-lifelines{display:none!important}.million-stage h3{font-size:clamp(23px,4.5vw,34px)!important}.million-choice{min-height:72px!important}}
+@media(max-width:570px){.million-choices{grid-template-columns:1fr!important}.million-choice span{font-size:18px!important}.million-public{padding:10px!important}}
+@media(prefers-reduced-motion:reduce){.million-choice.locked{animation:none!important}.million-choice{transition:none!important}}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
