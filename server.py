@@ -4538,6 +4538,7 @@ def _million_apply_request(state: dict, run: dict, name: str, request: dict) -> 
         million["result"] = ""
         million["publicCorrect"] = ""
         million["over"] = False
+        million["questionEndedAt"] = None
         million["message"] = "TRY AGAIN activated. Choose another answer."
 
 
