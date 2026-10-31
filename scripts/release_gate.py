@@ -221,6 +221,7 @@ def main() -> int:
     check("game show visual refinement: release style remains", '<style id="v55-2-game-show-visual-refinement">' in html)
     check("crew survey refinement: stage framing remains", '.crew-survey-public::before' in html and '.crew-survey-public::after' in html and 'content:"SURVEY BOARD"' in html)
     check("crew survey refinement: tactile student buzzer remains", 'body.role-student .crew-survey-big-buzz::after' in html and 'radial-gradient(circle at 42% 30%' in html)
+    check("million phase 4R: cinematic shared stage remains", 'id="phase-4r-million-cinematic-stage"' in html and "millionSignalPulse" in html and "grid-template-columns:minmax(112px,150px)" in html)
     check("million refinement: stage framing remains", '.million-public::before' in html and '.million-public::after' in html and '.million-choice.locked' in html)
     check("million refinement: command seat emphasis remains", 'body.role-student .million-student.command-seat' in html and 'body.role-student #millionLockBtn:not(:disabled)' in html)
 
