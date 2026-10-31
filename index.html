@@ -14784,6 +14784,16 @@ body.role-student .minefield-cell.simple.revealed.empty::after{
 @media(max-width:570px){.million-choices{grid-template-columns:1fr!important}.million-choice span{font-size:18px!important}.million-public{padding:10px!important}}
 @media(prefers-reduced-motion:reduce){.million-choice.locked{animation:none!important}.million-choice{transition:none!important}}
 </style>
+<style id="phase-4s-command-deck">
+/* Space-station concept pass: visual-only controls and crew treatment. */
+#teacher .app-shortcuts-panel{border:1px solid rgba(99,190,255,.27)!important;border-radius:22px!important;background:linear-gradient(150deg,rgba(27,37,86,.85),rgba(8,20,43,.91))!important;box-shadow:inset 0 1px 0 rgba(189,230,255,.14),0 16px 36px rgba(0,0,0,.22)!important}
+#teacher .app-shortcut-icon{border-radius:18px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.23),0 8px 24px rgba(21,14,72,.36),0 0 0 1px rgba(112,166,255,.22)!important;transition:transform .18s ease,filter .18s ease,box-shadow .18s ease}
+#teacher .app-shortcut:focus-visible .app-shortcut-icon,#teacher .app-shortcut:hover .app-shortcut-icon{transform:translateY(-2px);filter:brightness(1.13);box-shadow:0 0 0 2px rgba(99,221,255,.50),0 14px 28px rgba(24,20,80,.46)!important}
+#teacher .crew{border-radius:16px!important;box-shadow:inset 0 1px 0 rgba(215,235,255,.12),0 8px 18px rgba(0,0,0,.17)!important}
+#teacher .crew:focus-within{outline:2px solid #5be5ff;outline-offset:2px}
+#student .student-prompt{border-radius:20px}
+@media(prefers-reduced-motion:reduce){#teacher .app-shortcut-icon{transition:none!important}#teacher .app-shortcut:hover .app-shortcut-icon{transform:none!important}}
+</style>
 </head>
 <body>
 <div id="bootError" style="display:none;position:fixed;z-index:99999;inset:20px;background:#0b1629;border:1px solid #ff7797;border-radius:16px;padding:24px;color:#fff;font-family:Arial,sans-serif;overflow:auto"><h2 style="margin-top:0;color:#ff9ab3">Prototype error</h2><pre id="bootErrorText" style="white-space:pre-wrap;color:#dbe7ff"></pre></div>
