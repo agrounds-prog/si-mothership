@@ -5778,6 +5778,11 @@ def _match_apply_request(state: dict, run: dict, actor: str, request: dict, teac
         return
 
     if kind == "skip":
+        # A pending reveal may already have credited the pair. Skipping must
+        # discard that in-progress result before rotating the active player.
+        turn_start = match.get("turnStart")
+        if isinstance(turn_start, dict):
+            _match_restore(match, turn_start)
         match["selected"] = []
         match["pendingResolution"] = None
         match["turnStart"] = None
