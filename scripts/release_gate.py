@@ -92,6 +92,10 @@ def main() -> int:
           "info?.shared_url||SHARED_SCREEN_URL" in html and
           "'/api/qr?url='" in html)
 
+    check("HTML integrity: source ends at closing html tag", html.rstrip().endswith("</html>"))
+    check("MILLION integrity: no truncated final-prize assignment",
+          "finalPrizeText=String.fromCharCode(36)+Number(finalPrize).toLocaleString();" in html)
+
     # HTML shell integrity: release styles must not split structural tags.
     head_close = html.find("</head>")
     body_open = html.find("<body", head_close)
@@ -235,7 +239,7 @@ def main() -> int:
     check("crew survey refinement: stage framing remains", '.crew-survey-public::before' in html and '.crew-survey-public::after' in html and 'content:"SURVEY BOARD"' in html)
     check("crew survey refinement: tactile student buzzer remains", 'body.role-student .crew-survey-big-buzz::after' in html and 'radial-gradient(circle at 42% 30%' in html)
     check("million phase 4R: completion banner respects configured prize ladder",
-          "finalPrizeText='$'+finalPrize.toLocaleString()" in html and 'MISSION COMPLETE · ${finalPrizeText}' in html)
+          "finalPrizeText=String.fromCharCode(36)+Number(finalPrize).toLocaleString()" in html and 'MISSION COMPLETE · ${finalPrizeText}' in html)
     check("million phase 4R: cinematic shared stage remains", 'id="phase-4r-million-cinematic-stage"' in html and "millionSignalPulse" in html and "grid-template-columns:minmax(112px,150px)" in html)
     check("million refinement: stage framing remains", '.million-public::before' in html and '.million-public::after' in html and '.million-choice.locked' in html)
     check("million refinement: command seat emphasis remains", 'body.role-student .million-student.command-seat' in html and 'body.role-student #millionLockBtn:not(:disabled)' in html)
