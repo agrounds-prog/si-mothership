@@ -493,6 +493,10 @@ def main() -> int:
     check("match gameplay v55.25: student tile controls remain private to active turn", "data-match-pick" in html and "wireMatchStudent" in html and "sendMatchAction(\'select\'" in html)
     check("match gameplay v55.25: finite reveal timer remains teacher-only", "SESSION_ROLE!==\'teacher\'" in html and "scheduleMatchResolution" in html and "setTimeout" in segment(html, "function scheduleMatchResolution"))
     check("match gameplay v55.25: scoring and completion remain", "scores[actor]" in server and "matched_count >= all_cards" in server and "complete" in server)
+    check("match skip: pending matched pair rolls back in local fallback",
+          "if(m.turnStart)Object.assign(m,deepClone(m.turnStart));" in html)
+    check("match skip: pending matched pair rolls back on server",
+          'turn_start = match.get("turnStart")' in server and '_match_restore(match, turn_start)' in server)
     check("match+bingo foundation v55.24: release style remains", 'id="v55-24-match-bingo-foundation"' in html)
     check("match+bingo foundation v55.24: both apps are registered", "id:\'match\'" in html and "id:\'bingo\'" in html and "MATCH" in html and "BINGO" in html)
     check("match+bingo foundation v55.24: activity seeds remain", "id:\'match-game\'" in html and "id:\'bingo-game\'" in html and "type:\'match\'" in html and "type:\'bingo\'" in html)
