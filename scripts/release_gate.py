@@ -81,6 +81,11 @@ def main() -> int:
     check("canonical controls v56.9.3: legacy danger slot collapses when unused", "#teacher .single-mission-danger:has(#emergencyReturnBtn.hidden)" in canonical_controls)
     check("canonical controls v56.9.3: Activity Shortcut inner frame padding is removed", "#teacher .app-shortcut-icon{" in canonical_controls and "padding:0!important" in canonical_controls and "#teacher .app-shortcut-icon:after" in canonical_controls)
 
+    check("phase 4S: command-deck visual treatment and accessible reduced motion",
+          'id="phase-4s-command-deck"' in html and
+          '#teacher .app-shortcut-icon' in html and
+          '@media(prefers-reduced-motion:reduce)' in html)
+
     # HTML shell integrity: release styles must not split structural tags.
     head_close = html.find("</head>")
     body_open = html.find("<body", head_close)
