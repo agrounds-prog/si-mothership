@@ -86,6 +86,12 @@ def main() -> int:
           '#teacher .app-shortcut-icon' in html and
           '@media(prefers-reduced-motion:reduce)' in html)
 
+    check("phase 4T: tablet QR shared-screen entry point remains",
+          'id="tabletSecondScreenBtn"' in html and
+          'id="phase-4t-tablet-second-screen"' in html and
+          "info?.shared_url||SHARED_SCREEN_URL" in html and
+          "'/api/qr?url='" in html)
+
     # HTML shell integrity: release styles must not split structural tags.
     head_close = html.find("</head>")
     body_open = html.find("<body", head_close)
