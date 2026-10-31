@@ -15451,6 +15451,9 @@ function applyMatchLocalAction(type,value,name){
   }else if(type==='retry'){
     const base=m.turnStart||(m.history||[]).pop();if(base){const keep=Number(base.activeStudentIndex||m.activeStudentIndex||0);Object.assign(m,deepClone(base));m.activeStudentIndex=keep;m.teacherLocked=false;m.locked=false;m.pendingResolution=null;m.turnStart=null;m.message=run.matchConfig?.teacherControlled?'Teacher may select two numbers again.':(matchActiveStudent(run)?.n||'Player')+' retries the turn.'}
   }else if(type==='skip'){
+    // A selected pair may already have been scored before the reveal timer resolves.
+    // Restore the turn snapshot first so Skip never awards a pending match.
+    if(m.turnStart)Object.assign(m,deepClone(m.turnStart));
     m.selected=[];m.pendingResolution=null;m.turnStart=null;m.consult={open:false,promptCardId:null,suggestions:{}};matchAdvanceTurn(run);m.locked=!!m.teacherLocked;m.message=run.matchConfig?.teacherControlled?'Turn skipped. Teacher may select the next two numbers.':(matchActiveStudent(run)?.n||'Next player')+' is up.';
   }else if(type==='next_team'){
     m.selected=[];m.pendingResolution=null;m.turnStart=null;m.consult={open:false,promptCardId:null,suggestions:{}};matchAdvanceTurn(run,{forceTeam:true});m.locked=!!m.teacherLocked;m.message=(matchActiveStudent(run)?.n||'Next player')+' is up for '+(run.matchConfig?.mode==='teams'?matchTeamMeta(m.activeTeam).name:'the next turn')+'.';
