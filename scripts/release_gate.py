@@ -198,6 +198,8 @@ def main() -> int:
     check("crew survey privacy: hidden answer text and values are masked", 'clean["text"] = ""' in role_filter and 'clean["value"] = 0' in role_filter)
     check("crew survey privacy: private answers do not reach shared screen", 'cs["privateResponses"] = {}' in role_filter and 'cs.pop("lastResponse", None)' in role_filter)
     check("crew survey privacy: student sees only own private response", '{own_name: copy.deepcopy(private_responses[own_name])}' in role_filter)
+    check("million: Try Again clears server question end timestamp",
+          'million["questionEndedAt"] = None' in segment(server, 'def _million_apply_request('))
     check("million privacy: current question strips answer key and clue source", 'clean.pop("correct", None)' in role_filter and 'clean.pop("mothershipClue", None)' in role_filter and 'clean.pop("explanation", None)' in role_filter)
     check("million privacy: future questions are hidden", 'safe_questions.append({"prompt": "", "choices": []})' in role_filter)
     check("million privacy: play-along predictions are role-filtered", 'million["crewPredictions"] = {}' in role_filter and '{own_name: copy.deepcopy(predictions[own_name])}' in role_filter)
