@@ -89,8 +89,14 @@ def main() -> int:
     check("phase 4T: tablet QR shared-screen entry point remains",
           'id="tabletSecondScreenBtn"' in html and
           'id="phase-4t-tablet-second-screen"' in html and
-          "info?.shared_url||SHARED_SCREEN_URL" in html and
+          "const target=info?.shared_url;" in html and
           "'/api/qr?url='" in html)
+
+    check("phase 4T: QR does not fall back to stale session URL",
+          "const target=info?.shared_url;" in html and
+          "Could not confirm the active session" in html)
+    check("phase 4T: keyboard dismissal is supported",
+          "e.key==='Escape'" in html and "document.removeEventListener('keydown',onKey)" in html)
 
     check("HTML integrity: source ends at closing html tag", html.rstrip().endswith("</html>"))
     check("MILLION integrity: no truncated final-prize assignment",
