@@ -20026,8 +20026,10 @@ $('#copyCode').onclick=async()=>{try{await navigator.clipboard.writeText(STUDENT
 $('#launchSecondScreenBtn').onclick=launchSecondScreen;
 $('#tabletSecondScreenBtn').onclick=async()=>{
   if(!NETWORK_SYNC){toast('Tablet QR requires the hosted Mothership app.');return}
-  const info=await refreshSessionInfo(),target=info?.shared_url||SHARED_SCREEN_URL;
-  if(!target||!/^https?:\/\//i.test(target)){toast('Shared-screen link unavailable');return}
+  const info=await refreshSessionInfo();
+  // Avoid sharing an outdated display link when session refresh fails.
+  const target=info?.shared_url;
+  if(!target||!/^https?:\/\//i.test(target)){toast('Could not confirm the active session. Try again.');return}
   document.getElementById('tabletSecondScreenDialog')?.remove();
   const overlay=document.createElement('div');overlay.id='tabletSecondScreenDialog';overlay.className='tablet-qr-overlay';
   const panel=document.createElement('section');panel.className='tablet-qr-panel';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label','Connect a tablet');
@@ -20039,7 +20041,11 @@ $('#tabletSecondScreenBtn').onclick=async()=>{
   const close=document.createElement('button');close.type='button';close.textContent='Close';close.onclick=()=>overlay.remove();
   const note=document.createElement('small');note.textContent='View-only display. Share this session link only with trusted classroom devices. A new session changes the shared-screen link.';
   panel.append(heading,desc,qr,link,copy,close,note);overlay.append(panel);document.body.append(overlay);
-  overlay.onclick=e=>{if(e.target===overlay)overlay.remove()};close.focus();
+  const dismiss=()=>{document.removeEventListener('keydown',onKey);overlay.remove()};
+  const onKey=e=>{if(e.key==='Escape'){e.preventDefault();dismiss()}};
+  close.onclick=dismiss;
+  overlay.onclick=e=>{if(e.target===overlay)dismiss()};
+  document.addEventListener('keydown',onKey);close.focus();
 };
 
 $('#resetBtn').onclick=async()=>{const created=await requestNewServerSession();if(NETWORK_SYNC&&!created)return;teacherSummaryReset();state=initial();joinNameDraft='';joinAvatarDraft='';joinCodeDraft='';joinStep='code';$('#agendaText').value=state.agendaText;$('#agendaYoutube').value='';$('#picturePromptText').value=state.picturePrompt;render();toast('Classroom reset — teacher library kept')};
