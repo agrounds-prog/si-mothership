@@ -1427,3 +1427,27 @@ body.role-student .pixel-verbal-mode .pixel-verbal-cue{
 #teacher #activityGrid .pixel-setup .pixel-batch-add-images:focus-visible{
  outline:3px solid #ffe18b!important;outline-offset:3px!important;
 }
+
+
+/* PIXEL REVEAL — always-visible saved activity shortcuts. */
+#teacher #activityGrid .pixel-setup .pixel-quick-actions{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;
+ margin:0 0 16px;padding:10px;border:1px solid #4b95c3;
+ border-radius:13px;background:#0c2b47;
+}
+#teacher #activityGrid .pixel-setup .pixel-quick-actions button{
+ min-height:52px;padding:10px;border:2px solid #55d4ef;
+ border-radius:11px;color:#fff;font-size:clamp(12px,1vw,16px);
+ font-weight:900;cursor:pointer;
+ background:linear-gradient(130deg,#125c91,#0d789f);
+}
+#teacher #activityGrid .pixel-setup .pixel-quick-actions button:first-child{
+ background:linear-gradient(130deg,#13694a,#11926e);
+ border-color:#6aefc0;
+}
+#teacher #activityGrid .pixel-setup .pixel-quick-actions button:focus-visible{
+ outline:3px solid #ffe38c;outline-offset:3px;
+}
+@media(max-width:520px){
+ #teacher #activityGrid .pixel-setup .pixel-quick-actions{grid-template-columns:1fr}
+}
