@@ -5071,6 +5071,12 @@ async def index(request: web.Request) -> web.Response:
         if insertion >= 0 and "const intensity=Math.pow(1-progress,1.6)" not in focus_block:
             focus_block = focus_block[:insertion] + focus_glitch + focus_block[insertion:]
             text = text[:focus_start] + focus_block + text[focus_end:]
+    # Phase 4V-G: one shared-display strike bank; team strike history is retained.
+    survey_old = "const strikes=(cs.strikes||[0,0]).map((n,t)=>"
+    survey_new = ("const strikeTeam=Number.isInteger(Number(control)) && control!==null && control!==undefined?"
+                  "Number(control):Number(cs.strikes?.[1]||0)>Number(cs.strikes?.[0]||0)?1:0;"
+                  "const strikes=[Number(cs.strikes?.[strikeTeam]||0)].map((n,t)=>")
+    text = text.replace(survey_old, survey_new)
     origin = effective_origin(request)
     urls = session_urls(origin)
     role = (request.query.get("role") or "teacher").lower()
