@@ -239,12 +239,36 @@ function matchBuilderMakeIdenticalPairs(){
   toast(target+' identical pairs created. Edit individual tiles or Save & Launch.');
 }
 function matchBuilderLoadSet(id){
-  const set=matchSets.find(s=>s.id===id);
-  if(!set)return toast('Saved MATCH set was not found.');
-  matchDraft.name=set.name;matchDraft.editorMode='pairs';
-  matchDraft.manualPairs=(set.pairs||[]).map(p=>({id:p.id||matchBuilderNewPair().id,a:{...p.a},b:{...p.b}}));
-  matchDraft.editingSetId=set.id;matchDraft.selectedImages=[];matchDraft.quick='';
-  renderActivities();toast('Editing '+set.name+' · changes are not saved until you press Save Changes.');
+  // Prepare the entire draft before touching the editor, so malformed legacy
+  // sets cannot partially overwrite the current unsaved work.
+  const set=matchSets.find(s=>String(s?.id)===String(id));
+  if(!set)return toast('Saved MATCH set was not found. Refresh and try again.');
+  if(!Array.isArray(set.pairs)||!set.pairs.length)
+    return toast('This saved MATCH set has no pairs to load.');
+  let pairs;
+  try{
+    pairs=set.pairs.map((p,i)=>{
+      if(!p||typeof p!=='object'||!p.a||!p.b)
+        throw new Error('Pair '+(i+1)+' is missing a tile');
+      return {id:p.id||'match_restored_'+i,a:{...p.a},b:{...p.b}};
+    });
+  }catch(error){
+    console.error('MATCH saved set could not be opened',error);
+    return toast('Unable to load MATCH set: '+error.message);
+  }
+  matchDraft.name=String(set.name||'MATCH Set');
+  matchDraft.editorMode='pairs';
+  matchDraft.manualPairs=pairs;
+  matchDraft.editingSetId=set.id;
+  matchDraft.selectedImages=[];
+  matchDraft.quick='';
+  try{
+    renderActivities();
+    toast('Editing '+matchDraft.name+' · press Save Changes to update this set.');
+  }catch(error){
+    console.error('MATCH editor failed to render saved set',error);
+    toast('MATCH set found, but editor could not display it. Check browser console.');
+  }
 }
 function matchBuilderDuplicateSet(id){
   const set=matchSets.find(s=>s.id===id);
@@ -351,7 +375,11 @@ function matchBuilderWire(){
     if(!set||!Array.isArray(set.pairs)||set.pairs.length<4)return;
     launchMatchSet(set);
   };
-  all('[data-mcb-load]').forEach(btn=>btn.onclick=()=>matchBuilderLoadSet(btn.dataset.mcbLoad));
+  all('[data-mcb-load]').forEach(btn=>btn.onclick=event=>{
+    event.preventDefault();
+    try{matchBuilderLoadSet(btn.dataset.mcbLoad)}
+    catch(error){console.error('MATCH Load Activity failed',error);toast('MATCH could not open this activity. Please retry.')}
+  });
   all('[data-mcb-copyset]').forEach(btn=>btn.onclick=()=>matchBuilderDuplicateSet(btn.dataset.mcbCopyset));
   all('[data-mcb-launch]').forEach(btn=>btn.onclick=()=>{const s=matchSets.find(x=>x.id===btn.dataset.mcbLaunch);if(s&&Array.isArray(s.pairs)&&s.pairs.length>=4)launchMatchSet(s)});
   all('[data-mcb-delete]').forEach(btn=>btn.onclick=()=>{
