@@ -3334,3 +3334,35 @@ body.role-shared #shared #sharedContent .foundation-public:has(.match-public-sta
 @media(prefers-reduced-motion:reduce){
   #teacher .match-control-grid button{transition:none!important}
 }
+
+
+/* Phase 4U-3: classroom accessibility for MATCH across mixed device sizes.
+   The teacher still chooses each card; no new student login requirement. */
+#teacher .match-verbal-grid button{
+  min-width:0;min-height:52px!important;touch-action:manipulation;
+}
+#teacher .match-control-grid button{
+  min-width:0;overflow-wrap:anywhere;touch-action:manipulation;
+}
+#teacher .match-teacher-grid .match-teacher-card > p{
+  max-width:65ch;line-height:1.5;color:#c1dbe9;
+}
+body.role-shared #shared #sharedContent .foundation-public:has(.match-public-status) .foundation-board{
+  max-height:calc(100dvh - 195px);
+}
+body.role-shared #shared #sharedContent .foundation-public:has(.match-public-status) .foundation-board .card{
+  max-height:min(22dvh,21vw);
+}
+@media(max-width:720px){
+  #teacher .match-verbal-grid{grid-template-columns:repeat(auto-fit,minmax(52px,1fr))!important}
+  #teacher .match-verbal-grid button{min-height:52px!important}
+  body.role-shared #shared #sharedContent .foundation-public:has(.match-public-status) .foundation-board .card{
+    max-height:none;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #teacher .match-verbal-grid button,
+  body.role-shared #shared #sharedContent .foundation-public:has(.match-public-status) .foundation-board .card{
+    animation:none!important;transition:none!important;
+  }
+}
