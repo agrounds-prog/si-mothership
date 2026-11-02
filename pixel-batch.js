@@ -465,6 +465,12 @@
     (lastUploadDraft===d&&lastUploadSummary?escapeHtml(lastUploadSummary):
      d.images.length+' mystery image'+(d.images.length===1?'':'s')+' ready. Each image has its own answer and guesses.')+'</p>';
   preview.after(manager);
+  const addImages=document.createElement('button');
+  addImages.type='button';
+  addImages.className='pixel-batch-add-images';
+  addImages.textContent='＋ Add Images (up to 12)';
+  addImages.onclick=()=>file.click();
+  manager.querySelector('.pixel-batch-heading')?.after(addImages);
   // Teacher-only studio hierarchy: preserve native inputs and their handlers.
   const heading=setup.querySelector('.pixel-batch-heading');
   if(heading){
