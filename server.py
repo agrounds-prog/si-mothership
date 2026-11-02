@@ -5077,6 +5077,11 @@ async def index(request: web.Request) -> web.Response:
                   "Number(control):Number(cs.strikes?.[1]||0)>Number(cs.strikes?.[0]||0)?1:0;"
                   "const strikes=[Number(cs.strikes?.[strikeTeam]||0)].map((n,t)=>")
     text = text.replace(survey_old, survey_new)
+    # Preserve the entire image in Focus Reveal rather than cropping it to fill.
+    text = text.replace(
+        "ox.drawImage(img,sx,sy,sw,sh,0,0,lowW,lowH)",
+        "ox.fillStyle='#07162b';ox.fillRect(0,0,lowW,lowH);const fit=Math.min(lowW/img.width,lowH/img.height),fitW=img.width*fit,fitH=img.height*fit;ox.drawImage(img,(lowW-fitW)/2,(lowH-fitH)/2,fitW,fitH)",
+    )
     origin = effective_origin(request)
     urls = session_urls(origin)
     role = (request.query.get("role") or "teacher").lower()
