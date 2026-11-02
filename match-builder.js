@@ -381,7 +381,23 @@ function matchBuilderWire(){
     catch(error){console.error('MATCH Load Activity failed',error);toast('MATCH could not open this activity. Please retry.')}
   });
   all('[data-mcb-copyset]').forEach(btn=>btn.onclick=()=>matchBuilderDuplicateSet(btn.dataset.mcbCopyset));
-  all('[data-mcb-launch]').forEach(btn=>btn.onclick=()=>{const s=matchSets.find(x=>x.id===btn.dataset.mcbLaunch);if(s&&Array.isArray(s.pairs)&&s.pairs.length>=4)launchMatchSet(s)});
+  all('[data-mcb-launch]').forEach(btn=>btn.onclick=event=>{
+    event.preventDefault();
+    const set=matchSets.find(x=>String(x.id)===String(btn.dataset.mcbLaunch));
+    if(!set)return toast('Saved MATCH activity was not found. Refresh and try again.');
+    if(!Array.isArray(set.pairs)||set.pairs.length<4)
+      return toast('MATCH needs at least four complete pairs to launch.');
+    if(state.activityRun)
+      return toast('Finish the current classroom activity before launching MATCH.');
+    // A saved set must remain playable for verbal Zoom participation even
+    // when no student companion is connected.
+    if(!connectedStudents().length&&matchLaunchSettings.mode!=='teacher'){
+      matchLaunchSettings.mode='teacher';
+      toast('No students connected — launching MATCH in teacher-controlled mode.');
+    }
+    try{launchMatchSet(set)}
+    catch(error){console.error('MATCH saved activity launch failed',error);toast('MATCH could not launch: '+(error?.message||'unknown error'))}
+  });
   all('[data-mcb-delete]').forEach(btn=>btn.onclick=()=>{
     const s=matchSets.find(x=>x.id===btn.dataset.mcbDelete);
     if(!s||!confirm('Delete MATCH set "'+s.name+'"? This will not delete library pictures.'))return;
