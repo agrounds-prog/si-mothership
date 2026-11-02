@@ -5263,6 +5263,19 @@ async def session_info(request: web.Request) -> web.Response:
     return web.json_response({"ok": True, **session_urls(effective_origin(request))}, headers={"Cache-Control": "no-store"})
 
 
+async def shared_display_status(request: web.Request) -> web.Response:
+    """Teacher-only summary, with no student identities or session secrets."""
+    if not teacher_authorized(request):
+        raise web.HTTPUnauthorized(text="Teacher login required")
+    displays = [
+        meta for ws, meta in CLIENT_META.items()
+        if not ws.closed and meta.get("role") == "shared"
+        and meta.get("session_id") == CURRENT_SESSION_ID
+    ]
+    return web.json_response({"ok": True, "connected_displays": len(displays)},
+                             headers={"Cache-Control": "no-store"})
+
+
 async def qr_png(request: web.Request) -> web.Response:
     target = (request.query.get("url") or "").strip()
     if not target:
@@ -6452,6 +6465,7 @@ def create_app() -> web.Application:
     app.router.add_get("/api/info", info)
     app.router.add_get("/api/join-check", join_check)
     app.router.add_get("/api/session/info", session_info)
+    app.router.add_get("/api/teacher/shared-displays", shared_display_status)
     app.router.add_get("/api/qr", qr_png)
     app.router.add_post("/api/teacher/login", teacher_login)
     app.router.add_get("/api/teacher/status", teacher_status)
