@@ -3624,3 +3624,56 @@ body.role-shared #shared #sharedContent .pixel-public:has(.pixel-focus-meter i[s
 @media(prefers-reduced-motion:reduce){
  body.role-shared #shared #sharedContent .pixel-public .pixel-cover{transition:none!important}
 }
+
+
+/* Phase 4V-E: projector-first Pixel Reveal, dense digital encryption. */
+body.role-shared #shared #sharedContent .pixel-public{
+ width:min(100%,1800px)!important;max-width:none!important;
+ padding:clamp(4px,.6vw,10px)!important;border-radius:15px!important;
+}
+body.role-shared #shared #sharedContent .pixel-public-head{
+ margin:0 0 3px!important;gap:3px!important;
+}
+body.role-shared #shared #sharedContent .pixel-public-head h3{
+ font-size:clamp(19px,2.3vw,37px)!important;margin:2px auto 3px!important;
+}
+body.role-shared #shared #sharedContent .pixel-public-head .eyebrow{
+ font-size:clamp(9px,.72vw,12px)!important;
+}
+body.role-shared #shared #sharedContent .pixel-public :is(.pixel-mystery-board,.pixel-focus-board){
+ width:min(100%,1600px)!important;max-width:none!important;
+ max-height:calc(100dvh - 125px)!important;
+ aspect-ratio:16/9!important;margin:3px auto!important;
+ border-radius:12px!important;
+}
+body.role-shared #shared #sharedContent .pixel-public .pixel-remaining{
+ margin:3px auto 0!important;padding:3px 15px!important;
+ font-size:clamp(11px,1.05vw,17px)!important;
+}
+body.role-shared #shared #sharedContent .pixel-public .pixel-cover:not(.revealed){
+ background:
+  repeating-linear-gradient(0deg,transparent 0 3px,#060823d9 4px 7px,transparent 8px 13px),
+  repeating-linear-gradient(107deg,#c51cec77 0 6px,#0acaff44 7px 15px,#101a57dd 16px 25px, #1585c688 26px 34px),
+  repeating-conic-gradient(from 45deg,#04152d 0 13%,#4f248d 13% 26%,#097caa 26% 39%,#090f39 39% 51%)!important;
+ background-size:auto,auto,37px 29px!important;
+ box-shadow:inset 0 0 18px #07bdff77!important;
+}
+body.role-shared #shared #sharedContent .pixel-public .pixel-cover:not(.revealed)::after{
+ background:
+  repeating-linear-gradient(90deg,transparent 0 8px,#d84bff99 9px 11px,transparent 13px 26px,#00e6ff77 27px 29px),
+  repeating-linear-gradient(0deg,#040b2477 0 6px,transparent 7px 15px,#f1ecff55 16px 17px,transparent 18px 27px)!important;
+ opacity:.95!important;
+}
+body.role-shared #shared #sharedContent .pixel-public:has(.pixel-focus-board) .pixel-focus-board::before{
+ content:"";position:absolute;inset:0;pointer-events:none;z-index:2;
+ background:repeating-linear-gradient(0deg,transparent 0 5px,#090d2a88 6px 9px,transparent 10px 21px);
+ opacity:.43;
+}
+body.role-shared #shared #sharedContent .pixel-public:has(.pixel-focus-meter i[style*="width:0%"]) .pixel-focus-board canvas,
+body.role-shared #shared #sharedContent .pixel-public:has(.pixel-focus-meter i[style*="width:10%"]) .pixel-focus-board canvas,
+body.role-shared #shared #sharedContent .pixel-public:has(.pixel-focus-meter i[style*="width:20%"]) .pixel-focus-board canvas{
+ filter:blur(12px) contrast(3) saturate(2.5) hue-rotate(42deg)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ body.role-shared #shared #sharedContent .pixel-public .pixel-cover{animation:none!important;transition:none!important}
+}
