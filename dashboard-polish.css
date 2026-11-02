@@ -3228,3 +3228,54 @@ body.role-shared #shared #sharedContent .million-public .million-stakes{
   transition:none!important;
  }
 }
+
+
+/* Phase 4U MATCH presentation cleanup — presentation only; no gameplay/state changes. */
+body.role-shared #shared #sharedContent .foundation-public:has(.match-public-status){
+  width:min(100%,1500px)!important;max-width:1500px!important;
+  padding:clamp(10px,1.3vw,22px)!important;margin:0 auto!important;
+}
+body.role-shared #shared #sharedContent .foundation-public:has(.match-public-status) > h3{
+  margin:2px auto 6px!important;font-size:clamp(21px,2.7vw,39px)!important;
+  line-height:1.1!important;letter-spacing:.015em!important;
+}
+body.role-shared #shared #sharedContent .foundation-public:has(.match-public-status) > .eyebrow{
+  font-size:clamp(9px,.8vw,12px)!important;letter-spacing:.14em!important;
+}
+body.role-shared #shared #sharedContent .foundation-public .match-public-status{
+  margin:5px auto 9px!important;gap:7px!important;
+}
+body.role-shared #shared #sharedContent .foundation-public .match-public-status > span{
+  padding:5px 10px!important;font-size:clamp(10px,1vw,15px)!important;
+}
+body.role-shared #shared #sharedContent .foundation-public:has(.match-public-status) > p{
+  margin:5px auto 8px!important;font-size:clamp(12px,1.15vw,17px)!important;
+}
+body.role-shared #shared #sharedContent .foundation-public:has(.match-public-status) .foundation-board{
+  width:min(100%,1400px)!important;max-width:1400px!important;
+  gap:clamp(5px,.8vw,13px)!important;margin:9px auto!important;
+  align-content:start!important;
+}
+body.role-shared #shared #sharedContent .foundation-public:has(.match-public-status) .foundation-board .card{
+  width:100%;min-width:0;aspect-ratio:1!important;
+  border-radius:clamp(10px,1.1vw,18px)!important;
+  font-size:clamp(19px,3.5vw,48px)!important;
+  box-shadow:inset 0 1px #ffffff34,0 5px 15px #0006!important;
+}
+body.role-shared #shared #sharedContent .foundation-public:has(.match-public-status) .foundation-board .card img{
+  width:100%!important;height:100%!important;object-fit:contain!important;
+}
+#teacher .match-teacher-grid{grid-template-columns:minmax(0,1.3fr) minmax(260px,.7fr)!important;gap:12px!important}
+#teacher .match-teacher-card{padding:13px!important;border-radius:16px!important;min-width:0}
+#teacher .match-current-player{font-size:clamp(16px,1.5vw,22px)!important;line-height:1.25}
+#teacher .match-control-grid button{min-height:44px!important;padding:8px!important;white-space:normal;line-height:1.15}
+#teacher .match-verbal-grid{gap:7px!important}
+#teacher .match-verbal-grid button{min-height:46px!important;font-size:clamp(14px,1.3vw,19px)!important}
+@media(max-width:900px){
+  #teacher .match-teacher-grid{grid-template-columns:minmax(0,1fr)!important}
+}
+@media(max-width:650px){
+  body.role-shared #shared #sharedContent .foundation-public:has(.match-public-status){padding:7px!important}
+  body.role-shared #shared #sharedContent .foundation-public:has(.match-public-status) .foundation-board{gap:4px!important}
+  #teacher .match-control-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
