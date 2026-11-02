@@ -3430,3 +3430,66 @@ body.role-student .pixel-student-guess button{min-height:50px;touch-action:manip
   body.role-shared #shared #sharedContent .pixel-tile,
   body.role-shared #shared #sharedContent .pixel-focus-board canvas{transition:none!important;animation:none!important}
 }
+
+
+/* Phase 4V-B: PIXEL live-play readability and restrained cinematic polish.
+   No gameplay, saves, answer handling, timing, or reveal logic altered. */
+#teacher .pixel-controller-grid .pixel-control-side h3{
+  font-size:clamp(15px,1.35vw,21px)!important;
+  line-height:1.2;margin:0 0 10px!important;color:#e9faff!important;
+}
+#teacher .pixel-controller-grid .pixel-control-side p,
+#teacher .pixel-controller-grid .pixel-control-board p{
+  line-height:1.45!important;overflow-wrap:anywhere;
+}
+#teacher .pixel-reveal-buttons button{
+  min-width:0;border-radius:12px!important;
+  font-weight:800!important;line-height:1.2!important;
+  padding:10px 12px!important;white-space:normal;overflow-wrap:anywhere;
+  box-shadow:inset 0 1px #ffffff20,0 4px 14px #0003;
+}
+#teacher .pixel-reveal-buttons button:focus-visible,
+#teacher .pixel-option-row button:focus-visible,
+#teacher .pixel-difficulty button:focus-visible{
+  outline:3px solid #ffe38f!important;outline-offset:2px!important;
+}
+#teacher .pixel-reveal-buttons button:disabled{
+  opacity:.55!important;cursor:not-allowed!important;
+}
+#teacher .pixel-private-guesses{
+  max-height:min(32dvh,320px)!important;scrollbar-gutter:stable;
+}
+#teacher .pixel-control-board .pixel-board,
+#teacher .pixel-control-board .pixel-focus-board{
+  width:100%!important;max-width:100%!important;min-width:0;
+}
+body.role-shared #shared #sharedContent .pixel-public .pixel-board,
+body.role-shared #shared #sharedContent .pixel-public .pixel-focus-board{
+  overflow:hidden!important;
+  background:#060d1f!important;
+  border:2px solid #7cc8f399!important;
+}
+body.role-shared #shared #sharedContent .pixel-public .pixel-focus-meter{
+  max-width:1280px!important;height:9px!important;
+  border-color:#6a8cc8!important;border-radius:999px!important;
+}
+body.role-shared #shared #sharedContent .pixel-public .pixel-tile{
+  backface-visibility:hidden;
+}
+body.role-student .pixel-student-guess small{
+  display:block;line-height:1.45!important;color:#aac6dd!important;
+}
+body.role-student .pixel-student-guess button:focus-visible,
+body.role-student .pixel-student-guess input:focus-visible{
+  outline:3px solid #ffe38f!important;outline-offset:2px!important;
+}
+@media(max-width:600px){
+  #teacher .pixel-reveal-buttons button{min-height:52px!important;padding:9px!important}
+  body.role-student .pixel-student-guess{margin:8px auto!important}
+}
+@media(prefers-reduced-motion:reduce){
+  body.role-shared #shared #sharedContent .pixel-public .pixel-tile,
+  body.role-shared #shared #sharedContent .pixel-public .pixel-focus-board canvas{
+    transform:none!important;animation:none!important;transition:none!important;
+  }
+}
