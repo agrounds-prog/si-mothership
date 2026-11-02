@@ -5039,6 +5039,12 @@ def session_urls(origin: str) -> dict:
 
 async def index(request: web.Request) -> web.Response:
     text = INDEX_PATH.read_text(encoding="utf-8")
+    # Phase 4V-E: focus reveal advances in five clear steps (20% each).
+    # Keep stored focus stage on its established 0-10 scale for old saved games.
+    text = text.replace(
+        "run.pixelFocusStage=Math.min(10,Number(run.pixelFocusStage||0)+Math.max(1,Number(count)||1))",
+        "run.pixelFocusStage=Math.min(10,Number(run.pixelFocusStage||0)+2*Math.max(1,Number(count)||1))",
+    )
     origin = effective_origin(request)
     urls = session_urls(origin)
     role = (request.query.get("role") or "teacher").lower()
