@@ -20040,7 +20040,10 @@ $('#tabletSecondScreenBtn').onclick=async()=>{
   const copy=document.createElement('button');copy.type='button';copy.textContent='Copy Display Link';copy.onclick=async()=>{try{await navigator.clipboard.writeText(target);toast('Display link copied')}catch(e){toast('Unable to copy link')}};
   const close=document.createElement('button');close.type='button';close.textContent='Close';close.onclick=()=>overlay.remove();
   const note=document.createElement('small');note.textContent='View-only display. Share this session link only with trusted classroom devices. A new session changes the shared-screen link.';
-  panel.append(heading,desc,qr,link,copy,close,note);overlay.append(panel);document.body.append(overlay);
+  const status=document.createElement('div');status.className='tablet-display-count';status.textContent='Checking connected displays…';
+  fetch('/api/teacher/shared-displays',{credentials:'same-origin',cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Unavailable');return r.json()}).then(d=>{status.textContent=Number(d.connected_displays||0)+' shared screen(s) connected'}).catch(()=>{status.textContent='Connection count unavailable'});
+
+  panel.append(heading,desc,qr,link,status,copy,close,note);overlay.append(panel);document.body.append(overlay);
   const dismiss=()=>{document.removeEventListener('keydown',onKey);overlay.remove()};
   const onKey=e=>{if(e.key==='Escape'){e.preventDefault();dismiss()}};
   close.onclick=dismiss;
