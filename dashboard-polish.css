@@ -3677,3 +3677,23 @@ body.role-shared #shared #sharedContent .pixel-public:has(.pixel-focus-meter i[s
 @media(prefers-reduced-motion:reduce){
  body.role-shared #shared #sharedContent .pixel-public .pixel-cover{animation:none!important;transition:none!important}
 }
+
+
+/* Phase 4V-F Focus Reveal: noninteractive encrypted-signal interference.
+   Distortion scales down over five 20%-point reveal steps. */
+body.role-shared #shared #sharedContent .pixel-public:has(.pixel-focus-meter i[style*="width:0%"]) .pixel-focus-board::after,
+body.role-shared #shared #sharedContent .pixel-public:has(.pixel-focus-meter i[style*="width:20%"]) .pixel-focus-board::after{
+ content:"";position:absolute;inset:0;pointer-events:none;z-index:3;
+ background:repeating-linear-gradient(0deg,transparent 0 4px,#060c27b8 5px 9px,transparent 11px 19px),
+ repeating-linear-gradient(90deg,#05e6ff44 0 12px,#c13fff77 13px 24px,transparent 25px 38px);
+ mix-blend-mode:screen;opacity:.82!important;
+}
+body.role-shared #shared #sharedContent .pixel-public:has(.pixel-focus-meter i[style*="width:40%"]) .pixel-focus-board::after{
+ content:"";position:absolute;inset:0;pointer-events:none;z-index:3;
+ background:repeating-linear-gradient(0deg,transparent 0 14px,#0713338a 15px 17px,transparent 18px 31px);
+ opacity:.42!important;
+}
+body.role-shared #shared #sharedContent .pixel-public:has(.pixel-focus-meter i[style*="width:80%"]) .pixel-focus-board::after,
+body.role-shared #shared #sharedContent .pixel-public:has(.pixel-focus-meter i[style*="width:100%"]) .pixel-focus-board::after{
+ opacity:0!important;
+}
