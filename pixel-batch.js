@@ -418,6 +418,18 @@
   file.multiple=true;
   file.accept='image/png,image/jpeg,image/webp,image/gif,image/bmp';
   file.onchange=e=>upload(e.target.files);
+  if(!setup.querySelector('.pixel-quick-actions')){
+   const bar=document.createElement('div');
+   bar.className='pixel-quick-actions';
+   const save=document.createElement('button');
+   save.textContent='Save Activity';
+   save.onclick=()=>setup.querySelector('#savePixelBtn')?.click();
+   const load=document.createElement('button');
+   load.textContent='Load Saved Activity';
+   load.onclick=()=>setup.querySelector('.pixel-studio-library-head')?.scrollIntoView();
+   bar.append(save,load);
+   setup.querySelector('.pixel-card')?.prepend(bar);
+  }
   const fileLabel=file.closest('label');
   if(fileLabel)fileLabel.childNodes.forEach(node=>{
    if(node.nodeType===Node.TEXT_NODE)node.textContent='＋ Upload Multiple Images';
