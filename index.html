@@ -15652,6 +15652,7 @@ const APP_REGISTRY=[
  {id:'crew-survey',name:'CREW SURVEY',icon:'▥',subtitle:'Face-Off · Survey Board · Strikes · Steal',status:'GAME SHOW',description:'Two-crew survey-board game with teacher-controlled answer reveals, a dedicated server-authoritative buzzer, rotating turns, strikes, steals, and AAC/type support.'},
  {id:'million',name:'MILLION',icon:'◆',subtitle:'Command Seat · Four Choices · Mission Ladder',status:'GAME SHOW',description:'Multiple-choice ladder game with a rotating Command Seat, whole-class play-along, configurable lifelines, and teacher-controlled reveals.'},
  {id:'match',name:'MATCH',icon:'▦',subtitle:'Flip · Remember · Match',status:'REWARDS ARCADE',description:'Zoom-friendly visual memory game with reusable pairs, randomized boards, and private student controllers.'},
+ {id:'spotlight',name:'SPOTLIGHT',icon:'◉',subtitle:'Highlight · Dim · Discover',status:'VISUAL LEARNING',description:'Upload pictures, draw glowing focus regions, and present interactive highlights to your class.'},
  {id:'bingo',name:'BINGO',icon:'▦',subtitle:'Generate · Call · Mark · Verify',status:'REWARDS ARCADE',description:'Custom Bingo with reusable call/card content and private randomized student cards.'},
  {id:'scientific-calculator',name:'SCIENTIFIC CALCULATOR',icon:'ƒx',subtitle:'Four-Line Scientific Calculator · Share · Launch for Class',status:'CLASSROOM TOOL',description:'Familiar multi-line scientific calculator with exact fractions, DEG/RAD, trig, logs, powers, history, and independent student sessions.'}
 ];
@@ -18513,6 +18514,7 @@ function launchActivityById(id){
 
 function openApp(appId){
   const app=appById(appId);if(!app)return;
+  if(appId==='spotlight'){window.open('/spotlight.html','si-spotlight-studio');return;}
   activityPresetEditingId='';
   state.activeApp=app.id;state.assigningSlot=null;state.presentationLibraryOpen=false;state.presentationEditor=null;state.screen='activities';render();toast(`${app.name} opened`);
 }
