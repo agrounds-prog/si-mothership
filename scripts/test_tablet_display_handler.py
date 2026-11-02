@@ -11,8 +11,11 @@ handler = next(n for n in module.body if isinstance(n, ast.AsyncFunctionDef) and
 # Compile the production handler, not a hand-written reimplementation.
 isolated = ast.fix_missing_locations(ast.Module(body=[handler], type_ignores=[]))
 class Forbidden(Exception):
-    pass
+    def __init__(self, text=''):
+        super().__init__(text)
 class Web:
+    Request = object
+    Response = object
     HTTPUnauthorized = Forbidden
     @staticmethod
     def json_response(data, headers=None):
