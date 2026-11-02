@@ -4,7 +4,7 @@
 (function(){
  'use strict';
  if(window.SIPixelBatch)return;
- const MAX_IMAGES=12,MAX_DATA_CHARS=190000;
+ const MAX_IMAGES=12,MAX_DATA_CHARS=75000;
  let busy=false,scheduled=false;
  let lastUploadDraft=null,lastUploadSummary=''; // survive organizer rerenders; never saved
  const escapeHtml=value=>String(value==null?'':value).replace(/[&<>"']/g,c=>
@@ -50,8 +50,8 @@
     try{
      if(!img.width||!img.height)throw Error('Image has no dimensions');
      const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
-     let max=1100,quality=.8,encoded='';
-     for(let attempt=0;attempt<9;attempt++){
+     let max=960,quality=.76,encoded='';
+     for(let attempt=0;attempt<12;attempt++){
       const ratio=Math.min(1,max/Math.max(img.width,img.height));
       canvas.width=Math.max(1,Math.round(img.width*ratio));
       canvas.height=Math.max(1,Math.round(img.height*ratio));
@@ -59,7 +59,7 @@
       ctx.drawImage(img,0,0,canvas.width,canvas.height);
       encoded=canvas.toDataURL('image/jpeg',quality);
       if(encoded.length<=MAX_DATA_CHARS)break;
-      quality=Math.max(.49,quality-.065);max=Math.max(560,Math.floor(max*.88));
+      quality=Math.max(.40,quality-.065);max=Math.max(380,Math.floor(max*.85));
      }
      if(encoded.length>MAX_DATA_CHARS)throw Error('Image too detailed to save; try a smaller image.');
      resolve(encoded);
