@@ -92,6 +92,12 @@ def main() -> int:
           "const target=info?.shared_url;" in html and
           "'/api/qr?url='" in html)
 
+    check("phase 4T: teacher-only shared display count",
+          "async def shared_display_status(" in server and
+          'if not teacher_authorized(request):' in segment(server, "async def shared_display_status(") and
+          '"/api/teacher/shared-displays", shared_display_status' in server and
+          "'/api/teacher/shared-displays'" in html)
+
     check("phase 4T: QR does not fall back to stale session URL",
           "const target=info?.shared_url;" in html and
           "Could not confirm the active session" in html)
