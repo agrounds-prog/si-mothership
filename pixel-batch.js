@@ -850,7 +850,7 @@
  }
  function schedule(){
   if(scheduled)return;scheduled=true;
-  requestAnimationFrame(()=>{scheduled=false;enhance()});
+  requestAnimationFrame(()=>{scheduled=false;enhance();fitPixelRevealBoards()});
  }
  // Capture edits immediately even when the native setup rerenders and the
  // per-field enhancement has not yet run its next animation frame.
@@ -932,6 +932,30 @@
    if(btn.hasAttribute(attr)){fn(Number(btn.getAttribute(attr)));return}
   }
  });
+ function fitPixelRevealBoards(){
+  document.querySelectorAll('.pixel-mystery-board').forEach(board=>{
+   const img=board.querySelector(':scope > img'),grid=board.querySelector('.pixel-cover-grid');
+   if(!img||!grid)return;
+   const apply=()=>{
+    if(!img.naturalWidth||!img.naturalHeight)return;
+    const w=board.clientWidth,h=board.clientHeight;
+    if(!w||!h)return;
+    const scale=Math.min(w/img.naturalWidth,h/img.naturalHeight);
+    const fw=img.naturalWidth*scale,fh=img.naturalHeight*scale;
+    img.style.objectFit='contain';
+    grid.style.inset='auto';
+    grid.style.left=((w-fw)/2)+'px';
+    grid.style.top=((h-fh)/2)+'px';
+    grid.style.width=fw+'px';
+    grid.style.height=fh+'px';
+   };
+   if(!img.dataset.pixelFitBound){img.dataset.pixelFitBound='1';img.addEventListener('load',apply);}
+   if(!board.dataset.pixelFitObserved&&typeof ResizeObserver!=='undefined'){
+    board.dataset.pixelFitObserved='1';new ResizeObserver(apply).observe(board);
+   }
+   apply();
+  });
+ }
  function boot(){
   if(!document.body)return;
   new MutationObserver(schedule).observe(document.body,{subtree:true,childList:true});
