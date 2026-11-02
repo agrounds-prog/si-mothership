@@ -3279,3 +3279,58 @@ body.role-shared #shared #sharedContent .foundation-public:has(.match-public-sta
   body.role-shared #shared #sharedContent .foundation-public:has(.match-public-status) .foundation-board{gap:4px!important}
   #teacher .match-control-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
+
+
+/* Phase 4U-2: MATCH teacher-led / mixed-device presentation refinement.
+   All existing teacher, student, and hybrid-friendly actions remain unchanged. */
+#teacher .match-teacher-grid .match-teacher-card{
+  background:linear-gradient(155deg,#102e49,#0b1b32 76%)!important;
+  border:1px solid #4a8ba7a8!important;
+  box-shadow:inset 0 1px #ffffff20,0 8px 24px #0003!important;
+}
+#teacher .match-teacher-card h4{
+  margin:0 0 10px!important;font-size:clamp(11px,1vw,14px)!important;
+  letter-spacing:.09em!important;color:#9cecff!important;
+}
+#teacher .match-result-chip{
+  padding:6px 11px!important;border-radius:999px!important;
+  background:#123a55!important;border:1px solid #55b7d5!important;
+  color:#d9f7ff!important;letter-spacing:.025em;
+}
+#teacher .match-control-grid{gap:8px!important;align-items:stretch}
+#teacher .match-control-grid button{
+  border-radius:11px!important;font-size:clamp(11px,.9vw,14px)!important;
+  font-weight:850!important;letter-spacing:.015em;
+  transition:filter .15s ease,border-color .15s ease,transform .15s ease;
+}
+#teacher .match-control-grid button:focus-visible,
+#teacher .match-verbal-grid button:focus-visible{
+  outline:3px solid #ffe08c!important;outline-offset:2px!important;
+}
+#teacher .match-control-grid button:disabled,
+#teacher .match-verbal-grid button:disabled{
+  cursor:not-allowed!important;opacity:.56!important;filter:saturate(.65)!important;
+}
+#teacher .match-verbal-grid{
+  display:grid!important;grid-template-columns:repeat(auto-fit,minmax(46px,1fr))!important;
+  margin:12px 0!important;
+}
+#teacher .match-verbal-grid button{
+  border:1px solid #6dcaf0!important;border-radius:11px!important;
+  background:linear-gradient(165deg,#185d99,#103c6e)!important;
+  color:#f5fcff!important;font-weight:900!important;
+  box-shadow:inset 0 1px #ffffff3b,0 4px 10px #0004!important;
+}
+#teacher .match-teacher-score>div{
+  background:#102d46!important;border:1px solid #365d78!important;
+  border-radius:10px!important;align-items:center!important;
+}
+body.role-shared #shared #sharedContent .foundation-public:has(.match-public-status) .foundation-board .card.pending{
+  border-color:#ffe08a!important;box-shadow:0 0 0 3px #ffdb6c,0 0 23px #ffd35a66!important;
+}
+body.role-shared #shared #sharedContent .foundation-public:has(.match-public-status) .foundation-board .card.matched{
+  border-color:#6df6b2!important;box-shadow:0 0 0 2px #5feaac,0 0 22px #5feaac55!important;
+}
+@media(prefers-reduced-motion:reduce){
+  #teacher .match-control-grid button{transition:none!important}
+}
