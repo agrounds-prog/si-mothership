@@ -3347,12 +3347,6 @@ body.role-shared #shared #sharedContent .foundation-public:has(.match-public-sta
 #teacher .match-teacher-grid .match-teacher-card > p{
   max-width:65ch;line-height:1.5;color:#c1dbe9;
 }
-body.role-shared #shared #sharedContent .foundation-public:has(.match-public-status) .foundation-board{
-  max-height:calc(100dvh - 195px);
-}
-body.role-shared #shared #sharedContent .foundation-public:has(.match-public-status) .foundation-board .card{
-  max-height:min(22dvh,21vw);
-}
 @media(max-width:720px){
   #teacher .match-verbal-grid{grid-template-columns:repeat(auto-fit,minmax(52px,1fr))!important}
   #teacher .match-verbal-grid button{min-height:52px!important}
