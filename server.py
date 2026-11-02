@@ -5045,6 +5045,32 @@ async def index(request: web.Request) -> web.Response:
         "run.pixelFocusStage=Math.min(10,Number(run.pixelFocusStage||0)+Math.max(1,Number(count)||1))",
         "run.pixelFocusStage=Math.min(10,Number(run.pixelFocusStage||0)+2*Math.max(1,Number(count)||1))",
     )
+    # Phase 4V-F: stronger encrypted focus signal, with recovery at full clarity.
+    # Edits only the served presentation script; persisted stage values are unchanged.
+    focus_replacements = (
+        ("Math.max(18,Math.round(20+progress*800))", "Math.max(6,Math.round(8+Math.pow(progress,2.1)*812))"),
+        ("Math.max(12,Math.round(lowW*H/W))", "Math.max(4,Math.round(lowW*H/W))"),
+        ("Math.round((1-progress)*24)", "Math.round(Math.pow(1-progress,1.35)*66)"),
+        ("Math.max(16,Math.round(44-progress*24))", "Math.max(8,Math.round(28-progress*16))"),
+        ("Math.sin((y/H)*Math.PI*5+stage*.7)*distortion", "(Math.sin((y/H)*Math.PI*9+stage*.9)+.32*Math.sin(y*.17+stage*2))*distortion"),
+        ("canvas.style.filter=\`blur(\${Math.max(0,(1-progress)*4).toFixed(1)}px) contrast(\${(1.55-progress*.55).toFixed(2)}) saturate(\${(.35+progress*.65).toFixed(2)})\`",
+         "canvas.style.filter=\`blur(\${(Math.pow(1-progress,1.6)*11).toFixed(1)}px) contrast(\${(1+Math.pow(1-progress,1.4)*2.1).toFixed(2)}) saturate(\${(1+Math.pow(1-progress,1.3)*1.5).toFixed(2)}) hue-rotate(\${Math.round((1-progress)*38)}deg)\`"),
+        ("scale(\${(1.055-progress*.055).toFixed(3)}) skew(\${((1-progress)*2.2).toFixed(2)}deg,\${((1-progress)*-1.4).toFixed(2)}deg)",
+         "scale(\${(1+Math.pow(1-progress,1.3)*.15).toFixed(3)}) skew(\${((1-progress)*4.2).toFixed(2)}deg,\${((1-progress)*-2.8).toFixed(2)}deg)"),
+    )
+    for old, new in focus_replacements:
+        text = text.replace(old, new)
+    # Deterministic bands avoid animation flicker and remain stable during redraw.
+    focus_glitch = """if(progress<.85){const intensity=Math.pow(1-progress,1.6);ctx.save();for(let k=0;k<32;k++){const y=(k*73+stage*23)%H;const height=1+Math.round(intensity*9);ctx.globalAlpha=intensity*(k%4===0?.28:.13);ctx.fillStyle=k%2?'#f23cff':'#13cfff';ctx.fillRect((k*137)%W,y,Math.min(W,42+(k*47)%310),height)}for(let k=0;k<5;k++){ctx.globalAlpha=intensity*.34;ctx.fillStyle='#031025';ctx.fillRect(0,(k*113+stage*41)%H,W,Math.round(intensity*20))}ctx.restore()}"""
+    focus_needle = "canvas.style.filter=\`blur("
+    focus_start = text.find("function paintPixelFocusCanvases()")
+    focus_end = text.find("function pixelResultsMarkup(", focus_start)
+    if focus_start >= 0 and focus_end > focus_start:
+        focus_block = text[focus_start:focus_end]
+        insertion = focus_block.find(focus_needle)
+        if insertion >= 0 and "const intensity=Math.pow(1-progress,1.6)" not in focus_block:
+            focus_block = focus_block[:insertion] + focus_glitch + focus_block[insertion:]
+            text = text[:focus_start] + focus_block + text[focus_end:]
     origin = effective_origin(request)
     urls = session_urls(origin)
     role = (request.query.get("role") or "teacher").lower()
