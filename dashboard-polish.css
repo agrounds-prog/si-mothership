@@ -3748,3 +3748,30 @@ body.role-shared #shared #sharedContent .crew-survey-footer .crew-survey-round{
 @media(max-width:840px){
  #teacher .crew-survey-host-card{grid-template-columns:minmax(0,1fr)!important}
 }
+
+
+/* Phase 4V-H: precise center alignment of the single Survey strike bank. */
+body.role-shared #shared #sharedContent .crew-survey-footer{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)!important;
+ gap:8px!important;position:relative!important;min-height:72px!important;
+}
+body.role-shared #shared #sharedContent .crew-survey-footer > .crew-survey-strikes{
+ grid-column:2!important;grid-row:1!important;justify-self:center!important;
+ margin:0!important;align-self:center!important;
+}
+body.role-shared #shared #sharedContent .crew-survey-footer > .crew-survey-round{
+ grid-column:3!important;grid-row:1!important;justify-self:end!important;
+ margin:0!important;align-self:center!important;
+}
+@media(max-width:680px){
+ body.role-shared #shared #sharedContent .crew-survey-footer{
+  grid-template-columns:1fr!important;gap:9px!important;
+ }
+ body.role-shared #shared #sharedContent .crew-survey-footer > .crew-survey-strikes{
+  grid-column:1!important;grid-row:1!important;margin:0!important;
+ }
+ body.role-shared #shared #sharedContent .crew-survey-footer > .crew-survey-round{
+  grid-column:1!important;grid-row:2!important;justify-self:center!important;
+ }
+}
