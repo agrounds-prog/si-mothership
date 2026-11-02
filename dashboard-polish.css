@@ -3529,3 +3529,98 @@ body.role-student .pixel-student-guess input:focus-visible{
   #teacher .pixel-guess-row button[data-pixel-spoken-correct],
   #teacher .pixel-guess-row button[data-pixel-spoken-wrong]{flex:1 1 120px}
 }
+
+
+/* Phase 4V-D — PIXEL REVEAL cinematic projector and encrypted opening signal.
+   Pure presentation: preserved tiles, focus-stage data, answers, session persistence. */
+body.role-shared #shared #sharedContent .pixel-public{
+  width:min(100%,1540px)!important;max-width:1540px!important;
+  margin:0 auto!important;padding:clamp(12px,1.7vw,26px)!important;
+  border:1px solid #4abefe!important;border-radius:24px!important;
+  background:radial-gradient(ellipse at 12% 85%,#1264a72c,transparent 38%),
+    radial-gradient(ellipse at 88% 20%,#3544b525,transparent 42%),
+    linear-gradient(155deg,#071c38,#09142d 72%,#071126)!important;
+  box-shadow:inset 0 1px #ffffff30,0 0 26px #258ff128!important;
+  min-width:0;overflow:hidden;
+}
+body.role-shared #shared #sharedContent .pixel-public-head{
+  display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;gap:8px!important;margin:0 0 12px!important;
+}
+body.role-shared #shared #sharedContent .pixel-public-head h3{
+  font-size:clamp(25px,3vw,51px)!important;line-height:1.07!important;
+  margin:9px auto 4px!important;text-align:center!important;
+  letter-spacing:.01em!important;color:#f6fbff!important;
+  text-shadow:0 0 20px #8cd9ff35!important;text-wrap:balance;
+}
+body.role-shared #shared #sharedContent .pixel-public-head .eyebrow{
+  font-size:clamp(12px,1.1vw,17px)!important;color:#b7edff!important;
+  letter-spacing:.11em!important;
+}
+body.role-shared #shared #sharedContent .pixel-public-head > span{
+  border:1px solid #4daee8!important;background:#0d2b50!important;
+  color:#d8f5ff!important;border-radius:999px!important;padding:7px 13px!important;
+  font-size:clamp(10px,.9vw,13px)!important;white-space:normal;
+}
+body.role-shared #shared #sharedContent .pixel-public :is(.pixel-mystery-board,.pixel-focus-board){
+  width:min(100%,1220px)!important;max-width:1220px!important;
+  aspect-ratio:16/9!important;max-height:calc(100dvh - 200px)!important;
+  margin:8px auto!important;border:3px solid #66dfff!important;
+  border-radius:19px!important;box-shadow:0 0 0 1px #c8f8ff4a,0 0 28px #13bdfb4c!important;
+  background:#041329!important;
+}
+body.role-shared #shared #sharedContent .pixel-public .pixel-cover-grid{
+  gap:2px!important;padding:2px!important;
+  background:linear-gradient(145deg,#4ecfff5e,#09275c55)!important;
+}
+body.role-shared #shared #sharedContent .pixel-public .pixel-cover:not(.revealed){
+  position:relative;overflow:hidden;border:1px solid #59d7ff!important;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 7px,#070f2a77 8px 11px,transparent 12px 20px),
+    repeating-linear-gradient(90deg,#2e1b6980 0 13px,#09507899 14px 27px,#12315c99 28px 39px,#872b9b55 40px 51px),
+    conic-gradient(from 24deg at 48% 40%,#071b3f,#1f7aa2,#6b2b9f,#082654,#1d8ead,#071b3f)!important;
+  box-shadow:inset 0 0 14px #20c9ff3d!important;
+}
+body.role-shared #shared #sharedContent .pixel-public .pixel-cover:not(.revealed)::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(110deg,transparent 0 18px,#04cfff45 19px 22px,transparent 24px 49px),
+    repeating-linear-gradient(0deg,transparent 0 25px,#d94efa55 26px 29px,transparent 31px 55px);
+  mix-blend-mode:screen;opacity:.72;
+}
+body.role-shared #shared #sharedContent .pixel-public .pixel-cover.revealed{
+  opacity:0!important;pointer-events:none!important;
+}
+body.role-shared #shared #sharedContent .pixel-public .pixel-remaining{
+  display:table;margin:10px auto 0!important;padding:6px 22px!important;
+  border:1px solid #59d6ff!important;border-radius:999px!important;
+  background:linear-gradient(125deg,#0b3159,#071b39)!important;
+  color:#f4fcff!important;font-size:clamp(13px,1.4vw,22px)!important;
+  font-weight:950!important;letter-spacing:.07em!important;
+  box-shadow:0 0 15px #16bcff2d!important;
+}
+/* Focus mode is heavily encrypted early and naturally resolves as stages rise.
+   The native canvas already decimates the source; these add interference at low clarity. */
+body.role-shared #shared #sharedContent .pixel-focus-board canvas{
+  image-rendering:pixelated!important;
+}
+body.role-shared #shared #sharedContent .pixel-public:has(.pixel-focus-meter i[style*="width:0%"]) .pixel-focus-board canvas,
+body.role-shared #shared #sharedContent .pixel-public:has(.pixel-focus-meter i[style*="width:10%"]) .pixel-focus-board canvas,
+body.role-shared #shared #sharedContent .pixel-public:has(.pixel-focus-meter i[style*="width:20%"]) .pixel-focus-board canvas{
+  filter:blur(8px) contrast(2.5) saturate(2.1) hue-rotate(25deg)!important;
+}
+body.role-shared #shared #sharedContent .pixel-public:has(.pixel-focus-meter i[style*="width:0%"]) .pixel-focus-board::after,
+body.role-shared #shared #sharedContent .pixel-public:has(.pixel-focus-meter i[style*="width:10%"]) .pixel-focus-board::after,
+body.role-shared #shared #sharedContent .pixel-public:has(.pixel-focus-meter i[style*="width:20%"]) .pixel-focus-board::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent 0 8px,#040a22c4 9px 12px,transparent 14px 24px),
+    repeating-linear-gradient(90deg,#0570c340 0 17px,#b437ca55 18px 35px,#12235e44 36px 58px);
+  opacity:.76;mix-blend-mode:hard-light;
+}
+@media(max-width:700px){
+ body.role-shared #shared #sharedContent .pixel-public-head{grid-template-columns:1fr!important;text-align:center}
+ body.role-shared #shared #sharedContent .pixel-public-head > span{justify-self:center}
+ body.role-shared #shared #sharedContent .pixel-public{padding:9px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ body.role-shared #shared #sharedContent .pixel-public .pixel-cover{transition:none!important}
+}
