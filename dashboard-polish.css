@@ -3360,3 +3360,73 @@ body.role-shared #shared #sharedContent .foundation-public:has(.match-public-sta
     animation:none!important;transition:none!important;
   }
 }
+
+
+/* Phase 4V — PIXEL REVEAL studio, projector, and compact student polish.
+   Presentation-only. Existing 12-image library, reveal state and answers untouched. */
+#teacher .pixel-setup-grid{gap:14px!important;align-items:start;min-width:0}
+#teacher .pixel-card{
+  min-width:0;border-radius:18px!important;padding:clamp(12px,1.3vw,20px)!important;
+  background:linear-gradient(155deg,#102c48,#091a30 75%)!important;
+  border:1px solid #4d91ac99!important;box-shadow:inset 0 1px #ffffff20,0 10px 24px #0003;
+}
+#teacher .pixel-card h3,#teacher .pixel-card h4{margin:4px 0 12px!important;color:#dff7ff}
+#teacher .pixel-setup-preview{
+  border-radius:15px!important;border-color:#548ca8!important;
+  box-shadow:0 10px 24px #0004!important;
+}
+#teacher .pixel-option-row button,#teacher .pixel-difficulty button,
+#teacher .pixel-reveal-style button{
+  min-width:0;min-height:48px;border-radius:12px!important;
+  line-height:1.35;overflow-wrap:anywhere;touch-action:manipulation;
+}
+#teacher .pixel-controller-grid{
+  grid-template-columns:minmax(0,1.4fr) minmax(265px,.6fr)!important;
+  gap:12px!important;align-items:start;
+}
+#teacher .pixel-control-board,#teacher .pixel-control-side{
+  min-width:0;padding:clamp(10px,1vw,16px)!important;
+  border-radius:17px!important;border-color:#467c9b!important;
+  background:linear-gradient(155deg,#0d2945,#08172c)!important;
+}
+#teacher .pixel-reveal-buttons{gap:9px!important}
+#teacher .pixel-reveal-buttons button{min-height:50px!important;touch-action:manipulation}
+#teacher .pixel-guess-row{border-radius:11px!important;padding:10px!important;gap:9px!important}
+body.role-shared #shared #sharedContent .pixel-public{
+  box-sizing:border-box;width:min(100%,1460px)!important;max-width:1460px!important;
+  margin:0 auto!important;padding:clamp(9px,1.2vw,20px)!important;
+  border:1px solid #7c79dc88!important;border-radius:22px!important;
+  background:radial-gradient(ellipse at 50% 0%,#324c8b55,transparent 58%),linear-gradient(160deg,#101f40,#0b142a)!important;
+}
+body.role-shared #shared #sharedContent .pixel-public .pixel-board,
+body.role-shared #shared #sharedContent .pixel-public .pixel-focus-board{
+  width:min(100%,1280px)!important;max-width:1280px!important;
+  margin-inline:auto!important;border-radius:16px!important;
+  box-shadow:0 0 0 1px #83bcfa55,0 15px 35px #0006!important;
+}
+body.role-shared #shared #sharedContent .pixel-public .pixel-focus-stage{
+  margin-top:7px!important;font-size:clamp(12px,1.25vw,19px)!important;
+}
+body.role-student .pixel-student-guess{
+  width:min(100%,440px)!important;max-width:440px!important;
+  margin:12px auto!important;padding:clamp(9px,3vw,15px)!important;
+  border:1px solid #3c648b;border-radius:17px;
+  background:linear-gradient(160deg,#10233d,#0a192d);
+}
+body.role-student .pixel-student-guess input{
+  box-sizing:border-box;width:100%;min-height:54px!important;
+  font-size:16px!important;touch-action:manipulation;
+}
+body.role-student .pixel-student-guess button{min-height:50px;touch-action:manipulation}
+@media(max-width:960px){
+  #teacher .pixel-controller-grid,#teacher .pixel-setup-grid{grid-template-columns:minmax(0,1fr)!important}
+}
+@media(max-width:600px){
+  #teacher .pixel-reveal-buttons{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #teacher .pixel-option-row button,#teacher .pixel-difficulty button{padding:8px!important}
+  body.role-shared #shared #sharedContent .pixel-public{padding:7px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  body.role-shared #shared #sharedContent .pixel-tile,
+  body.role-shared #shared #sharedContent .pixel-focus-board canvas{transition:none!important;animation:none!important}
+}
