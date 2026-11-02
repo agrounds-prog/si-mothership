@@ -3576,6 +3576,7 @@ PERSISTED_STORAGE_KEYS = {
     "siMothership.wordGridLibrary.v1",
     "siMothership.dominoesGames.v1",
     "siMothership.fourInLineGames.v1",
+    "siMothership.spotlight.activities.v1",
 }
 
 CLIENTS: set[web.WebSocketResponse] = set()
@@ -6470,6 +6471,7 @@ def create_app() -> web.Application:
     app["quick_poll"] = quick_poll
     app.router.add_get("/", index)
     app.router.add_get("/index.html", index)
+    app.router.add_get("/spotlight.html", lambda request: web.FileResponse(ROOT / "spotlight.html", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/teacher", teacher_console)
     app.router.add_get("/teacher/", teacher_console)
     app.router.add_get("/student-device-setup.cmd", student_device_setup)
