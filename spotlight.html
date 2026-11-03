@@ -46,7 +46,7 @@ function liveReset(){liveVisible.clear();forceDim=false}
 function id(){return 'sp_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8)}
 function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function notify(s){if(!projector)alert(s)}
-function broadcast(){if(projector)return;const liveScene=current()?clone(current()):null;if(liveScene&&playing)liveScene.zones.forEach(z=>z.visible=liveVisible.has(z.id));const v={name:activity.name,index,total:activity.scenes.length,scene:liveScene,forceDim};try{localStorage.setItem(LIVE,JSON.stringify(v))}catch(e){console.warn('Spotlight live state storage',e)}channel?.postMessage(v)}
+function broadcast(){if(projector)return;const liveScene=current()?clone(current()):null;if(liveScene&&playing)liveScene.zones.forEach(z=>z.visible=liveVisible.has(z.id));const v={name:activity.name,index,total:activity.scenes.length,scene:liveScene,forceDim};try{localStorage.setItem(LIVE,JSON.stringify(v))}catch(e){console.warn('Spotlight live state storage',e)}try{channel?.postMessage(v)}catch(e){console.warn('Spotlight broadcast failed',e)}}
 function liveLoad(){try{return JSON.parse(localStorage.getItem(LIVE)||'null')}catch{return null}}
 function fitOverlay(){
  const img=$('picture'),svg=$('drawing'),stage=$('stage');
@@ -170,6 +170,6 @@ $('playHide').onclick=()=>{liveVisible.clear();render()};
 $('playAll').onclick=()=>{(current()?.zones||[]).forEach(z=>liveVisible.add(z.id));render()};
 $('playDim').onclick=()=>{forceDim=!forceDim;render()};
 $('display').onclick=()=>{broadcast();window.open('/spotlight.html?display=1','spotlight-shared','width=1280,height=800')};
-if(projector){function refresh(v){if(!v)return;index=v.index||0;forceDim=!!v.forceDim;activity.name=v.name||'SPOTLIGHT';renderStage(v.scene||null);$('sceneTitle').textContent=activity.name+'  /  '+(v.scene?.name||'Waiting for picture')+'  •  '+(index+1)+' / '+(v.total||1)}channel&&(channel.onmessage=e=>refresh(e.data));window.addEventListener('storage',e=>{if(e.key===LIVE)refresh(liveLoad())});refresh(liveLoad())}else{render();syncFromServer()}
+if(projector){function refresh(v){if(!v||v.type==='spotlight-request')return;index=v.index||0;forceDim=!!v.forceDim;activity.name=v.name||'SPOTLIGHT';renderStage(v.scene||null);$('sceneTitle').textContent=activity.name+'  /  '+(v.scene?.name||'Waiting for picture')+'  •  '+(index+1)+' / '+(v.total||1)}channel&&(channel.onmessage=e=>refresh(e.data));window.addEventListener('storage',e=>{if(e.key===LIVE)refresh(liveLoad())});refresh(liveLoad());channel?.postMessage({type:'spotlight-request'});window.opener?.postMessage({type:'spotlight-request'},location.origin)}else{channel&&(channel.onmessage=e=>{if(e.data?.type==='spotlight-request')broadcast()});window.addEventListener('message',e=>{if(e.origin===location.origin&&e.data?.type==='spotlight-request')broadcast()});render();syncFromServer()}
 })();
 </script></body></html>
