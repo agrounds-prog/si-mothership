@@ -18514,7 +18514,7 @@ function launchActivityById(id){
 
 function openApp(appId){
   const app=appById(appId);if(!app)return;
-  if(appId==='spotlight'){window.location.assign('/spotlight.html');return;}
+  if(appId==='spotlight'){const w=window.open('/spotlight.html','si-spotlight-studio','width=1440,height=900,resizable=yes,scrollbars=yes');if(w){w.focus();toast('SPOTLIGHT opened in a separate window');}else{toast('Allow pop-ups for Mothership to open SPOTLIGHT');}return;}
   activityPresetEditingId='';
   state.activeApp=app.id;state.assigningSlot=null;state.presentationLibraryOpen=false;state.presentationEditor=null;state.screen='activities';render();toast(`${app.name} opened`);
 }
