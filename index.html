@@ -15671,7 +15671,7 @@ const ACTIVITY_LIBRARY_CATEGORY_LABELS={
 function activityLibraryCategoryFor(appId){
   const id=String(appId||'');
   if(id==='si-plus')return 'presentation';
-  if(['vector','board','orbit'].includes(id))return 'collaboration';
+  if(['vector','board','orbit','spotlight'].includes(id))return 'collaboration';
   if(['minefield','sketch','pixel','starwheel','crew-survey','million','match','bingo','cosmic-cards','word-grid','dominoes'].includes(id))return 'games';
   if(id==='scientific-calculator')return 'tools';
   return 'all';
@@ -18514,7 +18514,7 @@ function launchActivityById(id){
 
 function openApp(appId){
   const app=appById(appId);if(!app)return;
-  if(appId==='spotlight'){window.open('/spotlight.html','si-spotlight-studio');return;}
+  if(appId==='spotlight'){window.location.assign('/spotlight.html');return;}
   activityPresetEditingId='';
   state.activeApp=app.id;state.assigningSlot=null;state.presentationLibraryOpen=false;state.presentationEditor=null;state.screen='activities';render();toast(`${app.name} opened`);
 }
