@@ -18512,9 +18512,27 @@ function launchActivityById(id){
   state.screen='activity';state.promptActive=false;state.assigningSlot=null;recordActivityLaunch(a.type==='presentation'?'si-plus':String(a.id||''),a.deckTitle||a.name||'Activity');render();toast(`${a.name} loaded — students moved to Activity Lobby`);
 }
 
+function openSpotlightWorkspace(){
+  let overlay=document.getElementById('spotlightWorkspaceOverlay');
+  if(!overlay){
+    const style=document.createElement('style');
+    style.textContent='#spotlightWorkspaceOverlay{position:fixed;inset:0;z-index:2147483000;background:rgba(2,8,20,.85);backdrop-filter:blur(8px);display:flex;flex-direction:column;padding:clamp(8px,1.4vw,22px)}#spotlightWorkspaceOverlay .spotlight-window{display:flex;flex-direction:column;flex:1;min-height:0;max-width:1850px;width:100%;margin:auto;background:#091b2c;border:1px solid #49c9f0;border-radius:16px;overflow:hidden;box-shadow:0 22px 85px #000b}#spotlightWorkspaceOverlay .spotlight-window-bar{height:52px;flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 14px;background:linear-gradient(90deg,#113c5c,#081c30);color:#f3fbff;font-size:15px;font-weight:900;letter-spacing:.1em}#spotlightWorkspaceOverlay .spotlight-window-actions{display:flex;gap:8px}#spotlightWorkspaceOverlay .spotlight-window-actions button{background:#17445e;border:1px solid #4d9fc4;border-radius:8px;color:white;padding:7px 14px;cursor:pointer;font:inherit;font-size:12px}#spotlightWorkspaceOverlay .spotlight-window-actions button:hover{background:#236d8c}#spotlightWorkspaceOverlay iframe{width:100%;flex:1;min-height:0;border:0;background:#061321}@media(max-width:700px){#spotlightWorkspaceOverlay .spotlight-window-bar{font-size:12px;letter-spacing:0}#spotlightWorkspaceOverlay .spotlight-window-actions button{padding:6px 8px}}';
+    document.head.appendChild(style);
+    overlay=document.createElement('div');
+    overlay.id='spotlightWorkspaceOverlay';
+    overlay.setAttribute('role','dialog');
+    overlay.setAttribute('aria-modal','true');
+    overlay.setAttribute('aria-label','SPOTLIGHT activity workspace');
+    overlay.innerHTML='<section class="spotlight-window"><div class="spotlight-window-bar"><span>◉ SPOTLIGHT · ACTIVITY STUDIO</span><div class="spotlight-window-actions"><button type="button" data-spotlight-close>✕ Close</button></div></div><iframe title="SPOTLIGHT editor and presentation deck" src="/spotlight.html"></iframe></section>';
+    overlay.querySelector('[data-spotlight-close]').addEventListener('click',()=>{overlay.remove()});
+    overlay.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();overlay.remove()}});
+    document.body.appendChild(overlay);
+  }
+  overlay.querySelector('[data-spotlight-close]').focus();
+}
 function openApp(appId){
   const app=appById(appId);if(!app)return;
-  if(appId==='spotlight'){const w=window.open('/spotlight.html','si-spotlight-studio','width=1440,height=900,resizable=yes,scrollbars=yes');if(w){w.focus();toast('SPOTLIGHT opened in a separate window');}else{toast('Allow pop-ups for Mothership to open SPOTLIGHT');}return;}
+  if(appId==='spotlight'){openSpotlightWorkspace();return;}
   activityPresetEditingId='';
   state.activeApp=app.id;state.assigningSlot=null;state.presentationLibraryOpen=false;state.presentationEditor=null;state.screen='activities';render();toast(`${app.name} opened`);
 }
