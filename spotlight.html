@@ -4,9 +4,12 @@
 /* SPOTLIGHT studio command-deck visual polish */
 .scene-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px;align-items:center;margin-bottom:8px;border:1px solid #284f66;border-radius:10px;padding:5px;background:#081c2c}.scene-item.selected{border-color:#51d5f4}.scene-item .scene{margin:0;border:0;background:transparent;padding:8px;font-size:12px}.scene-item .scene small{display:block;margin-top:5px}.scene-actions{display:flex;gap:4px}.scene-actions button{padding:6px 9px}.scene-actions button:disabled{opacity:.25}
 body{background:radial-gradient(ellipse at 50% -20%,#183b55 0%,#06111d 70%);font-size:14px}header{padding:20px 28px;background:linear-gradient(115deg,#0d263a,#091927);border-bottom:1px solid #33718b;box-shadow:0 12px 32px #0005}header h1{font-size:27px;letter-spacing:.18em;text-shadow:0 0 22px #24c9ee77}header small{display:block;margin-top:7px;letter-spacing:.09em;font-size:11px}.shell{grid-template-columns:minmax(255px,295px) minmax(0,1fr) minmax(265px,305px);gap:18px;padding:22px;min-height:calc(100vh - 84px)}aside,.main{background:linear-gradient(160deg,#112a3c,#091a29 85%);border:1px solid #34566e;border-radius:18px;padding:20px;box-shadow:0 15px 35px #0004,inset 0 1px 0 #ffffff0b}h2{font-size:13px;color:#66e1ff;letter-spacing:.16em;margin-bottom:20px}button{padding:11px 14px;border-radius:10px;font-weight:700;transition:background .15s,border-color .15s,box-shadow .15s}button:hover{border-color:#55d9f5;box-shadow:0 0 16px #35b7e322}button.primary{background:linear-gradient(120deg,#087b9c,#0c4f78);box-shadow:0 0 20px #16bbdb25}input[type=text],select{min-height:43px;margin-top:6px;background:#071622;border:1px solid #34576c}label{display:block;color:#b5d3e1;font-size:12px;font-weight:700;letter-spacing:.03em}.stack{gap:14px}.stage{border-radius:16px;border:1px solid #376782;background:#030d16;box-shadow:inset 0 0 55px #000b,0 0 0 5px #061522}.main{display:flex;flex-direction:column}.main .stage{flex:1;min-height:360px}.scene{background:#102e43;text-align:left;border-left:3px solid #278fbd}.scene.selected{border-left-color:#6de9ff}.zone-row{background:#0b293a;border-radius:12px}.zone-row button:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.muted{font-size:12px;color:#94b4c7}.tools{padding-top:10px}.tools .row{gap:10px}.chip{height:36px;width:36px;box-shadow:inset 0 0 0 2px #0005}.projector .main .stage{min-height:0}@media(max-width:1050px){.shell{grid-template-columns:1fr}.main .stage{min-height:300px}}
-</style></head><body><header><div><h1>◉ SPOTLIGHT</h1><small>SI MOTHERSHIP • INTERACTIVE IMAGE HIGHLIGHTS</small></div><div class="row"><button id="new">New</button><button id="save" class="primary">Save Activity</button><button id="display">Open Shared Screen</button><a href="/" style="color:#8adcf2">← Mothership</a></div></header>
+
+/* Phase 2: classroom presentation console */
+.playbar{display:flex;flex-wrap:wrap;gap:9px;align-items:center;padding:12px;margin-bottom:15px;border:1px solid #315b75;border-radius:12px;background:linear-gradient(90deg,#0c3149,#0b2032)}.playbar button{font-size:12px;padding:9px 12px}.playbadge{color:#7be6ff;letter-spacing:.12em;font-size:11px;font-weight:900;margin-right:auto}.playing .tools{display:none}.playing .main{border-color:#45c6eb}.playing .playbar{border-color:#4cd8f4;box-shadow:0 0 22px #13b8eb25}.playing .stage{min-height:55vh}.playing .stage svg{pointer-events:none}.projector .playbar{display:none}.projector .main .stage{min-height:0}@media(max-width:1050px){.playbar{justify-content:center}.playbadge{width:100%}}
+</style></head><body><header><div><h1>◉ SPOTLIGHT</h1><small>SI MOTHERSHIP • INTERACTIVE IMAGE HIGHLIGHTS</small></div><div class="row"><button id="new">New</button><button id="save" class="primary">Save Activity</button><button id="play" class="primary">▶ Start Activity</button><button id="display">Open Shared Screen</button><a href="/" style="color:#8adcf2">← Mothership</a></div></header>
 <div class="shell"><aside><h2>ACTIVITY STUDIO</h2><div class="stack"><label>Activity name<input id="title" type="text" value="Untitled Spotlight"></label><label>Saved activities<select id="saved"><option value="">Choose activity…</option></select></label><div class="row"><button id="load">Load Activity</button><button id="delete" class="danger">Delete Saved</button></div><hr style="width:100%;border:0;border-top:1px solid #274b60"><label>Upload pictures (multiple allowed)<input id="uploads" type="file" accept="image/*" multiple></label><div id="scenes"></div><div class="row"><button id="renameScene">Rename Picture</button><button id="removeScene" class="danger">Remove Picture</button></div><div class="row"><button id="prev">← Previous</button><button id="next">Next →</button></div><p class="muted">Images and highlight regions are stored together. Saved activities can be reopened and edited.</p></div></aside>
-<main class="main"><h2 id="sceneTitle">IMAGE STUDIO</h2><div id="stage" class="stage"><img id="picture" alt="Current activity picture"><svg id="drawing" viewBox="0 0 1000 562.5" preserveAspectRatio="none"></svg></div><div class="tools topspace"><div class="row"><button id="addCircle">+ Circle</button><button id="addRect">+ Rectangle</button><button id="remove">Delete Selected</button><button id="toggle">Toggle Selected</button><button id="all">Show All</button><button id="none">Hide All</button></div><p class="muted">Draw on the picture to create a region. Drag a selected outline to move it. The image stays fully visible in Outline mode.</p></div></main>
+<main class="main"><div class="playbar" id="playbar"><span class="playbadge" id="modeLabel">STUDIO MODE</span><button id="playPrev">← Previous Image</button><button id="playNext">Next Image →</button><button id="playNextGlow">Reveal Next</button><button id="playHide">Hide Highlights</button><button id="playAll">Show All</button><button id="playDim">Dim: Off</button></div><h2 id="sceneTitle">IMAGE STUDIO</h2><div id="stage" class="stage"><img id="picture" alt="Current activity picture"><svg id="drawing" viewBox="0 0 1000 562.5" preserveAspectRatio="none"></svg></div><div class="tools topspace"><div class="row"><button id="addCircle">+ Circle</button><button id="addRect">+ Rectangle</button><button id="remove">Delete Selected</button><button id="toggle">Toggle Selected</button><button id="all">Show All</button><button id="none">Hide All</button></div><p class="muted">Draw on the picture to create a region. Drag a selected outline to move it. The image stays fully visible in Outline mode.</p></div></main>
 <aside><h2>HIGHLIGHT CONTROLS</h2><div class="stack"><label>Selected highlight name<input id="zoneName" type="text" placeholder="e.g. Hot stove"></label><label>Effect<select id="effect"><option value="outline">Outline Glow</option><option value="dim">Dim Background</option></select></label><div>Glow color</div><div id="colors" class="row"></div><div id="zones" class="stack"></div><button id="reset">Reset Reveals</button><p class="muted">Choose black, red, green, blue or yellow per region. Each region can be switched on or off independently. Shared Screen opens a clean presentation window for Zoom.</p></div></aside></div>
 <script>
 (function(){
@@ -15,7 +18,7 @@ const KEY='siMothership.spotlight.activities.v1',LIVE='siMothership.spotlight.li
 const $=id=>document.getElementById(id),clone=x=>JSON.parse(JSON.stringify(x)),colors={black:'#111111',red:'#ef4444',green:'#22c55e',blue:'#3b82f6',yellow:'#facc15'};
 const projector=new URLSearchParams(location.search).has('display');
 if(projector)document.body.classList.add('projector');
-let store=[],activity={id:'',name:'Untitled Spotlight',scenes:[]},index=0,selected='',drawMode='',start=null,drag=null;
+let store=[],activity={id:'',name:'Untitled Spotlight',scenes:[]},index=0,selected='',drawMode='',start=null,drag=null,playing=false,forceDim=false;
 const channel=typeof BroadcastChannel==='function'?new BroadcastChannel('si-spotlight-live'):null;
 function loadStore(){try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v:[]}catch{return []}}
 store=loadStore();
@@ -26,7 +29,7 @@ function zone(){return current()?.zones.find(z=>z.id===selected)}
 function id(){return 'sp_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8)}
 function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function notify(s){if(!projector)alert(s)}
-function broadcast(){if(projector)return;const v={name:activity.name,index,scene:current()?clone(current()):null};try{localStorage.setItem(LIVE,JSON.stringify(v))}catch(e){console.warn('Spotlight live state storage',e)}channel?.postMessage(v)}
+function broadcast(){if(projector)return;const v={name:activity.name,index,scene:current()?clone(current()):null,forceDim};try{localStorage.setItem(LIVE,JSON.stringify(v))}catch(e){console.warn('Spotlight live state storage',e)}channel?.postMessage(v)}
 function liveLoad(){try{return JSON.parse(localStorage.getItem(LIVE)||'null')}catch{return null}}
 function fitOverlay(){
  const img=$('picture'),svg=$('drawing'),stage=$('stage');
@@ -42,10 +45,10 @@ if(typeof ResizeObserver==='function')new ResizeObserver(fitOverlay).observe($('
 function renderStage(scene,selectedId=''){
  const svg=$('drawing');if($('picture').getAttribute('src')!==(scene?.image||''))$('picture').src=scene?.image||'';$('picture').style.visibility=scene?'visible':'hidden';
  if(!scene){svg.innerHTML='';$('sceneTitle').textContent='UPLOAD AN IMAGE TO BEGIN';fitOverlay();return}
- $('sceneTitle').textContent=esc(scene.name||'Picture')+' • '+(index+1)+' / '+activity.scenes.length;
+ $('sceneTitle').textContent=(scene.name||'Picture')+' • '+(index+1)+' / '+(projector?Math.max(index+1,activity.scenes.length):activity.scenes.length);
  let markup='<defs><filter id="spotGlow" x="-35%" y="-35%" width="170%" height="170%"><feGaussianBlur stdDeviation="7"/></filter></defs>';
  const zones=scene.zones||[];
- const dims=zones.filter(z=>z.visible&&z.effect==='dim');
+ const dims=zones.filter(z=>z.visible&&(z.effect==='dim'||forceDim));
  if(dims.length){const masks=dims.map(z=>z.shape==='rect'?'<rect x="'+z.x+'" y="'+z.y+'" width="'+z.w+'" height="'+z.h+'" rx="9" fill="black"/>':'<ellipse cx="'+(z.x+z.w/2)+'" cy="'+(z.y+z.h/2)+'" rx="'+z.w/2+'" ry="'+z.h/2+'" fill="black"/>').join('');markup+='<defs><mask id="spotMask"><rect width="1000" height="562.5" fill="white"/>'+masks+'</mask></defs><rect width="1000" height="562.5" fill="#020a14" opacity=".68" mask="url(#spotMask)" pointer-events="none"/>'}
  zones.forEach(z=>{if(!z.visible&&z.id!==selectedId)return;const c=colors[z.color]||colors.red,shape=z.shape==='rect'?'rect':'ellipse';const attrs=shape==='rect'?'x="'+z.x+'" y="'+z.y+'" width="'+z.w+'" height="'+z.h+'" rx="9"':'cx="'+(z.x+z.w/2)+'" cy="'+(z.y+z.h/2)+'" rx="'+z.w/2+'" ry="'+z.h/2+'"';
  const extra=z.id===selectedId?' selected':'';
@@ -62,6 +65,10 @@ function renderStage(scene,selectedId=''){
 function render(){
  if(projector)return;
  $('title').value=activity.name;
+ document.body.classList.toggle('playing',playing);
+ $('play').textContent=playing?'■ Return to Studio':'▶ Start Activity';
+ $('modeLabel').textContent=playing?'LIVE ACTIVITY':'STUDIO MODE';
+ $('playDim').textContent=forceDim?'Dim: On':'Dim: Off';
  $('saved').innerHTML='<option value="">Choose activity…</option>'+store.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join('');
  $('scenes').innerHTML=activity.scenes.map((s,i)=>'<div class="scene-item '+(i===index?'selected':'')+'"><button class="scene" data-scene="'+i+'">'+(i+1)+'. '+esc(s.name)+' <small>('+s.zones.length+' highlights)</small></button><div class="scene-actions"><button title="Move picture up" data-move="'+i+'" data-dir="-1" '+(i===0?'disabled':'')+'>↑</button><button title="Move picture down" data-move="'+i+'" data-dir="1" '+(i===activity.scenes.length-1?'disabled':'')+'>↓</button></div></div>').join('');
  $('scenes').querySelectorAll('[data-scene]').forEach(b=>b.onclick=()=>{index=Number(b.dataset.scene);selected='';render()});
@@ -73,6 +80,7 @@ function render(){
  $('zones').innerHTML=(current()?.zones||[]).map(z=>'<div class="zone-row '+(selected===z.id?'selected':'')+'"><button data-select="'+esc(z.id)+'">'+esc(z.name||'Highlight')+'</button><button data-toggle="'+esc(z.id)+'">'+(z.visible?'ON':'OFF')+'</button></div>').join('');
  $('zones').querySelectorAll('[data-select]').forEach(b=>b.onclick=()=>{selected=b.dataset.select;render()});
  $('zones').querySelectorAll('[data-toggle]').forEach(b=>b.onclick=()=>{const z=current().zones.find(x=>x.id===b.dataset.toggle);z.visible=!z.visible;render();broadcast()});
+ $('playPrev').disabled=index===0;$('playNext').disabled=index>=activity.scenes.length-1;
  $('prev').disabled=index===0;$('next').disabled=index>=activity.scenes.length-1;
  broadcast();
 }
@@ -86,13 +94,13 @@ function finishPointer(e,cancelled=false){
  start=null;drag=null;drawMode='';$('stage').classList.remove('drawing');render();
 }
 $('drawing').addEventListener('pointerdown',e=>{
- if(!current()||projector)return;
+ if(!current()||projector||playing)return;
  const p=coord(e),hit=e.target.closest('[data-zone]');
  if(drawMode){start=p;e.preventDefault();return}
  if(hit){selected=hit.dataset.zone;const z=zone();if(z){drag={p,x:z.x,y:z.y};e.preventDefault();render()}}
 });
 window.addEventListener('pointermove',e=>{
- if(!current()||projector||(!start&&!drag))return;
+ if(!current()||projector||playing||(!start&&!drag))return;
  const p=coord(e);
  if(start&&drawMode){
   const x=Math.min(start.x,p.x),y=Math.min(start.y,p.y),w=Math.abs(p.x-start.x),h=Math.abs(p.y-start.y);
@@ -122,7 +130,15 @@ $('new').onclick=()=>{if(activity.scenes.length&&!confirm('Start a new unsaved S
 $('save').onclick=async()=>{activity.name=$('title').value.trim()||'Untitled Spotlight';if(!activity.scenes.length)return notify('Upload at least one image first.');if(!activity.id)activity.id=id();const next=[clone(activity),...store.filter(a=>a.id!==activity.id)];try{await persistActivities(next);render();notify('SPOTLIGHT activity saved to Mothership.')}catch(e){console.error(e);notify('Unable to save: '+e.message)}};
 $('load').onclick=()=>{const a=store.find(a=>a.id===$('saved').value);if(!a)return notify('Choose a saved activity first.');activity=clone(a);index=0;selected='';drawMode='';$('stage').classList.remove('drawing');render()};
 $('delete').onclick=async()=>{const target=$('saved').value;if(!target||!confirm('Delete this saved Spotlight activity?'))return;try{await persistActivities(store.filter(a=>a.id!==target));render()}catch(e){notify('Could not delete saved activity: '+e.message)}};
+function changeScene(delta){const next=Math.max(0,Math.min(activity.scenes.length-1,index+delta));if(next!==index){index=next;selected='';forceDim=false;render()}}
+$('play').onclick=()=>{if(!playing&&!activity.scenes.length)return notify('Upload or load an activity first.');playing=!playing;drawMode='';start=null;drag=null;$('stage').classList.remove('drawing');if(playing){index=0;forceDim=false;activity.scenes.forEach(sc=>sc.zones.forEach(z=>z.visible=false))}render()};
+$('playPrev').onclick=()=>changeScene(-1);
+$('playNext').onclick=()=>changeScene(1);
+$('playNextGlow').onclick=()=>{const z=current()?.zones.find(z=>!z.visible);if(z){z.visible=true;selected=z.id;render()}else notify('All highlights on this image are showing.')};
+$('playHide').onclick=()=>{(current()?.zones||[]).forEach(z=>z.visible=false);render()};
+$('playAll').onclick=()=>{(current()?.zones||[]).forEach(z=>z.visible=true);render()};
+$('playDim').onclick=()=>{forceDim=!forceDim;render()};
 $('display').onclick=()=>{broadcast();window.open('/spotlight.html?display=1','spotlight-shared','width=1280,height=800')};
-if(projector){function refresh(v){if(!v)return;index=v.index||0;activity.name=v.name||'SPOTLIGHT';renderStage(v.scene||null);$('sceneTitle').textContent=activity.name+' • '+(v.scene?.name||'Waiting for picture')}channel&&(channel.onmessage=e=>refresh(e.data));window.addEventListener('storage',e=>{if(e.key===LIVE)refresh(liveLoad())});refresh(liveLoad())}else{render();syncFromServer()}
+if(projector){function refresh(v){if(!v)return;index=v.index||0;forceDim=!!v.forceDim;activity.name=v.name||'SPOTLIGHT';renderStage(v.scene||null);$('sceneTitle').textContent=activity.name+' • '+(v.scene?.name||'Waiting for picture')}channel&&(channel.onmessage=e=>refresh(e.data));window.addEventListener('storage',e=>{if(e.key===LIVE)refresh(liveLoad())});refresh(liveLoad())}else{render();syncFromServer()}
 })();
 </script></body></html>
