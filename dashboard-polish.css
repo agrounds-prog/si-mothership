@@ -3914,3 +3914,57 @@ body.si-v80-dashboard #teacher .si-approved-dashboard-art{
 body.si-v80-dashboard #teacher #teacherControlBar .ico.si-v80-icon,
 body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut-icon{position:relative!important}
 body.si-v80-dashboard #teacher .si-approved-art-loaded{background-image:linear-gradient(160deg,#103657,#05182f)!important}
+
+/* SI Mothership approved icon alignment v2 — Nov 4 2026.
+   Display each PNG as ONE centered image, without a second background copy.
+   Preserve fallback SVGs and the original clickable button structures. */
+body.si-v80-dashboard #teacher #teacherControlBar .single-mission-controls .control .ico.si-v80-icon{
+  position:relative!important;display:grid!important;place-items:center!important;
+  box-sizing:border-box!important;overflow:hidden!important;
+  padding:0!important;background-image:linear-gradient(160deg,#103657,#05182f)!important;
+  background-size:cover!important;background-position:center!important;
+}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut:not(.empty) .app-shortcut-icon{
+  position:relative!important;display:grid!important;place-items:center!important;
+  box-sizing:border-box!important;overflow:hidden!important;
+  padding:0!important;background-image:linear-gradient(160deg,#12365a,#07162d)!important;
+  background-size:cover!important;background-position:center!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .si-approved-dashboard-art,
+body.si-v80-dashboard #teacher #homeAppGrid .si-approved-dashboard-art{
+  position:absolute!important;display:block!important;z-index:5!important;
+  top:50%!important;left:50%!important;right:auto!important;bottom:auto!important;
+  transform:translate(-50%,-50%)!important;
+  box-sizing:border-box!important;object-fit:contain!important;object-position:center!important;
+  width:min(70%,68px)!important;height: min(82%,68px)!important;
+  max-width:68px!important;max-height:68px!important;
+  padding:0!important;margin:0!important;border:0!important;
+  pointer-events:none!important;filter:drop-shadow(0 0 7px rgba(69,207,255,.24));
+}
+body.si-v80-dashboard #teacher #homeAppGrid .si-approved-dashboard-art{
+  width:min(72%,68px)!important;height:min(82%,68px)!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .single-mission-controls .control .copy,
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut:not(.empty) .app-shortcut-label{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  text-align:center!important;min-width:0!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .single-mission-controls .control .copy b,
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut:not(.empty) .app-shortcut-label{
+  text-align:center!important;line-height:1.12!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .si-approved-art-loaded svg,
+body.si-v80-dashboard #teacher #homeAppGrid .si-approved-art-loaded svg,
+body.si-v80-dashboard #teacher #homeAppGrid .si-approved-art-loaded .v562-art{
+  display:none!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .ico.si-v80-icon:not(.si-approved-art-loaded) svg,
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut-icon:not(.si-approved-art-loaded) svg.si-v82-activity-glyph{
+  display:block!important;position:relative!important;z-index:2!important;
+}
+@media(max-width:1050px){
+ body.si-v80-dashboard #teacher #teacherControlBar .si-approved-dashboard-art,
+ body.si-v80-dashboard #teacher #homeAppGrid .si-approved-dashboard-art{
+   width:min(76%,54px)!important;height:min(78%,54px)!important;
+ }
+}
