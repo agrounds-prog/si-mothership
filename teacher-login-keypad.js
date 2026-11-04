@@ -17,7 +17,14 @@ function init(){
   b.addEventListener('click',()=>{if(val==='Clear'){input.value='';sync()}else if(val==='⌫')erase();else addDigit(val)});grid.append(b);
  }pad.append(grid);
  const enter=document.createElement('button');enter.type='submit';enter.className='si-pin-launch';enter.textContent='LAUNCH COMMAND DECK';pad.append(enter);
- form.append(pad);sync();
+ form.append(pad);
+ // Move the existing real checkbox and error message AFTER the keypad,
+ // rather than relying on visual CSS ordering of the legacy form.
+ const remember=form.querySelector('.teacher-login-remember');
+ const error=form.querySelector('.teacher-login-error');
+ if(remember)form.append(remember);
+ if(error)form.append(error);
+ sync();
  document.addEventListener('keydown',e=>{
   const overlay=document.getElementById('teacherLoginOverlay');if(!overlay||overlay.classList.contains('hidden'))return;
   if(e.altKey||e.ctrlKey||e.metaKey||e.target?.closest?.('.si-pin-key'))return;
