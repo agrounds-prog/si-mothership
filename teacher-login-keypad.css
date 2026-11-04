@@ -1,0 +1,36 @@
+/* Functional keypad overlays the artwork's printed (noninteractive) terminal. */
+.teacher-login-overlay .teacher-login-card.si-pin-mode{
+ position:absolute!important;left:50%!important;top:50%!important;
+ transform:translate(-50%,-50%)!important;
+ width:min(480px,92vw)!important;height:auto!important;
+ margin:0!important;padding:24px!important;
+ border:2px solid #50dfff!important;border-radius:18px!important;
+ background:linear-gradient(145deg,#071b38f9,#041022fc)!important;
+ box-shadow:0 0 32px #0acfffaa,0 16px 50px #000b!important;
+ backdrop-filter:none!important;
+}
+.teacher-login-overlay .si-pin-mode::before,
+.teacher-login-overlay .si-pin-mode h1,
+.teacher-login-overlay .si-pin-mode .teacher-login-field,
+.teacher-login-overlay .si-pin-mode .teacher-login-enter{display:none!important}
+.teacher-login-overlay .si-pin-mode .teacher-login-remember{
+ position:static!important;opacity:1!important;display:flex!important;
+ justify-content:center!important;align-items:center!important;
+ width:auto!important;height:auto!important;margin:14px 0 0!important;
+}
+.teacher-login-overlay .si-pin-mode .teacher-login-error{
+ position:static!important;width:auto!important;margin-top:8px!important;
+}
+.si-pin-pad{display:flex;flex-direction:column;gap:14px;align-items:stretch}
+.si-pin-title{text-align:center;color:#d7f8ff;font-weight:900;letter-spacing:.15em;font-size:17px}
+.si-pin-dots{display:flex;justify-content:center;gap:18px;padding:8px}
+.si-pin-dot{width:15px;height:15px;border-radius:50%;border:2px solid #73dfff;background:#081c36;box-shadow:0 0 9px #3bdfff55}
+.si-pin-dot.filled{background:#73eaff;box-shadow:0 0 15px #3befff}
+.si-pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.si-pin-key,.si-pin-launch{font-family:inherit;font-weight:800;color:#ecfbff;cursor:pointer}
+.si-pin-key{min-height:56px;font-size:23px;border:1px solid #3db7e8;border-radius:10px;background:linear-gradient(#164477,#09244c);box-shadow:inset 0 1px #b1faff55}
+.si-pin-key:nth-child(10),.si-pin-key:nth-child(12){font-size:16px}
+.si-pin-key:hover,.si-pin-key:focus-visible{background:#1766a2;outline:2px solid #a5f8ff;outline-offset:1px}
+.si-pin-launch{min-height:54px;font-size:16px;letter-spacing:.06em;border:1px solid #8af5ff;border-radius:10px;background:linear-gradient(#126ed5,#063c87);box-shadow:0 0 14px #1dcfff77}
+.si-pin-launch:hover,.si-pin-launch:focus-visible{filter:brightness(1.18);outline:2px solid #a5f8ff}
+@media(max-height:740px){.teacher-login-overlay .teacher-login-card.si-pin-mode{padding:12px!important}.si-pin-pad{gap:7px}.si-pin-key{min-height:40px}.si-pin-launch{min-height:42px}}
