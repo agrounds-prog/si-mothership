@@ -3775,3 +3775,38 @@ body.role-shared #shared #sharedContent .crew-survey-footer > .crew-survey-round
   grid-column:1!important;grid-row:2!important;justify-self:center!important;
  }
 }
+
+/* Holographic Command Deck skin v1: paint-only, existing geometry and behavior preserved. */
+body.si-v80-dashboard{
+ --si80-ice:#a6f5ff;--si80-line:#43caff;--si80-text:#f2fbff;
+}
+body.si-v80-dashboard .topbar.si-v80-topbar{
+ background:radial-gradient(ellipse at 49% -90%,#2389d077,transparent 65%),linear-gradient(112deg,#06112a,#0b2448 58%,#07142e)!important;
+ border-bottom-color:#59dfff!important;
+ box-shadow:inset 0 -1px 0 #b4f8ff40,0 6px 26px #010716ba,0 0 24px #15b9ff24!important;
+}
+body.si-v80-dashboard .topbar .brand-mark{
+ border-color:#7befff!important;
+ background:radial-gradient(circle at 45% 30%,#247dd2,#0a2452 66%,#130d35)!important;
+ box-shadow:inset 0 1px 0 #ffffff5c,0 0 22px #21cfff8f!important;
+}
+body.si-v80-dashboard .topbar .brand-copy b{
+ color:#fff!important;text-shadow:0 1px 0 #388ac0,0 0 19px #36bfff99!important;
+}
+body.si-v80-dashboard #siV80Information{
+ border-color:#3eaee2!important;
+ background:linear-gradient(130deg,#0c3355e8,#071b38f0 78%)!important;
+ box-shadow:inset 0 1px 0 #c4f8ff30,0 0 24px #1caeff26!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar button:not(:disabled),
+body.si-v80-dashboard .topbar button:not(:disabled){
+ transition:filter .18s ease,box-shadow .18s ease,background-color .18s ease;
+}
+body.si-v80-dashboard #teacher #teacherControlBar button:not(:disabled):hover,
+body.si-v80-dashboard .topbar button:not(:disabled):hover{
+ filter:brightness(1.13);box-shadow:0 0 18px #26cfff55;
+}
+@media(prefers-reduced-motion:reduce){
+ body.si-v80-dashboard #teacher #teacherControlBar button,
+ body.si-v80-dashboard .topbar button{transition:none!important}
+}
