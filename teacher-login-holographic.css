@@ -1,238 +1,27 @@
-/* Holographic Command teacher login — scoped visual layer; preserves existing PIN authentication. */
-.teacher-login-overlay:not(.hidden){
- isolation:isolate;display:flex;align-items:center;justify-content:center;
- background:
- radial-gradient(ellipse 58% 46% at 13% 73%,#3285c9b8 0%,#1642768c 35%,transparent 72%),
- radial-gradient(ellipse 35% 45% at 92% 30%,#503ca85e,transparent 75%),
- radial-gradient(circle at 72% 16%,#b5dfff 0 1px,transparent 2px),
- radial-gradient(circle at 20% 21%,#b5dfff 0 1px,transparent 2px),
- radial-gradient(circle at 81% 65%,#b5dfff 0 1px,transparent 2px),
- linear-gradient(155deg,#020914,#071b39 55%,#030d21);
- background-size:auto,auto,163px 139px,241px 211px,193px 167px,auto;
+/* SI Mothership approved access terminal — November 4, 2026.
+   The approved PNG is the ONLY visual login scene.
+   Retired bridge.jpg and previous illustrated login layers are intentionally absent.
+   Interactive keypad controls and indicators are positioned by teacher-login-keypad.css.
+   Teacher authentication remains handled by the existing server and form. */
+html body #teacherLoginOverlay.teacher-login-overlay:not(.hidden){
+  background-color:#020b1e!important;
+  background-image:url("/d0971a35-bfe5-452f-aee5-a335312d36ad.png?v=approved-20261104")!important;
+  background-position:center center!important;
+  background-size:100% 100%!important;
+  background-repeat:no-repeat!important;
+  isolation:isolate;
 }
-.teacher-login-overlay:not(.hidden)::before{
- content:"";position:absolute;inset:3.5% 3% 9%;border:clamp(8px,1.6vw,23px) solid #142c4c;
- border-radius:clamp(35px,6vw,105px);box-shadow:inset 0 0 0 2px #49b9ff88,inset 0 0 48px #0a67b370,0 0 0 4px #030916;
- background:radial-gradient(ellipse at 12% 82%,#57caff52 0 12%,transparent 34%),radial-gradient(ellipse at 88% 22%,#9e64fc45,transparent 30%);
- mask-image:none;pointer-events:none;
+html body #teacherLoginOverlay.teacher-login-overlay::before,
+html body #teacherLoginOverlay.teacher-login-overlay::after,
+html body #teacherLoginOverlay .teacher-login-brand{display:none!important}
+html body #teacherLoginOverlay .teacher-login-card.si-pin-mode{
+  position:absolute!important;inset:0!important;top:0!important;left:0!important;
+  transform:none!important;margin:0!important;padding:0!important;
+  width:100%!important;max-width:none!important;height:100%!important;
+  border:0!important;border-radius:0!important;
+  background:none!important;box-shadow:none!important;backdrop-filter:none!important;
 }
-.teacher-login-overlay:not(.hidden)::after{
- content:"";position:absolute;bottom:-14%;left:50%;transform:translateX(-50%) perspective(440px) rotateX(63deg);
- width:min(88vw,1050px);height:42%;border-radius:50%;
- background:repeating-radial-gradient(ellipse,#26baff40 0 2px,transparent 3px 31px),radial-gradient(ellipse,#20caff7a,transparent 65%);
- filter:drop-shadow(0 0 24px #19bfff);pointer-events:none;opacity:.68;
- animation:si-login-pulse 6s ease-in-out infinite alternate;
-}
-.teacher-login-overlay .teacher-login-brand{
- top:clamp(26px,6vh,70px);width:min(95vw,1100px);text-align:center;line-height:1.12;
- font-size:clamp(27px,4.8vw,70px);font-weight:1000;font-style:italic;letter-spacing:.045em;
- color:#effaff;text-shadow:0 3px 0 #2d6da8,0 0 23px #39baff99,0 12px 30px #000c;
-}
-.teacher-login-overlay .teacher-login-brand span{color:#8deeff}
-.teacher-login-overlay .teacher-login-brand::after{
- content:"CLASSROOM COMMAND DECK";display:block;margin:10px auto 0;
- font-size:clamp(11px,1.35vw,18px);font-weight:800;font-style:normal;letter-spacing:.32em;
- color:#d9f4ff;text-shadow:0 0 14px #40bfff;
-}
-.teacher-login-overlay .teacher-login-card{
- width:min(520px,calc(100vw - 40px));margin-top:clamp(65px,9vh,120px);padding:30px clamp(22px,4vw,45px) 24px;
- border:2px solid #4cdcff;border-radius:22px;
- background:linear-gradient(155deg,#0b2a4bef,#061328f7 78%);
- box-shadow:0 0 0 5px #0a427c66,inset 0 0 28px #176ca044,0 0 45px #13aafa77,0 22px 75px #000b;
- backdrop-filter:blur(16px);
-}
-.teacher-login-overlay .teacher-login-card::before{
- content:"◉  HOLOGRAPHIC ACCESS TERMINAL";display:block;margin-bottom:11px;
- font-size:10px;letter-spacing:.16em;font-weight:900;color:#8ddfff;
-}
-.teacher-login-overlay .teacher-login-card h1{
- margin:0 0 22px;font-size:clamp(22px,2.7vw,32px);font-weight:900;letter-spacing:.09em;
- text-transform:uppercase;color:#fff;text-shadow:0 0 16px #24baff;
-}
-.teacher-login-overlay .teacher-login-field{margin-bottom:20px}
-.teacher-login-overlay .teacher-login-field input{
- height:65px;background:#04142de8;border:1px solid #398ac1;border-radius:10px;
- font-size:21px;color:#fff;
-}
-.teacher-login-overlay .teacher-login-field input:focus-visible,
-.teacher-login-overlay .teacher-login-enter:focus-visible,
-.teacher-login-overlay .teacher-login-remember input:focus-visible{outline:3px solid #ffce72;outline-offset:3px}
-.teacher-login-overlay .teacher-login-enter{
- height:66px;border:1px solid #8bf7ff;border-radius:12px;
- background:linear-gradient(180deg,#0968ac,#06316a);box-shadow:inset 0 2px #b6faff66,0 0 18px #00cfff8a;
- text-transform:uppercase;letter-spacing:.08em;font-size:clamp(17px,2vw,23px);
-}
-.teacher-login-overlay .teacher-login-enter::before{content:"🚀  "}
-.teacher-login-overlay .teacher-login-enter:hover{filter:brightness(1.22);transform:translateY(-1px)}
-.teacher-login-overlay .teacher-login-remember{font-size:14px;margin-top:18px}
-.teacher-login-overlay .teacher-login-error{font-size:14px}
-@keyframes si-login-pulse{from{opacity:.4;filter:drop-shadow(0 0 10px #19bfff)}to{opacity:.76;filter:drop-shadow(0 0 30px #19bfff)}}
-@media(max-height:700px){.teacher-login-overlay .teacher-login-brand{top:12px;font-size:clamp(24px,4vw,40px)}.teacher-login-overlay .teacher-login-card{margin-top:75px;padding-top:17px;padding-bottom:12px}.teacher-login-overlay .teacher-login-card h1{margin-bottom:12px}.teacher-login-overlay .teacher-login-field input{height:50px}.teacher-login-overlay .teacher-login-enter{height:53px}.teacher-login-overlay .teacher-login-remember{margin-top:9px}}
-@media(max-width:560px){.teacher-login-overlay .teacher-login-brand{top:8vh;font-size:clamp(25px,7vw,37px)}.teacher-login-overlay .teacher-login-brand::after{font-size:10px;letter-spacing:.12em}.teacher-login-overlay .teacher-login-card{margin-top:90px}.teacher-login-overlay:not(.hidden)::before{inset:2% 2% 8%;border-width:7px}}
-@media(prefers-reduced-motion:reduce){.teacher-login-overlay:not(.hidden)::after{animation:none}}
-
-/* Cinematic bridge illustration — actual served artwork, not a CSS starfield. */
-.teacher-login-overlay:not(.hidden){
- background:#030b19 url("/teacher-login-bridge.svg?v=bridge1") center center / cover no-repeat!important;
-}
-.teacher-login-overlay:not(.hidden)::before{
- inset:0!important;border:0!important;border-radius:0!important;
- box-shadow:none!important;background:linear-gradient(180deg,#02091766 0%,#02091718 35%,#02091733 100%)!important;
-}
-.teacher-login-overlay:not(.hidden)::after{
- bottom:-23%!important;opacity:.28!important;
-}
-.teacher-login-overlay .teacher-login-brand{
- top:clamp(24px,4vh,54px)!important;
- text-shadow:0 3px 8px #000,0 0 24px #3acfff!important;
-}
-.teacher-login-overlay .teacher-login-card{
- background:linear-gradient(145deg,#0b3154ef,#061327f5)!important;
- box-shadow:0 0 0 3px #0a5e9380,inset 0 1px 0 #c6faff66,0 0 65px #15baff9c,0 25px 90px #000d!important;
-}
-
-/* Final approved photographic bridge art, uploaded by repository owner. */
-.teacher-login-overlay:not(.hidden){
- background-image:url("/bridge.jpg?v=approved-20261104")!important;
- background-position:center center!important;
- background-size:cover!important;
- background-repeat:no-repeat!important;
-}
-.teacher-login-overlay:not(.hidden)::before{
- background:linear-gradient(180deg,#02081412,#02081408 50%,#02081418)!important;
-}
-.teacher-login-overlay:not(.hidden)::after{display:none!important}
-.teacher-login-overlay .teacher-login-brand{
- top:clamp(20px,4vh,50px)!important;
- font-size:clamp(26px,4.2vw,66px)!important;
-}
-.teacher-login-overlay .teacher-login-card{
- margin-top:clamp(40px,6vh,80px)!important;
- background:linear-gradient(160deg,#061c37eb,#041023ed)!important;
- border-color:#4be6ff!important;
- box-shadow:inset 0 1px 0 #b4ffff77,0 0 35px #00d9ffb3,0 18px 70px #0009!important;
-}
-@media(max-width:700px){
- .teacher-login-overlay:not(.hidden){background-position:center center!important}
- .teacher-login-overlay .teacher-login-card{margin-top:75px!important}
-}
-
-/* Final compositing fix: the approved artwork already contains the branding and
-   terminal chrome. Keep one interactive form, but do not paint it twice. */
-@media(min-width:701px){
- .teacher-login-overlay .teacher-login-brand{display:none!important}
- .teacher-login-overlay .teacher-login-card{
-  position:absolute!important;left:50%!important;top:50%!important;
-  transform:translate(-50%,-50%)!important;
-  width:min(27.3vw,48.5vh)!important;
-  height:min(24.6vw,43.8vh)!important;
-  margin:0!important;padding:0!important;
-  border:0!important;border-radius:0!important;background:transparent!important;
-  box-shadow:none!important;backdrop-filter:none!important;
- }
- .teacher-login-overlay .teacher-login-card::before,
- .teacher-login-overlay .teacher-login-card h1{display:none!important}
- .teacher-login-overlay .teacher-login-field{
-  position:absolute!important;top:28.2%!important;left:0!important;
-  width:100%!important;height:18.8%!important;margin:0!important;
- }
- .teacher-login-overlay .teacher-login-field .key-icon{display:none!important}
- .teacher-login-overlay .teacher-login-field input{
-  width:100%!important;height:100%!important;box-sizing:border-box!important;
-  background:transparent!important;border:0!important;box-shadow:none!important;
-  padding-left:18%!important;color:#eafaff!important;
-  font-size:clamp(16px,1.5vw,26px)!important;
- }
- .teacher-login-overlay .teacher-login-field input::placeholder{color:transparent!important}
- .teacher-login-overlay .teacher-login-enter{
-  position:absolute!important;top:51.5%!important;left:0!important;
-  width:100%!important;height:19%!important;
-  padding:0!important;margin:0!important;
-  background:transparent!important;border:0!important;box-shadow:none!important;
-  color:transparent!important;text-shadow:none!important;font-size:0!important;
- }
- .teacher-login-overlay .teacher-login-enter::before{content:none!important}
- .teacher-login-overlay .teacher-login-enter:hover{filter:none!important;transform:none!important}
- .teacher-login-overlay .teacher-login-remember{
-  position:absolute!important;top:77.5%!important;left:19%!important;
-  width:62%!important;height:11%!important;margin:0!important;
-  opacity:.015!important;cursor:pointer!important;
- }
- .teacher-login-overlay .teacher-login-error{
-  position:absolute!important;top:90%!important;left:0!important;width:100%!important;
-  color:#ffb8bb!important;text-align:center!important;text-shadow:0 2px 4px #000!important;
- }
- .teacher-login-overlay .teacher-login-field input:focus-visible,
- .teacher-login-overlay .teacher-login-enter:focus-visible{
-  outline:2px solid #b7ffff!important;outline-offset:2px!important;
- }
-}
-
-/* Align functional hotspots with the photographed access terminal.
-   Keep keyboard focus feedback inside the printed input, not above its label. */
-@media(min-width:701px){
- .teacher-login-overlay .teacher-login-card{
-  top:calc(50% + 7.5vh)!important;
- }
- .teacher-login-overlay .teacher-login-field{
-  left:-7%!important;width:114%!important;
- }
- .teacher-login-overlay .teacher-login-field input{
-  outline:0!important;outline-offset:0!important;
-  border:0!important;border-radius:8px!important;
- }
- .teacher-login-overlay .teacher-login-field input:focus,
- .teacher-login-overlay .teacher-login-field input:focus-visible{
-  outline:0!important;
-  box-shadow:inset 0 0 0 2px #8defff88!important;
- }
- .teacher-login-overlay .teacher-login-enter{
-  left:-7%!important;width:114%!important;
- }
- .teacher-login-overlay .teacher-login-enter:focus-visible{
-  outline:2px solid #b7ffff!important;outline-offset:-3px!important;
- }
-}
-
-/* Artwork supplies the input border: eliminate duplicate live-input outlines. */
-@media(min-width:701px){
- .teacher-login-overlay .teacher-login-field,
- .teacher-login-overlay .teacher-login-field:focus-within,
- .teacher-login-overlay .teacher-login-field input,
- .teacher-login-overlay .teacher-login-field input:hover,
- .teacher-login-overlay .teacher-login-field input:focus,
- .teacher-login-overlay .teacher-login-field input:focus-visible{
-  background:transparent!important;
-  border:0!important;
-  outline:none!important;
-  box-shadow:none!important;
-  -webkit-appearance:none!important;
-  appearance:none!important;
- }
- .teacher-login-overlay .teacher-login-field input{
-  caret-color:#a6f6ff!important;
- }
-}
-
-/* PIN text should appear AFTER the printed “Login Key” label in the artwork.
-   The photographic input frame is the only visible frame. */
-@media(min-width:701px){
- .teacher-login-overlay .teacher-login-field input{
-  padding-left:43%!important;
-  padding-right:5%!important;
-  text-align:left!important;
-  letter-spacing:.22em!important;
-  font-size:clamp(17px,1.45vw,25px)!important;
-  line-height:normal!important;
-  caret-color:#c6faff!important;
-  background:transparent!important;
-  border:none!important;
-  outline:none!important;
-  box-shadow:none!important;
- }
- .teacher-login-overlay .teacher-login-field input:focus,
- .teacher-login-overlay .teacher-login-field input:focus-visible,
- .teacher-login-overlay .teacher-login-field:focus-within{
-  border:none!important;outline:none!important;box-shadow:none!important;
- }
-}
+html body #teacherLoginOverlay .si-pin-mode::before,
+html body #teacherLoginOverlay .si-pin-mode h1,
+html body #teacherLoginOverlay .si-pin-mode .teacher-login-field,
+html body #teacherLoginOverlay .si-pin-mode .teacher-login-enter{display:none!important}
