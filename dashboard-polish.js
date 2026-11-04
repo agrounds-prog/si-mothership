@@ -164,6 +164,24 @@ function installLibraryArtwork(){
    icon.dataset.siV86Name=key;
    card.dataset.siV86Accent=colors[key]||scheme||"cyan";
    card.classList.add("si-v86-icon-ready");
+   // Add approved cinematic game illustration without replacing the card or its actions.
+   // Load failure preserves the original vector artwork and remains non-disruptive.
+   const artName={
+     "SI+":"si_plus","STARWHEEL":"star_wheel","BINGO":"bingo",
+     "BOARD":"board","CREW SURVEY":"crew_survey",
+     "COSMIC CARDS":"cosmic_cards","SKETCH SIGNAL":"signal",
+     "MATCH":"match","PIXEL REVEAL":"pixel_reveal"
+   }[key];
+   if(artName){
+     const photo=new Image();
+     photo.alt="";photo.decoding="async";photo.className="si-v88-library-photo";
+     photo.onload=()=>{
+       if(!icon.isConnected||icon.dataset.siV86Name!==key)return;
+       icon.appendChild(photo);icon.classList.add("si-v88-library-photo-ready");
+     };
+     photo.onerror=()=>{}; // the SVG remains visible
+     photo.src="/dashboard-art/activity_icons/"+artName+".png";
+   }
  }
  const render=()=>{
    // The class is limited to the browsing view so SI+ editors and games
