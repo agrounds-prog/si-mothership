@@ -193,3 +193,23 @@
   outline:2px solid #b7ffff!important;outline-offset:-3px!important;
  }
 }
+
+/* Artwork supplies the input border: eliminate duplicate live-input outlines. */
+@media(min-width:701px){
+ .teacher-login-overlay .teacher-login-field,
+ .teacher-login-overlay .teacher-login-field:focus-within,
+ .teacher-login-overlay .teacher-login-field input,
+ .teacher-login-overlay .teacher-login-field input:hover,
+ .teacher-login-overlay .teacher-login-field input:focus,
+ .teacher-login-overlay .teacher-login-field input:focus-visible{
+  background:transparent!important;
+  border:0!important;
+  outline:none!important;
+  box-shadow:none!important;
+  -webkit-appearance:none!important;
+  appearance:none!important;
+ }
+ .teacher-login-overlay .teacher-login-field input{
+  caret-color:#a6f6ff!important;
+ }
+}
