@@ -90,3 +90,29 @@
  background:linear-gradient(145deg,#0b3154ef,#061327f5)!important;
  box-shadow:0 0 0 3px #0a5e9380,inset 0 1px 0 #c6faff66,0 0 65px #15baff9c,0 25px 90px #000d!important;
 }
+
+/* Final approved photographic bridge art, uploaded by repository owner. */
+.teacher-login-overlay:not(.hidden){
+ background-image:url("/bridge.jpg?v=approved-20261104")!important;
+ background-position:center center!important;
+ background-size:cover!important;
+ background-repeat:no-repeat!important;
+}
+.teacher-login-overlay:not(.hidden)::before{
+ background:linear-gradient(180deg,#02081412,#02081408 50%,#02081418)!important;
+}
+.teacher-login-overlay:not(.hidden)::after{display:none!important}
+.teacher-login-overlay .teacher-login-brand{
+ top:clamp(20px,4vh,50px)!important;
+ font-size:clamp(26px,4.2vw,66px)!important;
+}
+.teacher-login-overlay .teacher-login-card{
+ margin-top:clamp(40px,6vh,80px)!important;
+ background:linear-gradient(160deg,#061c37eb,#041023ed)!important;
+ border-color:#4be6ff!important;
+ box-shadow:inset 0 1px 0 #b4ffff77,0 0 35px #00d9ffb3,0 18px 70px #0009!important;
+}
+@media(max-width:700px){
+ .teacher-login-overlay:not(.hidden){background-position:center center!important}
+ .teacher-login-overlay .teacher-login-card{margin-top:75px!important}
+}
