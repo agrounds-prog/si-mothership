@@ -70,3 +70,23 @@
 @media(max-height:700px){.teacher-login-overlay .teacher-login-brand{top:12px;font-size:clamp(24px,4vw,40px)}.teacher-login-overlay .teacher-login-card{margin-top:75px;padding-top:17px;padding-bottom:12px}.teacher-login-overlay .teacher-login-card h1{margin-bottom:12px}.teacher-login-overlay .teacher-login-field input{height:50px}.teacher-login-overlay .teacher-login-enter{height:53px}.teacher-login-overlay .teacher-login-remember{margin-top:9px}}
 @media(max-width:560px){.teacher-login-overlay .teacher-login-brand{top:8vh;font-size:clamp(25px,7vw,37px)}.teacher-login-overlay .teacher-login-brand::after{font-size:10px;letter-spacing:.12em}.teacher-login-overlay .teacher-login-card{margin-top:90px}.teacher-login-overlay:not(.hidden)::before{inset:2% 2% 8%;border-width:7px}}
 @media(prefers-reduced-motion:reduce){.teacher-login-overlay:not(.hidden)::after{animation:none}}
+
+/* Cinematic bridge illustration — actual served artwork, not a CSS starfield. */
+.teacher-login-overlay:not(.hidden){
+ background:#030b19 url("/teacher-login-bridge.svg?v=bridge1") center center / cover no-repeat!important;
+}
+.teacher-login-overlay:not(.hidden)::before{
+ inset:0!important;border:0!important;border-radius:0!important;
+ box-shadow:none!important;background:linear-gradient(180deg,#02091766 0%,#02091718 35%,#02091733 100%)!important;
+}
+.teacher-login-overlay:not(.hidden)::after{
+ bottom:-23%!important;opacity:.28!important;
+}
+.teacher-login-overlay .teacher-login-brand{
+ top:clamp(24px,4vh,54px)!important;
+ text-shadow:0 3px 8px #000,0 0 24px #3acfff!important;
+}
+.teacher-login-overlay .teacher-login-card{
+ background:linear-gradient(145deg,#0b3154ef,#061327f5)!important;
+ box-shadow:0 0 0 3px #0a5e9380,inset 0 1px 0 #c6faff66,0 0 65px #15baff9c,0 25px 90px #000d!important;
+}
