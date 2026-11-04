@@ -6496,6 +6496,21 @@ def create_app() -> web.Application:
     app.router.add_get("/teacher-login-keypad.css", lambda request: web.FileResponse(ROOT / "teacher-login-keypad.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/teacher-login-bridge.svg", lambda request: web.FileResponse(ROOT / "teacher-login-bridge.svg", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/teacher-login-holographic.css", lambda request: web.FileResponse(ROOT / "teacher-login-holographic.css", headers={"Cache-Control": "no-store"}))
+    # Whitelisted icons from the approved dashboard artwork pack. No arbitrary files served.
+    dashboard_art_names = {
+        "navigation_icons": {"lobby", "activities", "agenda", "ready_check", "raise_hand", "buzz", "ask_for_help", "picture_prompt", "quick_poll"},
+        "activity_icons": {"si_plus", "star_wheel", "bingo", "board", "crew_survey", "cosmic_cards", "signal", "match", "pixel_reveal"},
+    }
+    async def dashboard_art(request):
+        kind = request.match_info["kind"]
+        filename = request.match_info["filename"]
+        if not filename.endswith(".png") or filename[:-4] not in dashboard_art_names.get(kind, set()):
+            raise web.HTTPNotFound()
+        asset = ROOT / "SI_Mothership_Dashboard_Visual_Assets" / kind / filename
+        if not asset.is_file():
+            raise web.HTTPNotFound()
+        return web.FileResponse(asset, headers={"Cache-Control": "public, max-age=3600"})
+    app.router.add_get("/dashboard-art/{kind}/{filename}", dashboard_art)
     app.router.add_get("/dashboard-polish.css", lambda request: web.FileResponse(ROOT / "dashboard-polish.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/dashboard-polish.js", lambda request: web.FileResponse(ROOT / "dashboard-polish.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/spotlight.html", lambda request: web.FileResponse(ROOT / "spotlight.html", headers={"Cache-Control": "no-store"}))
