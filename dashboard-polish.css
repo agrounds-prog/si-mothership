@@ -4330,3 +4330,18 @@ body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid
 body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="MATCH"]):hover,
 body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="PIXEL REVEAL"]):hover{filter:brightness(1.1)!important;box-shadow:0 0 15px #37c8ff8c,inset 0 0 0 2px #93f8ff!important}
 body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="SKETCH SIGNAL"]):focus-visible{outline:3px solid #ffdd87!important;outline-offset:2px!important}
+
+/* Final illustrated tile micro-alignment v3 — 2026-11-04 */
+/* Correct only the master-art crop origin for a few slightly off-center tiles.
+   Do not change button sizing, hit targets, labels, enabled states or handlers. */
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="activities"]{background-position:calc(21.7880% - 1px) calc(13.2075% + 0px)!important}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="ready"]{background-position:calc(40.4142% + 0px) calc(13.2075% - 1px)!important}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="help"]{background-position:calc(68.4802% - 1px) calc(13.2075% + 0px)!important}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="picture"]{background-position:calc(78.2918% - 2px) calc(13.2075% + 0px)!important}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="poll"]{background-position:calc(87.9147% - 1px) calc(13.2075% + 0px)!important}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="SI+"]){background-position:calc(11.2626% - 1px) 93.4228%!important}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="BOARD"]){background-position:calc(40.4494% - 1px) 93.4228%!important}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="COSMIC CARDS"]){background-position:calc(59.6918% - 2px) 93.4228%!important}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="SKETCH SIGNAL"]){background-position:calc(69.3539% - 1px) 93.4228%!important}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="MATCH"]){background-position:calc(79.0504% - 1px) 93.4228%!important}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="PIXEL REVEAL"]){background-position:calc(88.8295% - 1px) 93.4228%!important}
