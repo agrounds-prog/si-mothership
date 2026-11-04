@@ -237,11 +237,50 @@ function tunePanels(){
  }
  // Keep all dynamically rendered roster, inbox and queue nodes untouched.
 }
+/* Approved image assets: display only after browser confirms each file loaded.
+   Never hide SVG/native fallbacks when the image is missing or unsupported. */
+function installApprovedArtwork(){
+ const root='/dashboard-art/';
+ const nav={lobby:'lobby',activities:'activities',agenda:'agenda',ready:'ready_check',hand:'raise_hand',buzz:'buzz',help:'ask_for_help',picture:'picture_prompt',poll:'quick_poll'};
+ const activity={'SI+':'si_plus','STARWHEEL':'star_wheel','BINGO':'bingo','BOARD':'board','CREW SURVEY':'crew_survey','COSMIC CARDS':'cosmic_cards','SKETCH SIGNAL':'signal','MATCH':'match','PIXEL REVEAL':'pixel_reveal'};
+ function apply(surface,folder,filename){
+  if(!surface||surface.dataset.siApprovedArt===filename)return;
+  if(surface.dataset.siApprovedArtPending===filename)return;
+  surface.dataset.siApprovedArtPending=filename;
+  const img=new Image();img.alt='';img.decoding='async';img.className='si-approved-dashboard-art';
+  img.onload=()=>{
+   // Ignore stale loads after the classroom rerenders a shortcut tile.
+   if(!surface.isConnected||surface.dataset.siApprovedArtPending!==filename)return;
+   surface.querySelectorAll('img.si-approved-dashboard-art').forEach(old=>old.remove());
+   surface.appendChild(img);surface.dataset.siApprovedArt=filename;
+   surface.classList.add('si-approved-art-loaded');
+  };
+  img.onerror=()=>{if(surface.dataset.siApprovedArtPending===filename)delete surface.dataset.siApprovedArtPending;};
+  img.src=root+folder+'/'+filename+'.png';
+ }
+ function render(){
+  for(const [action,file] of Object.entries(nav)){
+   apply(document.querySelector('#teacher #teacherControlBar [data-si-v80-action="'+action+'"] .ico.si-v80-icon'),'navigation_icons',file);
+  }
+  for(const tile of document.querySelectorAll('#teacher #homeAppGrid .app-shortcut:not(.empty)')){
+   const label=tile.querySelector('.app-shortcut-label')?.textContent?.trim().toUpperCase();
+   const file=activity[label];if(!file)continue;
+   apply(tile.querySelector('.app-shortcut-icon'),'activity_icons',file);
+  }
+ }
+ render();
+ const grid=document.getElementById('homeAppGrid');
+ if(grid){let scheduled=false;new MutationObserver(()=>{
+  if(scheduled)return;scheduled=true;
+  requestAnimationFrame(()=>{scheduled=false;render()});
+ }).observe(grid,{childList:true});}
+}
+
 function init(){
  if(document.body.classList.contains('role-student')||document.body.classList.contains('role-shared'))return;
  if(!$('#teacherControlBar')||!$('#endBtn')||!$('#resetBtn'))return;
  if(!installHeader())return;
- addTheme();tunePanels();installShortcutArtwork();installLibraryArtwork();
+ addTheme();tunePanels();installShortcutArtwork();installLibraryArtwork();installApprovedArtwork();
  document.body.classList.add('si-v80-dashboard');
  installAlertStack();
 }
