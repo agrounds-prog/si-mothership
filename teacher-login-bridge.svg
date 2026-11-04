@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+<defs>
+<linearGradient id="space" x2=".8" y2="1"><stop stop-color="#020817"/><stop offset=".55" stop-color="#091a39"/><stop offset="1" stop-color="#121b3d"/></linearGradient>
+<radialGradient id="earth" cx=".35" cy=".22" r=".8"><stop stop-color="#c5faff"/><stop offset=".23" stop-color="#43bbf4"/><stop offset=".56" stop-color="#1254a5"/><stop offset=".85" stop-color="#091c5c"/><stop offset="1" stop-color="#020e30"/></radialGradient>
+<linearGradient id="metal" x2="0" y2="1"><stop stop-color="#2c5e85"/><stop offset=".18" stop-color="#102c4e"/><stop offset=".7" stop-color="#071324"/><stop offset="1" stop-color="#020814"/></linearGradient>
+<linearGradient id="floor" x2="0" y2="1"><stop stop-color="#0a2a4d"/><stop offset="1" stop-color="#02060f"/></linearGradient>
+<radialGradient id="glow"><stop stop-color="#44d8ff" stop-opacity=".85"/><stop offset="1" stop-color="#44d8ff" stop-opacity="0"/></radialGradient>
+<filter id="blur"><feGaussianBlur stdDeviation="18"/></filter>
+<filter id="light"><feGaussianBlur stdDeviation="5"/></filter>
+</defs>
+<rect width="1920" height="1080" fill="url(#space)"/>
+<path d="M0 0H1920V730H0Z" fill="#020a1c"/>
+<path d="M80 70H1840V755H80Z" fill="url(#space)"/>
+<g fill="#c5edff">
+<circle cx="184" cy="154" r="2"/><circle cx="344" cy="219" r="1.5"/><circle cx="530" cy="118" r="2"/><circle cx="726" cy="259" r="1.6"/><circle cx="893" cy="131" r="2"/><circle cx="1104" cy="203" r="1.8"/><circle cx="1310" cy="115" r="1.6"/><circle cx="1510" cy="234" r="2"/><circle cx="1733" cy="142" r="1.5"/><circle cx="1660" cy="377" r="1.5"/><circle cx="1270" cy="357" r="1.6"/><circle cx="377" cy="422" r="1.6"/><circle cx="151" cy="343" r="1.8"/>
+</g>
+<ellipse cx="1350" cy="410" rx="440" ry="280" fill="#2948ad" opacity=".18" filter="url(#blur)"/>
+<circle cx="1450" cy="510" r="318" fill="url(#earth)"/>
+<path d="M1234 317Q1310 285 1390 336L1430 408 1360 456 1330 530 1265 490 1240 417ZM1495 560L1570 509 1630 532 1670 608 1585 670 1550 735 1503 683Z" fill="#63d9c8" opacity=".37"/>
+<circle cx="1450" cy="510" r="321" fill="none" stroke="#7deaff" stroke-width="10" opacity=".4" filter="url(#light)"/>
+<path d="M100 625Q450 570 730 640T1310 615T1830 635" fill="none" stroke="#a3efff" opacity=".3" stroke-width="3"/>
+<!-- Panoramic bridge window structural frames -->
+<path d="M0 0H1920V140L1810 172H110L0 140Z" fill="url(#metal)" stroke="#2d84b2" stroke-width="8"/>
+<path d="M0 0H165L270 730 155 815H0Z" fill="url(#metal)" stroke="#1d6b94" stroke-width="8"/>
+<path d="M1920 0H1755L1650 730 1765 815H1920Z" fill="url(#metal)" stroke="#1d6b94" stroke-width="8"/>
+<path d="M440 120L485 745" stroke="#092642" stroke-width="46"/><path d="M440 120L485 745" stroke="#37b5f0" stroke-width="3" opacity=".8"/>
+<path d="M1480 120L1435 745" stroke="#092642" stroke-width="46"/><path d="M1480 120L1435 745" stroke="#37b5f0" stroke-width="3" opacity=".8"/>
+<path d="M0 755H1920V1080H0Z" fill="url(#floor)"/>
+<path d="M0 755H1920" stroke="#55dfff" stroke-width="9" opacity=".8"/>
+<!-- Deck perspective and luminous runway -->
+<path d="M770 755L360 1080M1150 755L1560 1080M880 755L790 1080M1040 755L1130 1080" stroke="#1b7ab0" stroke-width="5" opacity=".75"/>
+<path d="M0 845H1920M0 948H1920M0 1050H1920" stroke="#2c8fc0" stroke-width="4" opacity=".35"/>
+<path d="M860 780L610 1080H1310L1060 780Z" fill="#16baf1" opacity=".13"/>
+<path d="M870 800L705 1080M1050 800L1215 1080" stroke="#4aeaff" stroke-width="7" opacity=".65" filter="url(#light)"/>
+<!-- side control consoles -->
+<path d="M0 690L520 765 630 1010 0 930Z" fill="#0b2342" stroke="#4bc9f2" stroke-width="6"/>
+<path d="M1920 690L1400 765 1290 1010 1920 930Z" fill="#0b2342" stroke="#4bc9f2" stroke-width="6"/>
+<path d="M35 730L480 788 520 880 45 834Z" fill="#103f6d" stroke="#4bdfff" stroke-width="3"/>
+<path d="M1885 730L1440 788 1400 880 1875 834Z" fill="#103f6d" stroke="#4bdfff" stroke-width="3"/>
+<g fill="none" stroke="#55e5ff" stroke-width="5" opacity=".8"><path d="M80 770l120 14m20 3 80 10m30 4 100 12"/><path d="M1840 770l-120 14m-20 3-80 10m-30 4-100 12"/></g>
+<g fill="#24caff" opacity=".8"><rect x="105" y="810" width="90" height="12" rx="5"/><rect x="212" y="825" width="80" height="12" rx="5"/><rect x="1610" y="825" width="80" height="12" rx="5"/><rect x="1725" y="810" width="90" height="12" rx="5"/></g>
+<circle cx="960" cy="820" r="170" fill="url(#glow)" opacity=".35"/>
+<path d="M0 0H1920V1080H0Z" fill="none" stroke="#0e385c" stroke-width="22"/>
+</svg>
