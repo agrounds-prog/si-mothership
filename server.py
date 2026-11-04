@@ -6501,6 +6501,7 @@ def create_app() -> web.Application:
         "navigation_icons": {"lobby", "activities", "agenda", "ready_check", "raise_hand", "buzz", "ask_for_help", "picture_prompt", "quick_poll"},
         "activity_icons": {"si_plus", "star_wheel", "bingo", "board", "crew_survey", "cosmic_cards", "signal", "match", "pixel_reveal"},
         "details": {"space_window_left_reference", "space_window_right_reference"},
+        "reference": {"approved_dashboard_concept"},
     }
     async def dashboard_art(request):
         kind = request.match_info["kind"]
