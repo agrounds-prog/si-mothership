@@ -6481,6 +6481,7 @@ def create_app() -> web.Application:
     app.router.add_get("/index.html", index)
     # Explicit routes for the holographic login and dashboard assets.
     # Missing routes previously caused silent CSS/JS 404s in production.
+    app.router.add_get("/bridge.jpg", lambda request: web.FileResponse(ROOT / "bridge.jpg", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/teacher-login-bridge.svg", lambda request: web.FileResponse(ROOT / "teacher-login-bridge.svg", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/teacher-login-holographic.css", lambda request: web.FileResponse(ROOT / "teacher-login-holographic.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/dashboard-polish.css", lambda request: web.FileResponse(ROOT / "dashboard-polish.css", headers={"Cache-Control": "no-store"}))
