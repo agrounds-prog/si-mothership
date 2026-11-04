@@ -4053,3 +4053,30 @@ body.si-v80-dashboard #teacher{
 @media(prefers-reduced-motion:reduce){
  body.si-v80-dashboard #teacher{scroll-behavior:auto}
 }
+
+/* Command deck backdrop v2: specificity correction and framed viewport.
+   The legacy body:not(.role-student):not(.role-shared) #teacher rule outranked
+   body.si-v80-dashboard #teacher and concealed the new art entirely.
+   Target teacher-only with greater specificity, no geometry or event changes. */
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher{
+  background-color:#020b20!important;
+  background-image:
+    url("/dashboard-art/details/space_window_left_reference.png"),
+    url("/dashboard-art/details/space_window_right_reference.png"),
+    radial-gradient(ellipse 58% 40% at 50% 13%,rgba(12,90,158,.22),transparent 80%),
+    radial-gradient(ellipse 60% 30% at 50% 98%,rgba(0,153,245,.18),transparent 84%),
+    linear-gradient(180deg,#061b35 0%,#020d26 60%,#020a1e 100%)!important;
+  background-repeat:no-repeat,no-repeat,no-repeat,no-repeat,no-repeat!important;
+  background-position:left top 110px,right top 110px,center top,center bottom,center center!important;
+  background-size:
+    clamp(135px,12.5vw,235px) auto,
+    clamp(135px,12.5vw,235px) auto,
+    100% 100%,100% 100%,100% 100%!important;
+}
+@media(max-width:1250px){
+ body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher{
+   background-image:radial-gradient(ellipse at 50% 5%,rgba(16,91,153,.26),transparent 74%),linear-gradient(180deg,#07172e,#020b1c)!important;
+   background-size:100% 100%!important;
+   background-position:center!important;
+ }
+}
