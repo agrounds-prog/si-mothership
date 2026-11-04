@@ -4080,3 +4080,192 @@ body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher{
    background-position:center!important;
  }
 }
+
+/* Full-bleed approved command button faces — 2026-11-04 v1.
+   One illustrated face per *existing* button; no nested image or text boxes.
+   Slice master art by actual source coordinates so tiles do not bleed into neighbors.
+   Preserve original DOM elements, labels, listeners, keyboard and state attributes. */
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="lobby"],
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="activities"],
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="agenda"],
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="ready"],
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="hand"],
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="buzz"],
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="help"],
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="picture"],
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="poll"],
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="SI+"]),
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="STARWHEEL"]),
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="BINGO"]),
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="BOARD"]),
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="CREW SURVEY"]),
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="COSMIC CARDS"]),
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="MATCH"]),
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="PIXEL REVEAL"]){
+ border-color:transparent!important;outline-offset:2px!important;
+ background-color:#061b35!important;box-shadow:none!important;
+ padding:0!important;overflow:hidden!important;
+ border-radius:12px!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="lobby"]{
+ background-image:url("/dashboard-art/reference/approved_dashboard_concept.png?v=fullbleed-nov04")!important;
+ background-size:1089.9408% 742.6087%!important;
+ background-position:10.9384% 12.5846%!important;
+ background-repeat:no-repeat!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="activities"]{
+ background-image:url("/dashboard-art/reference/approved_dashboard_concept.png?v=fullbleed-nov04")!important;
+ background-size:1211.8421% 749.1228%!important;
+ background-position:21.0651% 12.7027%!important;
+ background-repeat:no-repeat!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="agenda"]{
+ background-image:url("/dashboard-art/reference/approved_dashboard_concept.png?v=fullbleed-nov04")!important;
+ background-size:1219.8675% 749.1228%!important;
+ background-position:30.4554% 12.7027%!important;
+ background-repeat:no-repeat!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="ready"]{
+ background-image:url("/dashboard-art/reference/approved_dashboard_concept.png?v=fullbleed-nov04")!important;
+ background-size:1236.2416% 749.1228%!important;
+ background-position:39.3975% 12.7027%!important;
+ background-repeat:no-repeat!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="hand"]{
+ background-image:url("/dashboard-art/reference/approved_dashboard_concept.png?v=fullbleed-nov04")!important;
+ background-size:1219.8675% 749.1228%!important;
+ background-position:48.4329% 12.7027%!important;
+ background-repeat:no-repeat!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="buzz"]{
+ background-image:url("/dashboard-art/reference/approved_dashboard_concept.png?v=fullbleed-nov04")!important;
+ background-size:1219.8675% 749.1228%!important;
+ background-position:57.5399% 12.7027%!important;
+ background-repeat:no-repeat!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="help"]{
+ background-image:url("/dashboard-art/reference/approved_dashboard_concept.png?v=fullbleed-nov04")!important;
+ background-size:1219.8675% 749.1228%!important;
+ background-position:66.6470% 12.7027%!important;
+ background-repeat:no-repeat!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="picture"]{
+ background-image:url("/dashboard-art/reference/approved_dashboard_concept.png?v=fullbleed-nov04")!important;
+ background-size:1196.1039% 749.1228%!important;
+ background-position:75.9479% 12.7027%!important;
+ background-repeat:no-repeat!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="poll"]{
+ background-image:url("/dashboard-art/reference/approved_dashboard_concept.png?v=fullbleed-nov04")!important;
+ background-size:1058.6207% 749.1228%!important;
+ background-position:86.2710% 12.7027%!important;
+ background-repeat:no-repeat!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="SI+"]){
+ background-image:url("/dashboard-art/reference/approved_dashboard_concept.png?v=fullbleed-nov04")!important;
+ background-size:1203.9216% 736.2069%!important;
+ background-position:10.9532% 91.7344%!important;
+ background-repeat:no-repeat!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="STARWHEEL"]){
+ background-image:url("/dashboard-art/reference/approved_dashboard_concept.png?v=fullbleed-nov04")!important;
+ background-size:1211.8421% 736.2069%!important;
+ background-position:20.4734% 91.7344%!important;
+ background-repeat:no-repeat!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="BINGO"]){
+ background-image:url("/dashboard-art/reference/approved_dashboard_concept.png?v=fullbleed-nov04")!important;
+ background-size:1219.8675% 736.2069%!important;
+ background-position:29.8640% 91.7344%!important;
+ background-repeat:no-repeat!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="BOARD"]){
+ background-image:url("/dashboard-art/reference/approved_dashboard_concept.png?v=fullbleed-nov04")!important;
+ background-size:1219.8675% 736.2069%!important;
+ background-position:39.2667% 91.7344%!important;
+ background-repeat:no-repeat!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="CREW SURVEY"]){
+ background-image:url("/dashboard-art/reference/approved_dashboard_concept.png?v=fullbleed-nov04")!important;
+ background-size:1211.8421% 736.2069%!important;
+ background-position:48.6391% 91.7344%!important;
+ background-repeat:no-repeat!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="COSMIC CARDS"]){
+ background-image:url("/dashboard-art/reference/approved_dashboard_concept.png?v=fullbleed-nov04")!important;
+ background-size:1219.8675% 736.2069%!important;
+ background-position:58.0130% 91.7344%!important;
+ background-repeat:no-repeat!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="MATCH"]){
+ background-image:url("/dashboard-art/reference/approved_dashboard_concept.png?v=fullbleed-nov04")!important;
+ background-size:1219.8675% 736.2069%!important;
+ background-position:76.9367% 91.7344%!important;
+ background-repeat:no-repeat!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="PIXEL REVEAL"]){
+ background-image:url("/dashboard-art/reference/approved_dashboard_concept.png?v=fullbleed-nov04")!important;
+ background-size:1188.3871% 736.2069%!important;
+ background-position:86.6034% 91.7344%!important;
+ background-repeat:no-repeat!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="lobby"] > .ico, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="lobby"] > .copy,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="activities"] > .ico, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="activities"] > .copy,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="agenda"] > .ico, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="agenda"] > .copy,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="ready"] > .ico, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="ready"] > .copy,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="hand"] > .ico, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="hand"] > .copy,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="buzz"] > .ico, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="buzz"] > .copy,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="help"] > .ico, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="help"] > .copy,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="picture"] > .ico, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="picture"] > .copy,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="poll"] > .ico, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="poll"] > .copy{opacity:0!important;pointer-events:none!important}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="SI+"]) .app-shortcut-icon, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="SI+"]) .app-shortcut-label,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="STARWHEEL"]) .app-shortcut-icon, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="STARWHEEL"]) .app-shortcut-label,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="BINGO"]) .app-shortcut-icon, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="BINGO"]) .app-shortcut-label,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="BOARD"]) .app-shortcut-icon, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="BOARD"]) .app-shortcut-label,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="CREW SURVEY"]) .app-shortcut-icon, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="CREW SURVEY"]) .app-shortcut-label,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="COSMIC CARDS"]) .app-shortcut-icon, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="COSMIC CARDS"]) .app-shortcut-label,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="MATCH"]) .app-shortcut-icon, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="MATCH"]) .app-shortcut-label,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="PIXEL REVEAL"]) .app-shortcut-icon, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="PIXEL REVEAL"]) .app-shortcut-label{opacity:0!important;pointer-events:none!important}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="lobby"]:hover,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="activities"]:hover,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="agenda"]:hover,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="ready"]:hover,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="hand"]:hover,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="buzz"]:hover,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="help"]:hover,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="picture"]:hover,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="poll"]:hover,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="SI+"]):hover,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="STARWHEEL"]):hover,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="BINGO"]):hover,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="BOARD"]):hover,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="CREW SURVEY"]):hover,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="COSMIC CARDS"]):hover,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="MATCH"]):hover,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="PIXEL REVEAL"]):hover{filter:brightness(1.13)!important;box-shadow:0 0 18px rgba(39,220,255,.65)!important;transform:translateY(-1px)!important}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="lobby"].active, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="lobby"].enabled,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="activities"].active, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="activities"].enabled,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="agenda"].active, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="agenda"].enabled,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="ready"].active, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="ready"].enabled,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="hand"].active, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="hand"].enabled,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="buzz"].active, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="buzz"].enabled,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="help"].active, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="help"].enabled,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="picture"].active, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="picture"].enabled,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="poll"].active, body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="poll"].enabled{box-shadow:0 0 0 2px #6afde7,0 0 20px #3df8c5a8!important}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="lobby"]:focus-visible,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="activities"]:focus-visible,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="agenda"]:focus-visible,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="ready"]:focus-visible,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="hand"]:focus-visible,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="buzz"]:focus-visible,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="help"]:focus-visible,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="picture"]:focus-visible,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="poll"]:focus-visible,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="SI+"]):focus-visible,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="STARWHEEL"]):focus-visible,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="BINGO"]):focus-visible,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="BOARD"]):focus-visible,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="CREW SURVEY"]):focus-visible,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="COSMIC CARDS"]):focus-visible,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="MATCH"]):focus-visible,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="PIXEL REVEAL"]):focus-visible{outline:3px solid #ffdd87!important;outline-offset:2px!important}
