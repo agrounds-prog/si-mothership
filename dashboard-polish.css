@@ -3968,3 +3968,28 @@ body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut-icon:not(.si-approved-
    width:min(76%,54px)!important;height:min(78%,54px)!important;
  }
 }
+
+/* Approved cropped-icon aspect-ratio sizing v3 — keep 116x66/68 source geometry.
+   Prior 68x68 image box shrank these wide crops to roughly 68x39,
+   making the central symbols look tiny. Fill the existing framed icon
+   surface proportionally without changing button geometry or labels. */
+body.si-v80-dashboard #teacher #teacherControlBar .ico.si-v80-icon .si-approved-dashboard-art,
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut-icon .si-approved-dashboard-art{
+  width:calc(100% - 6px)!important;
+  height:calc(100% - 4px)!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  filter:none!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .ico.si-v80-icon.si-approved-art-loaded,
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut-icon.si-approved-art-loaded{
+  background-image:linear-gradient(160deg,#0f3053,#07182f)!important;
+}
+@media(max-width:900px){
+ body.si-v80-dashboard #teacher #teacherControlBar .ico.si-v80-icon .si-approved-dashboard-art,
+ body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut-icon .si-approved-dashboard-art{
+   width:calc(100% - 4px)!important;height:calc(100% - 2px)!important;
+ }
+}
