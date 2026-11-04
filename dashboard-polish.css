@@ -4010,3 +4010,46 @@ body.si-v80-dashboard #teacher #teacherControlBar [data-si-v80-action="poll"] .i
  width:clamp(38px,3.6vw,57px)!important;height:clamp(38px,3.6vw,57px)!important;
  filter:drop-shadow(0 0 7px currentColor)!important;
 }
+
+/* Approved command-deck viewport atmosphere v1 — CSS-only background treatment, 2026-11-04.
+   Use separately cropped concept art ONLY in the empty side margins.
+   Keep live classroom controls, status, QR and activity panels as real DOM. */
+body.si-v80-dashboard #teacher{
+ background-color:#020d23!important;
+ background-image:
+   url("/dashboard-art/details/space_window_left_reference.png"),
+   url("/dashboard-art/details/space_window_right_reference.png"),
+   radial-gradient(ellipse 47% 29% at 50% 14%,rgba(7,95,169,.25),transparent 85%),
+   radial-gradient(ellipse 56% 29% at 50% 97%,rgba(9,174,245,.21),transparent 78%),
+   radial-gradient(ellipse 26% 25% at 8% 68%,rgba(19,77,142,.20),transparent 90%),
+   radial-gradient(ellipse 26% 25% at 92% 68%,rgba(16,67,155,.22),transparent 90%),
+   linear-gradient(180deg,#061933 0%,#03102b 58%,#02091c 100%)!important;
+ background-position:
+   left 0 top 112px,
+   right 0 top 112px,
+   center top,
+   center bottom,
+   left center,
+   right center,
+   center center!important;
+ background-size:
+   clamp(105px,11vw,205px) auto,
+   clamp(112px,11.6vw,215px) auto,
+   auto,auto,auto,auto,auto!important;
+ background-repeat:no-repeat!important;
+}
+/* Keep the viewport scenery at the outer edges: at compact sizes the teacher
+   needs every pixel for the functional classroom dashboard. */
+@media(max-width:1200px){
+ body.si-v80-dashboard #teacher{
+  background-image:
+    radial-gradient(ellipse 55% 32% at 50% 4%,rgba(19,116,192,.24),transparent 85%),
+    radial-gradient(ellipse 57% 32% at 50% 100%,rgba(6,157,218,.17),transparent 86%),
+    linear-gradient(180deg,#061933,#020a1d)!important;
+  background-position:center top,center bottom,center center!important;
+  background-size:auto!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body.si-v80-dashboard #teacher{scroll-behavior:auto}
+}
