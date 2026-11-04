@@ -4472,3 +4472,73 @@ body.si-v80-dashboard #teacher #siV85AlertStack .attention-panel .section-headin
   min-height:0!important;border:0!important;padding:0!important;background:none!important;
  }
 }
+
+/* Cinematic Activity Library illustration & cabinet polish v88 — Nov 2026 */
+/* Purely graphical: existing activity controls, labels, preset data, library search
+   and responsive layout remain active. No example class code or QR in artwork. */
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library{
+  background:
+    radial-gradient(ellipse 68% 28% at 50% -6%,rgba(23,146,227,.27),transparent 77%),
+    radial-gradient(ellipse 31% 29% at 100% 100%,rgba(101,57,178,.17),transparent 80%),
+    repeating-linear-gradient(105deg,transparent 0 95px,rgba(41,110,168,.025) 96px 97px,transparent 98px 170px),
+    linear-gradient(140deg,#0b2645,#041527 72%,#08152c)!important;
+  border-color:#4ebbe8!important;
+  box-shadow:0 28px 85px #000d,inset 0 1px 0 #baf6ff3a,0 0 24px #1e9eee22!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .mode-title{
+ border-bottom-color:#3d86b1!important;
+ background:linear-gradient(90deg,rgba(15,85,132,.14),transparent 65%)!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .preset-section,
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .activity-catalog{
+ border-color:#368ab8!important;
+ background:
+  radial-gradient(ellipse at 50% -15%,rgba(32,124,190,.13),transparent 60%),
+  linear-gradient(155deg,#0b2945,#071b32 86%)!important;
+ box-shadow:inset 0 1px 0 #dbfaff2a,0 9px 22px #0004!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .activity-catalog-grid .real-app-card{
+ border-color:color-mix(in srgb,var(--si-v86-accent,#73dfff) 37%,#254f76)!important;
+ background:
+   radial-gradient(ellipse at 50% -12%,color-mix(in srgb,var(--si-v86-accent,#73dfff) 16%,transparent),transparent 67%),
+   linear-gradient(150deg,#102d4d,#081930 82%)!important;
+ box-shadow:inset 0 1px #f1ffff29,0 10px 23px #0006!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .activity-catalog-grid .real-app-card:hover{
+ border-color:var(--si-v86-accent,#6be7ff)!important;
+ box-shadow:inset 0 1px #ffffff40,0 0 18px color-mix(in srgb,var(--si-v86-accent,#73dfff) 25%,transparent),0 13px 24px #0009!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .act-icon,
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .recent-app-icon,
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .preset-card-icon,
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .shortcut-manage-icon{
+ position:relative!important;isolation:isolate!important;overflow:hidden!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .si-v88-library-photo{
+ display:block!important;
+ position:absolute!important;inset:0!important;z-index:2!important;
+ width:100%!important;height:100%!important;
+ object-fit:contain!important;object-position:center!important;
+ padding:1px!important;box-sizing:border-box!important;
+ pointer-events:none!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .act-icon.si-v88-library-photo-ready .si-v86-library-glyph,
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .recent-app-icon.si-v88-library-photo-ready .si-v86-library-glyph,
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .preset-card-icon.si-v88-library-photo-ready .si-v86-library-glyph,
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .shortcut-manage-icon.si-v88-library-photo-ready .si-v86-library-glyph{
+ display:none!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .real-app-card .act-icon.si-v88-library-photo-ready{
+ background:linear-gradient(150deg,#103354,#07192f)!important;
+ border-color:color-mix(in srgb,var(--si-v86-accent,#69cfff) 63%,#2c739b)!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .preset-recent-card:hover,
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .preset-card:hover{
+ border-color:#4fb7e5!important;
+ box-shadow:inset 0 1px #ffffff2c,0 0 13px #1ba6e332!important;
+}
+@media(prefers-reduced-motion:reduce){
+ body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .real-app-card{
+  transition:none!important;transform:none!important;
+ }
+}
