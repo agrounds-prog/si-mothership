@@ -5141,7 +5141,7 @@ async def index(request: web.Request) -> web.Response:
     text = text.replace("</head>", "<style id=\"si-holographic-skins\">" +
                         login_skin + "\n" + dashboard_skin +
                         "</style></head>", 1)
-    text = text.replace("</head>", '<link rel="stylesheet" href="/teacher-login-keypad.css?v=4"></head>', 1)
+    text = text.replace("</head>", '<link rel="stylesheet" href="/teacher-login-keypad.css?v=5"></head>', 1)
     # Append at the LAST closing body tag. The app contains JavaScript template
     # strings with literal </body> markup for projector windows; replacing the
     # first occurrence corrupts the main script and prints its source on screen.
