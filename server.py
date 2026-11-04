@@ -5133,6 +5133,14 @@ async def index(request: web.Request) -> web.Response:
         + "</script>"
     )
     text = text.replace("<head>", "<head>" + injected, 1)
+    # Critical visual skins are embedded in the response, so a failed asset request
+    # cannot silently leave teachers on the old appearance. Keep these CSS-only
+    # overrides scoped to existing selectors; no layout or application state changes.
+    login_skin = (ROOT / "teacher-login-holographic.css").read_text(encoding="utf-8")
+    dashboard_skin = (ROOT / "dashboard-polish.css").read_text(encoding="utf-8")
+    text = text.replace("</head>", "<style id=\"si-holographic-skins\">" +
+                        login_skin + "\\n" + dashboard_skin +
+                        "</style></head>", 1)
     # Quick Poll loads alongside existing games. It does not modify activityRun.
     text = text.replace("</head>",
                         f'<link rel="stylesheet" href="/quick-poll.css?v={QUICK_POLL_ASSET_VERSION}">'
