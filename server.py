@@ -5139,7 +5139,7 @@ async def index(request: web.Request) -> web.Response:
     login_skin = (ROOT / "teacher-login-holographic.css").read_text(encoding="utf-8")
     dashboard_skin = (ROOT / "dashboard-polish.css").read_text(encoding="utf-8")
     text = text.replace("</head>", "<style id=\"si-holographic-skins\">" +
-                        login_skin + "\\n" + dashboard_skin +
+                        login_skin + "\n" + dashboard_skin +
                         "</style></head>", 1)
     # Quick Poll loads alongside existing games. It does not modify activityRun.
     text = text.replace("</head>",
