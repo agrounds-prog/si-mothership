@@ -5142,7 +5142,14 @@ async def index(request: web.Request) -> web.Response:
                         login_skin + "\n" + dashboard_skin +
                         "</style></head>", 1)
     text = text.replace("</head>", '<link rel="stylesheet" href="/teacher-login-keypad.css?v=1"></head>', 1)
-    text = text.replace("</body>", '<script src="/teacher-login-keypad.js?v=1" defer></script></body>', 1)
+    # Append at the LAST closing body tag. The app contains JavaScript template
+    # strings with literal </body> markup for projector windows; replacing the
+    # first occurrence corrupts the main script and prints its source on screen.
+    body_close = text.lower().rfind("</body>")
+    if body_close != -1:
+        text = (text[:body_close] +
+                '<script src="/teacher-login-keypad.js?v=2" defer></script>' +
+                text[body_close:])
     # Quick Poll loads alongside existing games. It does not modify activityRun.
     text = text.replace("</head>",
                         f'<link rel="stylesheet" href="/quick-poll.css?v={QUICK_POLL_ASSET_VERSION}">'
