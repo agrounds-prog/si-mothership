@@ -5141,6 +5141,8 @@ async def index(request: web.Request) -> web.Response:
     text = text.replace("</head>", "<style id=\"si-holographic-skins\">" +
                         login_skin + "\n" + dashboard_skin +
                         "</style></head>", 1)
+    text = text.replace("</head>", '<link rel="stylesheet" href="/teacher-login-keypad.css?v=1"></head>', 1)
+    text = text.replace("</body>", '<script src="/teacher-login-keypad.js?v=1" defer></script></body>', 1)
     # Quick Poll loads alongside existing games. It does not modify activityRun.
     text = text.replace("</head>",
                         f'<link rel="stylesheet" href="/quick-poll.css?v={QUICK_POLL_ASSET_VERSION}">'
@@ -6482,6 +6484,8 @@ def create_app() -> web.Application:
     # Explicit routes for the holographic login and dashboard assets.
     # Missing routes previously caused silent CSS/JS 404s in production.
     app.router.add_get("/bridge.jpg", lambda request: web.FileResponse(ROOT / "bridge.jpg", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/teacher-login-keypad.js", lambda request: web.FileResponse(ROOT / "teacher-login-keypad.js", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/teacher-login-keypad.css", lambda request: web.FileResponse(ROOT / "teacher-login-keypad.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/teacher-login-bridge.svg", lambda request: web.FileResponse(ROOT / "teacher-login-bridge.svg", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/teacher-login-holographic.css", lambda request: web.FileResponse(ROOT / "teacher-login-holographic.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/dashboard-polish.css", lambda request: web.FileResponse(ROOT / "dashboard-polish.css", headers={"Cache-Control": "no-store"}))
