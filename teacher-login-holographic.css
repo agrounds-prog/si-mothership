@@ -167,3 +167,29 @@
   outline:2px solid #b7ffff!important;outline-offset:2px!important;
  }
 }
+
+/* Align functional hotspots with the photographed access terminal.
+   Keep keyboard focus feedback inside the printed input, not above its label. */
+@media(min-width:701px){
+ .teacher-login-overlay .teacher-login-card{
+  top:calc(50% + 7.5vh)!important;
+ }
+ .teacher-login-overlay .teacher-login-field{
+  left:-7%!important;width:114%!important;
+ }
+ .teacher-login-overlay .teacher-login-field input{
+  outline:0!important;outline-offset:0!important;
+  border:0!important;border-radius:8px!important;
+ }
+ .teacher-login-overlay .teacher-login-field input:focus,
+ .teacher-login-overlay .teacher-login-field input:focus-visible{
+  outline:0!important;
+  box-shadow:inset 0 0 0 2px #8defff88!important;
+ }
+ .teacher-login-overlay .teacher-login-enter{
+  left:-7%!important;width:114%!important;
+ }
+ .teacher-login-overlay .teacher-login-enter:focus-visible{
+  outline:2px solid #b7ffff!important;outline-offset:-3px!important;
+ }
+}
