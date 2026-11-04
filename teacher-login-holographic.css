@@ -213,3 +213,26 @@
   caret-color:#a6f6ff!important;
  }
 }
+
+/* PIN text should appear AFTER the printed “Login Key” label in the artwork.
+   The photographic input frame is the only visible frame. */
+@media(min-width:701px){
+ .teacher-login-overlay .teacher-login-field input{
+  padding-left:43%!important;
+  padding-right:5%!important;
+  text-align:left!important;
+  letter-spacing:.22em!important;
+  font-size:clamp(17px,1.45vw,25px)!important;
+  line-height:normal!important;
+  caret-color:#c6faff!important;
+  background:transparent!important;
+  border:none!important;
+  outline:none!important;
+  box-shadow:none!important;
+ }
+ .teacher-login-overlay .teacher-login-field input:focus,
+ .teacher-login-overlay .teacher-login-field input:focus-visible,
+ .teacher-login-overlay .teacher-login-field:focus-within{
+  border:none!important;outline:none!important;box-shadow:none!important;
+ }
+}
