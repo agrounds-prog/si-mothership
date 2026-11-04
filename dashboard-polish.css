@@ -3900,3 +3900,17 @@ body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut-icon[data-si-v82-art="
 body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut-icon[data-si-v82-art="PIXEL REVEAL"]{background-image:url("/dashboard-art/activity_icons/pixel_reveal.png"),linear-gradient(160deg,#13395e,#06172e)!important;background-size:contain,auto!important;background-position:center!important;background-repeat:no-repeat!important}
 body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut-icon[data-si-v82-art] svg.si-v82-activity-glyph{display:none!important}
 body.si-v80-dashboard #teacher #teacherControlBar [data-si-v80-action] .ico.si-v80-icon{background-origin:padding-box!important}
+
+/* Approved artwork load safety: show the original glyph until its PNG really loads. */
+body.si-v80-dashboard #teacher #teacherControlBar [data-si-v80-action] .ico.si-v80-icon svg{display:block!important}
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut-icon[data-si-v82-art] svg.si-v82-activity-glyph{display:block!important}
+body.si-v80-dashboard #teacher .si-approved-art-loaded svg.si-v82-activity-glyph,
+body.si-v80-dashboard #teacher #teacherControlBar .si-approved-art-loaded svg{display:none!important}
+body.si-v80-dashboard #teacher .si-approved-dashboard-art{
+ display:block!important;position:absolute!important;inset:0!important;z-index:5!important;
+ width:100%!important;height:100%!important;object-fit:contain!important;
+ border:0!important;margin:0!important;padding:0!important;pointer-events:none!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar .ico.si-v80-icon,
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut-icon{position:relative!important}
+body.si-v80-dashboard #teacher .si-approved-art-loaded{background-image:linear-gradient(160deg,#103657,#05182f)!important}
