@@ -1,0 +1,30 @@
+{
+  "reference_size": [
+    1842,
+    854
+  ],
+  "navigation": [
+    "lobby",
+    "activities",
+    "agenda",
+    "ready_check",
+    "raise_hand",
+    "buzz",
+    "ask_for_help",
+    "picture_prompt",
+    "quick_poll"
+  ],
+  "activities": [
+    "si_plus",
+    "star_wheel",
+    "bingo",
+    "board",
+    "crew_survey",
+    "cosmic_cards",
+    "signal",
+    "match",
+    "pixel_reveal"
+  ],
+  "source": "Approved dashboard concept art, Nov 4 2026",
+  "note": "Composite concept crops; icon transparency feathered; session information must remain live DOM."
+}
