@@ -3993,3 +3993,20 @@ body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut-icon.si-approved-art-l
    width:calc(100% - 4px)!important;height:calc(100% - 2px)!important;
  }
 }
+
+/* Cropped-icon cleanup v4: approved dashboard polish, 2026-11-04.
+   Picture Prompt and Quick Poll crops contain the neighboring button borders,
+   so use their existing crisp vector graphics until isolated artwork is available.
+   Do not change any button, label, handler, or layout. */
+body.si-v80-dashboard #teacher #teacherControlBar [data-si-v80-action="picture"] .ico.si-v80-icon,
+body.si-v80-dashboard #teacher #teacherControlBar [data-si-v80-action="poll"] .ico.si-v80-icon{
+ background-image:radial-gradient(ellipse at 50% 76%,#216a9a55,transparent 73%),linear-gradient(160deg,#103657,#05182f)!important;
+}
+body.si-v80-dashboard #teacher #teacherControlBar [data-si-v80-action="picture"] img.si-approved-dashboard-art,
+body.si-v80-dashboard #teacher #teacherControlBar [data-si-v80-action="poll"] img.si-approved-dashboard-art{display:none!important}
+body.si-v80-dashboard #teacher #teacherControlBar [data-si-v80-action="picture"] .ico.si-v80-icon svg,
+body.si-v80-dashboard #teacher #teacherControlBar [data-si-v80-action="poll"] .ico.si-v80-icon svg{
+ display:block!important;position:relative!important;z-index:6!important;
+ width:clamp(38px,3.6vw,57px)!important;height:clamp(38px,3.6vw,57px)!important;
+ filter:drop-shadow(0 0 7px currentColor)!important;
+}
