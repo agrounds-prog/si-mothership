@@ -6513,6 +6513,19 @@ def create_app() -> web.Application:
             raise web.HTTPNotFound()
         return web.FileResponse(asset, headers={"Cache-Control": "public, max-age=3600"})
     app.router.add_get("/dashboard-art/{kind}/{filename}", dashboard_art)
+
+    # Dedicated decorative command deck graphics; only known files are exposed.
+    deck_art_names = {"radar-scanner.svg", "alerts-monitor.svg", "holographic-action.svg", "panel-frame.svg", "deck-floor-trim.svg"}
+    async def deck_art(request):
+        name = request.match_info["filename"]
+        if name not in deck_art_names:
+            raise web.HTTPNotFound()
+        path = ROOT / "assets" / "command-deck-v2" / name
+        if not path.is_file():
+            raise web.HTTPNotFound()
+        return web.FileResponse(path, headers={"Cache-Control": "public, max-age=3600", "Content-Type": "image/svg+xml"})
+    app.router.add_get("/command-deck-art/{filename}", deck_art)
+
     app.router.add_get("/dashboard-polish.css", lambda request: web.FileResponse(ROOT / "dashboard-polish.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/dashboard-polish.js", lambda request: web.FileResponse(ROOT / "dashboard-polish.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/spotlight.html", lambda request: web.FileResponse(ROOT / "spotlight.html", headers={"Cache-Control": "no-store"}))
