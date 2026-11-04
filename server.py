@@ -6471,6 +6471,11 @@ def create_app() -> web.Application:
     app["quick_poll"] = quick_poll
     app.router.add_get("/", index)
     app.router.add_get("/index.html", index)
+    # Explicit routes for the holographic login and dashboard assets.
+    # Missing routes previously caused silent CSS/JS 404s in production.
+    app.router.add_get("/teacher-login-holographic.css", lambda request: web.FileResponse(ROOT / "teacher-login-holographic.css", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/dashboard-polish.css", lambda request: web.FileResponse(ROOT / "dashboard-polish.css", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/dashboard-polish.js", lambda request: web.FileResponse(ROOT / "dashboard-polish.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/spotlight.html", lambda request: web.FileResponse(ROOT / "spotlight.html", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/teacher", teacher_console)
     app.router.add_get("/teacher/", teacher_console)
