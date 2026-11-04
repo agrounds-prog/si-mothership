@@ -4345,3 +4345,10 @@ body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid
 body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="SKETCH SIGNAL"]){background-position:calc(69.3539% - 1px) 93.4228%!important}
 body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="MATCH"]){background-position:calc(79.0504% - 1px) 93.4228%!important}
 body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:has(.app-shortcut-icon[data-si-v82-art="PIXEL REVEAL"]){background-position:calc(88.8295% - 1px) 93.4228%!important}
+
+/* Quick Poll single-tile final alignment — 2026-11-04.
+   Offset the far-right master-art slice slightly left, matching neighboring tile
+   optical centering. Keep the real Quick Poll button and native handlers. */
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #teacherControlBar .single-mission-controls .control[data-si-v80-action="poll"]{
+ background-position:calc(87.9147% - 4px) 13.2075%!important;
+}
