@@ -1,0 +1,72 @@
+/* Holographic Command teacher login — scoped visual layer; preserves existing PIN authentication. */
+.teacher-login-overlay:not(.hidden){
+ isolation:isolate;display:flex;align-items:center;justify-content:center;
+ background:
+ radial-gradient(ellipse 58% 46% at 13% 73%,#3285c9b8 0%,#1642768c 35%,transparent 72%),
+ radial-gradient(ellipse 35% 45% at 92% 30%,#503ca85e,transparent 75%),
+ radial-gradient(circle at 72% 16%,#b5dfff 0 1px,transparent 2px),
+ radial-gradient(circle at 20% 21%,#b5dfff 0 1px,transparent 2px),
+ radial-gradient(circle at 81% 65%,#b5dfff 0 1px,transparent 2px),
+ linear-gradient(155deg,#020914,#071b39 55%,#030d21);
+ background-size:auto,auto,163px 139px,241px 211px,193px 167px,auto;
+}
+.teacher-login-overlay:not(.hidden)::before{
+ content:"";position:absolute;inset:3.5% 3% 9%;border:clamp(8px,1.6vw,23px) solid #142c4c;
+ border-radius:clamp(35px,6vw,105px);box-shadow:inset 0 0 0 2px #49b9ff88,inset 0 0 48px #0a67b370,0 0 0 4px #030916;
+ background:radial-gradient(ellipse at 12% 82%,#57caff52 0 12%,transparent 34%),radial-gradient(ellipse at 88% 22%,#9e64fc45,transparent 30%);
+ mask-image:none;pointer-events:none;
+}
+.teacher-login-overlay:not(.hidden)::after{
+ content:"";position:absolute;bottom:-14%;left:50%;transform:translateX(-50%) perspective(440px) rotateX(63deg);
+ width:min(88vw,1050px);height:42%;border-radius:50%;
+ background:repeating-radial-gradient(ellipse,#26baff40 0 2px,transparent 3px 31px),radial-gradient(ellipse,#20caff7a,transparent 65%);
+ filter:drop-shadow(0 0 24px #19bfff);pointer-events:none;opacity:.68;
+ animation:si-login-pulse 6s ease-in-out infinite alternate;
+}
+.teacher-login-overlay .teacher-login-brand{
+ top:clamp(26px,6vh,70px);width:min(95vw,1100px);text-align:center;line-height:1.12;
+ font-size:clamp(27px,4.8vw,70px);font-weight:1000;font-style:italic;letter-spacing:.045em;
+ color:#effaff;text-shadow:0 3px 0 #2d6da8,0 0 23px #39baff99,0 12px 30px #000c;
+}
+.teacher-login-overlay .teacher-login-brand span{color:#8deeff}
+.teacher-login-overlay .teacher-login-brand::after{
+ content:"CLASSROOM COMMAND DECK";display:block;margin:10px auto 0;
+ font-size:clamp(11px,1.35vw,18px);font-weight:800;font-style:normal;letter-spacing:.32em;
+ color:#d9f4ff;text-shadow:0 0 14px #40bfff;
+}
+.teacher-login-overlay .teacher-login-card{
+ width:min(520px,calc(100vw - 40px));margin-top:clamp(65px,9vh,120px);padding:30px clamp(22px,4vw,45px) 24px;
+ border:2px solid #4cdcff;border-radius:22px;
+ background:linear-gradient(155deg,#0b2a4bef,#061328f7 78%);
+ box-shadow:0 0 0 5px #0a427c66,inset 0 0 28px #176ca044,0 0 45px #13aafa77,0 22px 75px #000b;
+ backdrop-filter:blur(16px);
+}
+.teacher-login-overlay .teacher-login-card::before{
+ content:"◉  HOLOGRAPHIC ACCESS TERMINAL";display:block;margin-bottom:11px;
+ font-size:10px;letter-spacing:.16em;font-weight:900;color:#8ddfff;
+}
+.teacher-login-overlay .teacher-login-card h1{
+ margin:0 0 22px;font-size:clamp(22px,2.7vw,32px);font-weight:900;letter-spacing:.09em;
+ text-transform:uppercase;color:#fff;text-shadow:0 0 16px #24baff;
+}
+.teacher-login-overlay .teacher-login-field{margin-bottom:20px}
+.teacher-login-overlay .teacher-login-field input{
+ height:65px;background:#04142de8;border:1px solid #398ac1;border-radius:10px;
+ font-size:21px;color:#fff;
+}
+.teacher-login-overlay .teacher-login-field input:focus-visible,
+.teacher-login-overlay .teacher-login-enter:focus-visible,
+.teacher-login-overlay .teacher-login-remember input:focus-visible{outline:3px solid #ffce72;outline-offset:3px}
+.teacher-login-overlay .teacher-login-enter{
+ height:66px;border:1px solid #8bf7ff;border-radius:12px;
+ background:linear-gradient(180deg,#0968ac,#06316a);box-shadow:inset 0 2px #b6faff66,0 0 18px #00cfff8a;
+ text-transform:uppercase;letter-spacing:.08em;font-size:clamp(17px,2vw,23px);
+}
+.teacher-login-overlay .teacher-login-enter::before{content:"🚀  "}
+.teacher-login-overlay .teacher-login-enter:hover{filter:brightness(1.22);transform:translateY(-1px)}
+.teacher-login-overlay .teacher-login-remember{font-size:14px;margin-top:18px}
+.teacher-login-overlay .teacher-login-error{font-size:14px}
+@keyframes si-login-pulse{from{opacity:.4;filter:drop-shadow(0 0 10px #19bfff)}to{opacity:.76;filter:drop-shadow(0 0 30px #19bfff)}}
+@media(max-height:700px){.teacher-login-overlay .teacher-login-brand{top:12px;font-size:clamp(24px,4vw,40px)}.teacher-login-overlay .teacher-login-card{margin-top:75px;padding-top:17px;padding-bottom:12px}.teacher-login-overlay .teacher-login-card h1{margin-bottom:12px}.teacher-login-overlay .teacher-login-field input{height:50px}.teacher-login-overlay .teacher-login-enter{height:53px}.teacher-login-overlay .teacher-login-remember{margin-top:9px}}
+@media(max-width:560px){.teacher-login-overlay .teacher-login-brand{top:8vh;font-size:clamp(25px,7vw,37px)}.teacher-login-overlay .teacher-login-brand::after{font-size:10px;letter-spacing:.12em}.teacher-login-overlay .teacher-login-card{margin-top:90px}.teacher-login-overlay:not(.hidden)::before{inset:2% 2% 8%;border-width:7px}}
+@media(prefers-reduced-motion:reduce){.teacher-login-overlay:not(.hidden)::after{animation:none}}
