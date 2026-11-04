@@ -1,139 +1,92 @@
-/* Holographic terminal integration: one clean functional surface inside
-   the artwork's existing outer frame. No auth or layout changes elsewhere. */
+/* Approved keypad artwork is the complete visual interface.
+   Transparent, accessible HTML controls follow its illustrated coordinates.
+   No second keypad or terminal is painted over the image. */
+.teacher-login-overlay:not(.hidden){
+ background:#020b1e url("/d0971a35-bfe5-452f-aee5-a335312d36ad.png?v=1") center center / 100% 100% no-repeat!important;
+}
+.teacher-login-overlay:not(.hidden)::before,
+.teacher-login-overlay:not(.hidden)::after,
+.teacher-login-overlay .teacher-login-brand{display:none!important}
 .teacher-login-overlay .teacher-login-card.si-pin-mode{
- position:absolute!important;
- left:50%!important;
- top:53.5%!important;
- transform:translate(-50%,-50%)!important;
- box-sizing:border-box!important;
- width:min(32vw,560px)!important;
- max-width:calc(100vw - 32px)!important;
- height:auto!important;
- margin:0!important;
- padding:22px 32px 18px!important;
- display:flex!important;
- flex-direction:column!important;
- gap:0!important;
- border:1px solid #24668b!important;
- border-radius:13px!important;
- background:#04152c!important;
- box-shadow:inset 0 1px 0 #8fefff2c,0 0 16px #13bfff66,0 14px 35px #0009!important;
- backdrop-filter:none!important;
- overflow:visible!important;
+ position:absolute!important;inset:0!important;left:0!important;top:0!important;
+ transform:none!important;margin:0!important;padding:0!important;
+ width:100%!important;max-width:none!important;height:100%!important;min-height:0!important;
+ border:0!important;border-radius:0!important;background:transparent!important;
+ box-shadow:none!important;backdrop-filter:none!important;display:block!important;
+ overflow:hidden!important;
 }
 .teacher-login-overlay .si-pin-mode::before,
 .teacher-login-overlay .si-pin-mode h1,
 .teacher-login-overlay .si-pin-mode .teacher-login-field,
-.teacher-login-overlay .si-pin-mode .teacher-login-enter{display:none!important}
-.teacher-login-overlay .si-pin-mode .si-pin-pad{order:1!important}
-.teacher-login-overlay .si-pin-mode .teacher-login-remember{
- order:2!important;position:static!important;opacity:1!important;
- display:flex!important;justify-content:center!important;align-items:center!important;
- gap:9px!important;width:auto!important;height:auto!important;
- margin:12px 0 0!important;padding:0!important;
- font-size:12px!important;color:#c7e8f6!important;
-}
-.teacher-login-overlay .si-pin-mode .teacher-login-remember input{
- accent-color:#27c9f7!important;opacity:1!important;visibility:visible!important;
-}
-.teacher-login-overlay .si-pin-mode .teacher-login-error{
- order:3!important;position:static!important;width:100%!important;
- margin:6px 0 0!important;min-height:0!important;text-align:center!important;
- color:#ffc3c9!important;
-}
+.teacher-login-overlay .si-pin-mode .teacher-login-enter,
+.teacher-login-overlay .si-pin-title{display:none!important}
 .teacher-login-overlay .si-pin-pad{
- display:flex!important;flex-direction:column!important;gap:10px!important;
- width:100%!important;align-items:stretch!important;
-}
-.teacher-login-overlay .si-pin-title{
- text-align:center!important;color:#d7f8ff!important;
- font-size:16px!important;font-weight:900!important;letter-spacing:.16em!important;
- text-shadow:0 0 10px #24cfff88!important;
+ display:block!important;position:absolute!important;inset:0!important;
+ width:100%!important;height:100%!important;margin:0!important;padding:0!important;
+ background:transparent!important;pointer-events:none!important;
 }
 .teacher-login-overlay .si-pin-dots{
- display:flex!important;justify-content:center!important;gap:18px!important;
- padding:4px 0 8px!important;
+ position:absolute!important;left:41.1%!important;top:32.8%!important;
+ width:17.8%!important;height:4.7%!important;padding:0!important;margin:0!important;
+ display:flex!important;justify-content:space-between!important;align-items:center!important;
+ gap:0!important;pointer-events:none!important;
 }
 .teacher-login-overlay .si-pin-dot{
- display:block!important;width:13px!important;height:13px!important;
- border-radius:50%!important;border:2px solid #73dfff!important;
- background:#081c36!important;box-shadow:0 0 8px #3bdfff55!important;
+ width:clamp(9px,2vw,30px)!important;height:clamp(9px,2vw,30px)!important;
+ border:0!important;border-radius:50%!important;background:transparent!important;
+ box-shadow:none!important;
 }
-.teacher-login-overlay .si-pin-dot.filled{background:#73eaff!important;box-shadow:0 0 15px #3befff!important}
+.teacher-login-overlay .si-pin-dot.filled{
+ background:#8efaff!important;box-shadow:0 0 13px #21efff,0 0 25px #21efff!important;
+}
 .teacher-login-overlay .si-pin-grid{
+ position:absolute!important;left:33.1%!important;top:38.5%!important;
+ width:33.8%!important;height:31.1%!important;
  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
- gap:8px!important;width:100%!important;
-}
-.teacher-login-overlay .si-pin-key,
-.teacher-login-overlay .si-pin-launch{
- font-family:inherit!important;font-weight:800!important;color:#ecfbff!important;
- cursor:pointer!important;box-sizing:border-box!important;
+ grid-template-rows:repeat(4,minmax(0,1fr))!important;
+ column-gap:3.1%!important;row-gap:3.3%!important;
+ padding:0!important;margin:0!important;pointer-events:none!important;
 }
 .teacher-login-overlay .si-pin-key{
- min-height:44px!important;padding:4px!important;font-size:20px!important;
- border:1px solid #3db7e8!important;border-radius:8px!important;
- background:linear-gradient(180deg,#174a78,#09254b)!important;
- box-shadow:inset 0 1px #b1faff55!important;
+ display:block!important;min-height:0!important;width:100%!important;height:100%!important;
+ margin:0!important;padding:0!important;border:0!important;border-radius:9px!important;
+ background:transparent!important;box-shadow:none!important;
+ color:transparent!important;font-size:0!important;text-shadow:none!important;
+ cursor:pointer!important;pointer-events:auto!important;
 }
-.teacher-login-overlay .si-pin-key:nth-child(10),
-.teacher-login-overlay .si-pin-key:nth-child(12){font-size:14px!important}
-.teacher-login-overlay .si-pin-key:hover,
-.teacher-login-overlay .si-pin-key:focus-visible{
- background:#1766a2!important;outline:2px solid #a5f8ff!important;outline-offset:1px!important;
+.teacher-login-overlay .si-pin-key:hover{background:#38cfff25!important;box-shadow:0 0 12px #4ef6ff88!important}
+.teacher-login-overlay .si-pin-key:focus-visible,
+.teacher-login-overlay .si-pin-launch:focus-visible{
+ outline:3px solid #fff!important;outline-offset:-3px!important;
 }
 .teacher-login-overlay .si-pin-launch{
- min-height:44px!important;padding:6px!important;
- font-size:14px!important;letter-spacing:.04em!important;
- border:1px solid #8af5ff!important;border-radius:9px!important;
- background:linear-gradient(#126ed5,#063c87)!important;
- box-shadow:0 0 14px #1dcfff77!important;
+ position:absolute!important;left:29.4%!important;top:71.7%!important;
+ width:41.2%!important;height:8.6%!important;min-height:0!important;
+ padding:0!important;margin:0!important;border:0!important;border-radius:9px!important;
+ background:transparent!important;box-shadow:none!important;color:transparent!important;
+ font-size:0!important;text-shadow:none!important;cursor:pointer!important;
+ pointer-events:auto!important;
 }
-.teacher-login-overlay .si-pin-launch:hover,
-.teacher-login-overlay .si-pin-launch:focus-visible{
- filter:brightness(1.18)!important;outline:2px solid #a5f8ff!important;
+.teacher-login-overlay .si-pin-launch:hover{background:#ffad3326!important;box-shadow:0 0 16px #ffa63288!important}
+.teacher-login-overlay .si-pin-mode .teacher-login-remember{
+ position:absolute!important;left:40.7%!important;top:81.3%!important;
+ width:18.5%!important;height:4.5%!important;
+ display:block!important;margin:0!important;padding:0!important;
+ background:transparent!important;opacity:1!important;
+ color:transparent!important;font-size:0!important;cursor:pointer!important;
 }
-@media(max-width:900px){
- .teacher-login-overlay .teacher-login-card.si-pin-mode{
-  width:min(460px,90vw)!important;top:52%!important;padding:18px 22px 14px!important;
- }
+.teacher-login-overlay .si-pin-mode .teacher-login-remember span{display:none!important}
+.teacher-login-overlay .si-pin-mode .teacher-login-remember input{
+ position:absolute!important;left:0!important;top:0!important;width:15%!important;height:70%!important;
+ opacity:0!important;cursor:pointer!important;
 }
-@media(max-height:740px){
- .teacher-login-overlay .teacher-login-card.si-pin-mode{padding:12px 22px!important;top:53%!important}
- .teacher-login-overlay .si-pin-pad{gap:6px!important}
- .teacher-login-overlay .si-pin-key{min-height:34px!important}
- .teacher-login-overlay .si-pin-launch{min-height:36px!important}
- .teacher-login-overlay .si-pin-mode .teacher-login-remember{margin-top:6px!important}
+.teacher-login-overlay .si-pin-mode .teacher-login-remember:has(input:checked)::after{
+ content:"✓";position:absolute;left:0;top:-10%;font-size:clamp(14px,2vw,28px);
+ color:#f9ffff;text-shadow:0 0 8px #22eeff;pointer-events:none;
 }
-
-/* Full-size opaque insert fitted INSIDE the illustrated cyan outer frame.
-   Its edges conceal all printed login controls in the background image. */
-.teacher-login-overlay .teacher-login-card.si-pin-mode{
- width:min(39vw,650px)!important;
- max-width:calc(100vw - 24px)!important;
- height:min(55vh,490px)!important;
- min-height:390px!important;
- top:56%!important;
- padding:22px 42px 18px!important;
- justify-content:center!important;
- border:0!important;
- border-radius:18px!important;
- background:#03142b!important;
- box-shadow:inset 0 0 0 1px #12557b,0 0 28px #051c37!important;
-}
-.teacher-login-overlay .si-pin-mode .si-pin-pad{order:0!important}
-.teacher-login-overlay .si-pin-mode .teacher-login-remember{order:1!important}
-.teacher-login-overlay .si-pin-mode .teacher-login-error{order:2!important}
-.teacher-login-overlay .si-pin-key{min-height:40px!important}
-.teacher-login-overlay .si-pin-launch{min-height:42px!important}
-@media(max-width:900px){
- .teacher-login-overlay .teacher-login-card.si-pin-mode{
-  width:min(82vw,520px)!important;height:auto!important;min-height:0!important;
-  top:54%!important;padding:20px 26px!important;
- }
-}
-@media(max-height:680px){
- .teacher-login-overlay .teacher-login-card.si-pin-mode{
-  height:auto!important;min-height:0!important;padding:12px 30px!important;
- }
- .teacher-login-overlay .si-pin-key{min-height:32px!important}
+.teacher-login-overlay .si-pin-mode .teacher-login-error{
+ position:absolute!important;left:35%!important;top:85.7%!important;
+ width:30%!important;margin:0!important;padding:0!important;
+ text-align:center!important;font-size:clamp(12px,1.1vw,17px)!important;
+ color:#ffd6d6!important;text-shadow:0 2px 5px #000!important;
 }
