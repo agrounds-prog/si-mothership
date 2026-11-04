@@ -116,3 +116,54 @@
  .teacher-login-overlay:not(.hidden){background-position:center center!important}
  .teacher-login-overlay .teacher-login-card{margin-top:75px!important}
 }
+
+/* Final compositing fix: the approved artwork already contains the branding and
+   terminal chrome. Keep one interactive form, but do not paint it twice. */
+@media(min-width:701px){
+ .teacher-login-overlay .teacher-login-brand{display:none!important}
+ .teacher-login-overlay .teacher-login-card{
+  position:absolute!important;left:50%!important;top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  width:min(27.3vw,48.5vh)!important;
+  height:min(24.6vw,43.8vh)!important;
+  margin:0!important;padding:0!important;
+  border:0!important;border-radius:0!important;background:transparent!important;
+  box-shadow:none!important;backdrop-filter:none!important;
+ }
+ .teacher-login-overlay .teacher-login-card::before,
+ .teacher-login-overlay .teacher-login-card h1{display:none!important}
+ .teacher-login-overlay .teacher-login-field{
+  position:absolute!important;top:28.2%!important;left:0!important;
+  width:100%!important;height:18.8%!important;margin:0!important;
+ }
+ .teacher-login-overlay .teacher-login-field .key-icon{display:none!important}
+ .teacher-login-overlay .teacher-login-field input{
+  width:100%!important;height:100%!important;box-sizing:border-box!important;
+  background:transparent!important;border:0!important;box-shadow:none!important;
+  padding-left:18%!important;color:#eafaff!important;
+  font-size:clamp(16px,1.5vw,26px)!important;
+ }
+ .teacher-login-overlay .teacher-login-field input::placeholder{color:transparent!important}
+ .teacher-login-overlay .teacher-login-enter{
+  position:absolute!important;top:51.5%!important;left:0!important;
+  width:100%!important;height:19%!important;
+  padding:0!important;margin:0!important;
+  background:transparent!important;border:0!important;box-shadow:none!important;
+  color:transparent!important;text-shadow:none!important;font-size:0!important;
+ }
+ .teacher-login-overlay .teacher-login-enter::before{content:none!important}
+ .teacher-login-overlay .teacher-login-enter:hover{filter:none!important;transform:none!important}
+ .teacher-login-overlay .teacher-login-remember{
+  position:absolute!important;top:77.5%!important;left:19%!important;
+  width:62%!important;height:11%!important;margin:0!important;
+  opacity:.015!important;cursor:pointer!important;
+ }
+ .teacher-login-overlay .teacher-login-error{
+  position:absolute!important;top:90%!important;left:0!important;width:100%!important;
+  color:#ffb8bb!important;text-align:center!important;text-shadow:0 2px 4px #000!important;
+ }
+ .teacher-login-overlay .teacher-login-field input:focus-visible,
+ .teacher-login-overlay .teacher-login-enter:focus-visible{
+  outline:2px solid #b7ffff!important;outline-offset:2px!important;
+ }
+}
