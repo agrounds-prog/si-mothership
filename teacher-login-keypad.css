@@ -90,3 +90,15 @@
  text-align:center!important;font-size:clamp(12px,1.1vw,17px)!important;
  color:#ffd6d6!important;text-shadow:0 2px 5px #000!important;
 }
+
+/* Override the legacy bridge.jpg !important image and any late theme rules.
+   The approved new keypad PNG must be the ONLY visible login background. */
+html body #teacherLoginOverlay.teacher-login-overlay:not(.hidden){
+ background-color:#020b1e!important;
+ background-image:url("/d0971a35-bfe5-452f-aee5-a335312d36ad.png?v=20261104-final")!important;
+ background-position:center center!important;
+ background-repeat:no-repeat!important;
+ background-size:100% 100%!important;
+}
+html body #teacherLoginOverlay.teacher-login-overlay:not(.hidden)::before,
+html body #teacherLoginOverlay.teacher-login-overlay:not(.hidden)::after{display:none!important}
