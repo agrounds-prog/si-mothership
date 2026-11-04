@@ -3841,3 +3841,37 @@ body.si-v80-dashboard #teacher .roster-card{
  border-color:#43bce6!important;
  box-shadow:inset 0 1px 0 #a6efff30,0 0 18px #11b8ff2b!important;
 }
+
+/* Holographic Command Deck v3 — high-visibility, paint-only treatment.
+   Scoped to teacher view; does not change sizing, positions, or handlers. */
+body:not(.role-student):not(.role-shared) #teacher{
+ background-color:#020c20!important;
+ background-image:radial-gradient(ellipse at 50% 0%,#197ac078,transparent 55%),radial-gradient(ellipse at 96% 18%,#6636b64a,transparent 43%),linear-gradient(160deg,#061d40,#020b20 80%)!important;
+}
+body:not(.role-student):not(.role-shared) #teacher #appShortcutsPanel{
+ border:2px solid #46dfff!important;
+ background:radial-gradient(ellipse at 50% -50%,#1477c989,transparent 74%),linear-gradient(130deg,#0c2d55,#06152f)!important;
+ box-shadow:inset 0 0 0 1px #b9faff35,0 0 32px #13bbff6e,0 18px 38px #0009!important;
+}
+body:not(.role-student):not(.role-shared) #teacher #appShortcutsPanel .app-shortcuts-head{
+ border-bottom-color:#58cfff!important;
+}
+body:not(.role-student):not(.role-shared) #teacher #appShortcutsPanel .app-shortcuts-head .eyebrow{
+ color:#fff!important;text-shadow:0 0 15px #20cfff!important;
+}
+body:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut{
+ border:2px solid #49d5ff!important;
+ background:linear-gradient(155deg,#144e87,#071a42 75%)!important;
+ box-shadow:inset 0 2px 0 #d6faff55,0 0 17px #12bdff85,0 7px 16px #0009!important;
+}
+body:not(.role-student):not(.role-shared) #teacher #homeAppGrid .app-shortcut:hover{
+ border-color:#d5faff!important;
+ box-shadow:inset 0 2px 0 #fff8,0 0 27px #43dfff!important;
+ filter:brightness(1.12);
+}
+body:not(.role-student):not(.role-shared) #teacher .roster-card,
+body:not(.role-student):not(.role-shared) #teacher .screen-dock{
+ border:2px solid #35baf1!important;
+ background:linear-gradient(145deg,#0d345d,#07162f)!important;
+ box-shadow:inset 0 1px 0 #e2ffff44,0 0 22px #17a9ff5c!important;
+}
