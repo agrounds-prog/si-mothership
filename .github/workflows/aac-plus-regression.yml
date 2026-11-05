@@ -1,0 +1,29 @@
+name: AAC Plus Regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'aac_plus_server.py'
+      - 'aac-plus.js'
+      - 'aac-plus-teacher.html'
+      - 'aac-plus-student.html'
+      - 'aac-plus.css'
+      - 'server.py'
+      - 'tests/test_aac_plus_backend.py'
+      - '.github/workflows/aac-plus-regression.yml'
+  workflow_dispatch:
+jobs:
+  aac-plus:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Validate Python syntax
+        run: python -m py_compile aac_plus_server.py server.py
+      - name: Test AAC+ API storage and security
+        run: python -m unittest discover -s tests -p 'test_aac_plus_backend.py' -v
+      - name: Check frontend JavaScript syntax
+        run: node --check aac-plus.js
