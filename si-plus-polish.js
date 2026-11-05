@@ -1798,3 +1798,13 @@ function quickSpotlightSync(){
   button.title="Create a single Spotlight image slide in SI+";
   const input=document.createElement("input");input.type="file";input.accept="image/*";
   input.style.cssText="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden";
+  input.setAttribute("aria-label","Choose Quick Spotlight image");
+  input.onchange=()=>quickSpotlightLaunch(input.files?.[0]);
+  button.append(input);document.body.append(button);
+ }
+}
+ function tick(){try{installSharedMarkup();quickSpotlightSync();slideTypeSync();editorSync();controlSync();overlaySync()}catch(e){console.warn("SI+ Spotlight integration",e)}}
+ window.SIPlusSpotlightSlide={open:openEditor,refresh:tick,renderOverlay:highlight};
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{setInterval(tick,350)},{once:true});
+ else setInterval(tick,350);
+})();
