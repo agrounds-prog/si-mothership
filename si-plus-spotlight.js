@@ -21,16 +21,21 @@
  const validImage=s=>typeof s==="string"&&/^(data:image\/|https?:\/\/|\/)/i.test(s);
  const escape=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const clamp=(x,min,max)=>Math.min(max,Math.max(min,Number(x)||0));
- const highlight=(zones,visible)=>{
+ let renderId=0;
+ const highlight=(zones,visible,prefix)=>{ 
+  // Each projected SVG needs unique paint-server IDs. Duplicate filter/mask
+  // IDs across teacher mirror and shared view can reference the wrong SVG.
+  const token="siSpot"+String(prefix||"layer"+(++renderId)).replace(/[^a-zA-Z0-9_-]/g,"");
+  const glowId=token+"Glow",maskId=token+"Mask";
   const selected=zones.filter(z=>visible.includes(z.id));
   const dims=selected.filter(z=>z.effect==="dim");
-  let html='<defs><filter id="siSpotGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter>';
-  if(dims.length)html+='<mask id="siSpotMask"><rect width="1000" height="562.5" fill="white"/>'+dims.map(z=>shape(z,{fill:"black"})).join("")+'</mask>';
+  let html='<defs><filter id="'+glowId+'" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter>';
+  if(dims.length)html+='<mask id="'+maskId+'"><rect width="1000" height="562.5" fill="white"/>'+dims.map(z=>shape(z,{fill:"black"})).join("")+'</mask>';
   html+='</defs>';
-  if(dims.length)html+='<rect width="1000" height="562.5" fill="#020a14" opacity=".65" mask="url(#siSpotMask)"/>';
+  if(dims.length)html+='<rect width="1000" height="562.5" fill="#020a14" opacity=".65" mask="url(#'+maskId+')"/>';
   for(const z of selected){
    const c=colors[z.color]||colors.red;
-   html+=shape(z,{fill:"none",stroke:c,"stroke-width":18,opacity:.8,filter:"url(#siSpotGlow)"});
+   html+=shape(z,{fill:"none",stroke:c,"stroke-width":18,opacity:.8,filter:"url(#"+glowId+")"});
    html+=shape(z,{fill:"none",stroke:c,"stroke-width":5,opacity:1});
   }
   return html;
@@ -66,21 +71,35 @@
   try{sharedMarkup=wrapper}
   catch(e){console.warn("Could not attach Spotlight to SI+ slide output",e)}
  }
- function fitOverlay(svg,img){
+ // Calculate where the actual image pixels are painted. The img element's
+ // box can be wider than its object-fit:contain content in presentation mode.
+ // Use the same geometry for inline and fallback SVGs.
+ function paintedImageBox(img){
   const rect=img.getBoundingClientRect();
-  const screen=img.ownerDocument.defaultView;
-  if(!rect.width||!rect.height||!svg.isConnected){svg.style.display="none";return}
-  svg.style.display="block";
-  const nw=img.naturalWidth||16,nh=img.naturalHeight||9;
-  let dw=rect.width,dh=rect.height;
-  const fit=screen.getComputedStyle(img).objectFit;
-  if(fit==="contain"||fit==="scale-down"){
-   const scale=Math.min(rect.width/nw,rect.height/nh);
-   dw=nw*scale;dh=nh*scale;
+  if(!rect.width||!rect.height)return null;
+  const style=img.ownerDocument.defaultView.getComputedStyle(img);
+  const fit=style.objectFit;
+  const nw=img.naturalWidth||rect.width,nh=img.naturalHeight||rect.height;
+  let width=rect.width,height=rect.height;
+  if((fit==="contain"||fit==="scale-down"||fit==="cover")&&nw>0&&nh>0){
+   const factor=fit==="cover"?Math.max(rect.width/nw,rect.height/nh):
+     Math.min(rect.width/nw,rect.height/nh);
+   if(fit!=="scale-down"||factor<1){width=nw*factor;height=nh*factor}
   }
-  svg.style.left=(rect.left+(rect.width-dw)/2)+"px";
-  svg.style.top=(rect.top+(rect.height-dh)/2)+"px";
-  svg.style.width=dw+"px";svg.style.height=dh+"px";
+  // object-position defaults to 50% 50% in SI+; keep it centered.
+  return {left:rect.left+(rect.width-width)/2,
+   top:rect.top+(rect.height-height)/2,width,height};
+ }
+ function fitOverlay(svg,img,inline=false){
+  const painted=paintedImageBox(img);
+  if(!painted||!svg.isConnected){svg.style.display="none";return}
+  svg.style.display="block";
+  const parent=inline?svg.parentElement:null;
+  const parentRect=parent?.getBoundingClientRect();
+  svg.style.left=(painted.left-(parentRect?.left||0))+"px";
+  svg.style.top=(painted.top-(parentRect?.top||0))+"px";
+  svg.style.width=painted.width+"px";
+  svg.style.height=painted.height+"px";
  }
  const overlays=new Map();
  function clearOverlays(){
@@ -102,8 +121,10 @@
   ];
   for(const [key,selector] of targets){
    const img=document.querySelector(selector),rec=overlays.get(key);
-   if(img?.querySelector?.(".si-plus-spotlight-inline")||img?.parentElement?.querySelector?.(".si-plus-spotlight-inline")){
+   const inline=img?.parentElement?.querySelector?.(".si-plus-spotlight-inline");
+   if(inline){
     if(rec){rec.svg.remove();overlays.delete(key)}
+    fitOverlay(inline,img,true);
     continue;
    }
    if(!img||!img.isConnected){
@@ -119,7 +140,7 @@
     svg.setAttribute("preserveAspectRatio","none");
     document.body.append(svg);current={svg,img};overlays.set(key,current);
    }
-   const markup=highlight(zones,ids);
+   const markup=highlight(zones,ids,"floating"+key);
    if(current.markup!==markup){current.svg.innerHTML=markup;current.markup=markup}
    fitOverlay(current.svg,img);
   }
