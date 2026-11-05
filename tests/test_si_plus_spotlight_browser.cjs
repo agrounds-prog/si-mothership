@@ -127,6 +127,17 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await page.locator(".si-plus-spot-list button").nth(1).innerText(),"Dim Area 2");
   await page.locator('[data-new-effect="outline"]').click();
   await page.waitForFunction(()=>document.querySelectorAll("#siPlusSpotlightEditor .si-plus-spot-list button").length===3);
+  // Move/Select stays active; the empty rightmost strip must remain drawable.
+  const fullCanvas=await svg.boundingBox();
+  await page.mouse.move(fullCanvas.x+fullCanvas.width*.87,fullCanvas.y+fullCanvas.height*.06);
+  await page.mouse.down();
+  await page.mouse.move(fullCanvas.x+fullCanvas.width*.98,fullCanvas.y+fullCanvas.height*.18,{steps:6});
+  await page.mouse.up();
+  await page.waitForFunction(()=>document.querySelectorAll("#siPlusSpotlightEditor .si-plus-spot-list button").length===4);
+  const newestX=Number(await page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing g[data-zone] > rect").last().getAttribute("x"));
+  assert.ok(newestX>=850,"The far-right image must accept newly drawn regions");
+  await page.locator(".si-plus-spot-undo").click();
+  assert.equal(await page.locator(".si-plus-spot-list button").count(),3);
   await page.locator(".si-plus-spot-save").click();
   const draft=await page.evaluate(()=>state.presentationEditor.draft.slides[0]);
   assert.equal(draft.type,"instruction");
