@@ -1434,7 +1434,7 @@
   dialog=document.createElement("div");dialog.id="siPlusSpotlightEditor";dialog.className="si-plus-spot-editor";dialog.hidden=true;
   dialog.innerHTML='<div class="si-plus-spot-dialog" role="dialog" aria-modal="true" aria-label="SI+ Spotlight slide editor">'+
    '<header><strong>◎ SPOTLIGHT SLIDE STUDIO</strong><button class="si-plus-spot-close" type="button">✕ Close</button></header>'+
-   '<p>Drag an existing region to move it. To add another highlight or dim area (even overlapping), choose an Add button and draw on the picture.</p>'+  
+   '<p>Click Add Highlight or Add Dim Area to create a new region instantly. Drag it into place, or use Draw More to draw custom-sized regions.</p>'+  
    '<div class="si-plus-spot-layout"><div class="si-plus-spot-stage"><img class="si-plus-spot-image" alt="Spotlight slide image"><svg class="si-plus-spot-drawing" viewBox="0 0 1000 562.5" preserveAspectRatio="none"></svg></div>'+
    '<aside><div class="si-plus-spot-buttons"><button type="button" data-new-effect="outline">＋ Add Highlight</button><button type="button" data-new-effect="dim">＋ Add Dim Area</button></div><div class="si-plus-spot-buttons"><button type="button" data-interaction="move">↔ Move / Select</button><button type="button" data-interaction="add">✎ Draw More</button></div><div class="si-plus-spot-buttons"><button type="button" data-mode="rect">▱ Rectangle</button><button type="button" data-mode="circle">◯ Circle</button></div>'+ 
    '<label>Highlight name<input id="siPlusSpotName" maxlength="50" placeholder="What to highlight"></label>'+
@@ -1524,7 +1524,17 @@
   dialog.addEventListener("keydown",e=>{if(e.key==="Escape"){closeEditor();e.preventDefault()}});
 
   dialog.querySelectorAll("[data-mode]").forEach(btn=>btn.onclick=()=>{mode=btn.dataset.mode;interaction="add";updateEditor()});
-  dialog.querySelectorAll("[data-new-effect]").forEach(btn=>btn.onclick=()=>{nextEffect=btn.dataset.newEffect;interaction="add";selection="";updateEditor()});
+  dialog.querySelectorAll("[data-new-effect]").forEach(btn=>btn.onclick=()=>{
+   nextEffect=btn.dataset.newEffect;
+   const count=zones.length;
+   const offset=(count%6)*48;
+   const w=220,h=125;
+   const z={id:uid(),name:(nextEffect==="dim"?"Dim Area ":"Highlight ")+(count+1),
+    shape:mode,x:clamp(120+offset,0,1000-w),y:clamp(90+offset,0,562.5-h),w,h,
+    color:"red",effect:nextEffect};
+   rememberEdit();
+   zones.push(z);selection=z.id;interaction="move";dirty=true;updateEditor();
+  });
   dialog.querySelectorAll("[data-interaction]").forEach(btn=>btn.onclick=()=>{interaction=btn.dataset.interaction;updateEditor()});
   for(const [id,key] of [["siPlusSpotName","name"],["siPlusSpotEffect","effect"],["siPlusSpotColor","color"]]){
    dialog.querySelector("#"+id).addEventListener("change",e=>{
