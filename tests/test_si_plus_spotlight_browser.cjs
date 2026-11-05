@@ -65,7 +65,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.ok(Number(await region.getAttribute("x"))>before);
   // Undo must restore a repositioned region, not delete it.
   await page.locator(".si-plus-spot-undo").click();
-  assert.equal(await page.locator(".si-plus-spot-list button").count(),1);
+  assert.equal(await page.locator(".si-plus-spot-list button").count(),2,"Undoing a move must preserve both regions");
   assert.ok(Math.abs(Number(await region.getAttribute("x"))-before)<0.5);
 
   assert.equal(await page.locator(".si-plus-spot-undo").isEnabled(),true);
@@ -77,12 +77,24 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await page.locator("#siPlusSpotEffect").selectOption("dim");
   await page.locator("#siPlusSpotColor").selectOption("green");
   await page.locator(".si-plus-spot-save").click();
+  await page.locator("#siPlusSpotlightEditButton").click();
+  await page.waitForSelector("#siPlusSpotlightEditor:not([hidden])");
+  assert.equal(await page.locator(".si-plus-spot-list button").count(),2,"Both regions must survive closing and reopening editor");
+  assert.equal(await page.locator(".si-plus-spot-list button").nth(1).innerText(),"Dim Area 2");
+  await page.locator('[data-new-effect="outline"]').click();
+  const box3=await page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing").boundingBox();
+  await page.mouse.move(box3.x+box3.width*.05,box3.y+box3.height*.08);
+  await page.mouse.down();
+  await page.mouse.move(box3.x+box3.width*.18,box3.y+box3.height*.25,{steps:5});
+  await page.mouse.up();
+  await page.waitForFunction(()=>document.querySelectorAll("#siPlusSpotlightEditor .si-plus-spot-list button").length===3);
+  await page.locator(".si-plus-spot-save").click();
   const draft=await page.evaluate(()=>state.presentationEditor.draft.slides[0]);
   assert.equal(draft.type,"instruction");
   assert.equal(draft.siSpotlight.enabled,true);
   assert.equal(draft.siSpotlight.zones[0].name,"Safe Area");
   assert.equal(draft.siSpotlight.zones[0].effect,"dim");
-  assert.equal(draft.siSpotlight.zones.length,2,"Both regions must be retained in the slide");
+  assert.equal(draft.siSpotlight.zones.length,3,"All three regions must be retained after reopening and saving");
   assert.equal(draft.siSpotlight.zones[1].effect,"dim","New dim region must retain its effect");
   await page.locator("#presentationTitleInput").fill("Integrated Spotlight Regression");
   await page.locator("#savePresentationBtn").click();
@@ -91,7 +103,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const persisted=JSON.parse(storage).find(x=>x.deckTitle==="Integrated Spotlight Regression");
   assert.ok(persisted,"Saved presentation missing");
   assert.equal(persisted.slides[0].siSpotlight.zones[0].name,"Safe Area");
-  assert.equal(persisted.slides[0].siSpotlight.zones.length,2,"Both regions must survive presentation save");
+  assert.equal(persisted.slides[0].siSpotlight.zones.length,3,"All three regions must survive presentation save");
   assert.equal(persisted.slides[0].siSpotlight.zones[1].effect,"dim");
   // Exercise teacher live controls and keep the native shared-screen content.
   await page.evaluate(id=>{
