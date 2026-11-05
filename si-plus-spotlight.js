@@ -245,8 +245,13 @@
    ghost.innerHTML=shape(preview,{fill:"#4de7ff","fill-opacity":.16,stroke:"#4de7ff","stroke-width":5,"stroke-dasharray":"12 8"});
   });
   svg.addEventListener("pointercancel",()=>{drawing=null;updateEditor()});
-  dialog.querySelector(".si-plus-spot-close").onclick=()=>{dialog.hidden=true};
-  dialog.addEventListener("keydown",e=>{if(e.key==="Escape"){dialog.hidden=true;e.preventDefault()}});
+  function closeEditor(){
+   if(dirty&&JSON.stringify(zones)!==originalZones&&!window.confirm("Discard unsaved Spotlight edits?"))return;
+   dialog.hidden=true;drawing=null;dirty=false;
+  }
+  dialog.querySelector(".si-plus-spot-close").onclick=closeEditor;
+  dialog.addEventListener("keydown",e=>{if(e.key==="Escape"){closeEditor();e.preventDefault()}});
+
   dialog.querySelectorAll("[data-mode]").forEach(btn=>btn.onclick=()=>{mode=btn.dataset.mode;updateEditor()});
   for(const [id,key] of [["siPlusSpotName","name"],["siPlusSpotEffect","effect"],["siPlusSpotColor","color"]]){
    dialog.querySelector("#"+id).addEventListener("change",e=>{
@@ -295,6 +300,12 @@
    input.disabled=!chosen;input.value=chosen?chosen[key]:"";
   }
   dialog.querySelector(".si-plus-spot-delete").disabled=!chosen;
+  dialog.querySelector(".si-plus-spot-undo").disabled=!zones.length;
+  const indicator=dialog.querySelector(".si-plus-spot-state");
+  if(indicator)indicator.textContent=zones.length?
+    zones.length+" highlight"+(zones.length===1?"":"s")+" · "+(chosen?"Editing "+chosen.name:"Select a highlight to edit"):
+    "No highlights yet. Choose a shape and drag across the image.";
+
  }
  function slideTypeSync(){
   if(!teacher())return;
