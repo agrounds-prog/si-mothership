@@ -37,6 +37,17 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await page.locator("#siPlusSpotlightEditor .si-plus-spot-preview").count(),1,"Drag preview should be visible before release");
   await page.mouse.up();
   await page.waitForFunction(()=>document.querySelectorAll("#siPlusSpotlightEditor .si-plus-spot-list button").length===1);
+  const region=page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing [data-zone]").first();
+  const before=Number(await region.getAttribute("x"));
+  const box2=await region.boundingBox();
+  assert.ok(box2);
+  await page.mouse.move(box2.x+box2.width/2,box2.y+box2.height/2);
+  await page.mouse.down();
+  await page.mouse.move(box2.x+box2.width/2+20,box2.y+box2.height/2+10,{steps:5});
+  await page.mouse.up();
+  assert.equal(await page.locator(".si-plus-spot-list button").count(),1);
+  assert.ok(Number(await region.getAttribute("x"))>before);
+
   assert.equal(await page.locator(".si-plus-spot-undo").isEnabled(),true);
   assert.match(await page.locator(".si-plus-spot-state").innerText(),/1 highlight/);
 
