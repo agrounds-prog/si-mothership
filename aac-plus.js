@@ -50,8 +50,8 @@ function voiceScore(v){
 // Cap the list at ten real English voices; only categorize names where the
 // installed voice name is a known masculine/feminine voice. A browser does not
 // expose reliable gender or age metadata, so don't fabricate those qualities.
-const feminineNames=/\\b(ava|aria|jenny|samantha|victoria|allison|susan|zira|hazel|sonia|libby|michelle|sara|ana|natasha|clara|karen|moira|tessa|fiona|emma|olivia|amy|joanna|kendra|kimberly|ivy|salli|nicole|nicky|siri female)\\b/i;
-const masculineNames=/\\b(guy|davis|brandon|christopher|eric|jacob|tony|ryan|brian|roger|stefan|steffan|andrew|mark|david|james|daniel|alex|fred|aaron|tom|oliver|arthur|george|matthew|justin|joey|rishi|siri male)\\b/i;
+const feminineNames=/\b(ava|aria|jenny|samantha|victoria|allison|susan|zira|hazel|sonia|libby|michelle|sara|ana|natasha|clara|karen|moira|tessa|fiona|emma|olivia|amy|joanna|kendra|kimberly|ivy|salli|nicole|nicky|siri female)\b/i;
+const masculineNames=/\b(guy|davis|brandon|christopher|eric|jacob|tony|ryan|brian|roger|stefan|steffan|andrew|mark|david|james|daniel|alex|fred|aaron|tom|oliver|arthur|george|matthew|justin|joey|rishi|siri male)\b/i;
 function curatedVoices(){
  const pool=availableVoices().filter(v=>/^en(?:-|$)/i.test(v.lang));
  pool.sort((a,b)=>voiceScore(b)-voiceScore(a));
