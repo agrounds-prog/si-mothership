@@ -35,6 +35,14 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
     "Add Dim Area must be visible in the active Spotlight Studio bundle");
   const svg=page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing");
   const box=await svg.boundingBox();assert.ok(box);
+  const hitCoverage=await page.evaluate(()=>{
+   const svg=document.querySelector("#siPlusSpotlightEditor .si-plus-spot-drawing");
+   const bounds=svg.getBoundingClientRect();
+   const target=document.elementFromPoint(bounds.right-4,bounds.top+bounds.height*.4);
+   return {hit:target?.classList?.contains("si-plus-spot-hit-area"),width:svg.querySelector(".si-plus-spot-hit-area")?.getAttribute("width")};
+  });
+  assert.equal(hitCoverage.hit,true,"Rightmost empty area must hit the drawing surface: "+JSON.stringify(hitCoverage));
+  assert.equal(hitCoverage.width,"1000");
   await page.mouse.move(box.x+box.width*.25,box.y+box.height*.25);
   await page.mouse.down();
   await page.mouse.move(box.x+box.width*.65,box.y+box.height*.66,{steps:7});
