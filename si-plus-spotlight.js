@@ -249,8 +249,14 @@
    if(drawing.kind==="move"){
     const z=zones.find(item=>item.id===drawing.zoneId);
     if(!z)return;
-    z.x=clamp(drawing.origin.x+p.x-drawing.start.x,0,1000-z.w);
-    z.y=clamp(drawing.origin.y+p.y-drawing.start.y,0,562.5-z.h);
+    const rawX=drawing.origin.x+p.x-drawing.start.x;
+    const rawY=drawing.origin.y+p.y-drawing.start.y;
+    const edgeX=Math.min(75,Math.max(18,z.w/2));
+    const edgeY=Math.min(55,Math.max(14,z.h/2));
+    z.x=rawX>=1000-z.w-edgeX?1000-z.w:
+      rawX<=edgeX?0:clamp(rawX,0,1000-z.w);
+    z.y=rawY>=562.5-z.h-edgeY?562.5-z.h:
+      rawY<=edgeY?0:clamp(rawY,0,562.5-z.h);
     if(Math.abs(z.x-drawing.origin.x)+Math.abs(z.y-drawing.origin.y)>1)dirty=true;
     // Redraw the selected shape without replacing the capture target.
     const elem=svg.querySelector('[data-zone="'+z.id+'"] > *');
