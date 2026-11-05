@@ -1407,15 +1407,15 @@
   const svg=dialog.querySelector(".si-plus-spot-drawing");
   const stage=dialog.querySelector(".si-plus-spot-stage");
   if(!image||!svg||!stage)return;
-  const sw=stage.clientWidth,sh=stage.clientHeight;
-  const iw=image.naturalWidth,ih=image.naturalHeight;
-  if(!sw||!sh||!iw||!ih)return;
-  const scale=Math.min(sw/iw,sh/ih);
-  const dw=iw*scale,dh=ih*scale;
-  svg.style.left=(sw-dw)/2+"px";
-  svg.style.top=(sh-dh)/2+"px";
-  svg.style.width=dw+"px";
-  svg.style.height=dh+"px";
+  // Spotlight coordinates describe the 16:9 image displayed in this
+  // stage, not the uploaded file's intrinsic aspect ratio. Intrinsic
+  // fitting centered a narrower SVG over a full-bleed image, preventing
+  // regions from reaching the sides of the visible slide.
+  if(!stage.clientWidth||!stage.clientHeight)return;
+  svg.style.left="0px";
+  svg.style.top="0px";
+  svg.style.width="100%";
+  svg.style.height="100%";
  }
  function openEditor(){
   const slide=activeSlide();
@@ -1798,13 +1798,3 @@ function quickSpotlightSync(){
   button.title="Create a single Spotlight image slide in SI+";
   const input=document.createElement("input");input.type="file";input.accept="image/*";
   input.style.cssText="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden";
-  input.setAttribute("aria-label","Choose Quick Spotlight image");
-  input.onchange=()=>quickSpotlightLaunch(input.files?.[0]);
-  button.append(input);document.body.append(button);
- }
-}
- function tick(){try{installSharedMarkup();quickSpotlightSync();slideTypeSync();editorSync();controlSync();overlaySync()}catch(e){console.warn("SI+ Spotlight integration",e)}}
- window.SIPlusSpotlightSlide={open:openEditor,refresh:tick,renderOverlay:highlight};
- if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{setInterval(tick,350)},{once:true});
- else setInterval(tick,350);
-})();
