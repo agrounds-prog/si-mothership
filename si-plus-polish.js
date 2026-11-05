@@ -1563,57 +1563,49 @@
 
 /* A one-click single-image workflow for teachers who want Spotlight without
  * building a lesson. It still uses SI+'s normal draft/save system. */
-function quickSpotlightLaunch(){
- if(!teacher()||editor()||typeof openNewPresentation!=="function")return;
- // Open the file picker before rebuilding SI+. Replacing the view during the
- // click can lose browser user activation and suppress the file chooser.
- const pick=document.createElement("input");
- pick.type="file";pick.accept="image/*";pick.style.display="none";
- document.body.append(pick);
- pick.addEventListener("change",()=>{
-  const file=pick.files?.[0];pick.remove();
-  if(!file)return;
-  openNewPresentation();
-  const draft=editor()?.draft;
-  if(draft){draft.deckTitle="Quick Spotlight";draft.name="Quick Spotlight"}
-  let attempt=0;
-  const attach=setInterval(()=>{
-   const upload=document.getElementById("siPlusBatchImages");
-   if(!upload){if(++attempt>30){clearInterval(attach);return}return}
-   clearInterval(attach);
-   const transfer=new DataTransfer();transfer.items.add(file);
-   const started=Date.now();
-   upload.files=transfer.files;
-   upload.dispatchEvent(new Event("change",{bubbles:true}));
-   const wait=setInterval(()=>{
-    const current=editor();
-    if(!current||Date.now()-started>30000){clearInterval(wait);return}
-    if(typeof siPlusBatchImportBusy!=="undefined"&&siPlusBatchImportBusy)return;
-    const slides=current.draft?.slides||[];
-    const i=slides.findIndex(s=>validImage(s.image));
-    if(i<0)return;
-    clearInterval(wait);
-    state.editorSlide=i;
-    if(typeof renderPresentationBuilder==="function")renderPresentationBuilder();
-    openEditor();
-   },180);
-  },100);
- },{once:true});
- pick.click();
+function quickSpotlightLaunch(file){
+ if(!file||!teacher()||editor()||typeof openNewPresentation!=="function")return;
+ openNewPresentation();
+ const draft=editor()?.draft;
+ if(draft){draft.deckTitle="Quick Spotlight";draft.name="Quick Spotlight"}
+ let attempts=0;
+ const attach=setInterval(()=>{
+  const upload=document.getElementById("siPlusBatchImages");
+  if(!upload){if(++attempts>35)clearInterval(attach);return}
+  clearInterval(attach);
+  const transfer=new DataTransfer();transfer.items.add(file);
+  const started=Date.now();
+  upload.files=transfer.files;
+  upload.dispatchEvent(new Event("change",{bubbles:true}));
+  const wait=setInterval(()=>{
+   const current=editor();
+   if(!current||Date.now()-started>30000){clearInterval(wait);return}
+   if(typeof siPlusBatchImportBusy!=="undefined"&&siPlusBatchImportBusy)return;
+   const i=(current.draft?.slides||[]).findIndex(s=>validImage(s.image));
+   if(i<0)return;
+   clearInterval(wait);
+   state.editorSlide=i;
+   if(typeof renderPresentationBuilder==="function")renderPresentationBuilder();
+   openEditor();
+  },180);
+ },100);
 }
 function quickSpotlightSync(){
  if(!teacher()||typeof state==="undefined")return;
  const visible=state.activeApp==="si-plus"&&!!state.presentationLibraryOpen
-  &&!state.presentationEditor&&!state.activityRun&&state.screen==="activities";
+   &&!state.presentationEditor&&!state.activityRun&&state.screen==="activities";
  let button=document.getElementById("siPlusQuickSpotlight");
  if(!visible){button?.remove();return}
  if(!button){
-  button=document.createElement("button");button.id="siPlusQuickSpotlight";
-  button.type="button";button.className="si-plus-spotlight-quick-launch";
+  button=document.createElement("label");button.id="siPlusQuickSpotlight";
+  button.className="si-plus-spotlight-quick-launch";
   button.textContent="◎ Quick Spotlight";
   button.title="Create a single Spotlight image slide in SI+";
-  button.onclick=quickSpotlightLaunch;
-  document.body.append(button);
+  const input=document.createElement("input");input.type="file";input.accept="image/*";
+  input.style.cssText="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden";
+  input.setAttribute("aria-label","Choose Quick Spotlight image");
+  input.onchange=()=>quickSpotlightLaunch(input.files?.[0]);
+  button.append(input);document.body.append(button);
  }
 }
  function tick(){try{installSharedMarkup();quickSpotlightSync();slideTypeSync();editorSync();controlSync();overlaySync()}catch(e){console.warn("SI+ Spotlight integration",e)}}
