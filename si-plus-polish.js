@@ -1434,13 +1434,13 @@
   dialog=document.createElement("div");dialog.id="siPlusSpotlightEditor";dialog.className="si-plus-spot-editor";dialog.hidden=true;
   dialog.innerHTML='<div class="si-plus-spot-dialog" role="dialog" aria-modal="true" aria-label="SI+ Spotlight slide editor">'+
    '<header><strong>◎ SPOTLIGHT SLIDE STUDIO</strong><button class="si-plus-spot-close" type="button">✕ Close</button></header>'+
-   '<p>Click Add Highlight or Add Dim Area to create a new region instantly. Drag it into place, or use Draw More to draw custom-sized regions.</p>'+  
+   '<p>Add a region, drag inside it to move, or drag its gold corner handles to resize. Full Image covers the entire picture.</p>'+  
    '<div class="si-plus-spot-layout"><div class="si-plus-spot-stage"><img class="si-plus-spot-image" alt="Spotlight slide image"><svg class="si-plus-spot-drawing" viewBox="0 0 1000 562.5" preserveAspectRatio="none"></svg></div>'+
    '<aside><div class="si-plus-spot-buttons"><button type="button" data-new-effect="outline">＋ Add Highlight</button><button type="button" data-new-effect="dim">＋ Add Dim Area</button></div><div class="si-plus-spot-buttons"><button type="button" data-interaction="move">↔ Move / Select</button><button type="button" data-interaction="add">✎ Draw More</button></div><div class="si-plus-spot-buttons"><button type="button" data-mode="rect">▱ Rectangle</button><button type="button" data-mode="circle">◯ Circle</button></div>'+ 
    '<label>Highlight name<input id="siPlusSpotName" maxlength="50" placeholder="What to highlight"></label>'+
    '<label>Effect<select id="siPlusSpotEffect"><option value="outline">Outline Glow</option><option value="dim">Dim Background</option></select></label>'+
    '<label>Color<select id="siPlusSpotColor"><option value="red">Red</option><option value="green">Green</option><option value="blue">Blue</option><option value="yellow">Yellow</option><option value="black">White</option></select></label>'+
-   '<div class="si-plus-spot-list"></div><div class="si-plus-spot-buttons"><button type="button" class="si-plus-spot-align-right">⇥ Right Edge</button><button type="button" class="si-plus-spot-align-left">⇤ Left Edge</button></div><div class="si-plus-spot-buttons"><button type="button" class="si-plus-spot-undo">↶ Undo Change</button><button type="button" class="si-plus-spot-delete">Delete Selected</button></div><small class="si-plus-spot-state" aria-live="polite">Draw a region to begin.</small>'+
+   '<div class="si-plus-spot-list"></div><div class="si-plus-spot-buttons"><button type="button" class="si-plus-spot-full-image">⛶ Full Image</button></div><div class="si-plus-spot-buttons"><button type="button" class="si-plus-spot-align-right">⇥ Right Edge</button><button type="button" class="si-plus-spot-align-left">⇤ Left Edge</button></div><div class="si-plus-spot-buttons"><button type="button" class="si-plus-spot-undo">↶ Undo Change</button><button type="button" class="si-plus-spot-delete">Delete Selected</button></div><small class="si-plus-spot-state" aria-live="polite">Draw a region to begin.</small>'+
    '<button type="button" class="si-plus-spot-save">✓ Save Highlights &amp; Return</button><button type="button" class="si-plus-spot-remove">Remove Spotlight Mode</button></aside></div></div>';
   document.body.append(dialog);
   const svg=dialog.querySelector("svg");
@@ -1465,7 +1465,9 @@
     const found=zones.find(z=>z.id===hit.dataset.zone);
     if(!found)return;
     selection=found.id;
-    drawing={kind:"move",id:e.pointerId,start:p,origin:{x:found.x,y:found.y},zoneId:found.id};
+    drawing=e.target.dataset.resize?
+     {kind:"resize",id:e.pointerId,start:p,origin:{x:found.x,y:found.y,w:found.w,h:found.h},corner:e.target.dataset.resize,zoneId:found.id}:
+     {kind:"move",id:e.pointerId,start:p,origin:{x:found.x,y:found.y},zoneId:found.id};
     svg.setPointerCapture(e.pointerId);
     updateEditor();
    }else if(interaction==="add"){
@@ -1477,7 +1479,18 @@
   svg.addEventListener("pointermove",e=>{
    if(!drawing||drawing.id!==e.pointerId)return;
    const p=pointerPosition(e);
-   if(drawing.kind==="move"){
+   if(drawing.kind==="resize"){
+    const z=zones.find(item=>item.id===drawing.zoneId);
+    if(!z)return;
+    const o=drawing.origin,c=drawing.corner;
+    const dx=p.x-drawing.start.x,dy=p.y-drawing.start.y;
+    const right=o.x+o.w,bottom=o.y+o.h;
+    if(c.includes("w")){z.x=clamp(o.x+dx,0,right-15);z.w=right-z.x}
+    else{z.x=o.x;z.w=clamp(o.w+dx,15,1000-o.x)}
+    if(c.includes("n")){z.y=clamp(o.y+dy,0,bottom-15);z.h=bottom-z.y}
+    else{z.y=o.y;z.h=clamp(o.h+dy,15,562.5-o.y)}
+    dirty=true;updateEditor();
+   }else if(drawing.kind==="move"){
     const z=zones.find(item=>item.id===drawing.zoneId);
     if(!z)return;
     const rawX=drawing.origin.x+p.x-drawing.start.x;
@@ -1513,6 +1526,14 @@
   svg.addEventListener("pointerup",e=>{
    if(!drawing||drawing.id!==e.pointerId)return;
    const current=drawing;drawing=null;
+   if(current.kind==="resize"){
+    const z=zones.find(z=>z.id===current.zoneId),old=current.origin;
+    if(z&&Math.abs(z.x-old.x)+Math.abs(z.y-old.y)+Math.abs(z.w-old.w)+Math.abs(z.h-old.h)>.1){
+     rememberEdit(JSON.stringify(zones.map(item=>item.id===current.zoneId?{...item,...old}:item)));
+     dirty=true;
+    }
+    updateEditor();return;
+   }
    if(current.kind==="move"){
     const moved=zones.find(z=>z.id===current.zoneId);
     if(moved&&(Math.abs(moved.x-current.origin.x)+Math.abs(moved.y-current.origin.y)>0.1)){
@@ -1572,6 +1593,12 @@
     const z=zones.find(z=>z.id===selection);if(z&&z[key]!==e.target.value){rememberEdit();z[key]=e.target.value;dirty=true;updateEditor()}
    })
   }
+  dialog.querySelector(".si-plus-spot-full-image").onclick=()=>{
+   const z=zones.find(item=>item.id===selection);
+   if(!z||z.x===0&&z.y===0&&z.w===1000&&z.h===562.5)return;
+   rememberEdit();Object.assign(z,{x:0,y:0,w:1000,h:562.5});
+   dirty=true;interaction="move";updateEditor();
+  };
   for(const [selector,edge] of [[".si-plus-spot-align-right","right"],[".si-plus-spot-align-left","left"]]){
    dialog.querySelector(selector).onclick=()=>{
     const chosen=zones.find(z=>z.id===selection);
@@ -1624,7 +1651,12 @@
   svg.innerHTML=zones.map(z=>{
    const c=colors[z.color]||colors.red;
    const markup=shape(z,{fill:c,"fill-opacity":.1,stroke:c,"stroke-width":z.id===selection?8:5});
-   return '<g data-zone="'+escape(z.id)+'">'+markup+'</g>';
+   const handles=z.id===selection&&interaction==="move"?
+    [["nw",z.x,z.y],["ne",z.x+z.w,z.y],["sw",z.x,z.y+z.h],["se",z.x+z.w,z.y+z.h]]
+    .map(([corner,cx,cy])=>'<circle data-zone="'+escape(z.id)+'" data-resize="'+corner+
+    '" cx="'+clamp(cx,12,988)+'" cy="'+clamp(cy,12,550.5)+
+    '" r="12" fill="#f9d49b" stroke="#071e33" stroke-width="4" style="cursor:nwse-resize"/>').join(""):"";
+   return '<g data-zone="'+escape(z.id)+'">'+markup+handles+'</g>';
   }).join("");
   // Set hit target on child shapes as well as its group.
   svg.querySelectorAll("g").forEach(g=>{g.querySelector("*").dataset.zone=g.dataset.zone});
@@ -1640,6 +1672,7 @@
    input.disabled=!chosen;input.value=chosen?chosen[key]:"";
   }
   dialog.querySelector(".si-plus-spot-delete").disabled=!chosen;
+  dialog.querySelector(".si-plus-spot-full-image").disabled=!chosen;
   dialog.querySelector(".si-plus-spot-align-right").disabled=!chosen;
   dialog.querySelector(".si-plus-spot-align-left").disabled=!chosen;
   dialog.querySelector(".si-plus-spot-undo").disabled=!undoHistory.length;
