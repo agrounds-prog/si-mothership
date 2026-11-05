@@ -32,8 +32,14 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const svg=page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing");
   const box=await svg.boundingBox();assert.ok(box);
   await page.mouse.move(box.x+box.width*.25,box.y+box.height*.25);
-  await page.mouse.down();await page.mouse.move(box.x+box.width*.65,box.y+box.height*.66,{steps:7});await page.mouse.up();
+  await page.mouse.down();
+  await page.mouse.move(box.x+box.width*.65,box.y+box.height*.66,{steps:7});
+  assert.equal(await page.locator("#siPlusSpotlightEditor .si-plus-spot-preview").count(),1,"Drag preview should be visible before release");
+  await page.mouse.up();
   await page.waitForFunction(()=>document.querySelectorAll("#siPlusSpotlightEditor .si-plus-spot-list button").length===1);
+  assert.equal(await page.locator(".si-plus-spot-undo").isEnabled(),true);
+  assert.match(await page.locator(".si-plus-spot-state").innerText(),/1 highlight/);
+
   await page.locator("#siPlusSpotName").fill("Safe Area");
   await page.locator("#siPlusSpotName").dispatchEvent("change");
   await page.locator("#siPlusSpotEffect").selectOption("dim");
