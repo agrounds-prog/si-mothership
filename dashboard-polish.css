@@ -4636,3 +4636,81 @@ body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #appShortcut
 @media(prefers-reduced-motion:reduce){
  body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher .screen-dock .launch-screen-btn{transition:none!important;transform:none!important;}
 }
+
+/* Command Deck v3 - genuine illustrated raster art */
+/* Art is raster PNG, not CSS-drawn chrome. All dynamic text, roster entries,
+   join code, QR and alert counters remain HTML and fully interactive. */
+@media(min-width:1251px){
+ body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher .roster-card{
+   min-height:305px!important;
+   display:flex!important;flex-direction:column!important;
+ }
+ body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher .roster-card .roster-inner{
+   flex:1 1 auto!important;
+   min-height:208px!important;
+   background-image:url("/command-deck-raster/roster-scanner.png")!important;
+   background-position:center bottom!important;
+   background-size:100% 100%!important;
+   background-repeat:no-repeat!important;
+ }
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher .roster-card{
+ border-radius:14px!important;
+ border:1px solid #2597ce!important;
+ background:linear-gradient(145deg,#0a2b46,#05172d)!important;
+ box-shadow:inset 0 1px #b6efff38,0 10px 30px #0007!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher .roster-card .roster-head{
+ position:relative!important;z-index:1!important;
+ background:linear-gradient(90deg,#103e60,#061b33)!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher .screen-dock{
+ border-radius:14px!important;
+ border:1px solid #2a9bc8!important;
+ background:linear-gradient(148deg,#092641,#06172c)!important;
+ box-shadow:inset 0 1px #ccffff32,0 10px 30px #0007!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher .screen-dock .launch-screen-btn{
+ background-image:url("/command-deck-raster/action-face.png"),url("/command-deck-art/holographic-action.svg")!important;
+ background-position:center!important;background-repeat:no-repeat!important;
+ background-size:100% 100%!important;
+ color:#f4fdff!important;
+ text-shadow:0 2px 3px #001324,0 0 8px #003b70!important;
+ border:0!important;border-radius:10px!important;
+ box-shadow:0 3px 12px #0006!important;
+ min-height:50px!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher .screen-dock .launch-screen-btn:hover{
+ filter:brightness(1.15)!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #siV85AlertStack{
+ background-image:url("/command-deck-raster/alerts-platform.png"),url("/command-deck-art/alerts-monitor.svg")!important;
+ background-position:center bottom,center bottom!important;
+ background-repeat:no-repeat!important;
+ background-size:100% 100%,100% 100%!important;
+ background-color:#071b32!important;
+ border-color:#2b91c4!important;
+ box-shadow:inset 0 1px #c2f5ff2c,0 9px 27px #0006!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #siV85AlertStack > #attentionSummary,
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #siV85AlertStack > .attention-panel{
+ background-image:linear-gradient(125deg,rgba(14,66,96,.93),rgba(5,28,49,.96))!important;
+ box-shadow:inset 0 1px #ffffff22,0 4px 13px #0005!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #appShortcutsPanel{
+ background-image:url("/command-deck-raster/deck-trim.png"),linear-gradient(145deg,#0c304e,#061829)!important;
+ background-size:100% 64px,100% 100%!important;
+ background-position:center bottom,center!important;
+ background-repeat:no-repeat!important;
+ padding-bottom:30px!important;
+}
+@media(max-width:1250px){
+ body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher .roster-card .roster-inner{
+   background-image:url("/command-deck-raster/roster-scanner.png")!important;
+   background-position:center bottom!important;
+   background-size:100% 100%!important;
+ }
+ body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #siV85AlertStack{
+   background-image:linear-gradient(145deg,#0b2b46,#061a32)!important;
+ }
+}
