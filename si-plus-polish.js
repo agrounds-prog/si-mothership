@@ -1555,6 +1555,7 @@
    (row||root.querySelector("#slideTitle")?.parentElement||root).append(button);
   }
   const enabled=!!data(slide);
+  button.style.display=enabled?"inline-flex":"none";
   button.textContent=enabled?"◎ Edit Spotlight Slide":"◎ Make Spotlight Slide";
   button.title=enabled?"Edit the spotlight highlights on this slide":"Use this slide image as an interactive Spotlight slide";
  }
