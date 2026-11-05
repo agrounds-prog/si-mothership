@@ -1434,7 +1434,7 @@
   dialog=document.createElement("div");dialog.id="siPlusSpotlightEditor";dialog.className="si-plus-spot-editor";dialog.hidden=true;
   dialog.innerHTML='<div class="si-plus-spot-dialog" role="dialog" aria-modal="true" aria-label="SI+ Spotlight slide editor">'+
    '<header><strong>◎ SPOTLIGHT SLIDE STUDIO</strong><button class="si-plus-spot-close" type="button">✕ Close</button></header>'+
-   '<p>1. Choose a shape. 2. Drag over the picture. 3. Name the highlight. 4. Save and return to SI+.</p>'+
+   '<p>1. Choose a shape. 2. Drag over the picture. 3. Drag an existing region to move it. 4. Save and return to SI+.</p>'+
    '<div class="si-plus-spot-layout"><div class="si-plus-spot-stage"><img class="si-plus-spot-image" alt="Spotlight slide image"><svg class="si-plus-spot-drawing" viewBox="0 0 1000 562.5" preserveAspectRatio="none"></svg></div>'+
    '<aside><div class="si-plus-spot-buttons"><button type="button" data-mode="rect">▱ Rectangle</button><button type="button" data-mode="circle">◯ Circle</button></div>'+
    '<label>Highlight name<input id="siPlusSpotName" maxlength="50" placeholder="What to highlight"></label>'+
@@ -1446,34 +1446,66 @@
   const svg=dialog.querySelector("svg");
   dialog.querySelector(".si-plus-spot-image").addEventListener("load",fitEditorImage);
   if(typeof ResizeObserver==="function")new ResizeObserver(fitEditorImage).observe(dialog.querySelector(".si-plus-spot-stage"));
-  svg.addEventListener("pointerdown",e=>{
-   if(e.target.dataset.zone){selection=e.target.dataset.zone;updateEditor();return}
+  const pointerPosition=e=>{
    const bounds=svg.getBoundingClientRect();
-   const x=clamp((e.clientX-bounds.left)/bounds.width*1000,0,1000);
-   const y=clamp((e.clientY-bounds.top)/bounds.height*562.5,0,562.5);
-   drawing={x,y,id:e.pointerId};svg.setPointerCapture(e.pointerId);
-  });
-  svg.addEventListener("pointerup",e=>{
-   if(!drawing)return;
-   const box=svg.getBoundingClientRect();
-   const endX=clamp((e.clientX-box.left)/box.width*1000,0,1000);
-   const endY=clamp((e.clientY-box.top)/box.height*562.5,0,562.5);
-   const x=Math.min(endX,drawing.x),y=Math.min(endY,drawing.y),w=Math.abs(endX-drawing.x),h=Math.abs(endY-drawing.y);
-   drawing=null;
-   if(w<10||h<10)return;
-   const z={id:uid(),name:"Highlight "+(zones.length+1),shape:mode,x,y,w,h,color:"red",effect:"outline"};
-   zones.push(z);selection=z.id;dirty=true;updateEditor()
+   return {
+    x:clamp((e.clientX-bounds.left)/Math.max(1,bounds.width)*1000,0,1000),
+    y:clamp((e.clientY-bounds.top)/Math.max(1,bounds.height)*562.5,0,562.5)
+   };
+  };
+  svg.addEventListener("pointerdown",e=>{
+   if(e.button!==0&&e.pointerType==="mouse")return;
+   const p=pointerPosition(e);
+   const hit=e.target.closest?.("[data-zone]");
+   if(hit){
+    const found=zones.find(z=>z.id===hit.dataset.zone);
+    if(!found)return;
+    selection=found.id;
+    drawing={kind:"move",id:e.pointerId,start:p,origin:{x:found.x,y:found.y},zoneId:found.id};
+    svg.setPointerCapture(e.pointerId);
+    updateEditor();
+   }else{
+    drawing={kind:"draw",id:e.pointerId,x:p.x,y:p.y};
+    svg.setPointerCapture(e.pointerId);
+   }
+   e.preventDefault();
   });
   svg.addEventListener("pointermove",e=>{
    if(!drawing||drawing.id!==e.pointerId)return;
-   const bounds=svg.getBoundingClientRect();
-   const x=clamp((e.clientX-bounds.left)/bounds.width*1000,0,1000);
-   const y=clamp((e.clientY-bounds.top)/bounds.height*562.5,0,562.5);
-   const left=Math.min(drawing.x,x),top=Math.min(drawing.y,y),w=Math.abs(x-drawing.x),h=Math.abs(y-drawing.y);
-   const preview={shape:mode,x:left,y:top,w,h};
-   let ghost=svg.querySelector(".si-plus-spot-preview");
-   if(!ghost){ghost=document.createElementNS(NS,"g");ghost.classList.add("si-plus-spot-preview");svg.append(ghost)}
-   ghost.innerHTML=shape(preview,{fill:"#4de7ff","fill-opacity":.16,stroke:"#4de7ff","stroke-width":5,"stroke-dasharray":"12 8"});
+   const p=pointerPosition(e);
+   if(drawing.kind==="move"){
+    const z=zones.find(item=>item.id===drawing.zoneId);
+    if(!z)return;
+    z.x=clamp(drawing.origin.x+p.x-drawing.start.x,0,1000-z.w);
+    z.y=clamp(drawing.origin.y+p.y-drawing.start.y,0,562.5-z.h);
+    if(Math.abs(z.x-drawing.origin.x)+Math.abs(z.y-drawing.origin.y)>1)dirty=true;
+    // Redraw the selected shape without replacing the capture target.
+    const elem=svg.querySelector('[data-zone="'+z.id+'"] > *');
+    if(elem){
+     if(z.shape==="rect"){
+      elem.setAttribute("x",z.x);elem.setAttribute("y",z.y);
+     }else{
+      elem.setAttribute("cx",z.x+z.w/2);elem.setAttribute("cy",z.y+z.h/2);
+     }
+    }
+   }else{
+    const left=Math.min(drawing.x,p.x),top=Math.min(drawing.y,p.y);
+    const preview={shape:mode,x:left,y:top,w:Math.abs(p.x-drawing.x),h:Math.abs(p.y-drawing.y)};
+    let ghost=svg.querySelector(".si-plus-spot-preview");
+    if(!ghost){ghost=document.createElementNS(NS,"g");ghost.classList.add("si-plus-spot-preview");svg.append(ghost)}
+    ghost.innerHTML=shape(preview,{fill:"#4de7ff","fill-opacity":.16,stroke:"#4de7ff","stroke-width":5,"stroke-dasharray":"12 8","pointer-events":"none"});
+   }
+  });
+  svg.addEventListener("pointerup",e=>{
+   if(!drawing||drawing.id!==e.pointerId)return;
+   const current=drawing;drawing=null;
+   if(current.kind==="move"){updateEditor();return}
+   const p=pointerPosition(e);
+   const x=Math.min(p.x,current.x),y=Math.min(p.y,current.y);
+   const w=Math.abs(p.x-current.x),h=Math.abs(p.y-current.y);
+   if(w<10||h<10){updateEditor();return}
+   const z={id:uid(),name:"Highlight "+(zones.length+1),shape:mode,x,y,w,h,color:"red",effect:"outline"};
+   zones.push(z);selection=z.id;dirty=true;updateEditor();
   });
   svg.addEventListener("pointercancel",()=>{drawing=null;updateEditor()});
   function closeEditor(){
