@@ -1434,7 +1434,7 @@
   dialog=document.createElement("div");dialog.id="siPlusSpotlightEditor";dialog.className="si-plus-spot-editor";dialog.hidden=true;
   dialog.innerHTML='<div class="si-plus-spot-dialog" role="dialog" aria-modal="true" aria-label="SI+ Spotlight slide editor">'+
    '<header><strong>◎ SPOTLIGHT SLIDE STUDIO</strong><button class="si-plus-spot-close" type="button">✕ Close</button></header>'+
-   '<p>Add a region, drag inside it to move, or drag its gold corner handles to resize. Full Image covers the entire picture.</p>'+  
+   '<p>Drag anywhere on the image to add a region; drag inside a region to move it, or use the gold corners to resize. Full Image covers everything.</p>'+  
    '<div class="si-plus-spot-layout"><div class="si-plus-spot-stage"><img class="si-plus-spot-image" alt="Spotlight slide image"><svg class="si-plus-spot-drawing" viewBox="0 0 1000 562.5" preserveAspectRatio="none"></svg></div>'+
    '<aside><div class="si-plus-spot-buttons"><button type="button" data-new-effect="outline">＋ Add Highlight</button><button type="button" data-new-effect="dim">＋ Add Dim Area</button></div><div class="si-plus-spot-buttons"><button type="button" data-interaction="move">↔ Move / Select</button><button type="button" data-interaction="add">✎ Draw More</button></div><div class="si-plus-spot-buttons"><button type="button" data-mode="rect">▱ Rectangle</button><button type="button" data-mode="circle">◯ Circle</button></div>'+ 
    '<label>Highlight name<input id="siPlusSpotName" maxlength="50" placeholder="What to highlight"></label>'+
@@ -1470,7 +1470,11 @@
      {kind:"move",id:e.pointerId,start:p,origin:{x:found.x,y:found.y},zoneId:found.id};
     svg.setPointerCapture(e.pointerId);
     updateEditor();
-   }else if(interaction==="add"){
+   }else if(interaction==="add"||interaction==="move"){
+    // Empty parts of the image are always drawable. Otherwise Move/Select
+    // makes the area outside existing red rectangles appear inaccessible.
+    const chosen=zones.find(z=>z.id===selection);
+    if(interaction==="move"&&chosen)nextEffect=chosen.effect||nextEffect;
     drawing={kind:"draw",id:e.pointerId,x:clamp(p.x,0,1000),y:clamp(p.y,0,562.5)};
     svg.setPointerCapture(e.pointerId);
    }
@@ -1679,7 +1683,7 @@
   const indicator=dialog.querySelector(".si-plus-spot-state");
   if(indicator)indicator.textContent=zones.length?
     zones.length+" region"+(zones.length===1?"":"s")+" · "+(interaction==="add"?"Draw a new "+(nextEffect==="dim"?"dim area":"highlight"):(chosen?"Drag "+chosen.name+" to move it, or choose Add to draw another":"Select a region or choose Add to draw another")):
-    "Choose Add Highlight or Add Dim Area, then draw on the image.";
+    "Drag on any empty part of the image to create a region.";
 
  }
  function slideTypeSync(){
