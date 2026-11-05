@@ -1440,7 +1440,7 @@
    '<label>Highlight name<input id="siPlusSpotName" maxlength="50" placeholder="What to highlight"></label>'+
    '<label>Effect<select id="siPlusSpotEffect"><option value="outline">Outline Glow</option><option value="dim">Dim Background</option></select></label>'+
    '<label>Color<select id="siPlusSpotColor"><option value="red">Red</option><option value="green">Green</option><option value="blue">Blue</option><option value="yellow">Yellow</option><option value="black">White</option></select></label>'+
-   '<div class="si-plus-spot-list"></div><div class="si-plus-spot-buttons"><button type="button" class="si-plus-spot-undo">↶ Undo Change</button><button type="button" class="si-plus-spot-delete">Delete Selected</button></div><small class="si-plus-spot-state" aria-live="polite">Draw a region to begin.</small>'+
+   '<div class="si-plus-spot-list"></div><div class="si-plus-spot-buttons"><button type="button" class="si-plus-spot-align-right">⇥ Right Edge</button><button type="button" class="si-plus-spot-align-left">⇤ Left Edge</button></div><div class="si-plus-spot-buttons"><button type="button" class="si-plus-spot-undo">↶ Undo Change</button><button type="button" class="si-plus-spot-delete">Delete Selected</button></div><small class="si-plus-spot-state" aria-live="polite">Draw a region to begin.</small>'+
    '<button type="button" class="si-plus-spot-save">✓ Save Highlights &amp; Return</button><button type="button" class="si-plus-spot-remove">Remove Spotlight Mode</button></aside></div></div>';
   document.body.append(dialog);
   const svg=dialog.querySelector("svg");
@@ -1515,6 +1515,23 @@
    const z={id:uid(),name:(nextEffect==="dim"?"Dim Area ":"Highlight ")+(zones.length+1),shape:mode,x,y,w,h,color:"red",effect:nextEffect};
    rememberEdit();zones.push(z);selection=z.id;interaction="move";dirty=true;updateEditor();
   });
+  // Keep editing across the full image even when the pointer crosses its edge.
+  // SVG pointer capture normally suffices, but window-level fallback protects
+  // browsers that release capture during a child-shape redraw.
+  window.addEventListener("pointermove",e=>{
+   if(!drawing||drawing.id!==e.pointerId||svg.contains(e.target))return;
+   svg.dispatchEvent(new PointerEvent("pointermove",{
+    pointerId:e.pointerId,clientX:e.clientX,clientY:e.clientY,
+    pointerType:e.pointerType,bubbles:false
+   }));
+  });
+  window.addEventListener("pointerup",e=>{
+   if(!drawing||drawing.id!==e.pointerId||svg.contains(e.target))return;
+   svg.dispatchEvent(new PointerEvent("pointerup",{
+    pointerId:e.pointerId,clientX:e.clientX,clientY:e.clientY,
+    pointerType:e.pointerType,bubbles:false
+   }));
+  });
   svg.addEventListener("pointercancel",()=>{drawing=null;updateEditor()});
   function closeEditor(){
    if(dirty&&JSON.stringify(zones)!==originalZones&&!window.confirm("Discard unsaved Spotlight edits?"))return;
@@ -1540,6 +1557,15 @@
    dialog.querySelector("#"+id).addEventListener("change",e=>{
     const z=zones.find(z=>z.id===selection);if(z&&z[key]!==e.target.value){rememberEdit();z[key]=e.target.value;dirty=true;updateEditor()}
    })
+  }
+  for(const [selector,edge] of [[".si-plus-spot-align-right","right"],[".si-plus-spot-align-left","left"]]){
+   dialog.querySelector(selector).onclick=()=>{
+    const chosen=zones.find(z=>z.id===selection);
+    if(!chosen)return;
+    const x=edge==="right"?Math.max(0,1000-chosen.w):0;
+    if(chosen.x===x)return;
+    rememberEdit();chosen.x=x;dirty=true;interaction="move";updateEditor();
+   };
   }
   dialog.querySelector(".si-plus-spot-delete").onclick=()=>{
    if(!zones.some(z=>z.id===selection))return;
@@ -1600,6 +1626,8 @@
    input.disabled=!chosen;input.value=chosen?chosen[key]:"";
   }
   dialog.querySelector(".si-plus-spot-delete").disabled=!chosen;
+  dialog.querySelector(".si-plus-spot-align-right").disabled=!chosen;
+  dialog.querySelector(".si-plus-spot-align-left").disabled=!chosen;
   dialog.querySelector(".si-plus-spot-undo").disabled=!undoHistory.length;
   const indicator=dialog.querySelector(".si-plus-spot-state");
   if(indicator)indicator.textContent=zones.length?
