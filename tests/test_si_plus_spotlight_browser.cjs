@@ -15,7 +15,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await page.waitForFunction(()=>window.SIPlusSpotlightSlide&&networkHydrated===true,null,{timeout:25000});
   await page.evaluate(()=>{state.activityRun=null;state.screen="classroom";openNewPresentation()});
   const image=await page.evaluate(()=>{
-   const cv=document.createElement("canvas");cv.width=960;cv.height=540;
+   const cv=document.createElement("canvas");cv.width=960;cv.height=720;
    const ctx=cv.getContext("2d");ctx.fillStyle="#146aa7";ctx.fillRect(0,0,960,540);
    return cv.toDataURL("image/png").split(",")[1];
   });
@@ -35,6 +35,9 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
     "Add Dim Area must be visible in the active Spotlight Studio bundle");
   const svg=page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing");
   const box=await svg.boundingBox();assert.ok(box);
+  const stageBox=await page.locator("#siPlusSpotlightEditor .si-plus-spot-stage").boundingBox();
+  assert.ok(Math.abs(stageBox.width-box.width)<3,"Overlay must reach visible image right edge");
+  assert.ok(Math.abs(stageBox.x-box.x)<3,"Overlay must begin at left edge");
   const hitCoverage=await page.evaluate(()=>{
    const svg=document.querySelector("#siPlusSpotlightEditor .si-plus-spot-drawing");
    const bounds=svg.getBoundingClientRect();
