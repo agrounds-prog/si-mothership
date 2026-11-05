@@ -24,8 +24,84 @@ if(editable)b.onclick=()=>{syncSelected();selected=i;renderTeacherGrid();readSel
 else b.onclick=()=>playTile(t,token,b);
 return b}
 function renderGrid(target,tiles,layout,editable,token){target.style.setProperty("--cols",layouts[layout][1]);target.replaceChildren(...tiles.map((t,i)=>makeTile(t,i,editable,token)))}
+// Voice preferences live on each device because available speech voices differ by browser.
+// Prefer an enhanced/natural English voice automatically, but never assume it exists.
+const voicePreferenceKey="si-aac-voice-v1";
+const ratePreferenceKey="si-aac-rate-v1";
+function localPreference(key,defaultValue){try{return localStorage.getItem(key)||defaultValue}catch{return defaultValue}}
+function savePreference(key,value){try{localStorage.setItem(key,value)}catch{}}
+let voiceChoice=localPreference(voicePreferenceKey,"auto");
+let voiceRate=Math.max(.7,Math.min(1.1,Number(localPreference(ratePreferenceKey,"0.92"))||.92));
+function availableVoices(){
+ if(!("speechSynthesis" in window))return [];
+ try{return window.speechSynthesis.getVoices().slice().sort((a,b)=>a.name.localeCompare(b.name))}catch{return []}
+}
+function voiceScore(v){
+ const name=v.name.toLowerCase(),lang=v.lang.toLowerCase();
+ let score=0;
+ if(lang.startsWith("en"))score+=100;
+ else score-=100;
+ if(/natural|neural|enhanced|premium|online/i.test(name))score+=65;
+ if(/google|microsoft|siri|samantha|ava|aria|jenny|guy|allison/i.test(name))score+=22;
+ if(/compact|robot|espeak/i.test(name))score-=40;
+ if(v.default)score+=6;
+ return score;
+}
+function preferredVoice(){
+ const voices=availableVoices();
+ if(voiceChoice!=="auto"){
+  const picked=voices.find(v=>v.voiceURI===voiceChoice);
+  if(picked)return picked;
+ }
+ return voices.sort((a,b)=>voiceScore(b)-voiceScore(a))[0]||null;
+}
+function speakText(text,node){
+ if(!("speechSynthesis" in window)||!window.SpeechSynthesisUtterance){notify("Speech is not available on this device.");return}
+ const u=new SpeechSynthesisUtterance(text);
+ const v=preferredVoice();
+ if(v){u.voice=v;u.lang=v.lang}
+ u.rate=voiceRate;
+ u.pitch=1;
+ u.onend=()=>{if(audioNode===node){node?.classList.remove("aac-playing");audioNode=null}};
+ u.onerror=()=>{if(audioNode===node){node?.classList.remove("aac-playing");audioNode=null}};
+ window.speechSynthesis.speak(u);
+}
+function createVoiceControls(){
+ const box=document.createElement("div");box.className="aac-voice-controls";
+ const voiceLabel=document.createElement("label");voiceLabel.textContent="Speaking voice";
+ const select=document.createElement("select");select.setAttribute("aria-label","Speaking voice");voiceLabel.append(select);
+ const rateLabel=document.createElement("label");rateLabel.textContent="Speaking speed";
+ const speed=document.createElement("select");speed.setAttribute("aria-label","Speaking speed");
+ for(const [value,label] of [["0.75","Slow"],["0.92","Natural"],["1","Normal"],["1.1","Fast"]]){
+  const opt=document.createElement("option");opt.value=value;opt.textContent=label;speed.append(opt)
+ }
+ speed.value=String(voiceRate);
+ const test=document.createElement("button");test.type="button";test.textContent="▶ Test Voice";
+ test.title="Hear a sample phrase using this device's selected voice";
+ const note=document.createElement("small");note.textContent="Voices vary by device. Recorded audio always takes priority.";
+ function populate(){
+  const previous=select.value||voiceChoice;
+  select.replaceChildren();
+  const automatic=document.createElement("option");automatic.value="auto";automatic.textContent="Best available (automatic)";select.append(automatic);
+  for(const voice of availableVoices()){
+   const opt=document.createElement("option");opt.value=voice.voiceURI;
+   opt.textContent=voice.name+" ("+voice.lang+")"+(voiceScore(voice)>=150?" · Enhanced":"");
+   select.append(opt);
+  }
+  select.value=Array.from(select.options).some(o=>o.value===previous)?previous:"auto";
+ }
+ populate();
+ if("speechSynthesis" in window){
+  window.speechSynthesis.addEventListener?.("voiceschanged",populate);
+ }
+ select.onchange=()=>{voiceChoice=select.value;savePreference(voicePreferenceKey,voiceChoice);stopSound()};
+ speed.onchange=()=>{voiceRate=Number(speed.value);savePreference(ratePreferenceKey,String(voiceRate));stopSound()};
+ test.onclick=()=>{stopSound();speakText("Hello! I am ready to communicate.",null)};
+ box.append(voiceLabel,rateLabel,test,note);
+ return box;
+}
 function stopSound(){if(activeAudio){activeAudio.pause();activeAudio.src="";activeAudio=null}if("speechSynthesis" in window)window.speechSynthesis.cancel();if(audioNode){audioNode.classList.remove("aac-playing");audioNode=null}}
-function playTile(t,token,element){stopSound();if(!t.audio&&!t.label)return;if(element){audioNode=element;element.classList.add("aac-playing")}if(t.audio){let audio=new Audio(media("audio",t.audio,token));activeAudio=audio;audio.onended=()=>stopSound();audio.onerror=()=>{stopSound();notify("Audio could not play. Check device volume or connection.")};audio.play().catch(()=>{stopSound();notify("Touch the picture again to allow audio.")})}else if(t.label&&"speechSynthesis" in window){const utterance=new SpeechSynthesisUtterance(t.label);utterance.onend=()=>{if(audioNode)audioNode.classList.remove("aac-playing");audioNode=null};window.speechSynthesis.speak(utterance)}}
+function playTile(t,token,element){stopSound();if(!t.audio&&!t.label)return;if(element){audioNode=element;element.classList.add("aac-playing")}if(t.audio){let audio=new Audio(media("audio",t.audio,token));activeAudio=audio;audio.onended=()=>stopSound();audio.onerror=()=>{stopSound();notify("Audio could not play. Check device volume or connection.")};audio.play().catch(()=>{stopSound();notify("Touch the picture again to allow audio.")})}else if(t.label){speakText(t.label,element||null)}}
 function show(name){for(let n of ["library","editor","share"]){const e=$(n+"Screen");e.hidden=(name!==n)}}
 async function loadLibrary(){const data=await api("/api/aac/boards");boards=data.boards;displayLibrary()}
 function displayLibrary(){let query=clean($("boardSearch").value).toLowerCase();let filtered=boards.filter(b=>b.title.toLowerCase().includes(query));$("boardCount").textContent=boards.length+" saved";let grid=$("boardList");grid.replaceChildren();if(!filtered.length){let e=document.createElement("div");e.className="aac-empty";e.textContent=boards.length?"No soundboards match this search.":"No soundboards yet. Select Create Board to start.";grid.append(e);return}
@@ -77,7 +153,7 @@ async function duplicateBoard(id){const res=await api("/api/aac/boards/"+id+"/du
 async function deleteBoard(id){if(!confirm("Delete this board and revoke its shared link?"))return;await api("/api/aac/boards/"+id,"DELETE");await loadLibrary();notify("Board deleted")}
 async function shareBoard(id){let b=boards.find(b=>b.id===id);if(!confirm("Create a new share link for "+(b?.title||"this board")+"? Any previous link will stop working."))return;let res=await api("/api/aac/boards/"+id+"/share","POST");shareInfo={...res,id};$("shareBoardName").textContent=b?.title||"Soundboard";$("shareQr").src=res.qr;$("shareLink").value=res.url;show("share")}
 async function revokeShare(){if(!shareInfo)return;if(!confirm("Revoke this board link? Anyone currently using it will lose access after reload."))return;await api("/api/aac/boards/"+shareInfo.id+"/revoke","POST");shareInfo=null;show("library");await loadLibrary();notify("Link revoked")}
-function preview(){syncSelected();const wrap=document.createElement("div");wrap.style.cssText="position:fixed;inset:0;z-index:100;background:#030d20f5;overflow:auto;padding:15px;display:grid;place-items:center";const card=document.createElement("div");card.className="aac-card";card.style.cssText="width:min(900px,100%);max-height:96vh;overflow:auto";const hd=document.createElement("div");hd.className="aac-titlebar";const h=document.createElement("h2");h.textContent=clean($("boardTitle").value)||"Student Preview";const close=document.createElement("button");close.textContent="✕ Close Preview";close.onclick=()=>{stopSound();wrap.remove()};hd.append(h,close);const grid=document.createElement("div");grid.className="aac-grid aac-student-grid";renderGrid(grid,editing.tiles,editing.layout,false,"");card.append(hd,grid);wrap.append(card);document.body.append(wrap)}
+function preview(){syncSelected();const wrap=document.createElement("div");wrap.style.cssText="position:fixed;inset:0;z-index:100;background:#030d20f5;overflow:auto;padding:15px;display:grid;place-items:center";const card=document.createElement("div");card.className="aac-card";card.style.cssText="width:min(900px,100%);max-height:96vh;overflow:auto";const hd=document.createElement("div");hd.className="aac-titlebar";const h=document.createElement("h2");h.textContent=clean($("boardTitle").value)||"Student Preview";const close=document.createElement("button");close.textContent="✕ Close Preview";close.onclick=()=>{stopSound();wrap.remove()};hd.append(h,close);const grid=document.createElement("div");grid.className="aac-grid aac-student-grid";renderGrid(grid,editing.tiles,editing.layout,false,"");card.append(hd,createVoiceControls(),grid);wrap.append(card);document.body.append(wrap)}
 // WAV recording: browser microphone PCM is encoded to mono 16-bit WAV so the server
 // can independently validate the duration and never trust media metadata alone.
 async function recordStart(){if(recording)return;let stream,ctx;try{stream=await navigator.mediaDevices.getUserMedia({audio:true});const AC=window.AudioContext||window.webkitAudioContext;ctx=new AC();const src=ctx.createMediaStreamSource(stream);const proc=ctx.createScriptProcessor(4096,1,1);let chunks=[],frames=0;const gain=ctx.createGain();gain.gain.value=0;src.connect(proc);proc.connect(gain);gain.connect(ctx.destination);proc.onaudioprocess=e=>{let chan=e.inputBuffer.getChannelData(0);chunks.push(new Float32Array(chan));frames+=chan.length};const t=Date.now();$("recordAudio").disabled=true;$("stopRecording").disabled=false;const timer=setInterval(()=>{let sec=Math.min(30,Math.floor((Date.now()-t)/1000));$("recordTimer").textContent="00:"+String(sec).padStart(2,"0")+" / 00:30";if(Date.now()-t>=30000)recordStop().catch(err)},200);recording={stream,ctx,src,proc,gain,chunks,framesRef:()=>frames,timer,slot:selected};
@@ -87,6 +163,6 @@ async function recordStop(){if(!recording)return;const rec=recording;recording=n
 async function initTeacher(){try{await loadLibrary()}catch(e){err(e);if(e.message.includes("sign-in"))$("boardList").textContent="Teacher sign-in required. Return to Command Deck, unlock it, then open AAC+ again."}
 $("newBoard").onclick=newBoard;$("boardSearch").oninput=displayLibrary;$("backLibrary").onclick=()=>{if(recording){notify("Stop recording first");return}show("library")};$("cancelEdit").onclick=()=>show("library");$("boardLayout").onchange=e=>changeLayout(e.target.value);$("tileLabel").oninput=()=>{syncSelected();renderTeacherGrid()};$("tileSymbol").oninput=()=>{syncSelected();renderTeacherGrid()};$("tileColor").onchange=()=>{syncSelected();renderTeacherGrid()};
 $("tileImage").onchange=e=>uploadImage(e.target.files[0]).catch(err).finally(()=>e.target.value="");$("tileAudio").onchange=e=>uploadAudio(e.target.files[0]).catch(err).finally(()=>e.target.value="");$("removeImage").onclick=()=>{editing.tiles[selected].image=null;readSelected()};$("recordAudio").onclick=()=>recordStart().catch(err);$("stopRecording").onclick=()=>recordStop().catch(err);$("previewAudio").onclick=()=>playTile(editing.tiles[selected],"",null);$("deleteAudio").onclick=()=>{editing.tiles[selected].audio=null;stopSound();readSelected()};$("moveLeft").onclick=()=>swap(-1);$("moveRight").onclick=()=>swap(1);$("previewBoard").onclick=preview;$("saveBoard").onclick=()=>saveBoard().catch(err);$("shareBack").onclick=()=>loadLibrary().then(()=>show("library")).catch(err);$("copyShare").onclick=()=>navigator.clipboard.writeText($("shareLink").value).then(()=>notify("Link copied")).catch(err);$("openShare").onclick=()=>window.open($("shareLink").value,"_blank","noopener");$("revokeShare").onclick=()=>revokeShare().catch(err);}
-async function initStudent(){try{const token=location.pathname.split("/").pop();const b=await api("/api/aac/public/"+encodeURIComponent(token));$("studentTitle").textContent=b.title;renderGrid($("studentTiles"),b.tiles,b.layout,false,token)}catch(e){$("studentHint").textContent="This board link is unavailable or revoked.";err(e)}$("fullscreenBoard").onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()}}
+async function initStudent(){const controls=createVoiceControls();$("studentHint").after(controls);try{const token=location.pathname.split("/").pop();const b=await api("/api/aac/public/"+encodeURIComponent(token));$("studentTitle").textContent=b.title;renderGrid($("studentTiles"),b.tiles,b.layout,false,token)}catch(e){$("studentHint").textContent="This board link is unavailable or revoked.";err(e)}$("fullscreenBoard").onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()}}
 if(teacher)initTeacher();else initStudent();
 })();
