@@ -1532,7 +1532,50 @@
   button.textContent=enabled?"◎ Edit Spotlight Slide":"◎ Make Spotlight Slide";
   button.title=enabled?"Edit the spotlight highlights on this slide":"Use this slide image as an interactive Spotlight slide";
  }
- function tick(){try{installSharedMarkup();editorSync();controlSync();overlaySync()}catch(e){console.warn("SI+ Spotlight integration",e)}}
+
+/* A one-click single-image workflow for teachers who want Spotlight without
+ * building a lesson. It still uses SI+'s normal draft/save system. */
+function quickSpotlightLaunch(){
+ if(!teacher()||editor()||typeof openNewPresentation!=="function")return;
+ openNewPresentation();
+ const draft=editor()?.draft;
+ if(draft){draft.deckTitle="Quick Spotlight";draft.name="Quick Spotlight"}
+ const upload=document.getElementById("siPlusBatchImages");
+ if(!upload){if(typeof toast==="function")toast("Add an image to your new SI+ presentation, then choose Spotlight.");return}
+ const before=editor()?.draft?.slides?.length||0;
+ upload.addEventListener("change",()=>{
+  const started=Date.now();
+  const wait=setInterval(()=>{
+   const current=editor();
+   if(!current||Date.now()-started>30000){clearInterval(wait);return}
+   if(typeof siPlusBatchImportBusy!=="undefined"&&siPlusBatchImportBusy)return;
+   const slides=current.draft?.slides||[];
+   const i=slides.findIndex((s,index)=>index>=before&&validImage(s.image));
+   if(i<0)return;
+   clearInterval(wait);
+   state.editorSlide=i;
+   if(typeof renderPresentationBuilder==="function")renderPresentationBuilder();
+   openEditor();
+  },180);
+ },{once:true});
+ upload.click();
+}
+function quickSpotlightSync(){
+ if(!teacher()||typeof state==="undefined")return;
+ const visible=state.activeApp==="si-plus"&&!!state.presentationLibraryOpen
+  &&!state.presentationEditor&&!state.activityRun&&state.screen==="activities";
+ let button=document.getElementById("siPlusQuickSpotlight");
+ if(!visible){button?.remove();return}
+ if(!button){
+  button=document.createElement("button");button.id="siPlusQuickSpotlight";
+  button.type="button";button.className="si-plus-spotlight-quick-launch";
+  button.textContent="◎ Quick Spotlight";
+  button.title="Create a single Spotlight image slide in SI+";
+  button.onclick=quickSpotlightLaunch;
+  document.body.append(button);
+ }
+}
+ function tick(){try{installSharedMarkup();quickSpotlightSync();editorSync();controlSync();overlaySync()}catch(e){console.warn("SI+ Spotlight integration",e)}}
  window.SIPlusSpotlightSlide={open:openEditor,refresh:tick,renderOverlay:highlight};
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{setInterval(tick,350)},{once:true});
  else setInterval(tick,350);
