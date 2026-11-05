@@ -6526,6 +6526,20 @@ def create_app() -> web.Application:
         return web.FileResponse(path, headers={"Cache-Control": "public, max-age=3600", "Content-Type": "image/svg+xml"})
     app.router.add_get("/command-deck-art/{filename}", deck_art)
 
+    # Raster graphics generated from repository-owned source illustrations.
+    # Whitelist fixed names; these images never contain classroom data.
+    deck_raster_names = {"roster-scanner.png", "alerts-platform.png", "action-face.png", "deck-trim.png"}
+    async def deck_raster(request):
+        name = request.match_info["filename"]
+        if name not in deck_raster_names:
+            raise web.HTTPNotFound()
+        path = ROOT / "assets" / "command-deck-v3" / name
+        if not path.is_file():
+            raise web.HTTPNotFound()
+        return web.FileResponse(path, headers={"Cache-Control": "public, max-age=3600", "Content-Type": "image/png"})
+    app.router.add_get("/command-deck-raster/{filename}", deck_raster)
+
+
     app.router.add_get("/dashboard-polish.css", lambda request: web.FileResponse(ROOT / "dashboard-polish.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/dashboard-polish.js", lambda request: web.FileResponse(ROOT / "dashboard-polish.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/spotlight.html", lambda request: web.FileResponse(ROOT / "spotlight.html", headers={"Cache-Control": "no-store"}))
