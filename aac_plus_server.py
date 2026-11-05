@@ -26,7 +26,7 @@ MAX_IMAGE = 2_000_000
 MAX_AUDIO = 5_000_000
 MAX_BOARDS = 250
 
-def install(app, data_dir, teacher_authorized, root):
+def install(app, data_dir, teacher_authorized, root, public_base_url=""):
     storage = Path(data_dir) / "aac_plus"
     storage.mkdir(parents=True, exist_ok=True)
     (storage / "media").mkdir(exist_ok=True)
@@ -147,7 +147,9 @@ def install(app, data_dir, teacher_authorized, root):
             token=secrets.token_urlsafe(32)
             db.execute("INSERT OR REPLACE INTO shares VALUES(?,?,?)",(bid,token_hash(token),time.time()))
         # Replacing an existing token revokes its old link immediately.
-        url=f"{req.scheme}://{req.host}/aac/s/{token}"
+        # Use the configured public HTTPS origin behind Railway reverse proxies.
+        base=(public_base_url or (f"https://{req.host}" if req.headers.get("X-Forwarded-Proto")=="https" else f"{req.scheme}://{req.host}")).rstrip("/")
+        url=f"{base}/aac/s/{token}"
         qr=qrcode.QRCode(box_size=5,border=2);qr.add_data(url);qr.make(fit=True)
         out=io.BytesIO();qr.make_image(fill_color="black",back_color="white").save(out,format="PNG")
         return web.json_response({"url":url,"qr":"data:image/png;base64,"+base64.b64encode(out.getvalue()).decode(),"warning":"Anyone with the link can view and play this board. Do not include confidential student information."})
