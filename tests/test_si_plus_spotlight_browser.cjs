@@ -48,6 +48,15 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await page.waitForFunction(()=>document.querySelectorAll("#siPlusSpotlightEditor .si-plus-spot-list button").length===2);
   assert.equal(await page.locator(".si-plus-spot-list button").count(),2);
   assert.equal(await page.locator(".si-plus-spot-list button").nth(1).innerText(),"Dim Area 2");
+  // Ensure a region can reach the actual far-right edge of the image.
+  await page.locator(".si-plus-spot-align-right").click();
+  const rightEdge=await page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing g[data-zone] > rect").nth(1).evaluate(el=>{
+   const stage=el.ownerSVGElement;
+   const shape=el.getBoundingClientRect(),canvas=stage.getBoundingClientRect();
+   return {gap:canvas.right-shape.right,ratio:shape.width/canvas.width};
+  });
+  assert.ok(Math.abs(rightEdge.gap)<3,"Right edge must align with the image: "+JSON.stringify(rightEdge));
+  assert.equal(await page.locator(".si-plus-spot-list button").count(),2,"Edge alignment must preserve every region");
   assert.equal(await page.locator('[data-interaction="move"]').getAttribute("class").then(s=>s?.includes("active")),true,"Second region should immediately be movable");
   const region=page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing g[data-zone] > rect").first();
   const before=Number(await region.getAttribute("x"));
