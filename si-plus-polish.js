@@ -1272,6 +1272,31 @@
   const v=rect?{x:z.x,y:z.y,width:z.w,height:z.h,rx:9}:{cx:z.x+z.w/2,cy:z.y+z.h/2,rx:z.w/2,ry:z.h/2};
   return "<"+el+" "+Object.entries({...v,...attrs}).map(([k,val])=>k+'="'+escape(val)+'"').join(" ")+"/>";
  }
+ // Embed highlight markup in SI+'s actual slide output. This works in the
+ // teacher mirror, the shared browser window and exported presentation HTML.
+ // A body-level overlay alone cannot cross into the separate Zoom projector.
+ function inlineSpotlightMarkup(markup){
+  if(typeof markup!=="string"||!markup.includes("si-plus-viewport-image"))return markup;
+  const info=live();if(!info)return markup;
+  const imageMatch=markup.match(/<div class="si-plus-viewport-image"([^>]*)>([\s\S]*?)<\/div>/);
+  if(!imageMatch)return markup;
+  const zoneMarkup=highlight(info.slide.siSpotlight.zones||[],liveVisibility(info));
+  const inner=imageMatch[2];
+  const decorate='<svg class="si-plus-spotlight-inline" viewBox="0 0 1000 562.5" preserveAspectRatio="none" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible">'+zoneMarkup+'</svg>';
+  let attributes=imageMatch[1];
+  if(/\bstyle="/.test(attributes))attributes=attributes.replace(/style="/,'style="position:relative;');
+  else attributes+=' style="position:relative"';
+  const replacement='<div class="si-plus-viewport-image"'+attributes+'>'+inner+decorate+'</div>';
+  return markup.replace(imageMatch[0],replacement);
+ }
+ function installSharedMarkup(){
+  if(typeof sharedMarkup!=="function"||sharedMarkup.__siSpotlightWrapped)return;
+  const original=sharedMarkup;
+  const wrapper=function(...args){return inlineSpotlightMarkup(original.apply(this,args))};
+  wrapper.__siSpotlightWrapped=true;
+  try{sharedMarkup=wrapper}
+  catch(e){console.warn("Could not attach Spotlight to SI+ slide output",e)}
+ }
  function fitOverlay(svg,img){
   const rect=img.getBoundingClientRect();
   const screen=img.ownerDocument.defaultView;
@@ -1308,6 +1333,10 @@
   ];
   for(const [key,selector] of targets){
    const img=document.querySelector(selector),rec=overlays.get(key);
+   if(img?.querySelector?.(".si-plus-spotlight-inline")||img?.parentElement?.querySelector?.(".si-plus-spotlight-inline")){
+    if(rec){rec.svg.remove();overlays.delete(key)}
+    continue;
+   }
    if(!img||!img.isConnected){
     if(rec){rec.svg.remove();overlays.delete(key)}
     continue;
@@ -1503,7 +1532,7 @@
   button.textContent=enabled?"◎ Edit Spotlight Slide":"◎ Make Spotlight Slide";
   button.title=enabled?"Edit the spotlight highlights on this slide":"Use this slide image as an interactive Spotlight slide";
  }
- function tick(){try{editorSync();controlSync();overlaySync()}catch(e){console.warn("SI+ Spotlight integration",e)}}
+ function tick(){try{installSharedMarkup();editorSync();controlSync();overlaySync()}catch(e){console.warn("SI+ Spotlight integration",e)}}
  window.SIPlusSpotlightSlide={open:openEditor,refresh:tick,renderOverlay:highlight};
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{setInterval(tick,350)},{once:true});
  else setInterval(tick,350);
