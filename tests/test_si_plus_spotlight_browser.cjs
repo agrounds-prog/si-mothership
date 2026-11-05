@@ -235,8 +235,12 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    const inline=document.querySelector("#sharedContent .si-plus-spotlight-inline");
    const floating=document.querySelector(".si-plus-spotlight-overlay");
    const ov=inline||floating;
-   const image=img.getBoundingClientRect(),layer=ov.getBoundingClientRect();
-   return {mode:inline?"inline":"floating",image:{x:image.x,y:image.y,w:image.width,h:image.height},
+   const bounds=img.getBoundingClientRect(),layer=ov.getBoundingClientRect();
+   const fit=getComputedStyle(img).objectFit;
+   const factor=fit==="cover"?Math.max(bounds.width/img.naturalWidth,bounds.height/img.naturalHeight):Math.min(bounds.width/img.naturalWidth,bounds.height/img.naturalHeight);
+   const width=["contain","scale-down","cover"].includes(fit)?img.naturalWidth*factor:bounds.width;
+   const height=["contain","scale-down","cover"].includes(fit)?img.naturalHeight*factor:bounds.height;
+   return {mode:inline?"inline":"floating",image:{x:bounds.x+(bounds.width-width)/2,y:bounds.y+(bounds.height-height)/2,w:width,h:height},
      overlay:{x:layer.x,y:layer.y,w:layer.width,h:layer.height}};
   });
   assert.ok(Math.abs(projector.image.w-projector.overlay.w)<3,JSON.stringify(projector));
