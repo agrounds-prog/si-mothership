@@ -71,6 +71,20 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    Number(el.getAttribute("width")),Number(el.getAttribute("height"))
   ]);
   assert.deepEqual(full,[0,0,1000,562.5],"Full Image must use all pixels");
+  await page.locator('[data-bound="w"]').fill("65");
+  await page.locator('[data-bound="w"]').dispatchEvent("change");
+  await page.locator('[data-bound="x"]').fill("35");
+  await page.locator('[data-bound="x"]').dispatchEvent("change");
+  const atRight=await page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing g[data-zone] > rect").nth(1).evaluate(el=>
+   Number(el.getAttribute("x"))+Number(el.getAttribute("width")));
+  assert.ok(Math.abs(atRight-1000)<0.01,"Bounds inputs must reach far-right image edge");
+  await page.locator('[data-bound="x"]').fill("0");
+  await page.locator('[data-bound="x"]').dispatchEvent("change");
+  await page.locator('[data-bound="w"]').fill("100");
+  await page.locator('[data-bound="w"]').dispatchEvent("change");
+  const coverage=await page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing g[data-zone] > rect").nth(1).evaluate(el=>
+   [Number(el.getAttribute("x")),Number(el.getAttribute("width"))]);
+  assert.deepEqual(coverage,[0,1000],"Numeric bounds must cover full image width");
   await page.locator(".si-plus-spot-undo").click();
   // The selected region's gold corner handles must change its dimensions.
   const beforeResize=Number(await page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing g[data-zone] > rect").nth(1).getAttribute("width"));
