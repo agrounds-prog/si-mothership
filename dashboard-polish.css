@@ -4714,3 +4714,76 @@ body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #appShortcut
    background-image:linear-gradient(145deg,#0b2b46,#061a32)!important;
  }
 }
+
+/* Command deck v4 - high visibility art fix 2026-11-04 */
+/* The v3 images returned HTTP 200 but were too dark to visually read.
+   Amplify image exposure and give each panel a deliberate illustration stage.
+   No fixed QR, student roster, alerts, or text is baked into these effects. */
+@media(min-width:1251px){
+ body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher .roster-card{
+   min-height:316px!important;height:auto!important;
+   border:2px solid #38c9f4!important;border-radius:18px!important;
+   box-shadow:inset 0 0 0 1px #b8f8ff40,0 0 23px #0abbff55,0 18px 35px #0009!important;
+ }
+ body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher .roster-card .roster-inner{
+   position:relative!important;isolation:isolate!important;
+   min-height:238px!important;
+   background-color:#051c36!important;
+   background-image:
+     radial-gradient(ellipse 53% 30% at 50% 92%,rgba(13,244,255,.40),transparent 90%),
+     url("/command-deck-raster/roster-scanner.png?v=exposed4")!important;
+   background-size:100% 100%,100% 100%!important;
+   background-position:center center,center bottom!important;
+   background-repeat:no-repeat!important;
+ }
+ body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher .roster-card .roster-inner::before{
+   content:"";position:absolute;inset:auto 10% 2% 10%;height:40%;
+   pointer-events:none;z-index:-1;
+   background:radial-gradient(ellipse at 50% 100%,rgba(27,218,255,.38),rgba(13,112,223,.10) 45%,transparent 75%);
+ }
+ body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #siV85AlertStack{
+   min-height:445px!important;position:relative!important;isolation:isolate!important;
+   border:2px solid #319fca!important;border-radius:19px!important;
+   background:#061a31!important;
+   box-shadow:inset 0 0 0 1px #8cecff27,0 13px 31px #0008,0 0 18px #0bc9ff2b!important;
+ }
+ body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #siV85AlertStack::before{
+   content:"";position:absolute;pointer-events:none;z-index:0;
+   left:1.5%;right:1.5%;top:160px;bottom:8px;
+   background-image:
+      radial-gradient(ellipse at 50% 86%,rgba(9,218,255,.35),transparent 66%),
+      url("/command-deck-raster/alerts-platform.png?v=exposed4")!important;
+   background-size:100% 100%!important;
+   background-repeat:no-repeat!important;
+   background-position:center bottom!important;
+   opacity:1!important;
+ }
+ body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #siV85AlertStack > *{
+   position:relative!important;z-index:1!important;
+ }
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher .screen-dock .launch-screen-btn{
+ min-height:57px!important;
+ background-image:url("/command-deck-raster/action-face.png?v=exposed4")!important;
+ background-size:100% 100%!important;
+ border:1px solid #72eaff!important;
+ border-radius:11px!important;
+ box-shadow:inset 0 2px 0 #eaffff75,0 0 15px #1dbdfa6c,0 6px 13px #0008!important;
+ font-weight:950!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher .screen-dock{
+ border:2px solid #3ab5e8!important;
+ box-shadow:inset 0 0 0 1px #83e9fc32,0 0 23px #0aabff45,0 14px 30px #0007!important;
+}
+body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #appShortcutsPanel{
+ background-image:url("/command-deck-raster/deck-trim.png?v=exposed4"),linear-gradient(145deg,#0c3356,#061a32)!important;
+ background-size:100% 75px,100% 100%!important;
+ background-position:center bottom,center!important;
+ background-repeat:no-repeat!important;
+ padding-bottom:33px!important;
+}
+@media(max-width:1250px){
+ body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher .roster-card .roster-inner{
+   background-image:url("/command-deck-raster/roster-scanner.png?v=exposed4")!important;
+ }
+}
