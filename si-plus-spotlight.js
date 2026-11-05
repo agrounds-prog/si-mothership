@@ -283,6 +283,32 @@
   }
   dialog.querySelector(".si-plus-spot-delete").disabled=!chosen;
  }
+ function slideTypeSync(){
+  if(!teacher())return;
+  const select=document.getElementById("siPlusSlideType"),slide=activeSlide();
+  if(!select||!slide)return;
+  if(!select.querySelector('option[value="spotlight"]')){
+   const option=document.createElement("option");
+   option.value="spotlight";option.textContent="◎ Spotlight";select.append(option);
+  }
+  if(!select.dataset.spotlightBound){
+   select.dataset.spotlightBound="true";
+   select.addEventListener("change",event=>{
+    const current=activeSlide();if(!current)return;
+    if(select.value==="spotlight"){
+     event.stopImmediatePropagation();
+     current.type="instruction";
+     current.siSpotlight=current.siSpotlight?.enabled?current.siSpotlight:{enabled:true,zones:[]};
+     if(typeof renderPresentationBuilder==="function")renderPresentationBuilder();
+     else if(typeof render==="function")render();
+     if(validImage(current.image))openEditor();
+     else if(typeof toast==="function")toast("Upload an image, then select Edit Spotlight to add highlights.");
+    }else if(current.siSpotlight?.enabled)delete current.siSpotlight;
+   },true);
+  }
+  const desired=data(slide)?"spotlight":slide.type;
+  if([...select.options].some(option=>option.value===desired)&&select.value!==desired)select.value=desired;
+ }
  function editorSync(){
   if(!teacher())return;
   const root=document.querySelector("#presentationBuilderPanel"),slide=activeSlide();
@@ -344,7 +370,7 @@ function quickSpotlightSync(){
   document.body.append(button);
  }
 }
- function tick(){try{installSharedMarkup();quickSpotlightSync();editorSync();controlSync();overlaySync()}catch(e){console.warn("SI+ Spotlight integration",e)}}
+ function tick(){try{installSharedMarkup();quickSpotlightSync();slideTypeSync();editorSync();controlSync();overlaySync()}catch(e){console.warn("SI+ Spotlight integration",e)}}
  window.SIPlusSpotlightSlide={open:openEditor,refresh:tick,renderOverlay:highlight};
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{setInterval(tick,350)},{once:true});
  else setInterval(tick,350);
