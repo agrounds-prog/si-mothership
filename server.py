@@ -28,6 +28,7 @@ from dominoes_server import apply_dominoes_action, redact_dominoes_state
 from four_in_line_server import apply_four_in_line_action
 from signal_sequence_server import apply_signal_sequence_action, redact_signal_sequence_state
 from quick_poll_server import QuickPollService
+import aac_plus_server
 
 ROOT = Path(__file__).resolve().parent
 INDEX_PATH = ROOT / "index.html"
@@ -6597,6 +6598,7 @@ def create_app() -> web.Application:
     app.router.add_post("/api/storage", storage_write)
     app.router.add_post("/api/session/new", new_session_handler)
     app.router.add_get("/ws", websocket_handler)
+    aac_plus_server.install(app, DATA_DIR, teacher_authorized, ROOT)
     quick_poll.install(app)
     return app
 
