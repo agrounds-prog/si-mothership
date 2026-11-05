@@ -11,3 +11,25 @@
 .aac-student .aac-header{min-height:68px}.aac-student #studentApp{max-width:920px;margin:auto;padding:14px 16px 35px}.aac-student-head{text-align:center;margin:8px 0 16px}.aac-student-head h1{margin:0 0 6px;font-size:clamp(24px,5vw,38px)}.aac-student-head p{margin:0;color:#aacee6;font-size:13px}.aac-student-grid{gap:clamp(8px,1.2vw,15px)}.aac-student-grid .aac-tile{min-height:clamp(90px,22vh,230px);touch-action:manipulation}.aac-student-grid .aac-tile:disabled{opacity:.25;cursor:default}.aac-student-grid .aac-tile.aac-playing{outline:5px solid #fbd977;outline-offset:0;filter:brightness(1.18)}.aac-student-grid .aac-symbol{font-size:clamp(38px,8vw,97px)!important}.aac-student-grid .aac-tile-label{font-size:clamp(15px,3vw,25px)!important}.aac-student:fullscreen #studentApp{max-width:100%;height:100%;display:flex;flex-direction:column}.aac-student:fullscreen .aac-student-grid{flex:1}
 @media(max-width:950px){.aac-editor-layout{grid-template-columns:1fr}.aac-tile-editor{max-width:none}.aac-header-note{display:none}}@media(max-width:650px){.aac-header{padding:10px 14px;gap:8px}.aac-brand{font-size:17px}.aac-titlebar{align-items:flex-start;flex-direction:column}.aac-formline{grid-template-columns:1fr}.aac-screen{padding:15px 11px}.aac-card{padding:12px}.aac-grid{gap:6px}.aac-grid .aac-tile{min-height:95px;border-radius:8px;padding:4px}.aac-grid .aac-tile .aac-symbol{font-size:35px}.aac-share-card{grid-template-columns:1fr}.aac-share-qr{max-width:270px;margin:auto}.aac-board-actions{grid-template-columns:1fr 1fr}.aac-student-grid .aac-tile{min-height:clamp(80px,17vh,155px)}}
 @media(prefers-reduced-motion:reduce){.aac *{animation:none!important;transition:none!important}}
+/* AAC+ text-only communication cells: center label, omit image placeholder. */
+.aac-grid .aac-tile.aac-text-only{
+  align-items:center!important;justify-content:center!important;
+  text-align:center!important;
+}
+.aac-grid .aac-tile.aac-text-only .aac-symbol{display:none!important}
+.aac-grid .aac-tile.aac-text-only .aac-tile-label{
+  font-size:clamp(21px,2.4vw,34px)!important;
+  line-height:1.18!important;
+  width:100%;
+  text-align:center;
+  margin:auto 0;
+  overflow-wrap:anywhere;
+}
+.aac-student-grid .aac-tile.aac-text-only .aac-tile-label{
+  font-size:clamp(22px,4.2vw,48px)!important;
+}
+@media(max-width:650px){
+  .aac-student-grid .aac-tile.aac-text-only .aac-tile-label{
+    font-size:clamp(19px,5.6vw,34px)!important;
+  }
+}
