@@ -60,6 +60,12 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const live=await page.evaluate(()=>({ids:state.activityRun.siSpotlightVisible.ids,markup:sharedMarkup("big")}));
   assert.equal(live.ids.length,1);
   assert.match(live.markup,/si-plus-viewport-image/);
+  await page.waitForFunction(()=>sharedMarkup("big").includes("si-plus-spotlight-inline"),null,{timeout:7000});
+  const actual=await page.evaluate(()=>sharedMarkup("big"));
+  assert.ok(actual.includes("si-plus-spotlight-inline"),"Projected slide must carry its Spotlight graphics");
+  const plain=await page.evaluate(()=>{const deck=state.activities.find(a=>a.id===state.activityRun.activityId);deck.slides.push({...deck.slides[0],id:"plain",siSpotlight:undefined});state.activityRun.slideIndex=1;const text=sharedMarkup("big");state.activityRun.slideIndex=0;deck.slides.pop();return text});
+  assert.ok(!plain.includes("si-plus-spotlight-inline"),"Ordinary slides should not show Spotlight");
+
   const probe=await page.evaluate(()=>{
    const image=document.querySelector("#sharedContent .si-plus-viewport-image");
    const mirror=document.querySelector("#mirrorContent .si-plus-viewport-image");
