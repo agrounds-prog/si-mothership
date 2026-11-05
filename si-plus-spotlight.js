@@ -219,8 +219,11 @@
   const pointerPosition=e=>{
    const bounds=svg.getBoundingClientRect();
    return {
-    x:clamp((e.clientX-bounds.left)/Math.max(1,bounds.width)*1000,0,1000),
-    y:clamp((e.clientY-bounds.top)/Math.max(1,bounds.height)*562.5,0,562.5)
+    // Keep pointer coordinates unbounded during moves. A drag started in
+    // the middle of a region must travel past the image edge to align its
+    // far side with the boundary; the region itself is clamped below.
+    x:(e.clientX-bounds.left)/Math.max(1,bounds.width)*1000,
+    y:(e.clientY-bounds.top)/Math.max(1,bounds.height)*562.5
    };
   };
   svg.addEventListener("pointerdown",e=>{
@@ -235,7 +238,7 @@
     svg.setPointerCapture(e.pointerId);
     updateEditor();
    }else if(interaction==="add"){
-    drawing={kind:"draw",id:e.pointerId,x:p.x,y:p.y};
+    drawing={kind:"draw",id:e.pointerId,x:clamp(p.x,0,1000),y:clamp(p.y,0,562.5)};
     svg.setPointerCapture(e.pointerId);
    }
    e.preventDefault();
@@ -259,8 +262,9 @@
      }
     }
    }else{
-    const left=Math.min(drawing.x,p.x),top=Math.min(drawing.y,p.y);
-    const preview={shape:mode,x:left,y:top,w:Math.abs(p.x-drawing.x),h:Math.abs(p.y-drawing.y)};
+    const px=clamp(p.x,0,1000),py=clamp(p.y,0,562.5);
+    const left=Math.min(drawing.x,px),top=Math.min(drawing.y,py);
+    const preview={shape:mode,x:left,y:top,w:Math.abs(px-drawing.x),h:Math.abs(py-drawing.y)};
     let ghost=svg.querySelector(".si-plus-spot-preview");
     if(!ghost){ghost=document.createElementNS(NS,"g");ghost.classList.add("si-plus-spot-preview");svg.append(ghost)}
     ghost.innerHTML=shape(preview,{fill:"#4de7ff","fill-opacity":.16,stroke:"#4de7ff","stroke-width":5,"stroke-dasharray":"12 8","pointer-events":"none"});
@@ -277,7 +281,8 @@
     }
     updateEditor();return
    }
-   const p=pointerPosition(e);
+   const raw=pointerPosition(e);
+   const p={x:clamp(raw.x,0,1000),y:clamp(raw.y,0,562.5)};
    const x=Math.min(p.x,current.x),y=Math.min(p.y,current.y);
    const w=Math.abs(p.x-current.x),h=Math.abs(p.y-current.y);
    if(w<10||h<10){updateEditor();return}
