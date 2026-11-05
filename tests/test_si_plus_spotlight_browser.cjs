@@ -23,9 +23,12 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    name:"Spotlight Slide.png",mimeType:"image/png",buffer:Buffer.from(image,"base64")
   }]);
   await page.waitForFunction(()=>state.presentationEditor?.draft.slides.length===1,null,{timeout:15000});
-  await page.waitForSelector("#siPlusSpotlightEditButton",{timeout:12000});
-  await page.locator("#siPlusSpotlightEditButton").click();
+  await page.waitForFunction(()=>!!document.querySelector('#siPlusSlideType option[value="spotlight"]'),null,{timeout:12000});
+  assert.equal(await page.locator("#siPlusSpotlightEditButton").isVisible(),false,
+    "Legacy Spotlight creation button should be hidden on ordinary slides");
+  await page.locator("#siPlusSlideType").selectOption("spotlight");
   await page.waitForSelector("#siPlusSpotlightEditor:not([hidden])");
+  assert.equal(await page.locator("#siPlusSlideType").inputValue(),"spotlight");
   const svg=page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing");
   const box=await svg.boundingBox();assert.ok(box);
   await page.mouse.move(box.x+box.width*.25,box.y+box.height*.25);
