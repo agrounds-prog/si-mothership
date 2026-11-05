@@ -76,7 +76,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
     previewLength:preview.length,previewImageCount:(preview.match(/si-plus-viewport-image/g)||[]).length,
     sharedFirst:shared.slice(0,450),sharedLast:shared.slice(-500),
     imageTag:image?.tagName,mirrorTag:mirror?.tagName,
-    overlayCount:document.querySelectorAll(".si-plus-spotlight-overlay").length,
+    overlayCount:document.querySelectorAll(".si-plus-spotlight-inline").length,
     parent:image?.parentElement?.className||"",screen:state.screen,
     rendererType:typeof sharedMarkup,
    };
@@ -91,13 +91,13 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    renderPublic();
   });
   await page.waitForFunction(()=>{
-   const overlay=document.querySelector(".si-plus-spotlight-overlay");
+   const overlay=document.querySelector(".si-plus-spotlight-inline");
    return overlay&&overlay.querySelector("rect[stroke],ellipse[stroke]")&&
      getComputedStyle(overlay).display!=="none"&&overlay.getBoundingClientRect().width>0;
   },null,{timeout:12000});
   const projector=await page.evaluate(()=>{
    const img=document.querySelector("#sharedContent .si-plus-viewport-image > img");
-   const ov=Array.from(document.querySelectorAll(".si-plus-spotlight-overlay")).find(x=>
+   const ov=Array.from(document.querySelectorAll(".si-plus-spotlight-inline")).find(x=>
      getComputedStyle(x).display!=="none"&&x.querySelector("rect[stroke],ellipse[stroke]"));
    const a=img.getBoundingClientRect(),b=ov.getBoundingClientRect();
    return {image:{x:a.x,y:a.y,w:a.width,h:a.height},overlay:{x:b.x,y:b.y,w:b.width,h:b.height}};
