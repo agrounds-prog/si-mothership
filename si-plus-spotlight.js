@@ -421,7 +421,10 @@
   dialog.querySelectorAll("[data-new-effect]").forEach(b=>b.classList.toggle("active",interaction==="add"&&b.dataset.newEffect===nextEffect));
   dialog.querySelector(".si-plus-spot-drawing").style.cursor=interaction==="add"?"crosshair":"move";
   const svg=dialog.querySelector("svg");
-  svg.innerHTML=zones.map(z=>{
+  // A transparent painted target covers the full SVG viewport. Without
+  // it, browsers may hit-test only existing shapes, making empty regions
+  // near the image edges impossible to draw on.
+  svg.innerHTML='<rect class="si-plus-spot-hit-area" x="0" y="0" width="1000" height="562.5" fill="transparent" pointer-events="all"/>'+zones.map(z=>{
    const c=colors[z.color]||colors.red;
    const markup=shape(z,{fill:c,"fill-opacity":.1,stroke:c,"stroke-width":z.id===selection?8:5});
    const handles=z.id===selection&&interaction==="move"?
