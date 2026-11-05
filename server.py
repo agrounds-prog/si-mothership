@@ -6598,7 +6598,7 @@ def create_app() -> web.Application:
     app.router.add_post("/api/storage", storage_write)
     app.router.add_post("/api/session/new", new_session_handler)
     app.router.add_get("/ws", websocket_handler)
-    aac_plus_server.install(app, DATA_DIR, teacher_authorized, ROOT)
+    aac_plus_server.install(app, DATA_DIR, teacher_authorized, ROOT, PUBLIC_BASE_URL)
     quick_poll.install(app)
     return app
 
