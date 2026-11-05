@@ -176,15 +176,11 @@
   const svg=dialog.querySelector(".si-plus-spot-drawing");
   const stage=dialog.querySelector(".si-plus-spot-stage");
   if(!image||!svg||!stage)return;
-  const sw=stage.clientWidth,sh=stage.clientHeight;
-  const iw=image.naturalWidth,ih=image.naturalHeight;
-  if(!sw||!sh||!iw||!ih)return;
-  const scale=Math.min(sw/iw,sh/ih);
-  const dw=iw*scale,dh=ih*scale;
-  svg.style.left=(sw-dw)/2+"px";
-  svg.style.top=(sh-dh)/2+"px";
-  svg.style.width=dw+"px";
-  svg.style.height=dh+"px";
+  // Use the complete displayed 16:9 slide as the drawing coordinate space.
+  // Fitting to intrinsic dimensions made the overlay narrower than the image.
+  if(!stage.clientWidth||!stage.clientHeight)return;
+  svg.style.left="0px";svg.style.top="0px";
+  svg.style.width="100%";svg.style.height="100%";
  }
  function openEditor(){
   const slide=activeSlide();
