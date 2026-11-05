@@ -169,7 +169,7 @@
  }
  // Interactive editor drawing is scoped to the current SI+ slide. It only
  // mutates that draft slide and does not overwrite the rest of the lesson.
- let dialog=null,mode="rect",interaction="add",selection="",drawing=null,zones=[],editorSlideId=null,originalZones="",dirty=false,undoHistory=[];
+ let dialog=null,mode="rect",interaction="add",nextEffect="outline",selection="",drawing=null,zones=[],editorSlideId=null,originalZones="",dirty=false,undoHistory=[];
  function fitEditorImage(){
   if(!dialog||dialog.hidden)return;
   const image=dialog.querySelector(".si-plus-spot-image");
@@ -190,7 +190,7 @@
   const slide=activeSlide();
   if(!slide){return}
   if(!validImage(slide.image)){if(typeof toast==="function")toast("Add an image to this SI+ slide before using Spotlight.");return}
-  zones=JSON.parse(JSON.stringify(data(slide)?.zones||[]));selection="";mode="rect";interaction="add";
+  zones=JSON.parse(JSON.stringify(data(slide)?.zones||[]));selection="";mode="rect";interaction="add";nextEffect="outline";
   editorSlideId=slide.id;originalZones=JSON.stringify(zones);dirty=false;undoHistory=[];
   if(!dialog)buildDialog();
   dialog.hidden=false;
@@ -203,9 +203,9 @@
   dialog=document.createElement("div");dialog.id="siPlusSpotlightEditor";dialog.className="si-plus-spot-editor";dialog.hidden=true;
   dialog.innerHTML='<div class="si-plus-spot-dialog" role="dialog" aria-modal="true" aria-label="SI+ Spotlight slide editor">'+
    '<header><strong>◎ SPOTLIGHT SLIDE STUDIO</strong><button class="si-plus-spot-close" type="button">✕ Close</button></header>'+
-   '<p>Use Add Highlight to draw as many regions as you need, including overlapping areas. Choose Move / Select to reposition a region.</p>'+ 
+   '<p>Choose Add Highlight or Add Dim Area, then drag over the image. Repeat for as many regions as needed. Select a region below to adjust its settings.</p>'+  
    '<div class="si-plus-spot-layout"><div class="si-plus-spot-stage"><img class="si-plus-spot-image" alt="Spotlight slide image"><svg class="si-plus-spot-drawing" viewBox="0 0 1000 562.5" preserveAspectRatio="none"></svg></div>'+
-   '<aside><div class="si-plus-spot-buttons"><button type="button" data-interaction="add">＋ Add Highlight</button><button type="button" data-interaction="move">↔ Move / Select</button></div><div class="si-plus-spot-buttons"><button type="button" data-mode="rect">▱ Rectangle</button><button type="button" data-mode="circle">◯ Circle</button></div>'+ 
+   '<aside><div class="si-plus-spot-buttons"><button type="button" data-new-effect="outline">＋ Add Highlight</button><button type="button" data-new-effect="dim">＋ Add Dim Area</button></div><div class="si-plus-spot-buttons"><button type="button" data-interaction="move">↔ Move / Select</button><button type="button" data-interaction="add">✎ Draw More</button></div><div class="si-plus-spot-buttons"><button type="button" data-mode="rect">▱ Rectangle</button><button type="button" data-mode="circle">◯ Circle</button></div>'+ 
    '<label>Highlight name<input id="siPlusSpotName" maxlength="50" placeholder="What to highlight"></label>'+
    '<label>Effect<select id="siPlusSpotEffect"><option value="outline">Outline Glow</option><option value="dim">Dim Background</option></select></label>'+
    '<label>Color<select id="siPlusSpotColor"><option value="red">Red</option><option value="green">Green</option><option value="blue">Blue</option><option value="yellow">Yellow</option><option value="black">White</option></select></label>'+
@@ -281,7 +281,7 @@
    const x=Math.min(p.x,current.x),y=Math.min(p.y,current.y);
    const w=Math.abs(p.x-current.x),h=Math.abs(p.y-current.y);
    if(w<10||h<10){updateEditor();return}
-   const z={id:uid(),name:"Highlight "+(zones.length+1),shape:mode,x,y,w,h,color:"red",effect:"outline"};
+   const z={id:uid(),name:(nextEffect==="dim"?"Dim Area ":"Highlight ")+(zones.length+1),shape:mode,x,y,w,h,color:"red",effect:nextEffect};
    rememberEdit();zones.push(z);selection=z.id;dirty=true;updateEditor();
   });
   svg.addEventListener("pointercancel",()=>{drawing=null;updateEditor()});
@@ -293,6 +293,7 @@
   dialog.addEventListener("keydown",e=>{if(e.key==="Escape"){closeEditor();e.preventDefault()}});
 
   dialog.querySelectorAll("[data-mode]").forEach(btn=>btn.onclick=()=>{mode=btn.dataset.mode;interaction="add";updateEditor()});
+  dialog.querySelectorAll("[data-new-effect]").forEach(btn=>btn.onclick=()=>{nextEffect=btn.dataset.newEffect;interaction="add";selection="";updateEditor()});
   dialog.querySelectorAll("[data-interaction]").forEach(btn=>btn.onclick=()=>{interaction=btn.dataset.interaction;updateEditor()});
   for(const [id,key] of [["siPlusSpotName","name"],["siPlusSpotEffect","effect"],["siPlusSpotColor","color"]]){
    dialog.querySelector("#"+id).addEventListener("change",e=>{
@@ -328,6 +329,7 @@
   if(!dialog)return;
   dialog.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b.dataset.mode===mode));
   dialog.querySelectorAll("[data-interaction]").forEach(b=>b.classList.toggle("active",b.dataset.interaction===interaction));
+  dialog.querySelectorAll("[data-new-effect]").forEach(b=>b.classList.toggle("active",interaction==="add"&&b.dataset.newEffect===nextEffect));
   dialog.querySelector(".si-plus-spot-drawing").style.cursor=interaction==="add"?"crosshair":"move";
   const svg=dialog.querySelector("svg");
   svg.innerHTML=zones.map(z=>{
@@ -352,8 +354,8 @@
   dialog.querySelector(".si-plus-spot-undo").disabled=!undoHistory.length;
   const indicator=dialog.querySelector(".si-plus-spot-state");
   if(indicator)indicator.textContent=zones.length?
-    zones.length+" highlight"+(zones.length===1?"":"s")+" · "+(chosen?"Editing "+chosen.name:"Select a highlight to edit"):
-    "No highlights yet. Choose a shape and drag across the image.";
+    zones.length+" region"+(zones.length===1?"":"s")+" · "+(interaction==="add"?"Draw another "+(nextEffect==="dim"?"dim area":"highlight"):(chosen?"Editing "+chosen.name:"Select a region to edit")):
+    "Choose Add Highlight or Add Dim Area, then draw on the image.";
 
  }
  function slideTypeSync(){
