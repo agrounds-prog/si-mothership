@@ -12,8 +12,9 @@ function clean(s){return String(s||"").trim()}
 function media(kind,key,token){return key?"/api/aac/media/"+kind+"/"+key+(token?"?token="+encodeURIComponent(token):""):""}
 function sizeOf(layout){let [rows,cols]=layouts[layout]||layouts["3x3"];return rows*cols}
 function makeTile(t,i,editable,token){const b=document.createElement("button");b.type="button";b.className="aac-tile"+(editable&&i===selected?" aac-selected":"");b.style.setProperty("--tile-color",t.color||"#075aa0");
-let sym=document.createElement("span");sym.className="aac-symbol";if(t.image){let img=document.createElement("img");img.src=media("image",t.image,token);img.alt="";sym.append(img)}else sym.textContent=t.symbol||"＋";
+let sym=document.createElement("span");sym.className="aac-symbol";if(t.image){let img=document.createElement("img");img.src=media("image",t.image,token);img.alt="";sym.append(img)}else sym.textContent=t.symbol||(editable&&!t.label?"＋":"");
 let label=document.createElement("span");label.className="aac-tile-label";label.textContent=t.label||(!t.image&&!t.symbol&&editable?"Add content":"");
+if(t.label&&!t.image&&!t.symbol){b.classList.add("aac-text-only");sym.hidden=true;}
 b.append(sym,label);
 let filled=!!(t.label||t.symbol||t.image||t.audio);
 if(!filled)b.classList.add("aac-blank");
