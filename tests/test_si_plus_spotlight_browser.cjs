@@ -67,6 +67,17 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await page.mouse.up();
   const edgeGap=await targetRect.evaluate(el=>el.ownerSVGElement.getBoundingClientRect().right-el.getBoundingClientRect().right);
   assert.ok(Math.abs(edgeGap)<3,"Region must reach right edge when dragged from its center, gap="+edgeGap);
+  // Moving from within the image must also reach its right edge: no need
+  // to move the pointer over the inspector panel or beyond the viewport.
+  const nearEdgeBox=await targetRect.boundingBox();
+  const nearCanvas=await svg.boundingBox();
+  await page.mouse.move(nearEdgeBox.x+nearEdgeBox.width/2,nearEdgeBox.y+nearEdgeBox.height/2);
+  await page.mouse.down();
+  await page.mouse.move(nearCanvas.x+nearCanvas.width*.65,nearEdgeBox.y+nearEdgeBox.height/2,{steps:5});
+  await page.mouse.move(nearCanvas.x+nearCanvas.width-3,nearEdgeBox.y+nearEdgeBox.height/2,{steps:8});
+  await page.mouse.up();
+  const snappedGap=await targetRect.evaluate(el=>el.ownerSVGElement.getBoundingClientRect().right-el.getBoundingClientRect().right);
+  assert.ok(Math.abs(snappedGap)<3,"Dragging near the canvas edge should snap the region flush right: "+snappedGap);
   assert.equal(await page.locator('[data-interaction="move"]').getAttribute("class").then(s=>s?.includes("active")),true,"Second region should immediately be movable");
   const region=page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing g[data-zone] > rect").first();
   const before=Number(await region.getAttribute("x"));
