@@ -43,12 +43,8 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await page.waitForFunction(()=>document.querySelectorAll("#siPlusSpotlightEditor .si-plus-spot-list button").length===1);
   assert.equal(await page.locator('[data-interaction="move"]').getAttribute("class").then(s=>s?.includes("active")),true,"Newly drawn highlight should immediately be movable");
   await page.locator('[data-new-effect="dim"]').click();
-  // The second region intentionally overlaps the first. Add mode must draw,
-  // not move or overwrite the existing region.
-  await page.mouse.move(box.x+box.width*.48,box.y+box.height*.48);
-  await page.mouse.down();
-  await page.mouse.move(box.x+box.width*.82,box.y+box.height*.83,{steps:6});
-  await page.mouse.up();
+  // A single Add click must commit an independent region immediately,
+  // without requiring a second drawing gesture or overwriting the first.
   await page.waitForFunction(()=>document.querySelectorAll("#siPlusSpotlightEditor .si-plus-spot-list button").length===2);
   assert.equal(await page.locator(".si-plus-spot-list button").count(),2);
   assert.equal(await page.locator(".si-plus-spot-list button").nth(1).innerText(),"Dim Area 2");
@@ -82,11 +78,6 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await page.locator(".si-plus-spot-list button").count(),2,"Both regions must survive closing and reopening editor");
   assert.equal(await page.locator(".si-plus-spot-list button").nth(1).innerText(),"Dim Area 2");
   await page.locator('[data-new-effect="outline"]').click();
-  const box3=await page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing").boundingBox();
-  await page.mouse.move(box3.x+box3.width*.05,box3.y+box3.height*.08);
-  await page.mouse.down();
-  await page.mouse.move(box3.x+box3.width*.18,box3.y+box3.height*.25,{steps:5});
-  await page.mouse.up();
   await page.waitForFunction(()=>document.querySelectorAll("#siPlusSpotlightEditor .si-plus-spot-list button").length===3);
   await page.locator(".si-plus-spot-save").click();
   const draft=await page.evaluate(()=>state.presentationEditor.draft.slides[0]);
