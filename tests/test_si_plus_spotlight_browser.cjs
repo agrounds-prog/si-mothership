@@ -64,6 +64,17 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   ]);
   assert.deepEqual(full,[0,0,1000,562.5],"Full Image must use all pixels");
   await page.locator(".si-plus-spot-undo").click();
+  // The selected region's gold corner handles must change its dimensions.
+  const beforeResize=Number(await page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing g[data-zone] > rect").nth(1).getAttribute("width"));
+  const corner=await page.locator('#siPlusSpotlightEditor [data-resize="nw"]').boundingBox();
+  assert.ok(corner,"Selected region must expose a resize handle");
+  await page.mouse.move(corner.x+corner.width/2,corner.y+corner.height/2);
+  await page.mouse.down();
+  await page.mouse.move(corner.x+corner.width/2-35,corner.y+corner.height/2-12,{steps:6});
+  await page.mouse.up();
+  const afterResize=Number(await page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing g[data-zone] > rect").nth(1).getAttribute("width"));
+  assert.ok(afterResize>beforeResize,"Corner dragging must expand the selected region");
+  await page.locator(".si-plus-spot-undo").click();
   const targetRect=page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing g[data-zone] > rect").nth(1);
   const targetBox=await targetRect.boundingBox();
   const canvasBox=await svg.boundingBox();
