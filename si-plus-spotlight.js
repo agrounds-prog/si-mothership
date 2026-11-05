@@ -169,7 +169,7 @@
  }
  // Interactive editor drawing is scoped to the current SI+ slide. It only
  // mutates that draft slide and does not overwrite the rest of the lesson.
- let dialog=null,mode="rect",selection="",drawing=null,zones=[];
+ let dialog=null,mode="rect",selection="",drawing=null,zones=[],editorSlideId=null,originalZones="",dirty=false;
  function fitEditorImage(){
   if(!dialog||dialog.hidden)return;
   const image=dialog.querySelector(".si-plus-spot-image");
@@ -191,6 +191,7 @@
   if(!slide){return}
   if(!validImage(slide.image)){if(typeof toast==="function")toast("Add an image to this SI+ slide before using Spotlight.");return}
   zones=JSON.parse(JSON.stringify(data(slide)?.zones||[]));selection="";mode="rect";
+  editorSlideId=slide.id;originalZones=JSON.stringify(zones);dirty=false;
   if(!dialog)buildDialog();
   dialog.hidden=false;
   const image=dialog.querySelector(".si-plus-spot-image");image.src=slide.image;
@@ -202,14 +203,14 @@
   dialog=document.createElement("div");dialog.id="siPlusSpotlightEditor";dialog.className="si-plus-spot-editor";dialog.hidden=true;
   dialog.innerHTML='<div class="si-plus-spot-dialog" role="dialog" aria-modal="true" aria-label="SI+ Spotlight slide editor">'+
    '<header><strong>◎ SPOTLIGHT SLIDE STUDIO</strong><button class="si-plus-spot-close" type="button">✕ Close</button></header>'+
-   '<p>Draw circles or rectangles over the slide. Save to include these highlights in the SI+ presentation.</p>'+
+   '<p>1. Choose a shape. 2. Drag over the picture. 3. Name the highlight. 4. Save and return to SI+.</p>'+
    '<div class="si-plus-spot-layout"><div class="si-plus-spot-stage"><img class="si-plus-spot-image" alt="Spotlight slide image"><svg class="si-plus-spot-drawing" viewBox="0 0 1000 562.5" preserveAspectRatio="none"></svg></div>'+
    '<aside><div class="si-plus-spot-buttons"><button type="button" data-mode="rect">▱ Rectangle</button><button type="button" data-mode="circle">◯ Circle</button></div>'+
    '<label>Highlight name<input id="siPlusSpotName" maxlength="50" placeholder="What to highlight"></label>'+
    '<label>Effect<select id="siPlusSpotEffect"><option value="outline">Outline Glow</option><option value="dim">Dim Background</option></select></label>'+
    '<label>Color<select id="siPlusSpotColor"><option value="red">Red</option><option value="green">Green</option><option value="blue">Blue</option><option value="yellow">Yellow</option><option value="black">White</option></select></label>'+
-   '<div class="si-plus-spot-list"></div><button type="button" class="si-plus-spot-delete">Delete Selected</button>'+
-   '<button type="button" class="si-plus-spot-save">✓ Save Spotlight Slide</button><button type="button" class="si-plus-spot-remove">Remove Spotlight Mode</button></aside></div></div>';
+   '<div class="si-plus-spot-list"></div><div class="si-plus-spot-buttons"><button type="button" class="si-plus-spot-undo">↶ Undo Last</button><button type="button" class="si-plus-spot-delete">Delete Selected</button></div><small class="si-plus-spot-state" aria-live="polite">Draw a region to begin.</small>'+
+   '<button type="button" class="si-plus-spot-save">✓ Save Highlights &amp; Return</button><button type="button" class="si-plus-spot-remove">Remove Spotlight Mode</button></aside></div></div>';
   document.body.append(dialog);
   const svg=dialog.querySelector("svg");
   dialog.querySelector(".si-plus-spot-image").addEventListener("load",fitEditorImage);
@@ -230,27 +231,39 @@
    drawing=null;
    if(w<10||h<10)return;
    const z={id:uid(),name:"Highlight "+(zones.length+1),shape:mode,x,y,w,h,color:"red",effect:"outline"};
-   zones.push(z);selection=z.id;updateEditor()
+   zones.push(z);selection=z.id;dirty=true;updateEditor()
   });
-  svg.addEventListener("pointercancel",()=>{drawing=null});
+  svg.addEventListener("pointermove",e=>{
+   if(!drawing||drawing.id!==e.pointerId)return;
+   const bounds=svg.getBoundingClientRect();
+   const x=clamp((e.clientX-bounds.left)/bounds.width*1000,0,1000);
+   const y=clamp((e.clientY-bounds.top)/bounds.height*562.5,0,562.5);
+   const left=Math.min(drawing.x,x),top=Math.min(drawing.y,y),w=Math.abs(x-drawing.x),h=Math.abs(y-drawing.y);
+   const preview={shape:mode,x:left,y:top,w,h};
+   let ghost=svg.querySelector(".si-plus-spot-preview");
+   if(!ghost){ghost=document.createElementNS(NS,"g");ghost.classList.add("si-plus-spot-preview");svg.append(ghost)}
+   ghost.innerHTML=shape(preview,{fill:"#4de7ff","fill-opacity":.16,stroke:"#4de7ff","stroke-width":5,"stroke-dasharray":"12 8"});
+  });
+  svg.addEventListener("pointercancel",()=>{drawing=null;updateEditor()});
   dialog.querySelector(".si-plus-spot-close").onclick=()=>{dialog.hidden=true};
   dialog.addEventListener("keydown",e=>{if(e.key==="Escape"){dialog.hidden=true;e.preventDefault()}});
   dialog.querySelectorAll("[data-mode]").forEach(btn=>btn.onclick=()=>{mode=btn.dataset.mode;updateEditor()});
   for(const [id,key] of [["siPlusSpotName","name"],["siPlusSpotEffect","effect"],["siPlusSpotColor","color"]]){
    dialog.querySelector("#"+id).addEventListener("change",e=>{
-    const z=zones.find(z=>z.id===selection);if(z){z[key]=e.target.value;updateEditor()}
+    const z=zones.find(z=>z.id===selection);if(z){z[key]=e.target.value;dirty=true;updateEditor()}
    })
   }
   dialog.querySelector(".si-plus-spot-delete").onclick=()=>{
-   zones=zones.filter(z=>z.id!==selection);selection="";updateEditor()
+   zones=zones.filter(z=>z.id!==selection);selection="";dirty=true;updateEditor()
   };
+  dialog.querySelector(".si-plus-spot-undo").onclick=()=>{if(zones.length){zones.pop();selection=zones.at(-1)?.id||"";dirty=true;updateEditor()}};
   dialog.querySelector(".si-plus-spot-save").onclick=()=>{
-   const slide=activeSlide();if(!slide)return;
+   const slide=activeSlide();if(!slide||slide.id!==editorSlideId){if(typeof toast==="function")toast("The active slide changed. Reopen Spotlight to edit the correct slide.");return}
    slide.siSpotlight={enabled:true,zones:JSON.parse(JSON.stringify(zones))};
    slide.type="instruction";
-   dialog.hidden=true;
+   dirty=false;dialog.hidden=true;
    if(typeof render==="function")render();
-   if(typeof toast==="function")toast("Spotlight slide saved in draft. Save Presentation to keep it.");
+   if(typeof toast==="function")toast("Spotlight highlights saved in this slide. Save Presentation to keep them.");
   };
   dialog.querySelector(".si-plus-spot-remove").onclick=()=>{
    const slide=activeSlide();if(!slide)return;
