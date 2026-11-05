@@ -29,6 +29,10 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await page.locator("#siPlusSlideType").selectOption("spotlight");
   await page.waitForSelector("#siPlusSpotlightEditor:not([hidden])");
   assert.equal(await page.locator("#siPlusSlideType").inputValue(),"spotlight");
+  assert.equal(await page.locator('#siPlusSpotlightEditor [data-new-effect="outline"]').isVisible(),true,
+    "Add Highlight must be visible in the active Spotlight Studio bundle");
+  assert.equal(await page.locator('#siPlusSpotlightEditor [data-new-effect="dim"]').isVisible(),true,
+    "Add Dim Area must be visible in the active Spotlight Studio bundle");
   const svg=page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing");
   const box=await svg.boundingBox();assert.ok(box);
   await page.mouse.move(box.x+box.width*.25,box.y+box.height*.25);
