@@ -179,9 +179,49 @@ async function recordStart(){if(recording)return;let stream,ctx;try{stream=await
 notify("Microphone recording started");}catch(e){stream?.getTracks().forEach(x=>x.stop());ctx?.close();throw Error("Microphone unavailable or permission denied: "+(e.message||""))}}
 function wavBlob(chunks,frames,rate){const wav=new ArrayBuffer(44+frames*2);const view=new DataView(wav);function put(off,val){for(let i=0;i<val.length;i++)view.setUint8(off+i,val.charCodeAt(i))}put(0,"RIFF");view.setUint32(4,36+frames*2,true);put(8,"WAVEfmt ");view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true);view.setUint32(24,rate,true);view.setUint32(28,rate*2,true);view.setUint16(32,2,true);view.setUint16(34,16,true);put(36,"data");view.setUint32(40,frames*2,true);let at=44;for(let chunk of chunks)for(let sample of chunk){sample=Math.max(-1,Math.min(1,sample));view.setInt16(at,sample<0?sample*32768:sample*32767,true);at+=2}return new Blob([wav],{type:"audio/wav"})}
 async function recordStop(){if(!recording)return;const rec=recording;recording=null;clearInterval(rec.timer);rec.proc.disconnect();rec.src.disconnect();rec.gain.disconnect();rec.stream.getTracks().forEach(x=>x.stop());$("stopRecording").disabled=true;$("recordAudio").disabled=false;const frames=rec.framesRef();const rate=rec.ctx.sampleRate;await rec.ctx.close();if(frames<rate*.2){notify("Recording was too short");return}const file=wavBlob(rec.chunks,frames,rate);const data=await readFile(file);const result=await api("/api/aac/media","POST",{kind:"audio",data});editing.tiles[rec.slot].audio=result.id;readSelected();notify("Recorded audio saved to button")}
+
+async function kokoroRefresh(){
+ try{
+  const data=await api("/api/aac/kokoro/status");
+  $("kokoroPrepare").disabled=data.ready||data.busy;
+  $("kokoroGenerate").disabled=!data.ready||data.busy;
+  $("kokoroStatus").textContent=data.ready?"Kokoro ready — choose a voice and generate audio.":data.busy?"Kokoro is currently preparing or generating.":"Kokoro model not prepared yet. Prepare once before generating.";
+ }catch(e){
+  $("kokoroGenerate").disabled=true;
+  $("kokoroStatus").textContent="Kokoro not available; browser voices and recordings still work.";
+ }
+}
+async function kokoroPrepare(){
+ $("kokoroPrepare").disabled=true;$("kokoroGenerate").disabled=true;
+ $("kokoroStatus").textContent="Downloading the free Kokoro model to persistent storage. This initial setup may take a few minutes.";
+ try{
+  await api("/api/aac/kokoro/prepare","POST");
+  notify("Kokoro voice files are ready");
+ }catch(e){err(e)}
+ await kokoroRefresh();
+}
+async function kokoroGenerate(){
+ if(!editing)return;
+ syncSelected();
+ const index=selected;
+ const phrase=(editing.tiles[index].label||"").trim();
+ if(!phrase){notify("Enter text in the selected button label first.");return}
+ if(phrase.length>120){notify("Kokoro pilot supports up to 120 characters.");return}
+ if(editing.tiles[index].audio&&!confirm("Replace this button's existing audio with the selected Kokoro voice?"))return;
+ $("kokoroGenerate").disabled=true;$("kokoroPrepare").disabled=true;
+ $("kokoroStatus").textContent="Generating "+$("kokoroVoice").selectedOptions[0].text+" for this button…";
+ try{
+  const result=await api("/api/aac/kokoro/generate","POST",{text:phrase,voice:$("kokoroVoice").value});
+  editing.tiles[index].audio=result.id;
+  readSelected();
+  notify("Generated Kokoro audio. Save the board to keep it.");
+  $("kokoroStatus").textContent="Generated! Preview the audio, then Save to Library.";
+ }catch(e){err(e);$("kokoroStatus").textContent="Generation unavailable. Existing audio is unchanged."}
+ finally{$("kokoroGenerate").disabled=false;await kokoroRefresh()}
+}
 async function initTeacher(){try{await loadLibrary()}catch(e){err(e);if(e.message.includes("sign-in"))$("boardList").textContent="Teacher sign-in required. Return to Command Deck, unlock it, then open AAC+ again."}
 $("newBoard").onclick=newBoard;$("boardSearch").oninput=displayLibrary;$("backLibrary").onclick=()=>{if(recording){notify("Stop recording first");return}show("library")};$("cancelEdit").onclick=()=>show("library");$("boardLayout").onchange=e=>changeLayout(e.target.value);$("tileLabel").oninput=()=>{syncSelected();renderTeacherGrid()};$("tileSymbol").oninput=()=>{syncSelected();renderTeacherGrid()};$("tileColor").onchange=()=>{syncSelected();renderTeacherGrid()};
-$("tileImage").onchange=e=>uploadImage(e.target.files[0]).catch(err).finally(()=>e.target.value="");$("tileAudio").onchange=e=>uploadAudio(e.target.files[0]).catch(err).finally(()=>e.target.value="");$("removeImage").onclick=()=>{editing.tiles[selected].image=null;readSelected()};$("recordAudio").onclick=()=>recordStart().catch(err);$("stopRecording").onclick=()=>recordStop().catch(err);$("previewAudio").onclick=()=>playTile(editing.tiles[selected],"",null);$("deleteAudio").onclick=()=>{editing.tiles[selected].audio=null;stopSound();readSelected()};$("moveLeft").onclick=()=>swap(-1);$("moveRight").onclick=()=>swap(1);$("previewBoard").onclick=preview;$("saveBoard").onclick=()=>saveBoard().catch(err);$("shareBack").onclick=()=>loadLibrary().then(()=>show("library")).catch(err);$("copyShare").onclick=()=>navigator.clipboard.writeText($("shareLink").value).then(()=>notify("Link copied")).catch(err);$("openShare").onclick=()=>window.open($("shareLink").value,"_blank","noopener");$("revokeShare").onclick=()=>revokeShare().catch(err);}
+$("tileImage").onchange=e=>uploadImage(e.target.files[0]).catch(err).finally(()=>e.target.value="");$("tileAudio").onchange=e=>uploadAudio(e.target.files[0]).catch(err).finally(()=>e.target.value="");$("removeImage").onclick=()=>{editing.tiles[selected].image=null;readSelected()};$("recordAudio").onclick=()=>recordStart().catch(err);$("stopRecording").onclick=()=>recordStop().catch(err);$("previewAudio").onclick=()=>playTile(editing.tiles[selected],"",null);$("deleteAudio").onclick=()=>{editing.tiles[selected].audio=null;stopSound();readSelected()};$("moveLeft").onclick=()=>swap(-1);$("moveRight").onclick=()=>swap(1);$("previewBoard").onclick=preview;$("saveBoard").onclick=()=>saveBoard().catch(err);$("shareBack").onclick=()=>loadLibrary().then(()=>show("library")).catch(err);$("copyShare").onclick=()=>navigator.clipboard.writeText($("shareLink").value).then(()=>notify("Link copied")).catch(err);$("openShare").onclick=()=>window.open($("shareLink").value,"_blank","noopener");$("revokeShare").onclick=()=>revokeShare().catch(err);$("kokoroPrepare").onclick=()=>kokoroPrepare().catch(err);$("kokoroGenerate").onclick=()=>kokoroGenerate().catch(err);kokoroRefresh();}
 async function initStudent(){const controls=createVoiceControls();$("studentHint").after(controls);try{const token=location.pathname.split("/").pop();const b=await api("/api/aac/public/"+encodeURIComponent(token));$("studentTitle").textContent=b.title;renderGrid($("studentTiles"),b.tiles,b.layout,false,token)}catch(e){$("studentHint").textContent="This board link is unavailable or revoked.";err(e)}$("fullscreenBoard").onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()}}
 if(teacher)initTeacher();else initStudent();
 })();
