@@ -301,6 +301,7 @@
      current.siSpotlight=current.siSpotlight?.enabled?current.siSpotlight:{enabled:true,zones:[]};
      if(typeof renderPresentationBuilder==="function")renderPresentationBuilder();
      else if(typeof render==="function")render();
+     slideTypeSync();
      if(validImage(current.image))openEditor();
      else if(typeof toast==="function")toast("Upload an image, then select Edit Spotlight to add highlights.");
     }else if(current.siSpotlight?.enabled)delete current.siSpotlight;
