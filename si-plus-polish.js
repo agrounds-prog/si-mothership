@@ -1550,7 +1550,7 @@ function quickSpotlightLaunch(){
    if(!current||Date.now()-started>30000){clearInterval(wait);return}
    if(typeof siPlusBatchImportBusy!=="undefined"&&siPlusBatchImportBusy)return;
    const slides=current.draft?.slides||[];
-   const i=slides.findIndex((s,index)=>index>=before&&validImage(s.image));
+   const i=slides.findIndex(s=>validImage(s.image));
    if(i<0)return;
    clearInterval(wait);
    state.editorSlide=i;
