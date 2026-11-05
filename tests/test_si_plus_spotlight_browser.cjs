@@ -37,6 +37,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await page.locator("#siPlusSpotlightEditor .si-plus-spot-preview").count(),1,"Drag preview should be visible before release");
   await page.mouse.up();
   await page.waitForFunction(()=>document.querySelectorAll("#siPlusSpotlightEditor .si-plus-spot-list button").length===1);
+  await page.locator('[data-new-effect="dim"]').click();
   // The second region intentionally overlaps the first. Add mode must draw,
   // not move or overwrite the existing region.
   await page.mouse.move(box.x+box.width*.48,box.y+box.height*.48);
@@ -45,6 +46,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await page.mouse.up();
   await page.waitForFunction(()=>document.querySelectorAll("#siPlusSpotlightEditor .si-plus-spot-list button").length===2);
   assert.equal(await page.locator(".si-plus-spot-list button").count(),2);
+  assert.equal(await page.locator(".si-plus-spot-list button").nth(1).innerText(),"Dim Area 2");
   await page.locator('[data-interaction="move"]').click();
   const region=page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing g[data-zone] > rect").first();
   const before=Number(await region.getAttribute("x"));
@@ -62,7 +64,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.ok(Math.abs(Number(await region.getAttribute("x"))-before)<0.5);
 
   assert.equal(await page.locator(".si-plus-spot-undo").isEnabled(),true);
-  assert.match(await page.locator(".si-plus-spot-state").innerText(),/2 highlights/);
+  assert.match(await page.locator(".si-plus-spot-state").innerText(),/2 regions/);
 
   await page.locator(".si-plus-spot-list button").first().click();
   await page.locator("#siPlusSpotName").fill("Safe Area");
@@ -76,6 +78,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(draft.siSpotlight.zones[0].name,"Safe Area");
   assert.equal(draft.siSpotlight.zones[0].effect,"dim");
   assert.equal(draft.siSpotlight.zones.length,2,"Both regions must be retained in the slide");
+  assert.equal(draft.siSpotlight.zones[1].effect,"dim","New dim region must retain its effect");
   await page.locator("#presentationTitleInput").fill("Integrated Spotlight Regression");
   await page.locator("#savePresentationBtn").click();
   await page.waitForFunction(()=>state.presentationEditor===null,null,{timeout:20000});
@@ -84,6 +87,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.ok(persisted,"Saved presentation missing");
   assert.equal(persisted.slides[0].siSpotlight.zones[0].name,"Safe Area");
   assert.equal(persisted.slides[0].siSpotlight.zones.length,2,"Both regions must survive presentation save");
+  assert.equal(persisted.slides[0].siSpotlight.zones[1].effect,"dim");
   // Exercise teacher live controls and keep the native shared-screen content.
   await page.evaluate(id=>{
    const deck=state.activities.find(a=>a.id===id);
