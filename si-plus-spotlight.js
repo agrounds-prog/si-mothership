@@ -334,28 +334,41 @@
  * building a lesson. It still uses SI+'s normal draft/save system. */
 function quickSpotlightLaunch(){
  if(!teacher()||editor()||typeof openNewPresentation!=="function")return;
- openNewPresentation();
- const draft=editor()?.draft;
- if(draft){draft.deckTitle="Quick Spotlight";draft.name="Quick Spotlight"}
- const upload=document.getElementById("siPlusBatchImages");
- if(!upload){if(typeof toast==="function")toast("Add an image to your new SI+ presentation, then choose Spotlight.");return}
- const before=editor()?.draft?.slides?.length||0;
- upload.addEventListener("change",()=>{
-  const started=Date.now();
-  const wait=setInterval(()=>{
-   const current=editor();
-   if(!current||Date.now()-started>30000){clearInterval(wait);return}
-   if(typeof siPlusBatchImportBusy!=="undefined"&&siPlusBatchImportBusy)return;
-   const slides=current.draft?.slides||[];
-   const i=slides.findIndex(s=>validImage(s.image));
-   if(i<0)return;
-   clearInterval(wait);
-   state.editorSlide=i;
-   if(typeof renderPresentationBuilder==="function")renderPresentationBuilder();
-   openEditor();
-  },180);
+ // Open the file picker before rebuilding SI+. Replacing the view during the
+ // click can lose browser user activation and suppress the file chooser.
+ const pick=document.createElement("input");
+ pick.type="file";pick.accept="image/*";pick.style.display="none";
+ document.body.append(pick);
+ pick.addEventListener("change",()=>{
+  const file=pick.files?.[0];pick.remove();
+  if(!file)return;
+  openNewPresentation();
+  const draft=editor()?.draft;
+  if(draft){draft.deckTitle="Quick Spotlight";draft.name="Quick Spotlight"}
+  let attempt=0;
+  const attach=setInterval(()=>{
+   const upload=document.getElementById("siPlusBatchImages");
+   if(!upload){if(++attempt>30){clearInterval(attach);return}return}
+   clearInterval(attach);
+   const transfer=new DataTransfer();transfer.items.add(file);
+   const started=Date.now();
+   upload.files=transfer.files;
+   upload.dispatchEvent(new Event("change",{bubbles:true}));
+   const wait=setInterval(()=>{
+    const current=editor();
+    if(!current||Date.now()-started>30000){clearInterval(wait);return}
+    if(typeof siPlusBatchImportBusy!=="undefined"&&siPlusBatchImportBusy)return;
+    const slides=current.draft?.slides||[];
+    const i=slides.findIndex(s=>validImage(s.image));
+    if(i<0)return;
+    clearInterval(wait);
+    state.editorSlide=i;
+    if(typeof renderPresentationBuilder==="function")renderPresentationBuilder();
+    openEditor();
+   },180);
+  },100);
  },{once:true});
- upload.click();
+ pick.click();
 }
 function quickSpotlightSync(){
  if(!teacher()||typeof state==="undefined")return;
