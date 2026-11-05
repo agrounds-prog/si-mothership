@@ -42,7 +42,36 @@ function changeLayout(next){syncSelected();const previous=editing.layout;const c
 function swap(direction){syncSelected();const next=selected+direction;if(next<0||next>=editing.tiles.length)return;[editing.tiles[selected],editing.tiles[next]]=[editing.tiles[next],editing.tiles[selected]];selected=next;readSelected()}
 async function readFile(f){return await new Promise((resolve,reject)=>{let reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(Error("Couldn't read file"));reader.readAsDataURL(f)})}
 async function uploadImage(file){if(!file)return;const bitmap=await createImageBitmap(file);try{const scale=Math.min(1,600/Math.max(bitmap.width,bitmap.height));const canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));const ctx=canvas.getContext("2d");ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);const data=canvas.toDataURL("image/png");const result=await api("/api/aac/media","POST",{kind:"image",data});editing.tiles[selected].image=result.id;notify("Picture attached");readSelected()}finally{bitmap.close()}}
-async function uploadAudio(file){if(!file)return;if(file.size>5e6)throw Error("WAV file exceeds 5 MB");const data=await readFile(file);const result=await api("/api/aac/media","POST",{kind:"audio",data});editing.tiles[selected].audio=result.id;readSelected();notify("Audio attached (30-second limit checked)")}
+async function uploadAudio(file){
+ if(!file)return;
+ if(file.size>12e6)throw Error("Audio source file exceeds the upload limit");
+ // Normalize browser-decodable WAV/MP3/M4A/WebM to standard mono WAV.
+ // This gives the server a trustworthy duration instead of client metadata.
+ const AC=window.AudioContext||window.webkitAudioContext;
+ if(!AC)throw Error("This browser cannot decode audio files");
+ let ctx=new AC();
+ try{
+  const buffer=await ctx.decodeAudioData(await file.arrayBuffer());
+  if(!buffer.duration||buffer.duration>30.01)throw Error("Audio must be 30 seconds or less");
+  const rate=Math.min(48000,Math.round(buffer.sampleRate)),frames=Math.round(buffer.duration*rate);
+  const mono=new Float32Array(frames);
+  const chans=Array.from({length:buffer.numberOfChannels},(_,i)=>buffer.getChannelData(i));
+  for(let i=0;i<frames;i++){
+    const index=Math.min(buffer.length-1,Math.round(i*buffer.sampleRate/rate));
+    let sum=0;for(let ch of chans)sum+=ch[index];
+    mono[i]=sum/chans.length;
+  }
+  const wav=wavBlob([mono],mono.length,rate);
+  const data=await readFile(wav);
+  const tileIndex=selected;
+  const result=await api("/api/aac/media","POST",{kind:"audio",data});
+  editing.tiles[tileIndex].audio=result.id;
+  readSelected();notify("Audio attached (duration validated)");
+ }catch(e){
+  if(e.message?.includes("30 seconds"))throw e;
+  throw Error("Could not decode this audio file. Try WAV or MP3 in a supported browser.");
+ }finally{await ctx.close()}
+}
 async function duplicateBoard(id){const res=await api("/api/aac/boards/"+id+"/duplicate","POST");notify("Board duplicated");await loadLibrary();return res.id}
 async function deleteBoard(id){if(!confirm("Delete this board and revoke its shared link?"))return;await api("/api/aac/boards/"+id,"DELETE");await loadLibrary();notify("Board deleted")}
 async function shareBoard(id){let b=boards.find(b=>b.id===id);if(!confirm("Create a new share link for "+(b?.title||"this board")+"? Any previous link will stop working."))return;let res=await api("/api/aac/boards/"+id+"/share","POST");shareInfo={...res,id};$("shareBoardName").textContent=b?.title||"Soundboard";$("shareQr").src=res.qr;$("shareLink").value=res.url;show("share")}
