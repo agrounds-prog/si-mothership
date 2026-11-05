@@ -47,6 +47,10 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await page.mouse.up();
   assert.equal(await page.locator(".si-plus-spot-list button").count(),1);
   assert.ok(Number(await region.getAttribute("x"))>before);
+  // Undo must restore a repositioned region, not delete it.
+  await page.locator(".si-plus-spot-undo").click();
+  assert.equal(await page.locator(".si-plus-spot-list button").count(),1);
+  assert.ok(Math.abs(Number(await region.getAttribute("x"))-before)<0.5);
 
   assert.equal(await page.locator(".si-plus-spot-undo").isEnabled(),true);
   assert.match(await page.locator(".si-plus-spot-state").innerText(),/1 highlight/);
