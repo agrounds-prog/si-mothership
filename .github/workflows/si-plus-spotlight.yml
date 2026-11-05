@@ -1,0 +1,48 @@
+name: SI Plus Spotlight Slide Regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'si-plus-polish.js'
+      - 'si-plus-polish.css'
+      - 'si-plus-spotlight.js'
+      - 'si-plus-spotlight.css'
+      - 'tests/test_si_plus_spotlight_browser.cjs'
+      - '.github/workflows/si-plus-spotlight.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  spotlight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Validate JavaScript and Python syntax
+        run: |
+          node --check si-plus-polish.js
+          node --check tests/test_si_plus_spotlight_browser.cjs
+          python -m py_compile server.py
+      - name: Install classroom test dependencies
+        run: |
+          pip install 'aiohttp>=3.10,<4' 'qrcode[pil]>=7.4,<9'
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Start isolated SI+ classroom
+        run: |
+          mkdir -p /tmp/si-plus-spotlight
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/si-plus-spotlight PORT=8877 python server.py >/tmp/si-plus-spotlight.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8877/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          tail -80 /tmp/si-plus-spotlight.log
+          exit 1
+      - name: Run Spotlight slide browser regression
+        run: node tests/test_si_plus_spotlight_browser.cjs
+      - name: Print server logs on failure
+        if: failure()
+        run: tail -100 /tmp/si-plus-spotlight.log || true
