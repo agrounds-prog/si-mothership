@@ -76,6 +76,30 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    };
   });
   console.log("SPOTLIGHT RENDER PROBE",JSON.stringify(probe));
+  // Verify actual projector overlay and image fit, rather than merely
+  // checking that the native shared-screen markup still contains an image.
+  await page.evaluate(()=>{
+   document.querySelector("#teacher").classList.remove("active");
+   document.querySelector("#shared").classList.add("active");
+   document.body.classList.add("role-shared");
+   renderPublic();
+  });
+  await page.waitForFunction(()=>{
+   const overlay=document.querySelector(".si-plus-spotlight-overlay");
+   return overlay&&overlay.querySelector("rect[stroke],ellipse[stroke]")&&
+     getComputedStyle(overlay).display!=="none"&&overlay.getBoundingClientRect().width>0;
+  },null,{timeout:12000});
+  const projector=await page.evaluate(()=>{
+   const img=document.querySelector("#sharedContent .si-plus-viewport-image > img");
+   const ov=Array.from(document.querySelectorAll(".si-plus-spotlight-overlay")).find(x=>
+     getComputedStyle(x).display!=="none"&&x.querySelector("rect[stroke],ellipse[stroke]"));
+   const a=img.getBoundingClientRect(),b=ov.getBoundingClientRect();
+   return {image:{x:a.x,y:a.y,w:a.width,h:a.height},overlay:{x:b.x,y:b.y,w:b.width,h:b.height}};
+  });
+  assert.ok(Math.abs(projector.image.x-projector.overlay.x)<3,JSON.stringify(projector));
+  assert.ok(Math.abs(projector.image.y-projector.overlay.y)<3,JSON.stringify(projector));
+  assert.ok(Math.abs(projector.image.w-projector.overlay.w)<3,JSON.stringify(projector));
+  assert.ok(Math.abs(projector.image.h-projector.overlay.h)<3,JSON.stringify(projector));
   assert.deepEqual(errors,[]);
   console.log("PASS: Spotlight zones save to SI+ slides and live teacher controls toggle them");
  }finally{await browser.close()}
