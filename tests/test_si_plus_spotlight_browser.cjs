@@ -57,6 +57,13 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   });
   assert.ok(Math.abs(rightEdge.gap)<3,"Right edge must align with the image: "+JSON.stringify(rightEdge));
   assert.equal(await page.locator(".si-plus-spot-list button").count(),2,"Edge alignment must preserve every region");
+  await page.locator(".si-plus-spot-full-image").click();
+  const full=await page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing g[data-zone] > rect").nth(1).evaluate(el=>[
+   Number(el.getAttribute("x")),Number(el.getAttribute("y")),
+   Number(el.getAttribute("width")),Number(el.getAttribute("height"))
+  ]);
+  assert.deepEqual(full,[0,0,1000,562.5],"Full Image must use all pixels");
+  await page.locator(".si-plus-spot-undo").click();
   const targetRect=page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing g[data-zone] > rect").nth(1);
   const targetBox=await targetRect.boundingBox();
   const canvasBox=await svg.boundingBox();
