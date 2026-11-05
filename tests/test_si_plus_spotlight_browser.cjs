@@ -60,6 +60,22 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const live=await page.evaluate(()=>({ids:state.activityRun.siSpotlightVisible.ids,markup:sharedMarkup("big")}));
   assert.equal(live.ids.length,1);
   assert.match(live.markup,/si-plus-viewport-image/);
+  const probe=await page.evaluate(()=>{
+   const image=document.querySelector("#sharedContent .si-plus-viewport-image");
+   const mirror=document.querySelector("#mirrorContent .si-plus-viewport-image");
+   const shared=sharedMarkup("big");
+   const preview=activitySharedMarkup(true);
+   return {
+    sharedLength:shared.length,sharedImageCount:(shared.match(/si-plus-viewport-image/g)||[]).length,
+    previewLength:preview.length,previewImageCount:(preview.match(/si-plus-viewport-image/g)||[]).length,
+    sharedFirst:shared.slice(0,450),sharedLast:shared.slice(-500),
+    imageTag:image?.tagName,mirrorTag:mirror?.tagName,
+    overlayCount:document.querySelectorAll(".si-plus-spotlight-overlay").length,
+    parent:image?.parentElement?.className||"",screen:state.screen,
+    rendererType:typeof sharedMarkup,
+   };
+  });
+  console.log("SPOTLIGHT RENDER PROBE",JSON.stringify(probe));
   assert.deepEqual(errors,[]);
   console.log("PASS: Spotlight zones save to SI+ slides and live teacher controls toggle them");
  }finally{await browser.close()}
