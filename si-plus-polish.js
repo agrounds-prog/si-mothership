@@ -1543,11 +1543,19 @@
    };
   dialog.querySelector(".si-plus-spot-save").onclick=()=>{
    const slide=activeSlide();if(!slide||slide.id!==editorSlideId){if(typeof toast==="function")toast("The active slide changed. Reopen Spotlight to edit the correct slide.");return}
-   slide.siSpotlight={enabled:true,zones:JSON.parse(JSON.stringify(zones))};
+   // Commit the entire collection together. Never replace the slide with the
+   // selected region or discard other regions when the editor is reopened.
+   const savedZones=JSON.parse(JSON.stringify(zones));
+   slide.siSpotlight={enabled:true,zones:savedZones};
    slide.type="instruction";
+   const savedCount=slide.siSpotlight.zones.length;
+   if(savedCount!==zones.length){
+    if(typeof toast==="function")toast("Spotlight save could not retain all regions. Please try again.");
+    return;
+   }
    dirty=false;undoHistory=[];dialog.hidden=true;
    if(typeof render==="function")render();
-   if(typeof toast==="function")toast("Spotlight highlights saved in this slide. Save Presentation to keep them.");
+   if(typeof toast==="function")toast("Saved "+savedCount+" Spotlight region"+(savedCount===1?"":"s")+" to this slide. Save Presentation to keep them.");
   };
   dialog.querySelector(".si-plus-spot-remove").onclick=()=>{
    const slide=activeSlide();if(!slide)return;
