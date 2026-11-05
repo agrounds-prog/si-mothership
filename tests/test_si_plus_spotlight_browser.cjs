@@ -37,6 +37,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await page.locator("#siPlusSpotlightEditor .si-plus-spot-preview").count(),1,"Drag preview should be visible before release");
   await page.mouse.up();
   await page.waitForFunction(()=>document.querySelectorAll("#siPlusSpotlightEditor .si-plus-spot-list button").length===1);
+  assert.equal(await page.locator('[data-interaction="move"]').getAttribute("class").then(s=>s?.includes("active")),true,"Newly drawn highlight should immediately be movable");
   await page.locator('[data-new-effect="dim"]').click();
   // The second region intentionally overlaps the first. Add mode must draw,
   // not move or overwrite the existing region.
@@ -47,7 +48,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await page.waitForFunction(()=>document.querySelectorAll("#siPlusSpotlightEditor .si-plus-spot-list button").length===2);
   assert.equal(await page.locator(".si-plus-spot-list button").count(),2);
   assert.equal(await page.locator(".si-plus-spot-list button").nth(1).innerText(),"Dim Area 2");
-  await page.locator('[data-interaction="move"]').click();
+  assert.equal(await page.locator('[data-interaction="move"]').getAttribute("class").then(s=>s?.includes("active")),true,"Second region should immediately be movable");
   const region=page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing g[data-zone] > rect").first();
   const before=Number(await region.getAttribute("x"));
   const box2=await region.boundingBox();
