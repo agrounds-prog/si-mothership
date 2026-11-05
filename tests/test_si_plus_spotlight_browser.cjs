@@ -91,21 +91,26 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    renderPublic();
   });
   await page.waitForFunction(()=>{
-   const overlay=document.querySelector(".si-plus-spotlight-inline");
-   return overlay&&overlay.querySelector("rect[stroke],ellipse[stroke]")&&
-     getComputedStyle(overlay).display!=="none"&&overlay.getBoundingClientRect().width>0;
+   const image=document.querySelector("#sharedContent .si-plus-viewport-image > img");
+   const overlay=document.querySelector("#sharedContent .si-plus-spotlight-inline");
+   const floating=document.querySelector(".si-plus-spotlight-overlay");
+   return !!image&&(
+      !!overlay?.querySelector("rect[stroke],ellipse[stroke]")||
+      !!floating?.querySelector("rect[stroke],ellipse[stroke]"));
   },null,{timeout:12000});
   const projector=await page.evaluate(()=>{
    const img=document.querySelector("#sharedContent .si-plus-viewport-image > img");
-   const ov=Array.from(document.querySelectorAll(".si-plus-spotlight-inline")).find(x=>
-     getComputedStyle(x).display!=="none"&&x.querySelector("rect[stroke],ellipse[stroke]"));
-   const a=img.getBoundingClientRect(),b=ov.getBoundingClientRect();
-   return {image:{x:a.x,y:a.y,w:a.width,h:a.height},overlay:{x:b.x,y:b.y,w:b.width,h:b.height}};
+   const inline=document.querySelector("#sharedContent .si-plus-spotlight-inline");
+   const floating=document.querySelector(".si-plus-spotlight-overlay");
+   const ov=inline||floating;
+   const image=img.getBoundingClientRect(),layer=ov.getBoundingClientRect();
+   return {mode:inline?"inline":"floating",image:{x:image.x,y:image.y,w:image.width,h:image.height},
+     overlay:{x:layer.x,y:layer.y,w:layer.width,h:layer.height}};
   });
-  assert.ok(Math.abs(projector.image.x-projector.overlay.x)<3,JSON.stringify(projector));
-  assert.ok(Math.abs(projector.image.y-projector.overlay.y)<3,JSON.stringify(projector));
   assert.ok(Math.abs(projector.image.w-projector.overlay.w)<3,JSON.stringify(projector));
   assert.ok(Math.abs(projector.image.h-projector.overlay.h)<3,JSON.stringify(projector));
+  assert.ok(Math.abs(projector.image.x-projector.overlay.x)<3,JSON.stringify(projector));
+  assert.ok(Math.abs(projector.image.y-projector.overlay.y)<3,JSON.stringify(projector));
   assert.deepEqual(errors,[]);
   console.log("PASS: Spotlight zones save to SI+ slides and live teacher controls toggle them");
  }finally{await browser.close()}
