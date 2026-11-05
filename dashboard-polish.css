@@ -4787,3 +4787,25 @@ body.si-v80-dashboard:not(.role-student):not(.role-shared) #teacher #appShortcut
    background-image:url("/command-deck-raster/roster-scanner.png?v=exposed4")!important;
  }
 }
+
+/* Independent AAC+ launch control */
+body.si-v80-dashboard #teacher #appShortcutsPanel .aac-plus-launch{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ min-height:38px!important;padding:7px 14px!important;white-space:nowrap!important;
+ margin-left:auto!important;margin-right:8px!important;
+ text-decoration:none!important;font:900 12px/1.2 system-ui!important;
+ color:#fff1ff!important;border-radius:10px!important;
+ border:1px solid #c887fa!important;
+ background:linear-gradient(125deg,#632fa1,#253c84)!important;
+ box-shadow:inset 0 1px #edc7ff7a,0 0 12px #934fff55!important;
+}
+body.si-v80-dashboard #teacher #appShortcutsPanel .aac-plus-launch:hover{
+ filter:brightness(1.17)!important;
+ box-shadow:0 0 18px #a961fc8c!important;
+}
+body.si-v80-dashboard #teacher #appShortcutsPanel .aac-plus-launch:focus-visible{
+ outline:3px solid #ffdc8a!important;outline-offset:2px!important;
+}
+@media(max-width:700px){
+ body.si-v80-dashboard #teacher #appShortcutsPanel .aac-plus-launch{margin-left:0!important}
+}
