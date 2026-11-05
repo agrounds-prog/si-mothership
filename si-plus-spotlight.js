@@ -169,7 +169,7 @@
  }
  // Interactive editor drawing is scoped to the current SI+ slide. It only
  // mutates that draft slide and does not overwrite the rest of the lesson.
- let dialog=null,mode="rect",selection="",drawing=null,zones=[],editorSlideId=null,originalZones="",dirty=false;
+ let dialog=null,mode="rect",selection="",drawing=null,zones=[],editorSlideId=null,originalZones="",dirty=false,undoHistory=[];
  function fitEditorImage(){
   if(!dialog||dialog.hidden)return;
   const image=dialog.querySelector(".si-plus-spot-image");
@@ -191,7 +191,7 @@
   if(!slide){return}
   if(!validImage(slide.image)){if(typeof toast==="function")toast("Add an image to this SI+ slide before using Spotlight.");return}
   zones=JSON.parse(JSON.stringify(data(slide)?.zones||[]));selection="";mode="rect";
-  editorSlideId=slide.id;originalZones=JSON.stringify(zones);dirty=false;
+  editorSlideId=slide.id;originalZones=JSON.stringify(zones);dirty=false;undoHistory=[];
   if(!dialog)buildDialog();
   dialog.hidden=false;
   const image=dialog.querySelector(".si-plus-spot-image");image.src=slide.image;
@@ -209,12 +209,13 @@
    '<label>Highlight name<input id="siPlusSpotName" maxlength="50" placeholder="What to highlight"></label>'+
    '<label>Effect<select id="siPlusSpotEffect"><option value="outline">Outline Glow</option><option value="dim">Dim Background</option></select></label>'+
    '<label>Color<select id="siPlusSpotColor"><option value="red">Red</option><option value="green">Green</option><option value="blue">Blue</option><option value="yellow">Yellow</option><option value="black">White</option></select></label>'+
-   '<div class="si-plus-spot-list"></div><div class="si-plus-spot-buttons"><button type="button" class="si-plus-spot-undo">↶ Undo Last</button><button type="button" class="si-plus-spot-delete">Delete Selected</button></div><small class="si-plus-spot-state" aria-live="polite">Draw a region to begin.</small>'+
+   '<div class="si-plus-spot-list"></div><div class="si-plus-spot-buttons"><button type="button" class="si-plus-spot-undo">↶ Undo Change</button><button type="button" class="si-plus-spot-delete">Delete Selected</button></div><small class="si-plus-spot-state" aria-live="polite">Draw a region to begin.</small>'+
    '<button type="button" class="si-plus-spot-save">✓ Save Highlights &amp; Return</button><button type="button" class="si-plus-spot-remove">Remove Spotlight Mode</button></aside></div></div>';
   document.body.append(dialog);
   const svg=dialog.querySelector("svg");
   dialog.querySelector(".si-plus-spot-image").addEventListener("load",fitEditorImage);
   if(typeof ResizeObserver==="function")new ResizeObserver(fitEditorImage).observe(dialog.querySelector(".si-plus-spot-stage"));
+  const rememberEdit=before=>{undoHistory.push(before||JSON.stringify(zones));if(undoHistory.length>30)undoHistory.shift()};
   const pointerPosition=e=>{
    const bounds=svg.getBoundingClientRect();
    return {
@@ -268,13 +269,20 @@
   svg.addEventListener("pointerup",e=>{
    if(!drawing||drawing.id!==e.pointerId)return;
    const current=drawing;drawing=null;
-   if(current.kind==="move"){updateEditor();return}
+   if(current.kind==="move"){
+    const moved=zones.find(z=>z.id===current.zoneId);
+    if(moved&&(Math.abs(moved.x-current.origin.x)+Math.abs(moved.y-current.origin.y)>0.1)){
+     const previous=zones.map(z=>z.id===current.zoneId?{...z,x:current.origin.x,y:current.origin.y}:z);
+     rememberEdit(JSON.stringify(previous));dirty=true;
+    }
+    updateEditor();return
+   }
    const p=pointerPosition(e);
    const x=Math.min(p.x,current.x),y=Math.min(p.y,current.y);
    const w=Math.abs(p.x-current.x),h=Math.abs(p.y-current.y);
    if(w<10||h<10){updateEditor();return}
    const z={id:uid(),name:"Highlight "+(zones.length+1),shape:mode,x,y,w,h,color:"red",effect:"outline"};
-   zones.push(z);selection=z.id;dirty=true;updateEditor();
+   rememberEdit();zones.push(z);selection=z.id;dirty=true;updateEditor();
   });
   svg.addEventListener("pointercancel",()=>{drawing=null;updateEditor()});
   function closeEditor(){
@@ -287,18 +295,24 @@
   dialog.querySelectorAll("[data-mode]").forEach(btn=>btn.onclick=()=>{mode=btn.dataset.mode;updateEditor()});
   for(const [id,key] of [["siPlusSpotName","name"],["siPlusSpotEffect","effect"],["siPlusSpotColor","color"]]){
    dialog.querySelector("#"+id).addEventListener("change",e=>{
-    const z=zones.find(z=>z.id===selection);if(z){z[key]=e.target.value;dirty=true;updateEditor()}
+    const z=zones.find(z=>z.id===selection);if(z&&z[key]!==e.target.value){rememberEdit();z[key]=e.target.value;dirty=true;updateEditor()}
    })
   }
   dialog.querySelector(".si-plus-spot-delete").onclick=()=>{
-   zones=zones.filter(z=>z.id!==selection);selection="";dirty=true;updateEditor()
+   if(!zones.some(z=>z.id===selection))return;
+   rememberEdit();zones=zones.filter(z=>z.id!==selection);selection="";dirty=true;updateEditor()
   };
-  dialog.querySelector(".si-plus-spot-undo").onclick=()=>{if(zones.length){zones.pop();selection=zones.at(-1)?.id||"";dirty=true;updateEditor()}};
+  dialog.querySelector(".si-plus-spot-undo").onclick=()=>{
+    if(!undoHistory.length)return;
+    zones=JSON.parse(undoHistory.pop());
+    if(!zones.some(z=>z.id===selection))selection=zones.at(-1)?.id||"";
+    dirty=JSON.stringify(zones)!==originalZones;updateEditor();
+   };
   dialog.querySelector(".si-plus-spot-save").onclick=()=>{
    const slide=activeSlide();if(!slide||slide.id!==editorSlideId){if(typeof toast==="function")toast("The active slide changed. Reopen Spotlight to edit the correct slide.");return}
    slide.siSpotlight={enabled:true,zones:JSON.parse(JSON.stringify(zones))};
    slide.type="instruction";
-   dirty=false;dialog.hidden=true;
+   dirty=false;undoHistory=[];dialog.hidden=true;
    if(typeof render==="function")render();
    if(typeof toast==="function")toast("Spotlight highlights saved in this slide. Save Presentation to keep them.");
   };
@@ -332,7 +346,7 @@
    input.disabled=!chosen;input.value=chosen?chosen[key]:"";
   }
   dialog.querySelector(".si-plus-spot-delete").disabled=!chosen;
-  dialog.querySelector(".si-plus-spot-undo").disabled=!zones.length;
+  dialog.querySelector(".si-plus-spot-undo").disabled=!undoHistory.length;
   const indicator=dialog.querySelector(".si-plus-spot-state");
   if(indicator)indicator.textContent=zones.length?
     zones.length+" highlight"+(zones.length===1?"":"s")+" · "+(chosen?"Editing "+chosen.name:"Select a highlight to edit"):
