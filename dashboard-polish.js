@@ -294,13 +294,28 @@ function installApprovedArtwork(){
  }).observe(grid,{childList:true});}
 }
 
+/* AAC+ is independent of classroom sessions: open a separate teacher Studio tab.
+   Do not consume or replace any of the nine existing game shortcut slots. */
+function installAACPlusLink(){
+ const toolbar=document.querySelector('#teacher #appShortcutsPanel .app-shortcuts-head');
+ if(!toolbar||toolbar.querySelector('.aac-plus-launch'))return;
+ const link=document.createElement('a');
+ link.href='/aac';link.target='_blank';link.rel='noopener';
+ link.className='aac-plus-launch';
+ link.textContent='🔊 AAC+ Studio';
+ link.title='Create and share independent AAC communication boards';
+ link.setAttribute('aria-label','Open AAC Plus Communication Studio');
+ const manage=toolbar.querySelector('button,.si-v80-manage');
+ if(manage&&manage.parentElement===toolbar)toolbar.insertBefore(link,manage);
+ else toolbar.appendChild(link);
+}
 function init(){
  if(document.body.classList.contains('role-student')||document.body.classList.contains('role-shared'))return;
  if(!$('#teacherControlBar')||!$('#endBtn')||!$('#resetBtn'))return;
  if(!installHeader())return;
  addTheme();tunePanels();installShortcutArtwork();installLibraryArtwork();installApprovedArtwork();
  document.body.classList.add('si-v80-dashboard');
- installAlertStack();
+ installAlertStack();installAACPlusLink();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
 else init();
