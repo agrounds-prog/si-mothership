@@ -141,6 +141,22 @@
  // Interactive editor drawing is scoped to the current SI+ slide. It only
  // mutates that draft slide and does not overwrite the rest of the lesson.
  let dialog=null,mode="rect",selection="",drawing=null,zones=[];
+ function fitEditorImage(){
+  if(!dialog||dialog.hidden)return;
+  const image=dialog.querySelector(".si-plus-spot-image");
+  const svg=dialog.querySelector(".si-plus-spot-drawing");
+  const stage=dialog.querySelector(".si-plus-spot-stage");
+  if(!image||!svg||!stage)return;
+  const sw=stage.clientWidth,sh=stage.clientHeight;
+  const iw=image.naturalWidth,ih=image.naturalHeight;
+  if(!sw||!sh||!iw||!ih)return;
+  const scale=Math.min(sw/iw,sh/ih);
+  const dw=iw*scale,dh=ih*scale;
+  svg.style.left=(sw-dw)/2+"px";
+  svg.style.top=(sh-dh)/2+"px";
+  svg.style.width=dw+"px";
+  svg.style.height=dh+"px";
+ }
  function openEditor(){
   const slide=activeSlide();
   if(!slide){return}
@@ -149,6 +165,8 @@
   if(!dialog)buildDialog();
   dialog.hidden=false;
   const image=dialog.querySelector(".si-plus-spot-image");image.src=slide.image;
+  image.addEventListener("load",fitEditorImage,{once:true});
+  requestAnimationFrame(fitEditorImage);
   updateEditor();dialog.querySelector(".si-plus-spot-close").focus();
  }
  function buildDialog(){
@@ -165,6 +183,8 @@
    '<button type="button" class="si-plus-spot-save">✓ Save Spotlight Slide</button><button type="button" class="si-plus-spot-remove">Remove Spotlight Mode</button></aside></div></div>';
   document.body.append(dialog);
   const svg=dialog.querySelector("svg");
+  dialog.querySelector(".si-plus-spot-image").addEventListener("load",fitEditorImage);
+  if(typeof ResizeObserver==="function")new ResizeObserver(fitEditorImage).observe(dialog.querySelector(".si-plus-spot-stage"));
   svg.addEventListener("pointerdown",e=>{
    if(e.target.dataset.zone){selection=e.target.dataset.zone;updateEditor();return}
    const bounds=svg.getBoundingClientRect();
