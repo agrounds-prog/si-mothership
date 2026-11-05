@@ -169,7 +169,7 @@
  }
  // Interactive editor drawing is scoped to the current SI+ slide. It only
  // mutates that draft slide and does not overwrite the rest of the lesson.
- let dialog=null,mode="rect",selection="",drawing=null,zones=[],editorSlideId=null,originalZones="",dirty=false,undoHistory=[];
+ let dialog=null,mode="rect",interaction="add",selection="",drawing=null,zones=[],editorSlideId=null,originalZones="",dirty=false,undoHistory=[];
  function fitEditorImage(){
   if(!dialog||dialog.hidden)return;
   const image=dialog.querySelector(".si-plus-spot-image");
@@ -190,7 +190,7 @@
   const slide=activeSlide();
   if(!slide){return}
   if(!validImage(slide.image)){if(typeof toast==="function")toast("Add an image to this SI+ slide before using Spotlight.");return}
-  zones=JSON.parse(JSON.stringify(data(slide)?.zones||[]));selection="";mode="rect";
+  zones=JSON.parse(JSON.stringify(data(slide)?.zones||[]));selection="";mode="rect";interaction="add";
   editorSlideId=slide.id;originalZones=JSON.stringify(zones);dirty=false;undoHistory=[];
   if(!dialog)buildDialog();
   dialog.hidden=false;
@@ -203,9 +203,9 @@
   dialog=document.createElement("div");dialog.id="siPlusSpotlightEditor";dialog.className="si-plus-spot-editor";dialog.hidden=true;
   dialog.innerHTML='<div class="si-plus-spot-dialog" role="dialog" aria-modal="true" aria-label="SI+ Spotlight slide editor">'+
    '<header><strong>◎ SPOTLIGHT SLIDE STUDIO</strong><button class="si-plus-spot-close" type="button">✕ Close</button></header>'+
-   '<p>1. Choose a shape. 2. Drag over the picture. 3. Drag an existing region to move it. 4. Save and return to SI+.</p>'+
+   '<p>Use Add Highlight to draw as many regions as you need, including overlapping areas. Choose Move / Select to reposition a region.</p>'+ 
    '<div class="si-plus-spot-layout"><div class="si-plus-spot-stage"><img class="si-plus-spot-image" alt="Spotlight slide image"><svg class="si-plus-spot-drawing" viewBox="0 0 1000 562.5" preserveAspectRatio="none"></svg></div>'+
-   '<aside><div class="si-plus-spot-buttons"><button type="button" data-mode="rect">▱ Rectangle</button><button type="button" data-mode="circle">◯ Circle</button></div>'+
+   '<aside><div class="si-plus-spot-buttons"><button type="button" data-interaction="add">＋ Add Highlight</button><button type="button" data-interaction="move">↔ Move / Select</button></div><div class="si-plus-spot-buttons"><button type="button" data-mode="rect">▱ Rectangle</button><button type="button" data-mode="circle">◯ Circle</button></div>'+ 
    '<label>Highlight name<input id="siPlusSpotName" maxlength="50" placeholder="What to highlight"></label>'+
    '<label>Effect<select id="siPlusSpotEffect"><option value="outline">Outline Glow</option><option value="dim">Dim Background</option></select></label>'+
    '<label>Color<select id="siPlusSpotColor"><option value="red">Red</option><option value="green">Green</option><option value="blue">Blue</option><option value="yellow">Yellow</option><option value="black">White</option></select></label>'+
@@ -227,14 +227,14 @@
    if(e.button!==0&&e.pointerType==="mouse")return;
    const p=pointerPosition(e);
    const hit=e.target.closest?.("[data-zone]");
-   if(hit){
+   if(interaction==="move"&&hit){
     const found=zones.find(z=>z.id===hit.dataset.zone);
     if(!found)return;
     selection=found.id;
     drawing={kind:"move",id:e.pointerId,start:p,origin:{x:found.x,y:found.y},zoneId:found.id};
     svg.setPointerCapture(e.pointerId);
     updateEditor();
-   }else{
+   }else if(interaction==="add"){
     drawing={kind:"draw",id:e.pointerId,x:p.x,y:p.y};
     svg.setPointerCapture(e.pointerId);
    }
@@ -292,7 +292,8 @@
   dialog.querySelector(".si-plus-spot-close").onclick=closeEditor;
   dialog.addEventListener("keydown",e=>{if(e.key==="Escape"){closeEditor();e.preventDefault()}});
 
-  dialog.querySelectorAll("[data-mode]").forEach(btn=>btn.onclick=()=>{mode=btn.dataset.mode;updateEditor()});
+  dialog.querySelectorAll("[data-mode]").forEach(btn=>btn.onclick=()=>{mode=btn.dataset.mode;interaction="add";updateEditor()});
+  dialog.querySelectorAll("[data-interaction]").forEach(btn=>btn.onclick=()=>{interaction=btn.dataset.interaction;updateEditor()});
   for(const [id,key] of [["siPlusSpotName","name"],["siPlusSpotEffect","effect"],["siPlusSpotColor","color"]]){
    dialog.querySelector("#"+id).addEventListener("change",e=>{
     const z=zones.find(z=>z.id===selection);if(z&&z[key]!==e.target.value){rememberEdit();z[key]=e.target.value;dirty=true;updateEditor()}
@@ -326,6 +327,8 @@
  function updateEditor(){
   if(!dialog)return;
   dialog.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b.dataset.mode===mode));
+  dialog.querySelectorAll("[data-interaction]").forEach(b=>b.classList.toggle("active",b.dataset.interaction===interaction));
+  dialog.querySelector(".si-plus-spot-drawing").style.cursor=interaction==="add"?"crosshair":"move";
   const svg=dialog.querySelector("svg");
   svg.innerHTML=zones.map(z=>{
    const c=colors[z.color]||colors.red;
