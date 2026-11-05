@@ -203,7 +203,7 @@
   dialog=document.createElement("div");dialog.id="siPlusSpotlightEditor";dialog.className="si-plus-spot-editor";dialog.hidden=true;
   dialog.innerHTML='<div class="si-plus-spot-dialog" role="dialog" aria-modal="true" aria-label="SI+ Spotlight slide editor">'+
    '<header><strong>◎ SPOTLIGHT SLIDE STUDIO</strong><button class="si-plus-spot-close" type="button">✕ Close</button></header>'+
-   '<p>Choose Add Highlight or Add Dim Area, then drag over the image. Repeat for as many regions as needed. Select a region below to adjust its settings.</p>'+  
+   '<p>Drag an existing region to move it. To add another highlight or dim area (even overlapping), choose an Add button and draw on the picture.</p>'+  
    '<div class="si-plus-spot-layout"><div class="si-plus-spot-stage"><img class="si-plus-spot-image" alt="Spotlight slide image"><svg class="si-plus-spot-drawing" viewBox="0 0 1000 562.5" preserveAspectRatio="none"></svg></div>'+
    '<aside><div class="si-plus-spot-buttons"><button type="button" data-new-effect="outline">＋ Add Highlight</button><button type="button" data-new-effect="dim">＋ Add Dim Area</button></div><div class="si-plus-spot-buttons"><button type="button" data-interaction="move">↔ Move / Select</button><button type="button" data-interaction="add">✎ Draw More</button></div><div class="si-plus-spot-buttons"><button type="button" data-mode="rect">▱ Rectangle</button><button type="button" data-mode="circle">◯ Circle</button></div>'+ 
    '<label>Highlight name<input id="siPlusSpotName" maxlength="50" placeholder="What to highlight"></label>'+
@@ -282,7 +282,7 @@
    const w=Math.abs(p.x-current.x),h=Math.abs(p.y-current.y);
    if(w<10||h<10){updateEditor();return}
    const z={id:uid(),name:(nextEffect==="dim"?"Dim Area ":"Highlight ")+(zones.length+1),shape:mode,x,y,w,h,color:"red",effect:nextEffect};
-   rememberEdit();zones.push(z);selection=z.id;dirty=true;updateEditor();
+   rememberEdit();zones.push(z);selection=z.id;interaction="move";dirty=true;updateEditor();
   });
   svg.addEventListener("pointercancel",()=>{drawing=null;updateEditor()});
   function closeEditor(){
@@ -342,7 +342,7 @@
   const list=dialog.querySelector(".si-plus-spot-list");list.replaceChildren();
   for(const z of zones){
    const b=document.createElement("button");b.type="button";b.textContent=z.name;
-   b.classList.toggle("active",z.id===selection);b.onclick=()=>{selection=z.id;updateEditor()};
+   b.classList.toggle("active",z.id===selection);b.onclick=()=>{selection=z.id;interaction="move";updateEditor()};
    list.append(b)
   }
   const chosen=zones.find(z=>z.id===selection);
@@ -354,7 +354,7 @@
   dialog.querySelector(".si-plus-spot-undo").disabled=!undoHistory.length;
   const indicator=dialog.querySelector(".si-plus-spot-state");
   if(indicator)indicator.textContent=zones.length?
-    zones.length+" region"+(zones.length===1?"":"s")+" · "+(interaction==="add"?"Draw another "+(nextEffect==="dim"?"dim area":"highlight"):(chosen?"Editing "+chosen.name:"Select a region to edit")):
+    zones.length+" region"+(zones.length===1?"":"s")+" · "+(interaction==="add"?"Draw a new "+(nextEffect==="dim"?"dim area":"highlight"):(chosen?"Drag "+chosen.name+" to move it, or choose Add to draw another":"Select a region or choose Add to draw another")):
     "Choose Add Highlight or Add Dim Area, then draw on the image.";
 
  }
