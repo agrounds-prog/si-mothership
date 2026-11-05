@@ -1275,7 +1275,8 @@
  function fitOverlay(svg,img){
   const rect=img.getBoundingClientRect();
   const screen=img.ownerDocument.defaultView;
-  if(!rect.width||!rect.height||!svg.isConnected)return;
+  if(!rect.width||!rect.height||!svg.isConnected){svg.style.display="none";return}
+  svg.style.display="block";
   const nw=img.naturalWidth||16,nh=img.naturalHeight||9;
   let dw=rect.width,dh=rect.height;
   const fit=screen.getComputedStyle(img).objectFit;
@@ -1301,9 +1302,9 @@
   if(!info){clearOverlays();return}
   const ids=liveVisibility(info),zones=info.slide.siSpotlight.zones||[];
   const targets=[
-   ["shared","#sharedContent .si-plus-viewport-image"],
-   ["teacher","#mirrorContent .si-plus-viewport-image"],
-   ["preview","#presentationPreviewOverlay .si-plus-viewport-image"]
+   ["shared","#sharedContent .si-plus-viewport-image > img"],
+   ["teacher","#mirrorContent .si-plus-viewport-image > img"],
+   ["preview","#presentationPreviewOverlay .si-plus-viewport-image > img"]
   ];
   for(const [key,selector] of targets){
    const img=document.querySelector(selector),rec=overlays.get(key);
