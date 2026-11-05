@@ -236,3 +236,5 @@ def install(app, data_dir, teacher_authorized, root, public_base_url=""):
     app.router.add_post("/api/aac/media",upload)
     app.router.add_get("/api/aac/media/{kind}/{key}",asset)
     app.router.add_get("/api/aac/public/{token}",public_board)
+    import aac_kokoro_service
+    aac_kokoro_service.install(app, data_dir, root, teacher_authorized)
