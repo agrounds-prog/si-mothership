@@ -209,7 +209,7 @@
    '<label>Highlight name<input id="siPlusSpotName" maxlength="50" placeholder="What to highlight"></label>'+
    '<label>Effect<select id="siPlusSpotEffect"><option value="outline">Outline Glow</option><option value="dim">Dim Background</option></select></label>'+
    '<label>Color<select id="siPlusSpotColor"><option value="red">Red</option><option value="green">Green</option><option value="blue">Blue</option><option value="yellow">Yellow</option><option value="black">White</option></select></label>'+
-   '<div class="si-plus-spot-list"></div><div class="si-plus-spot-buttons"><button type="button" class="si-plus-spot-full-image">⛶ Full Image</button></div><div class="si-plus-spot-buttons"><button type="button" class="si-plus-spot-align-right">⇥ Right Edge</button><button type="button" class="si-plus-spot-align-left">⇤ Left Edge</button></div><div class="si-plus-spot-buttons"><button type="button" class="si-plus-spot-undo">↶ Undo Change</button><button type="button" class="si-plus-spot-delete">Delete Selected</button></div><small class="si-plus-spot-state" aria-live="polite">Draw a region to begin.</small>'+
+   '<div class="si-plus-spot-list"></div><fieldset class="si-plus-spot-bounds"><legend>Region size &amp; position (% of image)</legend><label>Left <input type="number" data-bound="x" min="0" max="100" step="1"></label><label>Top <input type="number" data-bound="y" min="0" max="100" step="1"></label><label>Width <input type="number" data-bound="w" min="1" max="100" step="1"></label><label>Height <input type="number" data-bound="h" min="1" max="100" step="1"></label></fieldset><div class="si-plus-spot-buttons"><button type="button" class="si-plus-spot-full-image">⛶ Full Image</button></div><div class="si-plus-spot-buttons"><button type="button" class="si-plus-spot-align-right">⇥ Right Edge</button><button type="button" class="si-plus-spot-align-left">⇤ Left Edge</button></div><div class="si-plus-spot-buttons"><button type="button" class="si-plus-spot-undo">↶ Undo Change</button><button type="button" class="si-plus-spot-delete">Delete Selected</button></div><small class="si-plus-spot-state" aria-live="polite">Draw a region to begin.</small>'+
    '<button type="button" class="si-plus-spot-save">✓ Save Highlights &amp; Return</button><button type="button" class="si-plus-spot-remove">Remove Spotlight Mode</button></aside></div></div>';
   document.body.append(dialog);
   const svg=dialog.querySelector("svg");
@@ -366,6 +366,21 @@
     const z=zones.find(z=>z.id===selection);if(z&&z[key]!==e.target.value){rememberEdit();z[key]=e.target.value;dirty=true;updateEditor()}
    })
   }
+  const boundMax={x:1000,y:562.5,w:1000,h:562.5};
+  dialog.querySelectorAll("[data-bound]").forEach(input=>{
+   input.addEventListener("change",()=>{
+    const z=zones.find(item=>item.id===selection),field=input.dataset.bound;
+    if(!z||!Number.isFinite(Number(input.value)))return;
+    const val=Number(input.value)/100*boundMax[field];
+    const next={x:z.x,y:z.y,w:z.w,h:z.h};
+    if(field==="x"){next.x=clamp(val,0,1000-15);next.w=Math.min(next.w,1000-next.x)}
+    if(field==="y"){next.y=clamp(val,0,562.5-15);next.h=Math.min(next.h,562.5-next.y)}
+    if(field==="w")next.w=clamp(val,15,1000-next.x);
+    if(field==="h")next.h=clamp(val,15,562.5-next.y);
+    if(next[field]!==z[field]){rememberEdit();Object.assign(z,next);dirty=true}
+    updateEditor();
+   });
+  });
   dialog.querySelector(".si-plus-spot-full-image").onclick=()=>{
    const z=zones.find(item=>item.id===selection);
    if(!z||z.x===0&&z.y===0&&z.w===1000&&z.h===562.5)return;
@@ -449,6 +464,11 @@
   }
   dialog.querySelector(".si-plus-spot-delete").disabled=!chosen;
   dialog.querySelector(".si-plus-spot-full-image").disabled=!chosen;
+  for(const input of dialog.querySelectorAll("[data-bound]")){
+   const field=input.dataset.bound,scale=field==="x"||field==="w"?1000:562.5;
+   input.disabled=!chosen;
+   input.value=chosen?String(Math.round(chosen[field]/scale*1000)/10):"";
+  }
   dialog.querySelector(".si-plus-spot-align-right").disabled=!chosen;
   dialog.querySelector(".si-plus-spot-align-left").disabled=!chosen;
   dialog.querySelector(".si-plus-spot-undo").disabled=!undoHistory.length;
