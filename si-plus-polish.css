@@ -1188,6 +1188,14 @@ body.sipreview-open{
 .si-plus-spot-buttons{display:flex;gap:7px}.si-plus-spot-buttons button{flex:1}
 .si-plus-spot-list{display:flex;flex-wrap:wrap;gap:6px;max-height:120px;overflow:auto}
 .si-plus-spot-list button{padding:7px 9px;font-size:12px}
+.si-plus-spot-bounds{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;
+ border:1px solid #3b9cc3;border-radius:9px;padding:8px;min-width:0;
+}
+.si-plus-spot-bounds legend{font:800 11px system-ui;color:#bcefff;padding:0 4px}
+.si-plus-spot-bounds label{min-width:0}
+.si-plus-spot-bounds input{width:100%;min-width:0;box-sizing:border-box}
+
 .si-plus-spot-save{background:#078eac!important;border-color:#7cf4ff!important}
 .si-plus-spot-remove{border-color:#b25a6e!important;background:#4d2030!important}
 @media(max-width:800px){.si-plus-spot-layout{grid-template-columns:1fr}.si-plus-spot-editor{padding:5px}.si-plus-spot-dialog{padding:11px;max-height:99dvh}}
