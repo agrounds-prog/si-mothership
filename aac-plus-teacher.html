@@ -1,0 +1,30 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SI Mothership AAC+ — Teacher Studio</title><link rel="stylesheet" href="/aac-plus.css?v=1"></head><body class="aac aac-teacher">
+<header class="aac-header"><a href="/teacher" class="aac-brand" aria-label="Back to Mothership">🚀 <span>SI MOTHERSHIP <strong>AAC+</strong><small>COMMUNICATION STUDIO</small></span></a><span class="aac-header-note">Independent soundboards · No live classroom required</span><a href="/teacher" class="aac-quiet">← Command Deck</a></header>
+<main id="aacApp">
+<section class="aac-screen" id="libraryScreen">
+<div class="aac-titlebar"><div><p class="aac-eyebrow">TEACHER LIBRARY</p><h1>My Soundboards</h1><p>Build visual and audio communication boards for use on any device.</p></div><button class="aac-primary" id="newBoard">＋ Create Board</button></div>
+<div class="aac-search-row"><input id="boardSearch" type="search" aria-label="Search soundboards" placeholder="Search saved soundboards"><span id="boardCount" class="aac-chip"></span></div>
+<div id="boardList" class="aac-library-grid"></div>
+</section>
+<section class="aac-screen" id="editorScreen" hidden>
+<div class="aac-titlebar"><div><p class="aac-eyebrow">BOARD EDITOR</p><h1 id="editorHeading">Create Board</h1><p>Choose a tile to change its picture, label, color, and audio.</p></div><button class="aac-quiet" id="backLibrary">← Library</button></div>
+<div class="aac-editor-layout">
+<div class="aac-card aac-main-editor">
+<div class="aac-formline"><label>Board name<input id="boardTitle" maxlength="90" placeholder="e.g. Basic Needs"></label><label>Layout<select id="boardLayout"><option value="2x3">2 × 3 (6)</option><option value="3x3" selected>3 × 3 (9)</option><option value="4x4">4 × 4 (16)</option></select></label></div>
+<div id="teacherTiles" class="aac-grid" aria-label="Editable board preview"></div>
+<div class="aac-actions"><button id="previewBoard">▶ Student Preview</button><button id="saveBoard" class="aac-primary">Save to Library</button><button id="cancelEdit" class="aac-quiet">Cancel</button></div>
+</div>
+<div class="aac-card aac-tile-editor">
+<p class="aac-eyebrow">SELECTED BUTTON <span id="currentTileNumber">1</span></p>
+<label>Label<input id="tileLabel" maxlength="70" placeholder="e.g. More"></label>
+<label>Symbol or emoji<input id="tileSymbol" maxlength="4" placeholder="⭐"></label>
+<label>Background color<select id="tileColor"><option value="#075aa0">Ocean Blue</option><option value="#184d78">Deep Blue</option><option value="#2b2b73">Purple</option><option value="#0a937d">Teal</option><option value="#d14c59">Red</option><option value="#e49b26">Orange</option><option value="#a34fc9">Violet</option><option value="#2677c5">Sky Blue</option><option value="#f2b83d">Yellow</option><option value="#16a85f">Green</option></select></label>
+<label>Picture <small>PNG/JPG/WebP converted to PNG, max 2 MB</small><input id="tileImage" type="file" accept="image/*"></label><button id="removeImage" class="aac-quiet">Remove Picture</button>
+<div class="aac-audio-tools"><strong>Audio (30 seconds maximum)</strong><p>Record a voice message or upload a WAV file.</p><div class="aac-audio-row"><button id="recordAudio">🎙 Record</button><button id="stopRecording" disabled>■ Stop</button></div><div id="recordTimer" aria-live="polite">00:00 / 00:30</div><label>Upload WAV audio<input id="tileAudio" type="file" accept=".wav,audio/wav,audio/x-wav"></label><div class="aac-audio-row"><button id="previewAudio">▶ Hear Audio</button><button id="deleteAudio" class="aac-quiet">Delete Audio</button></div></div>
+<div class="aac-audio-row"><button id="moveLeft">← Move Left</button><button id="moveRight">Move Right →</button></div>
+<p class="aac-help">Blank cells remain inactive. These boards support communication choice, not scores or right/wrong answers.</p></div></div>
+</section>
+<section class="aac-screen" id="shareScreen" hidden><div class="aac-titlebar"><div><p class="aac-eyebrow">SHARE SOUNDBOARD</p><h1>Student Access</h1><p>Students open this read-only board without a login or classroom session.</p></div><button id="shareBack" class="aac-quiet">← Library</button></div><div class="aac-card aac-share-card"><div class="aac-share-qr"><img id="shareQr" alt="QR code for the shared AAC+ board"></div><div><p id="shareBoardName" class="aac-eyebrow"></p><label>Student link<input id="shareLink" readonly></label><div class="aac-actions"><button id="copyShare" class="aac-primary">Copy Link</button><button id="openShare">Open Student View</button><button id="revokeShare" class="aac-danger">Revoke Link</button></div><p class="aac-warn">Anyone with this link can view the board and play its audio. Avoid personal or confidential student information. Creating a new link revokes the old one.</p></div></div></section>
+</main>
+<div id="aacToast" class="aac-toast" role="status" aria-live="polite"></div>
+<script src="/aac-plus.js?v=1" defer></script></body></html>
