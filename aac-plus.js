@@ -47,6 +47,22 @@ function voiceScore(v){
  if(v.default)score+=6;
  return score;
 }
+// Cap the list at ten real English voices; only categorize names where the
+// installed voice name is a known masculine/feminine voice. A browser does not
+// expose reliable gender or age metadata, so don't fabricate those qualities.
+const feminineNames=/\\b(ava|aria|jenny|samantha|victoria|allison|susan|zira|hazel|sonia|libby|michelle|sara|ana|natasha|clara|karen|moira|tessa|fiona|emma|olivia|amy|joanna|kendra|kimberly|ivy|salli|nicole|nicky|siri female)\\b/i;
+const masculineNames=/\\b(guy|davis|brandon|christopher|eric|jacob|tony|ryan|brian|roger|stefan|steffan|andrew|mark|david|james|daniel|alex|fred|aaron|tom|oliver|arthur|george|matthew|justin|joey|rishi|siri male)\\b/i;
+function curatedVoices(){
+ const pool=availableVoices().filter(v=>/^en(?:-|$)/i.test(v.lang));
+ pool.sort((a,b)=>voiceScore(b)-voiceScore(a));
+ const used=new Set();
+ function pick(re){const found=[];for(const v of pool){if(found.length===5)break;if(re.test(v.name)&&!used.has(v.voiceURI)){used.add(v.voiceURI);found.push(v)}}return found}
+ const feminine=pick(feminineNames),masculine=pick(masculineNames);
+ const other=[];
+ // Fill to ten with additional actual voices, marked unclassified.
+ for(const v of pool){if(feminine.length+masculine.length+other.length>=10)break;if(!used.has(v.voiceURI)){used.add(v.voiceURI);other.push(v)}}
+ return {feminine,masculine,other};
+}
 function preferredVoice(){
  const voices=availableVoices();
  if(voiceChoice!=="auto"){
@@ -83,12 +99,15 @@ function createVoiceControls(){
   const previous=select.value||voiceChoice;
   select.replaceChildren();
   const automatic=document.createElement("option");automatic.value="auto";automatic.textContent="Best available (automatic)";select.append(automatic);
-  for(const voice of availableVoices()){
-   const opt=document.createElement("option");opt.value=voice.voiceURI;
-   opt.textContent=voice.name+" ("+voice.lang+")"+(voiceScore(voice)>=150?" · Enhanced":"");
-   select.append(opt);
+  const groups=curatedVoices();
+  for(const [title,voices] of [["Feminine-sounding",groups.feminine],["Masculine-sounding",groups.masculine],["Other available",groups.other]]){
+    if(!voices.length)continue;
+    const group=document.createElement("optgroup");group.label=title;
+    for(const voice of voices){const opt=document.createElement("option");opt.value=voice.voiceURI;opt.textContent=voice.name;group.append(opt)}
+    select.append(group);
   }
   select.value=Array.from(select.options).some(o=>o.value===previous)?previous:"auto";
+  note.textContent="Up to 10 voices from this device. Voice age and gender cannot be verified; recordings override speech.";
  }
  populate();
  if("speechSynthesis" in window){
