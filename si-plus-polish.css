@@ -1191,3 +1191,17 @@ body.sipreview-open{
 .si-plus-spot-save{background:#078eac!important;border-color:#7cf4ff!important}
 .si-plus-spot-remove{border-color:#b25a6e!important;background:#4d2030!important}
 @media(max-width:800px){.si-plus-spot-layout{grid-template-columns:1fr}.si-plus-spot-editor{padding:5px}.si-plus-spot-dialog{padding:11px;max-height:99dvh}}
+
+/* SI+ Quick Spotlight entry point, visible only in the SI+ library. */
+.si-plus-spotlight-quick-launch{
+ position:fixed;right:24px;bottom:24px;z-index:96;
+ display:inline-flex;align-items:center;justify-content:center;
+ min-height:52px;padding:12px 21px;
+ border:2px solid #64e2ff;border-radius:14px;
+ background:linear-gradient(130deg,#10679a,#133467);
+ box-shadow:0 0 22px #14a9eb79,0 8px 20px #0009;
+ color:#fff;font:900 15px/1.2 system-ui;cursor:pointer;
+}
+.si-plus-spotlight-quick-launch:hover{filter:brightness(1.16)}
+.si-plus-spotlight-quick-launch:focus-visible{outline:3px solid #ffe193;outline-offset:3px}
+@media(max-width:700px){.si-plus-spotlight-quick-launch{bottom:14px;right:12px;padding:10px 14px;min-height:46px;font-size:13px}}
