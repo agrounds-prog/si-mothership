@@ -477,6 +477,16 @@ html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-hei
 @keyframes si-pointer-vibe{from{transform:translateX(-50%) rotate(-2deg)}to{transform:translateX(-50%) rotate(2deg)}}
 @media(max-width:1100px){.stage .arena-ornament,.stage .marquee-mode-badge{display:none}}
 @media(prefers-reduced-motion:reduce){.stage[data-mode="wheel"].is-spinning .pointer{animation:none!important}}
+
+/* Adaptive type keeps actual results legible without spilling off ornate frames. */
+.stage .result[data-length="long"]{font-size:clamp(19px,2.5vw,35px)!important;line-height:1.14!important;letter-spacing:0!important}
+.stage .result[data-length="extra"]{font-size:clamp(16px,1.9vw,27px)!important;line-height:1.17!important;letter-spacing:0!important}
+#display-only .stage .result[data-length="long"]{font-size:clamp(24px,3.2vw,46px)!important}
+#display-only .stage .result[data-length="extra"]{font-size:clamp(18px,2.5vw,36px)!important}
+.stage[data-mode="lottery"] .lottery-showpiece[data-length="long"]{font-size:clamp(20px,2.5vw,33px)!important}
+.stage[data-mode="slot"] #reel[data-length="long"] .reel-label{font-size:clamp(15px,1.6vw,25px)!important}
+.stage[data-mode="cards"] .card.flipped{font-size:clamp(11px,1.25vw,19px)!important;overflow-wrap:anywhere;hyphens:auto}
+@media(max-width:700px){.stage .result[data-length="extra"]{font-size:17px!important}.stage[data-mode="cards"] .card.flipped{font-size:11px!important}}
 </style></head>
 <body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
 <main><section id="studio"><div class="studio-kicker">MISSION CONTROL · RANDOMIZER</div><h2>TEACHER STUDIO</h2>
@@ -666,7 +676,14 @@ function setReelLabel(label){
  el.querySelector(".reel-left").textContent=slotSides[0]||"★";
  el.querySelector(".reel-right").textContent=slotSides[1]||"★";
 }
+function fitWinnerType(){
+ const len=winner.length;
+ $("result").dataset.length=len>62?"extra":len>34?"long":"normal";
+ $("lotteryShowpiece").dataset.length=len>18?"long":"normal";
+ $("reel").dataset.length=len>36?"long":"normal";
+}
 function showMode(){
+ fitWinnerType();
  $("stage").dataset.mode=styles;
  $("marqueeBadge").textContent=({wheel:"01 / SPIN WHEEL",slot:"02 / SLOT MACHINE",lottery:"03 / COSMIC LOTTERY",cards:"04 / MYSTERY CARDS"})[styles]||"RANDOMIZER";
  $("modeCaption").textContent=({wheel:"SPIN WHEEL · RANDOM SELECTION",slot:"SLOT MACHINE · REVEAL",lottery:"COSMIC LOTTERY · DRAW",cards:"MYSTERY CARDS · SHUFFLE"})[styles]||"RANDOM SELECTION";
@@ -677,7 +694,7 @@ function showMode(){
  if(styles==="wheel"){$("wheel").style.display="block";renderWheelLegend();wheel()}else renderWheelLegend()
  if(styles==="lottery")renderLottery();
  $("lotteryShowpiece").hidden=!(styles==="lottery"&&winner);
- $("lotteryShowpieceText").textContent=styles==="lottery"&&winner?winner:"";
+ $("lotteryShowpieceText").textContent=styles==="lottery"&&winner?(winner.length>24?"★":winner):"";
  if(styles==="cards")renderCards();
  if(styles==="slot")setReelLabel(winner||displayLabel||"✦ ? ✦");
 }
