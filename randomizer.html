@@ -175,6 +175,29 @@ main{grid-template-columns:minmax(330px,390px) minmax(0,1fr);gap:18px;align-item
 .wheel-legend .legend-item.is-winner{position:relative}
 .wheel-legend .legend-item.is-winner:before{content:"★";color:#ffe6a4;margin-right:-5px}
 
+
+/* Phase 6 — clean projector controls and comfortable long-text layouts */
+.fullscreen-btn{display:none;position:absolute;right:19px;top:18px;z-index:7;background:#09283fbf;border:1px solid #65c6dd;color:#c9f6ff;font-size:12px;padding:9px 13px;box-shadow:0 3px 14px #0005}
+#display-only .fullscreen-btn{display:block}
+#display-only .fullscreen-btn:hover{background:#1a5473}
+#studio #animationSpeed{width:100%;max-width:100%;background:#071d33;border-color:#478bb3;font-weight:700}
+#display-only:fullscreen main{padding:0}
+#display-only:fullscreen .stage{min-height:calc(100vh - 74px);border:0;border-radius:0}
+#display-only:fullscreen header{min-height:74px}
+.stage .result{white-space:normal;overflow-wrap:anywhere;hyphens:auto;line-height:1.14;padding:12px 20px}
+#reel .reel-label{max-height:100%;overflow-wrap:anywhere;font-size:clamp(22px,3.5vw,52px);line-height:1.13}
+#display-only #reel .reel-label{font-size:clamp(28px,4.5vw,72px)}
+#display-only .visual{min-height:220px}
+@media(max-height:680px){
+ #display-only .stage{gap:7px;justify-content:space-around;min-height:calc(100vh - 75px)}
+ #display-only .visual{height:min(48vh,370px);min-height:170px}
+ #display-only .result{min-height:55px;font-size:clamp(26px,4vw,55px)}
+ #display-only .recent{min-height:0}
+ #display-only .display-title{font-size:clamp(20px,2.5vw,30px)}
+ #display-only .mode-caption{margin-top:-5px}
+}
+@media(prefers-reduced-motion:reduce){#display-only .fullscreen-btn{transition:none}}
+
 </style></head>
 <body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
 <main><section id="studio"><h2>TEACHER STUDIO</h2>
@@ -191,7 +214,7 @@ main{grid-template-columns:minmax(330px,390px) minmax(0,1fr);gap:18px;align-item
 <div class="studio-effects"><h2>SHOW EFFECTS</h2>
 <label class="effects-option"><input id="soundEnabled" type="checkbox"> <span>Sound effects <small>Subtle ticking and a winner chime (teacher window only)</small></span></label>
 <label class="effects-option"><input id="celebrateEnabled" type="checkbox" checked> <span>Winner celebration <small>Brief visual sparkle burst on the shared screen</small></span></label>
-<small class="note">Sounds default to off. Celebrations follow reduced-motion preferences.</small></div>
+<label for="animationSpeed">Reveal speed</label><select id="animationSpeed"><option value="quick">Quick · 2 seconds</option><option value="normal" selected>Normal · 4 seconds</option><option value="dramatic">Dramatic · 6 seconds</option></select><small class="note">Sounds default to off. Celebrations follow reduced-motion preferences.</small></div>
 <div class="row" style="margin-top:15px"><button id="resetPool">Reset Pool</button><button id="clearAll">Clear Choices</button></div>
 <hr style="border:0;border-top:1px solid #386080;margin:20px 0">
 <h2>SAVED RANDOMIZERS</h2><label for="savedName">Save set as</label><input id="savedName" maxlength="90" placeholder="Friday discussion choices"><div class="row" style="margin-top:8px"><button class="primary" id="save">Save Set</button><button id="delete">Delete Saved</button></div>
@@ -201,13 +224,13 @@ main{grid-template-columns:minmax(330px,390px) minmax(0,1fr);gap:18px;align-item
 <section class="stage" id="stage"><div class="celebration" id="celebration" aria-hidden="true"></div><p class="display-title" id="displayTitle">Classroom Choices</p><div class="mode-caption" id="modeCaption">SPIN WHEEL · RANDOM SELECTION</div>
 <div class="visual"><canvas id="wheel" width="800" height="800"></canvas><div class="pointer" id="pointer"></div><div id="reel"></div><div id="lottery"></div><div id="cards"></div></div><div class="wheel-legend" id="wheelLegend" aria-label="Wheel choice key" hidden></div>
 <div class="result" id="result" aria-live="polite">Ready to randomize?</div><div class="recent" id="recent" aria-label="Recent selections"></div>
-<div class="draw-progress" id="drawProgress" aria-hidden="true"><span></span></div><button class="primary action" id="spin">✦ RANDOMIZE</button><div class="status" id="status">Enter two or more choices to begin.</div></section></main>
+<div class="draw-progress" id="drawProgress" aria-hidden="true"><span></span></div><button class="primary action" id="spin">✦ RANDOMIZE</button><div class="status" id="status">Enter two or more choices to begin.</div><button id="fullscreenBtn" type="button" class="fullscreen-btn">⛶ Full Screen</button></section></main>
 <script>
 (function(){"use strict";
 const DISPLAY=new URLSearchParams(location.search).has("display"),STORE="siMothership.randomizerSets.v1",CHANNEL="si-mothership-randomizer";
 if(DISPLAY)document.body.id="display-only";
 const $=id=>document.getElementById(id),colors=["#1fb4bd","#e49444","#7754c1","#b84979","#2389c7","#57a76a","#aa6a41","#9368d3"];
-let choices=[{text:"Movie",weight:1},{text:"Art",weight:1},{text:"Music",weight:1},{text:"Game",weight:1}],pool=[],styles="wheel",busy=false,winner="",rotation=0,library={},revision=0,displayLabel="",lastBroadcast=0,history=[],motionIndex=-1,presentPool=[],winnerIndex=-1,drawProgress=0,celebrate=true,celebrationToken=0,audioContext=null;
+let choices=[{text:"Movie",weight:1},{text:"Art",weight:1},{text:"Music",weight:1},{text:"Game",weight:1}],pool=[],styles="wheel",busy=false,winner="",rotation=0,library={},revision=0,displayLabel="",lastBroadcast=0,history=[],motionIndex=-1,presentPool=[],winnerIndex=-1,drawProgress=0,celebrate=true,celebrationToken=0,audioContext=null,speed="normal";
 const bc=typeof BroadcastChannel!=="undefined"?new BroadcastChannel(CHANNEL):null;
 function html(s){return String(s).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]))}
 function clean(list){return (Array.isArray(list)?list:[]).slice(0,80).map(x=>({text:String(x.text||"").trim().slice(0,100),weight:Math.min(100,Math.max(1,Number(x.weight)||1))})).filter(x=>x.text)}
@@ -271,9 +294,9 @@ function celebrateWinner(token){
  // Removing old nodes immediately on the next draw prevents stale confetti.
 }
 function clearCelebration(){$("celebration").replaceChildren()}
-function snapshot(){return {title:$("title").value,styles,choices:clean(choices),weighted:$("weighted").checked,remove:$("removeWinner").checked,celebrate:$("celebrateEnabled").checked}}
-function apply(data){if(!data)return;busy=false;$("stage").classList.remove("has-winner","is-spinning");choices=clean(data.choices);styles=["wheel","slot","lottery","cards"].includes(data.styles)?data.styles:"wheel";$("title").value=data.title||"Classroom Choices";$("choiceSearch").value="";$("weighted").checked=!!data.weighted;$("removeWinner").checked=!!data.remove;$("celebrateEnabled").checked=data.celebrate!==false;celebrate=$("celebrateEnabled").checked;pool=choices.map((_,i)=>i);winner="";winnerIndex=-1;presentPool=[];rotation=0;history=[];clearCelebration();drawProgress=0;$("drawProgress").firstElementChild.style.width="0%";updateHistory();$("result").textContent="Ready to randomize?";render()}
-function broadcast(){if(DISPLAY)return;const data={title:$("title").value,styles,choices,pool,winner,winnerIndex,rotation,presentPool,weighted:$("weighted").checked,busy,displayLabel,motionIndex,history,drawProgress,celebrate,celebrationToken,revision:++revision};try{bc?.postMessage(data);localStorage.setItem(CHANNEL,JSON.stringify(data))}catch(e){}}
+function snapshot(){return {title:$("title").value,styles,choices:clean(choices),weighted:$("weighted").checked,remove:$("removeWinner").checked,celebrate:$("celebrateEnabled").checked,speed:$("animationSpeed").value}}
+function apply(data){if(!data)return;busy=false;$("stage").classList.remove("has-winner","is-spinning");choices=clean(data.choices);styles=["wheel","slot","lottery","cards"].includes(data.styles)?data.styles:"wheel";$("title").value=data.title||"Classroom Choices";$("choiceSearch").value="";$("weighted").checked=!!data.weighted;$("removeWinner").checked=!!data.remove;$("celebrateEnabled").checked=data.celebrate!==false;$("animationSpeed").value=["quick","normal","dramatic"].includes(data.speed)?data.speed:"normal";celebrate=$("celebrateEnabled").checked;pool=choices.map((_,i)=>i);winner="";winnerIndex=-1;presentPool=[];rotation=0;history=[];clearCelebration();drawProgress=0;$("drawProgress").firstElementChild.style.width="0%";updateHistory();$("result").textContent="Ready to randomize?";render()}
+function broadcast(){if(DISPLAY)return;const data={title:$("title").value,styles,choices,pool,winner,winnerIndex,rotation,presentPool,weighted:$("weighted").checked,busy,displayLabel,motionIndex,history,drawProgress,celebrate,celebrationToken,speed:$("animationSpeed").value,revision:++revision};try{bc?.postMessage(data);localStorage.setItem(CHANNEL,JSON.stringify(data))}catch(e){}}
 function renderChoices(){
  const query=$("choiceSearch").value.trim().toLocaleLowerCase();
  const enabled=$("weighted").checked,overall=totalWeight();
@@ -396,7 +419,7 @@ function draw(){
  $("stage").classList.remove("has-winner");
  $("stage").classList.add("is-spinning");
  $("result").textContent="Selecting…";$("spin").disabled=true;
- const duration=3800,begin=performance.now(),initial=rotation;
+ const duration={quick:2000,normal:3800,dramatic:6000}[$("animationSpeed").value]||3800,begin=performance.now(),initial=rotation;
  const weights=indexWeights(),sum=weights.reduce((a,b)=>a+b,0),pos=pool.indexOf(index);
  const before=weights.slice(0,pos).reduce((a,b)=>a+b,0),center=(before+weights[pos]/2)/sum*360;
  const target=((360-center)%360+360)%360;
@@ -441,16 +464,16 @@ function draw(){
 function fillLibrary(){const old=$("library").value;$("library").innerHTML='<option value="">Choose saved randomizer…</option>'+Object.keys(library).sort().map(name=>'<option value="'+html(name)+'">'+html(name)+'</option>').join("");if(old in library)$("library").value=old}
 async function getSets(){try{const response=await fetch("/api/storage",{credentials:"same-origin"});if(!response.ok)throw Error("Storage unavailable");const data=await response.json();library=JSON.parse(data.items?.[STORE]||"{}");if(!library||Array.isArray(library)||typeof library!=="object")library={};$("storageStatus").textContent="Railway teacher library connected."}catch(e){try{library=JSON.parse(localStorage.getItem(STORE)||"{}")}catch(_) {library={}}$("storageStatus").textContent="Local backup in use — sign in as teacher to sync with Railway."}fillLibrary()}
 async function saveLibrary(){localStorage.setItem(STORE,JSON.stringify(library));const response=await fetch("/api/storage",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({key:STORE,value:JSON.stringify(library)})});if(!response.ok)throw Error("Railway save failed ("+response.status+")");$("storageStatus").textContent="Saved to Railway teacher library."}
-function listen(data){if(!DISPLAY||!data||typeof data.revision!=="number"||data.revision<revision)return;$("stage").classList.toggle("is-spinning",!!data.busy);$("stage").classList.toggle("has-winner",!!data.winner);revision=data.revision;choices=clean(data.choices);pool=(data.pool||[]).filter(i=>Number.isInteger(i)&&choices[i]);styles=["wheel","slot","lottery","cards"].includes(data.styles)?data.styles:"wheel";$("weighted").checked=!!data.weighted;winner=data.winner||"";winnerIndex=Number.isInteger(data.winnerIndex)?data.winnerIndex:-1;presentPool=Array.isArray(data.presentPool)?data.presentPool.filter(i=>Number.isInteger(i)&&choices[i]):[];rotation=data.rotation||0;displayLabel=data.displayLabel||"";motionIndex=Number.isInteger(data.motionIndex)?data.motionIndex:-1;history=Array.isArray(data.history)?data.history.slice(0,6):[];celebrate=data.celebrate!==false;const nextCelebration=Number(data.celebrationToken)||0;if(nextCelebration>celebrationToken){celebrationToken=nextCelebration;celebrateWinner(nextCelebration)}if(data.busy)clearCelebration();drawProgress=Math.max(0,Math.min(100,Number(data.drawProgress)||0));$("drawProgress").firstElementChild.style.width=drawProgress+"%";updateHistory();$("displayTitle").textContent=data.title||"Randomizer";$("result").textContent=winner?"✦ "+winner:data.busy?"Selecting…":"Ready to randomize?";$("status").textContent=pool.length?pool.length+" available choices · "+(data.weighted?"weighted":"equal")+" probability":"No choices left — reset the pool";showMode();if(styles==="slot"&&data.busy)$("reel").querySelector(".reel-label").textContent=displayLabel||"✦";if(styles==="lottery"){const balls=$("lottery").children;for(const ball of balls)ball.classList.remove("active");if(data.busy&&balls[motionIndex])balls[motionIndex].classList.add("active");$("lottery").style.transform=data.busy?"translateY("+Math.sin(data.revision/2)*9+"px)":"none"}if(styles==="cards"&&data.busy){for(const card of $("cards").children)card.classList.remove("active","flipped");if($("cards").children[motionIndex])$("cards").children[motionIndex].classList.add("active")}}
-if(DISPLAY){$("returnBtn").style.display="none";$("screenBtn").style.display="none";$("spin").style.display="none";bc&&(bc.onmessage=e=>listen(e.data));window.addEventListener("storage",e=>{if(e.key===CHANNEL){try{listen(JSON.parse(e.newValue))}catch(_){}}});try{listen(JSON.parse(localStorage.getItem(CHANNEL)||"null"))}catch(_){};return}
+function listen(data){if(!DISPLAY||!data||typeof data.revision!=="number"||data.revision<revision)return;$("stage").classList.toggle("is-spinning",!!data.busy);$("stage").classList.toggle("has-winner",!!data.winner);revision=data.revision;choices=clean(data.choices);pool=(data.pool||[]).filter(i=>Number.isInteger(i)&&choices[i]);styles=["wheel","slot","lottery","cards"].includes(data.styles)?data.styles:"wheel";$("weighted").checked=!!data.weighted;winner=data.winner||"";winnerIndex=Number.isInteger(data.winnerIndex)?data.winnerIndex:-1;presentPool=Array.isArray(data.presentPool)?data.presentPool.filter(i=>Number.isInteger(i)&&choices[i]):[];rotation=data.rotation||0;displayLabel=data.displayLabel||"";motionIndex=Number.isInteger(data.motionIndex)?data.motionIndex:-1;history=Array.isArray(data.history)?data.history.slice(0,6):[];celebrate=data.celebrate!==false;const nextCelebration=Number(data.celebrationToken)||0;if(nextCelebration>celebrationToken){celebrationToken=nextCelebration;celebrateWinner(nextCelebration)}if(data.busy)clearCelebration();drawProgress=Math.max(0,Math.min(100,Number(data.drawProgress)||0));$("drawProgress").firstElementChild.style.width=drawProgress+"%";updateHistory();$("displayTitle").textContent=data.title||"Randomizer";speed=["quick","normal","dramatic"].includes(data.speed)?data.speed:"normal";$("result").textContent=winner?"✦ "+winner:data.busy?"Selecting…":"Ready to randomize?";$("status").textContent=pool.length?pool.length+" available choices · "+(data.weighted?"weighted":"equal")+" probability":"No choices left — reset the pool";showMode();if(styles==="slot"&&data.busy)$("reel").querySelector(".reel-label").textContent=displayLabel||"✦";if(styles==="lottery"){const balls=$("lottery").children;for(const ball of balls)ball.classList.remove("active");if(data.busy&&balls[motionIndex])balls[motionIndex].classList.add("active");$("lottery").style.transform=data.busy?"translateY("+Math.sin(data.revision/2)*9+"px)":"none"}if(styles==="cards"&&data.busy){for(const card of $("cards").children)card.classList.remove("active","flipped");if($("cards").children[motionIndex])$("cards").children[motionIndex].classList.add("active")}}
+if(DISPLAY){$("fullscreenBtn").hidden=false;$("returnBtn").style.display="none";$("screenBtn").style.display="none";$("spin").style.display="none";bc&&(bc.onmessage=e=>listen(e.data));window.addEventListener("storage",e=>{if(e.key===CHANNEL){try{listen(JSON.parse(e.newValue))}catch(_){}}});try{listen(JSON.parse(localStorage.getItem(CHANNEL)||"null"))}catch(_){};return}
 $("screenBtn").onclick=()=>{const w=window.open("/randomizer?display=1","siRandomizerDisplay","width=1100,height=780");if(!w)alert("Allow pop-ups to open the classroom display.");broadcast()};
-$("returnBtn").onclick=()=>location.assign("/");
+$("fullscreenBtn").onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen()}catch(e){$("status").textContent="Full-screen mode is unavailable in this browser."}};document.addEventListener("fullscreenchange",()=>{$("fullscreenBtn").textContent=document.fullscreenElement?"⤢ Exit Full Screen":"⛶ Full Screen"});$("returnBtn").onclick=()=>location.assign("/");
 $("styles").onclick=e=>{const btn=e.target.closest("[data-style]");if(btn&&!busy){styles=btn.dataset.style;winner="";winnerIndex=-1;presentPool=[];clearCelebration();drawProgress=0;$("drawProgress").firstElementChild.style.width="0%";$("stage").classList.remove("has-winner","is-spinning");$("result").textContent="Ready to randomize?";render()}};
 $("addBulk").onclick=()=>{const lines=$("bulk").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).slice(0,80-choices.length);choices.push(...lines.map(text=>({text:text.slice(0,100),weight:1})));$("bulk").value="";pool=choices.map((_,i)=>i);render()};
 $("addChoice").onclick=()=>{if(choices.length>=80)return;choices.push({text:"New choice",weight:1});pool=choices.map((_,i)=>i);render()};
 $("choices").onchange=e=>{const t=e.target;if(t.dataset.text!==undefined){choices[+t.dataset.text].text=t.value.slice(0,100)||"Choice";render()}if(t.dataset.weight!==undefined){choices[+t.dataset.weight].weight=Math.min(100,Math.max(1,Number(t.value)||1));render()}};
 $("choices").onclick=e=>{const btn=e.target.closest("[data-del]");if(!btn)return;choices.splice(+btn.dataset.del,1);pool=choices.map((_,i)=>i);render()};
-$("choiceSearch").oninput=renderChoices;$("weighted").onchange=render;$("removeWinner").onchange=render;$("celebrateEnabled").onchange=()=>{celebrate=$("celebrateEnabled").checked;clearCelebration();broadcast()};$("title").oninput=()=>{$("displayTitle").textContent=$("title").value;broadcast()};
+$("choiceSearch").oninput=renderChoices;$("weighted").onchange=render;$("removeWinner").onchange=render;$("animationSpeed").onchange=broadcast;$("celebrateEnabled").onchange=()=>{celebrate=$("celebrateEnabled").checked;clearCelebration();broadcast()};$("title").oninput=()=>{$("displayTitle").textContent=$("title").value;broadcast()};
 $("resetPool").onclick=()=>{pool=choices.map((_,i)=>i);winner="";winnerIndex=-1;presentPool=[];$("stage").classList.remove("has-winner","is-spinning");$("result").textContent="Ready to randomize?";render()};
 $("clearAll").onclick=()=>{if(!confirm("Clear all current choices? Saved sets will remain."))return;choices=[];pool=[];winner="";$("choiceSearch").value="";render()};
 $("spin").onclick=draw;
