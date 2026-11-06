@@ -10,6 +10,7 @@ on:
       - 'tests/test_randomizer_browser.cjs'
       - 'tests/test_randomizer_effects_browser.cjs'
       - 'tests/test_randomizer_large_wheel_browser.cjs'
+      - 'tests/test_randomizer_visual_concept_browser.cjs'
       - '.github/workflows/randomizer-browser.yml'
   workflow_dispatch:
 permissions: {contents: read}
@@ -30,6 +31,7 @@ jobs:
           node --check tests/test_randomizer_browser.cjs
           node --check tests/test_randomizer_effects_browser.cjs
           node --check tests/test_randomizer_large_wheel_browser.cjs
+          node --check tests/test_randomizer_visual_concept_browser.cjs
           python - <<'PY'
           from html.parser import HTMLParser
           from pathlib import Path
@@ -74,6 +76,8 @@ jobs:
         run: node tests/test_randomizer_effects_browser.cjs
       - name: Verify large weighted wheel readability
         run: node tests/test_randomizer_large_wheel_browser.cjs
+      - name: Check concept art alignment and visual modes
+        run: node tests/test_randomizer_visual_concept_browser.cjs
       - name: Show server log on failure
         if: failure()
         run: tail -100 /tmp/randomizer-server.log || true
