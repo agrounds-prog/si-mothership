@@ -4894,3 +4894,14 @@ body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut.si-v90-illustrated-sho
   transition:none!important;
  }
 }
+
+/* Randomizer custom source artwork replaces the temporary generic SVG. */
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library .real-app-card .act-icon img.si-randomizer-uploaded-icon,
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library :is(.recent-app-icon,.preset-card-icon,.shortcut-manage-icon) img.si-randomizer-uploaded-icon,
+body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut.si-v90-illustrated-shortcut .app-shortcut-icon img.si-randomizer-uploaded-icon{
+ display:block!important;position:absolute!important;inset:0!important;
+ width:100%!important;height:100%!important;min-width:100%!important;min-height:100%!important;
+ max-width:none!important;max-height:none!important;object-fit:contain!important;
+ margin:0!important;padding:0!important;pointer-events:none!important;filter:drop-shadow(0 0 12px #57d5ff88)!important;
+ transform:none!important;
+}
