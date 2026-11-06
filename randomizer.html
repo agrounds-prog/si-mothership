@@ -294,9 +294,105 @@ header{border-bottom-color:#6ae2ff;box-shadow:0 3px 30px #0bc8ff25}
 }
 @media(prefers-reduced-motion:reduce){.stage .visual{transition:none!important}}
 
+
+/* Phase 7 — concept fidelity: dimensional command-deck layout, integrated stage
+   and unobstructed live content. Previous effects/gameplay remain unchanged. */
+:root{--deck-cyan:#45dfff;--deck-gold:#fbd583}
+body{background:#020918 radial-gradient(ellipse at 50% -18%,#164b7d,#061526 60%)!important}
+header{min-height:88px;padding:12px clamp(16px,3vw,48px)!important;
+ background:linear-gradient(180deg,#102f54dd,#06172af5),url("/randomizer-art/backgrounds/wheel_bridge_bg.webp") center 20%/cover!important;
+ border-bottom:2px solid #51dcff!important}
+header h1{font-size:clamp(25px,2.5vw,41px)!important;letter-spacing:.12em!important;color:#e2f4ff;text-shadow:0 2px 0 #27466e,0 4px 2px #010d1d,0 0 20px #6ad5ff99!important}
+header small{color:#95dfff!important;letter-spacing:.2em!important}
+header .row button{background:linear-gradient(180deg,#1a5775,#082b48);border:1px solid #77dbef;box-shadow:inset 0 1px #ffffff45,0 3px 14px #0008}
+main{max-width:1920px!important;width:100%;grid-template-columns:clamp(380px,30%,490px) minmax(0,1fr)!important;gap:14px!important;padding:14px clamp(12px,2vw,28px)!important;align-items:stretch!important}
+#studio,.stage{border:2px solid #41d3f2!important;border-radius:21px!important;box-shadow:inset 0 1px #b9f5ff42,0 0 25px #25b8f83a,0 18px 45px #0009!important}
+#studio{max-height:calc(100vh - 120px)!important;min-height:660px;padding:19px!important;background:#071c36e8 url("/randomizer-art/components/teacher_studio_panel.svg") center/100% 100% no-repeat!important}
+#studio .studio-kicker{font:900 10px system-ui;letter-spacing:.21em;color:#74dfff;margin:1px 0 8px}
+#studio h2{font-size:17px!important;letter-spacing:.08em!important;color:#eff9ff!important;margin-bottom:12px!important}
+#studio label{font-size:13px!important;color:#cce8f5!important}
+#studio input,#studio textarea,#studio select{font-size:14px!important;border-color:#4a95b7!important}
+#studio .modes{gap:12px!important}
+#studio .modes button{min-height:112px!important;border-radius:14px!important;aspect-ratio:9/5}
+#studio .modes button span{font-size:12px!important}
+#studio .choice-list{max-height:260px}
+#studio .choice{background:#092945e8;border-color:#3f7595}
+#studio .choice .chance-caption{color:#8be5f5}
+#studio button.primary,#studio #save{background:linear-gradient(180deg,#18afc0,#056e93)}
+.stage{min-width:0;min-height:calc(100vh - 120px)!important;padding:0!important;gap:0!important;justify-content:flex-start!important;
+ background-size:cover!important;background-position:center!important;overflow:hidden!important}
+.stage[data-mode="wheel"]{background-image:linear-gradient(90deg,#04102165,#05162c22 45%,#06132966),url("/randomizer-art/backgrounds/wheel_bridge_bg.webp")!important}
+.stage[data-mode="slot"]{background-image:linear-gradient(90deg,#04102165,#05162c22 45%,#06132966),url("/randomizer-art/backgrounds/slot_bridge_bg.webp")!important}
+.stage[data-mode="lottery"]{background-image:linear-gradient(90deg,#04102165,#05162c22 45%,#06132966),url("/randomizer-art/backgrounds/lottery_bridge_bg.webp")!important}
+.stage[data-mode="cards"]{background-image:linear-gradient(90deg,#04102165,#05162c22 45%,#06132966),url("/randomizer-art/backgrounds/cards_bridge_bg.webp")!important}
+.stage:before{opacity:.14!important}
+.stage:after{opacity:.4!important;z-index:0!important}
+.stage-marquee{position:relative;z-index:2;width:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;
+ background:linear-gradient(180deg,#04162ae9,#0a3050d9 72%,#092e4d51);
+ border-bottom:1px solid #70e5ff8a;box-shadow:0 7px 23px #0006;padding:15px 12px 12px}
+.stage-marquee:after{content:"";height:2px;width:min(90%,650px);background:linear-gradient(90deg,transparent,#62dffa,transparent);position:absolute;bottom:0}
+.stage .marquee-kicker{font:900 clamp(10px,.86vw,13px)/1.25 system-ui;letter-spacing:.24em;color:#89eaff;text-shadow:0 0 11px #1bbcf9}
+.stage .display-title{font-size:clamp(26px,2.8vw,43px)!important;line-height:1.1!important;margin:0!important;
+ text-shadow:0 2px 3px #071225,0 4px 8px #071225,0 0 18px #6ec5f999!important}
+.stage .display-title:before{display:none!important}
+.stage .mode-caption{font-size:clamp(11px,1.1vw,15px)!important;letter-spacing:.12em!important;margin:0!important;color:#ffe0a1!important}
+.stage .arena{position:relative;z-index:1;flex:1 1 auto;display:flex;align-items:center;justify-content:center;
+ width:100%;min-height:260px;max-height:690px;margin:0;padding:12px 15px 0}
+.stage .arena:after{content:"";position:absolute;left:10%;right:10%;bottom:0;height:14%;z-index:-1;
+ background:radial-gradient(ellipse,#f7bc5d6b,transparent 67%);filter:blur(15px);pointer-events:none}
+.stage .visual{--wheel-art-size:min(65vh,640px);width:100%!important;height:100%!important;min-height:250px!important;
+ max-width:910px!important;display:grid;place-items:center}
+.stage #wheel{width:min(100%,var(--wheel-art-size))!important;max-height:100%!important;aspect-ratio:1;object-fit:contain}
+.stage .wheel-art-frame{width:min(100%,var(--wheel-art-size))!important;max-height:100%;pointer-events:none}
+.stage .result{position:relative;z-index:2;width:min(90%,760px)!important;max-width:none!important;min-height:88px!important;
+ font-size:clamp(26px,3.05vw,49px)!important;padding:17px clamp(35px,7%,100px)!important;
+ margin:-19px auto 4px!important;background-color:transparent!important;line-height:1.06!important;
+ text-shadow:0 3px 5px #000,0 0 16px #ffc66a80!important}
+.stage:not(.has-winner) .result{font-size:clamp(20px,2.15vw,31px)!important;color:#f5e6b5!important}
+.stage.has-winner .result{font-size:clamp(30px,3.5vw,54px)!important}
+.stage.has-winner .result:before{margin-right:8px}
+.stage .wheel-legend{position:relative;z-index:2;max-height:104px!important;margin:1px auto 7px!important;background:#041a2ee8;border-color:#4a9fba}
+.stage-console{position:relative;z-index:3;flex:0 0 auto;width:100%;padding:9px clamp(10px,2.4vw,31px) 13px;
+ background:linear-gradient(180deg,#06223cd9,#05142aec);border-top:2px solid #4ecaf4a8;
+ box-shadow:0 -6px 20px #0009}
+.console-topline{display:flex;align-items:center;justify-content:center;gap:18px;min-height:24px}
+.console-topline .status{flex:0 1 auto;white-space:normal;font-size:12px!important;color:#b5e5f6!important}
+.console-topline .draw-progress{flex:1 1 180px;max-width:300px;margin:0!important;opacity:.45}
+.stage.is-spinning .draw-progress{opacity:1}
+.console-actions{display:flex;justify-content:center;align-items:center;gap:10px;position:relative;padding-top:7px}
+.stage .action{font-size:19px!important;min-width:210px!important;padding:12px 27px!important;
+ border:2px solid #88edff!important;box-shadow:0 0 22px #22c5e791,inset 0 2px #c9faff!important}
+.stage .recent{margin-top:9px;max-width:100%;justify-content:center;gap:10px}
+.stage .recent span{background:linear-gradient(180deg,#194b71,#0c2547);border:1px solid #4ba6d1;border-radius:11px;
+ min-width:min(22%,130px);text-align:center;color:#e2f4ff;font-size:12px;padding:6px 12px}
+.stage .fullscreen-btn{display:none;position:static;transform:none}
+#display-only .fullscreen-btn{display:block}
+#display-only main{grid-template-columns:1fr!important;max-width:none!important;padding:6px!important}
+#display-only .stage{min-height:calc(100vh - 98px)!important}
+#display-only .stage .arena{max-height:none}
+#display-only .stage .visual{--wheel-art-size:min(65vh,750px)}
+#display-only .stage .result{font-size:clamp(31px,4.3vw,72px)!important;min-height:92px!important}
+#display-only .stage:not(.has-winner) .result{font-size:clamp(22px,2.5vw,39px)!important}
+#display-only .stage-console{padding:9px 20px 12px}
+#display-only .stage .action{display:none}
+#display-only .stage .wheel-legend{max-height:93px!important}
+html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-height:0!important}
+@media(max-width:1050px){main{grid-template-columns:minmax(310px,34%) minmax(0,1fr)!important;gap:10px!important;padding:10px!important}
+ .stage .visual{--wheel-art-size:min(52vh,490px)}.stage .arena{min-height:230px}
+ .stage .result{min-height:70px!important;margin-top:-10px!important}}
+@media(max-width:760px){main{grid-template-columns:1fr!important}
+ #studio{max-height:none!important;min-height:0!important}
+ .stage{min-height:680px!important}.stage .visual{--wheel-art-size:min(58vh,540px)}
+ #display-only .stage{min-height:calc(100vh - 98px)!important}}
+@media(max-height:680px) and (min-width:761px){.stage .arena{min-height:200px;padding-top:0}
+ .stage .visual{--wheel-art-size:min(47vh,460px)}
+ .stage .result{min-height:58px!important;padding-top:8px!important;padding-bottom:8px!important}
+ .stage-marquee{padding-top:8px;padding-bottom:7px}
+ .stage-console{padding-top:5px;padding-bottom:7px}}
+
 </style></head>
 <body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
-<main><section id="studio"><h2>TEACHER STUDIO</h2>
+<main><section id="studio"><div class="studio-kicker">MISSION CONTROL · RANDOMIZER</div><h2>TEACHER STUDIO</h2>
 <label for="title">Activity title</label><input id="title" maxlength="90" value="Classroom Choices" autocomplete="off">
 <label for="style">Visual randomizer</label><div class="modes" id="styles"><button data-style="wheel" class="active"><span>SPIN WHEEL</span></button><button data-style="slot"><span>SLOT MACHINE</span></button><button data-style="lottery"><span>COSMIC LOTTERY</span></button><button data-style="cards"><span>MYSTERY CARDS</span></button></div>
 <label for="bulk">Paste choices (one per line)</label><textarea id="bulk" placeholder="Movie&#10;Art&#10;Music&#10;Game"></textarea><div class="row"><button id="addBulk">＋ Add Choices</button><button id="addChoice">＋ One Choice</button></div>
@@ -317,10 +413,18 @@ header{border-bottom-color:#6ae2ff;box-shadow:0 3px 30px #0bc8ff25}
 <label for="library">Load saved set</label><select id="library"><option value="">Choose saved randomizer…</option></select><button id="load" style="margin-top:8px;width:100%">Load Selected Set</button>
 <small class="note" id="storageStatus">Saved sets use your Mothership teacher library.</small>
 </section>
-<section class="stage" id="stage"><div class="celebration" id="celebration" aria-hidden="true"></div><p class="display-title" id="displayTitle">Classroom Choices</p><div class="mode-caption" id="modeCaption">SPIN WHEEL · RANDOM SELECTION</div>
-<div class="visual"><canvas id="wheel" width="800" height="800"></canvas><div class="wheel-art-frame" id="wheelArtFrame" aria-hidden="true"><img src="/randomizer-art/components/wheel_rim_overlay.svg" alt="" loading="eager"><div class="pointer" id="pointer"></div></div><div id="reel"></div><div id="lottery"></div><div id="cards"></div></div><div class="wheel-legend" id="wheelLegend" aria-label="Wheel choice key" hidden></div>
-<div class="result" id="result" aria-live="polite">Ready to randomize?</div><div class="recent" id="recent" aria-label="Recent selections"></div>
-<div class="draw-progress" id="drawProgress" aria-hidden="true"><span></span></div><button class="primary action" id="spin">✦ RANDOMIZE</button><div class="status" id="status">Enter two or more choices to begin.</div><button id="fullscreenBtn" type="button" class="fullscreen-btn">⛶ Full Screen</button></section></main>
+<section class="stage" id="stage">
+<div class="celebration" id="celebration" aria-hidden="true"></div>
+<div class="stage-marquee"><div class="marquee-kicker">✦ SI MOTHERSHIP · LIVE RANDOMIZER ✦</div><p class="display-title" id="displayTitle">Classroom Choices</p><div class="mode-caption" id="modeCaption">SPIN WHEEL · RANDOM SELECTION</div></div>
+<div class="arena"><div class="visual"><canvas id="wheel" width="800" height="800"></canvas><div class="wheel-art-frame" id="wheelArtFrame" aria-hidden="true"><img src="/randomizer-art/components/wheel_rim_overlay.svg" alt="" loading="eager"><div class="pointer" id="pointer"></div></div><div id="reel"></div><div id="lottery"></div><div id="cards"></div></div></div>
+<div class="result" id="result" aria-live="polite">Ready to randomize?</div>
+<div class="wheel-legend" id="wheelLegend" aria-label="Wheel choice key" hidden></div>
+<div class="stage-console">
+  <div class="console-topline"><div class="status" id="status">Enter two or more choices to begin.</div><div class="draw-progress" id="drawProgress" aria-hidden="true"><span></span></div></div>
+  <div class="console-actions"><button class="primary action" id="spin">✦ RANDOMIZE</button><button id="fullscreenBtn" type="button" class="fullscreen-btn">⛶ Full Screen</button></div>
+  <div class="recent" id="recent" aria-label="Recent selections"></div>
+</div>
+</section></main>
 <script>
 (function(){"use strict";
 const DISPLAY=new URLSearchParams(location.search).has("display"),STORE="siMothership.randomizerSets.v1",CHANNEL="si-mothership-randomizer";
