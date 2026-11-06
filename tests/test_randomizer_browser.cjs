@@ -13,9 +13,29 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(route.status(),200);
   await page.waitForSelector("#choices .choice");
   assert.equal(await page.locator("#choices .choice").count(),4);
+
+  const artFiles=[
+    "components/wheel_rim_overlay.svg","components/wheel_pointer.svg",
+    "components/slot_machine_chassis.svg","components/lottery_machine_frame.svg",
+    "components/mystery_card_back.svg","components/mystery_card_face_blank.svg",
+    "components/winner_plaque_blank.svg","components/randomizer_app_icon.svg",
+    "backgrounds/wheel_bridge_bg.webp","backgrounds/slot_bridge_bg.webp",
+    "backgrounds/lottery_bridge_bg.webp","backgrounds/cards_bridge_bg.webp",
+    "mode-thumbnails/wheel_mode_tile.webp","mode-thumbnails/slot_mode_tile.webp",
+    "mode-thumbnails/lottery_mode_tile.webp","mode-thumbnails/cards_mode_tile.webp",
+    "overlays/shared_display_hud.svg"
+  ];
+  for(const art of artFiles){
+    const response=await page.request.get(BASE+"/randomizer-art/"+art);
+    assert.equal(response.status(),200,"Missing art "+art);
+    assert.ok((await response.body()).length>300,"Empty art "+art);
+  }
+  assert.equal(await page.locator("#wheelArtFrame img").count(),1);
+
   for(const style of ["wheel","slot","lottery","cards"]){
    await page.locator('#styles [data-style="'+style+'"]').click();
    assert.equal(await page.locator('#styles [data-style="'+style+'"]').getAttribute("class"),"active");
+   assert.ok((await page.locator("#stage").evaluate(el=>getComputedStyle(el).backgroundImage)).includes(style+"_bridge_bg"));
   }
   await page.locator('#styles [data-style="wheel"]').click();
   await page.locator("#weighted").check();
