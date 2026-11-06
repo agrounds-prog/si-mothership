@@ -84,6 +84,7 @@ main{grid-template-columns:minmax(330px,390px) minmax(0,1fr);gap:18px;align-item
 .recent span{color:#c8e8f7;font:800 11px/1.2 system-ui;letter-spacing:.045em;background:#173a5688;border:1px solid #377396;border-radius:999px;padding:7px 10px;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .recent span:first-child{color:#ffe7ab;border-color:#dcb465a6;background:#5a431e77}
 #display-only .recent span{font-size:clamp(12px,1.5vw,18px);padding:9px 15px}
+.ball.selected{border:4px solid #ffe9a3;transform:scale(1.12);box-shadow:0 0 32px #f7d472b0,inset -8px -14px 18px #09192d77;animation:none}
 </style></head>
 <body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
 <main><section id="studio"><h2>TEACHER STUDIO</h2>
@@ -125,8 +126,28 @@ function broadcast(){if(DISPLAY)return;const data={title:$("title").value,styles
 function renderChoices(){const sum=totalWeight();$("choices").innerHTML=choices.map((item,i)=>'<div class="choice"><input aria-label="Choice '+(i+1)+'" data-text="'+i+'" value="'+html(item.text)+'"><input aria-label="Weight for '+html(item.text)+'" type="number" min="1" max="100" data-weight="'+i+'" value="'+item.weight+'" '+(!$("weighted").checked?'disabled':'')+'><button data-del="'+i+'" aria-label="Delete choice">×</button></div>').join("");$("count").textContent=pool.length+"/"+choices.length+" active";}
 function wheel(){const canvas=$("wheel"),ctx=canvas.getContext("2d"),indices=winner&&presentPool.length?presentPool:pool,n=indices.length;ctx.clearRect(0,0,800,800);if(!n)return;const weights=indices.map(i=>$("weighted").checked?choices[i].weight:1),sum=weights.reduce((a,b)=>a+b,0);let angle=-Math.PI/2;ctx.save();ctx.translate(400,400);ctx.rotate(rotation*Math.PI/180);for(let j=0;j<n;j++){const arc=2*Math.PI*weights[j]/sum,mid=angle+arc/2;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,350,angle,angle+arc);ctx.closePath();ctx.fillStyle=colors[j%colors.length];ctx.fill();ctx.strokeStyle="#d6efff";ctx.lineWidth=3;ctx.stroke();ctx.save();ctx.rotate(mid);ctx.translate(175,0);ctx.rotate(Math.PI/2);ctx.fillStyle="#fff";ctx.font="bold "+Math.max(16,Math.min(27,260/n+12))+"px system-ui";ctx.textAlign="center";ctx.shadowColor="#000";ctx.shadowBlur=6;let label=choices[indices[j]].text;const max=21;ctx.fillText(label.length>max?label.slice(0,max-1)+"…":label,0,0,245);ctx.restore();angle+=arc}ctx.restore();ctx.beginPath();ctx.arc(400,400,38,0,7);ctx.fillStyle="#f9d78a";ctx.fill();ctx.strokeStyle="#fff";ctx.lineWidth=7;ctx.stroke()}
 function showMode(){const visible={wheel:"wheel",slot:"reel",lottery:"lottery",cards:"cards"};for(const id of ["wheel","pointer","reel","lottery","cards"])$(id).style.display=id===visible[styles]||id==="pointer"&&styles==="wheel"?"grid":"none";if(styles==="wheel"){$("wheel").style.display="block";wheel()}if(styles==="lottery")renderLottery();if(styles==="cards")renderCards();if(styles==="slot")$("reel").textContent=winner||"✦ ? ✦";}
-function renderLottery(){const entries=(winner&&presentPool.length?presentPool:pool).slice(0,20);$("lottery").innerHTML=entries.map((i,j)=>'<div class="ball" style="background:radial-gradient(circle at 30% 20%,#fff7,'+colors[j%colors.length]+' 58%,#081526)">'+html(choices[i].text)+'</div>').join("")}
-function renderCards(){const entries=(winner&&presentPool.length?presentPool:pool).slice(0,16);$("cards").innerHTML=entries.map((i,j)=>'<div class="card'+(winner===choices[i].text?" flipped":"")+'">'+(winner===choices[i].text?html(choices[i].text):"✦")+'</div>').join("")}
+function visibleEntries(limit){
+ const source=winner&&presentPool.length?presentPool:pool;
+ const entries=source.slice(0,limit);
+ if(winner&&!entries.some(i=>choices[i]?.text===winner)){
+  const selected=source.find(i=>choices[i]?.text===winner);
+  if(selected!==undefined&&entries.length)entries[entries.length-1]=selected;
+ }
+ return entries;
+}
+function renderLottery(){
+ const entries=visibleEntries(20);
+ $("lottery").innerHTML=entries.map((i,j)=>{
+  const selected=!!winner&&choices[i].text===winner;
+  return '<div class="ball'+(selected?' selected':'')+'" style="background:radial-gradient(circle at 30% 20%,#fff7,'+
+    colors[j%colors.length]+' 58%,#081526)">'+html(choices[i].text)+'</div>';
+ }).join("");
+}
+function renderCards(){
+ const entries=visibleEntries(16);
+ $("cards").innerHTML=entries.map((i,j)=>'<div class="card'+(winner===choices[i].text?" flipped":"")+'">'+
+  (winner===choices[i].text?html(choices[i].text):"✦")+'</div>').join("");
+}
 function render(){renderChoices();$("displayTitle").textContent=$("title").value||"Classroom Choices";$("styles").querySelectorAll("button").forEach(b=>b.classList.toggle("active",b.dataset.style===styles));$("spin").disabled=busy||pool.length<1;$("status").textContent=pool.length?pool.length+" available choices · "+($("weighted").checked?"weighted":"equal")+" probability":"No choices left — reset the pool";showMode();broadcast()}
 function stop(index){presentPool=pool.slice();winner=choices[index].text;history.unshift(winner);history=history.slice(0,6);updateHistory();busy=false;$("stage").classList.remove("is-spinning");$("stage").classList.add("has-winner");displayLabel=winner;$("result").textContent="✦ "+winner;$("spin").disabled=false;if($("removeWinner").checked)pool=pool.filter(i=>i!==index);render();broadcast()}
 function draw(){if(busy||!pool.length)return;const index=pick();if(index<0)return;busy=true;winner="";presentPool=[];motionIndex=-1;showMode();$("stage").classList.remove("has-winner");$("stage").classList.add("is-spinning");$("result").textContent="Selecting…";$("spin").disabled=true;const duration=3800,begin=performance.now(),initial=rotation;const weights=indexWeights(),sum=weights.reduce((a,b)=>a+b,0),pos=pool.indexOf(index),before=weights.slice(0,pos).reduce((a,b)=>a+b,0),center=(before+weights[pos]/2)/sum*360;const target=((360-center)%360+360)%360;const extra=((target-(initial%360)+360)%360);const final=initial+2160+extra;broadcast();function frame(t){const p=Math.min(1,(t-begin)/duration),e=1-Math.pow(1-p,4);if(styles==="wheel"){rotation=initial+(final-initial)*e;wheel()}else if(styles==="slot"){displayLabel=choices[pool[Math.floor(entropy()*pool.length)]].text;$("reel").textContent=displayLabel}else if(styles==="lottery"){motionIndex=Math.floor(entropy()*Math.max(1,Math.min(20,pool.length)));$("lottery").style.transform="translateY("+Math.sin(t/75)*(1-p)*25+"px)"}else if(styles==="cards"){const cards=$("cards").children;for(const card of cards)card.classList.remove("flipped");if(cards.length){motionIndex=Math.floor(entropy()*cards.length);cards[motionIndex].classList.add("flipped")}}if(t-lastBroadcast>70){lastBroadcast=t;broadcast()}if(p<1){requestAnimationFrame(frame)}else{rotation=final;stop(index)}}requestAnimationFrame(frame)}
