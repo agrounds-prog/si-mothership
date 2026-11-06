@@ -1,0 +1,204 @@
+{
+  "name": "SI Mothership Randomizer Visual Asset Pack",
+  "version": "2026-11-06",
+  "license": "Created for SI Mothership classroom integration",
+  "dimensions": {
+    "stage_background": "1920x1080 (16:9)",
+    "shared_display_hud": "1920x1080 (transparent)",
+    "mode_thumbnails": "720x400 (9:5)",
+    "transparent_frames": "Native SVG viewBox; PNG previews supplied"
+  },
+  "assets": [
+    {
+      "path": "assets/backgrounds/cards_bridge_bg.png",
+      "bytes": 459131,
+      "sha256": "4724743d540ca273"
+    },
+    {
+      "path": "assets/backgrounds/cards_bridge_bg.svg",
+      "bytes": 24142,
+      "sha256": "352bbeceb2dfd09f"
+    },
+    {
+      "path": "assets/backgrounds/cards_bridge_bg.webp",
+      "bytes": 56472,
+      "sha256": "c6834207b83e0edc"
+    },
+    {
+      "path": "assets/backgrounds/lottery_bridge_bg.png",
+      "bytes": 459400,
+      "sha256": "b3dfaf5b42aa7d95"
+    },
+    {
+      "path": "assets/backgrounds/lottery_bridge_bg.svg",
+      "bytes": 24142,
+      "sha256": "55c29e599ff7c53b"
+    },
+    {
+      "path": "assets/backgrounds/lottery_bridge_bg.webp",
+      "bytes": 56916,
+      "sha256": "522be61eaa6bb1f9"
+    },
+    {
+      "path": "assets/backgrounds/slot_bridge_bg.png",
+      "bytes": 457757,
+      "sha256": "a3b9814560a2352e"
+    },
+    {
+      "path": "assets/backgrounds/slot_bridge_bg.svg",
+      "bytes": 24142,
+      "sha256": "0626534ef062fd61"
+    },
+    {
+      "path": "assets/backgrounds/slot_bridge_bg.webp",
+      "bytes": 58338,
+      "sha256": "bc3257e8c3021cd0"
+    },
+    {
+      "path": "assets/backgrounds/wheel_bridge_bg.png",
+      "bytes": 457811,
+      "sha256": "201f5360d15b43ae"
+    },
+    {
+      "path": "assets/backgrounds/wheel_bridge_bg.svg",
+      "bytes": 24142,
+      "sha256": "201e1564aceb5bc8"
+    },
+    {
+      "path": "assets/backgrounds/wheel_bridge_bg.webp",
+      "bytes": 58120,
+      "sha256": "7dc87a91a6fda952"
+    },
+    {
+      "path": "assets/components/lottery_ball_blank.png",
+      "bytes": 79290,
+      "sha256": "7292cf70b135656c"
+    },
+    {
+      "path": "assets/components/lottery_ball_blank.svg",
+      "bytes": 665,
+      "sha256": "d121cd1e97b8a5fb"
+    },
+    {
+      "path": "assets/components/lottery_machine_frame.png",
+      "bytes": 155517,
+      "sha256": "7d605b289c0d6ca4"
+    },
+    {
+      "path": "assets/components/lottery_machine_frame.svg",
+      "bytes": 1484,
+      "sha256": "9cf932be48df0abb"
+    },
+    {
+      "path": "assets/components/mystery_card_back.png",
+      "bytes": 54256,
+      "sha256": "8aedbe94337c74ff"
+    },
+    {
+      "path": "assets/components/mystery_card_back.svg",
+      "bytes": 1005,
+      "sha256": "1e050e0b0238b78c"
+    },
+    {
+      "path": "assets/components/mystery_card_face_blank.png",
+      "bytes": 40186,
+      "sha256": "c6e3b0c1bc818aa6"
+    },
+    {
+      "path": "assets/components/mystery_card_face_blank.svg",
+      "bytes": 891,
+      "sha256": "07ba071fd0ecbf7b"
+    },
+    {
+      "path": "assets/components/randomizer_app_icon.png",
+      "bytes": 81332,
+      "sha256": "4a02951840a1269a"
+    },
+    {
+      "path": "assets/components/randomizer_app_icon.svg",
+      "bytes": 1818,
+      "sha256": "be2a27cfd694a816"
+    },
+    {
+      "path": "assets/components/slot_machine_chassis.png",
+      "bytes": 85927,
+      "sha256": "835d9da09c1f6f94"
+    },
+    {
+      "path": "assets/components/slot_machine_chassis.svg",
+      "bytes": 2456,
+      "sha256": "ebd78dfb7ec0c85b"
+    },
+    {
+      "path": "assets/components/teacher_studio_panel.png",
+      "bytes": 12580,
+      "sha256": "276cd528c74651b4"
+    },
+    {
+      "path": "assets/components/teacher_studio_panel.svg",
+      "bytes": 679,
+      "sha256": "8c8a6714211cf2d1"
+    },
+    {
+      "path": "assets/components/wheel_pointer.png",
+      "bytes": 18601,
+      "sha256": "4a789913638083ec"
+    },
+    {
+      "path": "assets/components/wheel_pointer.svg",
+      "bytes": 338,
+      "sha256": "1231b2fa135f9e19"
+    },
+    {
+      "path": "assets/components/wheel_rim_overlay.png",
+      "bytes": 194439,
+      "sha256": "472f8c12fa661a75"
+    },
+    {
+      "path": "assets/components/wheel_rim_overlay.svg",
+      "bytes": 3172,
+      "sha256": "bdd0603680459eff"
+    },
+    {
+      "path": "assets/components/winner_plaque_blank.png",
+      "bytes": 37277,
+      "sha256": "1bc9caa230c2e08b"
+    },
+    {
+      "path": "assets/components/winner_plaque_blank.svg",
+      "bytes": 891,
+      "sha256": "335a60ae67d1adfc"
+    },
+    {
+      "path": "assets/mode-thumbnails/cards_mode_tile.webp",
+      "bytes": 85950,
+      "sha256": "efae65449d057674"
+    },
+    {
+      "path": "assets/mode-thumbnails/lottery_mode_tile.webp",
+      "bytes": 83042,
+      "sha256": "bb87c6b1872c69f0"
+    },
+    {
+      "path": "assets/mode-thumbnails/slot_mode_tile.webp",
+      "bytes": 69114,
+      "sha256": "9cbcd13d76e71691"
+    },
+    {
+      "path": "assets/mode-thumbnails/wheel_mode_tile.webp",
+      "bytes": 84018,
+      "sha256": "e929ec36ea5fed42"
+    },
+    {
+      "path": "assets/overlays/shared_display_hud.png",
+      "bytes": 15620,
+      "sha256": "168ab639551b0a95"
+    },
+    {
+      "path": "assets/overlays/shared_display_hud.svg",
+      "bytes": 556,
+      "sha256": "5c7d49f892022cde"
+    }
+  ],
+  "assets_count": 38
+}
