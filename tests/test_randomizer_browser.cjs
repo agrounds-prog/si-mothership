@@ -52,6 +52,24 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await display.locator("#stage").evaluate(el=>el.classList.contains("has-winner")),true);
   assert.equal(await page.locator("#choices .choice").count(),4,"Removing winner should preserve saved choices");
   assert.match(await page.locator("#status").textContent(),/3 available choices/);
+
+  // Verify the other theatrical modes reveal the same selection on Zoom.
+  for(const [mode,selector] of [["lottery","#lottery .ball.selected"],["cards","#cards .card.flipped"]]){
+   await page.locator("#resetPool").click();
+   await page.locator('#styles [data-style="'+mode+'"]').click();
+   await page.locator("#spin").click();
+   await page.waitForFunction(()=>document.querySelector("#stage").classList.contains("has-winner"),null,{timeout:8000});
+   const result=await page.locator("#result").textContent();
+   await display.waitForFunction(expected=>document.querySelector("#result").textContent===expected,result,{timeout:3000});
+   assert.equal(await page.locator(selector).count(),1,mode+" should visually reveal one winning choice");
+   assert.equal(await display.locator(selector).count(),1,mode+" must reveal the same visual in the projector");
+   assert.equal(await display.locator("#result").textContent(),result);
+  }
+  await page.locator("#resetPool").click();
+  await page.locator('#styles [data-style="wheel"]').click();
+  assert.equal(await display.locator("#wheel").isVisible(),true);
+  assert.ok((await display.locator("#wheel").boundingBox()).width>150);
+
   assert.deepEqual(exceptions,[]);
   console.log("PASS Randomizer saved sets, weighting, visual modes, selection and separate display");
  }finally{await browser.close()}
