@@ -198,11 +198,107 @@ html:fullscreen #display-only header{min-height:74px}
 }
 @media(prefers-reduced-motion:reduce){#display-only .fullscreen-btn{transition:none}}
 
+
+/* Randomizer Visual Art Pack — editable live interaction layered over approved images */
+:root{--randomizer-art-root:"/randomizer-art"}
+body{background:#030b1a radial-gradient(ellipse at 50% 0%,#175080,#061425 66%)}
+header{border-bottom-color:#6ae2ff;box-shadow:0 3px 30px #0bc8ff25}
+#studio{background:#071b32 url("/randomizer-art/components/teacher_studio_panel.svg") center/100% 100% no-repeat;border-color:#5ccbe9;box-shadow:0 0 26px #169eff2b,inset 0 0 28px #27b3e512}
+#studio .modes{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+#studio .modes button{
+ position:relative;display:flex;align-items:flex-end;justify-content:center;
+ aspect-ratio:9/5;min-height:98px!important;overflow:hidden;
+ padding:6px 5px 10px!important;border:2px solid #55a4c5!important;border-radius:12px;
+ background:#092a48 center/cover no-repeat!important;color:#fff!important;
+ box-shadow:0 8px 18px #0009,inset 0 0 10px #0004!important;
+ text-shadow:0 2px 7px #000,0 0 7px #061225;font:950 clamp(11px,1vw,15px)/1.1 system-ui!important
+}
+#studio .modes button[data-style="wheel"]{background-image:linear-gradient(transparent 45%,#010b24bc),url("/randomizer-art/mode-thumbnails/wheel_mode_tile.webp")!important}
+#studio .modes button[data-style="slot"]{background-image:linear-gradient(transparent 45%,#010b24bc),url("/randomizer-art/mode-thumbnails/slot_mode_tile.webp")!important}
+#studio .modes button[data-style="lottery"]{background-image:linear-gradient(transparent 45%,#010b24bc),url("/randomizer-art/mode-thumbnails/lottery_mode_tile.webp")!important}
+#studio .modes button[data-style="cards"]{background-image:linear-gradient(transparent 45%,#010b24bc),url("/randomizer-art/mode-thumbnails/cards_mode_tile.webp")!important}
+#studio .modes button span{z-index:1;display:block;background:#07162fcc;border:1px solid #78dcff77;border-radius:6px;padding:5px 9px;letter-spacing:.045em}
+#studio .modes button.active{border-color:#ffdc8c!important;box-shadow:0 0 0 1px #ffdf90,0 0 22px #ffc76c8c!important;transform:translateY(-2px)}
+#studio .modes button:focus-visible{outline:3px solid #fff4a8!important}
+.stage{background-position:center;background-size:cover;background-repeat:no-repeat;isolation:isolate}
+.stage[data-mode="wheel"]{background-image:linear-gradient(90deg,#020b19b8,#06172b55 48%,#020b19ba),url("/randomizer-art/backgrounds/wheel_bridge_bg.webp")}
+.stage[data-mode="slot"]{background-image:linear-gradient(90deg,#030d1baf,#071b3355 48%,#020b18a8),url("/randomizer-art/backgrounds/slot_bridge_bg.webp")}
+.stage[data-mode="lottery"]{background-image:linear-gradient(90deg,#020d1bab,#061c3355 48%,#020b18b0),url("/randomizer-art/backgrounds/lottery_bridge_bg.webp")}
+.stage[data-mode="cards"]{background-image:linear-gradient(90deg,#030b1aaf,#06112f55 48%,#020b18b0),url("/randomizer-art/backgrounds/cards_bridge_bg.webp")}
+.stage:after{inset:0!important;border:0!important;border-radius:inherit!important;background:url("/randomizer-art/overlays/shared_display_hud.svg") center/100% 100% no-repeat;opacity:.58;z-index:0!important;box-shadow:none!important}
+.stage .visual{z-index:1}
+.stage .display-title,.stage .mode-caption,.stage .result,.stage .draw-progress,.stage .recent,.stage .action,.stage .status{z-index:2}
+.stage .display-title{color:#f0faff;text-shadow:0 3px 9px #000,0 0 20px #53bdec}
+.stage .result{
+ background:#061631 url("/randomizer-art/components/winner_plaque_blank.svg") center/100% 100% no-repeat!important;
+ border:0!important;border-radius:10px!important;box-shadow:0 7px 22px #0009!important;
+ color:#ffe6a6;min-height:90px;max-width:min(95%,710px);padding:18px 11%!important;
+ text-shadow:0 2px 8px #000,0 0 13px #ffb750
+}
+.stage.has-winner .result{box-shadow:0 0 33px #ffcf6692,0 9px 26px #000a!important}
+.wheel-art-frame[hidden]{display:none!important}
+.wheel-art-frame{position:absolute;z-index:2;pointer-events:none;width:min(100%,540px);aspect-ratio:1;left:50%;top:50%;transform:translate(-50%,-50%);display:block}
+.wheel-art-frame img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 14px #ffc86b80)}
+.wheel-art-frame .pointer{
+ position:absolute!important;z-index:5!important;
+ top:-3%!important;left:50%!important;transform:translateX(-50%)!important;
+ width:14%!important;height:19%!important;min-height:40px;
+ border:0!important;background:url("/randomizer-art/components/wheel_pointer.svg") center/contain no-repeat!important;
+ filter:drop-shadow(0 4px 6px #000c) drop-shadow(0 0 10px #ffc154)!important
+}
+#display-only .wheel-art-frame{width:min(100%,670px)}
+.stage[data-mode="wheel"]:has(.wheel-legend:not([hidden])) .wheel-art-frame{width:min(100%,440px)}
+#display-only .stage[data-mode="wheel"]:has(.wheel-legend:not([hidden])) .wheel-art-frame{width:min(100%,510px)}
+.stage[data-mode="slot"] .visual:before,.stage[data-mode="lottery"] .visual:before{
+ content:"";position:absolute;z-index:0;pointer-events:none;inset:0;
+ background-position:center;background-size:100% 100%;background-repeat:no-repeat;
+ filter:drop-shadow(0 12px 18px #000b)
+}
+.stage[data-mode="slot"] .visual:before{background-image:url("/randomizer-art/components/slot_machine_chassis.svg")}
+.stage[data-mode="lottery"] .visual:before{background-image:url("/randomizer-art/components/lottery_machine_frame.svg")}
+.stage[data-mode="slot"] #reel{
+ z-index:1;position:relative;width:68%;height:43%;min-height:120px;
+ border:2px solid #ffe5a3;border-radius:20px;
+ background:linear-gradient(180deg,#142a5b 0%,#c2edff 48%,#173665 100%)!important;
+ box-shadow:inset 0 0 25px #051a38bb,0 0 23px #ffc66799!important;
+}
+#reel .reel-label{color:#fff7d7;text-shadow:0 2px 6px #081225,0 0 9px #b67a21}
+.stage[data-mode="lottery"] #lottery{
+ position:relative;z-index:1;width:59%;height:64%;max-height:74%;max-width:none;
+ padding:4%;gap:4px;align-content:center;grid-template-columns:repeat(5,minmax(0,1fr))
+}
+.stage[data-mode="lottery"] .ball{
+ background:url("/randomizer-art/components/lottery_ball_blank.svg") center/100% 100% no-repeat!important;
+ border:0!important;border-radius:50%;width:100%;max-width:86px;aspect-ratio:1;
+ box-shadow:0 4px 12px #0009;min-height:0;font-size:clamp(9px,1.1vw,15px);
+ color:#091c3c;text-shadow:0 1px 1px #ffffff99;
+}
+.stage[data-mode="cards"] #cards{gap:clamp(6px,1vw,14px);grid-auto-rows:minmax(74px,1fr)}
+.stage[data-mode="cards"] .card{
+ background:#15134d url("/randomizer-art/components/mystery_card_back.svg") center/100% 100% no-repeat!important;
+ border:0!important;border-radius:10px;box-shadow:0 9px 18px #0008!important;
+ color:#fce9a8;text-shadow:0 2px 7px #0008
+}
+.stage[data-mode="cards"] .card.flipped{
+ background:#164071 url("/randomizer-art/components/mystery_card_face_blank.svg") center/100% 100% no-repeat!important;
+ box-shadow:0 0 30px #ffe29bad,0 8px 18px #0008!important;
+ color:#fff7db
+}
+.stage[data-mode="cards"] .card.active{box-shadow:0 0 24px #ffd88ca3!important}
+.stage[data-mode="cards"] .card:before{display:none!important}
+#display-only .stage[data-mode="lottery"] .ball{max-width:115px;font-size:clamp(11px,1.45vw,18px)}
+#display-only .stage[data-mode="slot"] #reel{height:45%}
+@media(max-height:700px){
+ #display-only .stage .result{min-height:60px;padding:9px 9%!important}
+ #display-only .wheel-art-frame{width:min(100%,510px)}
+}
+@media(prefers-reduced-motion:reduce){.stage .visual{transition:none!important}}
+
 </style></head>
 <body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
 <main><section id="studio"><h2>TEACHER STUDIO</h2>
 <label for="title">Activity title</label><input id="title" maxlength="90" value="Classroom Choices" autocomplete="off">
-<label for="style">Visual randomizer</label><div class="modes" id="styles"><button data-style="wheel" class="active">🎡 Wheel</button><button data-style="slot">🎰 Slots</button><button data-style="lottery">🔮 Lottery</button><button data-style="cards">🃏 Cards</button></div>
+<label for="style">Visual randomizer</label><div class="modes" id="styles"><button data-style="wheel" class="active"><span>SPIN WHEEL</span></button><button data-style="slot"><span>SLOT MACHINE</span></button><button data-style="lottery"><span>COSMIC LOTTERY</span></button><button data-style="cards"><span>MYSTERY CARDS</span></button></div>
 <label for="bulk">Paste choices (one per line)</label><textarea id="bulk" placeholder="Movie&#10;Art&#10;Music&#10;Game"></textarea><div class="row"><button id="addBulk">＋ Add Choices</button><button id="addChoice">＋ One Choice</button></div>
 <div class="row" style="margin-top:15px;justify-content:space-between"><h2 style="margin:0">CHOICES &amp; ODDS</h2><span id="count"></span></div>
 <label for="choiceSearch">Find a choice <span class="edit-only">· editing only</span></label><input id="choiceSearch" type="search" placeholder="Search your choices…" autocomplete="off">
@@ -222,7 +318,7 @@ html:fullscreen #display-only header{min-height:74px}
 <small class="note" id="storageStatus">Saved sets use your Mothership teacher library.</small>
 </section>
 <section class="stage" id="stage"><div class="celebration" id="celebration" aria-hidden="true"></div><p class="display-title" id="displayTitle">Classroom Choices</p><div class="mode-caption" id="modeCaption">SPIN WHEEL · RANDOM SELECTION</div>
-<div class="visual"><canvas id="wheel" width="800" height="800"></canvas><div class="pointer" id="pointer"></div><div id="reel"></div><div id="lottery"></div><div id="cards"></div></div><div class="wheel-legend" id="wheelLegend" aria-label="Wheel choice key" hidden></div>
+<div class="visual"><canvas id="wheel" width="800" height="800"></canvas><div class="wheel-art-frame" id="wheelArtFrame" aria-hidden="true"><img src="/randomizer-art/components/wheel_rim_overlay.svg" alt="" loading="eager"><div class="pointer" id="pointer"></div></div><div id="reel"></div><div id="lottery"></div><div id="cards"></div></div><div class="wheel-legend" id="wheelLegend" aria-label="Wheel choice key" hidden></div>
 <div class="result" id="result" aria-live="polite">Ready to randomize?</div><div class="recent" id="recent" aria-label="Recent selections"></div>
 <div class="draw-progress" id="drawProgress" aria-hidden="true"><span></span></div><button class="primary action" id="spin">✦ RANDOMIZE</button><div class="status" id="status">Enter two or more choices to begin.</div><button id="fullscreenBtn" type="button" class="fullscreen-btn">⛶ Full Screen</button></section></main>
 <script>
@@ -380,7 +476,8 @@ function showMode(){
  $("stage").dataset.mode=styles;
  $("modeCaption").textContent=({wheel:"SPIN WHEEL · RANDOM SELECTION",slot:"SLOT MACHINE · REVEAL",lottery:"COSMIC LOTTERY · DRAW",cards:"MYSTERY CARDS · SHUFFLE"})[styles]||"RANDOM SELECTION";
  const visible={wheel:"wheel",slot:"reel",lottery:"lottery",cards:"cards"};
- for(const id of ["wheel","pointer","reel","lottery","cards"])
+ $("wheelArtFrame").hidden=styles!=="wheel";
+ for(const id of ["wheel","reel","lottery","cards"])
   $(id).style.display=id===visible[styles]||id==="pointer"&&styles==="wheel"?(id==="reel"?"flex":"grid"):"none";
  if(styles==="wheel"){$("wheel").style.display="block";renderWheelLegend();wheel()}else renderWheelLegend()
  if(styles==="lottery")renderLottery();
