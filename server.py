@@ -6546,6 +6546,31 @@ def create_app() -> web.Application:
     app.router.add_get("/dashboard-polish.js", lambda request: web.FileResponse(ROOT / "dashboard-polish.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/spotlight.html", lambda request: web.FileResponse(ROOT / "spotlight.html", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/randomizer", lambda request: web.FileResponse(ROOT / "randomizer.html", headers={"Cache-Control": "no-store"}))
+    # Whitelisted visual-only Randomizer assets uploaded by the teacher.
+    # Never expose arbitrary files from the repository or persisted student data.
+    randomizer_art_allowlist = {
+        "backgrounds": {"wheel_bridge_bg.webp", "slot_bridge_bg.webp", "lottery_bridge_bg.webp", "cards_bridge_bg.webp"},
+        "mode-thumbnails": {"wheel_mode_tile.webp", "slot_mode_tile.webp", "lottery_mode_tile.webp", "cards_mode_tile.webp"},
+        "components": {
+            "wheel_rim_overlay.svg", "wheel_pointer.svg",
+            "slot_machine_chassis.svg", "lottery_machine_frame.svg",
+            "lottery_ball_blank.svg", "mystery_card_back.svg",
+            "mystery_card_face_blank.svg", "winner_plaque_blank.svg",
+            "teacher_studio_panel.svg", "randomizer_app_icon.svg",
+        },
+        "overlays": {"shared_display_hud.svg"},
+    }
+    async def randomizer_art(request):
+        category, filename = request.match_info["category"], request.match_info["filename"]
+        if filename not in randomizer_art_allowlist.get(category, set()):
+            raise web.HTTPNotFound()
+        asset = ROOT / "SI_Mothership_Randomizer_Art_Pack" / "assets" / category / filename
+        if not asset.is_file():
+            raise web.HTTPNotFound()
+        content_type = "image/svg+xml" if filename.endswith(".svg") else ("image/webp" if filename.endswith(".webp") else "application/octet-stream")
+        return web.FileResponse(asset, headers={"Cache-Control": "public, max-age=3600", "Content-Type": content_type})
+    app.router.add_get("/randomizer-art/{category}/{filename}", randomizer_art)
+
     app.router.add_get("/teacher", teacher_console)
     app.router.add_get("/teacher/", teacher_console)
     app.router.add_get("/student-device-setup.cmd", student_device_setup)
