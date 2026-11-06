@@ -3578,6 +3578,7 @@ PERSISTED_STORAGE_KEYS = {
     "siMothership.dominoesGames.v1",
     "siMothership.fourInLineGames.v1",
     "siMothership.spotlight.activities.v1",
+    "siMothership.randomizerSets.v1",
 }
 
 CLIENTS: set[web.WebSocketResponse] = set()
@@ -6544,6 +6545,7 @@ def create_app() -> web.Application:
     app.router.add_get("/dashboard-polish.css", lambda request: web.FileResponse(ROOT / "dashboard-polish.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/dashboard-polish.js", lambda request: web.FileResponse(ROOT / "dashboard-polish.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/spotlight.html", lambda request: web.FileResponse(ROOT / "spotlight.html", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/randomizer", lambda request: web.FileResponse(ROOT / "randomizer.html", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/teacher", teacher_console)
     app.router.add_get("/teacher/", teacher_console)
     app.router.add_get("/student-device-setup.cmd", student_device_setup)
