@@ -16,6 +16,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await teacher.locator("#weighted").check();
   assert.equal(await teacher.locator("#wheelLegend").getAttribute("hidden"),null);
   assert.equal(await teacher.locator("#wheelLegend .legend-item").count(),30);
+  assert.equal(await teacher.locator("#wheelLegend .legend-odds").count(),30,"Weighted options show their chances");
   await projector.waitForFunction(()=>document.querySelectorAll("#wheelLegend .legend-item").length===30);
   assert.equal(await projector.locator("#wheelLegend").getAttribute("hidden"),null);
   assert.equal(await teacher.locator("#wheelLegend .legend-item").last().textContent(),await projector.locator("#wheelLegend .legend-item").last().textContent());
