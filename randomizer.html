@@ -414,6 +414,50 @@ html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-hei
 .stage[data-mode="cards"] #cards.cards-fan .card.flipped{z-index:5;transform:translateY(-32px) scale(1.14)!important}
 @media(max-width:650px){.stage[data-mode="cards"] #cards.cards-fan .card{min-height:100px!important}}
 
+
+/* Phase 8 · stronger game-show art direction and a proper reveal composition */
+.stage .winner-ribbon{display:none;position:relative;z-index:4;flex:0 0 auto;
+ width:min(42%,270px);min-width:140px;text-align:center;margin:-4px auto -25px!important;
+ padding:5px 12px 8px;border:2px solid #ffe09b;border-radius:10px;line-height:1;
+ color:#fff3ba;font:1000 clamp(15px,1.55vw,24px)/1.15 system-ui;letter-spacing:.11em;
+ text-shadow:0 2px 5px #000,0 0 9px #ffe6a389;
+ background:linear-gradient(135deg,#86521c,#e5ae43 25%,#5e3217 56%,#b77c30);
+ box-shadow:0 0 24px #e5a9499d,inset 0 1px 2px #fff7cc}
+.stage.has-winner .winner-ribbon{display:block;animation:si-reveal .5s ease-out both}
+.stage.has-winner .result:before{display:none!important}
+.stage .result{max-height:175px;overflow-wrap:anywhere}
+.stage.has-winner .result{padding-top:28px!important}
+.stage.is-spinning .result{background-color:#0d2c4e9c!important;color:#d4f1ff!important}
+.stage[data-mode="wheel"] .arena:before{content:"";position:absolute;width:min(72%,650px);aspect-ratio:1;left:50%;top:50%;
+ transform:translate(-50%,-47%);background:radial-gradient(circle,#ffe69a0d 41%,#ffdd8471 58%,#2ae6f71c 67%,transparent 77%);
+ filter:blur(17px);pointer-events:none;z-index:0}
+.stage[data-mode="wheel"] .wheel-art-frame img{filter:drop-shadow(0 4px 4px #000a) drop-shadow(0 0 23px #ffbb5f8e)!important}
+.stage[data-mode="wheel"] .wheel-art-frame .pointer{filter:drop-shadow(0 3px 3px #000) drop-shadow(0 0 16px #ffbc5e)!important}
+.stage[data-mode="slot"] .visual:after{content:"";position:absolute;left:12%;right:12%;bottom:7%;
+ border-bottom:3px solid #ffdf94a6;box-shadow:0 0 17px #ffbd4b;pointer-events:none}
+.stage[data-mode="lottery"] #lottery{width:55%!important;height:65%!important;max-width:600px;gap:5px!important}
+.stage[data-mode="lottery"] .ball{box-shadow:0 4px 14px #000c,inset 0 0 4px #a6f5ff50!important;transition:filter .18s}
+.stage[data-mode="lottery"] .lottery-showpiece[hidden]{display:none!important}
+.stage[data-mode="lottery"] .lottery-showpiece{position:absolute;z-index:4;right:2%;top:12%;width:min(27%,220px);
+ aspect-ratio:1;display:grid;place-items:center;padding:18px;
+ background:url("/randomizer-art/components/lottery_ball_blank.svg") center/contain no-repeat;
+ filter:drop-shadow(0 0 24px #ffe2a3b0);
+ color:#08213d;font:1000 clamp(15px,2vw,31px)/1.08 system-ui;text-align:center;
+ text-shadow:0 1px 2px #fff,0 0 8px #fff;overflow-wrap:anywhere;
+ animation:si-lottery-fly .7s cubic-bezier(.17,1.3,.4,1) both}
+.stage[data-mode="lottery"] .lottery-showpiece:after{content:"";position:absolute;inset:-9%;
+ border:2px solid #ffdb8580;border-radius:50%;box-shadow:0 0 30px #ffe18b91;pointer-events:none}
+@keyframes si-lottery-fly{from{opacity:0;transform:translate(-50%,40%) scale(.2)}to{opacity:1;transform:translate(0,0) scale(1)}}
+.stage[data-mode="cards"] #cards.cards-fan .card{filter:drop-shadow(0 5px 6px #000a) drop-shadow(0 0 8px #ae7cf63d)}
+.stage[data-mode="cards"] #cards.cards-fan .card.flipped{filter:drop-shadow(0 0 27px #ffd172d9)}
+.stage .stage-console{border-top:1px solid #8ce6ffb1;box-shadow:0 -5px 22px #0008,inset 0 1px #ffffff1d}
+.stage .action{background:linear-gradient(180deg,#13c9dc,#117897 53%,#075271)!important;border-radius:12px!important;
+ text-shadow:0 2px 5px #001628,0 0 9px #83fbff91!important}
+.stage .action:enabled:hover{background:linear-gradient(180deg,#33dceb,#158fb2 55%,#075271)!important}
+#display-only .stage.has-winner .winner-ribbon{width:min(30%,320px);font-size:clamp(18px,2vw,33px)}
+@media(max-width:1050px){.stage[data-mode="lottery"] .lottery-showpiece{right:1%;width:24%;padding:9px;font-size:clamp(10px,1.5vw,20px)}}
+@media(max-width:720px){.stage .winner-ribbon{margin-bottom:-12px!important}.stage[data-mode="lottery"] .lottery-showpiece{top:3%;width:23%}}
+@media(prefers-reduced-motion:reduce){.stage[data-mode="lottery"] .lottery-showpiece,.stage.has-winner .winner-ribbon{animation:none!important}}
 </style></head>
 <body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
 <main><section id="studio"><div class="studio-kicker">MISSION CONTROL · RANDOMIZER</div><h2>TEACHER STUDIO</h2>
@@ -440,8 +484,8 @@ html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-hei
 <section class="stage" id="stage">
 <div class="celebration" id="celebration" aria-hidden="true"></div>
 <div class="stage-marquee"><div class="marquee-kicker">✦ SI MOTHERSHIP · LIVE RANDOMIZER ✦</div><p class="display-title" id="displayTitle">Classroom Choices</p><div class="mode-caption" id="modeCaption">SPIN WHEEL · RANDOM SELECTION</div></div>
-<div class="arena"><div class="visual"><canvas id="wheel" width="800" height="800"></canvas><div class="wheel-art-frame" id="wheelArtFrame" aria-hidden="true"><img src="/randomizer-art/components/wheel_rim_overlay.svg" alt="" loading="eager"><div class="pointer" id="pointer"></div></div><div id="reel"></div><div id="lottery"></div><div id="cards"></div></div></div>
-<div class="result" id="result" aria-live="polite">Ready to randomize?</div>
+<div class="arena"><div class="visual"><canvas id="wheel" width="800" height="800"></canvas><div class="wheel-art-frame" id="wheelArtFrame" aria-hidden="true"><img src="/randomizer-art/components/wheel_rim_overlay.svg" alt="" loading="eager"><div class="pointer" id="pointer"></div></div><div id="reel"></div><div id="lottery"></div><div class="lottery-showpiece" id="lotteryShowpiece" aria-hidden="true"><span id="lotteryShowpieceText"></span></div><div id="cards"></div></div></div>
+<div class="winner-ribbon" aria-hidden="true">★ WINNER! ★</div><div class="result" id="result" aria-live="polite">Ready to randomize?</div>
 <div class="wheel-legend" id="wheelLegend" aria-label="Wheel choice key" hidden></div>
 <div class="stage-console">
   <div class="console-topline"><div class="status" id="status">Enter two or more choices to begin.</div><div class="draw-progress" id="drawProgress" aria-hidden="true"><span></span></div></div>
@@ -612,6 +656,8 @@ function showMode(){
   $(id).style.display=id===visible[styles]||id==="pointer"&&styles==="wheel"?(id==="reel"?"flex":"grid"):"none";
  if(styles==="wheel"){$("wheel").style.display="block";renderWheelLegend();wheel()}else renderWheelLegend()
  if(styles==="lottery")renderLottery();
+ $("lotteryShowpiece").hidden=!(styles==="lottery"&&winner);
+ $("lotteryShowpieceText").textContent=styles==="lottery"&&winner?winner:"";
  if(styles==="cards")renderCards();
  if(styles==="slot")setReelLabel(winner||displayLabel||"✦ ? ✦");
 }
