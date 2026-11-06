@@ -4809,3 +4809,16 @@ body.si-v80-dashboard #teacher #appShortcutsPanel .aac-plus-launch:focus-visible
 @media(max-width:700px){
  body.si-v80-dashboard #teacher #appShortcutsPanel .aac-plus-launch{margin-left:0!important}
 }
+
+
+body.si-v80-dashboard #teacher #appShortcutsPanel .si-randomizer-launch{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ min-height:38px!important;padding:8px 13px!important;white-space:nowrap!important;
+ text-decoration:none!important;font:900 12px/1.2 system-ui!important;
+ color:#fff8e2!important;border-radius:10px!important;margin-right:8px!important;
+ border:1px solid #ffd985!important;
+ background:linear-gradient(125deg,#806017,#185a7f)!important;
+ box-shadow:0 0 15px #ffda7a38!important
+}
+body.si-v80-dashboard #teacher #appShortcutsPanel .si-randomizer-launch:hover{filter:brightness(1.17)!important}
+body.si-v80-dashboard #teacher #appShortcutsPanel .si-randomizer-launch:focus-visible{outline:3px solid #fff!important;outline-offset:2px!important}
