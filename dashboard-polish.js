@@ -294,34 +294,41 @@ function installApprovedArtwork(){
  }).observe(grid,{childList:true});}
 }
 
-/* AAC+ is independent of classroom sessions: open a separate teacher Studio tab.
-   Do not consume or replace any of the nine existing game shortcut slots. */
-function installAACPlusLink(){
- const toolbar=document.querySelector('#teacher #appShortcutsPanel .app-shortcuts-head');
- if(!toolbar||toolbar.querySelector('.aac-plus-launch'))return;
- const link=document.createElement('a');
- link.href='/aac';link.target='_blank';link.rel='noopener';
- link.className='aac-plus-launch';
- link.textContent='🔊 AAC+ Studio';
- link.title='Create and share independent AAC communication boards';
- link.setAttribute('aria-label','Open AAC Plus Communication Studio');
- const manage=toolbar.querySelector('button,.si-v80-manage');
- if(manage&&manage.parentElement===toolbar)toolbar.insertBefore(link,manage);
- else toolbar.appendChild(link);
-}
-/* Visual Randomizer opens independently and leaves game shortcuts intact. */
-function installRandomizerLink(){
- const toolbar=document.querySelector('#teacher #appShortcutsPanel .app-shortcuts-head');
- if(!toolbar||toolbar.querySelector('.si-randomizer-launch'))return;
- const link=document.createElement('a');
- link.href='/randomizer';link.target='_blank';link.rel='noopener';
- link.className='si-randomizer-launch';
- link.textContent='🎡 RANDOMIZER';
- link.title='Open Visual Randomizer: wheel, slots, lottery, or cards';
- link.setAttribute('aria-label','Open classroom visual randomizer');
- const manage=toolbar.querySelector('button,.si-v80-manage');
- if(manage&&manage.parentElement===toolbar)toolbar.insertBefore(link,manage);
- else toolbar.appendChild(link);
+/* Classroom Tools bridge: register AAC+ and Randomizer as normal Activities.
+   Existing nine shortcuts, saved layout, lobby and running games are untouched. */
+function installClassroomTools(){
+ if(window.__siV80ClassroomTools)return;
+ if(typeof APP_REGISTRY==='undefined'||typeof openApp!=='function'||typeof renderActivities!=='function')return;
+ const tools=[
+  {id:'aac-plus',name:'AAC+',icon:'◈',subtitle:'Communication Boards · Voices · Classroom Access',status:'CLASSROOM TOOL',
+   description:'Build and present AAC communication boards with custom vocabulary and speech. Opens the separate AAC+ Studio.'},
+  {id:'randomizer',name:'RANDOMIZER',icon:'◉',subtitle:'Spin Wheel · Slots · Lottery · Mystery Cards',status:'CLASSROOM TOOL',
+   description:'Randomly choose student ideas, names or activities with optional weighted odds, saved sets and a Zoom-friendly display.'}
+ ];
+ for(const app of tools){
+  if(!APP_REGISTRY.some(item=>item.id===app.id))APP_REGISTRY.push(app);
+ }
+ const originalOpen=openApp;
+ openApp=function(id){
+  if(id==='aac-plus'||id==='randomizer'){
+   const destination=id==='aac-plus'?'/aac':'/randomizer';
+   const popup=window.open(destination,'_blank','noopener');
+   if(!popup&&typeof toast==='function')toast('Allow pop-ups to open '+(id==='aac-plus'?'AAC+':'Randomizer')+'.');
+   return;
+  }
+  return originalOpen.apply(this,arguments);
+ };
+ // Native artwork matches the other activity cards and 3×3 home shortcuts.
+ const originalIcon=appIconMarkup;
+ appIconMarkup=function(id){
+  const key=String(id||'').toLowerCase();
+  const common='viewBox="0 0 64 64" aria-hidden="true" focusable="false"';
+  if(key==='randomizer')return '<svg '+common+'><circle cx="32" cy="32" r="24" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="32" cy="32" r="6" fill="currentColor"/><path d="M32 8v18M32 38v18M8 32h18M38 32h18M15 15l12 12M37 37l12 12M49 15L37 27M27 37L15 49" stroke="currentColor" stroke-width="2.4"/><path d="m32 2 7 11H25z" fill="currentColor"/></svg>';
+  if(key==='aac-plus')return '<svg '+common+'><rect x="6" y="8" width="38" height="48" rx="7" fill="none" stroke="currentColor" stroke-width="3"/><path d="M6 24h38M6 40h38M25 8v48" stroke="currentColor" stroke-width="2" opacity=".75"/><path d="M49 23c5 4 5 14 0 18M54 17c9 8 9 22 0 30" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>';
+  return originalIcon.apply(this,arguments);
+ };
+ window.__siV80ClassroomTools=true;
+ if(typeof state!=='undefined'&&state.screen==='activities'&&!state.activeApp)renderActivities();
 }
 function init(){
  if(document.body.classList.contains('role-student')||document.body.classList.contains('role-shared'))return;
@@ -329,7 +336,7 @@ function init(){
  if(!installHeader())return;
  addTheme();tunePanels();installShortcutArtwork();installLibraryArtwork();installApprovedArtwork();
  document.body.classList.add('si-v80-dashboard');
- installAlertStack();installAACPlusLink();installRandomizerLink();
+ installAlertStack();installClassroomTools();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
 else init();
