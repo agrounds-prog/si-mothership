@@ -85,6 +85,41 @@ main{grid-template-columns:minmax(330px,390px) minmax(0,1fr);gap:18px;align-item
 .recent span:first-child{color:#ffe7ab;border-color:#dcb465a6;background:#5a431e77}
 #display-only .recent span{font-size:clamp(12px,1.5vw,18px);padding:9px 15px}
 .ball.selected{border:4px solid #ffe9a3;transform:scale(1.12);box-shadow:0 0 32px #f7d472b0,inset -8px -14px 18px #09192d77;animation:none}
+
+/* Phase 2 · distinct themed animations and compact Zoom-friendly presentation */
+.stage[data-mode="wheel"]{--mode-color:#79eaff}
+.stage[data-mode="slot"]{--mode-color:#ffc979}
+.stage[data-mode="lottery"]{--mode-color:#85f6c8}
+.stage[data-mode="cards"]{--mode-color:#d3a0ff}
+.stage:after{border-color:color-mix(in srgb,var(--mode-color,#75e9ff) 42%,transparent)}
+.stage .display-title:before{color:var(--mode-color,#85eaff)}
+.stage .action{border-color:var(--mode-color,#72e8ff);box-shadow:inset 0 2px #ffffff66,0 0 24px color-mix(in srgb,var(--mode-color) 39%,transparent)}
+.stage.is-spinning .visual{filter:drop-shadow(0 0 20px color-mix(in srgb,var(--mode-color) 28%,transparent))}
+#reel{position:relative;width:min(100%,650px);height:clamp(190px,30vh,280px);border:5px solid #e4bd70;overflow:hidden;display:none;flex-direction:column;justify-content:center;align-items:center;gap:0;padding:25px 12px;background:repeating-linear-gradient(0deg,#091b31 0 22px,#0d2944 23px 24px)}
+#reel:before,#reel:after{position:absolute;z-index:2;pointer-events:none;content:"";left:0;right:0;height:34%;background:linear-gradient(#07182d,transparent)}
+#reel:before{top:0}#reel:after{bottom:0;transform:rotate(180deg)}
+#reel .reel-marker{position:absolute;inset:37% 9px;border-top:2px solid #fce0ac88;border-bottom:2px solid #fce0ac88;border-radius:3px;pointer-events:none}
+#reel .reel-label{position:relative;z-index:1;color:#ffeac0;text-shadow:0 0 20px #ffdb8a6b;font-weight:1000;line-height:1.25;max-width:95%;overflow-wrap:anywhere}
+.stage.is-spinning #reel .reel-label{filter:blur(1px)}
+#lottery{position:relative;padding:14px;align-content:center;justify-items:center;grid-auto-flow:row;max-height:100%;overflow:hidden}
+#lottery .ball{width:100%;max-width:96px;min-height:0;font-size:clamp(10px,1.2vw,15px)}
+#lottery .ball.active{outline:3px solid #fff3af;outline-offset:2px;box-shadow:0 0 26px #f9d868b8,inset -8px -14px 20px #07162688;animation:none;transform:translateY(-10px) scale(1.07);z-index:2}
+#lottery .ball.selected{transform:scale(1.12);box-shadow:0 0 42px #fce18dbf,inset -8px -14px 18px #09192d77}
+.stage.is-spinning #lottery .ball:not(.active){opacity:.64}
+#cards{width:100%;height:100%;align-content:center;justify-content:center;grid-auto-rows:minmax(70px,1fr)}
+#cards .card{height:100%;max-height:190px;min-height:65px;display:flex;align-items:center;justify-content:center;font-size:clamp(17px,2vw,27px);box-shadow:inset 0 0 30px #9d71ff22,0 9px 19px #0008}
+#cards .card:before{content:"";position:absolute;inset:7px;border-radius:7px;border:1px solid #efdbff44;pointer-events:none}
+#cards .card.active{border-color:#ffe5a1;background:linear-gradient(135deg,#7b50a5,#18568a);box-shadow:0 0 29px #f4cb855b,0 12px 18px #000a;transform:translateY(-7px) scale(1.035)}
+#cards .card.flipped{background:linear-gradient(138deg,#1ca4a8,#2560a5);border-color:#ffeba3;transform:translateY(-10px) scale(1.06);font-size:clamp(12px,1.8vw,23px)}
+#cards .card{position:relative}
+.stage.has-winner:before{opacity:.55}
+.stage.has-winner .result:before{content:"★";color:#ffdc7d;margin-right:10px}
+#display-only #reel{height:clamp(200px,35vh,350px)}
+#display-only #lottery .ball{max-width:135px;font-size:clamp(12px,1.55vw,19px)}
+#display-only #cards .card{max-height:220px}
+@media(max-width:700px){#lottery{grid-template-columns:repeat(4,minmax(0,1fr))!important}#cards{grid-template-columns:repeat(3,minmax(0,1fr))!important}.visual{min-height:260px}}
+@media(prefers-reduced-motion:reduce){.stage.is-spinning .visual{filter:none}#lottery .ball,.card{transition:none!important;animation:none!important}}
+
 </style></head>
 <body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
 <main><section id="studio"><h2>TEACHER STUDIO</h2>
@@ -125,7 +160,20 @@ function apply(data){if(!data)return;busy=false;$("stage").classList.remove("has
 function broadcast(){if(DISPLAY)return;const data={title:$("title").value,styles,choices,pool,winner,rotation,presentPool,weighted:$("weighted").checked,busy,displayLabel,motionIndex,history,revision:++revision};try{bc?.postMessage(data);localStorage.setItem(CHANNEL,JSON.stringify(data))}catch(e){}}
 function renderChoices(){const sum=totalWeight();$("choices").innerHTML=choices.map((item,i)=>'<div class="choice"><input aria-label="Choice '+(i+1)+'" data-text="'+i+'" value="'+html(item.text)+'"><input aria-label="Weight for '+html(item.text)+'" type="number" min="1" max="100" data-weight="'+i+'" value="'+item.weight+'" '+(!$("weighted").checked?'disabled':'')+'><button data-del="'+i+'" aria-label="Delete choice">×</button></div>').join("");$("count").textContent=pool.length+"/"+choices.length+" active";}
 function wheel(){const canvas=$("wheel"),ctx=canvas.getContext("2d"),indices=winner&&presentPool.length?presentPool:pool,n=indices.length;ctx.clearRect(0,0,800,800);if(!n)return;const weights=indices.map(i=>$("weighted").checked?choices[i].weight:1),sum=weights.reduce((a,b)=>a+b,0);let angle=-Math.PI/2;ctx.save();ctx.translate(400,400);ctx.rotate(rotation*Math.PI/180);for(let j=0;j<n;j++){const arc=2*Math.PI*weights[j]/sum,mid=angle+arc/2;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,350,angle,angle+arc);ctx.closePath();ctx.fillStyle=colors[j%colors.length];ctx.fill();ctx.strokeStyle="#d6efff";ctx.lineWidth=3;ctx.stroke();ctx.save();ctx.rotate(mid);ctx.translate(175,0);ctx.rotate(Math.PI/2);ctx.fillStyle="#fff";ctx.font="bold "+Math.max(16,Math.min(27,260/n+12))+"px system-ui";ctx.textAlign="center";ctx.shadowColor="#000";ctx.shadowBlur=6;let label=choices[indices[j]].text;const max=21;ctx.fillText(label.length>max?label.slice(0,max-1)+"…":label,0,0,245);ctx.restore();angle+=arc}ctx.restore();ctx.beginPath();ctx.arc(400,400,38,0,7);ctx.fillStyle="#f9d78a";ctx.fill();ctx.strokeStyle="#fff";ctx.lineWidth=7;ctx.stroke()}
-function showMode(){const visible={wheel:"wheel",slot:"reel",lottery:"lottery",cards:"cards"};for(const id of ["wheel","pointer","reel","lottery","cards"])$(id).style.display=id===visible[styles]||id==="pointer"&&styles==="wheel"?"grid":"none";if(styles==="wheel"){$("wheel").style.display="block";wheel()}if(styles==="lottery")renderLottery();if(styles==="cards")renderCards();if(styles==="slot")$("reel").textContent=winner||"✦ ? ✦";}
+function setReelLabel(label){
+ $("reel").innerHTML='<div class="reel-marker" aria-hidden="true"></div><div class="reel-label"></div>';
+ $("reel").querySelector(".reel-label").textContent=label||"✦ ? ✦";
+}
+function showMode(){
+ $("stage").dataset.mode=styles;
+ const visible={wheel:"wheel",slot:"reel",lottery:"lottery",cards:"cards"};
+ for(const id of ["wheel","pointer","reel","lottery","cards"])
+  $(id).style.display=id===visible[styles]||id==="pointer"&&styles==="wheel"?(id==="reel"?"flex":"grid"):"none";
+ if(styles==="wheel"){$("wheel").style.display="block";wheel()}
+ if(styles==="lottery")renderLottery();
+ if(styles==="cards")renderCards();
+ if(styles==="slot")setReelLabel(winner||displayLabel||"✦ ? ✦");
+}
 function visibleEntries(limit){
  const source=winner&&presentPool.length?presentPool:pool;
  const entries=source.slice(0,limit);
