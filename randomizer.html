@@ -408,7 +408,7 @@ html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-hei
 .stage[data-mode="cards"] #cards.cards-fan{display:flex!important;gap:0!important;align-items:center!important;justify-content:center!important;
  grid-auto-rows:auto!important;max-width:min(100%,850px)!important;overflow:visible!important;height:84%!important}
 .stage[data-mode="cards"] #cards.cards-fan .card{flex:0 1 auto;width:min(23%,185px)!important;min-width:0!important;height:min(80%,265px)!important;min-height:140px!important;
- margin-left:-1.7%!important;transform:translateY(calc((var(--fan-index) - (var(--fan-count) - 1)/2) * (var(--fan-index) - (var(--fan-count) - 1)/2) * 5px)) rotate(calc((var(--fan-index) - (var(--fan-count) - 1)/2) * 6deg));z-index:1}
+ margin-left:-1.7%!important;transform:translateY(var(--fan-shift,0px)) rotate(var(--fan-turn,0deg));z-index:1}
 .stage[data-mode="cards"] #cards.cards-fan .card:first-child{margin-left:0!important}
 .stage[data-mode="cards"] #cards.cards-fan .card.active{z-index:3;transform:translateY(-28px) scale(1.08)!important}
 .stage[data-mode="cards"] #cards.cards-fan .card.flipped{z-index:5;transform:translateY(-32px) scale(1.14)!important}
@@ -636,8 +636,11 @@ function renderCards(){
  const entries=visibleEntries(16),fan=entries.length<=7&&entries.length>=2;
  $("cards").classList.toggle("cards-fan",fan);
  $("cards").style.setProperty("--fan-count",String(entries.length));
- $("cards").innerHTML=entries.map((i,j)=>'<div class="card'+(winner&&winnerIndex===i?" flipped":"")+'" style="--fan-index:'+j+'">'+
-  (winner&&winnerIndex===i?html(choices[i].text):"✦")+'</div>').join("");
+ $("cards").innerHTML=entries.map((i,j)=>{
+  const offset=j-(entries.length-1)/2;
+  return '<div class="card'+(winner&&winnerIndex===i?" flipped":"")+'" style="--fan-shift:'+(offset*offset*5)+'px;--fan-turn:'+(offset*6)+'deg">'+
+    (winner&&winnerIndex===i?html(choices[i].text):"✦")+'</div>';
+ }).join("");
 }
 function render(){renderChoices();$("displayTitle").textContent=$("title").value||"Classroom Choices";$("styles").querySelectorAll("button").forEach(b=>b.classList.toggle("active",b.dataset.style===styles));$("spin").disabled=busy||pool.length<1;$("status").textContent=pool.length?pool.length+" available choices · "+($("weighted").checked?"weighted":"equal")+" probability":"No choices left — reset the pool";showMode();broadcast()}
 function stop(index){presentPool=pool.slice();
