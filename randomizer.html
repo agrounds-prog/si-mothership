@@ -160,6 +160,7 @@ main{grid-template-columns:minmax(330px,390px) minmax(0,1fr);gap:18px;align-item
 #display-only .stage[data-mode="wheel"]:has(.wheel-legend:not([hidden])) #wheel{width:min(100%,510px)}
 @media(max-width:670px){.wheel-legend,#display-only .wheel-legend{grid-template-columns:1fr;max-height:118px}}
 
+.wheel-legend .legend-odds{font:850 11px system-ui;color:#ffdfa1;white-space:nowrap;flex:0 0 auto;margin-left:auto}
 </style></head>
 <body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
 <main><section id="studio"><h2>TEACHER STUDIO</h2>
@@ -277,7 +278,7 @@ function renderWheelLegend(){
  legend.innerHTML=indices.map((i,j)=>
   '<div class="legend-item'+(winner&&winnerIndex===i?' is-winner':'')+'">'+
   '<span class="legend-number" style="--legend-color:'+colors[j%colors.length]+'">'+(j+1)+'</span>'+
-  '<span class="legend-name">'+html(choices[i].text)+'</span></div>'
+  '<span class="legend-name">'+html(choices[i].text)+'</span>'+($('weighted').checked?'<span class="legend-odds">'+(Math.round(weights[j]/sum*1000)/10).toFixed(1)+'%</span>':'')+'</div>'
  ).join("");
  if(winner){
   const chosen=legend.querySelector(".is-winner");
