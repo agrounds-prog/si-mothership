@@ -218,7 +218,7 @@ function draw(){
   const p=Math.min(1,(t-begin)/duration),ease=1-Math.pow(1-p,4);
   // Non-wheel styles advance in distinct, slowing steps rather than flashing
   // randomly every 16 ms. The winning choice is fixed before animation begins.
-  const step=Math.floor(p*38/(1+3*p*p));
+  const step=Math.floor(27*Math.sqrt(p));
   if(styles==="wheel"){rotation=initial+(final-initial)*ease;wheel()}
   else if(step!==lastStep){
    lastStep=step;
