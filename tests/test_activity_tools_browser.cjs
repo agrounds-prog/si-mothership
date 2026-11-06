@@ -16,6 +16,29 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const originals=await page.evaluate(()=>state.favoriteSlots.slice());
   await page.evaluate(()=>{state.screen="activities";state.activeApp=null;state.assigningSlot=null;render()});
   await page.waitForSelector('#activityGrid [data-open-app="randomizer"]');
+
+  // Every formerly plain-symbol activity uses the same full-bleed illustrated
+  // card surface; legacy illustrated games retain their approved artwork.
+  const unfinished=["DOMINOES","WORD GRID","MINEFIELD","VECTOR","ORBIT",
+   "MILLION","SPOTLIGHT","SCIENTIFIC CALCULATOR","AAC+","RANDOMIZER"];
+  await page.waitForFunction(names=>{
+   const cards=[...document.querySelectorAll("#activityGrid .real-app-card")];
+   return names.every(name=>cards.some(card=>card.querySelector("h3")?.textContent?.trim()===name
+    &&card.querySelector(".act-icon .si-v90-graphic")));
+  },unfinished,{timeout:12000});
+  const artGeometry=await page.evaluate(names=>{
+   return names.map(name=>{
+    const card=[...document.querySelectorAll("#activityGrid .real-app-card")].find(c=>c.querySelector("h3")?.textContent?.trim()===name);
+    const slot=card.querySelector(".act-icon").getBoundingClientRect();
+    const art=card.querySelector("svg.si-v90-graphic").getBoundingClientRect();
+    return {name,slotWidth:slot.width,artWidth:art.width,slotHeight:slot.height,artHeight:art.height};
+   });
+  },unfinished);
+  for(const art of artGeometry){
+   assert.ok(Math.abs(art.artWidth-art.slotWidth)<4,JSON.stringify(art));
+   assert.ok(Math.abs(art.artHeight-art.slotHeight)<4,JSON.stringify(art));
+  }
+
   assert.equal(await page.locator('#activityGrid [data-open-app="aac-plus"]').count(),1);
   await page.locator('[data-activity-category="tools"]').click();
   assert.equal(await page.locator('#activityGrid [data-open-app="randomizer"]').isVisible(),true);
