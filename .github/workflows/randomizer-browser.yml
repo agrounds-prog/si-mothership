@@ -8,6 +8,7 @@ on:
       - 'dashboard-polish.css'
       - 'server.py'
       - 'tests/test_randomizer_browser.cjs'
+      - 'tests/test_randomizer_effects_browser.cjs'
       - '.github/workflows/randomizer-browser.yml'
   workflow_dispatch:
 permissions: {contents: read}
@@ -26,6 +27,7 @@ jobs:
           python -m py_compile server.py
           node --check dashboard-polish.js
           node --check tests/test_randomizer_browser.cjs
+          node --check tests/test_randomizer_effects_browser.cjs
           python - <<'PY'
           from html.parser import HTMLParser
           from pathlib import Path
@@ -66,6 +68,8 @@ jobs:
           exit 1
       - name: Run Randomizer browser regression
         run: node tests/test_randomizer_browser.cjs
+      - name: Verify optional sounds and projected celebrations
+        run: node tests/test_randomizer_effects_browser.cjs
       - name: Show server log on failure
         if: failure()
         run: tail -100 /tmp/randomizer-server.log || true
