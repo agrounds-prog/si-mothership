@@ -458,6 +458,25 @@ html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-hei
 @media(max-width:1050px){.stage[data-mode="lottery"] .lottery-showpiece{right:1%;width:24%;padding:9px;font-size:clamp(10px,1.5vw,20px)}}
 @media(max-width:720px){.stage .winner-ribbon{margin-bottom:-12px!important}.stage[data-mode="lottery"] .lottery-showpiece{top:3%;width:23%}}
 @media(prefers-reduced-motion:reduce){.stage[data-mode="lottery"] .lottery-showpiece,.stage.has-winner .winner-ribbon{animation:none!important}}
+
+/* Phase 9 · clearer theatrical presentation framing */
+.stage .marquee-mode-badge{position:absolute;right:15px;top:10px;max-width:24%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid #e5c37d9e;border-radius:7px;background:#13233bb8;color:#ffdf9e;padding:6px 9px;font:900 10px/1.2 system-ui;letter-spacing:.06em}
+.stage .arena-ornament{position:absolute;z-index:1;top:12%;bottom:13%;width:43px;pointer-events:none;display:flex;align-items:center;gap:14px;flex-direction:column;opacity:.8}
+.stage .arena-ornament.left{left:2.4%}.stage .arena-ornament.right{right:2.4%}
+.stage .arena-ornament span{writing-mode:vertical-rl;letter-spacing:.17em;font:850 9px/1.1 system-ui;color:#99ebf8}
+.stage .arena-ornament i{display:block;width:10px;height:10px;flex:none;background:#13a5b6;border:1px solid #baf6ff;border-radius:50%;box-shadow:0 0 12px #49eaffb0}
+.stage .arena-ornament i:nth-child(3){background:#f4bd4e;border-color:#ffefba;box-shadow:0 0 12px #ffbb58b0}
+.stage .arena-ornament:after{content:"";flex:1;width:2px;background:linear-gradient(#52cfea9d,#74d5ff15,#52cfea9d)}
+.stage[data-mode="slot"] .arena-ornament i{background:#d49b3e;border-color:#ffe3a2}
+.stage[data-mode="cards"] .arena-ornament i{background:#905aca;border-color:#e9c0ff}
+.stage[data-mode="lottery"] .arena-ornament i{background:#28bcba;border-color:#aefff4}
+.stage[data-mode="slot"] .visual:before{filter:drop-shadow(0 13px 18px #000b) drop-shadow(0 0 14px #ffc36988)!important}
+.stage[data-mode="lottery"] .visual:before{filter:drop-shadow(0 13px 18px #000b) drop-shadow(0 0 14px #7edcffa0)!important}
+.stage[data-mode="cards"].is-spinning .card.active{z-index:5;filter:brightness(1.3) drop-shadow(0 0 18px #ffe4a2)!important}
+.stage[data-mode="wheel"].is-spinning .pointer{animation:si-pointer-vibe .18s ease-in-out infinite alternate}
+@keyframes si-pointer-vibe{from{transform:translateX(-50%) rotate(-2deg)}to{transform:translateX(-50%) rotate(2deg)}}
+@media(max-width:1100px){.stage .arena-ornament,.stage .marquee-mode-badge{display:none}}
+@media(prefers-reduced-motion:reduce){.stage[data-mode="wheel"].is-spinning .pointer{animation:none!important}}
 </style></head>
 <body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
 <main><section id="studio"><div class="studio-kicker">MISSION CONTROL · RANDOMIZER</div><h2>TEACHER STUDIO</h2>
@@ -483,8 +502,8 @@ html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-hei
 </section>
 <section class="stage" id="stage">
 <div class="celebration" id="celebration" aria-hidden="true"></div>
-<div class="stage-marquee"><div class="marquee-kicker">✦ SI MOTHERSHIP · LIVE RANDOMIZER ✦</div><p class="display-title" id="displayTitle">Classroom Choices</p><div class="mode-caption" id="modeCaption">SPIN WHEEL · RANDOM SELECTION</div></div>
-<div class="arena"><div class="visual"><canvas id="wheel" width="800" height="800"></canvas><div class="wheel-art-frame" id="wheelArtFrame" aria-hidden="true"><img src="/randomizer-art/components/wheel_rim_overlay.svg" alt="" loading="eager"><div class="pointer" id="pointer"></div></div><div id="reel"></div><div id="lottery"></div><div class="lottery-showpiece" id="lotteryShowpiece" aria-hidden="true"><span id="lotteryShowpieceText"></span></div><div id="cards"></div></div></div>
+<div class="stage-marquee"><div class="marquee-kicker">✦ SI MOTHERSHIP · LIVE RANDOMIZER ✦</div><div class="marquee-mode-badge" id="marqueeBadge" aria-hidden="true">01 / SPIN WHEEL</div><p class="display-title" id="displayTitle">Classroom Choices</p><div class="mode-caption" id="modeCaption">SPIN WHEEL · RANDOM SELECTION</div></div>
+<div class="arena"><div class="arena-ornament left" aria-hidden="true"><span>SI</span><i></i><i></i></div><div class="arena-ornament right" aria-hidden="true"><span>MISSION CONTROL</span><i></i><i></i></div><div class="visual"><canvas id="wheel" width="800" height="800"></canvas><div class="wheel-art-frame" id="wheelArtFrame" aria-hidden="true"><img src="/randomizer-art/components/wheel_rim_overlay.svg" alt="" loading="eager"><div class="pointer" id="pointer"></div></div><div id="reel"></div><div id="lottery"></div><div class="lottery-showpiece" id="lotteryShowpiece" aria-hidden="true"><span id="lotteryShowpieceText"></span></div><div id="cards"></div></div></div>
 <div class="winner-ribbon" aria-hidden="true">★ WINNER! ★</div><div class="result" id="result" aria-live="polite">Ready to randomize?</div>
 <div class="wheel-legend" id="wheelLegend" aria-label="Wheel choice key" hidden></div>
 <div class="stage-console">
@@ -649,6 +668,7 @@ function setReelLabel(label){
 }
 function showMode(){
  $("stage").dataset.mode=styles;
+ $("marqueeBadge").textContent=({wheel:"01 / SPIN WHEEL",slot:"02 / SLOT MACHINE",lottery:"03 / COSMIC LOTTERY",cards:"04 / MYSTERY CARDS"})[styles]||"RANDOMIZER";
  $("modeCaption").textContent=({wheel:"SPIN WHEEL · RANDOM SELECTION",slot:"SLOT MACHINE · REVEAL",lottery:"COSMIC LOTTERY · DRAW",cards:"MYSTERY CARDS · SHUFFLE"})[styles]||"RANDOM SELECTION";
  const visible={wheel:"wheel",slot:"reel",lottery:"lottery",cards:"cards"};
  $("wheelArtFrame").hidden=styles!=="wheel";
