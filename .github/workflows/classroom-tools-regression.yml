@@ -1,0 +1,47 @@
+name: Classroom Tools Activity Library Regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - dashboard-polish.js
+      - dashboard-polish.css
+      - randomizer.html
+      - tests/test_activity_tools_browser.cjs
+      - .github/workflows/classroom-tools-regression.yml
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  library-tools:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Validate syntax
+        run: |
+          node --check dashboard-polish.js
+          node --check tests/test_activity_tools_browser.cjs
+          python -m py_compile server.py
+      - name: Install classroom browser
+        run: |
+          pip install -r requirements.txt
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Launch isolated classroom
+        run: |
+          mkdir -p /tmp/mothership-classroom-tools
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-classroom-tools PORT=8877 python server.py >/tmp/tools-server.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8877/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          tail -90 /tmp/tools-server.log
+          exit 1
+      - name: Check Activities and home shortcuts
+        run: node tests/test_activity_tools_browser.cjs
+      - name: Server log on failure
+        if: failure()
+        run: tail -100 /tmp/tools-server.log || true
