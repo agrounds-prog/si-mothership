@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RANDOMIZER · SI Mothership</title>
+<style>
+:root{color-scheme:dark;--bg:#061426;--panel:#0e2540;--edge:#32628b;--cyan:#54e5ff;--gold:#ffd97c}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -30%,#205182,#061426 67%);font:15px/1.5 system-ui,Segoe UI,sans-serif;color:#e9f8ff;min-height:100vh}
+button,input,select,textarea{font:inherit}button{cursor:pointer;color:#f2fdff;background:#164268;border:1px solid #4a83a8;border-radius:10px;padding:10px 14px;font-weight:800}
+button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #ffd97c;outline-offset:2px}
+button:hover:not(:disabled){filter:brightness(1.18)}header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 22px;border-bottom:1px solid #387196;background:#09203aee}
+h1{font-size:clamp(21px,3vw,30px);margin:0;letter-spacing:.09em}header small{display:block;color:#a4cadc;letter-spacing:.16em;font-weight:800}
+main{display:grid;grid-template-columns:minmax(310px,370px) minmax(0,1fr);gap:20px;padding:20px;max-width:1650px;margin:auto}
+section,.panel{background:linear-gradient(145deg,#112e4a,#091a30);border:1px solid #36688e;border-radius:18px;padding:18px;min-width:0;box-shadow:0 12px 28px #0005}
+h2{font-size:15px;letter-spacing:.11em;color:#9aefff;margin:0 0 14px}label{display:block;font-size:12px;font-weight:800;color:#b8daeb;margin:12px 0 5px}
+input,select,textarea{width:100%;background:#06172a;color:#eefbff;border:1px solid #487698;border-radius:8px;padding:9px;min-width:0}
+textarea{min-height:125px;resize:vertical}small.note{display:block;color:#a8c4d4;margin:6px 0}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{min-width:0}
+button.primary{background:linear-gradient(125deg,#00a3b7,#08749c);border-color:#64f4ff}button.gold{background:linear-gradient(125deg,#b57b26,#86532c);border-color:#ffd981}
+.modes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.modes button{padding:9px 3px;font-size:12px}.modes .active{background:#206c85;border:2px solid #7deaff}
+.choice-list{max-height:230px;overflow:auto;padding-right:4px}.choice{display:grid;grid-template-columns:minmax(0,1fr) 54px 36px;gap:6px;margin:7px 0;align-items:center}.choice input{padding:8px}.choice button{padding:7px}.weight-heading{font-size:11px;color:#a4c7d8;display:flex;justify-content:flex-end;margin:8px 39px 0 0}
+.stage{min-height:610px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 40%,#123e64,#071628 78%)}.stage:before{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(#c2ecff88 1px,transparent 1px);background-size:37px 37px;opacity:.23}
+.stage>*{position:relative}.display-title{font-size:clamp(19px,3vw,30px);text-align:center;font-weight:900;margin:0;max-width:94%;overflow-wrap:anywhere}
+.visual{width:min(95%,560px);height:min(57vh,480px);min-height:300px;display:grid;place-items:center;position:relative}
+#wheel{width:min(100%,460px);height:auto;aspect-ratio:1;filter:drop-shadow(0 16px 20px #0009)}
+.pointer{position:absolute;top:0;left:50%;transform:translate(-50%,-25%);width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:37px solid #fff0a0;filter:drop-shadow(0 2px 3px #000)}
+.result{min-height:75px;text-align:center;font-size:clamp(23px,4vw,46px);font-weight:1000;color:#ffe8aa;text-shadow:0 0 25px #eeb55888;max-width:95%;overflow-wrap:anywhere}
+#reel,#lottery,#cards{width:100%;display:none;place-items:center;gap:15px}
+#reel{border:4px solid #d7b56d;border-radius:22px;background:#041427;min-height:190px;font-size:clamp(23px,5vw,50px);font-weight:900;padding:20px;box-shadow:inset 0 0 35px #c67d3450,0 0 40px #a9d2ff29;text-align:center;overflow-wrap:anywhere}
+#lottery{display:none;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.ball{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;min-width:0;background:radial-gradient(circle at 32% 25%,#e5f5ff,#3a9cce 53%,#142b67);font-size:12px;font-weight:900;text-align:center;padding:7px;box-shadow:0 7px 16px #0008;overflow-wrap:anywhere}
+#cards{display:none;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.card{min-width:0;aspect-ratio:3/4;border-radius:12px;border:2px solid #82dcff;display:grid;place-items:center;padding:10px;text-align:center;font-weight:900;background:linear-gradient(145deg,#123963,#4f2681);overflow-wrap:anywhere}.card.flipped{background:linear-gradient(130deg,#118897,#194078);border-color:#ffe68b}
+.action{font-size:19px;min-width:190px;padding:13px 30px}.status{color:#a4d0e4;font-size:13px;text-align:center}
+#display-only main{grid-template-columns:1fr;padding:10px}#display-only #studio{display:none}#display-only .stage{min-height:calc(100vh - 105px)}
+#display-only .visual{height:min(69vh,730px);width:min(90vw,760px)}#display-only #wheel{width:min(100%,650px)}#display-only #result{font-size:clamp(34px,6vw,78px)}
+@media(max-width:900px){main{grid-template-columns:1fr}.stage{min-height:520px}.visual{height:360px}.modes{grid-template-columns:repeat(2,1fr)}}
+</style></head>
+<body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
+<main><section id="studio"><h2>TEACHER STUDIO</h2>
+<label for="title">Activity title</label><input id="title" maxlength="90" value="Classroom Choices" autocomplete="off">
+<label for="style">Visual randomizer</label><div class="modes" id="styles"><button data-style="wheel" class="active">🎡 Wheel</button><button data-style="slot">🎰 Slots</button><button data-style="lottery">🔮 Lottery</button><button data-style="cards">🃏 Cards</button></div>
+<label for="bulk">Paste choices (one per line)</label><textarea id="bulk" placeholder="Movie&#10;Art&#10;Music&#10;Game"></textarea><div class="row"><button id="addBulk">＋ Add Choices</button><button id="addChoice">＋ One Choice</button></div>
+<div class="row" style="margin-top:15px;justify-content:space-between"><h2 style="margin:0">CHOICES &amp; ODDS</h2><span id="count"></span></div>
+<div class="choice-list" id="choices"></div>
+<label><input id="weighted" type="checkbox" style="width:auto;margin-right:8px">Weighted probability (optional)</label>
+<small class="note">Equal chances are the default. Weights are relative—not guarantees.</small>
+<label><input id="removeWinner" type="checkbox" style="width:auto;margin-right:8px">Remove selected choice after each draw</label>
+<div class="row" style="margin-top:15px"><button id="resetPool">Reset Pool</button><button id="clearAll">Clear Choices</button></div>
+<hr style="border:0;border-top:1px solid #386080;margin:20px 0">
+<h2>SAVED RANDOMIZERS</h2><label for="savedName">Save set as</label><input id="savedName" maxlength="90" placeholder="Friday discussion choices"><div class="row" style="margin-top:8px"><button class="primary" id="save">Save Set</button><button id="delete">Delete Saved</button></div>
+<label for="library">Load saved set</label><select id="library"><option value="">Choose saved randomizer…</option></select><button id="load" style="margin-top:8px;width:100%">Load Selected Set</button>
+<small class="note" id="storageStatus">Saved sets use your Mothership teacher library.</small>
+</section>
+<section class="stage" id="stage"><p class="display-title" id="displayTitle">Classroom Choices</p>
+<div class="visual"><canvas id="wheel" width="800" height="800"></canvas><div class="pointer" id="pointer"></div><div id="reel"></div><div id="lottery"></div><div id="cards"></div></div>
+<div class="result" id="result" aria-live="polite">Ready to randomize?</div>
+<button class="primary action" id="spin">✦ RANDOMIZE</button><div class="status" id="status">Enter two or more choices to begin.</div></section></main>
+<script>
+(function(){"use strict";
+const DISPLAY=new URLSearchParams(location.search).has("display"),STORE="siMothership.randomizerSets.v1",CHANNEL="si-mothership-randomizer";
+if(DISPLAY)document.body.id="display-only";
+const $=id=>document.getElementById(id),colors=["#1fb4bd","#e49444","#7754c1","#b84979","#2389c7","#57a76a","#aa6a41","#9368d3"];
+let choices=[{text:"Movie",weight:1},{text:"Art",weight:1},{text:"Music",weight:1},{text:"Game",weight:1}],pool=[],styles="wheel",busy=false,winner="",rotation=0,library={},revision=0;
+const bc=typeof BroadcastChannel!=="undefined"?new BroadcastChannel(CHANNEL):null;
+function html(s){return String(s).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]))}
+function clean(list){return (Array.isArray(list)?list:[]).slice(0,80).map(x=>({text:String(x.text||"").trim().slice(0,100),weight:Math.min(100,Math.max(1,Number(x.weight)||1))})).filter(x=>x.text)}
+function indexWeights(){const enabled=$("weighted").checked;return pool.map(i=>enabled?choices[i].weight:1)}
+function totalWeight(){return indexWeights().reduce((a,b)=>a+b,0)}
+function entropy(){if(globalThis.crypto&&crypto.getRandomValues){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]/4294967296}return Math.random()}
+function pick(){const w=indexWeights(),sum=w.reduce((a,b)=>a+b,0);if(!sum)return -1;let n=entropy()*sum;for(let i=0;i<w.length;i++){n-=w[i];if(n<0)return pool[i]}return pool[pool.length-1]}
+function snapshot(){return {title:$("title").value,styles,choices:clean(choices),weighted:$("weighted").checked,remove:$("removeWinner").checked}}
+function apply(data){if(!data)return;busy=false;choices=clean(data.choices);styles=["wheel","slot","lottery","cards"].includes(data.styles)?data.styles:"wheel";$("title").value=data.title||"Classroom Choices";$("weighted").checked=!!data.weighted;$("removeWinner").checked=!!data.remove;pool=choices.map((_,i)=>i);winner="";rotation=0;$("result").textContent="Ready to randomize?";render()}
+function broadcast(){if(DISPLAY)return;const data={title:$("title").value,styles,choices,pool,winner,rotation,weighted:$("weighted").checked,busy,revision:++revision};try{bc?.postMessage(data);localStorage.setItem(CHANNEL,JSON.stringify(data))}catch(e){}}
+function renderChoices(){const sum=totalWeight();$("choices").innerHTML=choices.map((item,i)=>'<div class="choice"><input aria-label="Choice '+(i+1)+'" data-text="'+i+'" value="'+html(item.text)+'"><input aria-label="Weight for '+html(item.text)+'" type="number" min="1" max="100" data-weight="'+i+'" value="'+item.weight+'" '+(!$("weighted").checked?'disabled':'')+'><button data-del="'+i+'" aria-label="Delete choice">×</button></div>').join("");$("count").textContent=pool.length+"/"+choices.length+" active";}
+function wheel(){const canvas=$("wheel"),ctx=canvas.getContext("2d"),n=pool.length;ctx.clearRect(0,0,800,800);if(!n)return;const weights=indexWeights(),sum=weights.reduce((a,b)=>a+b,0);let angle=-Math.PI/2;ctx.save();ctx.translate(400,400);ctx.rotate(rotation*Math.PI/180);for(let j=0;j<n;j++){const arc=2*Math.PI*weights[j]/sum,mid=angle+arc/2;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,350,angle,angle+arc);ctx.closePath();ctx.fillStyle=colors[j%colors.length];ctx.fill();ctx.strokeStyle="#d6efff";ctx.lineWidth=3;ctx.stroke();ctx.save();ctx.rotate(mid);ctx.translate(175,0);ctx.rotate(Math.PI/2);ctx.fillStyle="#fff";ctx.font="bold "+Math.max(16,Math.min(27,260/n+12))+"px system-ui";ctx.textAlign="center";ctx.shadowColor="#000";ctx.shadowBlur=6;let label=choices[pool[j]].text;const max=21;ctx.fillText(label.length>max?label.slice(0,max-1)+"…":label,0,0,245);ctx.restore();angle+=arc}ctx.restore();ctx.beginPath();ctx.arc(400,400,38,0,7);ctx.fillStyle="#f9d78a";ctx.fill();ctx.strokeStyle="#fff";ctx.lineWidth=7;ctx.stroke()}
+function showMode(){const visible={wheel:"wheel",slot:"reel",lottery:"lottery",cards:"cards"};for(const id of ["wheel","pointer","reel","lottery","cards"])$(id).style.display=id===visible[styles]||id==="pointer"&&styles==="wheel"?"grid":"none";if(styles==="wheel"){$("wheel").style.display="block";wheel()}if(styles==="lottery")renderLottery();if(styles==="cards")renderCards();if(styles==="slot")$("reel").textContent=winner||"✦ ? ✦";}
+function renderLottery(){const entries=pool.slice(0,20);$("lottery").innerHTML=entries.map((i,j)=>'<div class="ball" style="background:radial-gradient(circle at 30% 20%,#fff7,'+colors[j%colors.length]+' 58%,#081526)">'+html(choices[i].text)+'</div>').join("")}
+function renderCards(){const entries=pool.slice(0,16);$("cards").innerHTML=entries.map((i,j)=>'<div class="card'+(winner===choices[i].text?" flipped":"")+'">'+(winner===choices[i].text?html(choices[i].text):"✦")+'</div>').join("")}
+function render(){renderChoices();$("displayTitle").textContent=$("title").value||"Classroom Choices";$("styles").querySelectorAll("button").forEach(b=>b.classList.toggle("active",b.dataset.style===styles));$("spin").disabled=busy||pool.length<1;$("status").textContent=pool.length?pool.length+" available choices · "+($("weighted").checked?"weighted":"equal")+" probability":"No choices left — reset the pool";showMode();broadcast()}
+function stop(index){winner=choices[index].text;busy=false;$("result").textContent="✦ "+winner;$("spin").disabled=false;if($("removeWinner").checked)pool=pool.filter(i=>i!==index);render();broadcast()}
+function draw(){if(busy||!pool.length)return;const index=pick();if(index<0)return;busy=true;winner="";$("result").textContent="Selecting…";$("spin").disabled=true;const duration=3800,begin=performance.now(),initial=rotation;const weights=indexWeights(),sum=weights.reduce((a,b)=>a+b,0),pos=pool.indexOf(index),before=weights.slice(0,pos).reduce((a,b)=>a+b,0),center=(before+weights[pos]/2)/sum*360;const target=((360-center)%360+360)%360;const extra=((target-(initial%360)+360)%360);const final=initial+2160+extra;broadcast();function frame(t){const p=Math.min(1,(t-begin)/duration),e=1-Math.pow(1-p,4);if(styles==="wheel"){rotation=initial+(final-initial)*e;wheel()}else if(styles==="slot"){$("reel").textContent=choices[pool[Math.floor(entropy()*pool.length)]].text}else if(styles==="lottery"){$("lottery").style.transform="translateY("+Math.sin(t/75)*(1-p)*25+"px)"}else if(styles==="cards"){const cards=$("cards").children;for(const card of cards)card.classList.remove("flipped");if(cards.length)cards[Math.floor(entropy()*cards.length)].classList.add("flipped")}if(p<1){requestAnimationFrame(frame)}else{rotation=final;stop(index)}}requestAnimationFrame(frame)}
+function fillLibrary(){const old=$("library").value;$("library").innerHTML='<option value="">Choose saved randomizer…</option>'+Object.keys(library).sort().map(name=>'<option value="'+html(name)+'">'+html(name)+'</option>').join("");if(old in library)$("library").value=old}
+async function getSets(){try{const response=await fetch("/api/storage",{credentials:"same-origin"});if(!response.ok)throw Error("Storage unavailable");const data=await response.json();library=JSON.parse(data.items?.[STORE]||"{}");if(!library||Array.isArray(library)||typeof library!=="object")library={};$("storageStatus").textContent="Railway teacher library connected."}catch(e){try{library=JSON.parse(localStorage.getItem(STORE)||"{}")}catch(_) {library={}}$("storageStatus").textContent="Local backup in use — sign in as teacher to sync with Railway."}fillLibrary()}
+async function saveLibrary(){localStorage.setItem(STORE,JSON.stringify(library));const response=await fetch("/api/storage",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({key:STORE,value:JSON.stringify(library)})});if(!response.ok)throw Error("Railway save failed ("+response.status+")");$("storageStatus").textContent="Saved to Railway teacher library."}
+function listen(data){if(!DISPLAY||!data||typeof data.revision!=="number"||data.revision<revision)return;revision=data.revision;choices=clean(data.choices);pool=(data.pool||[]).filter(i=>Number.isInteger(i)&&choices[i]);styles=data.styles;winner=data.winner||"";rotation=data.rotation||0;$("displayTitle").textContent=data.title||"Randomizer";$("result").textContent=winner?"✦ "+winner:data.busy?"Selecting…":"Ready to randomize?";showMode()}
+if(DISPLAY){$("returnBtn").style.display="none";$("screenBtn").style.display="none";$("spin").style.display="none";bc&&(bc.onmessage=e=>listen(e.data));window.addEventListener("storage",e=>{if(e.key===CHANNEL){try{listen(JSON.parse(e.newValue))}catch(_){}}});try{listen(JSON.parse(localStorage.getItem(CHANNEL)||"null"))}catch(_){};return}
+$("screenBtn").onclick=()=>{const w=window.open("/randomizer?display=1","siRandomizerDisplay","width=1100,height=780");if(!w)alert("Allow pop-ups to open the classroom display.");broadcast()};
+$("returnBtn").onclick=()=>location.assign("/");
+$("styles").onclick=e=>{const btn=e.target.closest("[data-style]");if(btn&&!busy){styles=btn.dataset.style;winner="";$("result").textContent="Ready to randomize?";render()}};
+$("addBulk").onclick=()=>{const lines=$("bulk").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).slice(0,80-choices.length);choices.push(...lines.map(text=>({text:text.slice(0,100),weight:1})));$("bulk").value="";pool=choices.map((_,i)=>i);render()};
+$("addChoice").onclick=()=>{if(choices.length>=80)return;choices.push({text:"New choice",weight:1});pool=choices.map((_,i)=>i);render()};
+$("choices").onchange=e=>{const t=e.target;if(t.dataset.text!==undefined){choices[+t.dataset.text].text=t.value.slice(0,100)||"Choice";render()}if(t.dataset.weight!==undefined){choices[+t.dataset.weight].weight=Math.min(100,Math.max(1,Number(t.value)||1));render()}};
+$("choices").onclick=e=>{const btn=e.target.closest("[data-del]");if(!btn)return;choices.splice(+btn.dataset.del,1);pool=choices.map((_,i)=>i);render()};
+$("weighted").onchange=render;$("removeWinner").onchange=render;$("title").oninput=()=>{$("displayTitle").textContent=$("title").value;broadcast()};
+$("resetPool").onclick=()=>{pool=choices.map((_,i)=>i);winner="";$("result").textContent="Ready to randomize?";render()};
+$("clearAll").onclick=()=>{if(!confirm("Clear all current choices? Saved sets will remain."))return;choices=[];pool=[];winner="";render()};
+$("spin").onclick=draw;
+$("save").onclick=async()=>{const name=$("savedName").value.trim()||$("title").value.trim();if(!name)return alert("Enter a name for this set.");library[name]=snapshot();fillLibrary();$("library").value=name;try{await saveLibrary()}catch(e){$("storageStatus").textContent=e.message+"; local backup retained."}};
+$("load").onclick=()=>{const name=$("library").value;if(!library[name])return;apply(library[name]);$("savedName").value=name};
+$("delete").onclick=async()=>{const name=$("library").value;if(!name||!confirm('Delete saved set "'+name+'"?'))return;delete library[name];fillLibrary();try{await saveLibrary()}catch(e){$("storageStatus").textContent=e.message}};
+window.addEventListener("storage",e=>{if(e.key===STORE)getSets()});pool=choices.map((_,i)=>i);getSets();render();
+})();
+</script></body></html>
