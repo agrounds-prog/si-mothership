@@ -146,7 +146,7 @@ main{grid-template-columns:minmax(330px,390px) minmax(0,1fr);gap:18px;align-item
 const DISPLAY=new URLSearchParams(location.search).has("display"),STORE="siMothership.randomizerSets.v1",CHANNEL="si-mothership-randomizer";
 if(DISPLAY)document.body.id="display-only";
 const $=id=>document.getElementById(id),colors=["#1fb4bd","#e49444","#7754c1","#b84979","#2389c7","#57a76a","#aa6a41","#9368d3"];
-let choices=[{text:"Movie",weight:1},{text:"Art",weight:1},{text:"Music",weight:1},{text:"Game",weight:1}],pool=[],styles="wheel",busy=false,winner="",rotation=0,library={},revision=0,displayLabel="",lastBroadcast=0,history=[],motionIndex=-1,presentPool=[];
+let choices=[{text:"Movie",weight:1},{text:"Art",weight:1},{text:"Music",weight:1},{text:"Game",weight:1}],pool=[],styles="wheel",busy=false,winner="",rotation=0,library={},revision=0,displayLabel="",lastBroadcast=0,history=[],motionIndex=-1,presentPool=[],winnerIndex=-1;
 const bc=typeof BroadcastChannel!=="undefined"?new BroadcastChannel(CHANNEL):null;
 function html(s){return String(s).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]))}
 function clean(list){return (Array.isArray(list)?list:[]).slice(0,80).map(x=>({text:String(x.text||"").trim().slice(0,100),weight:Math.min(100,Math.max(1,Number(x.weight)||1))})).filter(x=>x.text)}
@@ -156,8 +156,8 @@ function entropy(){if(globalThis.crypto&&crypto.getRandomValues){const a=new Uin
 function pick(){const w=indexWeights(),sum=w.reduce((a,b)=>a+b,0);if(!sum)return -1;let n=entropy()*sum;for(let i=0;i<w.length;i++){n-=w[i];if(n<0)return pool[i]}return pool[pool.length-1]}
 function updateHistory(){const el=$("recent");el.innerHTML=history.slice(0,4).map(x=>"<span>"+html(x)+"</span>").join("")}
 function snapshot(){return {title:$("title").value,styles,choices:clean(choices),weighted:$("weighted").checked,remove:$("removeWinner").checked}}
-function apply(data){if(!data)return;busy=false;$("stage").classList.remove("has-winner","is-spinning");choices=clean(data.choices);styles=["wheel","slot","lottery","cards"].includes(data.styles)?data.styles:"wheel";$("title").value=data.title||"Classroom Choices";$("weighted").checked=!!data.weighted;$("removeWinner").checked=!!data.remove;pool=choices.map((_,i)=>i);winner="";presentPool=[];rotation=0;history=[];updateHistory();$("result").textContent="Ready to randomize?";render()}
-function broadcast(){if(DISPLAY)return;const data={title:$("title").value,styles,choices,pool,winner,rotation,presentPool,weighted:$("weighted").checked,busy,displayLabel,motionIndex,history,revision:++revision};try{bc?.postMessage(data);localStorage.setItem(CHANNEL,JSON.stringify(data))}catch(e){}}
+function apply(data){if(!data)return;busy=false;$("stage").classList.remove("has-winner","is-spinning");choices=clean(data.choices);styles=["wheel","slot","lottery","cards"].includes(data.styles)?data.styles:"wheel";$("title").value=data.title||"Classroom Choices";$("weighted").checked=!!data.weighted;$("removeWinner").checked=!!data.remove;pool=choices.map((_,i)=>i);winner="";winnerIndex=-1;presentPool=[];rotation=0;history=[];updateHistory();$("result").textContent="Ready to randomize?";render()}
+function broadcast(){if(DISPLAY)return;const data={title:$("title").value,styles,choices,pool,winner,winnerIndex,rotation,presentPool,weighted:$("weighted").checked,busy,displayLabel,motionIndex,history,revision:++revision};try{bc?.postMessage(data);localStorage.setItem(CHANNEL,JSON.stringify(data))}catch(e){}}
 function renderChoices(){const sum=totalWeight();$("choices").innerHTML=choices.map((item,i)=>'<div class="choice"><input aria-label="Choice '+(i+1)+'" data-text="'+i+'" value="'+html(item.text)+'"><input aria-label="Weight for '+html(item.text)+'" type="number" min="1" max="100" data-weight="'+i+'" value="'+item.weight+'" '+(!$("weighted").checked?'disabled':'')+'><button data-del="'+i+'" aria-label="Delete choice">×</button></div>').join("");$("count").textContent=pool.length+"/"+choices.length+" active";}
 function wheel(){const canvas=$("wheel"),ctx=canvas.getContext("2d"),indices=winner&&presentPool.length?presentPool:pool,n=indices.length;ctx.clearRect(0,0,800,800);if(!n)return;const weights=indices.map(i=>$("weighted").checked?choices[i].weight:1),sum=weights.reduce((a,b)=>a+b,0);let angle=-Math.PI/2;ctx.save();ctx.translate(400,400);ctx.rotate(rotation*Math.PI/180);for(let j=0;j<n;j++){const arc=2*Math.PI*weights[j]/sum,mid=angle+arc/2;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,350,angle,angle+arc);ctx.closePath();ctx.fillStyle=colors[j%colors.length];ctx.fill();ctx.strokeStyle="#d6efff";ctx.lineWidth=3;ctx.stroke();ctx.save();ctx.rotate(mid);ctx.translate(175,0);ctx.rotate(Math.PI/2);ctx.fillStyle="#fff";ctx.font="bold "+Math.max(16,Math.min(27,260/n+12))+"px system-ui";ctx.textAlign="center";ctx.shadowColor="#000";ctx.shadowBlur=6;let label=choices[indices[j]].text;const max=21;ctx.fillText(label.length>max?label.slice(0,max-1)+"…":label,0,0,245);ctx.restore();angle+=arc}ctx.restore();ctx.beginPath();ctx.arc(400,400,38,0,7);ctx.fillStyle="#f9d78a";ctx.fill();ctx.strokeStyle="#fff";ctx.lineWidth=7;ctx.stroke()}
 function setReelLabel(label){
@@ -177,8 +177,8 @@ function showMode(){
 function visibleEntries(limit){
  const source=winner&&presentPool.length?presentPool:pool;
  const entries=source.slice(0,limit);
- if(winner&&!entries.some(i=>choices[i]?.text===winner)){
-  const selected=source.find(i=>choices[i]?.text===winner);
+ if(winner&&!entries.some(i=>i===winnerIndex)){
+  const selected=source.find(i=>i===winnerIndex);
   if(selected!==undefined&&entries.length)entries[entries.length-1]=selected;
  }
  return entries;
@@ -186,33 +186,81 @@ function visibleEntries(limit){
 function renderLottery(){
  const entries=visibleEntries(20);
  $("lottery").innerHTML=entries.map((i,j)=>{
-  const selected=!!winner&&choices[i].text===winner;
+  const selected=!!winner&&i===winnerIndex;
   return '<div class="ball'+(selected?' selected':'')+'" style="background:radial-gradient(circle at 30% 20%,#fff7,'+
     colors[j%colors.length]+' 58%,#081526)">'+html(choices[i].text)+'</div>';
  }).join("");
 }
 function renderCards(){
  const entries=visibleEntries(16);
- $("cards").innerHTML=entries.map((i,j)=>'<div class="card'+(winner===choices[i].text?" flipped":"")+'">'+
-  (winner===choices[i].text?html(choices[i].text):"✦")+'</div>').join("");
+ $("cards").innerHTML=entries.map((i,j)=>'<div class="card'+(winner&&winnerIndex===i?" flipped":"")+'">'+
+  (winner&&winnerIndex===i?html(choices[i].text):"✦")+'</div>').join("");
 }
 function render(){renderChoices();$("displayTitle").textContent=$("title").value||"Classroom Choices";$("styles").querySelectorAll("button").forEach(b=>b.classList.toggle("active",b.dataset.style===styles));$("spin").disabled=busy||pool.length<1;$("status").textContent=pool.length?pool.length+" available choices · "+($("weighted").checked?"weighted":"equal")+" probability":"No choices left — reset the pool";showMode();broadcast()}
-function stop(index){presentPool=pool.slice();winner=choices[index].text;history.unshift(winner);history=history.slice(0,6);updateHistory();busy=false;$("stage").classList.remove("is-spinning");$("stage").classList.add("has-winner");displayLabel=winner;$("result").textContent="✦ "+winner;$("spin").disabled=false;if($("removeWinner").checked)pool=pool.filter(i=>i!==index);render();broadcast()}
-function draw(){if(busy||!pool.length)return;const index=pick();if(index<0)return;busy=true;winner="";presentPool=[];motionIndex=-1;showMode();$("stage").classList.remove("has-winner");$("stage").classList.add("is-spinning");$("result").textContent="Selecting…";$("spin").disabled=true;const duration=3800,begin=performance.now(),initial=rotation;const weights=indexWeights(),sum=weights.reduce((a,b)=>a+b,0),pos=pool.indexOf(index),before=weights.slice(0,pos).reduce((a,b)=>a+b,0),center=(before+weights[pos]/2)/sum*360;const target=((360-center)%360+360)%360;const extra=((target-(initial%360)+360)%360);const final=initial+2160+extra;broadcast();function frame(t){const p=Math.min(1,(t-begin)/duration),e=1-Math.pow(1-p,4);if(styles==="wheel"){rotation=initial+(final-initial)*e;wheel()}else if(styles==="slot"){displayLabel=choices[pool[Math.floor(entropy()*pool.length)]].text;$("reel").textContent=displayLabel}else if(styles==="lottery"){motionIndex=Math.floor(entropy()*Math.max(1,Math.min(20,pool.length)));$("lottery").style.transform="translateY("+Math.sin(t/75)*(1-p)*25+"px)"}else if(styles==="cards"){const cards=$("cards").children;for(const card of cards)card.classList.remove("flipped");if(cards.length){motionIndex=Math.floor(entropy()*cards.length);cards[motionIndex].classList.add("flipped")}}if(t-lastBroadcast>70){lastBroadcast=t;broadcast()}if(p<1){requestAnimationFrame(frame)}else{rotation=final;stop(index)}}requestAnimationFrame(frame)}
+function stop(index){presentPool=pool.slice();winnerIndex=index;winner=choices[index].text;history.unshift(winner);history=history.slice(0,6);updateHistory();busy=false;$("stage").classList.remove("is-spinning");$("stage").classList.add("has-winner");displayLabel=winner;$("result").textContent="✦ "+winner;$("spin").disabled=false;if($("removeWinner").checked)pool=pool.filter(i=>i!==index);render();broadcast()}
+function draw(){
+ if(busy||!pool.length)return;
+ const index=pick();if(index<0)return;
+ busy=true;winner="";winnerIndex=-1;presentPool=[];motionIndex=-1;displayLabel="";
+ showMode();
+ $("stage").classList.remove("has-winner");
+ $("stage").classList.add("is-spinning");
+ $("result").textContent="Selecting…";$("spin").disabled=true;
+ const duration=3800,begin=performance.now(),initial=rotation;
+ const weights=indexWeights(),sum=weights.reduce((a,b)=>a+b,0),pos=pool.indexOf(index);
+ const before=weights.slice(0,pos).reduce((a,b)=>a+b,0),center=(before+weights[pos]/2)/sum*360;
+ const target=((360-center)%360+360)%360;
+ const extra=((target-(initial%360)+360)%360);
+ const final=initial+2160+extra;
+ let lastStep=-1;
+ broadcast();
+ function frame(t){
+  const p=Math.min(1,(t-begin)/duration),ease=1-Math.pow(1-p,4);
+  // Non-wheel styles advance in distinct, slowing steps rather than flashing
+  // randomly every 16 ms. The winning choice is fixed before animation begins.
+  const step=Math.floor(p*38/(1+3*p*p));
+  if(styles==="wheel"){rotation=initial+(final-initial)*ease;wheel()}
+  else if(step!==lastStep){
+   lastStep=step;
+   if(styles==="slot"){
+    const next=pool[Math.floor(entropy()*pool.length)];
+    displayLabel=choices[next].text;
+    $("reel").querySelector(".reel-label").textContent=displayLabel;
+   }else if(styles==="lottery"){
+    const balls=$("lottery").children;
+    for(const ball of balls)ball.classList.remove("active");
+    if(balls.length){motionIndex=Math.floor(entropy()*balls.length);balls[motionIndex].classList.add("active")}
+   }else if(styles==="cards"){
+    const cards=$("cards").children;
+    for(const card of cards)card.classList.remove("active");
+    if(cards.length){motionIndex=Math.floor(entropy()*cards.length);cards[motionIndex].classList.add("active")}
+   }
+  }
+  if(styles==="lottery")$("lottery").style.transform="translateY("+Math.sin(t/100)*(1-p)*10+"px)";
+  if(t-lastBroadcast>75){lastBroadcast=t;broadcast()}
+  if(p<1)requestAnimationFrame(frame);
+  else{
+   rotation=final;
+   $("lottery").style.transform="none";
+   stop(index);
+  }
+ }
+ requestAnimationFrame(frame);
+}
 function fillLibrary(){const old=$("library").value;$("library").innerHTML='<option value="">Choose saved randomizer…</option>'+Object.keys(library).sort().map(name=>'<option value="'+html(name)+'">'+html(name)+'</option>').join("");if(old in library)$("library").value=old}
 async function getSets(){try{const response=await fetch("/api/storage",{credentials:"same-origin"});if(!response.ok)throw Error("Storage unavailable");const data=await response.json();library=JSON.parse(data.items?.[STORE]||"{}");if(!library||Array.isArray(library)||typeof library!=="object")library={};$("storageStatus").textContent="Railway teacher library connected."}catch(e){try{library=JSON.parse(localStorage.getItem(STORE)||"{}")}catch(_) {library={}}$("storageStatus").textContent="Local backup in use — sign in as teacher to sync with Railway."}fillLibrary()}
 async function saveLibrary(){localStorage.setItem(STORE,JSON.stringify(library));const response=await fetch("/api/storage",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({key:STORE,value:JSON.stringify(library)})});if(!response.ok)throw Error("Railway save failed ("+response.status+")");$("storageStatus").textContent="Saved to Railway teacher library."}
-function listen(data){if(!DISPLAY||!data||typeof data.revision!=="number"||data.revision<revision)return;$("stage").classList.toggle("is-spinning",!!data.busy);$("stage").classList.toggle("has-winner",!!data.winner);revision=data.revision;choices=clean(data.choices);pool=(data.pool||[]).filter(i=>Number.isInteger(i)&&choices[i]);styles=["wheel","slot","lottery","cards"].includes(data.styles)?data.styles:"wheel";$("weighted").checked=!!data.weighted;winner=data.winner||"";presentPool=Array.isArray(data.presentPool)?data.presentPool.filter(i=>Number.isInteger(i)&&choices[i]):[];rotation=data.rotation||0;displayLabel=data.displayLabel||"";motionIndex=Number.isInteger(data.motionIndex)?data.motionIndex:-1;history=Array.isArray(data.history)?data.history.slice(0,6):[];updateHistory();$("displayTitle").textContent=data.title||"Randomizer";$("result").textContent=winner?"✦ "+winner:data.busy?"Selecting…":"Ready to randomize?";showMode();if(styles==="slot"&&data.busy)$("reel").textContent=displayLabel||"✦";if(styles==="lottery"){const balls=$("lottery").children;for(const ball of balls)ball.style.outline="none";if(data.busy&&balls[motionIndex])balls[motionIndex].style.outline="4px solid #fff0a0";$("lottery").style.transform=data.busy?"translateY("+Math.sin(data.revision/2)*13+"px)":"none"}if(styles==="cards"&&data.busy){for(const card of $("cards").children)card.classList.remove("flipped");if($("cards").children[motionIndex])$("cards").children[motionIndex].classList.add("flipped")}}
+function listen(data){if(!DISPLAY||!data||typeof data.revision!=="number"||data.revision<revision)return;$("stage").classList.toggle("is-spinning",!!data.busy);$("stage").classList.toggle("has-winner",!!data.winner);revision=data.revision;choices=clean(data.choices);pool=(data.pool||[]).filter(i=>Number.isInteger(i)&&choices[i]);styles=["wheel","slot","lottery","cards"].includes(data.styles)?data.styles:"wheel";$("weighted").checked=!!data.weighted;winner=data.winner||"";winnerIndex=Number.isInteger(data.winnerIndex)?data.winnerIndex:-1;presentPool=Array.isArray(data.presentPool)?data.presentPool.filter(i=>Number.isInteger(i)&&choices[i]):[];rotation=data.rotation||0;displayLabel=data.displayLabel||"";motionIndex=Number.isInteger(data.motionIndex)?data.motionIndex:-1;history=Array.isArray(data.history)?data.history.slice(0,6):[];updateHistory();$("displayTitle").textContent=data.title||"Randomizer";$("result").textContent=winner?"✦ "+winner:data.busy?"Selecting…":"Ready to randomize?";showMode();if(styles==="slot"&&data.busy)$("reel").querySelector(".reel-label").textContent=displayLabel||"✦";if(styles==="lottery"){const balls=$("lottery").children;for(const ball of balls)ball.classList.remove("active");if(data.busy&&balls[motionIndex])balls[motionIndex].classList.add("active");$("lottery").style.transform=data.busy?"translateY("+Math.sin(data.revision/2)*9+"px)":"none"}if(styles==="cards"&&data.busy){for(const card of $("cards").children)card.classList.remove("active","flipped");if($("cards").children[motionIndex])$("cards").children[motionIndex].classList.add("active")}}
 if(DISPLAY){$("returnBtn").style.display="none";$("screenBtn").style.display="none";$("spin").style.display="none";bc&&(bc.onmessage=e=>listen(e.data));window.addEventListener("storage",e=>{if(e.key===CHANNEL){try{listen(JSON.parse(e.newValue))}catch(_){}}});try{listen(JSON.parse(localStorage.getItem(CHANNEL)||"null"))}catch(_){};return}
 $("screenBtn").onclick=()=>{const w=window.open("/randomizer?display=1","siRandomizerDisplay","width=1100,height=780");if(!w)alert("Allow pop-ups to open the classroom display.");broadcast()};
 $("returnBtn").onclick=()=>location.assign("/");
-$("styles").onclick=e=>{const btn=e.target.closest("[data-style]");if(btn&&!busy){styles=btn.dataset.style;winner="";presentPool=[];$("stage").classList.remove("has-winner","is-spinning");$("result").textContent="Ready to randomize?";render()}};
+$("styles").onclick=e=>{const btn=e.target.closest("[data-style]");if(btn&&!busy){styles=btn.dataset.style;winner="";winnerIndex=-1;presentPool=[];$("stage").classList.remove("has-winner","is-spinning");$("result").textContent="Ready to randomize?";render()}};
 $("addBulk").onclick=()=>{const lines=$("bulk").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).slice(0,80-choices.length);choices.push(...lines.map(text=>({text:text.slice(0,100),weight:1})));$("bulk").value="";pool=choices.map((_,i)=>i);render()};
 $("addChoice").onclick=()=>{if(choices.length>=80)return;choices.push({text:"New choice",weight:1});pool=choices.map((_,i)=>i);render()};
 $("choices").onchange=e=>{const t=e.target;if(t.dataset.text!==undefined){choices[+t.dataset.text].text=t.value.slice(0,100)||"Choice";render()}if(t.dataset.weight!==undefined){choices[+t.dataset.weight].weight=Math.min(100,Math.max(1,Number(t.value)||1));render()}};
 $("choices").onclick=e=>{const btn=e.target.closest("[data-del]");if(!btn)return;choices.splice(+btn.dataset.del,1);pool=choices.map((_,i)=>i);render()};
 $("weighted").onchange=render;$("removeWinner").onchange=render;$("title").oninput=()=>{$("displayTitle").textContent=$("title").value;broadcast()};
-$("resetPool").onclick=()=>{pool=choices.map((_,i)=>i);winner="";presentPool=[];$("stage").classList.remove("has-winner","is-spinning");$("result").textContent="Ready to randomize?";render()};
+$("resetPool").onclick=()=>{pool=choices.map((_,i)=>i);winner="";winnerIndex=-1;presentPool=[];$("stage").classList.remove("has-winner","is-spinning");$("result").textContent="Ready to randomize?";render()};
 $("clearAll").onclick=()=>{if(!confirm("Clear all current choices? Saved sets will remain."))return;choices=[];pool=[];winner="";render()};
 $("spin").onclick=draw;
 $("save").onclick=async()=>{const name=$("savedName").value.trim()||$("title").value.trim();if(!name)return alert("Enter a name for this set.");library[name]=snapshot();fillLibrary();$("library").value=name;try{await saveLibrary()}catch(e){$("storageStatus").textContent=e.message+"; local backup retained."}};
