@@ -181,9 +181,9 @@ main{grid-template-columns:minmax(330px,390px) minmax(0,1fr);gap:18px;align-item
 #display-only .fullscreen-btn{display:block}
 #display-only .fullscreen-btn:hover{background:#1a5473}
 #studio #animationSpeed{width:100%;max-width:100%;background:#071d33;border-color:#478bb3;font-weight:700}
-#display-only:fullscreen main{padding:0}
-#display-only:fullscreen .stage{min-height:calc(100vh - 74px);border:0;border-radius:0}
-#display-only:fullscreen header{min-height:74px}
+html:fullscreen #display-only main{padding:0}
+html:fullscreen #display-only .stage{min-height:calc(100vh - 74px);border:0;border-radius:0}
+html:fullscreen #display-only header{min-height:74px}
 .stage .result{white-space:normal;overflow-wrap:anywhere;hyphens:auto;line-height:1.14;padding:12px 20px}
 #reel .reel-label{max-height:100%;overflow-wrap:anywhere;font-size:clamp(22px,3.5vw,52px);line-height:1.13}
 #display-only #reel .reel-label{font-size:clamp(28px,4.5vw,72px)}
