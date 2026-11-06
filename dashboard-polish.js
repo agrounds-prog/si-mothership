@@ -127,6 +127,7 @@ const SI90_SCENES={
  "SIGNAL SEQUENCE":{color:"#8ad7ff",dark:"#3655a4",art:'<g transform="translate(120 55)"><circle r="49" fill="#132b56" stroke="#c4e3ff" stroke-width="5"/><path d="M-3-42A43 43 0 0 0-42-3H-3Z" fill="#ed527a" stroke="#ffb3cb" stroke-width="3"/><path d="M3-42A43 43 0 0 1 42-3H3Z" fill="#46b4ff" stroke="#b8eeff" stroke-width="3"/><path d="M-42 3A43 43 0 0 0-3 42V3Z" fill="#6de6a4" stroke="#b4ffcf" stroke-width="3"/><path d="M42 3A43 43 0 0 1 3 42V3Z" fill="#f8d369" stroke="#fff4b0" stroke-width="3"/><circle r="14" fill="#061f3e" stroke="#a9e5ff" stroke-width="4"/><path d="m0-10 5 7-5 7-5-7z" fill="#e6faff"/></g><g fill="#a2eaff"><circle cx="36" cy="29" r="4"/><circle cx="45" cy="29" r="4"/><circle cx="54" cy="29" r="4"/></g>'}
 };
 function si90PremiumArt(name){
+ if(name==="RANDOMIZER")return '<img class="si-v90-graphic si-randomizer-uploaded-icon" src="/randomizer-art/components/randomizer_app_icon.svg" alt="" loading="lazy" decoding="async">';
  const spec=SI90_SCENES[name];
  if(!spec)return null;
  const id="si90"+name.replace(/[^A-Za-z0-9]/g,"");
