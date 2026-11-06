@@ -108,14 +108,51 @@ const SHORTCUT_GLYPHS={
  "ORBIT":'<ellipse cx="24" cy="24" rx="20" ry="9" transform="rotate(-25 24 24)"/><ellipse cx="24" cy="24" rx="20" ry="9" transform="rotate(55 24 24)"/><circle cx="24" cy="24" r="6" fill="currentColor" opacity=".4"/><circle cx="40" cy="16" r="3" fill="currentColor"/>',
  "PIXEL REVEAL":'<rect x="6" y="6" width="36" height="36" rx="4"/><path d="M18 6v36M30 6v36M6 18h36M6 30h36"/><path d="M19 19h10v10H19z" fill="currentColor" opacity=".6"/><path d="m33 11 3 3-3 3-3-3z" fill="currentColor"/>'
 };
+
+/* v90 · Fully illustrated activity controls for apps without approved raster art.
+   The same SVG asset works in the Library, saved presets and home shortcuts.
+   No game state, click handlers or stored shortcut slots are touched. */
+const SI90_SCENES={
+ "DOMINOES":{color:"#6eefff",dark:"#0e5883",art:'<g transform="translate(79 14) rotate(-15 40 39)"><rect x="1" y="5" width="65" height="77" rx="11" fill="#031d34" stroke="#a4f5ff" stroke-width="4"/><rect x="7" y="10" width="53" height="66" rx="8" fill="url(#si90glass)"/><path d="M7 43h53" stroke="#d7fcff" stroke-width="3"/><g fill="#f8ffff"><circle cx="21" cy="25" r="6"/><circle cx="45" cy="25" r="6"/><circle cx="21" cy="59" r="6"/><circle cx="45" cy="59" r="6"/></g></g><g transform="translate(127 18) rotate(15 35 40)"><rect x="0" y="0" width="63" height="77" rx="10" fill="#173c62" stroke="#9dffff" stroke-width="4"/><path d="M4 38h55" stroke="#b5faff" stroke-width="3"/><g fill="#8ceeff"><circle cx="18" cy="17" r="6"/><circle cx="44" cy="17" r="6"/><circle cx="31" cy="57" r="6"/></g></g>'},
+ "WORD GRID":{color:"#ffd07b",dark:"#805321",art:'<g transform="translate(53 15) rotate(-7 70 44)"><rect x="0" y="0" width="134" height="86" rx="11" fill="#533c2d" stroke="#ffe0a0" stroke-width="4"/><rect x="6" y="6" width="122" height="74" rx="7" fill="#17364c"/><g fill="#f9d28a" stroke="#fff0c9" stroke-width="2"><rect x="12" y="13" width="26" height="26" rx="5"/><rect x="43" y="13" width="26" height="26" rx="5"/><rect x="74" y="13" width="26" height="26" rx="5"/><rect x="105" y="13" width="18" height="26" rx="4"/><rect x="27" y="44" width="26" height="25" rx="5" fill="#9d93ff"/><rect x="58" y="44" width="26" height="25" rx="5"/><rect x="89" y="44" width="26" height="25" rx="5" fill="#8af0ec"/></g><g fill="#243f50" font-size="18" font-family="Arial" font-weight="900"><text x="16" y="33">W</text><text x="47" y="33">O</text><text x="78" y="33">R</text><text x="107" y="33">D</text></g></g>'},
+ "MINEFIELD":{color:"#ff94c3",dark:"#95355e",art:'<g transform="translate(72 9) rotate(-8 54 48)"><rect x="0" y="0" width="114" height="96" rx="13" fill="#102844" stroke="#f58caf" stroke-width="4"/><g fill="#1d5274" stroke="#71d7f1" stroke-width="2"><rect x="9" y="9" width="28" height="23" rx="5"/><rect x="43" y="9" width="28" height="23" rx="5"/><rect x="77" y="9" width="28" height="23" rx="5"/><rect x="9" y="38" width="28" height="23" rx="5"/><rect x="43" y="38" width="28" height="23" rx="5" fill="#a72f57" stroke="#ffe2b4"/><rect x="77" y="38" width="28" height="23" rx="5"/><rect x="9" y="67" width="28" height="20" rx="5"/><rect x="43" y="67" width="28" height="20" rx="5"/><rect x="77" y="67" width="28" height="20" rx="5"/></g><g fill="#ffe1aa"><circle cx="57" cy="49" r="7"/><path d="M57 38v22M46 49h22M49 41l16 16M65 41L49 57" stroke="#ffe1aa" stroke-width="3"/></g><path d="m15 21 7 7 12-15" fill="none" stroke="#9bffdd" stroke-width="4"/></g>'},
+ "VECTOR":{color:"#80bdff",dark:"#2858a1",art:'<g transform="translate(119 54)"><circle r="45" fill="#0a2b4e" stroke="#74c6ff" stroke-width="4"/><circle r="31" fill="none" stroke="#53d6ff" stroke-width="3" stroke-dasharray="7 7"/><circle r="17" fill="#2c74ac" stroke="#d9f8ff" stroke-width="3"/><path d="M-62 0h42M20 0h42M0-56v36M0 20v36" stroke="#92e8ff" stroke-width="3"/><circle r="5" fill="#fff0ab"/><path d="m-4-39 6-10 4 10M-4 39l6 10 4-10" fill="#b5faff"/></g>'},
+ "ORBIT":{color:"#d1a0ff",dark:"#7542a3",art:'<g transform="translate(120 52)"><circle r="34" fill="#a94fe0" stroke="#e8bbff" stroke-width="4"/><path d="M-26-11Q4-23 28-9M-28 10Q0 24 28 13" fill="none" stroke="#ffc8fa" stroke-width="5" opacity=".7"/><ellipse rx="86" ry="25" transform="rotate(-24)" fill="none" stroke="#81e7ff" stroke-width="7"/><ellipse rx="86" ry="25" transform="rotate(-24)" fill="none" stroke="#f7e1ff" stroke-width="2"/><circle cx="67" cy="-38" r="10" fill="#ffc68d" stroke="#fff2c1" stroke-width="2"/><circle cx="-76" cy="24" r="6" fill="#8ae4ff"/><path d="M-82-43l5 11 11 5-11 5-5 11-5-11-11-5 11-5z" fill="#e0faff"/></g>'},
+ "MILLION":{color:"#ffd184",dark:"#9e6019",art:'<g transform="translate(70 7)"><path d="M23 90h105l-13-16H35z" fill="#8e5228" stroke="#ffdf90" stroke-width="3"/><path d="M34 73h83l-13-14H48z" fill="#bd7c2c" stroke="#ffe6a7" stroke-width="3"/><path d="M48 58h58l-11-13H59z" fill="#c4923b" stroke="#fff0bf" stroke-width="3"/><path d="m76 3 37 27-14 41H53L39 30z" fill="#795021" stroke="#ffd37c" stroke-width="5"/><path d="m76 10 29 22-10 31H57L47 32z" fill="#cc962b"/><text x="76" y="54" text-anchor="middle" fill="#fff3c5" font-family="Arial" font-size="44" font-weight="900">?</text><path d="M32 6l3 8 9 3-9 3-3 8-3-8-9-3 9-3zM121 16l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#fff3b1"/></g>'},
+ "SPOTLIGHT":{color:"#84f4e9",dark:"#1b7b8c",art:'<g transform="translate(59 13) rotate(-4 72 40)"><rect x="0" y="0" width="142" height="84" rx="9" fill="#0c3554" stroke="#98f5ed" stroke-width="4"/><rect x="8" y="8" width="126" height="68" rx="4" fill="#244e68"/><path d="m10 62 35-36 23 23 19-23 42 36" fill="#66b6c5" stroke="#b4f8fc" stroke-width="2"/><circle cx="104" cy="22" r="9" fill="#ffdf84"/><rect x="8" y="8" width="126" height="68" rx="4" fill="#05192c" opacity=".54"/><circle cx="77" cy="42" r="28" fill="#fff7b4" opacity=".16" stroke="#fff1a6" stroke-width="6"/><circle cx="77" cy="42" r="18" fill="none" stroke="#ffe287" stroke-width="3" stroke-dasharray="7 3"/><path d="M77 4v19M77 62v15M40 42h18M96 42h35" stroke="#ffe99f" stroke-width="3"/></g>'},
+ "SCIENTIFIC CALCULATOR":{color:"#caa7ff",dark:"#6944a6",art:'<g transform="translate(87 4) rotate(7 37 49)"><rect x="0" y="0" width="76" height="99" rx="12" fill="#262859" stroke="#c9a9ff" stroke-width="5"/><rect x="8" y="11" width="60" height="23" rx="4" fill="#b8eada" stroke="#ffffff" stroke-width="2"/><text x="61" y="29" text-anchor="end" fill="#183951" font-family="monospace" font-size="17" font-weight="900">7×8</text><g fill="#7666b9" stroke="#eed9ff" stroke-width="1"><rect x="9" y="42" width="15" height="13" rx="3"/><rect x="30" y="42" width="15" height="13" rx="3"/><rect x="51" y="42" width="15" height="13" rx="3"/><rect x="9" y="60" width="15" height="13" rx="3"/><rect x="30" y="60" width="15" height="13" rx="3"/><rect x="51" y="60" width="15" height="13" rx="3"/><rect x="9" y="78" width="15" height="13" rx="3"/><rect x="30" y="78" width="15" height="13" rx="3"/><rect x="51" y="78" width="15" height="13" rx="3" fill="#63baf3"/></g></g><path d="m53 38 4 10 10 4-10 4-4 10-4-10-10-4 10-4z" fill="#d9d0ff" opacity=".8"/>'},
+ "AAC+":{color:"#c89eff",dark:"#7551ab",art:'<g transform="translate(56 13) rotate(-5 65 43)"><rect x="0" y="0" width="124" height="88" rx="12" fill="#242c62" stroke="#c9abff" stroke-width="4"/><rect x="9" y="10" width="106" height="68" rx="6" fill="#e2e9fd"/><g stroke="#998fd4" stroke-width="2"><path d="M44 10v68M80 10v68M9 44h106"/></g><g fill="#4a5595"><circle cx="27" cy="25" r="8"/><path d="M19 39q8-12 16 0M59 22l7-5v20l-7-5h-9V22zM93 20h12v15H93zM94 53h12v15H94z"/></g><g fill="#51bca6"><path d="m19 58 7 7 10-15" fill="none" stroke="#51bca6" stroke-width="4"/><circle cx="63" cy="60" r="11"/></g><path d="M124 30q15 12 0 25M131 21q24 21 0 43" fill="none" stroke="#f2d5ff" stroke-width="5" stroke-linecap="round"/></g>'},
+ "RANDOMIZER":{color:"#8ceaff",dark:"#2269a6",art:'<g transform="translate(118 55)"><circle r="48" fill="#1c416b" stroke="#9efaff" stroke-width="5"/><path d="M0 0V-43A43 43 0 0 1 38 20Z" fill="#fbb65f"/><path d="M0 0 38 20A43 43 0 0 1-18 39Z" fill="#a47dff"/><path d="M0 0-18 39A43 43 0 0 1-42-10Z" fill="#61d4c8"/><path d="M0 0-42-10A43 43 0 0 1 0-43Z" fill="#ed6c9f"/><path d="M0-45V45M-45 0h90M-31-31l62 62M31-31l-62 62" stroke="#fff5dc" stroke-width="2"/><circle r="12" fill="#ffe5a7" stroke="#ffffff" stroke-width="3"/><circle r="4" fill="#865d29"/><path d="m0-56-10-14h20z" fill="#ffe5a7" stroke="#fff7dc" stroke-width="2"/></g>'},
+ "FOUR IN LINE":{color:"#6cf3d2",dark:"#207c85",art:'<g transform="translate(55 9) rotate(-4 70 46)"><rect x="0" y="0" width="142" height="96" rx="11" fill="#16558b" stroke="#9ef7e9" stroke-width="5"/><g fill="#092b48" stroke="#7fd3fc" stroke-width="2"><circle cx="24" cy="19" r="11"/><circle cx="55" cy="19" r="11"/><circle cx="86" cy="19" r="11"/><circle cx="117" cy="19" r="11"/><circle cx="24" cy="48" r="11"/><circle cx="55" cy="48" r="11"/><circle cx="86" cy="48" r="11"/><circle cx="117" cy="48" r="11"/><circle cx="24" cy="77" r="11"/><circle cx="55" cy="77" r="11"/><circle cx="86" cy="77" r="11"/><circle cx="117" cy="77" r="11"/></g><g stroke="#fff6d9" stroke-width="2"><circle cx="24" cy="77" r="9" fill="#f5b74d"/><circle cx="55" cy="77" r="9" fill="#fe7496"/><circle cx="86" cy="77" r="9" fill="#f5b74d"/><circle cx="117" cy="77" r="9" fill="#fe7496"/><circle cx="55" cy="48" r="9" fill="#fe7496"/><circle cx="86" cy="48" r="9" fill="#f5b74d"/><circle cx="86" cy="19" r="9" fill="#f5b74d"/></g></g>'},
+ "SIGNAL SEQUENCE":{color:"#8ad7ff",dark:"#3655a4",art:'<g transform="translate(120 55)"><circle r="49" fill="#132b56" stroke="#c4e3ff" stroke-width="5"/><path d="M-3-42A43 43 0 0 0-42-3H-3Z" fill="#ed527a" stroke="#ffb3cb" stroke-width="3"/><path d="M3-42A43 43 0 0 1 42-3H3Z" fill="#46b4ff" stroke="#b8eeff" stroke-width="3"/><path d="M-42 3A43 43 0 0 0-3 42V3Z" fill="#6de6a4" stroke="#b4ffcf" stroke-width="3"/><path d="M42 3A43 43 0 0 1 3 42V3Z" fill="#f8d369" stroke="#fff4b0" stroke-width="3"/><circle r="14" fill="#061f3e" stroke="#a9e5ff" stroke-width="4"/><path d="m0-10 5 7-5 7-5-7z" fill="#e6faff"/></g><g fill="#a2eaff"><circle cx="36" cy="29" r="4"/><circle cx="45" cy="29" r="4"/><circle cx="54" cy="29" r="4"/></g>'}
+};
+function si90PremiumArt(name){
+ const spec=SI90_SCENES[name];
+ if(!spec)return null;
+ const id="si90"+name.replace(/[^A-Za-z0-9]/g,"");
+ const bg=id+"bg",light=id+"light",glass=id+"glass";
+ return '<svg class="si-v90-graphic" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 110" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">'+
+ '<defs><linearGradient id="'+bg+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#174768"/><stop offset=".44" stop-color="'+spec.dark+'"/><stop offset="1" stop-color="#06182c"/></linearGradient>'+
+ '<radialGradient id="'+light+'"><stop stop-color="'+spec.color+'" stop-opacity=".53"/><stop offset="1" stop-color="'+spec.color+'" stop-opacity="0"/></radialGradient>'+
+ '<linearGradient id="'+glass+'" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#b1f7ff" stop-opacity=".85"/><stop offset=".45" stop-color="#2a91ba" stop-opacity=".85"/><stop offset="1" stop-color="#0e3b65"/></linearGradient></defs>'+
+ '<rect width="240" height="110" fill="url(#'+bg+')"/>'+
+ '<ellipse cx="120" cy="55" rx="104" ry="65" fill="url(#'+light+')"/>'+
+ '<path d="M0 100 54 89H186L240 100M5 17h28M207 17h28M5 92h22M213 92h22" stroke="'+spec.color+'" stroke-width="1.5" opacity=".45" fill="none"/>'+
+ '<circle cx="26" cy="35" r="2" fill="#dcf9ff" opacity=".6"/><circle cx="213" cy="70" r="2" fill="#dcf9ff" opacity=".6"/>'+
+ '<ellipse cx="120" cy="97" rx="83" ry="10" fill="#010e1f" opacity=".55"/>'+
+ spec.art+'<rect x="1.5" y="1.5" width="237" height="107" rx="10" fill="none" stroke="'+spec.color+'" stroke-opacity=".3" stroke-width="2"/></svg>';
+}
+
 function installShortcutArtwork(){
  const grid=$('#homeAppGrid');if(!grid)return;
  const renderIcons=()=>{
    for(const tile of grid.querySelectorAll('.app-shortcut:not(.empty)')){
      const slot=tile.querySelector('.app-shortcut-icon');
      const name=tile.querySelector('.app-shortcut-label')?.textContent?.trim()?.toUpperCase();
-     if(!slot||!name||!SHORTCUT_GLYPHS[name]||slot.dataset.siV82Art===name)continue;
-     slot.innerHTML=svgShortcut(name);
+     if(!slot||!name||(!SHORTCUT_GLYPHS[name]&&!SI90_SCENES[name])||slot.dataset.siV82Art===name)continue;
+     const premium=si90PremiumArt(name);
+     slot.innerHTML=premium||svgShortcut(name);
+     if(premium)tile.classList.add('si-v90-illustrated-shortcut');
      slot.dataset.siV82Art=name;
      tile.classList.add('si-v82-vector-shortcut');
    }
@@ -139,7 +176,10 @@ function installLibraryArtwork(){
   "VECTOR":"blue","BOARD":"blue","SKETCH SIGNAL":"cyan",
   "ORBIT":"purple","PIXEL REVEAL":"pink","STARWHEEL":"amber",
   "CREW SURVEY":"purple","MILLION":"amber","MATCH":"purple",
-  "BINGO":"cyan","WORD GRID":"amber","DOMINOES":"cyan","SCIENTIFIC CALCULATOR":"purple"
+  "BINGO":"cyan","WORD GRID":"amber","DOMINOES":"cyan","SCIENTIFIC CALCULATOR":"purple",
+  "MINEFIELD":"pink","VECTOR":"blue","ORBIT":"purple","MILLION":"amber",
+  "SPOTLIGHT":"green","AAC+":"purple","RANDOMIZER":"cyan",
+  "FOUR IN LINE":"green","SIGNAL SEQUENCE":"blue"
  };
  const aliases={
   "PRESENTATION":"SI+","SI+ INTERACTIVE PRESENTATION":"SI+",
@@ -158,9 +198,10 @@ function installLibraryArtwork(){
  function paintCard(card,iconSelector,name,scheme){
    const icon=card.querySelector(iconSelector);
    const key=normalized(name);
-   const svg=appGlyph(key);
-   if(!icon||!svg||icon.dataset.siV86Name===key)return;
-   icon.innerHTML=svg;
+   const svg=appGlyph(key),premium=si90PremiumArt(key);
+   if(!icon||(!svg&&!premium)||icon.dataset.siV86Name===key)return;
+   icon.innerHTML=premium||svg;
+   if(premium)icon.classList.add("si-v90-graphic-ready");
    icon.dataset.siV86Name=key;
    card.dataset.siV86Accent=colors[key]||scheme||"cyan";
    card.classList.add("si-v86-icon-ready");
