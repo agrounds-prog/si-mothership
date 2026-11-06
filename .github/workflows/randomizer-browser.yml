@@ -1,0 +1,71 @@
+name: Visual Randomizer Browser Regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'randomizer.html'
+      - 'dashboard-polish.js'
+      - 'dashboard-polish.css'
+      - 'server.py'
+      - 'tests/test_randomizer_browser.cjs'
+      - '.github/workflows/randomizer-browser.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  randomizer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Verify syntax
+        run: |
+          python -m py_compile server.py
+          node --check dashboard-polish.js
+          node --check tests/test_randomizer_browser.cjs
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          class Script(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.inside = False
+                  self.content = ""
+              def handle_starttag(self, tag, attrs):
+                  if tag == "script" and not dict(attrs).get("src"):
+                      self.inside = True
+              def handle_data(self, data):
+                  if self.inside:
+                      self.content += data
+              def handle_endtag(self, tag):
+                  if tag == "script":
+                      self.inside = False
+          parser = Script()
+          parser.feed(Path("randomizer.html").read_text())
+          assert parser.content
+          Path("/tmp/randomizer-script.js").write_text(parser.content)
+          PY
+          node --check /tmp/randomizer-script.js
+      - name: Install browser dependencies
+        run: |
+          pip install -r requirements.txt
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Start isolated classroom
+        run: |
+          mkdir -p /tmp/mothership-randomizer
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-randomizer PORT=8877 python server.py >/tmp/randomizer-server.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8877/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/randomizer-server.log
+          exit 1
+      - name: Run Randomizer browser regression
+        run: node tests/test_randomizer_browser.cjs
+      - name: Show server log on failure
+        if: failure()
+        run: tail -100 /tmp/randomizer-server.log || true
