@@ -1,0 +1,48 @@
+const assert=require("node:assert/strict");
+const {chromium}=require("playwright");
+const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
+(async()=>{
+ const browser=await chromium.launch({headless:true,args:["--no-sandbox","--disable-dev-shm-usage"]});
+ const context=await browser.newContext({viewport:{width:1440,height:960}});
+ const page=await context.newPage();
+ const errors=[];page.on("pageerror",e=>errors.push(String(e)));
+ try{
+  assert.equal((await page.request.post(BASE+"/api/teacher/login",{data:{key:"5030"}})).status(),200);
+  await page.goto(BASE+"/?role=teacher",{waitUntil:"domcontentloaded"});
+  await page.waitForFunction(()=>window.__siV80ClassroomTools===true&&typeof render==="function",null,{timeout:25000});
+  const registry=await page.evaluate(()=>APP_REGISTRY.filter(a=>["aac-plus","randomizer"].includes(a.id)));
+  assert.deepEqual(registry.map(a=>a.id).sort(),["aac-plus","randomizer"]);
+  assert.equal(await page.locator(".aac-plus-launch,.si-randomizer-launch").count(),0,"No special header shortcuts remain");
+  const originals=await page.evaluate(()=>state.favoriteSlots.slice());
+  await page.evaluate(()=>{state.screen="activities";state.activeApp=null;state.assigningSlot=null;render()});
+  await page.waitForSelector('#activityGrid [data-open-app="randomizer"]');
+  assert.equal(await page.locator('#activityGrid [data-open-app="aac-plus"]').count(),1);
+  await page.locator('[data-activity-category="tools"]').click();
+  assert.equal(await page.locator('#activityGrid [data-open-app="randomizer"]').isVisible(),true);
+  assert.equal(await page.locator('#activityGrid [data-open-app="aac-plus"]').isVisible(),true);
+  const popupPromise=page.waitForEvent("popup");
+  await page.locator('#activityGrid [data-open-app="randomizer"]').click();
+  const popup=await popupPromise;
+  await popup.waitForLoadState("domcontentloaded");
+  assert.ok(popup.url().includes("/randomizer"));
+  await popup.close();
+  assert.deepEqual(await page.evaluate(()=>state.favoriteSlots.slice()),originals,"Browsing apps does not change shortcuts");
+  const slot=await page.evaluate(()=>state.favoriteSlots.findIndex(x=>!x));
+  if(slot<0){
+   await page.evaluate(()=>{state.favoriteSlots[8]=null;render()});
+  }
+  await page.locator('#activityGrid [data-add-app="randomizer"]').click();
+  const current=await page.evaluate(()=>state.favoriteSlots.slice());
+  assert.ok(current.includes("randomizer"),"Randomizer should be assignable to a home shortcut");
+  await page.evaluate(()=>{state.screen="classroom";render()});
+  const button=page.locator('#homeAppGrid .app-shortcut').filter({hasText:"RANDOMIZER"});
+  assert.equal(await button.count(),1);
+  const secondPopup=page.waitForEvent("popup");
+  await button.click();
+  const opened=await secondPopup;
+  assert.ok(opened.url().includes("/randomizer"));
+  await opened.close();
+  assert.deepEqual(errors,[]);
+  console.log("PASS AAC+ and Randomizer Activities catalog, Tools filter, launch and native home shortcuts");
+ }finally{await browser.close()}
+})().catch(e=>{console.error(e);process.exit(1)});
