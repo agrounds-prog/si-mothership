@@ -309,13 +309,27 @@ function installAACPlusLink(){
  if(manage&&manage.parentElement===toolbar)toolbar.insertBefore(link,manage);
  else toolbar.appendChild(link);
 }
+/* Visual Randomizer opens independently and leaves game shortcuts intact. */
+function installRandomizerLink(){
+ const toolbar=document.querySelector('#teacher #appShortcutsPanel .app-shortcuts-head');
+ if(!toolbar||toolbar.querySelector('.si-randomizer-launch'))return;
+ const link=document.createElement('a');
+ link.href='/randomizer';link.target='_blank';link.rel='noopener';
+ link.className='si-randomizer-launch';
+ link.textContent='🎡 RANDOMIZER';
+ link.title='Open Visual Randomizer: wheel, slots, lottery, or cards';
+ link.setAttribute('aria-label','Open classroom visual randomizer');
+ const manage=toolbar.querySelector('button,.si-v80-manage');
+ if(manage&&manage.parentElement===toolbar)toolbar.insertBefore(link,manage);
+ else toolbar.appendChild(link);
+}
 function init(){
  if(document.body.classList.contains('role-student')||document.body.classList.contains('role-shared'))return;
  if(!$('#teacherControlBar')||!$('#endBtn')||!$('#resetBtn'))return;
  if(!installHeader())return;
  addTheme();tunePanels();installShortcutArtwork();installLibraryArtwork();installApprovedArtwork();
  document.body.classList.add('si-v80-dashboard');
- installAlertStack();installAACPlusLink();
+ installAlertStack();installAACPlusLink();installRandomizerLink();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
 else init();
