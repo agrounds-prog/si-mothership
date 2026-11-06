@@ -312,8 +312,9 @@ function installClassroomTools(){
  openApp=function(id){
   if(id==='aac-plus'||id==='randomizer'){
    const destination=id==='aac-plus'?'/aac':'/randomizer';
-   const popup=window.open(destination,'_blank','noopener');
-   if(!popup&&typeof toast==='function')toast('Allow pop-ups to open '+(id==='aac-plus'?'AAC+':'Randomizer')+'.');
+   const popup=window.open(destination,'_blank');
+   if(popup)popup.opener=null;
+   else if(typeof toast==='function')toast('Allow pop-ups to open '+(id==='aac-plus'?'AAC+':'Randomizer')+'.');
    return;
   }
   return originalOpen.apply(this,arguments);
