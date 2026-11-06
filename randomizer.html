@@ -390,6 +390,30 @@ html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-hei
  .stage-marquee{padding-top:8px;padding-bottom:7px}
  .stage-console{padding-top:5px;padding-bottom:7px}}
 
+
+/* Arcade-style three-reel face, with live teacher-driven choices */
+.stage[data-mode="slot"] #reel{display:flex;align-items:center;justify-content:center;padding:5px!important;overflow:hidden!important}
+#reel .reel-marker{inset:11% 2%!important;border:0!important;pointer-events:none}
+#reel .reel-columns{position:relative;z-index:2;width:100%;height:100%;display:flex;align-items:stretch;justify-content:center;gap:2%;overflow:hidden}
+#reel .reel-lane{display:flex;align-items:center;justify-content:center;min-width:0;max-height:100%;overflow:hidden;text-align:center;
+ font:900 clamp(14px,1.6vw,25px)/1.08 system-ui;overflow-wrap:anywhere;padding:6px;
+ border-radius:7px;background:linear-gradient(180deg,#253c71 0%,#153b68 15%,#b7e5fa 49%,#153d72 85%,#253c71 100%);
+ text-shadow:0 1px 2px #00102b,0 0 7px #fff9;border:1px solid #e8c4859e}
+#reel .reel-lane.reel-side{flex:1 1 26%;color:#d9ebfc;opacity:.7;filter:blur(.55px)}
+#reel .reel-lane.reel-focus{flex:1.25 1 45%;color:#fff5ca;background:linear-gradient(180deg,#132a5b,#4e8bb7 28%,#0c376a 76%,#1c315b);border:3px solid #ffe0a2!important;
+ box-shadow:0 0 20px #f7c46e,inset 0 0 25px #c6a25b4a}
+#reel .reel-label{font-size:clamp(17px,2.6vw,40px)!important;text-shadow:0 2px 3px #05172e,0 0 16px #ffe294b8!important;max-width:100%;white-space:normal}
+.stage.is-spinning #reel .reel-focus{box-shadow:0 0 24px #55e5f9,inset 0 0 17px #abc9f670}
+#display-only #reel .reel-label{font-size:clamp(22px,3.3vw,52px)!important}
+.stage[data-mode="cards"] #cards.cards-fan{display:flex!important;gap:0!important;align-items:center!important;justify-content:center!important;
+ grid-auto-rows:auto!important;max-width:min(100%,850px)!important;overflow:visible!important;height:84%!important}
+.stage[data-mode="cards"] #cards.cards-fan .card{flex:0 1 auto;width:min(23%,185px)!important;min-width:0!important;height:min(80%,265px)!important;min-height:140px!important;
+ margin-left:-1.7%!important;transform:translateY(calc((var(--fan-index) - (var(--fan-count) - 1)/2) * (var(--fan-index) - (var(--fan-count) - 1)/2) * 5px)) rotate(calc((var(--fan-index) - (var(--fan-count) - 1)/2) * 6deg));z-index:1}
+.stage[data-mode="cards"] #cards.cards-fan .card:first-child{margin-left:0!important}
+.stage[data-mode="cards"] #cards.cards-fan .card.active{z-index:3;transform:translateY(-28px) scale(1.08)!important}
+.stage[data-mode="cards"] #cards.cards-fan .card.flipped{z-index:5;transform:translateY(-32px) scale(1.14)!important}
+@media(max-width:650px){.stage[data-mode="cards"] #cards.cards-fan .card{min-height:100px!important}}
+
 </style></head>
 <body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
 <main><section id="studio"><div class="studio-kicker">MISSION CONTROL · RANDOMIZER</div><h2>TEACHER STUDIO</h2>
@@ -430,7 +454,7 @@ html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-hei
 const DISPLAY=new URLSearchParams(location.search).has("display"),STORE="siMothership.randomizerSets.v1",CHANNEL="si-mothership-randomizer";
 if(DISPLAY)document.body.id="display-only";
 const $=id=>document.getElementById(id),colors=["#1fb4bd","#e49444","#7754c1","#b84979","#2389c7","#57a76a","#aa6a41","#9368d3"];
-let choices=[{text:"Movie",weight:1},{text:"Art",weight:1},{text:"Music",weight:1},{text:"Game",weight:1}],pool=[],styles="wheel",busy=false,winner="",rotation=0,library={},revision=0,displayLabel="",lastBroadcast=0,history=[],motionIndex=-1,presentPool=[],winnerIndex=-1,drawProgress=0,celebrate=true,celebrationToken=0,audioContext=null,speed="normal";
+let choices=[{text:"Movie",weight:1},{text:"Art",weight:1},{text:"Music",weight:1},{text:"Game",weight:1}],pool=[],styles="wheel",busy=false,winner="",rotation=0,library={},revision=0,displayLabel="",lastBroadcast=0,history=[],motionIndex=-1,presentPool=[],winnerIndex=-1,drawProgress=0,celebrate=true,celebrationToken=0,audioContext=null,speed="normal",slotSides=["",""];
 const bc=typeof BroadcastChannel!=="undefined"?new BroadcastChannel(CHANNEL):null;
 function html(s){return String(s).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]))}
 function clean(list){return (Array.isArray(list)?list:[]).slice(0,80).map(x=>({text:String(x.text||"").trim().slice(0,100),weight:Math.min(100,Math.max(1,Number(x.weight)||1))})).filter(x=>x.text)}
@@ -496,7 +520,7 @@ function celebrateWinner(token){
 function clearCelebration(){$("celebration").replaceChildren()}
 function snapshot(){return {title:$("title").value,styles,choices:clean(choices),weighted:$("weighted").checked,remove:$("removeWinner").checked,celebrate:$("celebrateEnabled").checked,speed:$("animationSpeed").value}}
 function apply(data){if(!data)return;busy=false;$("stage").classList.remove("has-winner","is-spinning");choices=clean(data.choices);styles=["wheel","slot","lottery","cards"].includes(data.styles)?data.styles:"wheel";$("title").value=data.title||"Classroom Choices";$("choiceSearch").value="";$("weighted").checked=!!data.weighted;$("removeWinner").checked=!!data.remove;$("celebrateEnabled").checked=data.celebrate!==false;$("animationSpeed").value=["quick","normal","dramatic"].includes(data.speed)?data.speed:"normal";celebrate=$("celebrateEnabled").checked;pool=choices.map((_,i)=>i);winner="";winnerIndex=-1;presentPool=[];rotation=0;history=[];clearCelebration();drawProgress=0;$("drawProgress").firstElementChild.style.width="0%";updateHistory();$("result").textContent="Ready to randomize?";render()}
-function broadcast(){if(DISPLAY)return;const data={title:$("title").value,styles,choices,pool,winner,winnerIndex,rotation,presentPool,weighted:$("weighted").checked,busy,displayLabel,motionIndex,history,drawProgress,celebrate,celebrationToken,speed:$("animationSpeed").value,revision:++revision};try{bc?.postMessage(data);localStorage.setItem(CHANNEL,JSON.stringify(data))}catch(e){}}
+function broadcast(){if(DISPLAY)return;const data={title:$("title").value,styles,choices,pool,winner,winnerIndex,rotation,presentPool,weighted:$("weighted").checked,busy,displayLabel,slotSides,motionIndex,history,drawProgress,celebrate,celebrationToken,speed:$("animationSpeed").value,revision:++revision};try{bc?.postMessage(data);localStorage.setItem(CHANNEL,JSON.stringify(data))}catch(e){}}
 function renderChoices(){
  const query=$("choiceSearch").value.trim().toLocaleLowerCase();
  const enabled=$("weighted").checked,overall=totalWeight();
@@ -573,8 +597,11 @@ function wheel(){
  ctx.beginPath();ctx.arc(400,400,15,0,Math.PI*2);ctx.fillStyle="#845a28";ctx.fill();
 }
 function setReelLabel(label){
- $("reel").innerHTML='<div class="reel-marker" aria-hidden="true"></div><div class="reel-label"></div>';
- $("reel").querySelector(".reel-label").textContent=label||"✦ ? ✦";
+ const el=$("reel");
+ if(!el.querySelector(".reel-label"))el.innerHTML='<div class="reel-marker" aria-hidden="true"></div><div class="reel-columns"><div class="reel-lane reel-side reel-left"></div><div class="reel-lane reel-focus"><div class="reel-label"></div></div><div class="reel-lane reel-side reel-right"></div></div>';
+ el.querySelector(".reel-label").textContent=label||"✦ ? ✦";
+ el.querySelector(".reel-left").textContent=slotSides[0]||"★";
+ el.querySelector(".reel-right").textContent=slotSides[1]||"★";
 }
 function showMode(){
  $("stage").dataset.mode=styles;
@@ -606,16 +633,23 @@ function renderLottery(){
  }).join("");
 }
 function renderCards(){
- const entries=visibleEntries(16);
- $("cards").innerHTML=entries.map((i,j)=>'<div class="card'+(winner&&winnerIndex===i?" flipped":"")+'">'+
+ const entries=visibleEntries(16),fan=entries.length<=7&&entries.length>=2;
+ $("cards").classList.toggle("cards-fan",fan);
+ $("cards").style.setProperty("--fan-count",String(entries.length));
+ $("cards").innerHTML=entries.map((i,j)=>'<div class="card'+(winner&&winnerIndex===i?" flipped":"")+'" style="--fan-index:'+j+'">'+
   (winner&&winnerIndex===i?html(choices[i].text):"✦")+'</div>').join("");
 }
 function render(){renderChoices();$("displayTitle").textContent=$("title").value||"Classroom Choices";$("styles").querySelectorAll("button").forEach(b=>b.classList.toggle("active",b.dataset.style===styles));$("spin").disabled=busy||pool.length<1;$("status").textContent=pool.length?pool.length+" available choices · "+($("weighted").checked?"weighted":"equal")+" probability":"No choices left — reset the pool";showMode();broadcast()}
-function stop(index){presentPool=pool.slice();winnerIndex=index;winner=choices[index].text;history.unshift(winner);history=history.slice(0,6);updateHistory();busy=false;drawProgress=100;celebrate=$("celebrateEnabled").checked;celebrationToken+=1;celebrateWinner(celebrationToken);winnerChime();$("drawProgress").firstElementChild.style.width="100%";$("stage").classList.remove("is-spinning");$("stage").classList.add("has-winner");displayLabel=winner;$("result").textContent="✦ "+winner;$("spin").disabled=false;if($("removeWinner").checked)pool=pool.filter(i=>i!==index);render();broadcast()}
+function stop(index){presentPool=pool.slice();
+ if(styles==="slot"&&presentPool.length>1){
+  const at=presentPool.indexOf(index),n=presentPool.length;
+  slotSides=[choices[presentPool[(at+n-1)%n]].text,choices[presentPool[(at+1)%n]].text];
+ }
+ winnerIndex=index;winner=choices[index].text;history.unshift(winner);history=history.slice(0,6);updateHistory();busy=false;drawProgress=100;celebrate=$("celebrateEnabled").checked;celebrationToken+=1;celebrateWinner(celebrationToken);winnerChime();$("drawProgress").firstElementChild.style.width="100%";$("stage").classList.remove("is-spinning");$("stage").classList.add("has-winner");displayLabel=winner;$("result").textContent="✦ "+winner;$("spin").disabled=false;if($("removeWinner").checked)pool=pool.filter(i=>i!==index);render();broadcast()}
 function draw(){
  if(busy||!pool.length)return;
  const index=pick();if(index<0)return;
- busy=true;clearCelebration();winner="";winnerIndex=-1;presentPool=[];motionIndex=-1;displayLabel="";drawProgress=0;
+ busy=true;clearCelebration();winner="";winnerIndex=-1;presentPool=[];motionIndex=-1;displayLabel="";slotSides=["",""];drawProgress=0;
  showMode();
  $("stage").classList.remove("has-winner");
  $("stage").classList.add("is-spinning");
@@ -640,7 +674,8 @@ function draw(){
    if(styles==="slot"){
     const next=pool[Math.floor(entropy()*pool.length)];
     displayLabel=choices[next].text;
-    $("reel").querySelector(".reel-label").textContent=displayLabel;
+    slotSides=[choices[pool[Math.floor(entropy()*pool.length)]].text,choices[pool[Math.floor(entropy()*pool.length)]].text];
+    setReelLabel(displayLabel);
    }else if(styles==="lottery"){
     const balls=$("lottery").children;
     for(const ball of balls)ball.classList.remove("active");
@@ -665,7 +700,7 @@ function draw(){
 function fillLibrary(){const old=$("library").value;$("library").innerHTML='<option value="">Choose saved randomizer…</option>'+Object.keys(library).sort().map(name=>'<option value="'+html(name)+'">'+html(name)+'</option>').join("");if(old in library)$("library").value=old}
 async function getSets(){try{const response=await fetch("/api/storage",{credentials:"same-origin"});if(!response.ok)throw Error("Storage unavailable");const data=await response.json();library=JSON.parse(data.items?.[STORE]||"{}");if(!library||Array.isArray(library)||typeof library!=="object")library={};$("storageStatus").textContent="Railway teacher library connected."}catch(e){try{library=JSON.parse(localStorage.getItem(STORE)||"{}")}catch(_) {library={}}$("storageStatus").textContent="Local backup in use — sign in as teacher to sync with Railway."}fillLibrary()}
 async function saveLibrary(){localStorage.setItem(STORE,JSON.stringify(library));const response=await fetch("/api/storage",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({key:STORE,value:JSON.stringify(library)})});if(!response.ok)throw Error("Railway save failed ("+response.status+")");$("storageStatus").textContent="Saved to Railway teacher library."}
-function listen(data){if(!DISPLAY||!data||typeof data.revision!=="number"||data.revision<revision)return;$("stage").classList.toggle("is-spinning",!!data.busy);$("stage").classList.toggle("has-winner",!!data.winner);revision=data.revision;choices=clean(data.choices);pool=(data.pool||[]).filter(i=>Number.isInteger(i)&&choices[i]);styles=["wheel","slot","lottery","cards"].includes(data.styles)?data.styles:"wheel";$("weighted").checked=!!data.weighted;winner=data.winner||"";winnerIndex=Number.isInteger(data.winnerIndex)?data.winnerIndex:-1;presentPool=Array.isArray(data.presentPool)?data.presentPool.filter(i=>Number.isInteger(i)&&choices[i]):[];rotation=data.rotation||0;displayLabel=data.displayLabel||"";motionIndex=Number.isInteger(data.motionIndex)?data.motionIndex:-1;history=Array.isArray(data.history)?data.history.slice(0,6):[];celebrate=data.celebrate!==false;const nextCelebration=Number(data.celebrationToken)||0;if(nextCelebration>celebrationToken){celebrationToken=nextCelebration;celebrateWinner(nextCelebration)}if(data.busy)clearCelebration();drawProgress=Math.max(0,Math.min(100,Number(data.drawProgress)||0));$("drawProgress").firstElementChild.style.width=drawProgress+"%";updateHistory();$("displayTitle").textContent=data.title||"Randomizer";speed=["quick","normal","dramatic"].includes(data.speed)?data.speed:"normal";$("result").textContent=winner?"✦ "+winner:data.busy?"Selecting…":"Ready to randomize?";$("status").textContent=pool.length?pool.length+" available choices · "+(data.weighted?"weighted":"equal")+" probability":"No choices left — reset the pool";showMode();if(styles==="slot"&&data.busy)$("reel").querySelector(".reel-label").textContent=displayLabel||"✦";if(styles==="lottery"){const balls=$("lottery").children;for(const ball of balls)ball.classList.remove("active");if(data.busy&&balls[motionIndex])balls[motionIndex].classList.add("active");$("lottery").style.transform=data.busy?"translateY("+Math.sin(data.revision/2)*9+"px)":"none"}if(styles==="cards"&&data.busy){for(const card of $("cards").children)card.classList.remove("active","flipped");if($("cards").children[motionIndex])$("cards").children[motionIndex].classList.add("active")}}
+function listen(data){if(!DISPLAY||!data||typeof data.revision!=="number"||data.revision<revision)return;$("stage").classList.toggle("is-spinning",!!data.busy);$("stage").classList.toggle("has-winner",!!data.winner);revision=data.revision;choices=clean(data.choices);pool=(data.pool||[]).filter(i=>Number.isInteger(i)&&choices[i]);styles=["wheel","slot","lottery","cards"].includes(data.styles)?data.styles:"wheel";$("weighted").checked=!!data.weighted;winner=data.winner||"";winnerIndex=Number.isInteger(data.winnerIndex)?data.winnerIndex:-1;presentPool=Array.isArray(data.presentPool)?data.presentPool.filter(i=>Number.isInteger(i)&&choices[i]):[];rotation=data.rotation||0;displayLabel=data.displayLabel||"";slotSides=Array.isArray(data.slotSides)?data.slotSides.slice(0,2).map(String):["",""];motionIndex=Number.isInteger(data.motionIndex)?data.motionIndex:-1;history=Array.isArray(data.history)?data.history.slice(0,6):[];celebrate=data.celebrate!==false;const nextCelebration=Number(data.celebrationToken)||0;if(nextCelebration>celebrationToken){celebrationToken=nextCelebration;celebrateWinner(nextCelebration)}if(data.busy)clearCelebration();drawProgress=Math.max(0,Math.min(100,Number(data.drawProgress)||0));$("drawProgress").firstElementChild.style.width=drawProgress+"%";updateHistory();$("displayTitle").textContent=data.title||"Randomizer";speed=["quick","normal","dramatic"].includes(data.speed)?data.speed:"normal";$("result").textContent=winner?"✦ "+winner:data.busy?"Selecting…":"Ready to randomize?";$("status").textContent=pool.length?pool.length+" available choices · "+(data.weighted?"weighted":"equal")+" probability":"No choices left — reset the pool";showMode();if(styles==="slot"&&data.busy)setReelLabel(displayLabel||"✦");if(styles==="lottery"){const balls=$("lottery").children;for(const ball of balls)ball.classList.remove("active");if(data.busy&&balls[motionIndex])balls[motionIndex].classList.add("active");$("lottery").style.transform=data.busy?"translateY("+Math.sin(data.revision/2)*9+"px)":"none"}if(styles==="cards"&&data.busy){for(const card of $("cards").children)card.classList.remove("active","flipped");if($("cards").children[motionIndex])$("cards").children[motionIndex].classList.add("active")}}
 $("fullscreenBtn").onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen()}catch(e){$("status").textContent="Full-screen mode is unavailable in this browser."}};document.addEventListener("fullscreenchange",()=>{$("fullscreenBtn").textContent=document.fullscreenElement?"⤢ Exit Full Screen":"⛶ Full Screen"});
 if(DISPLAY){$("fullscreenBtn").hidden=false;$("returnBtn").style.display="none";$("screenBtn").style.display="none";$("spin").style.display="none";bc&&(bc.onmessage=e=>listen(e.data));window.addEventListener("storage",e=>{if(e.key===CHANNEL){try{listen(JSON.parse(e.newValue))}catch(_){}}});try{listen(JSON.parse(localStorage.getItem(CHANNEL)||"null"))}catch(_){};return}
 $("screenBtn").onclick=()=>{const w=window.open("/randomizer?display=1","siRandomizerDisplay","width=1100,height=780");if(!w)alert("Allow pop-ups to open the classroom display.");broadcast()};
