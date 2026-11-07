@@ -203,7 +203,7 @@ html:fullscreen #display-only header{min-height:74px}
 :root{--randomizer-art-root:"/randomizer-art"}
 body{background:#030b1a radial-gradient(ellipse at 50% 0%,#175080,#061425 66%)}
 header{border-bottom-color:#6ae2ff;box-shadow:0 3px 30px #0bc8ff25}
-#studio{background:#071b32 url("/randomizer-art/components/teacher_studio_panel.svg") center/100% 100% no-repeat;border-color:#5ccbe9;box-shadow:0 0 26px #169eff2b,inset 0 0 28px #27b3e512}
+#studio{background:#071b32 url("/randomizer-art/components/teacher_studio_panel.svg?v=2") center/100% 100% no-repeat;border-color:#5ccbe9;box-shadow:0 0 26px #169eff2b,inset 0 0 28px #27b3e512}
 #studio .modes{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
 #studio .modes button{
  position:relative;display:flex;align-items:flex-end;justify-content:center;
@@ -213,24 +213,24 @@ header{border-bottom-color:#6ae2ff;box-shadow:0 3px 30px #0bc8ff25}
  box-shadow:0 8px 18px #0009,inset 0 0 10px #0004!important;
  text-shadow:0 2px 7px #000,0 0 7px #061225;font:950 clamp(11px,1vw,15px)/1.1 system-ui!important
 }
-#studio .modes button[data-style="wheel"]{background-image:linear-gradient(transparent 45%,#010b24bc),url("/randomizer-art/mode-thumbnails/wheel_mode_tile.webp")!important}
-#studio .modes button[data-style="slot"]{background-image:linear-gradient(transparent 45%,#010b24bc),url("/randomizer-art/mode-thumbnails/slot_mode_tile.webp")!important}
-#studio .modes button[data-style="lottery"]{background-image:linear-gradient(transparent 45%,#010b24bc),url("/randomizer-art/mode-thumbnails/lottery_mode_tile.webp")!important}
-#studio .modes button[data-style="cards"]{background-image:linear-gradient(transparent 45%,#010b24bc),url("/randomizer-art/mode-thumbnails/cards_mode_tile.webp")!important}
+#studio .modes button[data-style="wheel"]{background-image:linear-gradient(transparent 45%,#010b24bc),url("/randomizer-art/mode-thumbnails/wheel_mode_tile.webp?v=2")!important}
+#studio .modes button[data-style="slot"]{background-image:linear-gradient(transparent 45%,#010b24bc),url("/randomizer-art/mode-thumbnails/slot_mode_tile.webp?v=2")!important}
+#studio .modes button[data-style="lottery"]{background-image:linear-gradient(transparent 45%,#010b24bc),url("/randomizer-art/mode-thumbnails/lottery_mode_tile.webp?v=2")!important}
+#studio .modes button[data-style="cards"]{background-image:linear-gradient(transparent 45%,#010b24bc),url("/randomizer-art/mode-thumbnails/cards_mode_tile.webp?v=2")!important}
 #studio .modes button span{z-index:1;display:block;background:#07162fcc;border:1px solid #78dcff77;border-radius:6px;padding:5px 9px;letter-spacing:.045em}
 #studio .modes button.active{border-color:#ffdc8c!important;box-shadow:0 0 0 1px #ffdf90,0 0 22px #ffc76c8c!important;transform:translateY(-2px)}
 #studio .modes button:focus-visible{outline:3px solid #fff4a8!important}
 .stage{background-position:center;background-size:cover;background-repeat:no-repeat;isolation:isolate}
-.stage[data-mode="wheel"]{background-image:linear-gradient(90deg,#020b19b8,#06172b55 48%,#020b19ba),url("/randomizer-art/backgrounds/wheel_bridge_bg.webp")}
-.stage[data-mode="slot"]{background-image:linear-gradient(90deg,#030d1baf,#071b3355 48%,#020b18a8),url("/randomizer-art/backgrounds/slot_bridge_bg.webp")}
-.stage[data-mode="lottery"]{background-image:linear-gradient(90deg,#020d1bab,#061c3355 48%,#020b18b0),url("/randomizer-art/backgrounds/lottery_bridge_bg.webp")}
-.stage[data-mode="cards"]{background-image:linear-gradient(90deg,#030b1aaf,#06112f55 48%,#020b18b0),url("/randomizer-art/backgrounds/cards_bridge_bg.webp")}
-.stage:after{inset:0!important;border:0!important;border-radius:inherit!important;background:url("/randomizer-art/overlays/shared_display_hud.svg") center/100% 100% no-repeat;opacity:.58;z-index:0!important;box-shadow:none!important}
+.stage[data-mode="wheel"]{background-image:linear-gradient(90deg,#020b19b8,#06172b55 48%,#020b19ba),url("/randomizer-art/backgrounds/wheel_bridge_bg.webp?v=2")}
+.stage[data-mode="slot"]{background-image:linear-gradient(90deg,#030d1baf,#071b3355 48%,#020b18a8),url("/randomizer-art/backgrounds/slot_bridge_bg.webp?v=2")}
+.stage[data-mode="lottery"]{background-image:linear-gradient(90deg,#020d1bab,#061c3355 48%,#020b18b0),url("/randomizer-art/backgrounds/lottery_bridge_bg.webp?v=2")}
+.stage[data-mode="cards"]{background-image:linear-gradient(90deg,#030b1aaf,#06112f55 48%,#020b18b0),url("/randomizer-art/backgrounds/cards_bridge_bg.webp?v=2")}
+.stage:after{inset:0!important;border:0!important;border-radius:inherit!important;background:url("/randomizer-art/overlays/shared_display_hud.svg?v=2") center/100% 100% no-repeat;opacity:.58;z-index:0!important;box-shadow:none!important}
 .stage .visual{z-index:1}
 .stage .display-title,.stage .mode-caption,.stage .result,.stage .draw-progress,.stage .recent,.stage .action,.stage .status{z-index:2}
 .stage .display-title{color:#f0faff;text-shadow:0 3px 9px #000,0 0 20px #53bdec}
 .stage .result{
- background:#061631 url("/randomizer-art/components/winner_plaque_blank.svg") center/100% 100% no-repeat!important;
+ background:#061631 url("/randomizer-art/components/winner_plaque_blank.svg?v=2") center/100% 100% no-repeat!important;
  border:0!important;border-radius:10px!important;box-shadow:0 7px 22px #0009!important;
  color:#ffe6a6;min-height:90px;max-width:min(95%,710px);padding:18px 11%!important;
  text-shadow:0 2px 8px #000,0 0 13px #ffb750
@@ -243,7 +243,7 @@ header{border-bottom-color:#6ae2ff;box-shadow:0 3px 30px #0bc8ff25}
  position:absolute!important;z-index:5!important;
  top:-3%!important;left:50%!important;transform:translateX(-50%)!important;
  width:14%!important;height:19%!important;min-height:40px;
- border:0!important;background:url("/randomizer-art/components/wheel_pointer.svg") center/contain no-repeat!important;
+ border:0!important;background:url("/randomizer-art/components/wheel_pointer.svg?v=2") center/contain no-repeat!important;
  filter:drop-shadow(0 4px 6px #000c) drop-shadow(0 0 10px #ffc154)!important
 }
 #display-only .wheel-art-frame{width:min(100%,670px)}
@@ -254,8 +254,8 @@ header{border-bottom-color:#6ae2ff;box-shadow:0 3px 30px #0bc8ff25}
  background-position:center;background-size:100% 100%;background-repeat:no-repeat;
  filter:drop-shadow(0 12px 18px #000b)
 }
-.stage[data-mode="slot"] .visual:before{background-image:url("/randomizer-art/components/slot_machine_chassis.svg")}
-.stage[data-mode="lottery"] .visual:before{background-image:url("/randomizer-art/components/lottery_machine_frame.svg")}
+.stage[data-mode="slot"] .visual:before{background-image:url("/randomizer-art/components/slot_machine_chassis.svg?v=2")}
+.stage[data-mode="lottery"] .visual:before{background-image:url("/randomizer-art/components/lottery_machine_frame.svg?v=2")}
 .stage[data-mode="slot"] #reel{
  z-index:1;position:relative;width:68%;height:43%;min-height:120px;
  border:2px solid #ffe5a3;border-radius:20px;
@@ -268,19 +268,19 @@ header{border-bottom-color:#6ae2ff;box-shadow:0 3px 30px #0bc8ff25}
  padding:4%;gap:4px;align-content:center;grid-template-columns:repeat(5,minmax(0,1fr))
 }
 .stage[data-mode="lottery"] .ball{
- background:url("/randomizer-art/components/lottery_ball_blank.svg") center/100% 100% no-repeat!important;
+ background:url("/randomizer-art/components/lottery_ball_blank.svg?v=2") center/100% 100% no-repeat!important;
  border:0!important;border-radius:50%;width:100%;max-width:86px;aspect-ratio:1;
  box-shadow:0 4px 12px #0009;min-height:0;font-size:clamp(9px,1.1vw,15px);
  color:#091c3c;text-shadow:0 1px 1px #ffffff99;
 }
 .stage[data-mode="cards"] #cards{gap:clamp(6px,1vw,14px);grid-auto-rows:minmax(74px,1fr)}
 .stage[data-mode="cards"] .card{
- background:#15134d url("/randomizer-art/components/mystery_card_back.svg") center/100% 100% no-repeat!important;
+ background:#15134d url("/randomizer-art/components/mystery_card_back.svg?v=2") center/100% 100% no-repeat!important;
  border:0!important;border-radius:10px;box-shadow:0 9px 18px #0008!important;
  color:#fce9a8;text-shadow:0 2px 7px #0008
 }
 .stage[data-mode="cards"] .card.flipped{
- background:#164071 url("/randomizer-art/components/mystery_card_face_blank.svg") center/100% 100% no-repeat!important;
+ background:#164071 url("/randomizer-art/components/mystery_card_face_blank.svg?v=2") center/100% 100% no-repeat!important;
  box-shadow:0 0 30px #ffe29bad,0 8px 18px #0008!important;
  color:#fff7db
 }
@@ -300,14 +300,14 @@ header{border-bottom-color:#6ae2ff;box-shadow:0 3px 30px #0bc8ff25}
 :root{--deck-cyan:#45dfff;--deck-gold:#fbd583}
 body{background:#020918 radial-gradient(ellipse at 50% -18%,#164b7d,#061526 60%)!important}
 header{min-height:88px;padding:12px clamp(16px,3vw,48px)!important;
- background:linear-gradient(180deg,#102f54dd,#06172af5),url("/randomizer-art/backgrounds/wheel_bridge_bg.webp") center 20%/cover!important;
+ background:linear-gradient(180deg,#102f54dd,#06172af5),url("/randomizer-art/backgrounds/wheel_bridge_bg.webp?v=2") center 20%/cover!important;
  border-bottom:2px solid #51dcff!important}
 header h1{font-size:clamp(25px,2.5vw,41px)!important;letter-spacing:.12em!important;color:#e2f4ff;text-shadow:0 2px 0 #27466e,0 4px 2px #010d1d,0 0 20px #6ad5ff99!important}
 header small{color:#95dfff!important;letter-spacing:.2em!important}
 header .row button{background:linear-gradient(180deg,#1a5775,#082b48);border:1px solid #77dbef;box-shadow:inset 0 1px #ffffff45,0 3px 14px #0008}
 main{max-width:1920px!important;width:100%;grid-template-columns:clamp(380px,30%,490px) minmax(0,1fr)!important;gap:14px!important;padding:14px clamp(12px,2vw,28px)!important;align-items:stretch!important}
 #studio,.stage{border:2px solid #41d3f2!important;border-radius:21px!important;box-shadow:inset 0 1px #b9f5ff42,0 0 25px #25b8f83a,0 18px 45px #0009!important}
-#studio{max-height:calc(100vh - 120px)!important;min-height:660px;padding:19px!important;background:#071c36e8 url("/randomizer-art/components/teacher_studio_panel.svg") center/100% 100% no-repeat!important}
+#studio{max-height:calc(100vh - 120px)!important;min-height:660px;padding:19px!important;background:#071c36e8 url("/randomizer-art/components/teacher_studio_panel.svg?v=2") center/100% 100% no-repeat!important}
 #studio .studio-kicker{font:900 10px system-ui;letter-spacing:.21em;color:#74dfff;margin:1px 0 8px}
 #studio h2{font-size:17px!important;letter-spacing:.08em!important;color:#eff9ff!important;margin-bottom:12px!important}
 #studio label{font-size:13px!important;color:#cce8f5!important}
@@ -321,10 +321,10 @@ main{max-width:1920px!important;width:100%;grid-template-columns:clamp(380px,30%
 #studio button.primary,#studio #save{background:linear-gradient(180deg,#18afc0,#056e93)}
 .stage{min-width:0;min-height:calc(100vh - 120px)!important;padding:0!important;gap:0!important;justify-content:flex-start!important;
  background-size:cover!important;background-position:center!important;overflow:hidden!important}
-.stage[data-mode="wheel"]{background-image:linear-gradient(90deg,#04102165,#05162c22 45%,#06132966),url("/randomizer-art/backgrounds/wheel_bridge_bg.webp")!important}
-.stage[data-mode="slot"]{background-image:linear-gradient(90deg,#04102165,#05162c22 45%,#06132966),url("/randomizer-art/backgrounds/slot_bridge_bg.webp")!important}
-.stage[data-mode="lottery"]{background-image:linear-gradient(90deg,#04102165,#05162c22 45%,#06132966),url("/randomizer-art/backgrounds/lottery_bridge_bg.webp")!important}
-.stage[data-mode="cards"]{background-image:linear-gradient(90deg,#04102165,#05162c22 45%,#06132966),url("/randomizer-art/backgrounds/cards_bridge_bg.webp")!important}
+.stage[data-mode="wheel"]{background-image:linear-gradient(90deg,#04102165,#05162c22 45%,#06132966),url("/randomizer-art/backgrounds/wheel_bridge_bg.webp?v=2")!important}
+.stage[data-mode="slot"]{background-image:linear-gradient(90deg,#04102165,#05162c22 45%,#06132966),url("/randomizer-art/backgrounds/slot_bridge_bg.webp?v=2")!important}
+.stage[data-mode="lottery"]{background-image:linear-gradient(90deg,#04102165,#05162c22 45%,#06132966),url("/randomizer-art/backgrounds/lottery_bridge_bg.webp?v=2")!important}
+.stage[data-mode="cards"]{background-image:linear-gradient(90deg,#04102165,#05162c22 45%,#06132966),url("/randomizer-art/backgrounds/cards_bridge_bg.webp?v=2")!important}
 .stage:before{opacity:.14!important}
 .stage:after{opacity:.4!important;z-index:0!important}
 .stage-marquee{position:relative;z-index:2;width:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;
@@ -440,7 +440,7 @@ html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-hei
 .stage[data-mode="lottery"] .lottery-showpiece[hidden]{display:none!important}
 .stage[data-mode="lottery"] .lottery-showpiece{position:absolute;z-index:4;right:2%;top:12%;width:min(27%,220px);
  aspect-ratio:1;display:grid;place-items:center;padding:18px;
- background:url("/randomizer-art/components/lottery_ball_blank.svg") center/contain no-repeat;
+ background:url("/randomizer-art/components/lottery_ball_blank.svg?v=2") center/contain no-repeat;
  filter:drop-shadow(0 0 24px #ffe2a3b0);
  color:#08213d;font:1000 clamp(15px,2vw,31px)/1.08 system-ui;text-align:center;
  text-shadow:0 1px 2px #fff,0 0 8px #fff;overflow-wrap:anywhere;
@@ -749,6 +749,60 @@ html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-hei
  #studio .studio-group .modes button{min-height:92px!important}
  .stage .stage-console{padding:12px!important}
 }
+
+/* V2 approved asset integration — live components remain dynamic. */
+.stage .arena .v2-pedestal{
+ position:absolute;z-index:0;left:8%;right:8%;bottom:-4%;height:31%;
+ background:url("/randomizer-art/components/stage_pedestal_blank.svg?v=2") center bottom/100% 100% no-repeat;
+ opacity:.87;pointer-events:none;
+ filter:drop-shadow(0 0 15px #41ccf980);
+}
+.stage[data-mode="slot"] .v2-pedestal,.stage[data-mode="lottery"] .v2-pedestal{display:none}
+.stage[data-mode="wheel"] .v2-pedestal{bottom:-3%;height:24%}
+.stage[data-mode="cards"] .v2-pedestal{bottom:0;height:31%}
+.stage[data-mode="cards"] #cards.cards-fan{z-index:2;position:relative;height:min(88%,450px)!important;max-width:min(94%,920px)!important;transform:translateY(-5%)}
+.stage[data-mode="cards"] #cards.cards-fan .card{
+ width:min(24%,200px)!important;height:min(85%,305px)!important;
+ min-height:105px!important;max-height:330px!important;
+ filter:drop-shadow(0 10px 10px #000b) drop-shadow(0 0 10px #a86fe65a)
+}
+.stage[data-mode="lottery"] #lottery{
+ width:43%!important;height:57%!important;
+ max-width:540px!important;max-height:370px!important;
+ transform:translateY(-11%) rotate(var(--lottery-tilt,0deg));
+ gap:clamp(3px,.4vw,8px)!important;justify-items:center
+}
+.stage[data-mode="lottery"] .ball{
+ max-width:88px!important;
+ min-width:0!important;
+ font-size:clamp(9px,1.1vw,16px)!important;
+ text-shadow:0 1px 1px #fff9
+}
+.stage[data-mode="lottery"] .lottery-showpiece{right:1%;top:8%;width:min(24%,200px)}
+.stage[data-mode="slot"] #reel{
+ width:65.5%!important;height:39%!important;
+ transform:translateY(-1%)!important;
+ border-radius:17px!important;
+}
+.stage[data-mode="wheel"] .wheel-art-frame img{filter:drop-shadow(0 0 20px #ffcf79ab) drop-shadow(0 4px 12px #000a)!important}
+.stage .result{background-size:100% 100%!important;max-width:780px}
+.stage .stage-marquee{background:linear-gradient(180deg,#07162df4,#09284ad8 85%,#0d31624b)!important}
+.stage .arena-ornament{opacity:.48!important}
+.stage:after{opacity:.26!important}
+#studio .modes button{background-position:center!important}
+#studio .modes button span{background:#071c34e6}
+@media(max-width:1050px){
+ .stage[data-mode="lottery"] #lottery{width:48%!important;max-height:60%!important}
+ .stage[data-mode="cards"] #cards.cards-fan .card{min-height:96px!important}
+}
+@media(max-height:730px){
+ .stage[data-mode="wheel"] .v2-pedestal{height:18%}
+ .stage[data-mode="cards"] .v2-pedestal{height:23%}
+ .stage[data-mode="lottery"] #lottery{height:60%!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .stage[data-mode="cards"] #cards.cards-fan{transition:none!important}
+}
 </style></head>
 <body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
 <main><section id="studio">
@@ -801,7 +855,7 @@ html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-hei
 <section class="stage" id="stage">
 <div class="celebration" id="celebration" aria-hidden="true"></div>
 <div class="stage-marquee"><div class="marquee-kicker">✦ SI MOTHERSHIP · LIVE RANDOMIZER ✦</div><div class="marquee-mode-badge" id="marqueeBadge" aria-hidden="true">01 / SPIN WHEEL</div><p class="display-title" id="displayTitle">Classroom Choices</p><div class="mode-caption" id="modeCaption">SPIN WHEEL · RANDOM SELECTION</div></div>
-<div class="arena"><div class="arena-ornament left" aria-hidden="true"><span>SI</span><i></i><i></i></div><div class="arena-ornament right" aria-hidden="true"><span>MISSION CONTROL</span><i></i><i></i></div><div class="visual"><canvas id="wheel" width="800" height="800"></canvas><div class="wheel-art-frame" id="wheelArtFrame" aria-hidden="true"><img src="/randomizer-art/components/wheel_rim_overlay.svg" alt="" loading="eager"><div class="pointer" id="pointer"></div></div><div id="reel"></div><div id="lottery"></div><div class="lottery-showpiece" id="lotteryShowpiece" aria-hidden="true"><span id="lotteryShowpieceText"></span></div><div id="cards"></div></div></div>
+<div class="arena"><div class="v2-pedestal" aria-hidden="true"></div><div class="arena-ornament left" aria-hidden="true"><span>SI</span><i></i><i></i></div><div class="arena-ornament right" aria-hidden="true"><span>MISSION CONTROL</span><i></i><i></i></div><div class="visual"><canvas id="wheel" width="800" height="800"></canvas><div class="wheel-art-frame" id="wheelArtFrame" aria-hidden="true"><img src="/randomizer-art/components/wheel_rim_overlay.svg?v=2" alt="" loading="eager"><div class="pointer" id="pointer"></div></div><div id="reel"></div><div id="lottery"></div><div class="lottery-showpiece" id="lotteryShowpiece" aria-hidden="true"><span id="lotteryShowpieceText"></span></div><div id="cards"></div></div></div>
 <div class="winner-ribbon" aria-hidden="true">★ WINNER! ★</div><div class="result" id="result" aria-live="polite">Ready to randomize?</div>
 <div class="wheel-legend" id="wheelLegend" aria-label="Wheel choice key" hidden></div>
 <div class="stage-console">
