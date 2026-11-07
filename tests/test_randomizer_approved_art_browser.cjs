@@ -7,6 +7,13 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const page=await browser.newPage({viewport:{width:1440,height:900}});
   const errors=[];page.on("pageerror",e=>errors.push(e.message));
   await page.goto(BASE+"/randomizer",{waitUntil:"domcontentloaded"});
+  const sceneStyles=await page.request.get(BASE+"/randomizer-v4.css?v=4");
+  assert.equal(sceneStyles.status(),200,"The V4 scene override must be served by Railway");
+  assert.match(await sceneStyles.text(),/Randomizer V4/);
+  assert.equal(await page.locator("#stage").getAttribute("data-graphics"),"v4");
+  assert.equal(await page.locator(".v4-stamp").textContent(),"GRAPHICS V4");
+  assert.equal(await page.locator("link[href='/randomizer-v4.css?v=4']").count(),1);
+
   for(const image of ["slot","lottery","cards","wheel"]){
    const r=await page.request.get(BASE+"/randomizer-concept/"+image+".png?v=3");
    assert.equal(r.status(),200,"Missing approved cinematic concept: "+image);
@@ -21,6 +28,9 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    await page.locator('#styles [data-style="'+mode+'"]').click();
    const selection=await page.locator("#stage").getAttribute("data-mode");
    assert.equal(selection,mode);
+   const graphics=await page.locator("#stage").evaluate(node=>node.dataset.graphics);
+   assert.equal(graphics,"v4");
+
   }
   await page.locator('#styles [data-style="cards"]').click();
   assert.equal(await page.locator("#cards .card").count(),4);
