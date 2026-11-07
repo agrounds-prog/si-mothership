@@ -637,6 +637,14 @@ html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-hei
 #studio .studio-effects{background:linear-gradient(130deg,#092a45,#091b32)!important;border-color:#387c9f}
 #studio hr{border-top-color:#3b7391!important}
 #studio #storageStatus{padding-top:3px}
+
+/* Projector chrome height exactly matches the grid's height calculation. */
+@media(min-width:761px){
+ #display-only header{height:70px!important;min-height:70px!important;padding:7px 18px!important}
+ #display-only header h1{font-size:clamp(20px,2.1vw,30px)!important}
+ #display-only main{height:calc(100dvh - 76px)!important}
+ #display-only .stage{height:100%!important;min-height:0!important}
+}
 </style></head>
 <body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
 <main><section id="studio"><div class="studio-kicker">MISSION CONTROL · RANDOMIZER</div><h2>TEACHER STUDIO</h2>
