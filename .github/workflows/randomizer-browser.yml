@@ -14,6 +14,7 @@ on:
       - 'tests/test_randomizer_long_text_browser.cjs'
       - 'tests/test_randomizer_stage_geometry_browser.cjs'
       - 'tests/test_randomizer_studio_overhaul_browser.cjs'
+      - 'tests/test_randomizer_approved_art_browser.cjs'
       - '.github/workflows/randomizer-browser.yml'
   workflow_dispatch:
 permissions: {contents: read}
@@ -38,6 +39,7 @@ jobs:
           node --check tests/test_randomizer_long_text_browser.cjs
           node --check tests/test_randomizer_stage_geometry_browser.cjs
           node --check tests/test_randomizer_studio_overhaul_browser.cjs
+          node --check tests/test_randomizer_approved_art_browser.cjs
           python - <<'PY'
           from html.parser import HTMLParser
           from pathlib import Path
@@ -90,6 +92,8 @@ jobs:
         run: node tests/test_randomizer_stage_geometry_browser.cjs
       - name: Verify command-deck Studio and winner console
         run: node tests/test_randomizer_studio_overhaul_browser.cjs
+      - name: Verify approved cinematic Randomizer art assets
+        run: node tests/test_randomizer_approved_art_browser.cjs
       - name: Show server log on failure
         if: failure()
         run: tail -100 /tmp/randomizer-server.log || true
