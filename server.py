@@ -6555,7 +6555,7 @@ def create_app() -> web.Application:
             "wheel_rim_overlay.svg", "wheel_pointer.svg",
             "slot_machine_chassis.svg", "lottery_machine_frame.svg",
             "lottery_ball_blank.svg", "mystery_card_back.svg",
-            "mystery_card_face_blank.svg", "winner_plaque_blank.svg",
+            "mystery_card_face_blank.svg", "winner_plaque_blank.svg", "stage_pedestal_blank.svg",
             "teacher_studio_panel.svg", "randomizer_app_icon.svg",
         },
         "overlays": {"shared_display_hud.svg"},
