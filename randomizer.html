@@ -487,6 +487,49 @@ html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-hei
 .stage[data-mode="slot"] #reel[data-length="long"] .reel-label{font-size:clamp(15px,1.6vw,25px)!important}
 .stage[data-mode="cards"] .card.flipped{font-size:clamp(11px,1.25vw,19px)!important;overflow-wrap:anywhere;hyphens:auto}
 @media(max-width:700px){.stage .result[data-length="extra"]{font-size:17px!important}.stage[data-mode="cards"] .card.flipped{font-size:11px!important}}
+
+/* Randomizer Phase 10 — stable animated 3D apparatus; no DOM respawn on sync */
+.stage[data-mode="slot"] .visual{aspect-ratio:2/1;max-height:580px}
+.stage[data-mode="slot"] #reel{width:67%!important;height:39%!important;min-height:90px!important;
+ margin-top:1.4%!important;overflow:hidden!important;border-radius:19px!important}
+.stage[data-mode="slot"] .visual:before{background-size:contain!important}
+.stage[data-mode="slot"] .reel-columns{overflow:hidden}
+.stage[data-mode="slot"] .reel-lane{box-shadow:inset 0 4px 11px #06142c9e,inset 0 -5px 12px #07142cb4;
+ border:2px solid #f8e6ac}
+.stage[data-mode="slot"] .reel-focus{box-shadow:0 0 15px #ffd87888,inset 0 2px 13px #07142c!important}
+.stage[data-mode="slot"].is-spinning .reel-lane{animation:si-reel-pulse .3s linear infinite alternate}
+@keyframes si-reel-pulse{from{filter:brightness(.83)}to{filter:brightness(1.18)}}
+.stage[data-mode="lottery"] .visual{aspect-ratio:2/1;max-height:590px}
+.stage[data-mode="lottery"] .visual:before{background-size:contain!important}
+.stage[data-mode="lottery"] #lottery{width:55%!important;height:59%!important;align-content:center;
+ overflow:visible!important;transform:rotate(var(--lottery-tilt,0deg));
+ transition:transform .08s linear}
+.stage[data-mode="lottery"] .ball{min-width:0!important;max-width:86px;
+ animation:si-ball-hover 3.5s ease-in-out var(--ball-delay,0s) infinite alternate!important;
+ transform:translate(var(--ball-x,0px),var(--ball-y,0px)) scale(.91);
+ filter:drop-shadow(0 4px 7px #071329b8)}
+.stage[data-mode="lottery"].is-spinning .ball{animation:si-ball-agitate .78s ease-in-out var(--ball-delay,0s) infinite alternate!important}
+.stage[data-mode="lottery"] .ball.active{animation:none!important;z-index:3;
+ transform:translate(0,-8px) scale(1.2)!important;
+ filter:drop-shadow(0 0 12px #fff4a3) drop-shadow(0 0 8px #4de5ff)!important}
+.stage[data-mode="lottery"] .ball.selected{animation:none!important;z-index:3;
+ transform:translate(0,-7px) scale(1.16)!important;
+ filter:drop-shadow(0 0 14px #ffe88b)!important}
+@keyframes si-ball-hover{from{transform:translate(calc(var(--ball-x,0px) - 5px),calc(var(--ball-y,0px) + 4px)) rotate(-8deg) scale(.91)}
+ to{transform:translate(calc(var(--ball-x,0px) + 5px),calc(var(--ball-y,0px) - 7px)) rotate(8deg) scale(.96)}}
+@keyframes si-ball-agitate{from{transform:translate(calc(var(--ball-x,0px) - 11px),calc(var(--ball-y,0px) + 10px)) rotate(-17deg)}
+ to{transform:translate(calc(var(--ball-x,0px) + 11px),calc(var(--ball-y,0px) - 9px)) rotate(17deg)}}
+.stage[data-mode="cards"] .visual{max-height:590px}
+.stage[data-mode="cards"] #cards .card{backface-visibility:hidden;transform-style:preserve-3d}
+.stage[data-mode="cards"] #cards .card.flipped{animation:si-card-turn .5s cubic-bezier(.25,.85,.25,1) both}
+@keyframes si-card-turn{0%{filter:brightness(.4);opacity:.65}50%{filter:brightness(1.5) drop-shadow(0 0 19px #ffe7a4)}100%{opacity:1}}
+@media(max-width:1100px){
+ .stage[data-mode="lottery"] #lottery{width:55%!important;max-height:67%!important}
+ .stage[data-mode="slot"] #reel{height:42%!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .stage[data-mode="slot"].is-spinning .reel-lane,.stage[data-mode="lottery"] .ball,.stage[data-mode="lottery"].is-spinning .ball,.stage[data-mode="cards"] #cards .card.flipped{animation:none!important}
+}
 </style></head>
 <body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
 <main><section id="studio"><div class="studio-kicker">MISSION CONTROL · RANDOMIZER</div><h2>TEACHER STUDIO</h2>
@@ -708,22 +751,41 @@ function visibleEntries(limit){
  return entries;
 }
 function renderLottery(){
- const entries=visibleEntries(20);
- $("lottery").innerHTML=entries.map((i,j)=>{
-  const selected=!!winner&&i===winnerIndex;
-  return '<div class="ball'+(selected?' selected':'')+'" style="background:radial-gradient(circle at 30% 20%,#fff7,'+
-    colors[j%colors.length]+' 58%,#081526)">'+html(choices[i].text)+'</div>';
- }).join("");
+ const entries=visibleEntries(20),el=$("lottery");
+ const current=[...el.children].map(node=>Number(node.dataset.choice));
+ if(entries.length!==current.length||entries.some((v,i)=>v!==current[i])){
+  // Keep DOM stable during broadcasts so ball physics doesn't restart every 75 ms.
+  el.innerHTML=entries.map((i,j)=>{
+   const angle=j*2.3999632297;
+   const x=Math.round(Math.cos(angle)*(8+j%4*5)),y=Math.round(Math.sin(angle)*(7+j%3*5));
+   return '<div class="ball" data-choice="'+i+'" style="--ball-delay:-'+((j%7)*.31).toFixed(2)+'s;--ball-x:'+x+'px;--ball-y:'+y+'px">'+html(choices[i].text)+'</div>';
+  }).join("");
+ }else{
+  [...el.children].forEach((node,j)=>{if(node.textContent!==choices[entries[j]].text)node.textContent=choices[entries[j]].text});
+ }
+ [...el.children].forEach((node,j)=>{
+  node.classList.toggle("selected",!!winner&&entries[j]===winnerIndex);
+  node.classList.toggle("active",!!busy&&j===motionIndex);
+ });
 }
 function renderCards(){
- const entries=visibleEntries(16),fan=entries.length<=7&&entries.length>=2;
- $("cards").classList.toggle("cards-fan",fan);
- $("cards").style.setProperty("--fan-count",String(entries.length));
- $("cards").innerHTML=entries.map((i,j)=>{
-  const offset=j-(entries.length-1)/2;
-  return '<div class="card'+(winner&&winnerIndex===i?" flipped":"")+'" style="--fan-shift:'+(offset*offset*5)+'px;--fan-turn:'+(offset*6)+'deg">'+
-    (winner&&winnerIndex===i?html(choices[i].text):"✦")+'</div>';
- }).join("");
+ const entries=visibleEntries(16),fan=entries.length<=7&&entries.length>=2,el=$("cards");
+ el.classList.toggle("cards-fan",fan);
+ el.style.setProperty("--fan-count",String(entries.length));
+ const current=[...el.children].map(node=>Number(node.dataset.choice));
+ if(entries.length!==current.length||entries.some((v,i)=>v!==current[i])){
+  el.innerHTML=entries.map((i,j)=>{
+   const offset=j-(entries.length-1)/2;
+   return '<div class="card" data-choice="'+i+'" style="--fan-shift:'+(offset*offset*5)+'px;--fan-turn:'+(offset*6)+'deg">✦</div>';
+  }).join("");
+ }
+ [...el.children].forEach((node,j)=>{
+  const selected=!!winner&&entries[j]===winnerIndex;
+  node.classList.toggle("flipped",selected);
+  node.classList.toggle("active",!!busy&&j===motionIndex);
+  const label=selected?choices[entries[j]].text:"✦";
+  if(node.textContent!==label)node.textContent=label;
+ });
 }
 function render(){renderChoices();$("displayTitle").textContent=$("title").value||"Classroom Choices";$("styles").querySelectorAll("button").forEach(b=>b.classList.toggle("active",b.dataset.style===styles));$("spin").disabled=busy||pool.length<1;$("status").textContent=pool.length?pool.length+" available choices · "+($("weighted").checked?"weighted":"equal")+" probability":"No choices left — reset the pool";showMode();broadcast()}
 function stop(index){presentPool=pool.slice();
@@ -772,12 +834,12 @@ function draw(){
     if(cards.length){motionIndex=Math.floor(entropy()*cards.length);cards[motionIndex].classList.add("active")}
    }
   }
-  if(styles==="lottery")$("lottery").style.transform="translateY("+Math.sin(t/100)*(1-p)*10+"px)";
+  if(styles==="lottery")$("lottery").style.setProperty("--lottery-tilt",(Math.sin(t/130)*(1-p)*3).toFixed(2)+"deg");
   if(t-lastBroadcast>75){lastBroadcast=t;broadcast()}
   if(p<1)requestAnimationFrame(frame);
   else{
    rotation=final;
-   $("lottery").style.transform="none";
+   $("lottery").style.removeProperty("--lottery-tilt");
    stop(index);
   }
  }
@@ -786,7 +848,7 @@ function draw(){
 function fillLibrary(){const old=$("library").value;$("library").innerHTML='<option value="">Choose saved randomizer…</option>'+Object.keys(library).sort().map(name=>'<option value="'+html(name)+'">'+html(name)+'</option>').join("");if(old in library)$("library").value=old}
 async function getSets(){try{const response=await fetch("/api/storage",{credentials:"same-origin"});if(!response.ok)throw Error("Storage unavailable");const data=await response.json();library=JSON.parse(data.items?.[STORE]||"{}");if(!library||Array.isArray(library)||typeof library!=="object")library={};$("storageStatus").textContent="Railway teacher library connected."}catch(e){try{library=JSON.parse(localStorage.getItem(STORE)||"{}")}catch(_) {library={}}$("storageStatus").textContent="Local backup in use — sign in as teacher to sync with Railway."}fillLibrary()}
 async function saveLibrary(){localStorage.setItem(STORE,JSON.stringify(library));const response=await fetch("/api/storage",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({key:STORE,value:JSON.stringify(library)})});if(!response.ok)throw Error("Railway save failed ("+response.status+")");$("storageStatus").textContent="Saved to Railway teacher library."}
-function listen(data){if(!DISPLAY||!data||typeof data.revision!=="number"||data.revision<revision)return;$("stage").classList.toggle("is-spinning",!!data.busy);$("stage").classList.toggle("has-winner",!!data.winner);revision=data.revision;choices=clean(data.choices);pool=(data.pool||[]).filter(i=>Number.isInteger(i)&&choices[i]);styles=["wheel","slot","lottery","cards"].includes(data.styles)?data.styles:"wheel";$("weighted").checked=!!data.weighted;winner=data.winner||"";winnerIndex=Number.isInteger(data.winnerIndex)?data.winnerIndex:-1;presentPool=Array.isArray(data.presentPool)?data.presentPool.filter(i=>Number.isInteger(i)&&choices[i]):[];rotation=data.rotation||0;displayLabel=data.displayLabel||"";slotSides=Array.isArray(data.slotSides)?data.slotSides.slice(0,2).map(String):["",""];motionIndex=Number.isInteger(data.motionIndex)?data.motionIndex:-1;history=Array.isArray(data.history)?data.history.slice(0,6):[];celebrate=data.celebrate!==false;const nextCelebration=Number(data.celebrationToken)||0;if(nextCelebration>celebrationToken){celebrationToken=nextCelebration;celebrateWinner(nextCelebration)}if(data.busy)clearCelebration();drawProgress=Math.max(0,Math.min(100,Number(data.drawProgress)||0));$("drawProgress").firstElementChild.style.width=drawProgress+"%";updateHistory();$("displayTitle").textContent=data.title||"Randomizer";speed=["quick","normal","dramatic"].includes(data.speed)?data.speed:"normal";$("result").textContent=winner?"✦ "+winner:data.busy?"Selecting…":"Ready to randomize?";$("status").textContent=pool.length?pool.length+" available choices · "+(data.weighted?"weighted":"equal")+" probability":"No choices left — reset the pool";showMode();if(styles==="slot"&&data.busy)setReelLabel(displayLabel||"✦");if(styles==="lottery"){const balls=$("lottery").children;for(const ball of balls)ball.classList.remove("active");if(data.busy&&balls[motionIndex])balls[motionIndex].classList.add("active");$("lottery").style.transform=data.busy?"translateY("+Math.sin(data.revision/2)*9+"px)":"none"}if(styles==="cards"&&data.busy){for(const card of $("cards").children)card.classList.remove("active","flipped");if($("cards").children[motionIndex])$("cards").children[motionIndex].classList.add("active")}}
+function listen(data){if(!DISPLAY||!data||typeof data.revision!=="number"||data.revision<revision)return;$("stage").classList.toggle("is-spinning",!!data.busy);$("stage").classList.toggle("has-winner",!!data.winner);revision=data.revision;choices=clean(data.choices);pool=(data.pool||[]).filter(i=>Number.isInteger(i)&&choices[i]);styles=["wheel","slot","lottery","cards"].includes(data.styles)?data.styles:"wheel";$("weighted").checked=!!data.weighted;winner=data.winner||"";winnerIndex=Number.isInteger(data.winnerIndex)?data.winnerIndex:-1;presentPool=Array.isArray(data.presentPool)?data.presentPool.filter(i=>Number.isInteger(i)&&choices[i]):[];rotation=data.rotation||0;displayLabel=data.displayLabel||"";slotSides=Array.isArray(data.slotSides)?data.slotSides.slice(0,2).map(String):["",""];motionIndex=Number.isInteger(data.motionIndex)?data.motionIndex:-1;history=Array.isArray(data.history)?data.history.slice(0,6):[];celebrate=data.celebrate!==false;const nextCelebration=Number(data.celebrationToken)||0;if(nextCelebration>celebrationToken){celebrationToken=nextCelebration;celebrateWinner(nextCelebration)}if(data.busy)clearCelebration();drawProgress=Math.max(0,Math.min(100,Number(data.drawProgress)||0));$("drawProgress").firstElementChild.style.width=drawProgress+"%";updateHistory();$("displayTitle").textContent=data.title||"Randomizer";speed=["quick","normal","dramatic"].includes(data.speed)?data.speed:"normal";$("result").textContent=winner?"✦ "+winner:data.busy?"Selecting…":"Ready to randomize?";$("status").textContent=pool.length?pool.length+" available choices · "+(data.weighted?"weighted":"equal")+" probability":"No choices left — reset the pool";showMode();if(styles==="slot"&&data.busy)setReelLabel(displayLabel||"✦");if(styles==="lottery"){const balls=$("lottery").children;for(const ball of balls)ball.classList.remove("active");if(data.busy&&balls[motionIndex])balls[motionIndex].classList.add("active");$("lottery").style.setProperty("--lottery-tilt",data.busy?(Math.sin(data.revision/3)*2).toFixed(2)+"deg":"0deg")}if(styles==="cards"&&data.busy){for(const card of $("cards").children)card.classList.remove("active","flipped");if($("cards").children[motionIndex])$("cards").children[motionIndex].classList.add("active")}}
 $("fullscreenBtn").onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen()}catch(e){$("status").textContent="Full-screen mode is unavailable in this browser."}};document.addEventListener("fullscreenchange",()=>{$("fullscreenBtn").textContent=document.fullscreenElement?"⤢ Exit Full Screen":"⛶ Full Screen"});
 if(DISPLAY){$("fullscreenBtn").hidden=false;$("returnBtn").style.display="none";$("screenBtn").style.display="none";$("spin").style.display="none";bc&&(bc.onmessage=e=>listen(e.data));window.addEventListener("storage",e=>{if(e.key===CHANNEL){try{listen(JSON.parse(e.newValue))}catch(_){}}});try{listen(JSON.parse(localStorage.getItem(CHANNEL)||"null"))}catch(_){};return}
 $("screenBtn").onclick=()=>{const w=window.open("/randomizer?display=1","siRandomizerDisplay","width=1100,height=780");if(!w)alert("Allow pop-ups to open the classroom display.");broadcast()};
