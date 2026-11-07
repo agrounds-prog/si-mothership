@@ -19,7 +19,7 @@ async function check(page,label){
 (async()=>{
  const browser=await chromium.launch({headless:true,args:["--no-sandbox","--disable-dev-shm-usage"]});
  try{
-  for(const [width,height] of [[1366,768],[1580,900],[1100,780]]){
+  for(const [width,height] of [[1366,768],[1580,900],[1100,780],[1920,1080]]){
    const context=await browser.newContext({viewport:{width,height}});
    const page=await context.newPage(),errors=[];
    page.on("pageerror",e=>errors.push(e.message));
@@ -29,6 +29,21 @@ async function check(page,label){
     await page.locator('#styles [data-style="'+mode+'"]').click();
     const state=await check(page,mode+" "+width+"×"+height);
     assert.ok(state.visual.w>250,mode+" visual too narrow");
+    if(mode==="cards"){
+     const metrics=await page.evaluate(()=>{
+      const cards=[...document.querySelectorAll("#cards.cards-fan .card")];
+      const area=document.querySelector(".arena").getBoundingClientRect();
+      const podium=document.querySelector(".v2-pedestal").getBoundingClientRect();
+      const bounds=cards.map(x=>x.getBoundingClientRect());
+      return {area:area.width,cardWidth:bounds[0]?.width||0,cardHeight:bounds[0]?.height||0,
+       groupWidth:Math.max(...bounds.map(x=>x.right))-Math.min(...bounds.map(x=>x.left)),
+       podiumWidth:podium.width};
+     });
+     assert.ok(metrics.cardWidth>=135,JSON.stringify(metrics)+" mystery cards must be substantial");
+     assert.ok(metrics.groupWidth>=metrics.area*.45,JSON.stringify(metrics)+" fan should dominate stage");
+     assert.ok(metrics.podiumWidth<metrics.area*.82,JSON.stringify(metrics)+" pedestal should not overwhelm cards");
+    }
+
    }
    assert.deepEqual(errors,[]);
    await context.close();
