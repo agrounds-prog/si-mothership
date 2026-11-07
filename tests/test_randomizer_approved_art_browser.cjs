@@ -7,12 +7,12 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const page=await browser.newPage({viewport:{width:1440,height:900}});
   const errors=[];page.on("pageerror",e=>errors.push(e.message));
   await page.goto(BASE+"/randomizer",{waitUntil:"domcontentloaded"});
-  const sceneStyles=await page.request.get(BASE+"/randomizer-v4.css?v=6");
+  const sceneStyles=await page.request.get(BASE+"/randomizer-v4.css?v=7");
   assert.equal(sceneStyles.status(),200,"The V5 scene override must be served by Railway");
   assert.match(await sceneStyles.text(),/Randomizer V4/);
-  assert.equal(await page.locator("#stage").getAttribute("data-graphics"),"v6");
-  assert.equal(await page.locator(".v4-stamp").textContent(),"GRAPHICS V6");
-  assert.equal(await page.locator("link[href='/randomizer-v4.css?v=6']").count(),1);
+  assert.equal(await page.locator("#stage").getAttribute("data-graphics"),"v7");
+  assert.equal(await page.locator(".v4-stamp").textContent(),"GRAPHICS V7");
+  assert.equal(await page.locator("link[href='/randomizer-v4.css?v=7']").count(),1);
 
   for(const image of ["slot","lottery","cards","wheel"]){
    const r=await page.request.get(BASE+"/randomizer-concept/"+image+".png?v=3");
@@ -29,7 +29,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    const selection=await page.locator("#stage").getAttribute("data-mode");
    assert.equal(selection,mode);
    const graphics=await page.locator("#stage").evaluate(node=>node.dataset.graphics);
-   assert.equal(graphics,"v6");
+   assert.equal(graphics,"v7");
 
   }
   await page.locator('#styles [data-style="cards"]').click();
@@ -47,10 +47,17 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.ok(cardsArt.includes("/randomizer-concept/cards.png"),"V6 must use cinematic card artwork");
   await page.locator('#styles [data-style="lottery"]').click();
   const chamber=await page.locator("#lottery").evaluate(el=>({
-   filter:getComputedStyle(el).backdropFilter,
-   background:getComputedStyle(el).backgroundImage
+   backdrop:getComputedStyle(el).backdropFilter,
+   ballColumns:getComputedStyle(el).gridTemplateColumns.split(" ").length,
+   visualMask:getComputedStyle(document.querySelector(".visual"),"::before").maskImage,
+   glass:getComputedStyle(document.querySelector(".visual"),"::after").display,
+   ballSize:document.querySelector("#lottery .ball").getBoundingClientRect().width
   }));
-  assert.ok(chamber.filter.includes("blur"),"Live Lottery ball region must obscure sample labels without a solid opaque globe");
+  assert.ok(!chamber.backdrop.includes("blur"),"Live balls must not sit in a frosted opaque bubble");
+  assert.equal(chamber.glass,"block","The clean replacement glass should render behind live choices");
+  assert.ok(chamber.visualMask.includes("radial-gradient"),"Original sample choices should be masked out");
+  assert.ok(chamber.ballColumns>=3,"Choice balls should use multiple readable columns");
+  assert.ok(chamber.ballSize>=40,"Choice balls should remain readable");
 
   for(const [mode,part] of [["lottery","randomizer-concept/lottery.png"],["slot","randomizer-concept/slot.png"]]){
     await page.locator('#styles [data-style="'+mode+'"]').click();
