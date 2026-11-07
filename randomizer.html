@@ -803,6 +803,111 @@ html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-hei
 @media(prefers-reduced-motion:reduce){
  .stage[data-mode="cards"] #cards.cards-fan{transition:none!important}
 }
+
+/* V2.1 COMPOSITION RESET. One dominant game object, quieter scenery and a
+   purpose-built illustrated result bar. Keeps every dynamic choice intact. */
+.stage{--scene-cyan:#5bdcf9;--scene-gold:#f8d58a}
+.stage .stage-marquee{padding-block:11px 9px!important;box-shadow:0 5px 22px #0009!important}
+.stage .arena{background:radial-gradient(ellipse at 50% 52%,#1a3a75a3 0%,#0d20515c 39%,#04112800 76%)!important;overflow:hidden!important}
+.stage .arena-ornament{display:none!important}
+.stage:after{opacity:.12!important}
+.stage[data-mode="cards"] .arena:before,
+.stage[data-mode="lottery"] .arena:before,
+.stage[data-mode="slot"] .arena:before{
+ content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+ background:radial-gradient(ellipse 65% 69% at 50% 50%,#05152908 40%,#040c25a0 96%)}
+.stage .arena .v2-pedestal{left:19%!important;right:19%!important;bottom:-2%!important;height:20%!important;
+ background-size:100% 100%!important;opacity:.76!important;
+ filter:drop-shadow(0 0 13px #16d8ff57)!important}
+.stage[data-mode="wheel"] .v2-pedestal{height:15%!important;bottom:0!important}
+.stage[data-mode="cards"] .v2-pedestal{height:21%!important;bottom:0!important}
+.stage[data-mode="cards"] #cards.cards-fan{
+ display:flex!important;position:relative;z-index:3!important;
+ width:min(99%,1050px)!important;max-width:1050px!important;
+ height:clamp(255px,82%,550px)!important;max-height:none!important;
+ gap:0!important;align-items:center!important;justify-content:center!important;
+ transform:translateY(-8%)!important;overflow:visible!important
+}
+.stage[data-mode="cards"] #cards.cards-fan .card{
+ position:relative;flex:0 1 24%!important;
+ width:clamp(140px,24%,245px)!important;
+ min-width:0!important;max-width:245px!important;
+ height:clamp(230px,75%,365px)!important;max-height:365px!important;
+ aspect-ratio:440/650!important;
+ margin-left:-1.9%!important;
+ padding:8px 13px!important;
+ border:0!important;border-radius:17px!important;
+ background-size:100% 100%!important;
+ transform:translateY(var(--fan-shift,0px)) rotate(var(--fan-turn,0deg))!important;
+ filter:drop-shadow(0 16px 10px #000b) drop-shadow(0 0 14px #c18af45c)!important;
+ transition:transform .25s ease,filter .25s ease!important
+}
+.stage[data-mode="cards"] #cards.cards-fan .card:first-child{margin-left:0!important}
+.stage[data-mode="cards"] #cards.cards-fan .card.active{
+ z-index:5!important;transform:translateY(-22px) rotate(0deg) scale(1.08)!important;
+ filter:drop-shadow(0 0 25px #fbd98fbe)!important}
+.stage[data-mode="cards"] #cards.cards-fan .card.flipped{
+ z-index:6!important;transform:translateY(-25px) rotate(0deg) scale(1.12)!important;
+ filter:drop-shadow(0 0 28px #ffe29ac9)!important}
+.stage[data-mode="lottery"] .visual:before,
+.stage[data-mode="slot"] .visual:before{background-position:center center!important;background-size:contain!important}
+.stage[data-mode="lottery"] #lottery{
+ transform:translateY(-1%) rotate(var(--lottery-tilt,0deg))!important;
+ width:min(42%,550px)!important;height:57%!important;
+ max-width:none!important;max-height:395px!important;
+ padding:2%!important;align-content:center!important
+}
+.stage[data-mode="lottery"] #lottery .ball{max-width:94px!important;font-size:clamp(11px,1.15vw,17px)!important}
+.stage[data-mode="slot"] #reel{width:66%!important;height:37%!important;max-height:255px!important;
+ margin-top:0!important;transform:translateY(-1%)!important}
+.stage .result{
+ position:relative!important;z-index:5!important;
+ width:min(84%,830px)!important;max-width:none!important;
+ min-height:83px!important;height:auto!important;max-height:148px!important;
+ margin:0 auto!important;
+ padding:15px clamp(38px,7%,95px)!important;
+ background-color:#071c39!important;
+ background-image:url("/randomizer-art/components/winner_plaque_blank.svg?v=2")!important;
+ background-size:100% 100%!important;
+ font-size:clamp(22px,2.25vw,40px)!important;line-height:1.14!important;
+ color:#fff1bd!important;filter:drop-shadow(0 5px 14px #000c)!important;
+ text-shadow:0 2px 4px #000,0 0 12px #ffd98b85!important}
+.stage:not(.has-winner) .result{font-size:clamp(20px,2.15vw,33px)!important}
+.stage.has-winner .result{font-size:clamp(24px,2.7vw,45px)!important}
+.stage .stage-console{min-height:87px!important;padding:10px 20px!important;
+ background:linear-gradient(180deg,#113c5df2,#061a31fc)!important}
+.stage .console-actions{padding:2px 0 0!important}
+.stage .action{min-height:46px!important;font-size:17px!important;min-width:225px!important}
+.stage .console-topline{margin-top:6px!important}
+@media(min-width:761px){
+ .stage{grid-template-rows:auto minmax(0,1fr) auto auto auto auto!important}
+ .stage .arena{min-height:0!important}
+ .stage .result{min-height:83px!important}
+ .stage .stage-console{min-height:86px!important}
+ #display-only .stage .result{width:min(75%,1000px)!important}
+ #display-only .stage[data-mode="cards"] #cards.cards-fan{width:min(92%,1180px)!important;max-width:1180px!important}
+ #display-only .stage[data-mode="cards"] #cards.cards-fan .card{max-width:275px!important;max-height:425px!important}
+}
+@media(max-width:1120px){
+ .stage[data-mode="cards"] #cards.cards-fan{width:98%!important}
+ .stage[data-mode="cards"] #cards.cards-fan .card{max-width:195px!important;height:clamp(195px,67%,315px)!important}
+ .stage .result{min-height:70px!important;padding-block:10px!important}
+}
+@media(max-height:760px) and (min-width:761px){
+ .stage[data-mode="cards"] #cards.cards-fan{height:clamp(220px,79%,440px)!important;transform:translateY(-5%)!important}
+ .stage[data-mode="cards"] #cards.cards-fan .card{height:clamp(200px,70%,305px)!important}
+ .stage .result{min-height:68px!important;padding-block:9px!important}
+ .stage .stage-console{min-height:75px!important;padding:6px 14px!important}
+}
+@media(max-width:760px){
+ .stage[data-mode="cards"] #cards.cards-fan .card{min-width:0!important;width:24%!important;height:clamp(120px,52%,260px)!important}
+ .stage .result{width:90%!important;padding-inline:13%!important}
+ .stage .arena .v2-pedestal{left:12%!important;right:12%!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .stage[data-mode="cards"] #cards.cards-fan .card{transition:none!important}
+}
+
 </style></head>
 <body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
 <main><section id="studio">
