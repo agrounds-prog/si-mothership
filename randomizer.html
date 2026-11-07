@@ -616,6 +616,27 @@ html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-hei
  #studio .modes button{min-height:90px!important}
 }
 
+
+/* Keep the console's ornamentation behind content; the uploaded teacher panel
+   had bright strokes crossing choice inputs at certain scroll positions. */
+#studio{background:
+ radial-gradient(ellipse at 55% -25%,#2055787a,transparent 65%),
+ linear-gradient(155deg,#09253f 0%,#0a213a 48%,#06172c 100%)!important;
+ box-shadow:inset 0 1px #91e9ff28,0 0 22px #25b8f836,0 18px 35px #0009!important}
+#studio:before{content:"";display:block;position:sticky;top:-13px;margin:-13px -15px 12px;height:3px;z-index:4;
+ background:linear-gradient(90deg,#54edff,#dce9a0 50%,#4bafe7);box-shadow:0 0 15px #66f5ffb2;pointer-events:none}
+#studio .studio-kicker{font-size:10px!important;color:#81ddef!important}
+#studio .modes button{box-shadow:inset 0 0 0 1px #d1f8ff33,0 5px 13px #000a!important}
+#studio .modes button.active{box-shadow:inset 0 0 0 1px #fff2bb5e,0 0 0 1px #ffe090,0 0 19px #f5b9598a!important}
+#studio #title{font-size:15px!important;font-weight:750!important;min-height:38px}
+#studio .choice{border:1px solid #316a8e!important;background:#081d35f0!important}
+#studio .choice:focus-within{border-color:#74dfff!important;background:#0b2d48!important}
+#studio .choice button{background:#652e4e!important;border-color:#c06588!important}
+#studio .choice button:hover{background:#913c67!important}
+#studio .choice-list{padding-bottom:4px}
+#studio .studio-effects{background:linear-gradient(130deg,#092a45,#091b32)!important;border-color:#387c9f}
+#studio hr{border-top-color:#3b7391!important}
+#studio #storageStatus{padding-top:3px}
 </style></head>
 <body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
 <main><section id="studio"><div class="studio-kicker">MISSION CONTROL · RANDOMIZER</div><h2>TEACHER STUDIO</h2>
