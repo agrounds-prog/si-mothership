@@ -6552,13 +6552,19 @@ def create_app() -> web.Application:
         "backgrounds": {"wheel_bridge_bg.webp", "slot_bridge_bg.webp", "lottery_bridge_bg.webp", "cards_bridge_bg.webp"},
         "mode-thumbnails": {"wheel_mode_tile.webp", "slot_mode_tile.webp", "lottery_mode_tile.webp", "cards_mode_tile.webp"},
         "components": {
-            "wheel_rim_overlay.svg", "wheel_pointer.svg",
-            "slot_machine_chassis.svg", "lottery_machine_frame.svg",
-            "lottery_ball_blank.svg", "mystery_card_back.svg",
-            "mystery_card_face_blank.svg", "winner_plaque_blank.svg", "stage_pedestal_blank.svg",
-            "teacher_studio_panel.svg", "randomizer_app_icon.svg",
+            "wheel_rim_overlay.svg", "wheel_rim_overlay.png",
+            "wheel_pointer.svg", "wheel_pointer.png",
+            "slot_machine_chassis.svg", "slot_machine_chassis.png",
+            "lottery_machine_frame.svg", "lottery_machine_frame.png",
+            "lottery_ball_blank.svg", "lottery_ball_blank.png",
+            "mystery_card_back.svg", "mystery_card_back.png",
+            "mystery_card_face_blank.svg", "mystery_card_face_blank.png",
+            "winner_plaque_blank.svg", "winner_plaque_blank.png",
+            "stage_pedestal_blank.svg", "stage_pedestal_blank.png",
+            "teacher_studio_panel.svg", "teacher_studio_panel.png",
+            "randomizer_app_icon.svg", "randomizer_app_icon.png",
         },
-        "overlays": {"shared_display_hud.svg"},
+        "overlays": {"shared_display_hud.svg", "shared_display_hud.png"},
     }
     async def randomizer_art(request):
         category, filename = request.match_info["category"], request.match_info["filename"]
@@ -6567,7 +6573,7 @@ def create_app() -> web.Application:
         asset = ROOT / "SI_Mothership_Randomizer_Art_Pack" / "assets" / category / filename
         if not asset.is_file():
             raise web.HTTPNotFound()
-        content_type = "image/svg+xml" if filename.endswith(".svg") else ("image/webp" if filename.endswith(".webp") else "application/octet-stream")
+        content_type = "image/svg+xml" if filename.endswith(".svg") else ("image/webp" if filename.endswith(".webp") else ("image/png" if filename.endswith(".png") else "application/octet-stream"))
         return web.FileResponse(asset, headers={"Cache-Control": "public, max-age=3600", "Content-Type": content_type})
     app.router.add_get("/randomizer-art/{category}/{filename}", randomizer_art)
 
