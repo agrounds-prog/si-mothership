@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="180" height="200" viewBox="0 0 180 200" ><defs></defs><path d="M90 185 22 25Q90-8 158 25Z" fill="#ffab46" stroke="#fff4c1" stroke-width="10"/><path d="M90 169 49 37 131 37Z" fill="#c93d82" stroke="#ffcb7e" stroke-width="4"/><circle cx="90" cy="40" r="16" fill="#ffffff" opacity=".65"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="210" viewBox="0 0 240 210" role="img" aria-label="Decorative randomizer frame">
+<defs><linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f3fcff"/><stop offset=".16" stop-color="#3479ac"/><stop offset=".37" stop-color="#091b48"/><stop offset=".73" stop-color="#174677"/><stop offset="1" stop-color="#a7f7ff"/></linearGradient>
+<linearGradient id="gold" x1="0" y1="0" x2=".1" y2="1"><stop stop-color="#fffce2"/><stop offset=".15" stop-color="#ffde92"/><stop offset=".4" stop-color="#d19b39"/><stop offset=".65" stop-color="#67401f"/><stop offset=".84" stop-color="#b9792c"/><stop offset="1" stop-color="#ffde80"/></linearGradient>
+<linearGradient id="navy" x1="0" y1="0" x2=".2" y2="1"><stop stop-color="#163b70"/><stop offset=".5" stop-color="#081537"/><stop offset="1" stop-color="#142d66"/></linearGradient>
+<radialGradient id="plasma"><stop stop-color="#a7faff" stop-opacity=".4"/><stop offset=".7" stop-color="#34a8e7" stop-opacity=".08"/><stop offset="1" stop-color="#a1e8ff" stop-opacity=".04"/></radialGradient>
+<filter id="blur"><feGaussianBlur stdDeviation="13"/></filter></defs>
+<path d="M120 16 197 42 150 138 120 170 90 138 43 42Z" fill="url(#gold)" stroke="#fff5c4" stroke-width="8"/>
+<path d="M120 38 170 55 120 138 70 55Z" fill="#57286c" stroke="#ffdca1" stroke-width="5"/>
+<path d="M120 55 133 77 159 81 140 98 143 123 120 111 97 123 100 98 81 81 107 77Z" fill="#ffdf92"/>
+<path d="M120 153V200" stroke="#44d9ff" stroke-opacity=".4" stroke-width="7"/>
+</svg>

@@ -1,5 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="270" viewBox="0 0 1400 270" ><defs><linearGradient id="edge" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fffdc5"/><stop offset=".26" stop-color="#eec666"/><stop offset=".65" stop-color="#8b5227"/><stop offset="1" stop-color="#ffda77"/></linearGradient><linearGradient id="body" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#122f5f"/><stop offset=".5" stop-color="#091636"/><stop offset="1" stop-color="#1b315a"/></linearGradient></defs><path d="M135 20H1265L1360 135L1265 250H135L40 135Z" fill="url(#edge)" stroke="#fff4c5" stroke-width="12"/>
-<path d="M151 42H1249L1328 135L1249 228H151L72 135Z" fill="url(#body)" stroke="#62dbff" stroke-width="8"/>
-<path d="M196 69H1204M196 201H1204" stroke="#f6cf7c" stroke-width="3" opacity=".6"/>
-<path d="m119 135 18-18 18 18-18 18zM1281 135l-18-18-18 18 18 18z" fill="#ffe7a7"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="270" viewBox="0 0 1400 270" role="img" aria-label="Decorative randomizer frame">
+<defs><linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f3fcff"/><stop offset=".16" stop-color="#3479ac"/><stop offset=".37" stop-color="#091b48"/><stop offset=".73" stop-color="#174677"/><stop offset="1" stop-color="#a7f7ff"/></linearGradient>
+<linearGradient id="gold" x1="0" y1="0" x2=".1" y2="1"><stop stop-color="#fffce2"/><stop offset=".15" stop-color="#ffde92"/><stop offset=".4" stop-color="#d19b39"/><stop offset=".65" stop-color="#67401f"/><stop offset=".84" stop-color="#b9792c"/><stop offset="1" stop-color="#ffde80"/></linearGradient>
+<linearGradient id="navy" x1="0" y1="0" x2=".2" y2="1"><stop stop-color="#163b70"/><stop offset=".5" stop-color="#081537"/><stop offset="1" stop-color="#142d66"/></linearGradient>
+<radialGradient id="plasma"><stop stop-color="#a7faff" stop-opacity=".4"/><stop offset=".7" stop-color="#34a8e7" stop-opacity=".08"/><stop offset="1" stop-color="#a1e8ff" stop-opacity=".04"/></radialGradient>
+<filter id="blur"><feGaussianBlur stdDeviation="13"/></filter></defs>
+<path d="M150 15H1250L1380 135L1250 255H150L20 135Z" fill="url(#gold)" stroke="#fff9d2" stroke-width="11"/>
+<path d="M165 42H1235L1342 135L1235 228H165L58 135Z" fill="url(#navy)" stroke="#55deff" stroke-width="10"/>
+<path d="M222 76H1178M222 197H1178" stroke="#f6dd9f" stroke-width="4" opacity=".75"/>
+<path d="M128 135l20-20 20 20-20 20ZM1272 135l-20-20-20 20 20 20Z" fill="#ffeab1"/>
+<path d="M185 117H255M1145 117H1215" stroke="#56dcff" stroke-width="7" stroke-linecap="round"/>
 </svg>

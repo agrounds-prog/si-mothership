@@ -1,7 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="440" height="650" viewBox="0 0 440 650" ><defs><linearGradient id="back" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#171659"/><stop offset=".5" stop-color="#49247e"/><stop offset="1" stop-color="#081d58"/></linearGradient><radialGradient id="face"><stop stop-color="#174993"/><stop offset="1" stop-color="#0d1748"/></radialGradient></defs><rect x="11" y="11" width="418" height="628" rx="31" fill="url(#back)" stroke="#ffc976" stroke-width="15"/>
-<rect x="30" y="30" width="380" height="590" rx="22" fill="none" stroke="#a1dbff" stroke-width="7"/>
-<rect x="48" y="47" width="344" height="556" rx="16" fill="none" stroke="#c9a1ff" stroke-width="3"/>
-<path d="M220 129l35 63 73 7-53 50 11 73-66-35-66 35 12-73-53-50 72-7Z" fill="#ebba55" stroke="#fff2a5" stroke-width="9"/>
-<circle cx="220" cy="225" r="101" fill="none" stroke="#e7bdff" stroke-width="4" opacity=".35"/>
-<path d="m92 101 13-21 13 21-13 20zM328 538l13-21 13 21-13 20z" fill="#fff3b5"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="650" viewBox="0 0 440 650" role="img" aria-label="Decorative randomizer frame">
+<defs><linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f3fcff"/><stop offset=".16" stop-color="#3479ac"/><stop offset=".37" stop-color="#091b48"/><stop offset=".73" stop-color="#174677"/><stop offset="1" stop-color="#a7f7ff"/></linearGradient>
+<linearGradient id="gold" x1="0" y1="0" x2=".1" y2="1"><stop stop-color="#fffce2"/><stop offset=".15" stop-color="#ffde92"/><stop offset=".4" stop-color="#d19b39"/><stop offset=".65" stop-color="#67401f"/><stop offset=".84" stop-color="#b9792c"/><stop offset="1" stop-color="#ffde80"/></linearGradient>
+<linearGradient id="navy" x1="0" y1="0" x2=".2" y2="1"><stop stop-color="#163b70"/><stop offset=".5" stop-color="#081537"/><stop offset="1" stop-color="#142d66"/></linearGradient>
+<radialGradient id="plasma"><stop stop-color="#a7faff" stop-opacity=".4"/><stop offset=".7" stop-color="#34a8e7" stop-opacity=".08"/><stop offset="1" stop-color="#a1e8ff" stop-opacity=".04"/></radialGradient>
+<filter id="blur"><feGaussianBlur stdDeviation="13"/></filter></defs>
+<rect x="11" y="12" width="418" height="626" rx="33" fill="url(#navy)" stroke="url(#gold)" stroke-width="20"/>
+<rect x="36" y="38" width="368" height="573" rx="19" fill="#251054" stroke="#5ecfff" stroke-width="7"/>
+<rect x="55" y="60" width="330" height="530" rx="14" fill="none" stroke="#dca7ff" stroke-width="4"/>
+<circle cx="220" cy="324" r="111" fill="none" stroke="#e4a4ff" stroke-opacity=".75" stroke-width="9"/>
+<circle cx="220" cy="324" r="90" fill="none" stroke="#f8d38b" stroke-opacity=".63" stroke-width="4"/>
+<path d="M220 231 246 290 310 324 247 353 220 421 192 352 129 324 193 291Z" fill="url(#gold)" stroke="#fff3b8" stroke-width="7"/>
+<path d="M94 111l14-31 14 31-14 31ZM339 525l14-31 14 31-14 31Z" fill="#ffe8af"/>
+<path d="M101 167H339M101 483H339" stroke="#44dcff" stroke-width="5" opacity=".75"/>
 </svg>

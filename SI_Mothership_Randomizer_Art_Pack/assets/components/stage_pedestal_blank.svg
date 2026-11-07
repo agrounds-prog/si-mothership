@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="430" viewBox="0 0 1800 430" role="img" aria-label="Decorative randomizer frame">
+<defs><linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f3fcff"/><stop offset=".16" stop-color="#3479ac"/><stop offset=".37" stop-color="#091b48"/><stop offset=".73" stop-color="#174677"/><stop offset="1" stop-color="#a7f7ff"/></linearGradient>
+<linearGradient id="gold" x1="0" y1="0" x2=".1" y2="1"><stop stop-color="#fffce2"/><stop offset=".15" stop-color="#ffde92"/><stop offset=".4" stop-color="#d19b39"/><stop offset=".65" stop-color="#67401f"/><stop offset=".84" stop-color="#b9792c"/><stop offset="1" stop-color="#ffde80"/></linearGradient>
+<linearGradient id="navy" x1="0" y1="0" x2=".2" y2="1"><stop stop-color="#163b70"/><stop offset=".5" stop-color="#081537"/><stop offset="1" stop-color="#142d66"/></linearGradient>
+<radialGradient id="plasma"><stop stop-color="#a7faff" stop-opacity=".4"/><stop offset=".7" stop-color="#34a8e7" stop-opacity=".08"/><stop offset="1" stop-color="#a1e8ff" stop-opacity=".04"/></radialGradient>
+<filter id="blur"><feGaussianBlur stdDeviation="13"/></filter></defs>
+<ellipse cx="900" cy="292" rx="755" ry="110" fill="#50d8fa" opacity=".25" filter="url(#blur)"/>
+<path d="M260 235H1540L1685 358H115Z" fill="url(#metal)" stroke="url(#gold)" stroke-width="28"/>
+<ellipse cx="900" cy="238" rx="735" ry="107" fill="#09294b" stroke="#3bddff" stroke-width="22"/>
+<ellipse cx="900" cy="226" rx="540" ry="68" fill="none" stroke="#ffda8c" stroke-width="17"/>
+<ellipse cx="900" cy="228" rx="440" ry="49" fill="none" stroke="#57e7ff" stroke-width="9"/>
+<path d="M240 325H1560" stroke="#48dfff" stroke-width="14" stroke-linecap="round"/>
+<path d="M640 340H1160" stroke="#ffe79e" stroke-width="11" stroke-linecap="round"/>
+</svg>
