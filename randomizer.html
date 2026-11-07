@@ -908,6 +908,90 @@ html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-hei
  .stage[data-mode="cards"] #cards.cards-fan .card{transition:none!important}
 }
 
+
+/* V2.2 scene polish: keep the illustration dominant, not the decorative UI. */
+.stage .arena{--art-light:#8cecff}
+.stage[data-mode="wheel"] .arena{--art-light:#ffdc89}
+.stage[data-mode="slot"] .arena{--art-light:#ffe1a4}
+.stage[data-mode="cards"] .arena{--art-light:#cf9cff}
+.stage[data-mode="lottery"] .arena{--art-light:#a9fff2}
+.stage .arena:after{content:"";position:absolute!important;left:20%!important;right:20%!important;
+ bottom:1%!important;height:18%!important;z-index:0!important;
+ background:radial-gradient(ellipse,var(--art-light) 0%,transparent 65%)!important;
+ opacity:.24;filter:blur(20px)!important;pointer-events:none}
+.stage[data-mode="cards"] .arena .v2-pedestal{left:26%!important;right:26%!important;height:12%!important;
+ bottom:1%!important;opacity:.58!important;filter:drop-shadow(0 0 8px #7b9ed584)!important}
+.stage[data-mode="cards"] #cards.cards-fan{
+ width:100%!important;max-width:1100px!important;height:100%!important;max-height:none!important;
+ align-items:center!important;justify-content:center!important;
+ transform:translateY(-2%)!important;perspective:1100px;
+}
+.stage[data-mode="cards"] #cards.cards-fan .card{
+ flex:0 1 auto!important;
+ width:clamp(100px,21%,235px)!important;
+ max-width:235px!important;min-width:0!important;
+ height:auto!important;max-height:min(75%,410px)!important;
+ aspect-ratio:440/650!important;
+ margin-left:-2.1%!important;
+ background-size:100% 100%!important;
+ box-shadow:0 13px 14px #0007!important;
+ transform-origin:center 85%!important;
+ filter:drop-shadow(0 12px 15px #000c) drop-shadow(0 0 8px #b981e74d)!important;
+}
+.stage[data-mode="cards"] #cards.cards-fan .card:first-child{margin-left:0!important}
+.stage[data-mode="cards"] #cards.cards-fan .card.active{transform:translateY(-24px) rotate(0deg) scale(1.1)!important;
+ filter:drop-shadow(0 14px 23px #000b) drop-shadow(0 0 26px #ffe0a4c4)!important}
+.stage[data-mode="cards"] #cards.cards-fan .card.flipped{transform:translateY(-20px) rotate(0deg) scale(1.15)!important;
+ filter:drop-shadow(0 0 29px #f8d98fbd)!important}
+.stage[data-mode="cards"] #cards:not(.cards-fan){
+ width:min(100%,900px)!important;height:88%!important;max-height:100%!important;
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ grid-auto-rows:minmax(0,1fr)!important;
+ gap:clamp(5px,.75vw,12px)!important;overflow:auto!important
+}
+.stage[data-mode="cards"] #cards:not(.cards-fan) .card{
+ width:100%!important;max-height:100%!important;min-height:0!important;
+ background-size:contain!important;background-repeat:no-repeat!important;
+ background-position:center!important;aspect-ratio:440/650!important
+}
+.stage[data-mode="slot"] .visual:before,
+.stage[data-mode="lottery"] .visual:before{background-size:contain!important}
+.stage[data-mode="slot"] #reel{
+ width:64%!important;height:35%!important;max-height:250px!important;
+ border-color:#e2c582!important;box-shadow:inset 0 0 20px #001b35c2,0 0 14px #f3cd7b4d!important
+}
+.stage[data-mode="lottery"] #lottery{
+ width:43%!important;height:58%!important;max-height:385px!important;
+ transform:rotate(var(--lottery-tilt,0deg))!important
+}
+.stage[data-mode="lottery"] .ball{
+ width:min(100%,85px)!important;font-size:clamp(10px,1.2vw,17px)!important
+}
+.stage[data-mode="wheel"] .visual{filter:drop-shadow(0 3px 19px #000b)}
+.stage[data-mode="wheel"] #wheel{filter:none!important}
+.stage[data-mode="wheel"] .wheel-art-frame img{filter:drop-shadow(0 0 17px #ffdd88ad) drop-shadow(0 7px 11px #0008)!important}
+.stage .result{max-width:850px!important;width:min(82%,850px)!important;min-height:88px!important;
+ font-size:clamp(23px,2.5vw,42px)!important;
+ padding:17px clamp(36px,8%,105px)!important;overflow-wrap:anywhere}
+.stage.has-winner .result{font-size:clamp(26px,2.95vw,49px)!important}
+.stage .stage-console{border-top:1px solid #65d6f7!important}
+.stage .console-actions{position:relative!important}
+.stage .action{background:linear-gradient(180deg,#32d7ec 0%,#0a92b8 47%,#075576 100%)!important;
+ border-color:#bcfaff!important;box-shadow:inset 0 2px #ebffffab,0 7px 17px #0008,0 0 16px #38dbec78!important}
+.stage .action:disabled{filter:saturate(.55);opacity:.65}
+@media(min-width:761px) and (max-height:820px){
+ .stage .result{min-height:72px!important;padding-block:10px!important}
+ .stage .stage-console{min-height:75px!important;padding-block:6px!important}
+ .stage[data-mode="cards"] #cards.cards-fan .card{max-height:min(73%,315px)!important}
+ .stage[data-mode="cards"] .arena .v2-pedestal{height:10%!important}
+}
+@media(max-width:760px){
+ .stage[data-mode="cards"] #cards.cards-fan .card{width:23%!important;max-height:min(70%,270px)!important}
+ .stage[data-mode="cards"] #cards:not(.cards-fan){grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ .stage .result{width:90%!important;min-height:72px!important}
+}
+@media(prefers-reduced-motion:reduce){.stage[data-mode="cards"] .card{transition:none!important}}
+
 </style></head>
 <body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
 <main><section id="studio">
