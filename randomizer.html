@@ -530,6 +530,92 @@ html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-hei
 @media(prefers-reduced-motion:reduce){
  .stage[data-mode="slot"].is-spinning .reel-lane,.stage[data-mode="lottery"] .ball,.stage[data-mode="lottery"].is-spinning .ball,.stage[data-mode="cards"] #cards .card.flipped{animation:none!important}
 }
+
+/* Phase 11 · layout-first command deck. Make the controls visible at normal
+   1366×768 Zoom resolution without forcing the teacher to scroll the stage. */
+@media(min-width:761px){
+ body{height:100dvh;overflow:hidden}
+ main{height:calc(100dvh - 91px)!important;max-height:none!important;min-height:0!important;
+  padding:9px clamp(10px,1.2vw,20px)!important;gap:12px!important;
+  grid-template-columns:clamp(355px,28.5%,440px) minmax(0,1fr)!important}
+ #studio{height:100%!important;max-height:none!important;min-height:0!important;overflow-y:auto!important;
+  padding:13px 15px 19px!important}
+ .stage{height:100%!important;min-height:0!important;max-height:none!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:auto minmax(0,1fr) auto auto auto auto!important;align-content:stretch!important}
+ .stage-marquee{grid-row:1;padding:9px 10px 8px!important;min-height:0!important}
+ .stage .arena{grid-row:2;min-width:0;min-height:0!important;height:100%!important;max-height:none!important;padding:0 9px!important;overflow:visible}
+ .stage .visual{--wheel-art-size:min(100%,calc(100dvh - 325px),680px)!important;
+  width:100%!important;height:100%!important;min-height:0!important;max-height:none!important}
+ .stage .winner-ribbon{grid-row:3;margin:0 auto -18px!important;z-index:5!important;align-self:end}
+ .stage .result{grid-row:4;min-height:68px!important;max-height:116px!important;
+  margin:0 auto!important;padding:13px clamp(25px,6%,70px)!important;width:min(75%,690px)!important;
+  font-size:clamp(19px,2vw,36px)!important}
+ .stage .wheel-legend{grid-row:5;margin:0 auto 4px!important;max-height:84px!important;
+  width:min(82%,670px)!important;overflow:auto}
+ .stage .stage-console{grid-row:6;padding:6px 15px 9px!important;min-height:78px!important}
+ .stage .console-topline{min-height:16px!important;gap:12px}
+ .stage .console-topline .status{font-size:11px!important}
+ .stage .console-actions{padding-top:4px!important}
+ .stage .action{min-width:206px!important;min-height:43px!important;padding:8px 23px!important;
+  font-size:16px!important}
+ .stage .recent{margin-top:5px!important}
+ .stage .recent:empty{display:none!important}
+ .stage[data-mode="wheel"] .arena:before{width:min(68%,610px)!important}
+ .stage[data-mode="wheel"] #wheel{width:min(100%,var(--wheel-art-size))!important;max-height:100%!important}
+ .stage[data-mode="wheel"] .wheel-art-frame{width:min(100%,var(--wheel-art-size))!important;max-height:100%!important}
+ .stage[data-mode="wheel"]:has(.wheel-legend:not([hidden])) .visual{--wheel-art-size:min(100%,calc(100dvh - 420px),550px)!important}
+ .stage[data-mode="wheel"]:has(.wheel-legend:not([hidden])) #wheel,
+ .stage[data-mode="wheel"]:has(.wheel-legend:not([hidden])) .wheel-art-frame{width:min(100%,var(--wheel-art-size))!important}
+ #display-only main{height:calc(100dvh - 75px)!important;padding:4px!important}
+ #display-only .stage{height:100%!important;min-height:0!important}
+ #display-only .stage .visual{--wheel-art-size:min(100%,calc(100dvh - 278px),830px)!important}
+ #display-only .stage .result{width:min(70%,930px)!important;max-height:125px!important}
+ #display-only .stage .stage-console{min-height:50px!important;padding:5px 18px!important}
+ #display-only .stage .console-topline{justify-content:center}
+ #display-only .stage .console-actions{position:absolute;right:12px;bottom:4px;padding:0!important}
+ #display-only .fullscreen-btn{position:static!important;font-size:11px!important}
+}
+@media(min-width:761px) and (max-height:730px){
+ .stage .visual{--wheel-art-size:min(100%,calc(100dvh - 305px),560px)!important}
+ .stage .stage-marquee{padding:6px 9px!important}
+ .stage .display-title{font-size:clamp(19px,2.1vw,29px)!important}
+ .stage .marquee-kicker{font-size:9px!important}
+ .stage .result{min-height:56px!important;padding:8px 12%!important}
+ .stage .stage-console{min-height:70px!important}
+ .stage .action{min-height:38px!important}
+}
+#studio{border-color:#48bedd!important;scrollbar-color:#367caa #081f37}
+#studio .studio-kicker{letter-spacing:.15em!important;opacity:.8}
+#studio>h2{font-size:16px!important;line-height:1.1!important;margin:0 0 9px!important}
+#studio>label{margin-top:10px!important}
+#studio .modes{gap:8px!important}
+#studio .modes button{min-height:84px!important;aspect-ratio:1.85/1!important;border-radius:11px!important}
+#studio .modes button span{font-size:11px!important;letter-spacing:.045em!important}
+#studio #bulk{min-height:76px!important;max-height:120px!important}
+#studio .choice-list{max-height:220px!important}
+#studio .choice{margin:4px 0!important;padding:4px!important;border-radius:8px!important}
+#studio .choice input{padding:6px 7px!important}
+#studio .chance-caption{font-size:10px!important}
+#studio .row button{min-height:34px!important;padding:7px 11px!important;font-size:12px!important}
+#studio .studio-effects{padding:10px!important}
+#studio .studio-effects h2{font-size:13px!important}
+#studio .note{font-size:11px!important;line-height:1.3!important}
+.stage .stage-console{background:linear-gradient(180deg,#0b3150f5,#051526f8)!important;
+ border-top:1px solid #62d4ff!important;box-shadow:0 -7px 25px #000b,inset 0 2px 0 #a9eaff16!important}
+.stage .result{background-size:100% 100%!important;
+ filter:drop-shadow(0 7px 11px #000b);text-shadow:0 3px 5px #000,0 0 14px #ffe5a473!important}
+.stage .arena:after{height:9%!important;bottom:1%!important;filter:blur(11px)!important}
+.stage .action{border-radius:10px!important;letter-spacing:.1em!important;
+ background:linear-gradient(#21d3e2,#0f8baa 55%,#075f83)!important;
+ box-shadow:inset 0 2px 0 #d4faff88,0 0 13px #27cfe599,0 6px 12px #0009!important}
+.stage .action:hover:not(:disabled){filter:brightness(1.13)}
+@media(max-width:760px){
+ .stage .result{width:90%!important}
+ .stage .stage-console{padding-bottom:16px!important}
+ #studio .modes button{min-height:90px!important}
+}
+
 </style></head>
 <body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
 <main><section id="studio"><div class="studio-kicker">MISSION CONTROL · RANDOMIZER</div><h2>TEACHER STUDIO</h2>
