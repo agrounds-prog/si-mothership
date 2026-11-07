@@ -647,26 +647,52 @@ html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-hei
 }
 </style></head>
 <body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
-<main><section id="studio"><div class="studio-kicker">MISSION CONTROL · RANDOMIZER</div><h2>TEACHER STUDIO</h2>
-<label for="title">Activity title</label><input id="title" maxlength="90" value="Classroom Choices" autocomplete="off">
-<label for="style">Visual randomizer</label><div class="modes" id="styles"><button data-style="wheel" class="active"><span>SPIN WHEEL</span></button><button data-style="slot"><span>SLOT MACHINE</span></button><button data-style="lottery"><span>COSMIC LOTTERY</span></button><button data-style="cards"><span>MYSTERY CARDS</span></button></div>
-<label for="bulk">Paste choices (one per line)</label><textarea id="bulk" placeholder="Movie&#10;Art&#10;Music&#10;Game"></textarea><div class="row"><button id="addBulk">＋ Add Choices</button><button id="addChoice">＋ One Choice</button></div>
-<div class="row" style="margin-top:15px;justify-content:space-between"><h2 style="margin:0">CHOICES &amp; ODDS</h2><span id="count"></span></div>
-<label for="choiceSearch">Find a choice <span class="edit-only">· editing only</span></label><input id="choiceSearch" type="search" placeholder="Search your choices…" autocomplete="off">
-<small class="note" id="searchCount">Search filters this editor only — all choices remain in the draw.</small>
-<div class="choice-list" id="choices"></div>
-<label><input id="weighted" type="checkbox" style="width:auto;margin-right:8px">Weighted probability (optional)</label>
-<small class="note">Equal chances are the default. Weights are relative—not guarantees.</small>
-<label><input id="removeWinner" type="checkbox" style="width:auto;margin-right:8px">Remove selected choice after each draw</label>
-<div class="studio-effects"><h2>SHOW EFFECTS</h2>
-<label class="effects-option"><input id="soundEnabled" type="checkbox"> <span>Sound effects <small>Subtle ticking and a winner chime (teacher window only)</small></span></label>
-<label class="effects-option"><input id="celebrateEnabled" type="checkbox" checked> <span>Winner celebration <small>Brief visual sparkle burst on the shared screen</small></span></label>
-<label for="animationSpeed">Reveal speed</label><select id="animationSpeed"><option value="quick">Quick · 2 seconds</option><option value="normal" selected>Normal · 4 seconds</option><option value="dramatic">Dramatic · 6 seconds</option></select><small class="note">Sounds default to off. Celebrations follow reduced-motion preferences.</small></div>
-<div class="row" style="margin-top:15px"><button id="resetPool">Reset Pool</button><button id="clearAll">Clear Choices</button></div>
-<hr style="border:0;border-top:1px solid #386080;margin:20px 0">
-<h2>SAVED RANDOMIZERS</h2><label for="savedName">Save set as</label><input id="savedName" maxlength="90" placeholder="Friday discussion choices"><div class="row" style="margin-top:8px"><button class="primary" id="save">Save Set</button><button id="delete">Delete Saved</button></div>
-<label for="library">Load saved set</label><select id="library"><option value="">Choose saved randomizer…</option></select><button id="load" style="margin-top:8px;width:100%">Load Selected Set</button>
-<small class="note" id="storageStatus">Saved sets use your Mothership teacher library.</small>
+<main><section id="studio">
+<div class="studio-header">
+  <div><div class="studio-kicker">MISSION CONTROL · RANDOMIZER</div><h2>TEACHER STUDIO</h2><p>Build the choices. Launch the show.</p></div>
+  <span class="studio-live-dot" aria-label="Teacher controls ready"></span>
+</div>
+<div class="studio-group studio-group-setup">
+  <div class="studio-group-heading"><span class="studio-group-index">01</span><div><h3>SHOW SETUP</h3><small>Choose your visual experience</small></div></div>
+  <label for="title">Activity title</label><input id="title" maxlength="90" value="Classroom Choices" autocomplete="off">
+  <div class="modes" id="styles">
+    <button data-style="wheel" class="active"><span>SPIN WHEEL</span></button>
+    <button data-style="slot"><span>SLOT MACHINE</span></button>
+    <button data-style="lottery"><span>COSMIC LOTTERY</span></button>
+    <button data-style="cards"><span>MYSTERY CARDS</span></button>
+  </div>
+</div>
+<div class="studio-group studio-group-choices">
+  <div class="studio-group-heading"><span class="studio-group-index">02</span><div><h3>CHOICES &amp; ODDS</h3><small>Everything your class can select</small></div><span id="count" class="studio-count"></span></div>
+  <label for="bulk">Paste ideas · one per line</label><textarea id="bulk" placeholder="Movie&#10;Art&#10;Music&#10;Game"></textarea>
+  <div class="studio-add-actions"><button id="addBulk" class="studio-add-primary">＋ Add Choices</button><button id="addChoice">＋ One Choice</button></div>
+  <label for="choiceSearch">Find an idea <span class="edit-only">· editing only</span></label>
+  <input id="choiceSearch" type="search" placeholder="Search choices…" autocomplete="off">
+  <small class="note" id="searchCount">Search filters this editor only — all choices remain in the draw.</small>
+  <div class="choice-list" id="choices"></div>
+  <label class="studio-toggle"><input id="weighted" type="checkbox"><span>Weighted probability <small>Adjust the chances of individual choices</small></span></label>
+  <label class="studio-toggle"><input id="removeWinner" type="checkbox"><span>Remove a winner after each draw <small>Great for choosing every student once</small></span></label>
+  <div class="studio-utility-row"><button id="resetPool">↺ Reset Pool</button><button id="clearAll">Clear Choices</button></div>
+</div>
+<div class="studio-group studio-group-effects">
+  <div class="studio-group-heading"><span class="studio-group-index">03</span><div><h3>SHOW EFFECTS</h3><small>Fine-tune your classroom reveal</small></div></div>
+  <div class="studio-effects">
+    <label class="effects-option"><input id="soundEnabled" type="checkbox"><span>Sound effects <small>Teacher-window sounds only</small></span></label>
+    <label class="effects-option"><input id="celebrateEnabled" type="checkbox" checked><span>Winner celebration <small>Glowing reveal on shared screen</small></span></label>
+    <label for="animationSpeed">Reveal speed</label>
+    <select id="animationSpeed"><option value="quick">Quick · 2 seconds</option><option value="normal" selected>Normal · 4 seconds</option><option value="dramatic">Dramatic · 6 seconds</option></select>
+    <small class="note">Audio starts off. Motion respects accessibility settings.</small>
+  </div>
+</div>
+<div class="studio-group studio-group-library">
+  <div class="studio-group-heading"><span class="studio-group-index">04</span><div><h3>SAVED RANDOMIZERS</h3><small>Keep your favorite choice sets</small></div></div>
+  <label for="savedName">Save set as</label><input id="savedName" maxlength="90" placeholder="Friday discussion choices">
+  <div class="studio-save-actions"><button class="primary" id="save">Save Set</button><button id="delete">Delete Saved</button></div>
+  <label for="library">Load saved set</label>
+  <select id="library"><option value="">Choose saved randomizer…</option></select>
+  <button id="load" class="studio-load">Load Selected Set</button>
+  <small class="note" id="storageStatus">Saved sets use your Mothership teacher library.</small>
+</div>
 </section>
 <section class="stage" id="stage">
 <div class="celebration" id="celebration" aria-hidden="true"></div>
