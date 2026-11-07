@@ -6546,6 +6546,7 @@ def create_app() -> web.Application:
     app.router.add_get("/dashboard-polish.js", lambda request: web.FileResponse(ROOT / "dashboard-polish.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/spotlight.html", lambda request: web.FileResponse(ROOT / "spotlight.html", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/randomizer", lambda request: web.FileResponse(ROOT / "randomizer.html", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/randomizer-v4.css", lambda request: web.FileResponse(ROOT / "randomizer-v4.css", headers={"Cache-Control": "no-store", "Content-Type": "text/css"}))
     # Whitelisted visual-only Randomizer assets uploaded by the teacher.
     # Never expose arbitrary files from the repository or persisted student data.
     randomizer_art_allowlist = {
