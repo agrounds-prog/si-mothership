@@ -7,12 +7,12 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const page=await browser.newPage({viewport:{width:1440,height:900}});
   const errors=[];page.on("pageerror",e=>errors.push(e.message));
   await page.goto(BASE+"/randomizer",{waitUntil:"domcontentloaded"});
-  const sceneStyles=await page.request.get(BASE+"/randomizer-v4.css?v=4");
-  assert.equal(sceneStyles.status(),200,"The V4 scene override must be served by Railway");
-  assert.match(await sceneStyles.text(),/Randomizer V4/);
-  assert.equal(await page.locator("#stage").getAttribute("data-graphics"),"v4");
-  assert.equal(await page.locator(".v4-stamp").textContent(),"GRAPHICS V4");
-  assert.equal(await page.locator("link[href='/randomizer-v4.css?v=4']").count(),1);
+  const sceneStyles=await page.request.get(BASE+"/randomizer-v5.css?v=4");
+  assert.equal(sceneStyles.status(),200,"The V5 scene override must be served by Railway");
+  assert.match(await sceneStyles.text(),/Randomizer V5/);
+  assert.equal(await page.locator("#stage").getAttribute("data-graphics"),"v5");
+  assert.equal(await page.locator(".v5-stamp").textContent(),"GRAPHICS V5");
+  assert.equal(await page.locator("link[href='/randomizer-v5.css?v=4']").count(),1);
 
   for(const image of ["slot","lottery","cards","wheel"]){
    const r=await page.request.get(BASE+"/randomizer-concept/"+image+".png?v=3");
@@ -29,12 +29,25 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    const selection=await page.locator("#stage").getAttribute("data-mode");
    assert.equal(selection,mode);
    const graphics=await page.locator("#stage").evaluate(node=>node.dataset.graphics);
-   assert.equal(graphics,"v4");
+   assert.equal(graphics,"v5");
 
   }
   await page.locator('#styles [data-style="cards"]').click();
   assert.equal(await page.locator("#cards .card").count(),4);
-  assert.ok((await page.locator("#cards .card").first().evaluate(el=>getComputedStyle(el).backgroundImage)).includes("randomizer-concept/cards.png"));
+  assert.ok((await page.locator("#cards .card").first().evaluate(el=>getComputedStyle(el).backgroundImage)).includes("mystery_card_back.png"));
+  const alignment=await page.evaluate(()=>{
+    const arena=document.querySelector(".arena").getBoundingClientRect();
+    const cards=document.querySelector("#cards.cards-fan").getBoundingClientRect();
+    const live=[...document.querySelectorAll("#cards.cards-fan .card")].map(x=>x.getBoundingClientRect());
+    const left=Math.min(...live.map(x=>x.left)),right=Math.max(...live.map(x=>x.right));
+    return {offset:Math.abs((left+right)/2-(arena.left+arena.right)/2),width:arena.width,cardsLeft:cards.left,arenaLeft:arena.left};
+  });
+  assert.ok(alignment.offset<alignment.width*.09,"Card fan must be visually centered: "+JSON.stringify(alignment));
+  for(const [mode,part] of [["lottery","lottery_machine_frame.png"],["slot","slot_machine_chassis.png"]]){
+    await page.locator('#styles [data-style="'+mode+'"]').click();
+    const background=await page.locator(".visual").evaluate(node=>getComputedStyle(node,"::before").backgroundImage);
+    assert.ok(background.includes(part),"Use transparent cabinet without baked-in options: "+background);
+  }
   await page.locator('#styles [data-style="wheel"]').click();
   assert.match(await page.locator(".wheel-art-frame img").getAttribute("src"),/\.png\?v=3/);
   assert.deepEqual(errors,[]);
