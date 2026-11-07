@@ -6577,6 +6577,19 @@ def create_app() -> web.Application:
         return web.FileResponse(asset, headers={"Cache-Control": "public, max-age=3600", "Content-Type": content_type})
     app.router.add_get("/randomizer-art/{category}/{filename}", randomizer_art)
 
+    # Approved cinematic concept crops. The client uses these as art textures
+    # behind live controls, never as screenshots replacing real choices.
+    async def randomizer_concept_art(request):
+        mode = request.match_info["mode"]
+        if mode not in {"wheel", "slot", "lottery", "cards"}:
+            raise web.HTTPNotFound()
+        asset = ROOT / "references" / (mode + "_approved_concept.png")
+        if not asset.is_file():
+            raise web.HTTPNotFound()
+        return web.FileResponse(asset, headers={"Cache-Control": "public, max-age=3600", "Content-Type": "image/png"})
+    app.router.add_get("/randomizer-concept/{mode}.png", randomizer_concept_art)
+
+
     app.router.add_get("/teacher", teacher_console)
     app.router.add_get("/teacher/", teacher_console)
     app.router.add_get("/student-device-setup.cmd", student_device_setup)
