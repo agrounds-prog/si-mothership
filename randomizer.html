@@ -1069,6 +1069,21 @@ html:fullscreen #display-only .stage{height:calc(100vh - 74px)!important;min-hei
  .stage[data-mode="cards"] #cards .card{transition:none!important}
 }
 
+
+/* Wheel concept's gold ring — cropped from the approved reference and masked
+   to its perimeter so the actual weighted Canvas slices remain fully live. */
+.stage[data-mode="wheel"] .wheel-art-frame{isolation:isolate}
+.stage[data-mode="wheel"] .wheel-art-frame:before{
+ content:"";position:absolute;inset:-1%;z-index:2;pointer-events:none;
+ background:url("/randomizer-concept/wheel.png?v=3") 50% 49%/237% 135% no-repeat;
+ mask-image:radial-gradient(circle closest-side,transparent 0 73%,#000 80% 94%,transparent 99%);
+ -webkit-mask-image:radial-gradient(circle closest-side,transparent 0 73%,#000 80% 94%,transparent 99%);
+ filter:drop-shadow(0 0 15px #ffd97ea8);
+}
+.stage[data-mode="wheel"] .wheel-art-frame img{opacity:.62!important;position:relative;z-index:1}
+.stage[data-mode="wheel"] .wheel-art-frame .pointer{z-index:5!important}
+@media(prefers-reduced-motion:reduce){.stage[data-mode="wheel"] .wheel-art-frame:before{transition:none!important}}
+
 </style></head>
 <body><header><div><small>SI MOTHERSHIP · CLASSROOM TOOLS</small><h1>✦ RANDOMIZER</h1></div><div class="row"><button id="screenBtn">↗ Launch Display</button><button id="returnBtn">← Mothership</button></div></header>
 <main><section id="studio">
