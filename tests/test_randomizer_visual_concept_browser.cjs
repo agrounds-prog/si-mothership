@@ -32,6 +32,16 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await page.locator("#lotteryShowpieceText").textContent(),(await page.locator("#result").textContent()).replace(/^✦\s*/,""));
   await display.waitForFunction(()=>!document.querySelector("#lotteryShowpiece").hidden,null,{timeout:3500});
   assert.equal(await display.locator("#lotteryShowpieceText").textContent(),await page.locator("#lotteryShowpieceText").textContent());
+
+  // During the next lottery draw, preserve the actual ball elements while
+  // selections update repeatedly in the separate Zoom window.
+  await page.locator("#spin").click();
+  await display.waitForFunction(()=>document.querySelector("#stage").classList.contains("is-spinning"),null,{timeout:3000});
+  await display.evaluate(()=>{window.__lotteryFirstBall=document.querySelector("#lottery .ball")});
+  await page.waitForTimeout(480);
+  assert.equal(await display.evaluate(()=>window.__lotteryFirstBall===document.querySelector("#lottery .ball")),true,"Broadcasts must not reconstruct lottery balls");
+  await page.waitForFunction(()=>document.querySelector("#stage").classList.contains("has-winner"),null,{timeout:8500});
+
   await page.locator('#styles [data-style="cards"]').click();
   assert.equal(await page.locator("#cards.cards-fan .card").count(),4);
   assert.equal(await display.locator("#cards.cards-fan .card").count(),4);
