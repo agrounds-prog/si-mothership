@@ -29,6 +29,15 @@ async function check(page,label){
     await page.locator('#styles [data-style="'+mode+'"]').click();
     const state=await check(page,mode+" "+width+"×"+height);
     assert.ok(state.visual.w>250,mode+" visual too narrow");
+    if(mode==="lottery"){
+      const appearance=await page.locator("#lottery").evaluate(el=>({background:getComputedStyle(el).backgroundColor,width:el.getBoundingClientRect().width,arena:document.querySelector(".arena").getBoundingClientRect().width}));
+      assert.ok(appearance.width<appearance.arena*.51,"Lottery chamber must not be covered by an oversized orb");
+    }
+    if(mode==="slot"){
+      const art=await page.locator(".visual").evaluate(el=>getComputedStyle(el,"::before").backgroundImage);
+      assert.ok(art.includes("slot_machine_chassis.png"),"Use the transparent cabinet instead of a flattened concept screenshot");
+    }
+
     if(mode==="cards"){
      const metrics=await page.evaluate(()=>{
       const cards=[...document.querySelectorAll("#cards.cards-fan .card")];
