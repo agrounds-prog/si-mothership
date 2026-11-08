@@ -6590,6 +6590,32 @@ def create_app() -> web.Application:
         return web.FileResponse(asset, headers={"Cache-Control": "public, max-age=3600", "Content-Type": "image/png"})
     app.router.add_get("/randomizer-concept/{mode}.png", randomizer_concept_art)
 
+    # Textured, independent visual layers for the classroom Randomizer.
+    # Explicit allowlist prevents arbitrary file access to project/student data.
+    textured_randomizer_files = {
+        "lottery_machine_shell.png", "lottery_glass_overlay.png", "lottery_ball_blank.png",
+        "slot_machine_shell.png", "slot_reel_window_overlay.png",
+        "wheel_housing.png", "mystery_card_back.png",
+        "mystery_card_face_blank.png", "cards_stage_base.png", "winner_plaque_blank.png",
+    }
+    async def randomizer_textured_art(request):
+        name = request.match_info["filename"]
+        if name not in textured_randomizer_files:
+            raise web.HTTPNotFound()
+        asset = ROOT / "assets" / "randomizer-v3" / name
+        if not asset.is_file():
+            raise web.HTTPNotFound()
+        return web.FileResponse(asset, headers={
+            "Cache-Control": "public, max-age=3600",
+            "Content-Type": "image/png",
+        })
+    app.router.add_get("/randomizer-textured/{filename}", randomizer_textured_art)
+    app.router.add_get("/randomizer-textures-v9.css", lambda request: web.FileResponse(
+        ROOT / "randomizer-textures-v9.css",
+        headers={"Cache-Control": "no-store", "Content-Type": "text/css"},
+    ))
+
+
 
     app.router.add_get("/teacher", teacher_console)
     app.router.add_get("/teacher/", teacher_console)
