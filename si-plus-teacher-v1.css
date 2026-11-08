@@ -479,3 +479,28 @@
   grid-template-columns:1fr!important;
  }
 }
+
+/* Browser screenshot fix: library must not include stale SI+ home card. */
+#teacher #activitiesPanel.si-art-library #activityGrid,
+#teacher #activitiesPanel.si-art-library #activityGrid.real-app-card{
+ display:none!important;visibility:hidden!important;
+}
+#teacher #activitiesPanel.si-art-library #savedPresentationPicker:not(.hidden){
+ display:block!important;
+ min-height:clamp(330px,51dvh,490px)!important;
+ margin-top:clamp(22px,5vh,55px)!important;
+}
+#teacher #activitiesPanel.si-art-library .saved-deck-list{
+ max-height:min(46dvh,435px)!important;
+ overflow-y:auto!important;
+ padding:4px!important;
+ scrollbar-color:#4ccce3 #06172c!important;
+}
+#teacher #activitiesPanel.si-art-library .saved-picker-head{
+ background:linear-gradient(100deg,#0a2943e6,#071a31c8)!important;
+ border-radius:12px!important;border:1px solid #5dc5ea88!important;
+}
+#teacher #activitiesPanel.si-art-library .saved-deck{
+ background-image:linear-gradient(110deg,#123b60c4,#071e38d9),url("/si-plus-teacher-art/panels/library_row.png")!important;
+ background-size:100% 100%!important;background-repeat:no-repeat!important;
+}
