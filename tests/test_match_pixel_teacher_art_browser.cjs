@@ -30,6 +30,35 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
    assert.ok(await page.locator('#activitiesPanel .pixel-setup').count(),'PIXEL studio missing');
    await page.screenshot({path:'/tmp/mp-v1-browser/'+viewport.width+'-pixel-studio.png',animations:'disabled'});
    console.log('PASS',viewport.width,'PIXEL studio with uploaded artwork');
+   // Launch a demo round in the isolated browser session and verify the real ready panel.
+   await page.evaluate(()=>{
+     const d=ensurePixelDraft();
+     if(!d.image)d.image=pixelDemoImage();
+     d.answer=d.answer||'Giraffe';d.name=d.name||'QA Mystery';
+     launchPixel();
+   });
+   await page.waitForFunction(()=>document.getElementById('activityControllerPanel')?.classList.contains('si-mp-pixel-live'),{timeout:10000});
+   await page.waitForFunction(()=>document.getElementById('activityControllerPanel')?.classList.contains('si-mp-ready'),{timeout:10000});
+   const pixelReady=await page.locator('#activityControllerPanel').evaluate(x=>getComputedStyle(x).backgroundImage);
+   assert.ok(pixelReady.includes('pixel_reveal_ready_background_1600x900.png'),pixelReady);
+   assert.ok(await page.locator('#startActivityBtn').count(),'PIXEL launch button missing');
+   await page.screenshot({path:'/tmp/mp-v1-browser/'+viewport.width+'-pixel-ready.png',animations:'disabled'});
+   console.log('PASS',viewport.width,'PIXEL ready screen with uploaded art');
+   // MATCH teacher-only Zoom launch remains functional with a small isolated sample set.
+   await page.evaluate(()=>{
+     state.activityRun=null;
+     openApp('match');
+     matchLaunchSettings.mode='teacher';
+     const pairs=Array.from({length:5},(_,i)=>({
+       id:'qa-pair-'+i,a:{type:'text',text:'A'+i},b:{type:'text',text:'A'+i}
+     }));
+     launchMatchSet({id:'qa-match-art',name:'QA Teacher MATCH',pairs});
+   });
+   await page.waitForFunction(()=>document.getElementById('activityControllerPanel')?.classList.contains('si-mp-match-live'),{timeout:10000});
+   const matchLiveBg=await page.locator('#activityControllerPanel').evaluate(x=>getComputedStyle(x).backgroundImage);
+   assert.ok(matchLiveBg.includes('match_live_background_1600x900.png'),matchLiveBg);
+   await page.screenshot({path:'/tmp/mp-v1-browser/'+viewport.width+'-match-live.png',animations:'disabled'});
+   console.log('PASS',viewport.width,'MATCH teacher live control screen with uploaded art');
    // Separate teacher windows share origin, authentication, CSS and the same setup selectors.
    const popup=await ctx.newPage();
    await popup.goto(base+'/?role=teacher',{waitUntil:'domcontentloaded'});
