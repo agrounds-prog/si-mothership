@@ -98,3 +98,94 @@
 @media(prefers-reduced-motion:reduce){
  #teacher #activitiesPanel.si-art-home *,#teacher #activitiesPanel.si-art-library *,#teacher #presentationBuilderPanel.si-art-builder *,#teacher #activityControllerPanel.si-art-ready * {transition:none!important}
 }
+
+
+/* Actual SI+ homepage/card markup and saved-presentation picker. */
+#teacher #activitiesPanel.si-art-home #activityGrid .real-app-card{
+ display:grid!important;
+ grid-template-columns:minmax(90px,130px) minmax(0,1fr)!important;
+ column-gap:clamp(15px,2vw,28px)!important;
+ align-content:center!important;
+ min-height:245px!important;
+ background:linear-gradient(115deg,#0b2645e8,#082339d9),url("/si-plus-teacher-art/panels/command_panel.png") center/100% 100% no-repeat!important;
+}
+#teacher #activitiesPanel.si-art-home #activityGrid .real-app-card>.act-icon{
+ grid-column:1!important;grid-row:1/span 5!important;
+ width:clamp(86px,9vw,125px)!important;height:clamp(86px,9vw,125px)!important;
+ margin:auto!important;
+ background:transparent url("/si-plus-teacher-art/branding/si_plus_emblem_512.png") center/contain no-repeat!important;
+ border:0!important;box-shadow:none!important;color:transparent!important;text-shadow:none!important;font-size:0!important;
+}
+#teacher #activitiesPanel.si-art-home #activityGrid .real-app-card>:not(.act-icon){
+ grid-column:2!important;min-width:0!important
+}
+#teacher #activitiesPanel.si-art-home #activityGrid .real-app-card h3{
+ font-size:clamp(19px,2.2vw,29px)!important;color:#f7fcff!important;
+ text-shadow:0 2px 12px #000!important;margin-block:3px!important;
+}
+#teacher #activitiesPanel.si-art-home #activityGrid .real-app-actions{
+ display:flex!important;gap:10px!important;flex-wrap:wrap!important;margin-top:15px!important
+}
+#teacher #activitiesPanel.si-art-home #activityGrid .real-app-actions button{min-height:47px!important;padding:10px 18px!important}
+#teacher #activitiesPanel.si-art-library #savedPresentationPicker{
+ padding:clamp(12px,2vw,22px)!important;
+ background:linear-gradient(145deg,#071c32df,#071326ed)!important;
+ border:1px solid #468cb0!important;border-radius:15px!important;
+ box-shadow:inset 0 1px #c5f8ff36,0 12px 25px #0009!important;
+}
+#teacher #activitiesPanel.si-art-library .saved-picker-head{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;gap:16px!important;
+ padding:13px 16px 17px!important;margin-bottom:15px!important;
+ border-bottom:1px solid #4f99b7!important;
+}
+#teacher #activitiesPanel.si-art-library .saved-picker-head h3{
+ font-size:clamp(19px,2vw,26px)!important;color:#f6fcff!important
+}
+#teacher #activitiesPanel.si-art-library .saved-deck-list{
+ display:grid!important;gap:12px!important
+}
+#teacher #activitiesPanel.si-art-library .saved-deck{
+ background:linear-gradient(120deg,#0c2e4de8,#071b32ed),url("/si-plus-teacher-art/panels/library_row.png") center/100% 100% no-repeat!important;
+ border:1px solid #45a9cf!important;border-radius:13px!important;
+ padding:clamp(12px,1.5vw,19px)!important;
+ box-shadow:inset 0 1px #c2f5ff3a,0 7px 17px #0008!important;
+ display:flex!important;align-items:center!important;justify-content:space-between!important;gap:18px!important;
+}
+#teacher #activitiesPanel.si-art-library .saved-deck h4{
+ color:#f8fcff!important;font-size:clamp(16px,1.4vw,21px)!important;margin:0 0 4px!important
+}
+#teacher #activitiesPanel.si-art-library .saved-deck p{
+ color:#a8d6e7!important;margin:0!important
+}
+#teacher #activitiesPanel.si-art-library .saved-deck-actions{
+ display:flex!important;gap:8px!important;align-items:center!important;flex-wrap:wrap!important
+}
+#teacher #activitiesPanel.si-art-library [data-load-saved]{
+ color:#fff!important;border-color:#68e9fb!important;
+ background:#095472 url("/si-plus-teacher-art/buttons/primary_cyan.png") center/100% 100% no-repeat!important
+}
+#teacher #activitiesPanel.si-art-library [data-edit-saved]{
+ color:#f1faff!important;border-color:#80b7e8!important;
+ background:#143655 url("/si-plus-teacher-art/buttons/secondary_blue.png") center/100% 100% no-repeat!important
+}
+#teacher #activitiesPanel.si-art-library [data-delete-saved]{
+ color:#fff!important;border-color:#f78faa!important;
+ background:#62243b url("/si-plus-teacher-art/buttons/danger_red.png") center/100% 100% no-repeat!important
+}
+#teacher #activityControllerPanel.si-art-ready .activity-controller-head{
+ border:1px solid #4fc9ed!important;border-radius:14px!important;
+ background:linear-gradient(115deg,#0e3957ed,#061b31f0)!important;
+ box-shadow:inset 0 1px #c2f9ff41!important;
+}
+@media(max-width:720px){
+ #teacher #activitiesPanel.si-art-home #activityGrid .real-app-card{
+  grid-template-columns:1fr!important;text-align:center!important
+ }
+ #teacher #activitiesPanel.si-art-home #activityGrid .real-app-card>.act-icon{
+  grid-column:1!important;grid-row:auto!important
+ }
+ #teacher #activitiesPanel.si-art-home #activityGrid .real-app-card>:not(.act-icon){grid-column:1!important}
+ #teacher #activitiesPanel.si-art-home #activityGrid .real-app-actions{justify-content:center!important}
+ #teacher #activitiesPanel.si-art-library .saved-deck{flex-direction:column!important;align-items:stretch!important}
+ #teacher #activitiesPanel.si-art-library .saved-deck-actions{justify-content:flex-start!important}
+}
