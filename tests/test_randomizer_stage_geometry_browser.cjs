@@ -35,7 +35,7 @@ async function check(page,label){
     }
     if(mode==="slot"){
       const art=await page.locator(".visual").evaluate(el=>getComputedStyle(el,"::before").backgroundImage);
-      assert.ok(art.includes("slot_machine_chassis.png"),"Use the transparent cabinet instead of a flattened concept screenshot");
+      assert.ok(art.includes("slot_machine_shell.png"),"V9 must use the independent textured cabinet shell");
     }
 
     if(mode==="cards"){
@@ -57,6 +57,6 @@ async function check(page,label){
    assert.deepEqual(errors,[]);
    await context.close();
   }
-  console.log("PASS stage geometry at 1366×768, 1580×900 and 1100×780 for all four modes");
+  console.log("PASS stage geometry at 1366×768, 1580×900, 1100×780 and 1920×1080 for all four modes");
  }finally{await browser.close()}
 })().catch(e=>{console.error(e);process.exit(1)});
