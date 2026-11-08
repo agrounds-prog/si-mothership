@@ -195,3 +195,23 @@
  #teacher #activityControllerPanel.si-mp-match-live button,
  #teacher #activityControllerPanel.si-mp-pixel-live button{transition:none!important;}
 }
+
+/* Emblems are actual uploaded PNG artwork, not flattened concept screenshots. */
+#teacher #activitiesPanel.si-mp-pixel-studio .mode-title h2:before {
+ content:"";display:inline-block;width:clamp(40px,4.5vw,64px);
+ height:clamp(32px,3.8vw,51px);vertical-align:middle;margin-right:13px;
+ background:url('/mp-teacher-art/shared/branding/pixel_reveal_emblem.png') center/contain no-repeat;
+ filter:drop-shadow(0 0 13px #29dfff7b);
+}
+#teacher #activityControllerPanel.si-mp-pixel-live>.activity-controller-head h2:before {
+ content:"";display:inline-block;width:clamp(35px,4.3vw,57px);
+ height:clamp(29px,3.7vw,49px);vertical-align:middle;margin-right:12px;
+ background:url('/mp-teacher-art/shared/branding/pixel_reveal_emblem.png') center/contain no-repeat;
+ filter:drop-shadow(0 0 12px #29dfff7b);
+}
+#teacher #activityControllerPanel.si-mp-match-live>.activity-controller-head h2:before {
+ content:"";display:inline-block;width:clamp(35px,4.3vw,57px);
+ height:clamp(29px,3.7vw,49px);vertical-align:middle;margin-right:12px;
+ background:url('/mp-teacher-art/shared/branding/match_emblem.png') center/contain no-repeat;
+ filter:drop-shadow(0 0 12px #29dfff7b);
+}
