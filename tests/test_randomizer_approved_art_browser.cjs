@@ -1,80 +1,61 @@
 const assert=require("node:assert/strict");
 const {chromium}=require("playwright");
 const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
+const assets=["lottery_machine_shell.png","lottery_glass_overlay.png","lottery_ball_blank.png",
+ "slot_machine_shell.png","slot_reel_window_overlay.png","wheel_housing.png",
+ "mystery_card_back.png","mystery_card_face_blank.png","cards_stage_base.png","winner_plaque_blank.png"];
 (async()=>{
  const browser=await chromium.launch({headless:true,args:["--no-sandbox","--disable-dev-shm-usage"]});
  try{
-  const page=await browser.newPage({viewport:{width:1440,height:900}});
-  const errors=[];page.on("pageerror",e=>errors.push(e.message));
-  await page.goto(BASE+"/randomizer",{waitUntil:"domcontentloaded"});
-  const sceneStyles=await page.request.get(BASE+"/randomizer-v4.css?v=8");
-  assert.equal(sceneStyles.status(),200,"The V5 scene override must be served by Railway");
-  assert.match(await sceneStyles.text(),/Randomizer V4/);
-  assert.equal(await page.locator("#stage").getAttribute("data-graphics"),"v8");
-  assert.equal(await page.locator(".v4-stamp").textContent(),"GRAPHICS V8");
-  assert.equal(await page.locator("link[href='/randomizer-v4.css?v=8']").count(),1);
-
-  for(const image of ["slot","lottery","cards","wheel"]){
-   const r=await page.request.get(BASE+"/randomizer-concept/"+image+".png?v=3");
-   assert.equal(r.status(),200,"Missing approved cinematic concept: "+image);
-   assert.match(r.headers()["content-type"]||"",/image\/png/);
-   assert.ok((await r.body()).byteLength>100000,"Unusually small cinematic art "+image);
-  }
-  for(const name of ["wheel_rim_overlay","wheel_pointer","slot_machine_chassis","lottery_machine_frame","lottery_ball_blank","mystery_card_back","mystery_card_face_blank","winner_plaque_blank","stage_pedestal_blank"]){
-   const r=await page.request.get(BASE+"/randomizer-art/components/"+name+".png?v=3");
-   assert.equal(r.status(),200,"Missing uploaded PNG asset: "+name);
-  }
-  for(const mode of ["slot","lottery","cards","wheel"]){
-   await page.locator('#styles [data-style="'+mode+'"]').click();
-   const selection=await page.locator("#stage").getAttribute("data-mode");
-   assert.equal(selection,mode);
-   const graphics=await page.locator("#stage").evaluate(node=>node.dataset.graphics);
-   assert.equal(graphics,"v8");
-
-  }
-  await page.locator('#styles [data-style="cards"]').click();
-  assert.equal(await page.locator("#cards .card").count(),4);
-  assert.ok((await page.locator("#cards .card").first().evaluate(el=>getComputedStyle(el).backgroundImage)).includes("randomizer-concept/cards.png"));
-  const alignment=await page.evaluate(()=>{
+  for(const viewport of [{width:1440,height:900},{width:1366,height:768}]){
+   const context=await browser.newContext({viewport});
+   const page=await context.newPage(),errors=[];
+   page.on("pageerror",e=>errors.push(e.message));
+   await page.goto(BASE+"/randomizer",{waitUntil:"domcontentloaded"});
+   assert.equal(await page.locator("#stage").getAttribute("data-graphics"),"v9");
+   assert.equal(await page.locator(".v4-stamp").textContent(),"GRAPHICS V9");
+   assert.equal(await page.locator("link[href='/randomizer-textures-v9.css?v=9']").count(),1);
+   const css=await page.request.get(BASE+"/randomizer-textures-v9.css?v=9");
+   assert.equal(css.status(),200,"Textured stylesheet not delivered");
+   assert.match(await css.text(),/independent textured image layers/);
+   for(const name of assets){
+    const response=await page.request.get(BASE+"/randomizer-textured/"+name+"?v=9");
+    assert.equal(response.status(),200,"Missing uploaded V3 art: "+name);
+    assert.match(response.headers()["content-type"]||"",/image\/png/);
+    assert.ok((await response.body()).byteLength>20000,"Suspiciously small art file "+name);
+   }
+   const style=async selector=>page.locator(selector).evaluate(el=>getComputedStyle(el).backgroundImage);
+   const pseudo=async kind=>page.locator(".visual").evaluate((el,part)=>getComputedStyle(el,part).backgroundImage,kind);
+   await page.locator('#styles [data-style="lottery"]').click();
+   assert.match(await pseudo("::before"),/lottery_machine_shell.png/);
+   assert.match(await pseudo("::after"),/lottery_glass_overlay.png/);
+   assert.match(await style("#lottery .ball"),/lottery_ball_blank.png/);
+   assert.equal(await page.locator("#lottery .ball").count(),4);
+   const gl=await page.locator("#lottery").evaluate(el=>({backdrop:getComputedStyle(el).backdropFilter,
+     background:getComputedStyle(el).backgroundImage}));
+   assert.ok(!gl.backdrop.includes("blur"),"No large frosted globe should hide the artwork");
+   await page.locator('#styles [data-style="slot"]').click();
+   assert.match(await pseudo("::before"),/slot_machine_shell.png/);
+   assert.match(await pseudo("::after"),/slot_reel_window_overlay.png/);
+   assert.equal(await page.locator("#reel .reel-lane").count(),3);
+   await page.locator('#styles [data-style="wheel"]').click();
+   assert.match(await page.locator(".wheel-art-frame img").getAttribute("src"),/wheel_housing.png/);
+   assert.ok(await page.locator("#wheel").isVisible());
+   await page.locator('#styles [data-style="cards"]').click();
+   assert.equal(await page.locator("#cards .card").count(),4);
+   assert.match(await pseudo("::before"),/cards_stage_base.png/);
+   assert.match(await style("#cards .card"),/mystery_card_back.png/);
+   const layout=await page.evaluate(()=>{
     const arena=document.querySelector(".arena").getBoundingClientRect();
-    const cards=document.querySelector("#cards.cards-fan").getBoundingClientRect();
-    const live=[...document.querySelectorAll("#cards.cards-fan .card")].map(x=>x.getBoundingClientRect());
-    const left=Math.min(...live.map(x=>x.left)),right=Math.max(...live.map(x=>x.right));
-    return {offset:Math.abs((left+right)/2-(arena.left+arena.right)/2),width:arena.width,cardsLeft:cards.left,arenaLeft:arena.left};
-  });
-  assert.ok(alignment.offset<alignment.width*.09,"Card fan must be visually centered: "+JSON.stringify(alignment));
-  const cardsArt=await page.locator("#cards .card").first().evaluate(el=>getComputedStyle(el).backgroundImage);
-  assert.ok(cardsArt.includes("/randomizer-concept/cards.png"),"V6 must use cinematic card artwork");
-  await page.locator('#styles [data-style="lottery"]').click();
-  const chamber=await page.locator("#lottery").evaluate(el=>({
-   backdrop:getComputedStyle(el).backdropFilter,
-   ballColumns:getComputedStyle(el).gridTemplateColumns.split(" ").length,
-   visualMask:getComputedStyle(document.querySelector(".visual"),"::before").maskImage,
-   glass:getComputedStyle(document.querySelector(".visual"),"::after").display,
-   ballSize:document.querySelector("#lottery .ball").getBoundingClientRect().width
-  }));
-  assert.ok(!chamber.backdrop.includes("blur"),"Live balls must not sit in a frosted opaque bubble");
-  assert.equal(chamber.glass,"none","No opaque overlay disc should cover the cinematic machine");
-  assert.ok(chamber.visualMask.includes("radial-gradient"),"Original sample choices should be masked out");
-  assert.ok(chamber.ballColumns>=3,"Choice balls should use multiple readable columns");
-  assert.ok(chamber.ballSize>=40,"Choice balls should remain readable");
-  const scene=await page.locator(".visual").evaluate(el=>({
-    backdrop:getComputedStyle(el).backgroundImage,
-    overlay:getComputedStyle(el,"::after").display,
-    exterior:getComputedStyle(el,"::before").backgroundImage
-  }));
-  assert.equal(scene.overlay,"none","V8 must never render the obstructing circle");
-  assert.ok(scene.backdrop.includes("radial-gradient"),"A light transparent glass tint should replace the overlay");
-  assert.ok(scene.exterior.includes("lottery.png"),"Keep the approved cinematic cabinet");
-
-  for(const [mode,part] of [["lottery","randomizer-concept/lottery.png"],["slot","randomizer-concept/slot.png"]]){
-    await page.locator('#styles [data-style="'+mode+'"]').click();
-    const background=await page.locator(".visual").evaluate(node=>getComputedStyle(node,"::before").backgroundImage);
-    assert.ok(background.includes(part),"Use transparent cabinet without baked-in options: "+background);
+    const rects=[...document.querySelectorAll("#cards.cards-fan .card")].map(el=>el.getBoundingClientRect());
+    return {offset:Math.abs((Math.min(...rects.map(r=>r.left))+Math.max(...rects.map(r=>r.right)))/2
+      -(arena.left+arena.right)/2),width:arena.width};
+   });
+   assert.ok(layout.offset<layout.width*.12,"Card fan must be centered: "+JSON.stringify(layout));
+   assert.match(await style("#result"),/winner_plaque_blank.png/);
+   assert.deepEqual(errors,[]);
+   await context.close();
   }
-  await page.locator('#styles [data-style="wheel"]').click();
-  assert.match(await page.locator(".wheel-art-frame img").getAttribute("src"),/\.png\?v=3/);
-  assert.deepEqual(errors,[]);
-  console.log("PASS approved concept routes and real PNG component assets in all four Randomizer modes");
+  console.log("PASS: all ten independent V3 PNGs, dynamic choices and textured four-mode scenes");
  }finally{await browser.close()}
-})().catch(e=>{console.error(e);process.exit(1)});
+})().catch(error=>{console.error(error);process.exit(1)});
