@@ -1,0 +1,70 @@
+name: SI+ Teacher Navigation Art Smoke Test
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server.py'
+      - 'si-plus-teacher-v1.css'
+      - 'si-plus-teacher-v1.js'
+      - 'assets/si-plus-teacher-v1/**'
+      - '.github/workflows/si-plus-teacher-art.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  assets:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Compile server and check teacher visual script
+        run: |
+          python -m py_compile server.py
+          node --check si-plus-teacher-v1.js
+      - name: Start isolated app
+        run: |
+          pip install -r requirements.txt
+          mkdir -p /tmp/si-teacher-art-test
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/si-teacher-art-test PORT=8877 python server.py >/tmp/si-art-server.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8877/api/health > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/si-art-server.log
+          exit 1
+      - name: Verify all four layouts, transparent controls and live style injection
+        run: |
+          python - <<'PY'
+          import urllib.request
+          base='http://127.0.0.1:8877'
+          names=[
+            '/si-plus-teacher-v1.css','/si-plus-teacher-v1.js',
+            '/si-plus-teacher-art/backgrounds/si_home_primary_1600x900.webp',
+            '/si-plus-teacher-art/backgrounds/presentation_library_primary_1600x900.webp',
+            '/si-plus-teacher-art/backgrounds/presentation_builder_primary_1600x900.webp',
+            '/si-plus-teacher-art/backgrounds/ready_to_start_primary_1600x900.webp',
+            '/si-plus-teacher-art/panels/selected_slide.png',
+            '/si-plus-teacher-art/buttons/primary_cyan.png',
+            '/si-plus-teacher-art/buttons/danger_red.png',
+            '/si-plus-teacher-art/branding/si_plus_emblem.svg',
+          ]
+          for path in names:
+            with urllib.request.urlopen(base+path,timeout=6) as r:
+              data=r.read()
+              assert r.status==200 and len(data)>50,(path,r.status,len(data))
+              print('PASS',path,len(data))
+          with urllib.request.urlopen(base+'/',timeout=6) as r:
+            html=r.read().decode()
+          assert 'si-plus-teacher-v1.css?v=1' in html
+          assert 'si-plus-teacher-v1.js?v=1' in html
+          try:
+            urllib.request.urlopen(base+'/si-plus-teacher-art/icons/../../server.py',timeout=6)
+            raise AssertionError('Asset traversal must not be allowed')
+          except urllib.error.HTTPError as e:
+            assert e.code in (400,403,404)
+          print('PASS SI+ presentation asset delivery and teacher page injection')
+          PY
+      - name: Show server log on failure
+        if: failure()
+        run: tail -60 /tmp/si-art-server.log || true
