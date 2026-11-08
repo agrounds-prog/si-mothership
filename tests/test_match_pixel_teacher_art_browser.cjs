@@ -23,7 +23,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
    assert.ok(await page.locator('#activitiesPanel .mcb-shell').count(),'MATCH creator missing');
    await page.screenshot({path:'/tmp/mp-v1-browser/'+viewport.width+'-match-creator.png',animations:'disabled'});
    console.log('PASS',viewport.width,'MATCH creator with uploaded artwork');
-   await page.evaluate(()=>openApp('pixel-reveal'));
+   await page.evaluate(()=>openApp('pixel'));
    await page.waitForFunction(()=>document.getElementById('activitiesPanel')?.classList.contains('si-mp-pixel-studio'),{timeout:10000});
    const pixelBg=await match.evaluate(x=>getComputedStyle(x).backgroundImage);
    assert.ok(pixelBg.includes('pixel_reveal_studio_background_1600x900.png'),pixelBg);
