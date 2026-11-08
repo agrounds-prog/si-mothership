@@ -1,0 +1,100 @@
+/* SI+ Teacher Navigation V1 — real artwork behind functional DOM.
+   Scopes enabled by si-plus-teacher-v1.js; no other activity is affected. */
+#teacher .si-art-home, #teacher .si-art-library, #teacher .si-art-builder, #teacher .si-art-ready {
+ --si-v1-cyan:#62e8f9; --si-v1-gold:#ffdf94; --si-v1-green:#6ef5d1;
+ color:#f1fbff;
+ isolation:isolate;
+}
+#teacher .si-art-home, #teacher .si-art-library {
+ background-color:#051526!important;
+ background-size:cover!important;
+ background-position:center center!important;
+ background-repeat:no-repeat!important;
+ border-color:#4fc9ec!important;
+ box-shadow:inset 0 0 0 1px #a3e9ff24,0 16px 44px #000a!important;
+}
+#teacher .si-art-home {
+ background-image:linear-gradient(130deg,#021126d9,#051b33bb),url("/si-plus-teacher-art/backgrounds/si_home_primary_1600x900.webp")!important;
+}
+#teacher .si-art-library {
+ background-image:linear-gradient(135deg,#031126e0,#07192fd4),url("/si-plus-teacher-art/backgrounds/presentation_library_primary_1600x900.webp")!important;
+}
+#teacher .si-art-home .real-app-card,
+#teacher .si-art-library .real-app-card,
+#teacher .si-art-library .si-art-deck {
+ background:linear-gradient(135deg,#0c2b46eb,#07182df5)!important;
+ border:1px solid #4395b9!important;
+ border-radius:14px!important;
+ box-shadow:inset 0 1px #b5f4ff40,0 9px 24px #0007!important;
+}
+#teacher .si-art-home .real-app-card {
+ min-height:200px;
+ padding:clamp(15px,2vw,24px)!important;
+}
+#teacher .si-art-home button, #teacher .si-art-library button {
+ border-radius:10px!important;min-height:39px;
+ font-weight:800!important;
+}
+#teacher .si-art-home button:focus-visible, #teacher .si-art-library button:focus-visible,
+#teacher .si-art-builder button:focus-visible, #teacher .si-art-ready button:focus-visible {
+ outline:3px solid #ffde8c!important;outline-offset:2px!important;
+}
+#teacher .si-art-home button:hover:not(:disabled), #teacher .si-art-library button:hover:not(:disabled),
+#teacher .si-art-builder button:hover:not(:disabled), #teacher .si-art-ready button:hover:not(:disabled) {
+ filter:brightness(1.11);
+}
+#teacher .si-art-home .si-art-create, #teacher .si-art-library .si-art-create {
+ background:#095a7d url("/si-plus-teacher-art/buttons/primary_cyan.png") center/100% 100% no-repeat!important;
+ border:1px solid #77eefa!important;color:#fff!important;
+ box-shadow:0 0 15px #05cde34c!important;
+}
+#teacher .si-art-home .si-art-load, #teacher .si-art-library .si-art-load {
+ background:#263878 url("/si-plus-teacher-art/buttons/library_purple.png") center/100% 100% no-repeat!important;
+ border:1px solid #b9abfb!important;color:#fff!important;
+}
+#teacher .si-art-home .si-art-preview, #teacher .si-art-library .si-art-preview {
+ background:#0b5d60 url("/si-plus-teacher-art/buttons/preview_teal.png") center/100% 100% no-repeat!important;
+ border:1px solid #79ead9!important;color:#fff!important;
+}
+#teacher .si-art-library .si-art-deck {padding:clamp(12px,1.2vw,18px)!important;margin-block:9px!important}
+#teacher .si-art-library .si-art-deck button{min-width:70px}
+#teacher .si-art-builder {
+ background-image:linear-gradient(135deg,#03142ade,#071d35e9),url("/si-plus-teacher-art/backgrounds/presentation_builder_primary_1600x900.webp")!important;
+ background-size:cover!important;background-position:center top!important;
+ border-color:#55c6e5!important;
+}
+#teacher .si-art-builder .builder-top {
+ background:linear-gradient(105deg,#0c3957ef,#06192cf5),url("/si-plus-teacher-art/panels/header_bar.png") center/100% 100% no-repeat!important;
+ border:1px solid #7bdef1!important;
+ box-shadow:0 8px 24px #0008,inset 0 1px #c4f7ff59!important;
+}
+#teacher .si-art-builder .builder-layout {gap:clamp(9px,1vw,16px)!important;min-width:0}
+#teacher .si-art-builder .builder-box {
+ background:linear-gradient(150deg,#102b44f2,#061a30f4)!important;
+ border:1px solid #479abd!important;border-radius:14px!important;
+ box-shadow:inset 0 1px #b1f0ff4b,0 8px 20px #0007!important;
+}
+#teacher .si-art-builder .slide-nav-item.active {
+ background:#0e536a url("/si-plus-teacher-art/panels/selected_slide.png") center/100% 100% no-repeat!important;
+ border:1px solid #79efff!important;box-shadow:0 0 14px #50e5f56d!important;
+}
+#teacher .si-art-builder .builder-box h3 {color:#f5fbff!important;text-shadow:0 1px 10px #0a1826}
+#teacher .si-art-builder .builder-top-actions button,
+#teacher .si-art-builder .add-slide-grid button {min-height:40px;border-radius:9px!important;font-weight:850!important}
+#teacher .si-art-builder #siPlusPreviewBtn {background:#0c655f url("/si-plus-teacher-art/buttons/preview_teal.png") center/100% 100% no-repeat!important;color:#fff!important}
+#teacher .si-art-builder .si-art-save {background:#08614e url("/si-plus-teacher-art/buttons/save_green.png") center/100% 100% no-repeat!important;color:#fff!important}
+#teacher .si-art-builder .si-plus-batch-import {border-color:#5bd7e6!important;box-shadow:inset 0 1px #b9ffff30!important}
+#teacher .si-art-ready {
+ background-image:linear-gradient(140deg,#06172de8,#092540d7),url("/si-plus-teacher-art/backgrounds/ready_to_start_primary_1600x900.webp")!important;
+ background-size:cover!important;background-position:center!important;
+ border:1px solid #57cbe9!important;
+}
+#teacher .si-art-ready .si-art-start {background:#076e90 url("/si-plus-teacher-art/buttons/primary_cyan.png") center/100% 100% no-repeat!important;border-color:#83eaff!important;color:#fff!important;font-weight:950!important}
+#teacher .si-art-ready .si-art-danger {background:#502037 url("/si-plus-teacher-art/buttons/danger_red.png") center/100% 100% no-repeat!important;border-color:#fd7e9c!important;color:#fff!important}
+@media(max-width:900px) {
+ #teacher .si-art-home,#teacher .si-art-library,#teacher .si-art-builder,#teacher .si-art-ready {background-position:50% 0!important}
+ #teacher .si-art-builder .builder-top-actions {flex-wrap:wrap!important;gap:7px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #teacher .si-art-home *,#teacher .si-art-library *,#teacher .si-art-builder *,#teacher .si-art-ready * {transition:none!important}
+}
