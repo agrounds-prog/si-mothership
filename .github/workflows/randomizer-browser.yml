@@ -5,6 +5,7 @@ on:
     paths:
       - 'randomizer.html'
       - 'randomizer-textures-v9.css'
+      - 'randomizer-teacher-deck.css'
       - 'randomizer-v4.css'
       - 'assets/randomizer-v3/**'
       - 'dashboard-polish.js'
