@@ -14,10 +14,10 @@
  box-shadow:inset 0 0 0 1px #a3e9ff24,0 16px 44px #000a!important;
 }
 #teacher #activitiesPanel.si-art-home {
- background-image:linear-gradient(130deg,#021126d9,#051b33bb),url("/si-plus-teacher-art/backgrounds/si_home_primary_1600x900.webp")!important;
+ background-image:linear-gradient(130deg,#0211269c,#051b3385),url("/si-plus-teacher-art/backgrounds/si_home_primary_1600x900.webp")!important;
 }
 #teacher #activitiesPanel.si-art-library {
- background-image:linear-gradient(135deg,#031126e0,#07192fd4),url("/si-plus-teacher-art/backgrounds/presentation_library_primary_1600x900.webp")!important;
+ background-image:linear-gradient(135deg,#031126a6,#07192f9c),url("/si-plus-teacher-art/backgrounds/presentation_library_primary_1600x900.webp")!important;
 }
 #teacher #activitiesPanel.si-art-home .real-app-card,
 #teacher #activitiesPanel.si-art-library .real-app-card,
@@ -59,7 +59,7 @@
 #teacher #activitiesPanel.si-art-library .si-art-deck {padding:clamp(12px,1.2vw,18px)!important;margin-block:9px!important}
 #teacher #activitiesPanel.si-art-library .si-art-deck button{min-width:70px}
 #teacher #presentationBuilderPanel.si-art-builder {
- background-image:linear-gradient(135deg,#03142ade,#071d35e9),url("/si-plus-teacher-art/backgrounds/presentation_builder_primary_1600x900.webp")!important;
+ background-image:linear-gradient(135deg,#03142a9e,#071d35b7),url("/si-plus-teacher-art/backgrounds/presentation_builder_primary_1600x900.webp")!important;
  background-size:cover!important;background-position:center top!important;
  border-color:#55c6e5!important;
 }
@@ -85,7 +85,7 @@
 #teacher #presentationBuilderPanel.si-art-builder .si-art-save {background:#08614e url("/si-plus-teacher-art/buttons/save_green.png") center/100% 100% no-repeat!important;color:#fff!important}
 #teacher #presentationBuilderPanel.si-art-builder .si-plus-batch-import {border-color:#5bd7e6!important;box-shadow:inset 0 1px #b9ffff30!important}
 #teacher #activityControllerPanel.si-art-ready {
- background-image:linear-gradient(140deg,#06172de8,#092540d7),url("/si-plus-teacher-art/backgrounds/ready_to_start_primary_1600x900.webp")!important;
+ background-image:linear-gradient(140deg,#06172da8,#092540ac),url("/si-plus-teacher-art/backgrounds/ready_to_start_primary_1600x900.webp")!important;
  background-size:cover!important;background-position:center!important;
  border:1px solid #57cbe9!important;
 }
@@ -107,7 +107,7 @@
  column-gap:clamp(15px,2vw,28px)!important;
  align-content:center!important;
  min-height:245px!important;
- background:linear-gradient(115deg,#0b2645e8,#082339d9),url("/si-plus-teacher-art/panels/command_panel.png") center/100% 100% no-repeat!important;
+ background:linear-gradient(115deg,#0b2645bb,#082339d0),url("/si-plus-teacher-art/panels/command_panel.png") center/100% 100% no-repeat!important;
 }
 #teacher #activitiesPanel.si-art-home #activityGrid .real-app-card>.act-icon{
  grid-column:1!important;grid-row:1/span 5!important;
@@ -145,7 +145,7 @@
  display:grid!important;gap:12px!important
 }
 #teacher #activitiesPanel.si-art-library .saved-deck{
- background:linear-gradient(120deg,#0c2e4de8,#071b32ed),url("/si-plus-teacher-art/panels/library_row.png") center/100% 100% no-repeat!important;
+ background:linear-gradient(120deg,#0c2e4dc6,#071b32d8),url("/si-plus-teacher-art/panels/library_row.png") center/100% 100% no-repeat!important;
  border:1px solid #45a9cf!important;border-radius:13px!important;
  padding:clamp(12px,1.5vw,19px)!important;
  box-shadow:inset 0 1px #c2f5ff3a,0 7px 17px #0008!important;
