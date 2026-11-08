@@ -189,3 +189,235 @@
  #teacher #activitiesPanel.si-art-library .saved-deck{flex-direction:column!important;align-items:stretch!important}
  #teacher #activitiesPanel.si-art-library .saved-deck-actions{justify-content:flex-start!important}
 }
+
+/* V2: image-first correction. The previous translucent overlays were nearly
+   opaque and covered the GitHub artwork. Use the uploaded scene as the real
+   panel skin, and confine readable overlays to the functional controls. */
+#teacher #activitiesPanel.si-art-home:not(.hidden),
+#teacher #activitiesPanel.si-art-library:not(.hidden){
+  width:min(1240px,calc(100vw - 24px))!important;
+  max-width:1240px!important;
+  min-height:min(720px,calc(100dvh - 26px))!important;
+  max-height:calc(100dvh - 22px)!important;
+  padding:clamp(14px,2.1vw,26px)!important;
+  background-color:#06172c!important;
+  background-size:100% 100%!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+  border:0!important;
+  box-shadow:0 0 0 150vmax #020816bf,0 22px 70px #000d!important;
+}
+#teacher #activitiesPanel.si-art-home:not(.hidden){
+  background-image:url("/si-plus-teacher-art/backgrounds/si_home_primary_1600x900.webp")!important;
+}
+#teacher #activitiesPanel.si-art-library:not(.hidden){
+  background-image:url("/si-plus-teacher-art/backgrounds/presentation_library_primary_1600x900.webp")!important;
+}
+#teacher #activitiesPanel.si-art-home .mode-title,
+#teacher #activitiesPanel.si-art-library .mode-title{
+  position:relative!important;z-index:1;
+  margin:0!important;padding:clamp(9px,1.3vw,17px) clamp(12px,2vw,25px)!important;
+  border:1px solid #57d4f69e!important;border-radius:12px!important;
+  background:linear-gradient(90deg,#061a32ee,#062340ac 65%,#05192dbb)!important;
+  box-shadow:inset 0 1px #d7faff50,0 7px 25px #0007!important;
+}
+#teacher #activitiesPanel.si-art-home .mode-title h2,
+#teacher #activitiesPanel.si-art-library .mode-title h2{
+  color:#f4faff!important;font:950 clamp(22px,2.2vw,34px)/1.1 system-ui!important;
+  text-shadow:0 3px 12px #000b,0 0 16px #4de4ff6a!important;
+}
+#teacher #activitiesPanel.si-art-home .mode-title p,
+#teacher #activitiesPanel.si-art-library .mode-title p{
+  color:#afddf0!important;line-height:1.45!important;
+}
+#teacher #activitiesPanel.si-art-home #activityGrid,
+#teacher #activitiesPanel.si-art-library #savedPresentationPicker{
+  z-index:1!important;position:relative!important;
+  width:100%!important;min-width:0!important;
+}
+/* The home module now occupies the command console, rather than leaving a
+   generic dark rectangle covering all the artwork. */
+#teacher #activitiesPanel.si-art-home #activityGrid{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  flex:1 1 auto!important;
+  margin:auto!important;padding:clamp(15px,2vw,28px)!important;
+}
+#teacher #activitiesPanel.si-art-home #activityGrid .real-app-card{
+  width:100%!important;max-width:1030px!important;
+  min-height:clamp(310px,48dvh,445px)!important;
+  grid-template-columns:minmax(125px,210px) minmax(0,1fr)!important;
+  align-items:center!important;
+  padding:clamp(20px,2.7vw,38px)!important;
+  border:1px solid #4ae2f7!important;border-radius:19px!important;
+  background:linear-gradient(116deg,#051934c4,#092e4c9f 68%,#05162dbb)!important;
+  box-shadow:inset 0 0 0 2px #64c5e638,inset 0 12px 45px #1aaacc1d,0 20px 42px #000b!important;
+}
+#teacher #activitiesPanel.si-art-home #activityGrid .real-app-card>.act-icon{
+  width:clamp(120px,15vw,196px)!important;
+  height:clamp(120px,15vw,196px)!important;
+  grid-column:1!important;grid-row:1/span 5!important;
+  background-image:url("/si-plus-teacher-art/branding/si_plus_emblem_512.png")!important;
+  background-size:contain!important;
+  filter:drop-shadow(0 0 22px #5c9ffb60)!important;
+}
+#teacher #activitiesPanel.si-art-home #activityGrid .real-app-card h3{
+  font-size:clamp(23px,2.8vw,38px)!important;
+  line-height:1.15!important;
+  margin:0 0 6px!important;
+}
+#teacher #activitiesPanel.si-art-home #activityGrid .real-app-card p{
+  font-size:clamp(13px,1.2vw,16px)!important;line-height:1.55!important;
+  color:#c2e4f5!important;
+}
+#teacher #activitiesPanel.si-art-home #activityGrid .app-status,
+#teacher #activitiesPanel.si-art-library .eyebrow{
+  letter-spacing:.13em!important;color:#80e9ff!important;font-weight:900!important;
+}
+#teacher #activitiesPanel.si-art-home #activityGrid .real-app-actions{
+  display:flex!important;flex-wrap:wrap!important;gap:10px!important;align-items:stretch!important;
+  margin-top:clamp(13px,2vw,27px)!important;
+}
+#teacher #activitiesPanel.si-art-home #activityGrid .real-app-actions button{
+  flex:1 1 180px!important;min-height:clamp(59px,7vh,78px)!important;
+  padding:12px 15px!important;
+  font:900 clamp(13px,1.3vw,17px)/1.25 system-ui!important;
+  text-shadow:0 2px 4px #001322!important;
+  border-width:2px!important;border-radius:13px!important;
+  background-size:100% 100%!important;
+  box-shadow:0 6px 17px #0009,inset 0 2px #ffffff55!important;
+}
+/* Icon badges come from the actual uploaded UI asset set, not emoji. */
+#teacher #activitiesPanel.si-art-home #siNewPresentation:before{
+  content:""!important;display:inline-block!important;width:27px!important;height:27px!important;
+  vertical-align:middle!important;margin-right:9px!important;
+  background:url("/si-plus-teacher-art/icons/new_presentation.svg") center/contain no-repeat!important;
+}
+#teacher #activitiesPanel.si-art-home #siLoadPresentation:before{
+  content:""!important;display:inline-block!important;width:27px!important;height:27px!important;
+  vertical-align:middle!important;margin-right:9px!important;
+  background:url("/si-plus-teacher-art/icons/library.svg") center/contain no-repeat!important;
+}
+#teacher #activitiesPanel.si-art-library #savedPresentationPicker{
+  margin-top:clamp(12px,2.2vw,25px)!important;
+  padding:clamp(14px,2vw,26px)!important;
+  background:linear-gradient(145deg,#061d37b9,#06152bd0)!important;
+  border:1px solid #57d6eea6!important;
+  border-radius:17px!important;
+  box-shadow:inset 0 0 0 1px #b0ffff20,0 18px 38px #0008!important;
+}
+#teacher #activitiesPanel.si-art-library .saved-deck{
+  min-height:105px!important;
+  background:linear-gradient(100deg,#123b60c9,#071e38db)!important;
+  border:1px solid #5ecce9!important;
+  border-radius:15px!important;
+  padding:clamp(15px,1.7vw,23px)!important;
+  box-shadow:inset 0 0 0 1px #63c6f127,0 8px 18px #0009!important;
+}
+#teacher #activitiesPanel.si-art-library .saved-deck>div:first-child{
+  padding-left:65px!important;min-width:0!important;position:relative!important;
+}
+#teacher #activitiesPanel.si-art-library .saved-deck>div:first-child:before{
+  content:""!important;position:absolute!important;left:0;top:50%;transform:translateY(-50%)!important;
+  width:51px!important;height:51px!important;
+  background:url("/si-plus-teacher-art/icons/presentation_96.png") center/contain no-repeat!important;
+}
+#teacher #activitiesPanel.si-art-library .saved-deck-actions button{
+  min-height:44px!important;padding:9px 15px!important;
+  font:850 13px system-ui!important;white-space:nowrap!important;
+  background-size:100% 100%!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder:not(.hidden){
+  width:min(1530px,calc(100vw - 22px))!important;max-width:1530px!important;
+  max-height:calc(100dvh - 22px)!important;
+  padding:clamp(12px,1.5vw,22px)!important;
+  background-image:url("/si-plus-teacher-art/backgrounds/presentation_builder_primary_1600x900.webp")!important;
+  background-size:100% 100%!important;
+  background-position:center!important;
+  box-shadow:0 0 0 150vmax #020816c4,0 22px 70px #000d!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .builder-top{
+  background:linear-gradient(120deg,#061c37f1,#0c3958ee 65%,#06182de8)!important;
+  border:1px solid #5dd6f6!important;padding:clamp(12px,1.5vw,20px)!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .builder-top-actions{
+  gap:7px!important;display:flex!important;flex-wrap:wrap!important;align-items:center!important
+}
+#teacher #presentationBuilderPanel.si-art-builder .builder-top-actions button{
+  background-image:url("/si-plus-teacher-art/buttons/secondary_blue.png")!important;
+  background-size:100% 100%!important;min-height:44px!important;
+  color:#fff!important;border:1px solid #6cd8f4!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .builder-top-actions .save,
+#teacher #presentationBuilderPanel.si-art-builder .builder-top-actions .si-art-save{
+  background-image:url("/si-plus-teacher-art/buttons/save_green.png")!important;
+  border-color:#72e7c5!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .builder-layout{
+  display:grid!important;grid-template-columns:minmax(170px,220px) minmax(0,1fr) minmax(180px,245px)!important;
+  align-items:start!important;gap:clamp(9px,1.2vw,20px)!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .builder-box{
+  background:linear-gradient(140deg,#08233cea,#08182be8)!important;
+  border:1px solid #58bbdf!important;box-shadow:inset 0 1px #caf4ff50,0 11px 24px #0008!important;
+  border-radius:16px!important;padding:clamp(11px,1.2vw,19px)!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .slide-nav-item.active{
+  background-image:url("/si-plus-teacher-art/panels/selected_slide.png")!important;
+  background-size:100% 100%!important;
+  border:2px solid #65f0ff!important;
+  box-shadow:0 0 19px #3bd4f585!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .add-slide-grid button{
+  background-image:url("/si-plus-teacher-art/buttons/secondary_blue.png")!important;
+  background-size:100% 100%!important;border:1px solid #64c8ee!important;min-height:61px!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .si-plus-batch-import{
+  background:linear-gradient(145deg,#103954d9,#061b32ed)!important;
+  border:1px solid #60dce9!important;
+}
+#teacher #activityControllerPanel.si-art-ready:not(.hidden){
+  min-height:390px!important;
+  padding:clamp(20px,3vw,44px)!important;
+  background-image:url("/si-plus-teacher-art/backgrounds/ready_to_start_primary_1600x900.webp")!important;
+  background-size:100% 100%!important;
+  box-shadow:0 15px 40px #000a!important;
+}
+#teacher #activityControllerPanel.si-art-ready .activity-controller-head{
+  background:linear-gradient(95deg,#071e38e6,#0a2a49b6)!important;
+  padding:17px 20px!important;
+}
+#teacher #activityControllerPanel.si-art-ready .lobby-controller{
+  display:grid!important;grid-template-columns:2fr 1fr 1fr!important;gap:12px!important;
+  padding:clamp(12px,2vw,23px)!important;border:1px solid #3baccd!important;
+  border-radius:14px!important;background:#06192cbb!important;
+}
+#teacher #activityControllerPanel.si-art-ready #startActivityBtn{
+  background:#075c80 url("/si-plus-teacher-art/buttons/primary_cyan.png") center/100% 100% no-repeat!important;
+  min-height:64px!important;grid-column:auto!important;border:2px solid #7beaff!important;
+  font-size:clamp(16px,1.5vw,22px)!important;color:#fff!important;
+}
+#teacher #activityControllerPanel.si-art-ready #emergencyActivityBtn{
+  background:#5b1731 url("/si-plus-teacher-art/buttons/danger_red.png") center/100% 100% no-repeat!important;
+  border:1px solid #fb7b9c!important;grid-column:1!important;min-height:48px!important;
+}
+@media(max-width:1100px){
+ #teacher #presentationBuilderPanel.si-art-builder .builder-layout{
+   grid-template-columns:minmax(140px,185px) minmax(0,1fr) minmax(155px,200px)!important;
+ }
+}
+@media(max-width:800px){
+ #teacher #activitiesPanel.si-art-home:not(.hidden),#teacher #activitiesPanel.si-art-library:not(.hidden){
+  min-height:min(610px,calc(100dvh - 18px))!important;background-size:cover!important
+ }
+ #teacher #activitiesPanel.si-art-home #activityGrid .real-app-card{
+  grid-template-columns:1fr!important;min-height:0!important;text-align:center!important
+ }
+ #teacher #activitiesPanel.si-art-home #activityGrid .real-app-card>.act-icon{
+  width:96px!important;height:96px!important;grid-row:auto!important;grid-column:1!important
+ }
+ #teacher #activitiesPanel.si-art-home #activityGrid .real-app-card>:not(.act-icon){grid-column:1!important}
+ #teacher #activitiesPanel.si-art-home #activityGrid .real-app-actions{justify-content:center!important}
+ #teacher #presentationBuilderPanel.si-art-builder .builder-layout{grid-template-columns:1fr!important}
+ #teacher #activityControllerPanel.si-art-ready .lobby-controller{grid-template-columns:1fr 1fr!important}
+ #teacher #activityControllerPanel.si-art-ready #startActivityBtn{grid-column:1 / -1!important}
+}
