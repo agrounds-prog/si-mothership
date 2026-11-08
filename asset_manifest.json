@@ -1,215 +1,105 @@
 {
-  "name": "SI Mothership Randomizer Concept V2",
-  "version": "2.0",
-  "root_for_github": "SI_Mothership_Randomizer_Art_Pack/assets/",
-  "current_routes": "/randomizer-art/{category}/{filename}",
-  "modes": [
-    "wheel",
-    "slot",
-    "lottery",
-    "cards"
-  ],
-  "note": "Use assets for live rendering; references are concept images only. All choice text/winners must remain dynamic. New stage_pedestal_blank.svg needs allowlist entry in server.py.",
-  "files": [
+  "version": "v3-textured",
+  "assets": [
     {
-      "path": "assets/backgrounds/cards_bridge_bg.png",
-      "bytes": 2032740,
-      "sha256": "8918c5835766774615da97cd93981d15bee6c9d15b128a201b8c29ee4527b2de"
+      "path": "assets/randomizer-v3/lottery_machine_shell.png",
+      "source": "futuristic_cosmic_lottery_machine.png",
+      "dimensions": [
+        1122,
+        1402
+      ],
+      "bytes": 2311336,
+      "sha256": "d6d5ce9eace8f4f5e0e6ff788ef53d7f1512be7919f6f79962e2f13725bee9a1"
     },
     {
-      "path": "assets/backgrounds/cards_bridge_bg.svg",
-      "bytes": 24142,
-      "sha256": "352bbeceb2dfd09fe5109593246dd74202c0fff653a3f5653eef65d853380cbd"
+      "path": "assets/randomizer-v3/lottery_glass_overlay.png",
+      "source": "glowing_celestial_glass_lottery_sphere.png",
+      "dimensions": [
+        1122,
+        1402
+      ],
+      "bytes": 1199456,
+      "sha256": "ddeb2223879ba3ddb60a017ed6daee99fad554c99e72311091da870403c98db9"
     },
     {
-      "path": "assets/backgrounds/cards_bridge_bg.webp",
-      "bytes": 172060,
-      "sha256": "cac7a9461e40c3d144c6a0b5c2a209a10a66fc964892d685d1258849305311cc"
+      "path": "assets/randomizer-v3/lottery_ball_blank.png",
+      "source": "glowing_gold_and_blue_sci_fi_orb.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "bytes": 1545089,
+      "sha256": "ff9b01bb0cd6d343efc4add256e1de28ac1f7164076301df1b6190326bbc9360"
     },
     {
-      "path": "assets/backgrounds/lottery_bridge_bg.png",
-      "bytes": 2025555,
-      "sha256": "715036f2cb7be1508c201872899b9971e1bfb553e0d9ba5dcb027164faf60820"
+      "path": "assets/randomizer-v3/slot_machine_shell.png",
+      "source": "futuristic_blue_gold_neon_slot_cabinet.png",
+      "dimensions": [
+        1448,
+        1086
+      ],
+      "bytes": 1688962,
+      "sha256": "f33825eccc03cc0b3ecec130fbaf21878989bbd7d945945ab2e96be8b836eed0"
     },
     {
-      "path": "assets/backgrounds/lottery_bridge_bg.svg",
-      "bytes": 24142,
-      "sha256": "55c29e599ff7c53bfd031ba6b05526a2f8e5c830766d2932126c90d770c7a81a"
+      "path": "assets/randomizer-v3/slot_reel_window_overlay.png",
+      "source": "futuristic_gold_cyan_slot_frame.png",
+      "dimensions": [
+        1448,
+        1086
+      ],
+      "bytes": 1629553,
+      "sha256": "6e011599b233ffda995b27cb4d64c2d1f4d9e80eb2f74fafeed090e03071e948"
     },
     {
-      "path": "assets/backgrounds/lottery_bridge_bg.webp",
-      "bytes": 171080,
-      "sha256": "bd051a2e2725889803cd888d777c068f84f97e1016f03e40ab82da74ce072d7c"
+      "path": "assets/randomizer-v3/wheel_housing.png",
+      "source": "futuristic_galactic_prize_wheel_housing.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "bytes": 1389658,
+      "sha256": "069bf19f16504a4cc8d9cb6d51196ecdfccba98e866cb5a9c2f556d968a9bf9c"
     },
     {
-      "path": "assets/backgrounds/slot_bridge_bg.png",
-      "bytes": 2030265,
-      "sha256": "47528a7a9577df9eb22002d555cfa58fec4839f1a2a024033ab593701ea5bc2b"
+      "path": "assets/randomizer-v3/mystery_card_back.png",
+      "source": "ornate_cosmic_star_card_back.png",
+      "dimensions": [
+        1086,
+        1448
+      ],
+      "bytes": 2517213,
+      "sha256": "eb787d42bd04c25d0055eec5927d4eaa724d4acae1d0daab82ea028604ce4d43"
     },
     {
-      "path": "assets/backgrounds/slot_bridge_bg.svg",
-      "bytes": 24142,
-      "sha256": "0626534ef062fd61bd5aa7b5656088c430ceaf55a4030661d938d07c60400e61"
+      "path": "assets/randomizer-v3/mystery_card_face_blank.png",
+      "source": "ornate_galactic_gold_reveal_card.png",
+      "dimensions": [
+        1086,
+        1448
+      ],
+      "bytes": 1832801,
+      "sha256": "173f9d75c56658d62580e4fa59143072136924c05738e4acbbdf273e993bdeb0"
     },
     {
-      "path": "assets/backgrounds/slot_bridge_bg.webp",
-      "bytes": 172250,
-      "sha256": "c42268a729d93d61be70a362e5f30cdd830bf7205b7972f22bc92596588be273"
+      "path": "assets/randomizer-v3/cards_stage_base.png",
+      "source": "futuristic_mystery_card_hologram_stage.png",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "bytes": 1878948,
+      "sha256": "8fd5478a2b503e28e6d55fc815247395b32b7be60cfa509c01b9f6e679a4e3a7"
     },
     {
-      "path": "assets/backgrounds/wheel_bridge_bg.png",
-      "bytes": 2026583,
-      "sha256": "71c3902c5294cb72763303d0a3fd59f5a93f46777b88cf250ad419684f4488c0"
-    },
-    {
-      "path": "assets/backgrounds/wheel_bridge_bg.svg",
-      "bytes": 24142,
-      "sha256": "201e1564aceb5bc8b9efc0ee7a408403cee4de1d37deff9ccedaeebee3789090"
-    },
-    {
-      "path": "assets/backgrounds/wheel_bridge_bg.webp",
-      "bytes": 171176,
-      "sha256": "3a51d12441d65cf2e5ef2ed53a42fad3e6f48359cc31b4bbb09020379a0dde4f"
-    },
-    {
-      "path": "assets/components/lottery_ball_blank.png",
-      "bytes": 47494,
-      "sha256": "e4bea1131b826c111b11292bddfcabdfc1ff9f274478ce2690169f4f42a1c17e"
-    },
-    {
-      "path": "assets/components/lottery_ball_blank.svg",
-      "bytes": 1622,
-      "sha256": "408a50a169daea318629380af81c2dd517aab1bab8a788a0057d6b6afed594f0"
-    },
-    {
-      "path": "assets/components/lottery_machine_frame.png",
-      "bytes": 172968,
-      "sha256": "cbbf0eed9c6cd34542e0a1a8160ee491ffb5be94080602f7f82a87df260cfa1c"
-    },
-    {
-      "path": "assets/components/lottery_machine_frame.svg",
-      "bytes": 2760,
-      "sha256": "9906b95eb0d816b205862bb1811d704e8d11fab409b72113871cc6965ec2a569"
-    },
-    {
-      "path": "assets/components/mystery_card_back.png",
-      "bytes": 53406,
-      "sha256": "83a7d32cf2313e9d4b3491e53992b12fedc4506825f615b685ff93af54f22723"
-    },
-    {
-      "path": "assets/components/mystery_card_back.svg",
-      "bytes": 1994,
-      "sha256": "2680fcbac5f7c09948c5157ec8c3ba985fb4b7250a9d705492cfe048d0169a70"
-    },
-    {
-      "path": "assets/components/mystery_card_face_blank.png",
-      "bytes": 100356,
-      "sha256": "95f48d31dc3cec751582fdd31b98340122e0e1fd1f9f5a476cd4f2aeb68797c5"
-    },
-    {
-      "path": "assets/components/mystery_card_face_blank.svg",
-      "bytes": 1818,
-      "sha256": "039f2c28aca629b7c107dabd6c8d8e6e6643e8b808e73a0c62119fd731218a3b"
-    },
-    {
-      "path": "assets/components/randomizer_app_icon.png",
-      "bytes": 81332,
-      "sha256": "4a02951840a1269a43fa067491ebd55e37dd0c58f1ab84af2773e7c303d576af"
-    },
-    {
-      "path": "assets/components/randomizer_app_icon.svg",
-      "bytes": 1818,
-      "sha256": "be2a27cfd694a816d2e129649daf61073fbb820121cf64f949dd505e3fa09d40"
-    },
-    {
-      "path": "assets/components/slot_machine_chassis.png",
-      "bytes": 107467,
-      "sha256": "2e3736d411dcc382f6e104b65d16e10418b5261085c6bde761ed6cbcf54c21ae"
-    },
-    {
-      "path": "assets/components/slot_machine_chassis.svg",
-      "bytes": 3481,
-      "sha256": "03c0aa329daf6d4ee3eb693b2c6056baff2b54b61d6917336b3c4ecad3dd16b7"
-    },
-    {
-      "path": "assets/components/stage_pedestal_blank.png",
-      "bytes": 58773,
-      "sha256": "28bf87c2b6d0e9e644cd2ba8e3f928f248e5d807bdff1c399ce19956e456a295"
-    },
-    {
-      "path": "assets/components/stage_pedestal_blank.svg",
-      "bytes": 1822,
-      "sha256": "ef9444b0afb9453afdb874c1512473b4e61c8c1706d1063bd1340ff05cf2a16d"
-    },
-    {
-      "path": "assets/components/teacher_studio_panel.png",
-      "bytes": 12580,
-      "sha256": "276cd528c74651b4c0503ac5cf683a4e0411a542932ffefed6419b59256587bf"
-    },
-    {
-      "path": "assets/components/teacher_studio_panel.svg",
-      "bytes": 679,
-      "sha256": "8c8a6714211cf2d1978ccca3265d2ff114da80e05b900ecc24e99dda02bcf5fc"
-    },
-    {
-      "path": "assets/components/wheel_pointer.png",
-      "bytes": 13029,
-      "sha256": "071d2d3b816712bcac35852b2efec0fcc07442c37044fa9fd94ef9415664b871"
-    },
-    {
-      "path": "assets/components/wheel_pointer.svg",
-      "bytes": 1556,
-      "sha256": "ffa185ca271919c9fdde558af46d2e5559eb9c7b372da6f2ce1449037bd40394"
-    },
-    {
-      "path": "assets/components/wheel_rim_overlay.png",
-      "bytes": 238828,
-      "sha256": "2a0d2d8e18e954fc267b39bf5c577bccba544c72936cc699d90c89be5d9263e9"
-    },
-    {
-      "path": "assets/components/wheel_rim_overlay.svg",
-      "bytes": 5485,
-      "sha256": "6d2266645f40865f7ae8259fdeaf670233b425e72a75d1590d019dbb3776d7d0"
-    },
-    {
-      "path": "assets/components/winner_plaque_blank.png",
-      "bytes": 38734,
-      "sha256": "fa51acf310a5423a7db6ce9683d2319a0ae98eb501059b5478f620817b20b6f3"
-    },
-    {
-      "path": "assets/components/winner_plaque_blank.svg",
-      "bytes": 1661,
-      "sha256": "8e5d0069c0f911b98be5aed95db7f086283ebc634d410ccf998c20e164468cbe"
-    },
-    {
-      "path": "assets/mode-thumbnails/cards_mode_tile.webp",
-      "bytes": 110166,
-      "sha256": "14b6b4ac9fccc36a1a56c1d9ac38477c40515a300b25d85ddb70c9de143f4683"
-    },
-    {
-      "path": "assets/mode-thumbnails/lottery_mode_tile.webp",
-      "bytes": 92450,
-      "sha256": "94e10443cf5be056177bca0229ff93901c7524a502a418f1373bcb7c63aa67bd"
-    },
-    {
-      "path": "assets/mode-thumbnails/slot_mode_tile.webp",
-      "bytes": 83408,
-      "sha256": "acd667a5cb4309c6211d32b92a89a83fa9b34abea72ba758e0bea292870d8c2c"
-    },
-    {
-      "path": "assets/mode-thumbnails/wheel_mode_tile.webp",
-      "bytes": 95994,
-      "sha256": "dfd56e1b68c3f7565e5d6112723f6432e3c3a8745110ca0b3f1d6d600829da79"
-    },
-    {
-      "path": "assets/overlays/shared_display_hud.png",
-      "bytes": 10142,
-      "sha256": "dc021f3e2ec2e07baffe174f6533001afca43874ad2acb10495c5a7cc154d7cc"
-    },
-    {
-      "path": "assets/overlays/shared_display_hud.svg",
-      "bytes": 485,
-      "sha256": "abada9271c683700f5e8434e9d9a6560bb821527fdd3ac14e32d5af73c2f0bb9"
+      "path": "assets/randomizer-v3/winner_plaque_blank.png",
+      "source": "futuristic_blue_gold_winner_plaque.png",
+      "dimensions": [
+        2172,
+        724
+      ],
+      "bytes": 1781267,
+      "sha256": "cc68cce55ff6504da74c3cd8cc856b8f2ba499cb1982f9a65e15eb48d67a88c8"
     }
   ]
 }

@@ -1,42 +1,37 @@
-# SI Mothership Randomizer — Concept Art V2 (GitHub implementation pack)
+# SI Mothership Randomizer — Textured Art V3
 
-This package includes four approved **new 16:9 concept images**, plus implementation assets that have **no baked-in classroom choices or results**. The concept images are references only; they must not be used as entire user interfaces.
+## GitHub upload
+Upload the contents of `assets/randomizer-v3/` into the repository under exactly `assets/randomizer-v3/`, preserving the filenames and directory. The files are separate from current production assets and do **not** automatically change the app by uploading alone.
 
-## Upload to GitHub
+## Integration layers (back to front)
 
-1. Extract the ZIP.
-2. Open `agrounds-prog/si-mothership` on branch `main`.
-3. Upload the folder **`SI_Mothership_Randomizer_Art_Pack/assets/`** preserving the path. It is compatible with the app’s existing `/randomizer-art/{category}/{filename}` routes; overwrite the existing art files when prompted.
-4. Commit changes.
-5. Integrate/adjust CSS in `randomizer.html` only after assets are present; preserve JS selection and sync code.
-6. Confirm Railway deployment, verify URLs, and hard-refresh the app.
+### Cosmic Lottery
+1. `lottery_machine_shell.png` — detailed machine shell and glass chamber, behind choice balls. This artwork has glass fill and is **not a transparent cut-out through the chamber**; use the existing transparent center with live items on top and inspect legibility.
+2. Live randomized balls — preserve teacher-entered choice text, weighting, shuffle, and state synchronization.
+3. `lottery_glass_overlay.png` — perimeter highlights only, overlay above balls; center is transparent. Must not block pointer events.
+4. `lottery_ball_blank.png` — ball art for each choice, with real choice text overlaid. The middle is pale; verify text contrast.
 
-## Key art files
+### Slot Machine
+1. `slot_machine_shell.png` — cabinet with empty dark reel cavity, behind live reels.
+2. Live reels, with real selection text.
+3. `slot_reel_window_overlay.png` — ornamental glass/reel surround above reels; test geometry rather than covering reel text. This overlay **has a translucent lavender center**, not a completely open hole; adjust alpha / clip if necessary.
 
-| Category | Asset | Usage |
-|---|---|---|
-| backgrounds | `{wheel,slot,lottery,cards}_bridge_bg.webp` | New 1920×1080 space-station scene backgrounds, no UI text |
-| components | `wheel_rim_overlay.svg`, `wheel_pointer.svg` | Transparent metallic wheel rim and pointer; keep the live rotating Canvas underneath |
-| components | `slot_machine_chassis.svg` | Metallic slot cabinet; preserve live 3-reel UI inside the window |
-| components | `lottery_machine_frame.svg`, `lottery_ball_blank.svg` | Glass chamber + individual dynamic ball elements |
-| components | `mystery_card_back.svg`, `mystery_card_face_blank.svg` | Front and back art; overlay real result text dynamically |
-| components | `winner_plaque_blank.svg` | Empty prize plaque; overlay HTML text |
-| components | `stage_pedestal_blank.svg` | Optional new transparent gold/cyan stage support beneath a machine; requires adding to static route allowlist |
-| mode-thumbnails | `{wheel,slot,lottery,cards}_mode_tile.webp` | Teacher selection thumbnails only; may contain sample labels |
-| overlays | `shared_display_hud.svg` | Decorative transparent HUD, behind active buttons/text |
-| references | `{wheel,slot,lottery,cards}_approved_concept.png` | New full-quality concept art, for visual comparison only |
+### Spin Wheel
+1. Live probability wheel stays on canvas (never replace this with static image).
+2. `wheel_housing.png` — metallic circular housing, behind/in front of wheel rim as appropriate; the central opening is transparent.
 
-The pack retains the prior implementation-ready icon and Teacher Studio panel assets so nothing else becomes missing after overwrite. PNG renderings accompany most component SVGs.
+### Mystery Cards
+1. `cards_stage_base.png` — holographic stage, beneath the cards.
+2. `mystery_card_back.png` — dynamic card backs; do not bake in any labels.
+3. `mystery_card_face_blank.png` — faces with live winner text.
 
-## Important integration details
+### Shared result
+- `winner_plaque_blank.png` — background plate for the live result text. Leave text dynamic.
 
-- **Wheel:** Do not flatten the wheel illustration into a PNG; the four wedges and probabilities are live Canvas sectors. Use the separate transparent rim art and dynamic labels.
-- **Lottery:** Ball count, animated positions, selection, and winner should remain live DOM with choice IDs; never use the sample ball labels in concept art.
-- **Cards:** Card backs and faces are editable/animated elements, not screenshots.
-- **Slot:** Preserve 3 independent reel elements and winning selection text.
-- **Live text:** Any concept sample phrases are examples, not production labels.
-- **Screen sizes:** Test 1366×768, 1580×900, 1920×1080 and `/randomizer?display=1`. Avoid cropping the winner plaque and Randomize button.
-- **Data:** Do not change the storage key `siMothership.randomizerSets.v1`, the nine app shortcuts, the classroom lobby, or `/data` volume.
-
-### Compatibility note
-Existing asset names and route structure are preserved. The optional `stage_pedestal_blank.svg` needs a single allowlist addition on the server before use.
+## Important implementation rules
+- Do not replace the full live Randomizer interface with concept screenshots.
+- Use image layers with `pointer-events:none` where appropriate; retain all buttons, controls, selection behavior, probabilities, saved sets and Zoom synchronization.
+- Preserve original image proportions with `contain` and use a shared coordinate system for machine shell + live regions + overlays.
+- Test all modes in teacher and separate display views, including long text and 1366×768 / 1920×1080 viewports.
+- This package provides **10 finished PNG assets**. The `lottery_inner_glow`, `wheel_pointer`, `wheel_center_badge`, and other optional assets from the earlier proposed specification are **not included**; they should use existing application art until separately created.
+- Confirm transparent glass against a dark background; transparent background does not mean the glass itself has an empty interior.
