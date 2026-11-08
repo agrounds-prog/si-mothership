@@ -13,7 +13,7 @@
    const live=document.getElementById("activityControllerPanel");
    const setup=s.screen==="activities"&&!s.activityRun;
    const matchSetup=setup&&s.activeApp==="match"&&!!studio?.querySelector(".mcb-shell");
-   const pixelSetup=setup&&s.activeApp==="pixel-reveal"&&!!studio?.querySelector(".pixel-setup");
+   const pixelSetup=setup&&s.activeApp==="pixel"&&!!studio?.querySelector(".pixel-setup");
    studio?.classList.toggle("si-mp-match-studio",matchSetup);
    studio?.classList.toggle("si-mp-pixel-studio",pixelSetup);
    const run=s.activityRun;
@@ -22,7 +22,7 @@
    const matchLive=!!run&&s.screen==="activity"&&
      (s.activeApp==="match"||activity?.type==="match");
    const pixelLive=!!run&&s.screen==="activity"&&
-     (s.activeApp==="pixel-reveal"||activity?.type==="pixel-reveal");
+     (s.activeApp==="pixel"||activity?.type==="pixel");
    live?.classList.toggle("si-mp-match-live",matchLive);
    live?.classList.toggle("si-mp-pixel-live",pixelLive);
    live?.classList.toggle("si-mp-ready",(matchLive||pixelLive)&&!!live?.querySelector(".lobby-controller"));
