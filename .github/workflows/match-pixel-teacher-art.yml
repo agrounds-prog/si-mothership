@@ -1,0 +1,85 @@
+name: MATCH PIXEL Teacher Artwork Browser Regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server.py'
+      - 'match-pixel-teacher-art-v1.css'
+      - 'match-pixel-teacher-art-v1.js'
+      - 'MATCH_PIXEL_REVEAL_Art_Pack_V1/**'
+      - 'tests/test_match_pixel_teacher_art_browser.cjs'
+      - '.github/workflows/match-pixel-teacher-art.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Validate script, server, and uploaded artwork files
+        run: |
+          python -m py_compile server.py
+          node --check match-pixel-teacher-art-v1.js
+          test -s MATCH_PIXEL_REVEAL_Art_Pack_V1/implementation/match/backgrounds/match_creator_background_1600x900.png
+          test -s MATCH_PIXEL_REVEAL_Art_Pack_V1/implementation/match/backgrounds/match_live_background_1600x900.png
+          test -s MATCH_PIXEL_REVEAL_Art_Pack_V1/implementation/pixel_reveal/backgrounds/pixel_reveal_studio_background_1600x900.png
+          test -s MATCH_PIXEL_REVEAL_Art_Pack_V1/implementation/pixel_reveal/backgrounds/pixel_reveal_ready_background_1600x900.png
+      - name: Start isolated classroom server
+        run: |
+          pip install -r requirements.txt
+          mkdir -p /tmp/mp-v1-session
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mp-v1-session PORT=8877 python server.py >/tmp/mp-v1-server.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8877/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/mp-v1-server.log
+          exit 1
+      - name: Check public art routes and teacher HTML injection
+        run: |
+          python - <<'PY'
+          from urllib.request import urlopen
+          base='http://127.0.0.1:8877'
+          paths=[
+            '/match-pixel-teacher-art-v1.css',
+            '/match-pixel-teacher-art-v1.js',
+            '/mp-teacher-art/match/backgrounds/match_creator_background_1600x900.png',
+            '/mp-teacher-art/match/backgrounds/match_live_background_1600x900.png',
+            '/mp-teacher-art/pixel_reveal/backgrounds/pixel_reveal_studio_background_1600x900.png',
+            '/mp-teacher-art/pixel_reveal/backgrounds/pixel_reveal_ready_background_1600x900.png',
+            '/mp-teacher-art/shared/branding/match_emblem.png',
+            '/mp-teacher-art/shared/branding/pixel_reveal_emblem.png',
+            '/mp-teacher-art/shared/buttons/primary_launch_button.png',
+            '/mp-teacher-art/shared/buttons/danger_emergency_button.png',
+            '/mp-teacher-art/shared/panels/large_ui_panel_frame.png',
+            '/mp-teacher-art/shared/panels/glow_card_frame.png'
+          ]
+          for path in paths:
+            with urlopen(base+path,timeout=8) as res:
+              assert res.status==200
+              assert len(res.read())>100
+              print('PASS',path)
+          with urlopen(base+'/',timeout=8) as res: html=res.read().decode()
+          assert '/match-pixel-teacher-art-v1.css?v=1' in html
+          assert '/match-pixel-teacher-art-v1.js?v=1' in html
+          print('PASS main teacher page injection')
+          PY
+      - name: Install Chromium
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Browser regression of MATCH and PIXEL REVEAL teacher studios
+        run: node tests/test_match_pixel_teacher_art_browser.cjs
+      - name: Upload browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: match-pixel-teacher-v1-browser-screens
+          path: /tmp/mp-v1-browser/*.png
+          if-no-files-found: ignore
+      - name: Server logs on failure
+        if: failure()
+        run: tail -70 /tmp/mp-v1-server.log || true
