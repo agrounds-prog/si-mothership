@@ -5162,6 +5162,7 @@ async def index(request: web.Request) -> web.Response:
                         '<link rel="stylesheet" href="/four-in-line.css?v=2">'
                         '<link rel="stylesheet" href="/signal-sequence.css?v=5">'
                         f'<link rel="stylesheet" href="/si-plus-polish.css?v={SI_PLUS_ASSET_VERSION}">'
+                        '<link rel="stylesheet" href="/si-plus-teacher-v1.css?v=1">'
                          f'<link rel="stylesheet" href="/student-companion.css?v={STUDENT_COMPANION_ASSET_VERSION}">'
                          f'<link rel="stylesheet" href="/teacher-unified-controls.css?v={TEACHER_UNIFIED_ASSET_VERSION}">'
                          '<link rel="stylesheet" href="/orbit-polish.css?v=2">'
@@ -5185,7 +5186,8 @@ async def index(request: web.Request) -> web.Response:
                 '<script src="/million-studio.js?v=1" defer></script>' +
                 '<script src="/word-grid.js?v=1" defer></script>' +
                 '<script src="/dominoes.js?v=1" defer></script>' +
-                f'<script src="/si-plus-polish.js?v={SI_PLUS_ASSET_VERSION}" defer></script>' +
+                f'<script src="/si-plus-polish.js?v={SI_PLUS_ASSET_VERSION}" defer></script>'
+                '<script src="/si-plus-teacher-v1.js?v=1" defer></script>' +
                 text[body_close:])
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
@@ -6644,6 +6646,19 @@ def create_app() -> web.Application:
     app.router.add_get("/teacher-unified-controls.css", lambda request: web.FileResponse(ROOT / "teacher-unified-controls.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/si-plus-polish.js", lambda request: web.FileResponse(ROOT / "si-plus-polish.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/si-plus-polish.css", lambda request: web.FileResponse(ROOT / "si-plus-polish.css", headers={"Cache-Control": "no-store"}))
+    async def si_plus_teacher_art(request):
+        category, name = request.match_info["category"], request.match_info["filename"]
+        if category not in {"backgrounds", "panels", "buttons", "branding", "icons"} or not re.fullmatch(r"[A-Za-z0-9_-]+[.](?:png|webp|svg)", name):
+            raise web.HTTPNotFound()
+        file = ROOT / "assets" / "si-plus-teacher-v1" / category / name
+        if not file.is_file():
+            raise web.HTTPNotFound()
+        mime = "image/svg+xml" if name.endswith(".svg") else ("image/webp" if name.endswith(".webp") else "image/png")
+        return web.FileResponse(file, headers={"Content-Type": mime, "Cache-Control": "public, max-age=3600"})
+    app.router.add_get("/si-plus-teacher-art/{category}/{filename}", si_plus_teacher_art)
+    app.router.add_get("/si-plus-teacher-v1.css", lambda request: web.FileResponse(ROOT / "si-plus-teacher-v1.css", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/si-plus-teacher-v1.js", lambda request: web.FileResponse(ROOT / "si-plus-teacher-v1.js", headers={"Cache-Control": "no-store"}))
+
     app.router.add_get("/match-arcade.js", match_arcade_script)
     app.router.add_get("/match-arcade.css", match_arcade_style)
     app.router.add_get("/match-builder.js", match_builder_script)
