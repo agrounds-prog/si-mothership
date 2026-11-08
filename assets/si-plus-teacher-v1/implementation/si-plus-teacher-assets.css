@@ -1,0 +1,14 @@
+/* SI+ Teacher V1 art binding TEMPLATE: apply classes only after auditing live markup. */
+:root {--si-primary:#32dded; --si-ink:#06172d; --si-action:#78e8ff;}
+.si-plus-teacher-home {background-image:url("/assets/si-plus-teacher-v1/backgrounds/si_home_primary_1600x900.webp");background-size:cover;background-position:center;}
+.si-plus-teacher-library {background-image:url("/assets/si-plus-teacher-v1/backgrounds/presentation_library_primary_1600x900.webp");background-size:cover;background-position:center;}
+.si-plus-teacher-ready {background-image:url("/assets/si-plus-teacher-v1/backgrounds/ready_to_start_primary_1600x900.webp");background-size:cover;background-position:center;}
+.si-plus-teacher-builder {background-image:url("/assets/si-plus-teacher-v1/backgrounds/presentation_builder_primary_1600x900.webp");background-size:cover;background-position:center;}
+.si-plus-teacher-surface{background:linear-gradient(155deg,#071b30f2,#0e2f4ee7);border:1px solid #50b9da;border-radius:14px;box-shadow:inset 0 1px #adf6ff44,0 10px 26px #000a;color:#effaff}
+.si-plus-teacher-button{color:white;border:1px solid #75ddec;background:#124c6a;min-height:40px;border-radius:10px;font-weight:800}
+.si-plus-teacher-button:focus-visible{outline:3px solid #ffe1a0;outline-offset:3px}
+.si-plus-teacher-button[data-intent="create"],.si-plus-teacher-button[data-intent="start"]{background:#087e93}
+.si-plus-teacher-button[data-intent="preview"]{background:#08756d}
+.si-plus-teacher-button[data-intent="save"]{background:#09684f}
+.si-plus-teacher-button[data-intent="danger"]{background:#77304e;border-color:#e67ca0}
+@media(max-width:900px){.si-plus-teacher-home,.si-plus-teacher-library,.si-plus-teacher-builder,.si-plus-teacher-ready{background-position:50% 0}}

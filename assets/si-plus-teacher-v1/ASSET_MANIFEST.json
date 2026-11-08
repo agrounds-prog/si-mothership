@@ -1,0 +1,70 @@
+{
+  "pack": "SI+ Teacher Navigation Art Pack V1",
+  "generated": "2026-11-08",
+  "backgrounds": {
+    "si_home": [
+      "backgrounds/si_home_primary_1600x900.webp",
+      "backgrounds/si_home_alternate_1600x900.webp"
+    ],
+    "presentation_library": [
+      "backgrounds/presentation_library_primary_1600x900.webp",
+      "backgrounds/presentation_library_alternate_1600x900.webp"
+    ],
+    "ready_to_start": [
+      "backgrounds/ready_to_start_primary_1600x900.webp",
+      "backgrounds/ready_to_start_alternate_1600x900.webp"
+    ],
+    "presentation_builder": [
+      "backgrounds/presentation_builder_primary_1600x900.webp",
+      "backgrounds/presentation_builder_alternate_1600x900.webp"
+    ]
+  },
+  "panels": [
+    "command_panel",
+    "editor_panel",
+    "library_row",
+    "selected_slide",
+    "header_bar",
+    "danger_panel"
+  ],
+  "button_skins": [
+    "primary_cyan",
+    "secondary_blue",
+    "preview_teal",
+    "library_purple",
+    "save_green",
+    "utility_navy",
+    "danger_red",
+    "disabled_slate"
+  ],
+  "icons": [
+    "new_presentation",
+    "library",
+    "preview",
+    "organize",
+    "save",
+    "load",
+    "back",
+    "close",
+    "import_images",
+    "instruction",
+    "question",
+    "poll",
+    "start",
+    "pause",
+    "finish",
+    "emergency",
+    "delete",
+    "edit",
+    "students",
+    "recover",
+    "cloud",
+    "presentation",
+    "up",
+    "down",
+    "separate_window",
+    "video",
+    "link"
+  ],
+  "notes": "PNG backgrounds also included. Use live HTML controls and dynamic labels over blank art. Do not use concept screenshots as production interfaces."
+}
