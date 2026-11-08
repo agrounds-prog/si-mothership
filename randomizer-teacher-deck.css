@@ -1,0 +1,70 @@
+/* SI Mothership • Teacher Command Deck, first visual pass.
+   Teacher-only styling: no gameplay or shared-display changes. */
+#studio{
+  --teacher-edge:#66cce7;
+  --teacher-gold:#f4d38d;
+  scrollbar-color:#4f8cad #061629;
+  background:
+    linear-gradient(110deg,#061629f2,#0e304bec 48%,#06182ef5),
+    repeating-linear-gradient(0deg,transparent 0 35px,#b1ecff0b 36px 37px)!important;
+  box-shadow:inset 0 0 0 1px #a1e9fa28,inset 0 24px 55px #5dd4ff0b,0 18px 45px #000a!important;
+}
+#studio .studio-header{
+  position:sticky;
+  background:
+    radial-gradient(ellipse 70% 100% at 80% 0%,#1d72955b,transparent),
+    repeating-linear-gradient(90deg,transparent 0 27px,#addbff09 28px 29px),
+    linear-gradient(135deg,#164766,#071b32 76%)!important;
+  border-bottom:2px solid #6bcbdf!important;
+  box-shadow:inset 0 1px #a2e7ff58,0 8px 22px #0009!important;
+}
+#studio .studio-header h2{color:#f5fcff!important;text-shadow:0 2px 0 #071b32,0 0 19px #2bbddd7c!important}
+#studio .studio-group{
+  position:relative;
+  background:
+    linear-gradient(145deg,#153e57f5,#091e36f7 70%),
+    repeating-linear-gradient(0deg,transparent 0 16px,#a4e5ff07 17px 18px)!important;
+  border:1px solid #5189a4!important;
+  border-radius:12px!important;
+  box-shadow:inset 0 1px #caf2ff32,inset 0 0 0 3px #061a2c9c,0 10px 18px #0007!important;
+}
+#studio .studio-group:before{
+  content:"";position:absolute;top:8px;right:9px;width:28px;height:5px;
+  border-top:1px solid #acdffb78;border-bottom:1px solid #acdffb35;
+  pointer-events:none;
+}
+#studio .studio-group-library{border-color:#ac8f55!important}
+#studio .studio-group-heading{padding-bottom:9px;border-bottom:1px solid #8ebfd33d}
+#studio .studio-group-heading h3{letter-spacing:.11em!important}
+#studio .studio-group-index{
+  border-radius:7px!important;
+  background:linear-gradient(145deg,#277b9c,#09253e)!important;
+  box-shadow:inset 0 1px #c4f1ff7d,0 3px 8px #0008!important;
+}
+#studio .studio-group-library .studio-group-index{
+  background:linear-gradient(145deg,#a17736,#342637)!important;
+}
+#studio .studio-group input:not([type="checkbox"]),
+#studio .studio-group select,#studio .studio-group textarea{
+  background:linear-gradient(180deg,#041528,#0b2840)!important;
+  box-shadow:inset 0 2px 9px #0009,0 1px #b8eaff13!important;
+}
+#studio button{transition:filter .15s,box-shadow .15s,border-color .15s}
+#studio button:not(:disabled):hover{filter:brightness(1.12);border-color:#91eafa!important}
+#studio .modes button{
+  box-shadow:inset 0 0 0 1px #bdf5ff33,inset 0 -25px 30px #010b23b8,0 5px 12px #0008!important;
+}
+#studio .modes button.active{
+  box-shadow:inset 0 0 0 2px #ffdf95,0 0 0 2px #d6ac61,0 0 22px #ffc86b8c!important;
+}
+#studio .choice{
+  border:1px solid #3b7394!important;
+  background:linear-gradient(95deg,#09263f,#123951)!important;
+  box-shadow:inset 0 1px #b2eeff18!important;
+}
+#studio .studio-group:focus-within{border-color:#65d7e8!important}
+@media (max-width:900px){
+  #studio .studio-header{position:relative}
+  #studio .studio-group{margin-inline:9px;padding-inline:10px}
+}
+@media (prefers-reduced-motion:reduce){#studio button{transition:none}}
