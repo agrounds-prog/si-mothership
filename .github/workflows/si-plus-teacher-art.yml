@@ -6,6 +6,7 @@ on:
       - 'server.py'
       - 'si-plus-teacher-v1.css'
       - 'si-plus-teacher-v1.js'
+      - 'tests/test_si_teacher_v2_browser.cjs'
       - 'assets/si-plus-teacher-v1/**'
       - '.github/workflows/si-plus-teacher-art.yml'
   workflow_dispatch:
@@ -65,6 +66,19 @@ jobs:
             assert e.code in (400,403,404)
           print('PASS SI+ presentation asset delivery and teacher page injection')
           PY
+      - name: Install Chromium for real SI+ teacher visual regression
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Screenshot SI+ home library and builder with actual uploaded art
+        run: node tests/test_si_teacher_v2_browser.cjs
+      - name: Save teacher UI screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: si-plus-teacher-v2-screens
+          path: /tmp/si-teacher-v2-screens/*.png
+          if-no-files-found: ignore
       - name: Show server log on failure
         if: failure()
         run: tail -60 /tmp/si-art-server.log || true
