@@ -5168,7 +5168,8 @@ async def index(request: web.Request) -> web.Response:
                          '<link rel="stylesheet" href="/orbit-polish.css?v=2">'
                          '<link rel="stylesheet" href="/pixel-batch.css?v=1">'
                          '<script src="/orbit-polish.js?v=2" defer></script>'
-                         '<script src="/pixel-batch.js?v=1" defer></script></head>', 1)
+                         '<script src="/pixel-batch.js?v=1" defer></script>'
+                         '<link rel="stylesheet" href="/match-pixel-teacher-art-v1.css?v=1"></head>', 1)
     # Insert before the final body close: index.html also contains HTML strings
     # in internal scripts, so replacing the first occurrence would corrupt JS.
     body_close = text.rfind("</body>")
@@ -5188,6 +5189,7 @@ async def index(request: web.Request) -> web.Response:
                 '<script src="/dominoes.js?v=1" defer></script>' +
                 f'<script src="/si-plus-polish.js?v={SI_PLUS_ASSET_VERSION}" defer></script>'
                 '<script src="/si-plus-teacher-v1.js?v=1" defer></script>' +
+                '<script src="/match-pixel-teacher-art-v1.js?v=1" defer></script>' +
                 text[body_close:])
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
@@ -6658,6 +6660,23 @@ def create_app() -> web.Application:
     app.router.add_get("/si-plus-teacher-art/{category}/{filename}", si_plus_teacher_art)
     app.router.add_get("/si-plus-teacher-v1.css", lambda request: web.FileResponse(ROOT / "si-plus-teacher-v1.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/si-plus-teacher-v1.js", lambda request: web.FileResponse(ROOT / "si-plus-teacher-v1.js", headers={"Cache-Control": "no-store"}))
+
+    # Public, allowlisted teacher-view art from the uploaded MATCH/PIXEL pack.
+    async def match_pixel_teacher_art(request):
+        section = request.match_info["section"]
+        group = request.match_info["group"]
+        filename = request.match_info["filename"]
+        allowed = (section == "match" and group == "backgrounds") or (section == "pixel_reveal" and group == "backgrounds") or (section == "shared" and group in {"branding", "buttons", "panels"})
+        if not allowed or not re.fullmatch(r"[A-Za-z0-9_-]+[.]png", filename):
+            raise web.HTTPNotFound()
+        path = ROOT / "MATCH_PIXEL_REVEAL_Art_Pack_V1" / "implementation" / section / group / filename
+        if not path.is_file():
+            raise web.HTTPNotFound()
+        return web.FileResponse(path, headers={"Cache-Control": "public, max-age=3600", "Content-Type": "image/png"})
+    app.router.add_get("/mp-teacher-art/{section}/{group}/{filename}", match_pixel_teacher_art)
+    app.router.add_get("/match-pixel-teacher-art-v1.css", lambda request: web.FileResponse(ROOT / "match-pixel-teacher-art-v1.css", headers={"Cache-Control": "no-store", "Content-Type": "text/css"}))
+    app.router.add_get("/match-pixel-teacher-art-v1.js", lambda request: web.FileResponse(ROOT / "match-pixel-teacher-art-v1.js", headers={"Cache-Control": "no-store", "Content-Type": "application/javascript"}))
+
 
     app.router.add_get("/match-arcade.js", match_arcade_script)
     app.router.add_get("/match-arcade.css", match_arcade_style)
