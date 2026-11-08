@@ -30,6 +30,15 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
    assert.ok(await page.locator('#activitiesPanel .pixel-setup').count(),'PIXEL studio missing');
    await page.screenshot({path:'/tmp/mp-v1-browser/'+viewport.width+'-pixel-studio.png',animations:'disabled'});
    console.log('PASS',viewport.width,'PIXEL studio with uploaded artwork');
+   // Verify second teacher window before launching in-browser gameplay.
+   const popup=await ctx.newPage();
+   await popup.goto(base+'/?role=teacher',{waitUntil:'domcontentloaded'});
+   await popup.waitForFunction(()=>typeof openApp==='function',{timeout:16000});
+   await popup.evaluate(()=>{state.activityRun=null;openApp('match')});
+   await popup.waitForFunction(()=>document.getElementById('activitiesPanel')?.classList.contains('si-mp-match-studio'),{timeout:12000});
+   assert.ok(await popup.locator('#activitiesPanel').evaluate(x=>getComputedStyle(x).backgroundImage.includes('match_creator_background')));
+   console.log('PASS',viewport.width,'separate teacher window includes MATCH art');
+   await popup.close();
    // Launch a demo round in the isolated browser session and verify the real ready panel.
    await page.evaluate(()=>{
      const d=ensurePixelDraft();
@@ -59,14 +68,6 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
    assert.ok(matchLiveBg.includes('match_live_background_1600x900.png'),matchLiveBg);
    await page.screenshot({path:'/tmp/mp-v1-browser/'+viewport.width+'-match-live.png',animations:'disabled'});
    console.log('PASS',viewport.width,'MATCH teacher live control screen with uploaded art');
-   // Separate teacher windows share origin, authentication, CSS and the same setup selectors.
-   const popup=await ctx.newPage();
-   await popup.goto(base+'/?role=teacher',{waitUntil:'domcontentloaded'});
-   await popup.waitForFunction(()=>typeof openApp==='function',{timeout:16000});
-   await popup.evaluate(()=>openApp('match'));
-   await popup.waitForFunction(()=>document.getElementById('activitiesPanel')?.classList.contains('si-mp-match-studio'),{timeout:10000});
-   assert.ok(await popup.locator('#activitiesPanel').evaluate(x=>getComputedStyle(x).backgroundImage.includes('match_creator_background')));
-   console.log('PASS',viewport.width,'separate teacher window includes MATCH art');
    assert.equal(errs.length,0,'page errors: '+errs.join('; '));
    await ctx.close();
   }
