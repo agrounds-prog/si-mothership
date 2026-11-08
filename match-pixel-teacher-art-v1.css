@@ -1,0 +1,197 @@
+/* MATCH + PIXEL REVEAL teacher artwork V1
+   Uploaded Github PNGs are layered behind functional controls. All selectors are
+   limited to teacher screens; no student or projector surface is restyled. */
+#teacher #activitiesPanel.si-mp-match-studio,
+#teacher #activitiesPanel.si-mp-pixel-studio,
+#teacher #activityControllerPanel.si-mp-match-live,
+#teacher #activityControllerPanel.si-mp-pixel-live {
+  --mp-cyan:#62eaff;--mp-ice:#f0fbff;--mp-glow:#4de7f9;
+  background-color:#061629!important;
+  background-size:cover!important;
+  background-position:center top!important;
+  background-repeat:no-repeat!important;
+  border:1px solid #53d6f3!important;
+  box-shadow:0 0 0 150vmax #020916b9,0 20px 62px #000c,inset 0 0 0 1px #aaf7ff38!important;
+  isolation:isolate;
+}
+/* Only the creator's activity overlay takes the full-width command-deck artwork. */
+#teacher #activitiesPanel.si-mp-match-studio {
+  background-image:linear-gradient(130deg,#04152a35,#041a3050),url('/mp-teacher-art/match/backgrounds/match_creator_background_1600x900.png')!important;
+  width:min(1550px,calc(100vw - 20px))!important;max-width:1550px!important;
+  max-height:calc(100dvh - 20px)!important;
+  padding:clamp(12px,1.35vw,24px)!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio {
+  background-image:linear-gradient(110deg,#04152a40,#031a2d49),url('/mp-teacher-art/pixel_reveal/backgrounds/pixel_reveal_studio_background_1600x900.png')!important;
+  width:min(1530px,calc(100vw - 20px))!important;max-width:1530px!important;
+  max-height:calc(100dvh - 20px)!important;
+  padding:clamp(12px,1.35vw,24px)!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mode-title,
+#teacher #activitiesPanel.si-mp-pixel-studio .mode-title {
+  padding:13px 18px!important;border-radius:14px!important;
+  background:linear-gradient(105deg,#061c36df,#123c59ac 65%,#06192edf)!important;
+  border:1px solid #6adef0!important;
+  box-shadow:inset 0 1px #b4fbff62,0 7px 19px #0009!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mode-title h2,
+#teacher #activitiesPanel.si-mp-pixel-studio .mode-title h2{
+  color:#f7fdff!important;font-weight:950!important;text-shadow:0 0 15px #50e3ff8c!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-shell,
+#teacher #activitiesPanel.si-mp-pixel-studio .pixel-setup {position:relative;min-width:0;z-index:1;}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-hero {
+ background:linear-gradient(105deg,#072443dc,#0d3856b8),url('/mp-teacher-art/shared/panels/large_ui_panel_frame.png') center/100% 100% no-repeat!important;
+ border:2px solid #6de1f8!important;box-shadow:inset 0 2px #e4faff61,0 12px 29px #0008!important;
+ min-height:106px!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-hero-mark{
+ color:transparent!important;font-size:0!important;text-shadow:none!important;
+ background:transparent url('/mp-teacher-art/shared/branding/match_emblem.png') center/contain no-repeat!important;
+ border:0!important;box-shadow:none!important;
+ width:clamp(65px,7vw,104px)!important;height:clamp(65px,7vw,104px)!important;
+ flex:0 0 clamp(65px,7vw,104px)!important;
+ filter:drop-shadow(0 0 14px #50d9ffc4);
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-card,
+#teacher #activitiesPanel.si-mp-match-studio .mcb-preview,
+#teacher #activitiesPanel.si-mp-pixel-studio .pixel-setup .pixel-batch-manager,
+#teacher #activitiesPanel.si-mp-pixel-studio .pixel-setup .pixel-card {
+ background:linear-gradient(145deg,#08223de9,#071831e7)!important;
+ border-color:#5cc5e6!important;
+ box-shadow:inset 0 1px #c6f9ff41,0 9px 24px #0009!important;
+ border-radius:15px!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-board-tile{
+ background:linear-gradient(145deg,#1b83c5,#143c8a 72%,#0d2659)!important;
+ border:2px solid #71e7ff!important;box-shadow:inset 0 1px #c7faff8f,0 4px 12px #000b,0 0 9px #27bffa43!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-image-card:has(input:checked),
+#teacher #activitiesPanel.si-mp-match-studio .mcb-image-card.selected {
+ box-shadow:0 0 0 2px #65f3cd,0 0 17px #46fbe48a!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-saved-set,
+#teacher #activitiesPanel.si-mp-pixel-studio .pixel-studio-saved-card {
+ border:1px solid #53c7ea!important;
+ border-radius:12px!important;
+ background:linear-gradient(100deg,#164366dc,#091c33eb)!important;
+ box-shadow:inset 0 1px #defaff38,0 5px 15px #0007!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio .pixel-setup .pixel-batch-manager {
+ background:linear-gradient(125deg,#071e3bd9,#08253dcb),url('/mp-teacher-art/shared/panels/large_ui_panel_frame.png') center/100% 100% no-repeat!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio .pixel-batch-pick img,
+#teacher #activitiesPanel.si-mp-pixel-studio .pixel-studio-saved-thumb img {object-fit:contain!important;}
+#teacher #activitiesPanel.si-mp-pixel-studio .pixel-batch-item.selected {
+ border:2px solid #67f0de!important;
+ box-shadow:0 0 0 2px #51effa36,0 0 19px #3bf0ec80!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio button:focus-visible,
+#teacher #activitiesPanel.si-mp-pixel-studio button:focus-visible,
+#teacher #activityControllerPanel.si-mp-match-live button:focus-visible,
+#teacher #activityControllerPanel.si-mp-pixel-live button:focus-visible{
+ outline:3px solid #ffe197!important;outline-offset:2px!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio button:not(:disabled):hover,
+#teacher #activitiesPanel.si-mp-pixel-studio button:not(:disabled):hover,
+#teacher #activityControllerPanel.si-mp-match-live button:not(:disabled):hover,
+#teacher #activityControllerPanel.si-mp-pixel-live button:not(:disabled):hover{filter:brightness(1.12);}
+#teacher #activitiesPanel.si-mp-match-studio button:disabled,
+#teacher #activitiesPanel.si-mp-pixel-studio button:disabled,
+#teacher #activityControllerPanel.si-mp-match-live button:disabled,
+#teacher #activityControllerPanel.si-mp-pixel-live button:disabled{opacity:.5!important;}
+/* MATCH teacher running / separate-window controller, not the student's game board */
+#teacher #activityControllerPanel.si-mp-match-live {
+ background-image:linear-gradient(115deg,#04132858,#06173268),url('/mp-teacher-art/match/backgrounds/match_live_background_1600x900.png')!important;
+ min-height:min(740px,calc(100dvh - 90px))!important;
+ padding:clamp(14px,2vw,26px)!important;
+}
+#teacher #activityControllerPanel.si-mp-match-live .activity-controller-head,
+#teacher #activityControllerPanel.si-mp-match-live .ma-4i-teacher,
+#teacher #activityControllerPanel.si-mp-match-live .controller-grid,
+#teacher #activityControllerPanel.si-mp-match-live .match-teacher-current,
+#teacher #activityControllerPanel.si-mp-match-live .ma-4i-teacher-guide {
+ background:linear-gradient(140deg,#072445ef,#081c34ee)!important;
+ border:1px solid #67cbec!important;
+ border-radius:16px!important;
+ box-shadow:inset 0 1px #a9f5ff4b,0 11px 24px #0008!important;
+}
+#teacher #activityControllerPanel.si-mp-match-live .activity-controller-head {
+ min-height:110px!important;
+ background:linear-gradient(90deg,#071c38ed,#0a2e4bb0),url('/mp-teacher-art/shared/panels/large_ui_panel_frame.png') center/100% 100% no-repeat!important;
+}
+#teacher #activityControllerPanel.si-mp-match-live button.primary-action,
+#teacher #activityControllerPanel.si-mp-match-live #startActivityBtn {
+ background:#07617e url('/mp-teacher-art/shared/buttons/primary_launch_button.png') center/100% 100% no-repeat!important;
+ border:1px solid #79eaff!important;color:#fff!important;
+}
+#teacher #activityControllerPanel.si-mp-match-live button.danger-action,
+#teacher #activityControllerPanel.si-mp-match-live #emergencyActivityBtn {
+ background:#4d1c34 url('/mp-teacher-art/shared/buttons/danger_emergency_button.png') center/100% 100% no-repeat!important;
+ border:1px solid #ff819f!important;color:#fff!important;
+}
+/* PIXEL REVEAL teacher live / launched separate-window screen */
+#teacher #activityControllerPanel.si-mp-pixel-live {
+ background-image:linear-gradient(120deg,#04192b45,#07172d69),url('/mp-teacher-art/pixel_reveal/backgrounds/pixel_reveal_ready_background_1600x900.png')!important;
+ min-height:min(650px,calc(100dvh - 85px))!important;
+ padding:clamp(18px,2.1vw,32px)!important;
+}
+#teacher #activityControllerPanel.si-mp-pixel-live>.activity-controller-head {
+ background:linear-gradient(110deg,#061e36ec,#0d3351c5)!important;
+ border:1px solid #5cddf4!important;border-radius:17px!important;
+ box-shadow:inset 0 1px #d4fcff62,0 12px 27px #0009!important;
+ padding:16px 20px!important;
+}
+#teacher #activityControllerPanel.si-mp-pixel-live .pixel-control-board,
+#teacher #activityControllerPanel.si-mp-pixel-live .pixel-control-side,
+#teacher #activityControllerPanel.si-mp-pixel-live .lobby-controller {
+ background:linear-gradient(135deg,#071f39df,#06172de9)!important;
+ border:1px solid #66cceb!important;border-radius:16px!important;
+ box-shadow:inset 0 1px #d0f8ff4c,0 9px 23px #0009!important;
+}
+#teacher #activityControllerPanel.si-mp-pixel-live .pixel-controller-grid{gap:clamp(9px,1.3vw,19px)!important;}
+#teacher #activityControllerPanel.si-mp-pixel-live button.primary-action,
+#teacher #activityControllerPanel.si-mp-pixel-live #startActivityBtn {
+ background:#08678b url('/mp-teacher-art/shared/buttons/primary_launch_button.png') center/100% 100% no-repeat!important;
+ border:1px solid #87eaff!important;color:#fff!important;
+}
+#teacher #activityControllerPanel.si-mp-pixel-live button.danger-action,
+#teacher #activityControllerPanel.si-mp-pixel-live #emergencyActivityBtn {
+ background:#4d1c34 url('/mp-teacher-art/shared/buttons/danger_emergency_button.png') center/100% 100% no-repeat!important;
+ border:1px solid #ff819f!important;color:#fff!important;
+}
+#teacher #activityControllerPanel.si-mp-pixel-live.si-mp-ready,
+#teacher #activityControllerPanel.si-mp-match-live.si-mp-ready {
+ display:block;min-height:clamp(350px,55dvh,610px)!important;
+}
+#teacher #activityControllerPanel.si-mp-ready .lobby-controller{
+ display:grid!important;grid-template-columns:2fr 1fr 1fr!important;
+ align-items:stretch!important;gap:10px!important;
+ padding:clamp(13px,2vw,24px)!important;
+ border-radius:16px!important;border:1px solid #66cfef!important;
+ background:linear-gradient(110deg,#082341e9,#07192fe8)!important;
+}
+#teacher #activityControllerPanel.si-mp-ready #startActivityBtn{
+ min-height:70px!important;font-size:clamp(15px,1.5vw,20px)!important;
+ box-shadow:0 0 20px #59e6ff3d!important;
+}
+#teacher #activityControllerPanel.si-mp-ready #emergencyActivityBtn{grid-column:1!important;}
+@media(max-width:1000px) {
+ #teacher #activitiesPanel.si-mp-match-studio .mcb-layout{grid-template-columns:1fr!important;}
+ #teacher #activityControllerPanel.si-mp-pixel-live .pixel-controller-grid{grid-template-columns:1fr!important;}
+}
+@media(max-width:720px) {
+ #teacher #activitiesPanel.si-mp-match-studio,
+ #teacher #activitiesPanel.si-mp-pixel-studio,
+ #teacher #activityControllerPanel.si-mp-match-live,
+ #teacher #activityControllerPanel.si-mp-pixel-live{background-position:50% top!important;}
+ #teacher #activityControllerPanel.si-mp-ready .lobby-controller{grid-template-columns:1fr 1fr!important;}
+ #teacher #activityControllerPanel.si-mp-ready #startActivityBtn{grid-column:1/-1!important;}
+ #teacher #activityControllerPanel.si-mp-ready #emergencyActivityBtn{grid-column:1/-1!important;}
+}
+@media(prefers-reduced-motion:reduce) {
+ #teacher #activitiesPanel.si-mp-match-studio button,
+ #teacher #activitiesPanel.si-mp-pixel-studio button,
+ #teacher #activityControllerPanel.si-mp-match-live button,
+ #teacher #activityControllerPanel.si-mp-pixel-live button{transition:none!important;}
+}
