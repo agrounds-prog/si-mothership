@@ -1,0 +1,231 @@
+/* SI Mothership Randomizer — V9 independent textured image layers.
+   This is deliberately LAST in the cascade after legacy CSS.
+   Preserves live canvas wedges, reel labels, ball choices, cards, winner text.
+   All image sources are the actual teacher-uploaded V3 PNGs. */
+.stage[data-graphics="v9"]{--v9-gold:#f9d98c;--v9-blue:#69e7fb}
+.stage[data-graphics="v9"] .arena{
+ background:radial-gradient(ellipse 53% 62% at 50% 47%,#1a387c8c,transparent 86%)!important;
+ isolation:isolate!important;
+}
+.stage[data-graphics="v9"] .arena-ornament,
+.stage[data-graphics="v9"] .v2-pedestal{display:none!important}
+.stage[data-graphics="v9"] .visual{
+ position:relative!important;isolation:isolate!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ overflow:hidden!important;min-width:0!important;
+ width:100%!important;height:100%!important;
+ max-width:none!important;max-height:none!important;
+ filter:none!important;
+}
+.stage[data-graphics="v9"] .visual:before,
+.stage[data-graphics="v9"] .visual:after{
+ content:""!important;position:absolute!important;inset:0!important;
+ border:0!important;border-radius:0!important;
+ width:100%!important;height:100%!important;
+ background-repeat:no-repeat!important;background-position:center center!important;
+ pointer-events:none!important;transform:none!important;
+ opacity:1!important;box-shadow:none!important;
+ mask-image:none!important;-webkit-mask-image:none!important;
+ filter:none!important;
+}
+.stage[data-graphics="v9"] .visual:before{z-index:0!important}
+.stage[data-graphics="v9"] .visual:after{z-index:5!important}
+
+/* COSMIC LOTTERY: metal/glass shell behind, clear reflection ON TOP,
+   live animated selections in between; no sample text or painted fake balls. */
+.stage[data-graphics="v9"][data-mode="lottery"] .visual{
+ background:radial-gradient(ellipse 36% 52% at 50% 50%,#0c488e8f,#091e4e3d 80%,transparent 100%)!important;
+}
+.stage[data-graphics="v9"][data-mode="lottery"] .visual:before{
+ display:block!important;
+ background-image:url("/randomizer-textured/lottery_machine_shell.png?v=9")!important;
+ background-size:auto 98%!important;
+}
+.stage[data-graphics="v9"][data-mode="lottery"] .visual:after{
+ display:block!important;content:""!important;
+ background-image:url("/randomizer-textured/lottery_glass_overlay.png?v=9")!important;
+ background-size:auto 59%!important;
+ background-position:50% 46%!important;
+ opacity:.68!important;
+}
+.stage[data-graphics="v9"][data-mode="lottery"] #lottery{
+ position:relative!important;z-index:3!important;isolation:isolate!important;
+ display:grid!important;
+ grid-template-columns:repeat(var(--lottery-cols,4),minmax(0,1fr))!important;
+ align-items:center!important;align-content:center!important;
+ justify-items:center!important;justify-content:center!important;
+ width:min(48%,440px)!important;max-width:440px!important;
+ height:48%!important;max-height:330px!important;min-height:0!important;
+ padding:1.5% 3%!important;
+ gap:clamp(5px,1vw,14px)!important;margin:0!important;
+ transform:translateY(-3%) rotate(var(--lottery-tilt,0deg))!important;
+ background:transparent!important;border:0!important;border-radius:0!important;
+ outline:0!important;box-shadow:none!important;
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+ overflow:visible!important;
+}
+.stage[data-graphics="v9"][data-mode="lottery"] #lottery:before,
+.stage[data-graphics="v9"][data-mode="lottery"] #lottery:after{display:none!important;content:none!important}
+.stage[data-graphics="v9"][data-mode="lottery"] #lottery .ball{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:min(100%,98px)!important;max-width:98px!important;
+ min-width:0!important;min-height:0!important;aspect-ratio:1!important;
+ padding:10% 8%!important;
+ background:transparent url("/randomizer-textured/lottery_ball_blank.png?v=9") center/contain no-repeat!important;
+ border:0!important;outline-offset:1px!important;
+ color:#102549!important;font-weight:950!important;
+ font-size:clamp(11px,1.15vw,17px)!important;line-height:1.12!important;
+ white-space:normal!important;text-align:center!important;
+ text-shadow:0 1px 1px #fff!important;
+ overflow-wrap:anywhere!important;
+ filter:drop-shadow(0 4px 7px #000a) drop-shadow(0 0 8px #5bdfff72)!important;
+ box-shadow:none!important;
+}
+.stage[data-graphics="v9"][data-mode="lottery"] .lottery-showpiece{
+ z-index:8!important;top:7%!important;right:2%!important;
+ background-image:url("/randomizer-textured/lottery_ball_blank.png?v=9")!important;
+}
+
+/* SLOT MACHINE: the cabinet contains an empty cavity; insert live reels there.
+   Subtle glass texture is a separate pass, never a second static reel set. */
+.stage[data-graphics="v9"][data-mode="slot"] .visual:before{
+ display:block!important;
+ background-image:url("/randomizer-textured/slot_machine_shell.png?v=9")!important;
+ background-size:auto 98%!important;
+}
+.stage[data-graphics="v9"][data-mode="slot"] .visual:after{
+ display:block!important;
+ background-image:url("/randomizer-textured/slot_reel_window_overlay.png?v=9")!important;
+ background-size:auto 98%!important;opacity:.20!important;
+}
+.stage[data-graphics="v9"][data-mode="slot"] #reel{
+ position:relative!important;z-index:3!important;
+ width:min(60%,670px)!important;max-width:670px!important;
+ height:36%!important;max-height:255px!important;min-height:104px!important;
+ padding:3px!important;margin:0!important;
+ transform:translateY(-3%)!important;
+ border:2px solid #ffd98eab!important;border-radius:14px!important;
+ background:linear-gradient(#122c55,#06172f)!important;
+ box-shadow:inset 0 0 24px #000d,0 0 12px #d4a85b73!important;
+ overflow:hidden!important;
+}
+.stage[data-graphics="v9"][data-mode="slot"] #reel .reel-lane{
+ border:1px solid #fbe0a0!important;border-radius:7px!important;
+ box-shadow:inset 0 7px 13px #0009,inset 0 -8px 11px #0009!important;
+}
+.stage[data-graphics="v9"][data-mode="slot"] #reel .reel-focus{
+ border:2px solid #ffdb88!important;
+}
+
+/* SPIN WHEEL: the real weighted Canvas remains the wheel. Its new metal ring
+   is a transparent overlay — no fake options or flattened wheel artwork. */
+.stage[data-graphics="v9"][data-mode="wheel"] .visual:before,
+.stage[data-graphics="v9"][data-mode="wheel"] .visual:after{display:none!important}
+.stage[data-graphics="v9"][data-mode="wheel"] .wheel-art-frame{
+ position:absolute!important;z-index:3!important;
+ left:50%!important;top:50%!important;
+ transform:translate(-50%,-50%)!important;
+ width:min(75%,calc(100dvh - 295px),690px)!important;
+ aspect-ratio:1!important;max-height:96%!important;
+ pointer-events:none!important;
+}
+.stage[data-graphics="v9"][data-mode="wheel"] .wheel-art-frame:before{display:none!important;content:none!important}
+.stage[data-graphics="v9"][data-mode="wheel"] .wheel-art-frame img{
+ display:block!important;width:100%!important;height:100%!important;
+ object-fit:contain!important;opacity:1!important;
+ filter:drop-shadow(0 8px 13px #000a) drop-shadow(0 0 15px #ffda8474)!important;
+}
+.stage[data-graphics="v9"][data-mode="wheel"] #wheel{
+ position:relative!important;z-index:1!important;
+ width:min(67%,calc(100dvh - 335px),630px)!important;
+ max-height:90%!important;
+}
+.stage[data-graphics="v9"][data-mode="wheel"] .wheel-art-frame .pointer{z-index:6!important}
+
+/* MYSTERY CARDS: real individual backs and winner faces floating above stage. */
+.stage[data-graphics="v9"][data-mode="cards"] .visual:before{
+ display:block!important;
+ background-image:url("/randomizer-textured/cards_stage_base.png?v=9")!important;
+ background-size:78% auto!important;
+ background-position:50% 91%!important;
+ opacity:.82!important;
+}
+.stage[data-graphics="v9"][data-mode="cards"] .visual:after{display:none!important}
+.stage[data-graphics="v9"][data-mode="cards"] #cards.cards-fan{
+ position:relative!important;inset:auto!important;
+ top:auto!important;bottom:auto!important;left:auto!important;right:auto!important;
+ transform:translateY(-12%)!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:min(93%,1050px)!important;max-width:1050px!important;
+ height:min(86%,480px)!important;max-height:none!important;
+ padding:0!important;margin:0 auto!important;
+ flex:0 1 auto!important;gap:0!important;overflow:visible!important;
+ z-index:3!important;
+}
+.stage[data-graphics="v9"][data-mode="cards"] #cards.cards-fan .card{
+ position:relative!important;
+ width:min(24%,240px)!important;max-width:240px!important;
+ min-width:0!important;flex:0 1 min(24%,240px)!important;
+ height:auto!important;max-height:min(85%,390px)!important;
+ aspect-ratio:1086/1448!important;
+ margin-left:-1.6%!important;
+ border:0!important;border-radius:14px!important;
+ background:transparent url("/randomizer-textured/mystery_card_back.png?v=9") center/100% 100% no-repeat!important;
+ color:#fff1ba!important;
+ transform:translateY(var(--fan-shift,0px)) rotate(var(--fan-turn,0deg))!important;
+ filter:drop-shadow(0 9px 12px #000d) drop-shadow(0 0 13px #a96dff61)!important;
+}
+.stage[data-graphics="v9"][data-mode="cards"] #cards.cards-fan .card:first-child{margin-left:0!important}
+.stage[data-graphics="v9"][data-mode="cards"] #cards.cards-fan .card.active{
+ transform:translateY(-24px) rotate(0deg) scale(1.09)!important;z-index:5!important;
+ filter:drop-shadow(0 0 23px #ffe4a29e)!important;
+}
+.stage[data-graphics="v9"][data-mode="cards"] #cards.cards-fan .card.flipped{
+ background-image:url("/randomizer-textured/mystery_card_face_blank.png?v=9")!important;
+ background-size:100% 100%!important;
+ transform:translateY(-26px) rotate(0deg) scale(1.13)!important;
+ z-index:6!important;color:#fff4d7!important;font-weight:950!important;
+}
+
+/* Shared winner text remains DOM text over a clean, textured blank plaque. */
+.stage[data-graphics="v9"] .result{
+ position:relative!important;z-index:7!important;
+ width:min(82%,850px)!important;max-width:850px!important;
+ min-height:82px!important;max-height:140px!important;
+ margin:0 auto!important;
+ padding:14px clamp(33px,8%,100px)!important;
+ display:grid!important;place-items:center!important;
+ background:transparent url("/randomizer-textured/winner_plaque_blank.png?v=9") center/100% 100% no-repeat!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ color:#fff0c1!important;font-size:clamp(22px,2.5vw,42px)!important;
+ text-shadow:0 2px 4px #000c,0 0 9px #ffdf8694!important;
+}
+.stage[data-graphics="v9"] .v4-stamp{color:#b1edfc!important}
+@media(max-width:1100px){
+ .stage[data-graphics="v9"][data-mode="lottery"] #lottery{width:min(50%,410px)!important}
+ .stage[data-graphics="v9"][data-mode="slot"] #reel{width:61%!important}
+ .stage[data-graphics="v9"][data-mode="cards"] #cards.cards-fan{width:96%!important}
+}
+@media(max-height:740px) and (min-width:761px){
+ .stage[data-graphics="v9"][data-mode="lottery"] .visual:before,
+ .stage[data-graphics="v9"][data-mode="slot"] .visual:before{background-size:auto 94%!important}
+ .stage[data-graphics="v9"][data-mode="lottery"] #lottery{height:44%!important}
+ .stage[data-graphics="v9"][data-mode="cards"] #cards.cards-fan{height:82%!important}
+ .stage[data-graphics="v9"] .result{min-height:67px!important;padding-block:9px!important}
+}
+@media(max-width:760px){
+ .stage[data-graphics="v9"][data-mode="lottery"] .visual:before,
+ .stage[data-graphics="v9"][data-mode="slot"] .visual:before{background-size:auto 90%!important}
+ .stage[data-graphics="v9"][data-mode="lottery"] .visual:after{background-size:auto 51%!important}
+ .stage[data-graphics="v9"][data-mode="lottery"] #lottery{width:56%!important;height:47%!important;padding:1%!important}
+ .stage[data-graphics="v9"][data-mode="slot"] #reel{width:67%!important;height:34%!important}
+ .stage[data-graphics="v9"][data-mode="wheel"] .wheel-art-frame{width:82%!important}
+ .stage[data-graphics="v9"][data-mode="wheel"] #wheel{width:73%!important}
+ .stage[data-graphics="v9"][data-mode="cards"] #cards.cards-fan{width:98%!important}
+ .stage[data-graphics="v9"][data-mode="cards"] #cards.cards-fan .card{width:24%!important;flex-basis:24%!important}
+ .stage[data-graphics="v9"] .result{width:92%!important;min-height:68px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .stage[data-graphics="v9"] .card{transition:none!important}
+ .stage[data-graphics="v9"][data-mode="lottery"] .ball{animation:none!important}
+}
