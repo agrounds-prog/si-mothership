@@ -12,6 +12,15 @@ const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
    page.on('pageerror',err=>errors.push(err.message));
    await page.goto(BASE+'/?role=teacher',{waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>typeof render==='function'&&typeof state!=='undefined',{timeout:14000});
+   // Authenticate the isolated teacher view: the real UI hides controls while locked.
+   if(await page.locator('#teacherLoginOverlay:not(.hidden)').count()){
+     await page.locator('#teacherLoginKey').fill('5030');
+     await Promise.all([
+       page.waitForLoadState('domcontentloaded').catch(()=>{}),
+       page.locator('#teacherLoginForm').evaluate(el=>el.requestSubmit())
+     ]);
+     await page.waitForFunction(()=>!document.body.classList.contains('teacher-locked'),{timeout:14000});
+   }
    const check=async(label,id,art)=>{
     await page.waitForTimeout(1200);
     const info=await page.locator('#'+id).evaluate(el=>{
