@@ -6,7 +6,9 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
  fs.mkdirSync('/tmp/mp-v1-browser',{recursive:true});
  const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
  try{
-  for(const viewport of [{width:1440,height:900},{width:1280,height:800}]){
+  // Running an isolated classroom game changes server session state, so live launch
+  // scenarios use one authenticated desktop viewport per isolated server.
+  for(const viewport of [{width:1440,height:900}]){
    const ctx=await browser.newContext({viewport});
    const page=await ctx.newPage();
    const errs=[];page.on('pageerror',e=>errs.push(e.message));
