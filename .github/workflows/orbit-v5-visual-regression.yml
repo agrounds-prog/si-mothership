@@ -1,0 +1,50 @@
+name: ORBIT Illustrated V5 Visual Regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'orbit-polish.css'
+      - 'orbit-polish.js'
+      - 'orbit-nebula.svg'
+      - 'assets/orbit-v5/**'
+      - 'server.py'
+      - 'tests/test_orbit_classroom_browser.cjs'
+      - '.github/workflows/orbit-v5-visual-regression.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  orbit-illustrated:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Validate source
+        run: |
+          node --check orbit-polish.js
+          node --check tests/test_orbit_classroom_browser.cjs
+          python -m py_compile server.py
+          python scripts/release_gate.py --require-node
+      - name: Install isolated browser
+        run: |
+          pip install -r requirements.txt
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Launch isolated classroom
+        run: |
+          mkdir -p /tmp/mothership-orbit-v5
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-orbit-v5 PORT=8877 python server.py >/tmp/orbit-v5.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8877/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          tail -90 /tmp/orbit-v5.log
+          exit 1
+      - name: Verify ORBIT setup, shared screen, student, privacy, clusters and artwork
+        run: LOCAL_URL=http://127.0.0.1:8877 node tests/test_orbit_classroom_browser.cjs
+      - name: Diagnostics
+        if: failure()
+        run: tail -100 /tmp/orbit-v5.log || true
