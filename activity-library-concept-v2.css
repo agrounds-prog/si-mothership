@@ -392,3 +392,14 @@ body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .ac
    line-height:1.2!important;
  }
 }
+
+
+/* V2.3 final header cleanup: the concept uses a single clear headline.
+   Legacy descriptive text had wrapped across the illustrated frame edge. */
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .mode-title p,
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library #activitiesSubtitle{
+  display:none!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .mode-title h2{
+  line-height:1.2!important;
+}
