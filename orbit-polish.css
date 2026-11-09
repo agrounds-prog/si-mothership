@@ -2377,3 +2377,167 @@ body.role-student #studentContent .si-orbit-student-confirm{
   animation:none!important;transition:none!important;
  }
 }
+
+
+/* ORBIT v6 uploaded raster artwork — actual PNG visual layers with live DOM.
+   Never bake student text, live totals, or dynamically changing state into art. */
+:root{
+ --orbit-v6-logo:url('/orbit-v6/01_orbit_logo.png');
+ --orbit-v6-waiting:url('/orbit-v6/02_awaiting_crew_ideas_badge.png');
+ --orbit-v6-planet:url('/orbit-v6/04_question_planet_with_orbits.png');
+ --orbit-v6-pod:url('/orbit-v6/05_response_pod_shell.png');
+ --orbit-v6-teacher:url('/orbit-v6/07_teacher_mission_control_shell.png');
+ --orbit-v6-student:url('/orbit-v6/08_student_response_terminal_shell.png');
+ --orbit-v6-cluster:url('/orbit-v6/09_solar_grouping_chamber.png');
+}
+#teacher .orbit-planet-picker{
+ display:grid;grid-template-columns:minmax(0,1fr) 90px;gap:5px 11px;
+ align-items:center;padding:10px 15px 13px;margin:12px 0;
+ border:1px solid #5697bc;border-radius:11px;
+ background:linear-gradient(130deg,#071b37,#14224c);
+}
+#teacher .orbit-planet-picker label{grid-column:1/-1;margin:0!important;color:#e8d6ff}
+#teacher .orbit-planet-picker select{
+ background:#071932;color:#eaf9ff;font:800 13px/1.3 system-ui;
+ border:1px solid #6793cb;border-radius:8px;padding:10px;
+ min-width:0;height:44px;width:100%;cursor:pointer;
+}
+#teacher .orbit-planet-picker select:focus-visible{
+ outline:3px solid #ffe09a;outline-offset:2px;
+}
+#teacher .orbit-planet-picker small{
+ grid-column:1/-1;font:600 10px/1.5 system-ui;
+ color:#9dd6ef;
+}
+#teacher .orbit-planet-preview{
+ height:68px;width:77px;justify-self:center;
+ background:var(--orbit-v6-planet) center/contain no-repeat;
+ filter:var(--orbit-v6-color-filter,none);
+}
+.orbit-planet-picker[data-planet-style="ocean"],
+.orbit-public[data-orbit-planet="ocean"]{--orbit-v6-color-filter:hue-rotate(166deg) saturate(1.1)}
+.orbit-planet-picker[data-planet-style="violet"],
+.orbit-public[data-orbit-planet="violet"]{--orbit-v6-color-filter:hue-rotate(63deg) saturate(1.2)}
+.orbit-planet-picker[data-planet-style="emerald"],
+.orbit-public[data-orbit-planet="emerald"]{--orbit-v6-color-filter:hue-rotate(103deg) saturate(1.1)}
+.orbit-planet-picker[data-planet-style="ice"],
+.orbit-public[data-orbit-planet="ice"]{--orbit-v6-color-filter:hue-rotate(178deg) saturate(.44) brightness(1.23)}
+/* The existing v5 galaxy asset remains the responsive starfield hull. The
+   planet, response pods and control hardware are now image-backed PNGs. */
+#teacher #activityControllerPanel .orbit-control-card{
+ background:var(--orbit-v6-teacher) center/100% 100% no-repeat!important;
+ padding:clamp(28px,3.5vw,49px)!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+}
+#teacher #activityControllerPanel .orbit-response-row,
+#teacher #activityControllerPanel .si-orbit-command-head,
+#teacher #activityControllerPanel .si-orbit-preview-heading{
+ background:var(--orbit-v6-pod) center/100% 100% no-repeat!important;
+ border:0!important;box-shadow:none!important;
+}
+.orbit-public.orbit-cosmic .orbit-cosmic-brand{
+ position:relative;flex:0 1 35%;
+ width:clamp(180px,28vw,390px);min-width:0;
+ height:clamp(57px,6vw,88px);
+ background:var(--orbit-v6-logo) left center/contain no-repeat!important;
+}
+/* Leave accessible live headings in the DOM; artwork supplies the typography. */
+.orbit-public.orbit-cosmic .orbit-cosmic-brand>*{
+ position:absolute!important;clip-path:inset(50%)!important;
+ width:1px!important;height:1px!important;overflow:hidden!important;
+ white-space:nowrap!important;
+}
+.orbit-public.orbit-cosmic .orbit-cosmic-tally{
+ background:linear-gradient(#03142be3,#082646ef),
+ var(--orbit-v5-pod) center/100% 100% no-repeat!important;
+ border:1px solid #47cefa!important;
+ box-shadow:0 0 12px #2ccaff52,inset 0 1px #ddf9ff3d!important;
+}
+.orbit-public.orbit-cosmic .orbit-cosmic-state{
+ min-height:clamp(34px,4.5vh,51px)!important;
+ padding:7px clamp(18px,3vw,43px)!important;
+ background:var(--orbit-v5-pod) center/100% 100% no-repeat!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ color:#fff5ff;font-weight:950;
+ text-shadow:0 1px 4px #000c!important;
+}
+.orbit-public.orbit-cosmic[data-orbit-phase="waiting"] .orbit-cosmic-state{
+ background:var(--orbit-v6-waiting) center/100% 100% no-repeat!important;
+ color:transparent!important;text-shadow:none!important;
+ min-width:clamp(210px,33vw,440px);
+}
+.orbit-public.orbit-cosmic[data-orbit-phase="waiting"] .orbit-cosmic-state::before{
+ opacity:0!important;
+}
+.orbit-public.orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core,
+.orbit-public.orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core{
+ position:absolute!important;isolation:isolate!important;
+ background:transparent!important;border:0!important;border-radius:50%!important;
+ box-shadow:none!important;filter:none!important;overflow:visible!important;
+ padding:clamp(29px,4.1vw,52px)!important;
+ color:#fff!important;
+}
+.orbit-public.orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core::before,
+.orbit-public.orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core::before{
+ content:"";display:block!important;
+ position:absolute;z-index:-1!important;inset:-16%;
+ opacity:1!important;border:0!important;border-radius:0!important;
+ box-shadow:none!important;
+ background:var(--orbit-v6-planet) center/contain no-repeat!important;
+ filter:var(--orbit-v6-color-filter,none);
+ pointer-events:none;
+}
+.orbit-public.orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core::after,
+.orbit-public.orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core::after{
+ display:none!important;
+}
+.orbit-public.orbit-cosmic .orbit-core :is(h2,h3,p,strong){
+ color:#fff!important;
+ text-shadow:0 2px 5px #17052f,0 0 7px #000!important;
+ font-weight:900!important;
+}
+/* Each student idea is a real text node on a reusable blank PNG pod. */
+.orbit-public.orbit-cosmic .orbit-satellite,
+.orbit-public.orbit-cosmic .orbit-gallery-card,
+.orbit-public.orbit-cosmic .orbit-solar-planet{
+ background:var(--orbit-v6-pod) center/100% 100% no-repeat!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ color:#effcff!important;
+ padding:clamp(12px,1.45vw,20px)!important;
+}
+.orbit-public.orbit-cosmic .orbit-satellite :is(.orbit-sat-text,.orbit-sat-author),
+.orbit-public.orbit-cosmic .orbit-gallery-copy :is(p,.orbit-gallery-author),
+.orbit-public.orbit-cosmic .orbit-solar-idea :is(p,strong){
+ color:#fff!important;text-shadow:0 1px 4px #020818!important;
+}
+.orbit-public.orbit-cosmic .orbit-solar-system{
+ background:var(--orbit-v6-cluster) center/100% 100% no-repeat!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+}
+.orbit-public.orbit-cosmic .orbit-spotlight-broadcast{
+ background:var(--orbit-v6-teacher) center/100% 100% no-repeat!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+}
+body.role-student #studentContent .si-orbit-student{
+ background:var(--orbit-v6-student) center/100% 100% no-repeat!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ padding:clamp(30px,5.1vw,49px)!important;
+}
+@media(max-width:800px){
+ .orbit-public.orbit-cosmic .orbit-cosmic-brand{
+  width:clamp(145px,31vw,270px);height:clamp(42px,7vw,67px);
+ }
+ .orbit-public.orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core::before{
+  inset:-9%;
+ }
+}
+@media(max-width:500px){
+ #teacher .orbit-planet-picker{grid-template-columns:minmax(0,1fr) 68px;padding:8px}
+ #teacher .orbit-planet-preview{width:64px;height:62px}
+ body.role-student #studentContent .si-orbit-student{
+  padding:24px 23px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .orbit-public.orbit-cosmic .orbit-satellite{transition:none!important}
+}
