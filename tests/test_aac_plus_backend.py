@@ -74,7 +74,7 @@ class ACCTest(AioHTTPTestCase):
             response=await self.client.get("/aac-plus-art/"+name)
             self.assertEqual(response.status,200,name)
             self.assertEqual(response.content_type,"image/png",name)
-            self.assertTrue((await response.read()).startswith(b"\\x89PNG\\r\\n\\x1a\\n"),name)
+            self.assertTrue((await response.read()).startswith(bytes((137,80,78,71,13,10,26,10))),name)
         response=await self.client.get("/aac-plus-art/00_aac_plus_full_concept_mockup.png")
         self.assertEqual(response.status,404)
     async def test_kokoro_optional_teacher_gate_and_pilot_voices(self):
