@@ -67,3 +67,46 @@
 .si-plus-spot-save{background:#078eac!important;border-color:#7cf4ff!important}
 .si-plus-spot-remove{border-color:#b25a6e!important;background:#4d2030!important}
 @media(max-width:800px){.si-plus-spot-layout{grid-template-columns:1fr}.si-plus-spot-editor{padding:5px}.si-plus-spot-dialog{padding:11px;max-height:99dvh}}
+
+/* Image-fit repair: the editor must display all original image pixels.
+   The preview can be 16:9 or 4:3 or portrait; the image and pointer SVG
+   share a single dynamically sized, non-stretching stage. */
+.si-plus-spot-layout{align-items:start}
+.si-plus-spot-stage{
+ aspect-ratio:16 / 9; /* JS replaces this with the source image ratio on load */
+ align-self:start;
+ display:block;
+ height:auto;
+ min-height:0;
+ box-sizing:border-box;
+ overflow:hidden;
+}
+.si-plus-spot-stage .si-plus-spot-image{
+ display:block;
+ position:absolute;
+ inset:0;
+ width:100%;
+ height:100%;
+ max-width:none;
+ max-height:none;
+ object-fit:fill; /* aspect ratio matches the intrinsic image, so no distortion */
+ pointer-events:none;
+}
+.si-plus-spot-stage .si-plus-spot-drawing{
+ position:absolute;
+ inset:0;
+ display:block;
+ width:100%;
+ height:100%;
+}
+.si-plus-spot-layout aside{
+ min-width:0;
+ max-height:calc(96dvh - 122px);
+ overflow-y:auto;
+ overflow-x:hidden;
+ padding-right:4px;
+ scrollbar-gutter:stable;
+}
+@media(max-width:800px){
+ .si-plus-spot-layout aside{max-height:none;overflow:visible}
+}
