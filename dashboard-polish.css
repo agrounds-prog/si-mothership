@@ -4905,3 +4905,23 @@ body.si-v80-dashboard #teacher #homeAppGrid .app-shortcut.si-v90-illustrated-sho
  margin:0!important;padding:0!important;pointer-events:none!important;filter:drop-shadow(0 0 12px #57d5ff88)!important;
  transform:none!important;
 }
+
+
+/* Signal Sequence library picture — match standard illustrated thumbnail size.
+   The general v90 illustration rule compresses this app to 82px; other
+   Activity cards use the regular 108px photo frame. This overrides only
+   Signal Sequence without affecting the memory game or other library tiles. */
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library
+.real-app-card .act-icon.si-v90-graphic-ready.si-signal-sequence-thumbnail{
+  height:108px!important;
+  min-height:108px!important;
+  max-height:108px!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library
+.real-app-card .act-icon.si-signal-sequence-thumbnail svg.si-v90-graphic{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+}
