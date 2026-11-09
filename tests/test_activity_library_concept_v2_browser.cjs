@@ -36,6 +36,14 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
       boardArt:board?.querySelector('.si-v2-board-image')?.getAttribute('src'),
       boardDecoded:board?.querySelector('.si-v2-board-image')?.naturalWidth>0,
       shortcutCount:visible.filter(c=>!!c.querySelector('[data-add-app],[data-manage-shortcut],[data-assign-app]')).length,
+      labelOverlaps:visible.map(c=>{
+        const icon=c.querySelector('.act-icon')?.getBoundingClientRect();
+        const title=c.querySelector('h3')?.getBoundingClientRect();
+        const subtitle=c.querySelector('.app-meta')?.getBoundingClientRect();
+        return {name:c.querySelector('h3')?.textContent.trim(),titleHeight:title?.height||0,
+          titleAfterIcon:!!title&&!!icon&&title.top>=icon.bottom-2,
+          metaAfterTitle:!!subtitle&&!!title&&subtitle.top>=title.bottom-2};
+      }),
       xOverflow:root.scrollWidth-root.clientWidth,
       pagerNextDisabled:root.querySelector('.si-v2-next')?.disabled,
       pagerPrevDisabled:root.querySelector('.si-v2-prev')?.disabled};
@@ -51,6 +59,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.ok(a.shortcutCount===15,'Shortcut controls preserved');
   assert.ok(Math.max(...a.icons.map(x=>x.h))-Math.min(...a.icons.map(x=>x.h))<=2,'Artwork frame heights inconsistent');
   assert.ok(a.xOverflow<=14,'Horizontal overflow on desktop');
+  assert.ok(a.labelOverlaps.every(x=>x.titleHeight>=18&&x.titleAfterIcon&&x.metaAfterTitle),'Card title clipping: '+JSON.stringify(a.labelOverlaps));
   await root.screenshot({path:'/tmp/activity-library-v2-screens/1440-page-1.png',animations:'disabled'});
   await root.locator('.si-v2-next').click();
   const b=await get();
@@ -59,6 +68,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.equal(b.label,'Page 2 of 2');
   assert.ok(b.icons.some(x=>x.name==='SIGNAL SEQUENCE'),'Signal Sequence must remain available');
   assert.ok(Math.max(...b.icons.map(x=>x.h))-Math.min(...b.icons.map(x=>x.h))<=2,'Page two thumbnails differ in height');
+  assert.ok(b.labelOverlaps.every(x=>x.titleHeight>=18&&x.titleAfterIcon&&x.metaAfterTitle),'Page-two title clipping: '+JSON.stringify(b.labelOverlaps));
   await root.screenshot({path:'/tmp/activity-library-v2-screens/1440-page-2.png',animations:'disabled'});
   await root.locator('.si-v2-prev').click();
   const more=root.locator('.si-v2-extras-toggle');
