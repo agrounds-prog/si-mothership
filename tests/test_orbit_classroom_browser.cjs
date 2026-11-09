@@ -426,6 +426,12 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
     rootWidth:box.width,rootHeight:box.height,
     planetWidth:rect.width,planetHeight:rect.height,
     planetBackground:image.backgroundImage,
+    artLeft:image.left,artTop:image.top,artTransform:image.transform,
+    badgeSize:getComputedStyle(root.querySelector('.orbit-cosmic-state')).backgroundSize,
+    badgeRect:(()=>{
+      const r=root.querySelector('.orbit-cosmic-state').getBoundingClientRect();
+      return {width:r.width,height:r.height};
+    })(),
     planetSize:image.backgroundSize,
     questionColor:getComputedStyle(question).color,
     questionBackground:getComputedStyle(question).backgroundColor,
@@ -444,6 +450,16 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.ok(Math.abs(projector.planetWidth-projector.planetHeight)<=2,
    'Planet must be square rather than stretched');
   assert.equal(projector.planetSize,'contain');
+  assert.ok(Math.abs(parseFloat(projector.artLeft)-projector.planetWidth/2)<=2,
+   'Planet art must be horizontally centered on its question');
+  assert.ok(Math.abs(parseFloat(projector.artTop)-projector.planetHeight/2)<=2,
+   'Planet art must be vertically centered on its question');
+  assert.ok(projector.artTransform.includes('matrix('),
+   'Planet art should retain its centering transform');
+  assert.equal(projector.badgeSize,'contain',
+   'Awaiting crew badge must preserve original image proportions');
+  assert.ok(projector.badgeRect.height>=60,
+   'Awaiting crew badge must not collapse into a thin stretched strip');
   assert.ok(projector.planetBackground.includes('04_question_planet_with_orbits.png'));
   assert.equal(projector.questionColor,'rgb(255, 255, 255)');
   assert.ok(projector.questionBackground!=='rgba(0, 0, 0, 0)');
