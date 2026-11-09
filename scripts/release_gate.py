@@ -279,7 +279,21 @@ def main() -> int:
     check("activity library: release style remains", '<style id="v55-5-activity-library-organization">' in html)
     check("activity library: search remains teacher-local", "let activityLibraryQuery=''" in html and "activityLibraryQuery" not in segment(html, "function sharedStateSnapshot("))
     check("activity library: category filters remain", all(x in html for x in ("ACTIVITY_LIBRARY_CATEGORY_ORDER", "'presentation'", "'collaboration'", "'games'", "'tools'")))
-    check("activity library: every registered app category is represented", all(x in html for x in ("id==='si-plus'", "['vector','board','orbit']", "['minefield','sketch','pixel','starwheel','crew-survey','million','match','bingo','cosmic-cards','word-grid','dominoes']", "id==='scientific-calculator'")))
+    registry_match = re.search(r"const APP_REGISTRY=\\[(.*?)\\n\\];", html, re.S)
+    registry_ids = set(re.findall(r"\\{id:'([^']+)'", registry_match.group(1))) if registry_match else set()
+    category_function = segment(html, "function activityLibraryCategoryFor(", next_markers=("\\n}",))
+    categorized_ids = set(re.findall(
+        r"if\\(id==='([^']+)'\\)return '(?:presentation|collaboration|games|tools)'",
+        category_function,
+    ))
+    for group in re.findall(
+        r"if\\(\\[([^\\]]*)\\]\\.includes\\(id\\)\\)return '(?:presentation|collaboration|games|tools)'",
+        category_function,
+    ):
+        categorized_ids.update(re.findall(r"'([^']+)'", group))
+    check("activity library: every registered app category is represented",
+          bool(registry_ids) and registry_ids <= categorized_ids and
+          "spotlight" in registry_ids and "spotlight" in categorized_ids)
     check("activity library: recent shelf precedes saved presets", "activity-library-shelves" in library_render and "recentSection" in library_render and "presetSection" in library_render and "recentSection}${presetSection}" in library_render)
     check("activity library: catalog filters before rendering", "const visibleApps=APP_REGISTRY.filter(app=>activityLibraryMatches(app))" in library_render and "Showing ${visibleApps.length} of ${APP_REGISTRY.length}" in library_render)
     check("activity library: shortcut management remains available", all(x in library_render for x in ("data-shortcut-replace", "data-shortcut-remove", "data-manage-shortcut", "data-add-app")))
@@ -494,7 +508,10 @@ def main() -> int:
           all(x in match_save for x in ("const set={id:existing?.id", "name:String(matchDraft.name", "pairs,", "createdAt:existing?.createdAt")) and
           all(x not in match_save for x in ("matchLaunchSettings", "teamAssignments", "turnRule", "crewConsult")) and
           "const settings=deepClone(matchLaunchSettings)" in match_launch and
-          "matchConfig:{setId:set.id,name:set.name,pairs:deepClone(set.pairs),mode:settings.mode" in match_launch and
+          "matchConfig:{setId:set.id,name:set.name,pairs:deepClone(set.pairs),teacherControlled" in match_launch and
+          "mode:teacherControlled?'individual':settings.mode" in match_launch and
+          "turnRule:settings.turnRule" in match_launch and
+          "crewConsult:!!settings.crewConsult" in match_launch and
           "matchTeamAssignments" in html)
     check("match completion v55.27: recommended team defaults remain", "mode:\'teams\'" in html and "teamCount:3" in html and "turnRule:\'one_each\'" in html and "crewConsult:true" in html)
     check("match completion v55.27: authoritative team rotation remains", "_match_team_members" in server and "_match_advance_turn" in server and "teamPlayerIndexes" in server and "activeTeam" in server)
