@@ -6,6 +6,8 @@ on:
       - 'server.py'
       - 'match-pixel-teacher-art-v1.css'
       - 'match-illustrated-v2.css'
+      - 'match-illustrated-v2-png.css'
+      - 'MATCH_Illustrated_V2_GitHub/assets/match-illustrated-v2/**'
       - 'assets/match-illustrated-v2/**'
       - 'match-pixel-teacher-art-v1.js'
       - 'MATCH_PIXEL_REVEAL_Art_Pack_V1/**'
@@ -26,6 +28,9 @@ jobs:
         run: |
           python -m py_compile server.py
           node --check match-pixel-teacher-art-v1.js
+          test -s MATCH_Illustrated_V2_GitHub/assets/match-illustrated-v2/button_primary_green.png
+          test -s MATCH_Illustrated_V2_GitHub/assets/match-illustrated-v2/tile_numbered.png
+          test -s MATCH_Illustrated_V2_GitHub/assets/match-illustrated-v2/panel_main.png
           test -s MATCH_PIXEL_REVEAL_Art_Pack_V1/implementation/match/backgrounds/match_creator_background_1600x900.png
           test -s MATCH_PIXEL_REVEAL_Art_Pack_V1/implementation/match/backgrounds/match_live_background_1600x900.png
           test -s MATCH_PIXEL_REVEAL_Art_Pack_V1/implementation/pixel_reveal/backgrounds/pixel_reveal_studio_background_1600x900.png
