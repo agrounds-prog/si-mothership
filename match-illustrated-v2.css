@@ -1,0 +1,100 @@
+/* SI MATCH Illustrated V2 — standalone SVG artwork on native teacher controls.
+   No flattened screenshot. All data and click handlers remain unchanged. */
+#teacher #activitiesPanel.si-mp-match-studio{--v2-ice:#eafaff;--v2-cyan:#80eaff;padding:clamp(12px,1.5vw,23px)!important}
+#teacher #activitiesPanel.si-mp-match-studio .mode-title{
+  min-height:89px!important;padding:14px clamp(14px,2vw,26px)!important;
+  background:transparent url('/match-v2-art/header.svg') center/100% 100% no-repeat!important;
+  border:0!important;box-shadow:none!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-hero{
+  min-height:129px!important;padding:clamp(14px,1.6vw,25px)!important;
+  background:transparent url('/match-v2-art/header.svg') center/100% 100% no-repeat!important;
+  border:0!important;box-shadow:none!important;margin:12px 0 14px!important;gap:17px!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-hero-mark{
+  background:transparent url('/mp-teacher-art/shared/branding/match_emblem.png') center/contain no-repeat!important;
+  width:clamp(86px,9vw,139px)!important;height:clamp(78px,8vw,119px)!important;
+  flex:0 0 clamp(86px,9vw,139px)!important;border:0!important;
+  filter:drop-shadow(0 0 14px #3ce3ff99) drop-shadow(0 5px 7px #000a)!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-hero-stats>span{
+  min-width:83px!important;padding:12px 14px!important;
+  background:transparent url('/match-v2-art/stat.svg') center/100% 100% no-repeat!important;
+  border:0!important;box-shadow:none!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-hero-stats strong{
+  color:#b6ffe3!important;text-shadow:0 0 13px #70ffe0!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-hero-text h2{
+  font-size:clamp(28px,3vw,44px)!important;color:#fff!important;
+  text-shadow:0 2px 8px #000,0 0 17px #6ddaff6c!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-layout{
+  grid-template-columns:minmax(0,1.27fr) minmax(320px,.88fr)!important;
+  gap:clamp(10px,1.2vw,17px)!important;align-items:start!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-card{
+  background:transparent url('/match-v2-art/panel.svg') center/100% 100% no-repeat!important;
+  border:0!important;border-radius:17px!important;
+  padding:clamp(15px,1.4vw,23px)!important;
+  box-shadow:inset 0 1px #a5faff2f,0 10px 23px #0007!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-preview,
+#teacher #activitiesPanel.si-mp-match-studio .mcb-settings,
+#teacher #activitiesPanel.si-mp-match-studio .mcb-saved{
+  background:transparent url('/match-v2-art/panel.svg') center/100% 100% no-repeat!important;
+  border:0!important;border-radius:16px!important;box-shadow:0 9px 20px #0008!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-modes{gap:10px!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-modes button{
+  min-height:91px!important;padding:12px 15px!important;
+  border:0!important;border-radius:11px!important;box-shadow:none!important;
+  background:transparent url('/match-v2-art/mode_idle.svg') center/100% 100% no-repeat!important;
+  color:#eefbff!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-modes button:nth-child(2):not(.active){
+  background-image:url('/match-v2-art/mode_purple.svg')!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-modes button.active{
+  background-image:url('/match-v2-art/mode_active.svg')!important;
+  box-shadow:0 0 15px #20efc755!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-modes button b{color:#fff!important;font-size:clamp(11px,1.05vw,15px)!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-modes button small{color:#cbe9f5!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-board{gap:clamp(5px,.65vw,10px)!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-board-tile{
+  background:transparent url('/match-v2-art/board_tile.svg') center/100% 100% no-repeat!important;
+  border:0!important;border-radius:10px!important;box-shadow:none!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-board-tile b{
+  font-size:clamp(19px,2.1vw,32px)!important;
+  color:#fff!important;text-shadow:0 0 12px #82e9ff,0 3px 4px #061426!important}
+#teacher #activitiesPanel.si-mp-match-studio :is(.mcb-upload-row button,#mcbNewBlank,.mcb-main-actions button,.mcb-image-tabs button,.mcb-saved-set button,#mcbMakePairs){
+  background:transparent url('/match-v2-art/button_blue.svg') center/100% 100% no-repeat!important;
+  border:0!important;box-shadow:none!important;color:#fff!important;
+  border-radius:9px!important;padding:11px 15px!important;min-height:45px!important;
+  text-shadow:0 2px 5px #041223!important;font-weight:900!important;
+  transition:transform .14s ease,filter .14s ease!important}
+#teacher #activitiesPanel.si-mp-match-studio :is(#mcbSaveLaunch,#mcbMakePairs,[data-mcb-launch]){
+  background-image:url('/match-v2-art/button_green.svg')!important;
+  color:#f7fff9!important;text-shadow:0 2px 5px #032218!important}
+#teacher #activitiesPanel.si-mp-match-studio #mcbSaveLaunch{
+  min-height:63px!important;min-width:225px!important;
+  padding:14px 25px!important;font-size:clamp(13px,1.1vw,17px)!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-image-tabs button.active{
+  background-image:url('/match-v2-art/button_orange.svg')!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-saved-set [data-mcb-delete]{
+  background-image:url('/match-v2-art/button_red.svg')!important}
+#teacher #activitiesPanel.si-mp-match-studio :is(.mcb-image-build,.mcb-saved-set){
+  border:0!important;box-shadow:none!important;
+  background:transparent url('/match-v2-art/row.svg') center/100% 100% no-repeat!important;
+  padding:13px 15px!important;border-radius:11px!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-image-library{
+  background:transparent url('/match-v2-art/gallery.svg') center/100% 100% no-repeat!important;
+  border:1px solid #73e4ff60!important;border-radius:12px!important;padding:9px!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-shell button:not(:disabled):hover{
+  filter:brightness(1.17) drop-shadow(0 0 9px #6beaff6e)!important;
+  transform:translateY(-2px)!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-shell button:not(:disabled):active{
+  transform:translateY(2px)!important;filter:brightness(.96)!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-shell button:disabled{
+  background-image:url('/match-v2-art/button_disabled.svg')!important;
+  opacity:.62!important;filter:saturate(.65)!important;cursor:not-allowed!important;transform:none!important}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-shell button:focus-visible{
+  outline:3px solid #ffe49e!important;outline-offset:3px!important}
+@media(max-width:1130px){
+  #teacher #activitiesPanel.si-mp-match-studio .mcb-layout{grid-template-columns:1fr!important}
+  #teacher #activitiesPanel.si-mp-match-studio .mcb-sidebar{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #teacher #activitiesPanel.si-mp-match-studio .mcb-preview{grid-column:1/-1!important}}
+@media(max-width:760px){
+  #teacher #activitiesPanel.si-mp-match-studio .mcb-modes{grid-template-columns:1fr!important}
+  #teacher #activitiesPanel.si-mp-match-studio .mcb-sidebar{grid-template-columns:1fr!important}}
+@media(prefers-reduced-motion:reduce){
+  #teacher #activitiesPanel.si-mp-match-studio .mcb-shell button{transition:none!important;transform:none!important}}
