@@ -252,7 +252,18 @@ function bbsUpdateSelections(){
     'Check '+Math.max(0,need-selected.size)+' more picture'+(need-selected.size===1?'':'s')+' to create a board.';
 }
 function bbsWire(){
-  const $=x=>document.querySelector(x),$$=x=>[...document.querySelectorAll(x)];
+  const $=x=>document.querySelector(x),$=x=>[...document.querySelectorAll(x)];
+  // The illustrated board can be taller than a compact Zoom teacher window.
+  // Give the studio its own usable scroll area instead of clipping Save/Launch
+  // below Mothership's constrained Activities pane.
+  const outer=$('#activitiesPanel');
+  if(outer?.querySelector('.bbs-studio')){
+    const top=Math.max(0,outer.getBoundingClientRect().top);
+    const available=Math.max(300,Math.floor(innerHeight-top-12));
+    outer.style.setProperty('max-height',available+'px','important');
+    outer.style.setProperty('overflow-y','auto','important');
+    outer.style.setProperty('overflow-x','hidden','important');
+  }
   const name=$('#bbsName');if(name)name.oninput=e=>{bingoDraft.name=e.target.value;const title=$('#bbsTitle');if(title)title.textContent=e.target.value||'My Bingo Board'};
   const size=$('#bbsSize');if(size)size.onchange=e=>{
     const n=Number(e.target.value),old=bbsSize();
