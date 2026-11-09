@@ -23,6 +23,19 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
    native:typeof launchOrbit==='function',
    persistedKey:typeof ORBIT_STORE==='string'}));
   assert.deepEqual(script,{stylesheet:true,script:true,native:true,persistedKey:true});
+  // v5 graphics are routed only from the approved ORBIT asset pack.
+  for(const asset of ['orbit-galaxy-stage.svg','orbit-question-planet.svg',
+    'orbit-hull-panel.svg','orbit-response-pod.svg','orbit-moon-badge.svg',
+    'orbit-graphic-button.svg','orbit-student-terminal.svg','orbit-solar-chamber.svg']){
+    const response=await t.request.get(BASE+'/orbit-v5/'+asset);
+    assert.equal(response.status(),200,'ORBIT art '+asset);
+    assert.match(response.headers()['content-type']||'',/image\/svg\+xml/);
+    assert.ok((await response.body()).length>1000,asset);
+  }
+  assert.equal((await t.request.get(BASE+'/orbit-v5/invalid.svg')).status(),404);
+  assert.equal(await t.locator('.orbit-setup').evaluate(el=>
+    getComputedStyle(el).backgroundImage.includes('orbit-galaxy-stage.svg')),true,
+    'ORBIT teacher setup must use illustrated space art');
   await t.locator('#orbitPrompt').fill('How can we make everyone feel included in our classroom?');
   assert.match(await t.locator('.orbit-prompt-count').innerText(),/60\s*\/\s*500|[0-9]+ \/ 500/);
   await t.setViewportSize({width:490,height:830});
