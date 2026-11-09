@@ -170,6 +170,9 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await page.locator('[data-new-effect="outline"]').click();
   await page.waitForFunction(()=>document.querySelectorAll("#siPlusSpotlightEditor .si-plus-spot-list button").length===3);
   // Move/Select stays active; the empty rightmost strip must remain drawable.
+  // The whole studio dialog now scrolls instead of the narrow inspector, so
+  // return the image to the viewport before sending actual pointer gestures.
+  await svg.scrollIntoViewIfNeeded();
   const fullCanvas=await svg.boundingBox();
   await page.mouse.move(fullCanvas.x+fullCanvas.width*.87,fullCanvas.y+fullCanvas.height*.06);
   await page.mouse.down();
