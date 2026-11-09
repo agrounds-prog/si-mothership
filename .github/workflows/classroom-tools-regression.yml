@@ -12,6 +12,7 @@ on:
       - aac-plus.js
       - aac_plus_server.py
       - "aac_plus_asset_pack/**"
+      - 'assets/aac-plus-v4/**'
       - randomizer.html
       - tests/test_activity_tools_browser.cjs
       - .github/workflows/classroom-tools-regression.yml
@@ -49,6 +50,13 @@ jobs:
           exit 1
       - name: Check Activities and home shortcuts
         run: node tests/test_activity_tools_browser.cjs
+      - name: Upload illustrated AAC+ browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aac-v4-editor-share-student-screens
+          path: /tmp/aac-v4-screens/*.png
+          if-no-files-found: ignore
       - name: Server log on failure
         if: failure()
         run: tail -100 /tmp/tools-server.log || true
