@@ -290,3 +290,66 @@ body.si-v80-dashboard #teacher #activitiesPanel.si-v2-library .si-v2-pagination 
 @media(prefers-reduced-motion:reduce){
  body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .activity-catalog-grid .real-app-card{transition:none!important;transform:none!important;}
 }
+
+
+/* V2.1 screenshot review: keep title + subtitle from collapsing under
+   legacy flex-shrink rules, and fit all three desktop rows above pagination. */
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .activity-catalog-grid .real-app-card{
+  height:204px!important;min-height:204px!important;max-height:204px!important;
+  padding:9px 10px!important;gap:2px!important;
+  flex-shrink:0!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .activity-catalog-grid .real-app-card .act-icon,
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .activity-catalog-grid .real-app-card .act-icon.si-v90-graphic-ready,
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .activity-catalog-grid .real-app-card .act-icon.si-signal-sequence-thumbnail{
+  height:90px!important;min-height:90px!important;max-height:90px!important;
+  flex:0 0 90px!important;margin:0 0 2px!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .activity-catalog-grid .real-app-card h3{
+  display:block!important;
+  flex:0 0 20px!important;
+  height:20px!important;min-height:20px!important;max-height:20px!important;
+  margin:2px 0 0!important;padding:0!important;
+  font:950 clamp(13px,1.17vw,17px)/20px system-ui!important;
+  color:#f4fbff!important;text-shadow:0 2px 6px #000!important;
+  overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .activity-catalog-grid .real-app-card .app-meta{
+  display:block!important;
+  flex:0 0 15px!important;min-height:15px!important;max-height:15px!important;
+  margin:0!important;padding:0!important;
+  font:750 10px/15px system-ui!important;color:#94e9ff!important;
+  overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .activity-catalog-grid .real-app-card .real-app-actions{
+  flex:0 0 42px!important;
+  min-height:42px!important;height:42px!important;
+  margin-top:auto!important;align-items:stretch!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .activity-catalog-grid .real-app-card .real-app-actions button[data-open-app]{
+  height:41px!important;min-height:41px!important;
+  padding:6px 8px!important;white-space:nowrap!important;
+  font-size:clamp(10px,.9vw,12px)!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library
+ .activity-catalog-grid .real-app-card:has([data-open-app="scientific-calculator"]) h3{
+  font-size:13px!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .mode-title{
+  flex-wrap:nowrap!important;gap:12px!important;min-height:77px!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .mode-title > :first-child{
+  min-width:0!important;flex:1 1 auto!important;
+}
+@media(max-width:1000px){
+ body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .mode-title{
+   flex-wrap:nowrap!important;justify-content:space-between!important;
+   min-height:82px!important;
+ }
+ body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .mode-title h2{
+   font-size:clamp(20px,2.5vw,28px)!important;
+ }
+ body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .mode-title p{
+   font-size:11px!important;
+ }
+}
