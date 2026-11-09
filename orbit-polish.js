@@ -491,7 +491,56 @@
   // to the confirmation. The footer remains available in every other app.
   if(wrap?.dataset.app==='orbit')wrap.dataset.siOrbitStudentSimple='true';
  }
+
+ // ORBIT v6 planet appearance is a saved setting on the existing draft.
+ // Stored in orbitConfig on launch, preserving refresh and shared-screen sync.
+ const ORBIT_PLANET_STYLES={ember:'Ember · Orange / Magenta',ocean:'Ocean · Blue',
+  violet:'Nebula · Violet',emerald:'Aurora · Green',ice:'Ice · Silver / Cyan'};
+ function polishPlanetChoice(setup){
+  if(!setup||typeof state==='undefined')return;
+  const draft=typeof ensureOrbitDraft==='function'?ensureOrbitDraft():state.orbitDraft;
+  if(!draft)return;
+  const holder=setup.querySelector('.orbit-setup .orbit-card')||setup.querySelector('.orbit-card');
+  if(!holder)return;
+  let control=setup.querySelector('#orbitPlanetStyle');
+  if(!control){
+   const row=document.createElement('div');
+   row.className='orbit-planet-picker';
+   const label=document.createElement('label');
+   label.className='vector-label';label.htmlFor='orbitPlanetStyle';
+   label.textContent='Planet appearance';
+   const select=document.createElement('select');select.id='orbitPlanetStyle';
+   Object.entries(ORBIT_PLANET_STYLES).forEach(([key,name])=>{
+    const option=document.createElement('option');option.value=key;option.textContent=name;
+    select.append(option);
+   });
+   const preview=document.createElement('div');preview.className='orbit-planet-preview';
+   preview.setAttribute('aria-hidden','true');
+   const hint=document.createElement('small');hint.textContent='Saved with this ORBIT · appears on the teacher preview and shared screen';
+   row.append(label,select,preview,hint);
+   const mode=holder.querySelector('.orbit-mode-row');
+   if(mode)mode.before(row);else holder.append(row);
+   select.addEventListener('change',()=>{
+    draft.planetStyle=Object.hasOwn(ORBIT_PLANET_STYLES,select.value)?select.value:'ember';
+    row.dataset.planetStyle=draft.planetStyle;
+   });
+   control=select;
+  }
+  const value=Object.hasOwn(ORBIT_PLANET_STYLES,draft.planetStyle)?draft.planetStyle:'ember';
+  if(control.value!==value)control.value=value;
+  control.closest('.orbit-planet-picker').dataset.planetStyle=value;
+ }
+ function polishPlanetStage(){
+  if(typeof state==='undefined'||state.activityRun?.activityId!=='orbit-game')return;
+  const chosen=state.activityRun.orbitConfig?.planetStyle;
+  const variant=Object.hasOwn(ORBIT_PLANET_STYLES,chosen)?chosen:'ember';
+  document.querySelectorAll('.orbit-public.orbit-cosmic').forEach(el=>{
+   if(el.dataset.orbitPlanet!==variant)el.dataset.orbitPlanet=variant;
+   if(el.dataset.orbitArt!=='v6')el.dataset.orbitArt='v6';
+  });
+ }
  function enhance(){
+  polishPlanetStage();
   if(document.body.classList.contains('role-shared')||document.body.classList.contains('role-student')){
    const r=typeof state!=='undefined'?state.activityRun:null;
    if(document.body.classList.contains('role-student')&&r?.activityId==='orbit-game')
@@ -501,6 +550,7 @@
   const setup=document.querySelector('#activityGrid .orbit-setup');
   if(setup){
    setup.dataset.orbitPolished='true';
+   polishPlanetChoice(setup);
    const ta=setup.querySelector('#orbitPrompt');
    const label=ta?.previousElementSibling;
    if(label&&label.tagName==='LABEL'&&!label.hasAttribute('for'))label.setAttribute('for','orbitPrompt');
