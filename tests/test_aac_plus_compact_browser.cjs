@@ -74,7 +74,7 @@ if(!/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/?$/.test(BASE))throw Error('AA
     // Exercise the same 2x3 / 3x3 / 4x4 CSS with inert DOM-only samples.
     const grid=document.querySelector('#studentTiles');
     grid.dataset.layout=layout;
-    grid.style.setProperty('--cols',String(layouts[layout][1]));
+    grid.style.setProperty('--cols',layout.split('x')[1]);
     const cells=tiles.map(t=>{
       const button=document.createElement('button');
       button.type='button';button.className='aac-tile';
