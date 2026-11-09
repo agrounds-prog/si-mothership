@@ -1,0 +1,80 @@
+name: Activity Library V2 Illustrated Browser Regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server.py'
+      - 'activity-library-concept-v2.css'
+      - 'activity-library-concept-v2.js'
+      - 'assets/activity-library-v2/**'
+      - 'tests/test_activity_library_concept_v2_browser.cjs'
+      - '.github/workflows/activity-library-concept-v2.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  library:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Validate teacher source and SVG art
+        run: |
+          python -m py_compile server.py
+          node --check activity-library-concept-v2.js
+          test -s assets/activity-library-v2/board-whiteboard.svg
+          test -s assets/activity-library-v2/card-frame.svg
+          test -s assets/activity-library-v2/open-button.svg
+          test -s assets/activity-library-v2/library-header.svg
+      - name: Install app and Chromium
+        run: |
+          pip install -r requirements.txt
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Start isolated classroom server
+        run: |
+          mkdir -p /tmp/activity-library-v2-storage
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/activity-library-v2-storage PORT=8877 python server.py > /tmp/activity-library-v2-server.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8877/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/activity-library-v2-server.log
+          exit 1
+      - name: Verify page assets and browser injection
+        run: |
+          python - <<'PY'
+          from urllib.request import urlopen
+          base='http://127.0.0.1:8877'
+          for path in [
+            '/activity-library-concept-v2.css',
+            '/activity-library-concept-v2.js',
+            '/activity-library-v2-art/card-frame.svg',
+            '/activity-library-v2-art/open-button.svg',
+            '/activity-library-v2-art/library-header.svg',
+            '/activity-library-v2-art/board-whiteboard.svg',
+          ]:
+            with urlopen(base+path,timeout=8) as response:
+              data=response.read()
+              assert response.status==200 and len(data)>100,(path,response.status,len(data))
+              print('PASS',path,len(data))
+          with urlopen(base+'/',timeout=8) as response: html=response.read().decode()
+          assert 'activity-library-concept-v2.css?v=1' in html
+          assert 'activity-library-concept-v2.js?v=1' in html
+          print('PASS V2 source injection')
+          PY
+      - name: Verify two pages in Chromium and preserve buttons
+        run: node tests/test_activity_library_concept_v2_browser.cjs
+      - name: Upload actual Activity Library screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: activity-library-v2-browser-screens
+          path: /tmp/activity-library-v2-screens/*.png
+          if-no-files-found: ignore
+      - name: Show diagnostics on failure
+        if: failure()
+        run: tail -70 /tmp/activity-library-v2-server.log || true
