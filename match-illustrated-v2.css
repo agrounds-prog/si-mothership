@@ -114,3 +114,29 @@
   background-image:url('/match-v2-art/button_disabled.svg')!important;
   color:#b7d2df!important;
 }
+
+/* V2.2 visual QA: the universal setup banner duplicates the MATCH hero.
+   Its content is guidance only; no gameplay or form fields are removed. */
+#teacher #activitiesPanel.si-mp-match-studio #siGameSetupGuide{
+  display:none!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mode-title{
+  min-height:85px!important;
+  background:linear-gradient(105deg,#06172ef0,#0b2e4bcf),url('/mp-teacher-art/match/backgrounds/match_creator_background_1600x900.png') center 23%/cover no-repeat!important;
+  border:1px solid #4fc5e5!important;
+  border-radius:12px!important;
+  box-shadow:inset 0 1px #abf8ff56,0 6px 18px #0007!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-hero{
+  margin-top:10px!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-hero-text,
+#teacher #activitiesPanel.si-mp-match-studio .mcb-hero-stats,
+#teacher #activitiesPanel.si-mp-match-studio .mcb-hero-mark{
+  position:relative!important;z-index:1!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-hero:before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg,#05162a4a,transparent 60%);border-radius:14px;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-hero{position:relative!important;}
