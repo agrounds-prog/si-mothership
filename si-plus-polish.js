@@ -1258,7 +1258,11 @@
   // IDs across teacher mirror and shared view can reference the wrong SVG.
   const token="siSpot"+String(prefix||"layer"+(++renderId)).replace(/[^a-zA-Z0-9_-]/g,"");
   const glowId=token+"Glow",maskId=token+"Mask";
-  const selected=zones.filter(z=>visible.includes(z.id));
+  // Draw the *final saved geometry* for each region. A live toggle changes
+  // only visibility; intermediate drag/resize history is editor-only.
+  const selected=zones.filter(z=>visible.includes(z.id)).map(z=>({
+   ...z,x:Number(z.x),y:Number(z.y),w:Number(z.w),h:Number(z.h)
+  }));
   const dims=selected.filter(z=>z.effect==="dim");
   let html='<defs><filter id="'+glowId+'" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter>';
   if(dims.length)html+='<mask id="'+maskId+'"><rect width="1000" height="562.5" fill="white"/>'+dims.map(z=>shape(z,{fill:"black"})).join("")+'</mask>';
@@ -1285,7 +1289,7 @@
   const info=live();if(!info)return markup;
   const imageMatch=markup.match(/<div class="si-plus-viewport-image"([^>]*)>([\s\S]*?)<\/div>/);
   if(!imageMatch)return markup;
-  const zoneMarkup=highlight(info.slide.siSpotlight.zones||[],liveVisibility(info));
+  const zoneMarkup=highlight(info.slide.siSpotlight.zones||[],liveVisibility(info),"saved"+info.slide.id);
   const inner=imageMatch[2];
   const decorate='<svg class="si-plus-spotlight-inline" viewBox="0 0 1000 562.5" preserveAspectRatio="none" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible">'+zoneMarkup+'</svg>';
   let attributes=imageMatch[1];
