@@ -1,0 +1,50 @@
+name: Signal Sequence Library Thumbnail Browser QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'dashboard-polish.js'
+      - 'dashboard-polish.css'
+      - 'tests/test_signal_sequence_library_thumbnail.cjs'
+      - '.github/workflows/signal-sequence-library-thumbnail.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  thumbnail:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Install app and browser
+        run: |
+          pip install -r requirements.txt
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Boot isolated classroom server
+        run: |
+          mkdir -p /tmp/signal-library-data
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/signal-library-data PORT=8877 python server.py >/tmp/signal-library-server.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8877/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/signal-library-server.log
+          exit 1
+      - name: Validate Signal Sequence image dimensions and visual extent
+        run: |
+          node --check dashboard-polish.js
+          node tests/test_signal_sequence_library_thumbnail.cjs
+      - name: Save rendered thumbnails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: signal-sequence-thumbnail-screenshots
+          path: /tmp/signal-library-thumb/*.png
+          if-no-files-found: ignore
+      - name: App logs on failure
+        if: failure()
+        run: tail -65 /tmp/signal-library-server.log || true
