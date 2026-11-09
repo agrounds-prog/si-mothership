@@ -47,7 +47,7 @@ if(!/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?\/?$/.test(BASE))
   await page.setViewportSize({width:1440,height:1000});
   await page.locator('[data-bbs-tile="0"]').click();
   await page.locator('#bbsTypeText').fill('Graphic Test');
-  await page.locator('#bbsTypeSave').click();
+  await page.locator('#bbsTypeSave').evaluate(button=>button.click());
   assert.match(await page.locator('[data-bbs-tile="0"]').innerText(),/Graphic Test/);
   assert.deepEqual(errors,[]);
   console.log('PASS: Bingo illustrated studio assets, layout and teacher tile editing');

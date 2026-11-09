@@ -3358,3 +3358,37 @@ body.role-student #studentContent .crew-survey-verbal .crew-survey-speak-cue spa
 @media(prefers-reduced-motion:reduce){
  #teacher .bbs-studio button{transition:none!important;transform:none!important}
 }
+
+
+/* In-tile text editing must remain usable at all board sizes, even after
+   a narrow-window -> desktop resize or long teacher page scroll. */
+#teacher .bbs-board-panel{overflow:visible!important}
+#teacher .bbs-tile.bbs-edit{
+  display:flex!important;flex-direction:column!important;
+  align-items:stretch!important;justify-content:center!important;
+  gap:clamp(1px,.25vw,4px)!important;
+  padding:clamp(3px,.5vw,8px)!important;
+  overflow:hidden!important;
+}
+#teacher .bbs-tile.bbs-edit>label{
+  display:block!important;width:100%!important;max-height:60%!important;
+  padding:0!important;margin:0!important;
+  font-size:clamp(7px,.65vw,10px)!important;line-height:1.05!important;
+}
+#teacher .bbs-tile.bbs-edit #bbsTypeText{
+  display:block!important;width:100%!important;min-width:0!important;
+  height:clamp(20px,2vw,29px)!important;min-height:0!important;
+  max-height:29px!important;margin-top:2px!important;
+  padding:2px 3px!important;font-size:clamp(9px,.85vw,13px)!important;
+}
+#teacher .bbs-tile.bbs-edit>div{
+  display:flex!important;align-items:stretch!important;
+  width:100%!important;max-height:30%!important;
+  gap:clamp(2px,.25vw,4px)!important;
+}
+#teacher .bbs-tile.bbs-edit>div>button{
+  display:block!important;flex:1 1 0!important;min-width:0!important;
+  min-height:22px!important;height:clamp(22px,2vw,29px)!important;
+  max-height:29px!important;padding:2px!important;
+  font:900 clamp(8px,.75vw,11px)/1 system-ui!important;
+}
