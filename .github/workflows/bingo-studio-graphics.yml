@@ -9,6 +9,7 @@ on:
       - 'server.py'
       - 'tests/test_bingo_studio_art.py'
       - 'tests/test_bingo_studio_graphic_browser.cjs'
+      - 'tests/test_bingo_image_upload_browser.cjs'
       - '.github/workflows/bingo-studio-graphics.yml'
   workflow_dispatch:
 permissions: {contents: read}
