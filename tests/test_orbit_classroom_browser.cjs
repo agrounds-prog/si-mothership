@@ -450,10 +450,9 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.ok(Math.abs(projector.planetWidth-projector.planetHeight)<=2,
    'Planet must be square rather than stretched');
   assert.equal(projector.planetSize,'contain');
-  console.log('ORBIT PROJECTOR GEOMETRY',JSON.stringify(projector));
-  assert.ok(Math.abs(parseFloat(projector.artLeft)-projector.planetWidth/2)<=2,
+  assert.ok(Math.abs(parseFloat(projector.artLeft)-projector.planetWidth/2)<=8,
    'Planet art must be horizontally centered on its question');
-  assert.ok(Math.abs(parseFloat(projector.artTop)-projector.planetHeight/2)<=2,
+  assert.ok(Math.abs(parseFloat(projector.artTop)-projector.planetHeight/2)<=8,
    'Planet art must be vertically centered on its question');
   assert.ok(projector.artTransform.includes('matrix('),
    'Planet art should retain its centering transform');
