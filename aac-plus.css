@@ -54,3 +54,203 @@
  .aac .aac-voice-controls label{flex:1 1 125px;min-width:125px;font-size:12px}
  .aac .aac-voice-controls button{width:100%}
 }
+
+
+/* AAC+ v2 — illustrated floating communication studio, preserving accessible student tiles */
+body.aac-teacher{
+ --aac-ice:#d7f8ff;--aac-purple:#c89eff;--aac-steel:#47698e;
+ color:#f0f9ff;
+ background:
+  radial-gradient(ellipse at 72% -5%,#5e368355 0,transparent 49%),
+  radial-gradient(ellipse at 4% 60%,#0b558050 0,transparent 48%),
+  linear-gradient(160deg,#060e22,#051529 42%,#030a1a 100%);
+ background-attachment:fixed;
+}
+body.aac-teacher::before{
+ content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.26;
+ background-image:radial-gradient(#b6ddff 1px,transparent 1px),linear-gradient(115deg,transparent 10%,#59a4d612 25%,transparent 38%);
+ background-size:95px 97px,100% 100%;
+}
+body.aac-teacher::after{
+ content:"";position:fixed;left:0;right:0;bottom:0;height:100px;pointer-events:none;z-index:-1;
+ background:url('/command-deck-art/deck-floor-trim.svg') center bottom/100% 100% no-repeat;opacity:.42;
+}
+.aac-teacher .aac-header{
+ min-height:78px;gap:16px;padding:10px clamp(16px,2.6vw,36px);
+ border-bottom:2px solid #7ac7f2;
+ background:radial-gradient(ellipse at 42% -35%,#713f9360,transparent 60%),linear-gradient(110deg,#070e27,#092a43 52%,#071225);
+ box-shadow:inset 0 1px #d1f9ff4d,inset 0 -8px 24px #0009,0 8px 30px #000a;
+}
+.aac-teacher .aac-brand{gap:12px;font-size:20px;min-width:0;line-height:1}
+.aac-brand-supra{display:block;color:#a8c7ed;font-size:9px;letter-spacing:.23em;font-weight:800;margin-bottom:4px}
+.aac-teacher .aac-brand strong{font-size:27px;color:#f2f8ff;letter-spacing:.05em;font-style:normal;text-shadow:0 0 18px #72d8ff7d}
+.aac-teacher .aac-brand .aac-plus-mark{color:#d4acff}
+.aac-teacher .aac-brand small{font-size:9px;letter-spacing:.22em;margin-top:3px;color:#a5e8ff}
+.aac-brand-icon{
+ width:52px;height:52px;flex:0 0 52px;display:grid;place-items:center;
+ font-size:31px;color:#eee2ff;
+ border:1px solid #b5a1ff;border-radius:12px;
+ background:radial-gradient(circle at 42% 25%,#bd8fff66,transparent 60%),linear-gradient(135deg,#442a75,#061a35 75%);
+ box-shadow:inset 0 1px #f3d9ff91,0 0 18px #795cd955,0 5px 13px #000a
+}
+.aac-teacher .aac-header-note{
+ display:flex;align-items:center;gap:8px;color:#bdeaf9;
+ font-size:10px;font-weight:900;letter-spacing:.15em;white-space:nowrap;
+}
+.aac-header-note-secondary{color:#87a9c5}
+.aac-live-dot{height:7px;width:7px;display:inline-block;border-radius:50%;background:#63efc6;box-shadow:0 0 12px #48eeba}
+.aac-teacher .aac-close-studio{padding:10px 15px;white-space:nowrap;font-size:12px;min-width:126px}
+.aac-teacher .aac-screen{max-width:1450px;padding:clamp(16px,2.3vw,32px);position:relative}
+.aac-studio-hero{
+ display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);
+ min-height:238px;align-items:center;gap:20px;overflow:hidden;margin-bottom:30px;
+ position:relative;padding:24px clamp(22px,3.2vw,46px);
+ border:1px solid #6d8ac3;border-radius:18px;
+ background:
+  url('/command-deck-art/panel-frame.svg') center/100% 100% no-repeat,
+  radial-gradient(ellipse at 80% 35%,#6d4dac66,transparent 58%),
+  linear-gradient(118deg,#0a2945 0%,#102646 43%,#08152d 100%);
+ box-shadow:0 12px 34px #0009,inset 0 1px #d8f5ff5c;
+}
+.aac-studio-hero::before{
+ content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+ background:repeating-linear-gradient(90deg,transparent 0,transparent 53px,#c6e8ff12 54px,transparent 55px);
+}
+.aac-studio-hero-copy{position:relative;z-index:1;max-width:570px}
+.aac-studio-hero .aac-eyebrow{color:#d6adff;font-size:10px;letter-spacing:.23em}
+.aac-studio-hero h2{
+ margin:8px 0 10px;max-width:550px;font-size:clamp(25px,3vw,40px);
+ line-height:1.1;color:#fff;letter-spacing:-.025em;
+ text-shadow:0 0 16px #7296d87c;
+}
+.aac-studio-hero-copy>p:not(.aac-eyebrow){margin:0;color:#d1e5f5;font-size:14px;line-height:1.55}
+.aac-hero-micro{
+ display:block;margin-top:17px;font-size:9px;letter-spacing:.13em;
+ font-weight:900;color:#9fe5fd;line-height:1.8;
+}
+.aac-hero-micro span{color:#dbb2ff;padding:0 6px}
+.aac-studio-hero-art{position:relative;z-index:1;min-width:0;filter:drop-shadow(0 12px 20px #0009)}
+.aac-studio-hero-art img{
+ display:block;width:100%;max-height:200px;object-fit:contain;
+ filter:saturate(1.2) drop-shadow(0 0 20px #b281ff42);
+}
+.aac-teacher .aac-titlebar{margin-bottom:20px;gap:16px}
+.aac-teacher .aac-titlebar h1{
+ font-size:clamp(24px,2.6vw,34px);letter-spacing:.01em;text-transform:none;
+ text-shadow:0 2px 14px #4379e966;
+}
+.aac-teacher .aac-titlebar p:not(.aac-eyebrow){font-size:13px;color:#a9c9e1}
+.aac-teacher .aac-eyebrow{color:#d8b1ff;font-size:10px;letter-spacing:.2em}
+.aac-teacher .aac-library-grid{gap:17px;grid-template-columns:repeat(auto-fill,minmax(245px,1fr))}
+.aac-teacher .aac-board-card,
+.aac-teacher .aac-card{
+ position:relative;overflow:hidden;border:1px solid #5884ae;border-radius:17px;
+ background:
+  url('/command-deck-art/panel-frame.svg') center/100% 100% no-repeat,
+  radial-gradient(ellipse at 50% 0%,#68439127,transparent 64%),
+  linear-gradient(146deg,#102b48,#05182e 80%);
+ box-shadow:inset 0 2px #c9eeff26,0 8px 24px #0009;
+}
+.aac-teacher .aac-board-card{padding:16px}
+.aac-teacher .aac-board-card:hover{border-color:#bd9ff4;box-shadow:inset 0 2px #c9eeff4c,0 11px 25px #000a,0 0 19px #895bb84a}
+.aac-teacher .aac-board-thumbnail{
+ height:145px;border:1px solid #6383ba;border-radius:9px;padding:11px;
+ background:radial-gradient(circle at 50% 0,#6d60ba3e,transparent 65%),#07162b;
+ box-shadow:inset 0 0 22px #000a,0 0 0 3px #030a1a;
+}
+.aac-teacher .aac-board-thumbnail>div{border:1px solid #88bef775;box-shadow:inset 0 1px #ffffff50,0 2px 5px #0008}
+.aac-teacher .aac-board-card h2{font-size:19px;letter-spacing:.025em}
+.aac-teacher .aac-board-card small{color:#b5cce9}
+.aac-teacher .aac-board-actions{gap:8px}
+.aac-teacher .aac-board-actions button{font-size:12px}
+.aac-teacher .aac-empty{
+ min-height:290px;border:1px solid #557bb2;border-radius:19px;
+ background:
+  url('/activity-library-v3-art/aac-plus.svg') center 18px/330px 128px no-repeat,
+  url('/command-deck-art/panel-frame.svg') center/100% 100% no-repeat,
+  linear-gradient(145deg,#132f55,#081428);
+ padding:155px 24px 24px;color:#d7ebf9;line-height:1.65;font-weight:700;
+}
+.aac-teacher .aac-search-row{margin-bottom:23px}
+.aac-teacher .aac-search-row input,
+.aac-teacher input:not([type=file]),.aac-teacher select{
+ border:1px solid #587caa;border-radius:9px;background:linear-gradient(170deg,#061329,#092943);
+ box-shadow:inset 0 2px 8px #0009;color:#f2f8ff;
+}
+.aac-teacher .aac-search-row input{max-width:660px}
+.aac-teacher .aac-chip{background:#1c2950;color:#d3dcff;border-color:#a084cf}
+.aac-teacher button:not(.aac-tile):not(:disabled):active{transform:translateY(1px)}
+.aac-teacher .aac-primary{
+ min-height:48px;padding:11px 20px;
+ background:url('/command-deck-art/holographic-action.svg') center/100% 100% no-repeat;
+ border:0;border-radius:7px;color:#effdff;font-size:13px;
+ text-shadow:0 1px 3px #03132f,0 0 12px #000c;
+ box-shadow:0 5px 16px #0007,0 0 14px #1ac7fb44;
+}
+.aac-teacher .aac-primary:hover:not(:disabled){filter:brightness(1.21);box-shadow:0 5px 18px #0009,0 0 23px #63b9f477}
+.aac-teacher button:not(.aac-primary):not(.aac-tile){background:linear-gradient(150deg,#1d385d,#071831);border-color:#648eb7}
+.aac-teacher button.aac-danger:not(.aac-tile){background:linear-gradient(145deg,#7b314c,#3a102a);border-color:#d888a7}
+.aac-teacher button.aac-quiet:not(.aac-tile){background:linear-gradient(140deg,#132e4a,#08172c);border-color:#506f98}
+.aac-editor-banner{
+ height:75px;display:flex;align-items:center;gap:15px;padding:8px 22px;
+ margin-bottom:18px;border:1px solid #6382bc;border-radius:14px;
+ background:url('/command-deck-art/panel-frame.svg') center/100% 100% no-repeat,linear-gradient(110deg,#2b2450,#082746);
+ box-shadow:inset 0 1px #bdcaff4d,0 5px 20px #0008;
+}
+.aac-editor-banner img{width:128px;height:55px;object-fit:cover;object-position:center}
+.aac-editor-banner span{font-size:12px;letter-spacing:.18em;color:#e9deff;font-weight:900}
+.aac-editor-banner small{display:block;margin-top:4px;color:#92dfff;font-size:9px;letter-spacing:.15em}
+.aac-teacher .aac-editor-layout{grid-template-columns:minmax(0,1.65fr) minmax(290px,.8fr);gap:16px}
+.aac-teacher .aac-main-editor,.aac-teacher .aac-tile-editor{min-width:0;padding:20px}
+.aac-teacher .aac-main-editor{border-color:#719ac8}
+.aac-teacher .aac-main-editor .aac-grid{
+ padding:14px;border:1px solid #325e90;border-radius:12px;
+ background:radial-gradient(ellipse at 50% 5%,#2c487540,transparent 70%),#040e22;
+}
+.aac-teacher .aac-grid .aac-tile:not(.aac-blank){
+ border:2px solid #c4deff99;border-radius:13px;
+ background:linear-gradient(164deg,#ffffff36 0%,transparent 30%),linear-gradient(145deg,var(--tile-color,#075aa0),#062444);
+ box-shadow:inset 0 2px 2px #ffffff75,inset 0 -10px 14px #0004,0 6px 10px #000a;
+}
+.aac-teacher .aac-grid .aac-tile.aac-selected{
+ outline:3px solid #ffdb7b;outline-offset:2px;
+ box-shadow:inset 0 2px 2px #ffffff75,0 0 18px #ffc7787a,0 6px 10px #000a;
+}
+.aac-teacher .aac-grid .aac-tile.aac-blank{border:1px dashed #5d799f;background:#0d1e38;min-height:105px}
+.aac-teacher .aac-audio-tools{
+ border:1px solid #506e99;background:linear-gradient(150deg,#101e3b,#07162d);
+ box-shadow:inset 0 1px #ffffff13;
+}
+.aac-teacher .aac-kokoro-pilot{border-color:#a47ad0}
+.aac-teacher .aac-audio-tools strong{color:#e2d1ff}
+.aac-teacher .aac-help,.aac-teacher .aac-audio-tools p{color:#bfd3e6}
+.aac-teacher .aac-share-qr{border:5px solid #b8c9df;box-shadow:0 8px 20px #0008}
+.aac-teacher .aac-warn{background:#44321a88;border-color:#ffc27b;color:#ffebce}
+.aac-teacher .aac-toast{background:#1d315b;border:1px solid #bd94fa;color:#f5f1ff}
+@media(max-width:1050px){
+ .aac-teacher .aac-header-note-secondary{display:none}
+ .aac-teacher .aac-studio-hero{grid-template-columns:minmax(0,1fr) 34%;padding:22px}
+ .aac-teacher .aac-editor-layout{grid-template-columns:minmax(0,1fr) minmax(280px,.65fr)}
+}
+@media(max-width:860px){
+ .aac-teacher .aac-header-note{display:none}
+ .aac-teacher .aac-editor-layout{grid-template-columns:1fr}
+ .aac-teacher .aac-main-editor,.aac-teacher .aac-tile-editor{padding:15px}
+}
+@media(max-width:650px){
+ .aac-teacher .aac-header{min-height:67px}
+ .aac-brand-supra{font-size:8px}
+ .aac-teacher .aac-brand strong{font-size:22px}
+ .aac-brand-icon{width:42px;height:42px;flex-basis:42px}
+ .aac-teacher .aac-close-studio{min-width:43px;padding:8px}
+ .aac-teacher .aac-close-studio span{display:none}
+ .aac-studio-hero{grid-template-columns:1fr!important;padding:18px!important;gap:8px}
+ .aac-studio-hero-art{display:none}
+ .aac-hero-micro{font-size:8px}
+ .aac-teacher .aac-library-grid{grid-template-columns:1fr}
+ .aac-editor-banner{height:62px}
+ .aac-editor-banner img{width:92px;height:45px}
+ .aac-teacher .aac-titlebar{margin-bottom:15px}
+ .aac-teacher .aac-board-card{padding:13px}
+}
+@media(prefers-reduced-motion:reduce){body.aac-teacher *{transition:none!important}}
