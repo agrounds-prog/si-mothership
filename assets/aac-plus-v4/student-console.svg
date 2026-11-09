@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 850" preserveAspectRatio="none"><defs>
+<linearGradient id="steel" x2=".92" y2="1"><stop stop-color="#829eca"/><stop offset=".13" stop-color="#294e7b"/><stop offset=".51" stop-color="#08182f"/><stop offset=".84" stop-color="#294d76"/><stop offset="1" stop-color="#a2b8df"/></linearGradient>
+<linearGradient id="rim" x2="1" y2=".2"><stop stop-color="#31eeff"/><stop offset=".28" stop-color="#017eb8"/><stop offset=".61" stop-color="#c48aff"/><stop offset="1" stop-color="#4adfff"/></linearGradient>
+<linearGradient id="glass" x2=".65" y2="1"><stop stop-color="#132b51"/><stop offset=".43" stop-color="#061a36"/><stop offset="1" stop-color="#030d24"/></linearGradient>
+<linearGradient id="orange" x2="1" y2="1"><stop stop-color="#ffe59b"/><stop offset=".45" stop-color="#ff9b36"/><stop offset="1" stop-color="#b84b1e"/></linearGradient>
+<radialGradient id="halo"><stop stop-color="#0fbaff" stop-opacity=".22"/><stop offset="1" stop-color="#103f80" stop-opacity="0"/></radialGradient>
+<pattern id="grain" width="34" height="34" patternUnits="userSpaceOnUse"><path d="M0 34H34V0" fill="none" stroke="#4faade" opacity=".055"/><circle cx="17" cy="17" r="1" fill="#77cbec" opacity=".18"/></pattern>
+<pattern id="mesh" width="18" height="12" patternUnits="userSpaceOnUse"><path d="M2 4h5 M11 9h5" stroke="#84caff" stroke-width="1.2" opacity=".15"/></pattern>
+<filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5"/></filter>
+</defs>
+<path d="M69 8H1131L1191 72V778L1131 842H69L9 778V72Z" fill="url(#glass)" stroke="#0f3c70" stroke-width="14"/>
+<path d="M67 15H1133L1182 80V770L1133 832H67L18 770V80Z" fill="url(#grain)"/>
+<path d="M65 18H1135L1180 80V770L1135 835H65L20 770V80Z" fill="none" stroke="url(#steel)" stroke-width="18"/>
+<path d="M83 36H1117L1165 91V759L1117 815H83L35 759V91Z" fill="none" stroke="url(#rim)" stroke-width="4"/>
+<path d="M140 49H1060" stroke="#7bedff" stroke-width="6" filter="url(#glow)"/><path d="M140 49H1060" stroke="#56dfff" stroke-width="2"/>
+<path d="M155 802H1045" stroke="#6bbfff" stroke-width="4" opacity=".55"/>
+<rect x="49" y="160" width="14" height="135" rx="5" fill="url(#orange)"/><rect x="1137" y="160" width="14" height="135" rx="5" fill="url(#orange)"/>
+<rect x="49" y="565" width="14" height="110" rx="5" fill="#52dafa"/><rect x="1137" y="565" width="14" height="110" rx="5" fill="#b48cff"/>
+<path d="M95 95H1105V755H95Z" fill="url(#mesh)" opacity=".55"/>
+<path d="M142 812l28-20h160M1058 812l-28-20H870" stroke="#5b91c7" stroke-width="4" fill="none"/>
+<path d="M428 831H772" stroke="#29eaff" stroke-width="7" opacity=".65"/>
+<g fill="#a8b5d9"><circle cx="74" cy="63" r="4"/><circle cx="1126" cy="63" r="4"/><circle cx="74" cy="789" r="4"/><circle cx="1126" cy="789" r="4"/></g>
+</svg>

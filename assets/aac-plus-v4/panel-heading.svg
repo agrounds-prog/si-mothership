@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 155" preserveAspectRatio="none"><defs>
+<linearGradient id="steel" x2=".92" y2="1"><stop stop-color="#829eca"/><stop offset=".13" stop-color="#294e7b"/><stop offset=".51" stop-color="#08182f"/><stop offset=".84" stop-color="#294d76"/><stop offset="1" stop-color="#a2b8df"/></linearGradient>
+<linearGradient id="rim" x2="1" y2=".2"><stop stop-color="#31eeff"/><stop offset=".28" stop-color="#017eb8"/><stop offset=".61" stop-color="#c48aff"/><stop offset="1" stop-color="#4adfff"/></linearGradient>
+<linearGradient id="glass" x2=".65" y2="1"><stop stop-color="#132b51"/><stop offset=".43" stop-color="#061a36"/><stop offset="1" stop-color="#030d24"/></linearGradient>
+<linearGradient id="orange" x2="1" y2="1"><stop stop-color="#ffe59b"/><stop offset=".45" stop-color="#ff9b36"/><stop offset="1" stop-color="#b84b1e"/></linearGradient>
+<radialGradient id="halo"><stop stop-color="#0fbaff" stop-opacity=".22"/><stop offset="1" stop-color="#103f80" stop-opacity="0"/></radialGradient>
+<pattern id="grain" width="34" height="34" patternUnits="userSpaceOnUse"><path d="M0 34H34V0" fill="none" stroke="#4faade" opacity=".055"/><circle cx="17" cy="17" r="1" fill="#77cbec" opacity=".18"/></pattern>
+<pattern id="mesh" width="18" height="12" patternUnits="userSpaceOnUse"><path d="M2 4h5 M11 9h5" stroke="#84caff" stroke-width="1.2" opacity=".15"/></pattern>
+<filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5"/></filter>
+</defs>
+<path d="M48 5H1352L1393 43V120L1352 151H48L7 120V43Z" fill="url(#steel)" stroke="#17406a" stroke-width="8"/>
+<path d="M67 18H1333L1378 49V110L1333 140H67L22 110V49Z" fill="url(#glass)" stroke="url(#rim)" stroke-width="4"/>
+<path d="M99 30H1301" stroke="#68daff" stroke-width="2" opacity=".65"/><path d="M120 131H1280" stroke="#a684ff" stroke-width="2" opacity=".5"/>
+<path d="M43 53l30 20-30 20ZM1357 53l-30 20 30 20Z" fill="url(#orange)" stroke="#ffe2a1" stroke-width="2"/>
+<path d="M185 20H375M1025 20H1215" stroke="#24e2ff" stroke-width="8" filter="url(#glow)"/><path d="M185 20H375M1025 20H1215" stroke="#24d9ff" stroke-width="3"/>
+<rect x="105" y="50" width="7" height="43" rx="3" fill="#e38c4d"/><rect x="1278" y="50" width="7" height="43" rx="3" fill="#c6a1ff"/>
+<g fill="#325270" stroke="#9edfff" stroke-width="1.5"><circle cx="84" cy="37" r="4"/><circle cx="1317" cy="37" r="4"/><circle cx="84" cy="122" r="4"/><circle cx="1317" cy="122" r="4"/></g>
+<path d="M460 141h480" stroke="#38c3ff" stroke-width="6" opacity=".55"/>
+</svg>

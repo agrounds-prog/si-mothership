@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" preserveAspectRatio="none"><defs>
+<linearGradient id="steel" x2=".92" y2="1"><stop stop-color="#829eca"/><stop offset=".13" stop-color="#294e7b"/><stop offset=".51" stop-color="#08182f"/><stop offset=".84" stop-color="#294d76"/><stop offset="1" stop-color="#a2b8df"/></linearGradient>
+<linearGradient id="rim" x2="1" y2=".2"><stop stop-color="#31eeff"/><stop offset=".28" stop-color="#017eb8"/><stop offset=".61" stop-color="#c48aff"/><stop offset="1" stop-color="#4adfff"/></linearGradient>
+<linearGradient id="glass" x2=".65" y2="1"><stop stop-color="#132b51"/><stop offset=".43" stop-color="#061a36"/><stop offset="1" stop-color="#030d24"/></linearGradient>
+<linearGradient id="orange" x2="1" y2="1"><stop stop-color="#ffe59b"/><stop offset=".45" stop-color="#ff9b36"/><stop offset="1" stop-color="#b84b1e"/></linearGradient>
+<radialGradient id="halo"><stop stop-color="#0fbaff" stop-opacity=".22"/><stop offset="1" stop-color="#103f80" stop-opacity="0"/></radialGradient>
+<pattern id="grain" width="34" height="34" patternUnits="userSpaceOnUse"><path d="M0 34H34V0" fill="none" stroke="#4faade" opacity=".055"/><circle cx="17" cy="17" r="1" fill="#77cbec" opacity=".18"/></pattern>
+<pattern id="mesh" width="18" height="12" patternUnits="userSpaceOnUse"><path d="M2 4h5 M11 9h5" stroke="#84caff" stroke-width="1.2" opacity=".15"/></pattern>
+<filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5"/></filter>
+</defs>
+<path d="M29 4H271L296 29V271L271 296H29L4 271V29Z" fill="none" stroke="#132543" stroke-width="11"/>
+<path d="M29 10H271L290 29V271L271 290H29L10 271V29Z" fill="none" stroke="url(#steel)" stroke-width="14"/>
+<path d="M31 21H269L279 32V268L269 279H31L21 268V32Z" fill="none" stroke="url(#rim)" stroke-width="3.5"/>
+<path d="M62 18H238M62 282H238" stroke="#29e4ff" stroke-width="5" opacity=".68"/>
+<path d="M30 46V95M270 46V95" stroke="#ffffff" opacity=".52" stroke-width="3"/>
+<path d="M35 256V238M265 256V238" stroke="#9e89ff" opacity=".7" stroke-width="4"/>
+<path d="M29 32h23M248 32h23M29 268h23M248 268h23" stroke="#bdeeff" stroke-width="4"/>
+<rect x="12" y="125" width="8" height="46" rx="3" fill="url(#orange)"/><rect x="280" y="125" width="8" height="46" rx="3" fill="url(#orange)"/>
+</svg>
