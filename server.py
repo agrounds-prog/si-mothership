@@ -5170,7 +5170,8 @@ async def index(request: web.Request) -> web.Response:
                          '<script src="/orbit-polish.js?v=2" defer></script>'
                          '<script src="/pixel-batch.js?v=1" defer></script>'
                          '<link rel="stylesheet" href="/match-pixel-teacher-art-v1.css?v=1">'
-                         '<link rel="stylesheet" href="/match-illustrated-v2.css?v=2"></head>', 1)
+                         '<link rel="stylesheet" href="/match-illustrated-v2.css?v=2">'
+                         '<link rel="stylesheet" href="/match-illustrated-v2-png.css?v=1"></head>', 1)
     # Insert before the final body close: index.html also contains HTML strings
     # in internal scripts, so replacing the first occurrence would corrupt JS.
     body_close = text.rfind("</body>")
@@ -6678,17 +6679,24 @@ def create_app() -> web.Application:
     app.router.add_get("/match-pixel-teacher-art-v1.css", lambda request: web.FileResponse(ROOT / "match-pixel-teacher-art-v1.css", headers={"Cache-Control": "no-store", "Content-Type": "text/css"}))
     app.router.add_get("/match-pixel-teacher-art-v1.js", lambda request: web.FileResponse(ROOT / "match-pixel-teacher-art-v1.js", headers={"Cache-Control": "no-store", "Content-Type": "application/javascript"}))
 
-    # MATCH Illustrated V2: allowlisted, text-free standalone graphic skins.
+    # MATCH Illustrated V2: use newly uploaded PNGs with existing root SVG fallback.
+    # Explicit file patterns and directory checks prevent path traversal.
     async def match_illustrated_v2_asset(request):
         filename = request.match_info["filename"]
-        if not re.fullmatch(r"[a-z0-9_-]+[.]svg", filename):
+        if not re.fullmatch(r"[a-z0-9_-]+[.](?:svg|png)", filename):
             raise web.HTTPNotFound()
-        asset = ROOT / "assets" / "match-illustrated-v2" / filename
+        if filename.endswith(".png"):
+            asset = ROOT / "MATCH_Illustrated_V2_GitHub" / "assets" / "match-illustrated-v2" / filename
+            mimetype = "image/png"
+        else:
+            asset = ROOT / "assets" / "match-illustrated-v2" / filename
+            mimetype = "image/svg+xml"
         if not asset.is_file():
             raise web.HTTPNotFound()
-        return web.FileResponse(asset, headers={"Cache-Control": "public,max-age=3600", "Content-Type": "image/svg+xml"})
+        return web.FileResponse(asset, headers={"Cache-Control": "public,max-age=3600", "Content-Type": mimetype})
     app.router.add_get("/match-v2-art/{filename}", match_illustrated_v2_asset)
     app.router.add_get("/match-illustrated-v2.css", lambda request: web.FileResponse(ROOT / "match-illustrated-v2.css", headers={"Cache-Control": "no-store", "Content-Type": "text/css"}))
+    app.router.add_get("/match-illustrated-v2-png.css", lambda request: web.FileResponse(ROOT / "match-illustrated-v2-png.css", headers={"Cache-Control": "no-store", "Content-Type": "text/css"}))
 
 
 
