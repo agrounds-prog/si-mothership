@@ -136,7 +136,10 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const snappedGap=await targetRect.evaluate(el=>el.ownerSVGElement.getBoundingClientRect().right-el.getBoundingClientRect().right);
   assert.ok(Math.abs(snappedGap)<3,"Dragging near the canvas edge should snap the region flush right: "+snappedGap);
   assert.equal(await page.locator('[data-interaction="move"]').getAttribute("class").then(s=>s?.includes("active")),true,"Second region should immediately be movable");
-  const region=page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing g[data-zone] > rect").first();
+  // Put the explicitly selected highlight above any overlapping dim area
+  // before dragging it, as the real editor now does.
+  await page.locator(".si-plus-spot-list button").first().click();
+  const region=page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing g[data-zone] > rect").last();
   const before=Number(await region.getAttribute("x"));
   const box2=await region.boundingBox();
   assert.ok(box2);
