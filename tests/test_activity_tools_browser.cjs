@@ -15,7 +15,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await page.locator(".aac-plus-launch,.si-randomizer-launch").count(),0,"No special header shortcuts remain");
   const originals=await page.evaluate(()=>state.favoriteSlots.slice());
   await page.evaluate(()=>{state.screen="activities";state.activeApp=null;state.assigningSlot=null;render()});
-  await page.waitForSelector('#activityGrid [data-open-app="randomizer"]');
+  await page.waitForSelector('#activityGrid [data-open-app="randomizer"]',{state:"attached"});
 
   // Every formerly plain-symbol activity uses the same full-bleed illustrated
   // card surface; legacy illustrated games retain their approved artwork.
