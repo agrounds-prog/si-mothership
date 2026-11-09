@@ -70,6 +70,33 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.ok(renderAssets.every(x=>x.decoded&&Number(x.visible)>=.95&&x.fitting==='cover'&&x.count===1),'Missing/hidden new illustration');
   assert.ok(renderAssets.find(x=>x.name==='BOARD')?.src.endsWith('/board.svg'),'BOARD writing illustration preserved');
   assert.ok(renderAssets.find(x=>x.name==='SIGNAL SEQUENCE')?.src.endsWith('/signal-sequence.svg'),'Memory-wheel artwork preserved');
+  // Copy-only polish: no native full-description hover tooltip, no clipped
+  // subtitles, and all original text is available as an accessible description.
+  const textAudit=await page.evaluate(()=>{
+    return [...document.querySelectorAll('#activitiesPanel.si-v2-library .activity-catalog-grid .real-app-card')].map(card=>{
+      const meta=card.querySelector('.app-meta');
+      const open=card.querySelector('button[data-open-app]');
+      return {
+        app:open?.dataset.openApp,name:card.querySelector('h3')?.textContent.trim(),
+        subtitle:meta?.textContent.trim(),subtitleWidth:meta?.clientWidth,
+        subtitleScrollWidth:meta?.scrollWidth,
+        tooltip:card.getAttribute('title'),
+        description:card.getAttribute('aria-description'),
+        buttonDescription:open?.getAttribute('aria-description'),
+        cardHeight:card.getBoundingClientRect().height
+      };
+    });
+  });
+  console.log('Activity Library copy audit:',JSON.stringify(textAudit));
+  assert.equal(textAudit.length,21);
+  assert.ok(textAudit.every(x=>x.subtitle&&x.tooltip===null&&x.description&&x.buttonDescription),
+    'No oversized native browser tooltip; preserve accessible full descriptions');
+  assert.ok(textAudit.every(x=>x.subtitleScrollWidth<=x.subtitleWidth+2),
+    'Some activity subtitles still truncate: '+JSON.stringify(textAudit.filter(x=>x.subtitleScrollWidth>x.subtitleWidth+2)));
+  assert.ok(textAudit.every(x=>Math.abs(x.cardHeight-204)<2),
+    'Card sizing must not change for text-only polish');
+  assert.equal(textAudit.find(x=>x.app==='board').subtitle,'Write • Draw • Share');
+  assert.equal(textAudit.find(x=>x.app==='signal-sequence').subtitle,'Watch • Repeat • Remember');
   const a=await get();
   console.log('Library V2 page one:',JSON.stringify(a));
   assert.ok(a.cards>=20,'Expected full existing activity registry');
