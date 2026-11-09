@@ -219,7 +219,15 @@ async function kokoroGenerate(){
  }catch(e){err(e);$("kokoroStatus").textContent="Generation unavailable. Existing audio is unchanged."}
  finally{$("kokoroGenerate").disabled=false;await kokoroRefresh()}
 }
-async function initTeacher(){try{await loadLibrary()}catch(e){err(e);if(e.message.includes("sign-in"))$("boardList").textContent="Teacher sign-in required. Return to Command Deck, unlock it, then open AAC+ again."}
+function closeAACStudio(){
+ // The main Mothership browser remains open when AAC+ was launched as a popup.
+ // Direct /aac navigation falls back to the Command Deck when close is blocked.
+ try{window.close()}catch(e){}
+ window.setTimeout(()=>{if(!window.closed)location.assign('/teacher')},150);
+}
+async function initTeacher(){
+const close=$("aacCloseWindow");if(close)close.onclick=closeAACStudio;
+try{await loadLibrary()}catch(e){err(e);if(e.message.includes("sign-in"))$("boardList").textContent="Teacher sign-in required. Return to Command Deck, unlock it, then open AAC+ again."}
 $("newBoard").onclick=newBoard;$("boardSearch").oninput=displayLibrary;$("backLibrary").onclick=()=>{if(recording){notify("Stop recording first");return}show("library")};$("cancelEdit").onclick=()=>show("library");$("boardLayout").onchange=e=>changeLayout(e.target.value);$("tileLabel").oninput=()=>{syncSelected();renderTeacherGrid()};$("tileSymbol").oninput=()=>{syncSelected();renderTeacherGrid()};$("tileColor").onchange=()=>{syncSelected();renderTeacherGrid()};
 $("tileImage").onchange=e=>uploadImage(e.target.files[0]).catch(err).finally(()=>e.target.value="");$("tileAudio").onchange=e=>uploadAudio(e.target.files[0]).catch(err).finally(()=>e.target.value="");$("removeImage").onclick=()=>{editing.tiles[selected].image=null;readSelected()};$("recordAudio").onclick=()=>recordStart().catch(err);$("stopRecording").onclick=()=>recordStop().catch(err);$("previewAudio").onclick=()=>playTile(editing.tiles[selected],"",null);$("deleteAudio").onclick=()=>{editing.tiles[selected].audio=null;stopSound();readSelected()};$("moveLeft").onclick=()=>swap(-1);$("moveRight").onclick=()=>swap(1);$("previewBoard").onclick=preview;$("saveBoard").onclick=()=>saveBoard().catch(err);$("shareBack").onclick=()=>loadLibrary().then(()=>show("library")).catch(err);$("copyShare").onclick=()=>navigator.clipboard.writeText($("shareLink").value).then(()=>notify("Link copied")).catch(err);$("openShare").onclick=()=>window.open($("shareLink").value,"_blank","noopener");$("revokeShare").onclick=()=>revokeShare().catch(err);$("kokoroPrepare").onclick=()=>kokoroPrepare().catch(err);$("kokoroGenerate").onclick=()=>kokoroGenerate().catch(err);kokoroRefresh();}
 async function initStudent(){const controls=createVoiceControls();$("studentHint").after(controls);try{const token=location.pathname.split("/").pop();const b=await api("/api/aac/public/"+encodeURIComponent(token));$("studentTitle").textContent=b.title;renderGrid($("studentTiles"),b.tiles,b.layout,false,token)}catch(e){$("studentHint").textContent="This board link is unavailable or revoked.";err(e)}$("fullscreenBoard").onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()}}
