@@ -2627,9 +2627,11 @@ body.role-shared #sharedContent > .orbit-public.orbit-cosmic .orbit-space:has(> 
  content:""!important;
  display:block!important;
  position:absolute!important;
+ inset:auto!important;
  left:50%!important;
  top:50%!important;
- inset:auto!important;
+ right:auto!important;
+ bottom:auto!important;
  transform:translate(-50%,-50%)!important;
  width:138%!important;
  height:138%!important;
@@ -2683,5 +2685,59 @@ body.role-shared #sharedContent > .orbit-public.orbit-cosmic .orbit-core h3::-we
  body.role-shared #sharedContent > .orbit-public.orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core h3,
  body.role-shared #sharedContent > .orbit-public.orbit-cosmic .orbit-space:has(> .orbit-satellites) .orbit-core h3{
   font-size:clamp(14px,3vw,24px)!important;
+ }
+}
+
+
+/* ORBIT v6.2 — keep illustration and status art registered to their centers.
+   The earlier inset:auto reset left/top to auto, moving the planet PNG
+   away from its live question; do not reset inset after left/top. */
+body.role-shared #sharedContent > .orbit-public.orbit-cosmic
+ .orbit-space[data-orbit-waiting="true"] .orbit-core::before,
+body.role-shared #sharedContent > .orbit-public.orbit-cosmic
+ .orbit-space:has(> .orbit-satellites) .orbit-core::before{
+ inset:auto!important;
+ left:50%!important;
+ top:50%!important;
+ right:auto!important;
+ bottom:auto!important;
+ transform:translate(-50%,-50%)!important;
+}
+/* Original status art has a roughly 3:1 ratio.  The earlier 100%/100%
+   background on a shallow pill squeezed the image into a thin strip. */
+body.role-shared #sharedContent > .orbit-public.orbit-cosmic[data-orbit-phase="waiting"]
+ .orbit-cosmic-state{
+ box-sizing:border-box!important;
+ width:clamp(280px,32vw,510px)!important;
+ min-width:0!important;
+ max-width:78%!important;
+ height:clamp(70px,9vh,112px)!important;
+ min-height:0!important;
+ margin:0 auto!important;
+ padding:0!important;
+ flex:0 0 auto!important;
+ border:0!important;
+ border-radius:0!important;
+ background-image:var(--orbit-v6-waiting)!important;
+ background-size:contain!important;
+ background-position:center!important;
+ background-repeat:no-repeat!important;
+ box-shadow:none!important;
+ line-height:0!important;
+ color:transparent!important;
+ font-size:0!important;
+ text-shadow:none!important;
+}
+#teacher #activityControllerPanel .orbit-public.orbit-cosmic[data-orbit-phase="waiting"]
+ .orbit-cosmic-state{
+ background-size:contain!important;
+ background-position:center!important;
+ background-repeat:no-repeat!important;
+}
+@media(max-height:690px){
+ body.role-shared #sharedContent > .orbit-public.orbit-cosmic[data-orbit-phase="waiting"]
+  .orbit-cosmic-state{
+  height:clamp(52px,8vh,76px)!important;
+  width:clamp(220px,30vw,390px)!important;
  }
 }
