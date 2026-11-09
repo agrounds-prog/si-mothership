@@ -7,6 +7,7 @@ on:
       - 'si-plus-teacher-v1.css'
       - 'si-plus-teacher-v1.js'
       - 'tests/test_si_teacher_v2_browser.cjs'
+      - 'tests/test_si_live_teacher_layout_browser.cjs'
       - 'assets/si-plus-teacher-v1/**'
       - '.github/workflows/si-plus-teacher-art.yml'
   workflow_dispatch:
@@ -72,12 +73,16 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Screenshot SI+ home library and builder with actual uploaded art
         run: node tests/test_si_teacher_v2_browser.cjs
+      - name: Verify compact SI+ live controller navigation and Spotlight separation
+        run: node tests/test_si_live_teacher_layout_browser.cjs
       - name: Save teacher UI screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: si-plus-teacher-v2-screens
-          path: /tmp/si-teacher-v2-screens/*.png
+          path: |
+            /tmp/si-teacher-v2-screens/*.png
+            /tmp/si-live-polish/*.png
           if-no-files-found: ignore
       - name: Show server log on failure
         if: failure()
