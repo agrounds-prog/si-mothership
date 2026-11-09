@@ -207,25 +207,28 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    state.screen="activity";render();
   },persisted.id);
   await page.waitForSelector("#siPlusSpotlightLiveControls",{timeout:15000});
-  // The saved final composition must appear at once, with no automatic
-  // replay of intermediate editing stages or separate region activations.
-  const initiallyLocked=await page.evaluate(()=>{
+  // Each deliberate Spotlight reveal starts hidden and uses the saved geometry.
+  const finalRegions=await page.evaluate(()=>{
    const deck=state.activities.find(a=>a.id===state.activityRun.activityId);
-   const count=deck.slides[0].siSpotlight.zones.length;
-   const html=sharedMarkup("big");
-   const pressed=[...document.querySelectorAll("#siPlusSpotlightLiveControls .si-plus-spotlight-target")]
-    .filter(button=>button.getAttribute("aria-pressed")==="true").length;
-   return {count,pressed,explicit:state.activityRun.siSpotlightVisible,
-    visibleStrokes:(html.match(/stroke-width="5"/g)||[]).length};
+   return deck.slides[0].siSpotlight.zones.map(z=>({id:z.id,x:z.x,y:z.y,w:z.w,h:z.h}));
   });
-  assert.equal(initiallyLocked.count,3);
-  assert.equal(initiallyLocked.pressed,3,"All final saved areas start enabled together");
-  assert.equal(initiallyLocked.visibleStrokes,3,"All three areas appear in the first frame");
-  assert.equal(initiallyLocked.explicit,undefined,"No sequential per-zone reveal state on launch");
-  await page.locator("#siPlusSpotlightLiveControls button").filter({hasText:"Hide all"}).click();
-  await page.waitForFunction(()=>state.activityRun?.siSpotlightVisible?.ids?.length===0);
+  assert.equal(finalRegions.length,3);
+  assert.equal(await page.locator('#siPlusSpotlightLiveControls .si-plus-spotlight-target[aria-pressed="true"]').count(),0);
   await page.locator("#siPlusSpotlightLiveControls .si-plus-spotlight-target").first().click();
   await page.waitForFunction(()=>state.activityRun?.siSpotlightVisible?.ids?.length===1);
+  const savedRect=await page.evaluate(()=>{
+   const markup=sharedMarkup("big");
+   const shape=markup.match(/<rect[^>]*stroke-width="5"[^>]*>/);
+   return shape?.[0]||"";
+  });
+  assert.ok(savedRect.includes('width="'+finalRegions[0].w+'"'));
+  assert.ok(savedRect.includes('height="'+finalRegions[0].h+'"'));
+  await page.waitForTimeout(1100);
+  const afterRefresh=await page.evaluate(()=>{
+   const shape=sharedMarkup("big").match(/<rect[^>]*stroke-width="5"[^>]*>/);
+   return shape?.[0]||"";
+  });
+  assert.equal(afterRefresh,savedRect,"Saved Spotlight square must not resize across refreshes");
   const live=await page.evaluate(()=>({ids:state.activityRun.siSpotlightVisible.ids,markup:sharedMarkup("big")}));
   assert.equal(live.ids.length,1);
   assert.match(live.markup,/si-plus-viewport-image/);
