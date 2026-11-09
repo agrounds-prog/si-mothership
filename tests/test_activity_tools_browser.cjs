@@ -40,7 +40,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   }
 
   assert.equal(await page.locator('#activityGrid [data-open-app="aac-plus"]').count(),1);
-  await page.locator('[data-activity-category="tools"]').click();
+  await page.locator('[data-activity-category="tools"]:visible').first().click();
   assert.equal(await page.locator('#activityGrid [data-open-app="randomizer"]').isVisible(),true);
   assert.equal(await page.locator('#activityGrid [data-open-app="aac-plus"]').isVisible(),true);
   // AAC+ opens a reusable floating teacher Studio, leaving Mothership untouched.
