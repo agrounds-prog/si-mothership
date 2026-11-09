@@ -74,7 +74,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await card.isVisible(),true,"Illustrated search retains real filtering");
   await aacPopup.locator("#boardSearch").fill("");
   await card.getByRole("button",{name:"Edit"}).click();
-  assert.equal(await aacPopup.locator("#boardTitle").inputValue(),"Illustrated Layout QA");
+  await aacPopup.waitForFunction("document.getElementById(\"boardTitle\").value === \"Illustrated Layout QA\"");
   await aacPopup.locator("#backLibrary").click();
   await aacPopup.locator("#newBoard").click();
   assert.equal(await aacPopup.locator("#editorScreen").isVisible(),true);
