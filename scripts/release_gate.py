@@ -279,15 +279,15 @@ def main() -> int:
     check("activity library: release style remains", '<style id="v55-5-activity-library-organization">' in html)
     check("activity library: search remains teacher-local", "let activityLibraryQuery=''" in html and "activityLibraryQuery" not in segment(html, "function sharedStateSnapshot("))
     check("activity library: category filters remain", all(x in html for x in ("ACTIVITY_LIBRARY_CATEGORY_ORDER", "'presentation'", "'collaboration'", "'games'", "'tools'")))
-    registry_match = re.search(r"const APP_REGISTRY=\\[(.*?)\\n\\];", html, re.S)
-    registry_ids = set(re.findall(r"\\{id:'([^']+)'", registry_match.group(1))) if registry_match else set()
-    category_function = segment(html, "function activityLibraryCategoryFor(", next_markers=("\\n}",))
+    registry_match = re.search(r"const APP_REGISTRY=\[(.*?)\n\];", html, re.S)
+    registry_ids = set(re.findall(r"\{id:'([^']+)'", registry_match.group(1))) if registry_match else set()
+    category_function = segment(html, "function activityLibraryCategoryFor(", next_markers=("\n}",))
     categorized_ids = set(re.findall(
-        r"if\\(id==='([^']+)'\\)return '(?:presentation|collaboration|games|tools)'",
+        r"if\(id==='([^']+)'\)return '(?:presentation|collaboration|games|tools)'",
         category_function,
     ))
     for group in re.findall(
-        r"if\\(\\[([^\\]]*)\\]\\.includes\\(id\\)\\)return '(?:presentation|collaboration|games|tools)'",
+        r"if\(\[([^\]]*)\]\.includes\(id\)\)return '(?:presentation|collaboration|games|tools)'",
         category_function,
     ):
         categorized_ids.update(re.findall(r"'([^']+)'", group))
