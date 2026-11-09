@@ -353,3 +353,42 @@ body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .mo
    font-size:11px!important;
  }
 }
+
+
+/* V2.2 final screenshot fit: prevent the pagination control from covering
+   the third row; keep the cockpit header compact and accessible. */
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .mode-title{
+  box-sizing:border-box!important;
+  height:90px!important;min-height:90px!important;max-height:90px!important;
+  flex-wrap:nowrap!important;
+  padding:9px 17px!important;
+  overflow:hidden!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .mode-title h2{
+  margin:0!important;
+  font-size:clamp(22px,2.1vw,30px)!important;
+  line-height:1.1!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .activity-library-toolbar{
+  margin:8px 0!important;
+  padding:6px 9px!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .activity-catalog-head{
+  margin:2px 0 7px!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .si-v2-pagination{
+  position:relative!important;bottom:auto!important;
+  margin-top:9px!important;
+  min-height:50px!important;padding:6px 12px!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .activity-catalog{
+  padding-bottom:5px!important;
+}
+@media(max-width:940px){
+ body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .mode-title {
+   height:96px!important;min-height:96px!important;max-height:96px!important;
+ }
+ body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .mode-title p{
+   line-height:1.2!important;
+ }
+}
