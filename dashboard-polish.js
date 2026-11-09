@@ -203,6 +203,7 @@ function installLibraryArtwork(){
    if(!icon||(!svg&&!premium)||icon.dataset.siV86Name===key)return;
    icon.innerHTML=premium||svg;
    if(premium)icon.classList.add("si-v90-graphic-ready");
+   icon.classList.toggle("si-signal-sequence-thumbnail",key==="SIGNAL SEQUENCE");
    icon.dataset.siV86Name=key;
    card.dataset.siV86Accent=colors[key]||scheme||"cyan";
    card.classList.add("si-v86-icon-ready");
