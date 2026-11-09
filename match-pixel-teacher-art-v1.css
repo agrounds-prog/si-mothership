@@ -215,3 +215,168 @@
  background:url('/mp-teacher-art/shared/branding/match_emblem.png') center/contain no-repeat;
  filter:drop-shadow(0 0 12px #29dfff7b);
 }
+
+
+/* PIXEL REVEAL Creator V2 — visual hierarchy and space use.
+   Live DOM editing, save/load, and image rounds stay untouched. */
+#teacher #activitiesPanel.si-mp-pixel-studio {
+ background-image:linear-gradient(130deg,#061a2b6d,#04172b8c),url('/mp-teacher-art/pixel_reveal/backgrounds/pixel_reveal_studio_background_1600x900.png')!important;
+ background-position:center top!important;
+ background-size:cover!important;
+ scrollbar-color:#4bb7de #06192d!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio .mode-title{
+ min-height:92px!important;
+ display:flex!important;
+ align-items:center!important;
+ justify-content:space-between!important;
+ gap:10px!important;
+ background:linear-gradient(105deg,#051a31f7,#0b3654ef 70%,#061b34f7)!important;
+ border:1px solid #70d6ed!important;
+ box-shadow:inset 0 1px #d3f9ff4c,0 7px 18px #0009!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid{
+ min-width:0!important;
+ margin-top:12px!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup{
+ min-width:0!important;
+ margin:0!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-setup-grid {
+ display:grid!important;
+ grid-template-columns:minmax(0,1.08fr) minmax(320px,.98fr)!important;
+ align-items:start!important;
+ gap:clamp(10px,1.2vw,18px)!important;
+ min-width:0!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-card{
+ position:relative!important;
+ min-width:0!important;
+ padding:clamp(13px,1.35vw,21px)!important;
+ background:linear-gradient(140deg,#08223cf9,#06182dfb 75%)!important;
+ border:1px solid #4ebbd9!important;
+ border-radius:16px!important;
+ box-shadow:inset 0 1px #b7f9ff47,0 8px 22px #000b!important;
+ backdrop-filter:none!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-card h3{
+ margin:9px 0 12px!important;
+ color:#f3fcff!important;
+ font-size:clamp(17px,1.5vw,23px)!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-card h4{
+ margin:14px 0 8px!important;
+ font-size:clamp(12px,1.1vw,15px)!important;
+ color:#9deeff!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-text-input{
+ width:100%!important;
+ background:#05182bee!important;
+ border:1px solid #427b9d!important;
+ border-radius:9px!important;
+ min-height:39px!important;
+ padding:9px 11px!important;
+ color:#f6fcff!important;
+ box-shadow:inset 0 2px 7px #0008!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup textarea.pixel-text-input{
+ min-height:64px!important;
+ max-height:165px!important;
+ resize:vertical!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-setup-preview {
+ position:relative!important;
+ height:clamp(190px,29dvh,280px)!important;
+ max-height:280px!important;
+ min-height:0!important;
+ aspect-ratio:auto!important;
+ margin-top:10px!important;
+ overflow:hidden!important;
+ border-radius:13px!important;
+ border:2px solid #66e7ed!important;
+ background:linear-gradient(145deg,#05192df6,#10273df1)!important;
+ box-shadow:0 0 0 3px #0d3048,0 0 19px #2fd7e852!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-setup-preview img {
+ display:block!important;
+ width:100%!important;
+ height:100%!important;
+ max-height:100%!important;
+ object-fit:contain!important;
+ object-position:center!important;
+ background:#061c32!important;
+ border-radius:10px!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-quick-actions{
+ display:flex!important;
+ flex-wrap:wrap!important;
+ gap:9px!important;
+ margin:0 0 16px!important;
+ padding:0!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-quick-actions button{
+ flex:1 1 130px!important;
+ min-height:47px!important;
+ font-weight:900!important;
+ border-radius:9px!important;
+ box-shadow:inset 0 1px #d8faff50,0 4px 12px #0008!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-reveal-style,
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-difficulty,
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-answer-mode,
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-option-row{
+ gap:7px!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup :is(.pixel-reveal-style,.pixel-difficulty,.pixel-answer-mode,.pixel-option-row)>button {
+ min-width:0!important;
+ padding:9px 10px!important;
+ min-height:47px!important;
+ border-radius:10px!important;
+ background:linear-gradient(125deg,#0b2e4af9,#0a213bfc)!important;
+ border:1px solid #4b83a4!important;
+ box-shadow:inset 0 1px #a8f2ff2d!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup :is(.pixel-reveal-style,.pixel-difficulty,.pixel-answer-mode,.pixel-option-row)>button.active {
+ border-color:#86f1dd!important;
+ background:linear-gradient(120deg,#115a62fb,#07364efd)!important;
+ box-shadow:inset 0 1px #c7ffed50,0 0 12px #35eccd55!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-save-actions{
+ margin:12px 0!important;
+ padding:10px!important;
+ border:1px solid #477ea0!important;
+ border-radius:13px!important;
+ background:linear-gradient(135deg,#082942f5,#071c33f8)!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-save-actions button{
+ min-height:43px!important;
+ border-radius:9px!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-batch-manager{
+ margin:13px 0!important;
+ padding:clamp(11px,1.2vw,17px)!important;
+ background:linear-gradient(150deg,#082641f9,#061c34f9)!important;
+ border:1px solid #5dc6df!important;
+ box-shadow:inset 0 1px #b6f6ff4d,0 9px 18px #0009!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-studio-saved-card,
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .orbit-saved-row {
+ background:linear-gradient(125deg,#102d48f6,#07192df9)!important;
+ border:1px solid #4fa2c9!important;
+ box-shadow:inset 0 1px #d2f8ff20,0 5px 13px #0009!important;
+}
+#teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-studio-library-head{
+ color:#e7faff!important;
+ margin:15px 0 8px!important;
+ border-bottom:1px solid #65cdec55!important;
+ padding-bottom:8px!important;
+}
+@media(max-width:880px){
+ #teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-setup-grid{
+   grid-template-columns:1fr!important;
+ }
+ #teacher #activitiesPanel.si-mp-pixel-studio #activityGrid .pixel-setup .pixel-setup-preview {
+   height:clamp(190px,36dvh,300px)!important;
+ }
+}
