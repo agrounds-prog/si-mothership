@@ -61,6 +61,21 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    assert.ok((await response.body()).length>1000,"Illustration empty: "+asset);
   }
 
+  const qaTiles=Array.from({length:16},(_,i)=>({label:i===0?"More":"",symbol:"",color:"#075aa0",audio:null,image:null}));
+  const created=await aacPopup.request.post(BASE+"/api/aac/boards",{
+   data:{title:"Illustrated Layout QA",layout:"4x4",tiles:qaTiles}
+  });
+  assert.equal(created.status(),201,"Create a 4x4 test board");
+  await aacPopup.reload({waitUntil:"domcontentloaded"});
+  const card=aacPopup.locator(".aac-board-card").filter({hasText:"Illustrated Layout QA"});
+  await card.waitFor({state:"visible"});
+  assert.equal(await card.locator(".aac-board-thumbnail>div").count(),16);
+  await aacPopup.locator("#boardSearch").fill("Illustrated Layout QA");
+  assert.equal(await card.isVisible(),true,"Illustrated search retains real filtering");
+  await aacPopup.locator("#boardSearch").fill("");
+  await card.getByRole("button",{name:"Edit"}).click();
+  assert.equal(await aacPopup.locator("#boardTitle").inputValue(),"Illustrated Layout QA");
+  await aacPopup.locator("#backLibrary").click();
   await aacPopup.locator("#newBoard").click();
   assert.equal(await aacPopup.locator("#editorScreen").isVisible(),true);
   await aacPopup.locator("#backLibrary").click();
