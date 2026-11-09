@@ -207,6 +207,23 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    state.screen="activity";render();
   },persisted.id);
   await page.waitForSelector("#siPlusSpotlightLiveControls",{timeout:15000});
+  // The saved final composition must appear at once, with no automatic
+  // replay of intermediate editing stages or separate region activations.
+  const initiallyLocked=await page.evaluate(()=>{
+   const deck=state.activities.find(a=>a.id===state.activityRun.activityId);
+   const count=deck.slides[0].siSpotlight.zones.length;
+   const html=sharedMarkup("big");
+   const pressed=[...document.querySelectorAll("#siPlusSpotlightLiveControls .si-plus-spotlight-target")]
+    .filter(button=>button.getAttribute("aria-pressed")==="true").length;
+   return {count,pressed,explicit:state.activityRun.siSpotlightVisible,
+    visibleStrokes:(html.match(/stroke-width="5"/g)||[]).length};
+  });
+  assert.equal(initiallyLocked.count,3);
+  assert.equal(initiallyLocked.pressed,3,"All final saved areas start enabled together");
+  assert.equal(initiallyLocked.visibleStrokes,3,"All three areas appear in the first frame");
+  assert.equal(initiallyLocked.explicit,undefined,"No sequential per-zone reveal state on launch");
+  await page.locator("#siPlusSpotlightLiveControls button").filter({hasText:"Hide all"}).click();
+  await page.waitForFunction(()=>state.activityRun?.siSpotlightVisible?.ids?.length===0);
   await page.locator("#siPlusSpotlightLiveControls .si-plus-spotlight-target").first().click();
   await page.waitForFunction(()=>state.activityRun?.siSpotlightVisible?.ids?.length===1);
   const live=await page.evaluate(()=>({ids:state.activityRun.siSpotlightVisible.ids,markup:sharedMarkup("big")}));
