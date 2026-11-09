@@ -2082,3 +2082,298 @@ body.role-student:has(#studentContent .si-orbit-student) .student-control-zone{
   animation:none!important;transition:none!important;
  }
 }
+
+
+/* ORBIT v5 — illustrated Mothership command deck.
+   Production graphics are separate SVG assets, not CSS-only recreations.
+   All question text, responses, class count and control actions remain live. */
+:root{
+ --orbit-v5-space:url("/orbit-v5/orbit-galaxy-stage.svg");
+ --orbit-v5-planet:url("/orbit-v5/orbit-question-planet.svg");
+ --orbit-v5-hull:url("/orbit-v5/orbit-hull-panel.svg");
+ --orbit-v5-pod:url("/orbit-v5/orbit-response-pod.svg");
+ --orbit-v5-moon:url("/orbit-v5/orbit-moon-badge.svg");
+ --orbit-v5-button:url("/orbit-v5/orbit-graphic-button.svg");
+ --orbit-v5-student:url("/orbit-v5/orbit-student-terminal.svg");
+ --orbit-v5-solar:url("/orbit-v5/orbit-solar-chamber.svg");
+}
+#teacher .orbit-setup{
+ position:relative;isolation:isolate;overflow:visible!important;
+ border:0!important;border-radius:15px!important;
+ background:
+  linear-gradient(165deg,#030c2099,#06142b9c),
+  var(--orbit-v5-space) center/cover no-repeat!important;
+ box-shadow:inset 0 1px #89d9ff6a,0 14px 31px #0009!important;
+}
+#teacher .orbit-setup:before{
+ content:"";position:absolute;inset:0;z-index:-1;
+ background:var(--orbit-v5-hull) center/100% 100% no-repeat;
+ pointer-events:none;
+}
+#teacher .orbit-setup .orbit-card,
+#teacher #activityControllerPanel .orbit-control-card{
+ position:relative;isolation:isolate;overflow:visible!important;
+ border:0!important;border-radius:0!important;
+ background:var(--orbit-v5-hull) center/100% 100% no-repeat!important;
+ box-shadow:none!important;
+ padding:clamp(22px,2.7vw,35px)!important;
+}
+#teacher .orbit-setup .orbit-card h3,
+#teacher .orbit-setup .orbit-card h4{
+ color:#f4faff!important;
+ text-shadow:0 2px 13px #113d7a;
+}
+#teacher .orbit-setup .orbit-card .vector-label{
+ color:#c7e9f8!important;letter-spacing:.085em;
+}
+#teacher .orbit-setup :is(#orbitName,#orbitPrompt){
+ background:#061832!important;
+ border:2px solid #5ca9d3!important;
+ box-shadow:inset 0 4px 12px #0009,0 0 0 2px #09233d!important;
+ border-radius:10px!important;
+}
+#teacher .orbit-setup .orbit-mode{
+ background:var(--orbit-v5-button) center/100% 100% no-repeat!important;
+ border:0!important;border-radius:0!important;
+ box-shadow:none!important;
+ min-height:64px!important;padding:12px 22px!important;
+ color:#e8faff!important;
+ text-shadow:0 2px 3px #000b!important;
+}
+#teacher .orbit-setup .orbit-mode:has(input:checked){
+ filter:brightness(1.25) drop-shadow(0 0 11px #34e5ff72);
+}
+#teacher .orbit-setup .orbit-launch{
+ min-height:66px!important;
+ border:0!important;border-radius:0!important;
+ background:var(--orbit-v5-button) center/100% 100% no-repeat!important;
+ color:#eafaff!important;
+ text-shadow:0 2px 4px #000!important;
+ box-shadow:none!important;
+}
+#teacher .orbit-setup .orbit-launch:hover{
+ filter:brightness(1.18) drop-shadow(0 0 11px #52daff78);
+}
+#teacher #activityControllerPanel .si-orbit-teacher-deck{
+ gap:clamp(12px,1.6vw,20px)!important;
+}
+#teacher #activityControllerPanel .si-orbit-command-head,
+#teacher #activityControllerPanel .si-orbit-preview-heading{
+ padding:15px clamp(16px,2.4vw,28px)!important;
+ border:0!important;border-radius:0!important;
+ background:var(--orbit-v5-pod) center/100% 100% no-repeat!important;
+ box-shadow:none!important;
+}
+#teacher #activityControllerPanel .si-orbit-command-head>strong{
+ color:#fbfaff!important;text-shadow:0 1px 11px #497eff70;
+}
+#teacher #activityControllerPanel .si-orbit-action-group{
+ background:#071a35be!important;
+ border:1px solid #4a80b5!important;
+ box-shadow:inset 0 1px #cbe7ff29,0 4px 11px #0006!important;
+}
+#teacher #activityControllerPanel .orbit-control-grid button,
+#teacher #activityControllerPanel .si-orbit-teacher-deck .si-orbit-action-group button{
+ min-height:50px!important;padding:9px 15px!important;
+ border:0!important;border-radius:0!important;
+ background:var(--orbit-v5-button) center/100% 100% no-repeat!important;
+ color:#eaf9ff!important;text-shadow:0 2px 3px #000c!important;
+ box-shadow:none!important;
+}
+#teacher #activityControllerPanel .orbit-control-grid button:hover:enabled{
+ filter:brightness(1.18) drop-shadow(0 0 6px #56e1ff76);
+}
+#teacher #activityControllerPanel .orbit-control-grid button:disabled{opacity:.45}
+#teacher #activityControllerPanel .orbit-control-grid button[aria-pressed="true"],
+#teacher #activityControllerPanel .orbit-control-grid button.active{
+ filter:brightness(1.25) drop-shadow(0 0 10px #4cf5e57a);
+}
+#teacher #activityControllerPanel .orbit-response-row{
+ position:relative;
+ background:var(--orbit-v5-pod) center/100% 100% no-repeat!important;
+ border:0!important;border-radius:0!important;
+ padding:clamp(12px,1.5vw,20px)!important;
+ box-shadow:none!important;
+}
+.orbit-public.orbit-cosmic{
+ background:var(--orbit-v5-space) center/100% 100% no-repeat,
+ #020a1d!important;
+ border:0!important;border-radius:11px!important;
+ box-shadow:0 0 24px #397bb94d,inset 0 1px #a9ecff75!important;
+}
+.orbit-public.orbit-cosmic::before{
+ background:transparent!important;opacity:0!important;animation:none!important;
+}
+.orbit-public.orbit-cosmic::after{
+ background:transparent!important;opacity:0!important;
+}
+.orbit-cosmic .orbit-cosmic-atmosphere{opacity:.6!important;pointer-events:none!important}
+.orbit-cosmic .orbit-cosmic-header{
+ position:relative;z-index:3;
+ min-height:clamp(80px,8.5vh,112px)!important;
+ padding:clamp(10px,1.35vw,18px) clamp(25px,4.6vw,72px)!important;
+ border:0!important;border-radius:0!important;
+ background:var(--orbit-v5-pod) center/100% 100% no-repeat!important;
+}
+.orbit-cosmic .orbit-cosmic-wordmark{
+ font-weight:1000;
+ color:#f2faff!important;
+ text-shadow:0 0 13px #44ddf9a8,0 4px 16px #0009!important;
+}
+.orbit-cosmic .orbit-cosmic-logo{
+ background:var(--orbit-v5-moon) center/contain no-repeat;
+ color:transparent!important;text-shadow:none!important;
+}
+.orbit-cosmic .orbit-cosmic-logo::after{display:none}
+.orbit-cosmic .orbit-cosmic-tally{
+ border:1px solid #6ed7fb!important;border-radius:10px!important;
+ padding:7px 11px!important;
+ background:#071b3bd9!important;
+ box-shadow:inset 0 1px #e8faff47,0 0 16px #2498da51!important;
+}
+.orbit-cosmic .orbit-cosmic-state{
+ text-shadow:0 2px 5px #000d;
+}
+.orbit-public.orbit-cosmic .orbit-space{
+ background:
+  linear-gradient(150deg,#020a1acc,#07112e91),
+  var(--orbit-v5-space) center/cover no-repeat!important;
+ border:1px solid #49759b77!important;
+ border-radius:13px!important;
+ box-shadow:inset 0 10px 31px #0007!important;
+}
+.orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core,
+.orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core{
+ background:var(--orbit-v5-planet) center/100% 100% no-repeat!important;
+ border:0!important;border-radius:50%!important;
+ box-shadow:none!important;
+ filter:drop-shadow(0 0 17px #51b5ff8b);
+ padding:clamp(25px,3.6vw,45px)!important;
+}
+.orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core::before,
+.orbit-cosmic .orbit-space:has(>.orbit-satellites) .orbit-core::after{
+ background:none!important;
+ border:0!important;box-shadow:none!important;
+ opacity:0!important;
+}
+.orbit-cosmic .orbit-core :is(h2,h3,p,strong){
+ color:#09224c!important;
+ text-shadow:0 1px 1px #ffffff92!important;
+}
+.orbit-cosmic .orbit-satellite,
+.orbit-cosmic .orbit-gallery-card,
+.orbit-cosmic .orbit-solar-planet{
+ border:0!important;border-radius:0!important;
+ background:var(--orbit-v5-pod) center/100% 100% no-repeat!important;
+ box-shadow:none!important;
+ padding:clamp(12px,1.45vw,21px)!important;
+}
+.orbit-cosmic .orbit-satellite:hover,
+.orbit-cosmic .orbit-gallery-card:hover{
+ filter:brightness(1.08) drop-shadow(0 0 8px #5ad4f966);
+}
+.orbit-cosmic .orbit-satellite .orbit-sat-moon,
+.orbit-cosmic .orbit-solar-moon{
+ display:grid;place-items:center;
+ border:0!important;border-radius:50%!important;
+ background:var(--orbit-v5-moon) center/contain no-repeat!important;
+ box-shadow:none!important;
+}
+.orbit-cosmic .orbit-sat-moon .orbit-sat-icon,
+.orbit-cosmic .orbit-solar-moon .orbit-solar-moon-glyph{
+ color:#f8fbff!important;text-shadow:0 1px 4px #063059!important;
+}
+.orbit-cosmic .orbit-satellite .orbit-sat-text,
+.orbit-cosmic .orbit-gallery-copy p,
+.orbit-cosmic .orbit-solar-idea p{
+ color:#f3f9ff!important;
+ text-shadow:0 1px 3px #02091ed0!important;
+}
+.orbit-cosmic .orbit-gallery-number{
+ background:var(--orbit-v5-moon) center/100% 100% no-repeat!important;
+ border:0!important;border-radius:50%!important;
+ color:#fff!important;
+ box-shadow:none!important;
+}
+.orbit-cosmic .orbit-solar-system{
+ border:0!important;border-radius:0!important;
+ background:
+  linear-gradient(#06142e93,#06142eaa),
+  var(--orbit-v5-solar) center/100% 100% no-repeat!important;
+ box-shadow:0 8px 22px #0008!important;
+}
+.orbit-cosmic .orbit-solar-system-head{
+ background:transparent!important;
+}
+.orbit-cosmic .orbit-solar-sun-symbol{
+ background:var(--orbit-v5-moon) center/contain no-repeat!important;
+ border:0!important;box-shadow:none!important;
+}
+.orbit-cosmic .orbit-spotlight-broadcast{
+ border:0!important;border-radius:0!important;
+ background:var(--orbit-v5-hull) center/100% 100% no-repeat!important;
+ box-shadow:none!important;
+ padding:clamp(30px,4.6vw,68px)!important;
+}
+body.role-student #studentContent:has(.si-orbit-student){
+ background:
+  linear-gradient(160deg,#030b1bc7,#091e3ba6),
+  var(--orbit-v5-space) center/cover no-repeat!important;
+}
+body.role-student #studentContent .si-orbit-student{
+ border:0!important;border-radius:0!important;
+ background:var(--orbit-v5-student) center/100% 100% no-repeat!important;
+ box-shadow:none!important;
+ padding:clamp(25px,4vw,39px)!important;
+}
+body.role-student #studentContent .si-orbit-student::before{
+ background:none!important;
+}
+body.role-student #studentContent .si-orbit-student-top .eyebrow::before{
+ background:var(--orbit-v5-moon) center/contain no-repeat!important;
+ border:0!important;box-shadow:none!important;
+}
+body.role-student #studentContent .si-orbit-student-entry #orbitStudentText{
+ border:2px solid #66bde4!important;border-radius:9px!important;
+ background:#071731ed!important;
+ box-shadow:inset 0 5px 15px #0009,0 0 0 2px #19437066!important;
+}
+body.role-student #studentContent .si-orbit-student-send{
+ min-height:61px!important;
+ border:0!important;border-radius:0!important;
+ background:var(--orbit-v5-button) center/100% 100% no-repeat!important;
+ box-shadow:none!important;
+ color:#f2fbff!important;text-shadow:0 2px 3px #00162a!important;
+}
+body.role-student #studentContent .si-orbit-student-send>span{
+ background:#246d93aa!important;border:1px solid #72cfe5!important;
+}
+body.role-student #studentContent .si-orbit-student-confirm{
+ background:
+  linear-gradient(#071e32d2,#09233ad1),
+  var(--orbit-v5-pod) center/100% 100% no-repeat!important;
+ border:0!important;border-radius:0!important;
+ box-shadow:none!important;
+}
+@media(max-width:820px){
+ .orbit-cosmic .orbit-cosmic-header{padding:11px 25px!important}
+ #teacher .orbit-setup .orbit-card,
+ #teacher #activityControllerPanel .orbit-control-card{
+  padding:clamp(20px,3.5vw,30px)!important;
+ }
+ .orbit-cosmic .orbit-satellite,.orbit-cosmic .orbit-gallery-card{
+  padding:12px!important;
+ }
+}
+@media(max-width:500px){
+ body.role-student #studentContent .si-orbit-student{
+  padding:clamp(23px,5vw,30px) clamp(19px,5vw,27px)!important;
+ }
+ body.role-student #studentContent .si-orbit-student-send{min-height:56px!important}
+ #teacher .orbit-setup{padding:9px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .orbit-cosmic .orbit-satellite,.orbit-cosmic .orbit-gallery-card{
+  animation:none!important;transition:none!important;
+ }
+}
