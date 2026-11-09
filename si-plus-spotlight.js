@@ -58,7 +58,7 @@
   const info=live();if(!info)return markup;
   const imageMatch=markup.match(/<div class="si-plus-viewport-image"([^>]*)>([\s\S]*?)<\/div>/);
   if(!imageMatch)return markup;
-  const zoneMarkup=highlight(info.slide.siSpotlight.zones||[],liveVisibility(info),"saved"+info.slide.id);
+  const zoneMarkup=highlight(info.slide.siSpotlight.zones||[],liveVisibility(info));
   const inner=imageMatch[2];
   const decorate='<svg class="si-plus-spotlight-inline" viewBox="0 0 1000 562.5" preserveAspectRatio="none" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible">'+zoneMarkup+'</svg>';
   let attributes=imageMatch[1];
@@ -129,6 +129,14 @@
    const inline=img?.parentElement?.querySelector?.(".si-plus-spotlight-inline");
    if(inline){
     if(rec){rec.svg.remove();overlays.delete(key)}
+    // Live visibility changes update this SVG only, not the entire slide.
+    // A fixed ID suffix per viewport prevents filter/mask collisions and
+    // preserves the painted image dimensions throughout each reveal.
+    const markup=highlight(zones,ids,"live"+key);
+    if(inline.__siSpotlightMarkup!==markup){
+     inline.innerHTML=markup;
+     inline.__siSpotlightMarkup=markup;
+    }
     fitOverlay(inline,img,true);
     continue;
    }
@@ -151,8 +159,9 @@
   }
  }
  function publish(){
+  // Broadcasting only the changed visibility avoids reconstructing the
+  // image node (and resizing its percentage-based Spotlight rectangles).
   if(typeof publishSyncedState==="function")publishSyncedState();
-  if(typeof render==="function")render();
  }
  function setVisibility(ids){
   const info=live();if(!info||!teacher())return;
