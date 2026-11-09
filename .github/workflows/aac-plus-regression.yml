@@ -9,6 +9,7 @@ on:
       - 'aac-plus-student.html'
       - 'aac-plus.css'
       - 'aac_plus_asset_pack/**'
+      - 'assets/aac-plus-v4/**'
       - 'server.py'
       - 'tests/test_aac_plus_backend.py'
       - '.github/workflows/aac-plus-regression.yml'
