@@ -7,6 +7,7 @@ on:
       - 'activity-library-concept-v2.css'
       - 'activity-library-concept-v2.js'
       - 'assets/activity-library-v2/**'
+      - 'assets/activity-library-v3/**'
       - 'tests/test_activity_library_concept_v2_browser.cjs'
       - '.github/workflows/activity-library-concept-v2.yml'
   workflow_dispatch:
@@ -29,6 +30,9 @@ jobs:
           test -s assets/activity-library-v2/card-frame.svg
           test -s assets/activity-library-v2/open-button.svg
           test -s assets/activity-library-v2/library-header.svg
+          test -s assets/activity-library-v3/board.svg
+          test -s assets/activity-library-v3/signal-sequence.svg
+          test -s assets/activity-library-v3/bingo.svg
       - name: Install app and Chromium
         run: |
           pip install -r requirements.txt
@@ -56,6 +60,8 @@ jobs:
             '/activity-library-v2-art/open-button.svg',
             '/activity-library-v2-art/library-header.svg',
             '/activity-library-v2-art/board-whiteboard.svg',
+            '/activity-library-v3-art/board.svg',
+            '/activity-library-v3-art/signal-sequence.svg',
           ]:
             with urlopen(base+path,timeout=8) as response:
               data=response.read()
