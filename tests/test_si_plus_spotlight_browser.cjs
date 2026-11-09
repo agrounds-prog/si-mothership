@@ -207,7 +207,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    state.screen="activity";render();
   },persisted.id);
   await page.waitForSelector("#siPlusSpotlightLiveControls",{timeout:15000});
-  await page.locator("#siPlusSpotlightLiveControls .si-plus-spotlight-target").click();
+  await page.locator("#siPlusSpotlightLiveControls .si-plus-spotlight-target").first().click();
   await page.waitForFunction(()=>state.activityRun?.siSpotlightVisible?.ids?.length===1);
   const live=await page.evaluate(()=>({ids:state.activityRun.siSpotlightVisible.ids,markup:sharedMarkup("big")}));
   assert.equal(live.ids.length,1);
