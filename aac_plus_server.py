@@ -222,6 +222,26 @@ def install(app, data_dir, teacher_authorized, root, public_base_url=""):
         async def page(req):return web.FileResponse(Path(root)/filename,headers={"Cache-Control":"no-store","Content-Type":mime})
         return page
 
+    # AAC+ v4 vector hardware frames; decorative only, never contain board data.
+    FRAME_FILES = {
+        "editor-console.svg", "panel-heading.svg", "student-console.svg",
+        "communication-tile.svg", "share-dock.svg",
+    }
+
+    async def aac_vector_frame(request):
+        name = request.match_info["name"]
+        if name not in FRAME_FILES:
+            raise web.HTTPNotFound()
+        path = Path(root) / "assets" / "aac-plus-v4" / name
+        if not path.is_file():
+            raise web.HTTPNotFound()
+        return web.FileResponse(path, headers={
+            "Cache-Control": "public, max-age=86400",
+            "Content-Type": "image/svg+xml",
+            "X-Content-Type-Options": "nosniff",
+        })
+    app.router.add_get("/aac-plus-v4/{name}", aac_vector_frame)
+
     # Versioned, allowlisted illustration pack uploaded to GitHub. The original
     # generated art contains example labels; create clean reusable skins here so
     # every saved board retains its OWN name, layout and live button handlers.
