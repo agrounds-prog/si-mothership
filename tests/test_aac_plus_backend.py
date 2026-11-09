@@ -67,6 +67,16 @@ class ACCTest(AioHTTPTestCase):
         self.assertEqual((await self.client.get(f"/api/aac/media/audio/{audio}")).status,404)
         await self.client.post(f"/api/aac/boards/{board}/revoke",headers=self.cookies())
         self.assertEqual((await self.client.get(f"/api/aac/media/audio/{audio}?token={token}")).status,404)
+    async def test_illustrated_aac_art_pack_and_safe_skin_routes(self):
+        for name in ("header.png", "hero.png", "create-button.png", "search-blank.png",
+                     "board-shell.png", "edit-button.png", "secondary-button.png",
+                     "footer.png", "hologram.png"):
+            response=await self.client.get("/aac-plus-art/"+name)
+            self.assertEqual(response.status,200,name)
+            self.assertEqual(response.content_type,"image/png",name)
+            self.assertTrue((await response.read()).startswith(b"\\x89PNG\\r\\n\\x1a\\n"),name)
+        response=await self.client.get("/aac-plus-art/00_aac_plus_full_concept_mockup.png")
+        self.assertEqual(response.status,404)
     async def test_kokoro_optional_teacher_gate_and_pilot_voices(self):
         self.assertEqual((await self.client.get("/api/aac/kokoro/status")).status,401)
         self.assertEqual((await self.client.post("/api/aac/kokoro/prepare")).status,401)
