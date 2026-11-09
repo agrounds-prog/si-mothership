@@ -5,6 +5,11 @@ on:
     paths:
       - dashboard-polish.js
       - dashboard-polish.css
+      - index.html
+      - aac-plus-teacher.html
+      - aac-plus-student.html
+      - aac-plus.css
+      - aac-plus.js
       - randomizer.html
       - tests/test_activity_tools_browser.cjs
       - .github/workflows/classroom-tools-regression.yml
