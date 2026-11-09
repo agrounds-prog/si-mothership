@@ -1254,3 +1254,13 @@ body.sipreview-open{
 @media(max-width:800px){
  .si-plus-spot-layout aside{max-height:none;overflow:visible}
 }
+
+
+/* Spotlight inspector scrolls with the studio dialog, not within a competing
+   nested scrollbar. This keeps region buttons consistently clickable. */
+.si-plus-spot-layout > aside{
+ max-height:none!important;
+ overflow:visible!important;
+ padding-right:0!important;
+ scrollbar-gutter:auto!important;
+}
