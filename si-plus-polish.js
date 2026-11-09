@@ -1339,7 +1339,10 @@
  function liveVisibility(info){
   const values=info.run.siSpotlightVisible;
   if(values&&values.slideId===info.slide.id&&Array.isArray(values.ids))return values.ids;
-  return [];
+  // Default presentation behavior is the final saved composition, all at
+  // once. Editing changes are not presentation steps. Individual reveal is
+  // available only after a teacher explicitly uses the live controls.
+  return (info.slide.siSpotlight.zones||[]).map(zone=>zone.id);
  }
  function overlaySync(){
   const info=live();
