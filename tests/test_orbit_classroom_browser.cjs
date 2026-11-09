@@ -552,7 +552,7 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(solar.grid,'grid');
   assert.equal(solar.firstCard,'flex');
   assert.equal(solar.ownScroll,'auto');
-  assert.match(solar.gradient,/gradient|orbit-v6\\/09_solar_grouping_chamber\\.png/);
+   assert.ok(solar.gradient.includes('gradient') || solar.gradient.includes('orbit-v6/09_solar_grouping_chamber.png'), 'solar panel retains graphical surface');
   assert.ok(solar.overflow<=3,'projector solar systems stay within viewport');
   // Phase 4D: solar artwork uses actual category order and hides its
   // orbital decoration from assistive technology; typography remains native.
