@@ -5,6 +5,32 @@
 (()=>{
  "use strict";
  let currentPage=0, priorSignature="", extrasOpen=false, scheduled=false, observer=null;
+ // Short, user-facing descriptors only. Full app descriptions stay in
+ // APP_REGISTRY/search and are exposed to assistive technologies below.
+ // This prevents clipped subtitles while preserving the current card layout.
+ const compactSubtitles={
+   "dominoes":"Draw • Match • Connect",
+   "word-grid":"Word Tiles • Team Play",
+   "si-plus":"Slides • Questions • Polls",
+   "cosmic-cards":"Color Cards • Private Hands",
+   "minefield":"Choose Safely • Team Play",
+   "vector":"Pin • Lock • Reveal",
+   "board":"Write • Draw • Share",
+   "sketch":"Draw • Guess • Rotate",
+   "orbit":"Ask • Respond • Share",
+   "pixel":"Hide • Guess • Reveal",
+   "starwheel":"Spin • Solve • Team Play",
+   "crew-survey":"Buzz • Reveal • Score",
+   "million":"Trivia • Lifelines • Climb",
+   "match":"Flip • Remember • Match",
+   "spotlight":"Highlight • Dim • Focus",
+   "bingo":"Call • Mark • Verify",
+   "scientific-calculator":"Calculate • Share",
+   "aac-plus":"Communicate • Speak",
+   "randomizer":"Wheel • Slots • Lottery",
+   "four-in-line":"Drop • Connect Four",
+   "signal-sequence":"Watch • Repeat • Remember"
+ };
  const root=()=>document.getElementById("activitiesPanel");
  const activityGrid=()=>document.getElementById("activityGrid");
  const pageSize=()=>window.innerWidth>=1240?15:window.innerWidth>=970?12:window.innerWidth>=680?9:6;
@@ -55,7 +81,19 @@
        open.textContent="Open Calculator";
      }
      const details=card.querySelector("p")?.textContent.trim();
-     if(details)card.title=details;
+     // The previous title attribute produced an oversized native browser
+     // tooltip which obscured the row underneath on mouse hover.
+     card.removeAttribute("title");
+     if(details){
+       card.setAttribute("aria-description",details);
+       if(open)open.setAttribute("aria-description",details);
+     }
+     const subtitle=card.querySelector(".app-meta");
+     if(subtitle&&compactSubtitles[app]){
+       if(!subtitle.dataset.siV2Original)subtitle.dataset.siV2Original=subtitle.textContent.trim();
+       subtitle.textContent=compactSubtitles[app];
+       subtitle.setAttribute("aria-label",subtitle.dataset.siV2Original);
+     }
      const shortcut=card.querySelector("[data-add-app],[data-manage-shortcut],[data-assign-app]");
      if(shortcut){
        shortcut.title=shortcut.textContent.trim();
