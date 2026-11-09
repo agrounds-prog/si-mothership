@@ -6635,6 +6635,27 @@ def create_app() -> web.Application:
     app.router.add_get("/pixel-batch.js", lambda request: web.FileResponse(ROOT / "pixel-batch.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/pixel-batch.css", lambda request: web.FileResponse(ROOT / "pixel-batch.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/orbit-nebula.svg", lambda request: web.FileResponse(ROOT / "orbit-nebula.svg", headers={"Cache-Control": "no-store"}))
+    # ORBIT v5 graphical surfaces (decorative, safely allowlisted).
+    orbit_art_files = frozenset((
+        "orbit-galaxy-stage.svg", "orbit-question-planet.svg",
+        "orbit-hull-panel.svg", "orbit-response-pod.svg",
+        "orbit-moon-badge.svg", "orbit-graphic-button.svg",
+        "orbit-student-terminal.svg", "orbit-solar-chamber.svg",
+    ))
+    async def orbit_art_v5(request):
+        name = request.match_info["asset"]
+        if name not in orbit_art_files:
+            raise web.HTTPNotFound()
+        path = ROOT / "assets" / "orbit-v5" / name
+        if not path.is_file():
+            raise web.HTTPNotFound()
+        return web.FileResponse(path, headers={
+            "Content-Type": "image/svg+xml",
+            "Cache-Control": "public, max-age=86400",
+            "X-Content-Type-Options": "nosniff",
+        })
+    app.router.add_get("/orbit-v5/{asset}", orbit_art_v5)
+
     app.router.add_get("/word-grid.js", lambda request: web.FileResponse(ROOT / "word-grid.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/word-grid.css", lambda request: web.FileResponse(ROOT / "word-grid.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/dominoes.js", lambda request: web.FileResponse(ROOT / "dominoes.js", headers={"Cache-Control": "no-store"}))
