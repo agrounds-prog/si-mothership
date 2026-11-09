@@ -136,3 +136,28 @@
 @media(prefers-reduced-motion:reduce){
   #teacher #activitiesPanel.si-mp-match-studio button{transition:none!important;transform:none!important}
 }
+
+/* Cascade correction: the legacy :is() button rule carries ID specificity.
+   Anchor exact state overrides through #activityGrid to keep active/danger art. */
+#teacher #activitiesPanel.si-mp-match-studio #activityGrid .mcb-image-tabs button.active{
+  background:transparent url("/match-v2-art/tab_chip.png") center/100% 100% no-repeat!important;
+  border:0!important;box-shadow:0 3px 12px #18f6b54d!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio #activityGrid .mcb-image-tabs button[data-mcb-imagetab="recent"]:not(.active){
+  background-image:url("/match-v2-art/button_secondary_navy.png")!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio #activityGrid #mcbClearSelection,
+#teacher #activitiesPanel.si-mp-match-studio #activityGrid .mcb-saved-set button[data-mcb-delete]{
+  background:transparent url("/match-v2-art/button_secondary_red.png") center/100% 100% no-repeat!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio #activityGrid .mcb-saved-set button[data-mcb-copyset]{
+  background:transparent url("/match-v2-art/button_secondary_purple.png") center/100% 100% no-repeat!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio #activityGrid .mcb-saved-set button[data-mcb-launch]{
+  background:transparent url("/match-v2-art/button_primary_green.png") center/100% 100% no-repeat!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio #activityGrid button:disabled,
+#teacher #activitiesPanel.si-mp-match-studio #activityGrid #mcbMakePairs:disabled{
+  background:transparent url("/match-v2-art/button_disabled_slate.png") center/100% 100% no-repeat!important;
+  border:0!important;box-shadow:none!important;opacity:.7!important;cursor:not-allowed!important;
+}
