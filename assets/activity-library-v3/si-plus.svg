@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 210" width="540" height="210" preserveAspectRatio="xMidYMid meet" role="img" aria-label="SI+ classroom activity artwork">
+<defs>
+<linearGradient id="deck" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#124e87"/><stop offset=".32" stop-color="#0a2748"/><stop offset=".8" stop-color="#06182e"/><stop offset="1" stop-color="#102f52"/></linearGradient>
+<linearGradient id="chrome" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#ccfaff"/><stop offset=".45" stop-color="#71e7ff"/><stop offset="1" stop-color="#245985"/></linearGradient>
+<linearGradient id="glass" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#b1f7ff"/><stop offset=".45" stop-color="#2a91ba"/><stop offset="1" stop-color="#0e3b65"/></linearGradient>
+<linearGradient id="flash" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#dbf9ff" stop-opacity=".2"/><stop offset=".49" stop-color="#b2faff" stop-opacity=".03"/><stop offset="1" stop-color="#031129" stop-opacity=".12"/></linearGradient>
+<radialGradient id="halo"><stop stop-color="#71e7ff" stop-opacity=".48"/><stop offset=".7" stop-color="#71e7ff" stop-opacity=".13"/><stop offset="1" stop-color="#71e7ff" stop-opacity="0"/></radialGradient>
+<filter id="lift" x="-15%" y="-22%" width="130%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#020a1e" flood-opacity=".72"/></filter>
+<pattern id="grain" width="18" height="17" patternUnits="userSpaceOnUse"><path d="M0 5H18M0 15H18" stroke="#c9f7ff" stroke-opacity=".035" stroke-width=".75"/><circle cx="6" cy="3" r=".9" fill="#defcff" opacity=".12"/></pattern>
+</defs>
+<rect x="0" y="0" width="540" height="210" rx="17" fill="url(#deck)"/>
+<ellipse cx="272" cy="96" rx="247" ry="126" fill="url(#halo)"/>
+<path d="M24 6H516L535 24V186L516 204H24L5 186V24Z" fill="none" stroke="url(#chrome)" stroke-width="3" opacity=".85"/>
+<path d="M30 12H510M30 198H510" fill="none" stroke="#d0faff" stroke-width="2.5" opacity=".58"/>
+<path d="M12 32 37 7M528 32 503 7M12 178 37 203M528 178 503 203" fill="none" stroke="#71e7ff" stroke-width="3" opacity=".9"/>
+<path d="M28 181 92 161H448L512 181" fill="none" stroke="#71e7ff" stroke-opacity=".33" stroke-width="2"/>
+<g fill="#d9f9ff" opacity=".58"><circle cx="55" cy="38" r="2"/><circle cx="487" cy="45" r="2.3"/><circle cx="76" cy="128" r="1.7"/><circle cx="465" cy="141" r="1.9"/></g>
+<g transform="translate(57 7) scale(1.77)" filter="url(#lift)"><g transform="translate(40 8)"><path d="M16 83h146" stroke="#9ceaff" stroke-width="5" stroke-linecap="round"/><rect x="4" y="4" width="172" height="80" rx="11" fill="#0c315e" stroke="#b4e9ff" stroke-width="4"/><rect x="11" y="12" width="158" height="62" rx="6" fill="#176da7"/><path d="m22 63 24-24 26 19 25-30 30 28" fill="none" stroke="#56e3fb" stroke-width="4"/><circle cx="132" cy="29" r="13" fill="#a0ffeb" opacity=".7"/><path d="M80 21 80 66 117 43Z" fill="#ffd66d" stroke="#fff5c8" stroke-width="3"/><path d="M78 86v9m26-9v9m-51 0h76" stroke="#9be9ff" stroke-width="5" stroke-linecap="round"/></g></g>
+<rect x="0" y="0" width="540" height="210" rx="17" fill="url(#flash)"/>
+<rect x="0" y="0" width="540" height="210" rx="17" fill="url(#grain)" pointer-events="none"/>
+<path d="M80 18H460" stroke="#71e7ff" stroke-opacity=".86" stroke-width="3" stroke-linecap="round"/>
+</svg>
