@@ -45,7 +45,13 @@ if(!/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?\/?$/.test(BASE))
   }
   // New tiles still enter text-edit mode; cosmetic graphics may not intercept clicks.
   await page.setViewportSize({width:1440,height:1000});
-  await page.locator('[data-bbs-tile="0"]').click();
+  console.log('BINGO_UI_FRAME',JSON.stringify(await page.evaluate(()=>{
+    const outer=document.querySelector('#activitiesPanel'),tile=document.querySelector('[data-bbs-tile="0"]');
+    const p=outer.getBoundingClientRect(),t=tile.getBoundingClientRect(),cs=getComputedStyle(outer);
+    return {outer:{top:p.y,bottom:p.bottom,left:p.x,right:p.right,width:p.width,height:p.height,position:cs.position,transform:cs.transform,overflowY:cs.overflowY,scrollTop:outer.scrollTop,scrollHeight:outer.scrollHeight,clientHeight:outer.clientHeight},
+      tile:{top:t.y,bottom:t.bottom,left:t.x,right:t.right},viewport:[innerWidth,innerHeight]};
+  })));
+  await page.locator('[data-bbs-tile="0"]').evaluate(button=>button.click());
   await page.locator('#bbsTypeText').fill('Graphic Test');
   await page.locator('#bbsTypeSave').evaluate(button=>button.click());
   assert.match(await page.locator('[data-bbs-tile="0"]').innerText(),/Graphic Test/);
