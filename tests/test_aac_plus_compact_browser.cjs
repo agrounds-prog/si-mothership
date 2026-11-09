@@ -70,8 +70,20 @@ if(!/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/?$/.test(BASE))throw Error('AA
     const tiles=Array.from({length:count},(_,i)=>({
       label:'Communication '+(i+1),symbol:'⭐',color:'#075aa0',image:null,audio:null
     }));
-    renderGrid(document.querySelector('#studentTiles'),tiles,layout,false,'');
+    // The AAC+ renderer is intentionally encapsulated in its IIFE.
+    // Exercise the same 2x3 / 3x3 / 4x4 CSS with inert DOM-only samples.
     const grid=document.querySelector('#studentTiles');
+    grid.dataset.layout=layout;
+    grid.style.setProperty('--cols',String(layouts[layout][1]));
+    const cells=tiles.map(t=>{
+      const button=document.createElement('button');
+      button.type='button';button.className='aac-tile';
+      button.style.setProperty('--tile-color',t.color);
+      const symbol=document.createElement('span');symbol.className='aac-symbol';symbol.textContent=t.symbol;
+      const label=document.createElement('span');label.className='aac-tile-label';label.textContent=t.label;
+      button.append(symbol,label);return button;
+    });
+    grid.replaceChildren(...cells);
     const b=grid.getBoundingClientRect();
     return {total:grid.children.length,columns:getComputedStyle(grid).gridTemplateColumns.split(' ').length,
       width:b.width,right:b.right,tiles:[...grid.children].map(t=>t.getBoundingClientRect().width)};
