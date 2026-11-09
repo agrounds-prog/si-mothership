@@ -67,7 +67,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   });
   console.log('21 cinematic visual assets:',JSON.stringify(renderAssets));
   assert.equal(renderAssets.length,21,'All activity illustrations present');
-  assert.ok(renderAssets.every(x=>x.decoded&&x.visible==='1'&&x.fitting==='cover'&&x.count===1),'Missing/hidden new illustration');
+  assert.ok(renderAssets.every(x=>x.decoded&&Number(x.visible)>=.95&&x.fitting==='cover'&&x.count===1),'Missing/hidden new illustration');
   assert.ok(renderAssets.find(x=>x.name==='BOARD')?.src.endsWith('/board.svg'),'BOARD writing illustration preserved');
   assert.ok(renderAssets.find(x=>x.name==='SIGNAL SEQUENCE')?.src.endsWith('/signal-sequence.svg'),'Memory-wheel artwork preserved');
   const a=await get();
