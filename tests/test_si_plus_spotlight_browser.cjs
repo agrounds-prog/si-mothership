@@ -37,6 +37,18 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   const box=await svg.boundingBox();assert.ok(box);
   const stageBox=await page.locator("#siPlusSpotlightEditor .si-plus-spot-stage").boundingBox();
   assert.ok(Math.abs(stageBox.width-box.width)<3,"Overlay must reach visible image right edge");
+  const imageFit=await page.evaluate(()=>{
+   const root=document.querySelector("#siPlusSpotlightEditor .si-plus-spot-stage");
+   const image=root.querySelector("img"),drawing=root.querySelector("svg");
+   const stageBox=root.getBoundingClientRect(),imageBox=image.getBoundingClientRect(),drawBox=drawing.getBoundingClientRect();
+   return {natural:image.naturalWidth/image.naturalHeight,stage:stageBox.width/stageBox.height,
+    picture:imageBox.width/imageBox.height,atBottom:Math.abs(imageBox.bottom-stageBox.bottom),
+    overlayBottom:Math.abs(drawBox.bottom-imageBox.bottom)};
+  });
+  assert.ok(Math.abs(imageFit.stage-4/3)<.02,"4:3 image must be fully shown "+JSON.stringify(imageFit));
+  assert.ok(Math.abs(imageFit.picture-imageFit.natural)<.02,"Image proportions must be preserved");
+  assert.ok(imageFit.atBottom<3&&imageFit.overlayBottom<3,"Drawing surface must reach image bottom");
+
   assert.ok(Math.abs(stageBox.x-box.x)<3,"Overlay must begin at left edge");
   const hitCoverage=await page.evaluate(()=>{
    const svg=document.querySelector("#siPlusSpotlightEditor .si-plus-spot-drawing");
