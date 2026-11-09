@@ -1,0 +1,89 @@
+/* Chromium regression for approved Activity Library concept V2.
+   Inspect actual DOM geometry, artwork, paging and live app actions. */
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const {chromium}=require('playwright');
+const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
+(async()=>{
+ fs.mkdirSync('/tmp/activity-library-v2-screens',{recursive:true});
+ const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+ try{
+  const page=await browser.newPage({viewport:{width:1440,height:960}});
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  const login=await page.request.post(base+'/api/teacher/login',{data:{key:'5030',remember:true}});
+  assert.equal(login.status(),200,'Teacher login');
+  const response=await page.goto(base+'/?role=teacher',{waitUntil:'domcontentloaded'});
+  assert.equal(response.status(),200);
+  await page.waitForFunction(()=>typeof render==='function'&&typeof state!=='undefined'&&document.body.classList.contains('si-v80-dashboard'),{timeout:16000});
+  const activate=()=>page.evaluate(()=>{state.activeApp=null;state.screen='activities';render()});
+  await activate();
+  const root=page.locator('#activitiesPanel.si-v2-library');
+  await root.waitFor({state:'visible',timeout:14000});
+  await page.waitForFunction(()=>!!document.querySelector('#activitiesPanel.si-v2-library .si-v2-pagination'),{timeout:12000});
+  const get=()=>page.evaluate(()=>{
+    const root=document.querySelector('#activitiesPanel.si-v2-library');
+    const cards=[...root.querySelectorAll('.activity-catalog-grid .real-app-card')];
+    const visible=cards.filter(c=>!c.classList.contains('si-v2-page-hidden'));
+    const wells=visible.map(c=>{const rect=c.querySelector('.act-icon')?.getBoundingClientRect();return {name:c.querySelector('h3')?.textContent.trim(),w:rect?.width,h:rect?.height};});
+    const first=visible[0],card=first?.getBoundingClientRect();
+    const board=cards.find(c=>c.querySelector('[data-open-app="board"]'));
+    const sample=first?.querySelector('button[data-open-app]');
+    return {cards:cards.length,visible:visible.length,
+      label:root.querySelector('.si-v2-page-label')?.textContent,
+      icons:wells,cardHeight:card?.height,
+      frame:getComputedStyle(first).backgroundImage,
+      button:getComputedStyle(sample).backgroundImage,
+      boardArt:board?.querySelector('.si-v2-board-image')?.getAttribute('src'),
+      boardDecoded:board?.querySelector('.si-v2-board-image')?.naturalWidth>0,
+      shortcutCount:visible.filter(c=>!!c.querySelector('[data-add-app],[data-manage-shortcut],[data-assign-app]')).length,
+      xOverflow:root.scrollWidth-root.clientWidth,
+      pagerNextDisabled:root.querySelector('.si-v2-next')?.disabled,
+      pagerPrevDisabled:root.querySelector('.si-v2-prev')?.disabled};
+  });
+  const a=await get();
+  console.log('Library V2 page one:',JSON.stringify(a));
+  assert.ok(a.cards>=20,'Expected full existing activity registry');
+  assert.equal(a.visible,15,'Desktop page one shows 15 cards');
+  assert.equal(a.label,'Page 1 of 2');
+  assert.ok(a.frame.includes('card-frame.svg'),'Card artwork not applied');
+  assert.ok(a.button.includes('open-button.svg'),'Graphical Open button not applied');
+  assert.ok(a.boardArt?.includes('board-whiteboard.svg')&&a.boardDecoded,'BOARD must show shared whiteboard art');
+  assert.ok(a.shortcutCount===15,'Shortcut controls preserved');
+  assert.ok(Math.max(...a.icons.map(x=>x.h))-Math.min(...a.icons.map(x=>x.h))<=2,'Artwork frame heights inconsistent');
+  assert.ok(a.xOverflow<=14,'Horizontal overflow on desktop');
+  await root.screenshot({path:'/tmp/activity-library-v2-screens/1440-page-1.png',animations:'disabled'});
+  await root.locator('.si-v2-next').click();
+  const b=await get();
+  console.log('Library V2 page two:',JSON.stringify(b));
+  assert.equal(b.visible,a.cards-15,'Remaining activities should appear on page two');
+  assert.equal(b.label,'Page 2 of 2');
+  assert.ok(b.icons.some(x=>x.name==='SIGNAL SEQUENCE'),'Signal Sequence must remain available');
+  assert.ok(Math.max(...b.icons.map(x=>x.h))-Math.min(...b.icons.map(x=>x.h))<=2,'Page two thumbnails differ in height');
+  await root.screenshot({path:'/tmp/activity-library-v2-screens/1440-page-2.png',animations:'disabled'});
+  await root.locator('.si-v2-prev').click();
+  const more=root.locator('.si-v2-extras-toggle');
+  await more.click();
+  assert.equal(await more.getAttribute('aria-expanded'),'true','Recent & Saved toggle');
+  assert.ok(await root.locator('.activity-library-shelves').isVisible(),'Recent/saved groups remain accessible');
+  await more.click();
+  assert.equal(await more.getAttribute('aria-expanded'),'false');
+  await root.locator('#activityLibrarySearch').fill('bingo');
+  await page.waitForFunction(()=>{
+    const cards=[...document.querySelectorAll('#activitiesPanel .activity-catalog-grid .real-app-card')];
+    return cards.length===1&&cards[0].querySelector('h3')?.textContent.trim()==='BINGO';
+  },{timeout:10000});
+  const searchResult=await get();
+  assert.equal(searchResult.visible,1,'Search must retain original filtering');
+  assert.ok(await root.locator('[data-open-app="bingo"]').count(),'Original Bingo open action retained');
+  await root.locator('#activityLibrarySearch').fill('');
+  await page.waitForFunction(()=>document.querySelectorAll('#activitiesPanel .activity-catalog-grid .real-app-card').length>=20,{timeout:12000});
+  await page.setViewportSize({width:900,height:850});
+  await page.waitForTimeout(250);
+  const narrow=await get();
+  assert.equal(narrow.visible,9,'Narrow library should show 9 per page');
+  assert.ok(narrow.xOverflow<=14,'Horizontal overflow at 900px');
+  await root.screenshot({path:'/tmp/activity-library-v2-screens/900-page-1.png',animations:'disabled'});
+  assert.deepEqual(errors,[],'No JavaScript errors');
+  console.log('PASS approved Activity Library concept V2: thumbnails, two pages, search, shortcuts, recent/presets, responsive');
+ } finally {await browser.close()}
+})().catch(e=>{console.error(e);process.exit(1)});
