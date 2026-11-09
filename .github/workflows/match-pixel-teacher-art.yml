@@ -5,9 +5,12 @@ on:
     paths:
       - 'server.py'
       - 'match-pixel-teacher-art-v1.css'
+      - 'match-illustrated-v2.css'
+      - 'assets/match-illustrated-v2/**'
       - 'match-pixel-teacher-art-v1.js'
       - 'MATCH_PIXEL_REVEAL_Art_Pack_V1/**'
       - 'tests/test_match_pixel_teacher_art_browser.cjs'
+      - 'tests/test_match_illustrated_v2_browser.cjs'
       - '.github/workflows/match-pixel-teacher-art.yml'
   workflow_dispatch:
 permissions: {contents: read}
@@ -71,6 +74,8 @@ jobs:
         run: |
           npm install --no-save --ignore-scripts playwright@1.56.1
           npx playwright install --with-deps chromium
+      - name: Browser regression for real MATCH Illustrated V2 SVG skins
+        run: node tests/test_match_illustrated_v2_browser.cjs
       - name: Browser regression of MATCH and PIXEL REVEAL teacher studios
         run: node tests/test_match_pixel_teacher_art_browser.cjs
       - name: Upload browser screenshots
@@ -78,7 +83,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: match-pixel-teacher-v1-browser-screens
-          path: /tmp/mp-v1-browser/*.png
+          path: |
+            /tmp/mp-v1-browser/*.png
+            /tmp/match-illustrated-v2/*.png
           if-no-files-found: ignore
       - name: Server logs on failure
         if: failure()
