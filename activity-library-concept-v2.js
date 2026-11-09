@@ -61,6 +61,28 @@
        shortcut.title=shortcut.textContent.trim();
        shortcut.setAttribute("aria-label",shortcut.textContent.trim());
      }
+     // Standalone V3 illustrations are real SVG assets. Overlay after the older
+     // V2 artwork loads so missing files safely fall back to existing graphics.
+     // No card buttons, registry metadata or teacher/game state are replaced.
+     const artSlug=({sketch:"sketch-signal",pixel:"pixel-reveal"})[app]||app;
+     const well=card.querySelector(".act-icon");
+     if(well&&artSlug&&!well.dataset.siV3Artwork){
+       well.dataset.siV3Artwork=artSlug;
+       const picture=document.createElement("img");
+       picture.className="si-v3-illustration";
+       picture.alt="";
+       picture.decoding="async";
+       picture.loading="eager";
+       picture.onload=()=>{
+         if(picture.isConnected&&picture.naturalWidth>0)well.classList.add("si-v3-art-ready");
+       };
+       picture.onerror=()=>{
+         well.classList.remove("si-v3-art-ready");
+         picture.remove();well.dataset.siV3Artwork="";
+       };
+       picture.src="/activity-library-v3-art/"+artSlug+".svg";
+       well.appendChild(picture);
+     }
      if(app==="board"&&!card.querySelector(".si-v2-board-image")){
        const well=card.querySelector(".act-icon");
        if(well){
