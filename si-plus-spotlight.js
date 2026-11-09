@@ -203,10 +203,10 @@
   // the shared presentation, where object-fit:contain may add letterboxing.
   const width=image.naturalWidth,height=image.naturalHeight;
   if(width>0&&height>0){
-   stage.style.aspectRatio=width+" / "+height;
+   stage.style.setProperty("aspect-ratio",width+" / "+height,"important");
    stage.dataset.imageRatio=(width/height).toFixed(5);
   }else{
-   stage.style.aspectRatio="16 / 9";
+   stage.style.setProperty("aspect-ratio","16 / 9","important");
    delete stage.dataset.imageRatio;
   }
   svg.style.left="0px";svg.style.top="0px";
