@@ -6777,6 +6777,15 @@ def create_app() -> web.Application:
     app.router.add_get("/match-builder.css", match_builder_style)
     app.router.add_get("/bingo-board-studio.js", bingo_board_studio_script)
     app.router.add_get("/bingo-board-studio.css", bingo_board_studio_style)
+    # Strictly allowlisted, generated from the approved Bingo Studio art pack.
+    async def bingo_studio_artwork(request: web.Request) -> web.Response:
+        from bingo_studio_art import get_art_path
+        filename = request.match_info["filename"]
+        path = get_art_path(filename)
+        if path is None:
+            raise web.HTTPNotFound()
+        return web.FileResponse(path, headers={"Cache-Control": "public, max-age=3600", "Content-Type": "image/webp"})
+    app.router.add_get("/bingo-studio-art/{filename}", bingo_studio_artwork)
     app.router.add_get("/cosmic-cards.js", cosmic_cards_script)
     app.router.add_get("/cosmic-cards.css", cosmic_cards_style)
     app.router.add_get("/cosmic-cc-emblem.svg", cosmic_cards_artwork)

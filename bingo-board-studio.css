@@ -3129,3 +3129,232 @@ body.role-student #studentContent .crew-survey-verbal .crew-survey-speak-cue spa
 #teacher #activityControllerPanel .crew-survey-answer-control [data-cs-reveal]:not(:disabled){
  border-color:#79e3ad;background:#15523e;color:#f1fff8;font-weight:950;
 }
+
+
+/* 2026-11-09 — approved graphical Bingo Board Studio skin.
+   Uses real illustrated art derived from the five uploaded concept PNGs.
+   Scope is strictly .bbs-studio; saved images, board editor and game views
+   continue to use their existing JS and storage workflows. */
+#teacher #activitiesPanel:has(.bbs-studio){
+  position:relative!important;width:min(1690px,calc(100vw - 22px))!important;
+  max-width:none!important;padding:clamp(8px,.8vw,15px)!important;
+  border:1px solid #2183a8!important;border-radius:18px!important;
+  background:#061424!important;
+}
+#teacher .bbs-studio{
+  --bbs-art:url("/bingo-studio-art/bridge-backdrop.webp?v=1");
+  position:relative;isolation:isolate;min-width:0;
+  padding:clamp(5px,.7vw,12px);border-radius:16px;
+  background-image:linear-gradient(170deg,#03132c65,#00172970),var(--bbs-art)!important;
+  background-size:cover!important;background-position:center!important;
+  box-shadow:inset 0 0 0 1px #2f829b9c,0 8px 40px #0009!important;
+}
+#teacher .bbs-hero{
+  position:relative!important;display:flex!important;align-items:center!important;
+  justify-content:center!important;overflow:visible!important;
+  width:100%!important;height:clamp(105px,11.6vw,172px)!important;
+  min-height:0!important;margin:0 0 14px!important;padding:0!important;
+  border:0!important;border-radius:9px!important;
+  background:#07172e url("/bingo-studio-art/hero-header.webp?v=1") center / 100% 100% no-repeat!important;
+  box-shadow:0 10px 22px #0009!important;
+}
+#teacher .bbs-logo{display:none!important}
+#teacher .bbs-title{
+  position:absolute!important;left:30.5%!important;right:28.5%!important;
+  top:12%!important;bottom:13%!important;z-index:1;
+  display:flex!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;
+  min-width:0!important;flex:none!important;text-align:center!important;
+  padding:0 5px!important;
+}
+#teacher .bbs-title small{
+  display:block;font:850 clamp(8px,.9vw,14px)/1.2 system-ui!important;
+  letter-spacing:.12em!important;color:#d6f8ff!important;
+  text-shadow:0 1px 5px #000!important;
+}
+#teacher .bbs-title h2{
+  display:block!important;max-width:100%;margin:6px 0 0!important;
+  font:italic 950 clamp(17px,2.8vw,43px)/1.05 system-ui!important;
+  color:#f5fdff!important;letter-spacing:.008em!important;
+  text-shadow:0 0 13px #54d1ff90,0 2px 3px #001120!important;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+#teacher .bbs-progress{
+  position:absolute!important;z-index:3;right:2.9%!important;
+  bottom:13%!important;width:17%!important;min-width:0!important;
+  max-height:48%!important;margin:0!important;
+  padding:5px 8px!important;gap:2px!important;
+  background:#031727ed!important;border:1px solid #53eac9!important;
+  border-radius:9px!important;box-shadow:0 0 13px #25ffd34b!important;
+}
+#teacher .bbs-progress strong{font-size:clamp(13px,2vw,27px)!important}
+#teacher .bbs-progress em{font-size:.67em!important}
+#teacher .bbs-progress span{font-size:clamp(7px,.6vw,9px)!important}
+#teacher .bbs-progress>div{height:4px!important;margin-top:2px!important}
+#teacher #activitiesPanel:has(.bbs-studio)>.mode-title{
+  position:absolute!important;z-index:8!important;right:3.2%!important;
+  top:clamp(13px,2vw,29px)!important;min-height:0!important;
+  margin:0!important;padding:0!important;border:0!important;
+  background:transparent!important;
+}
+#teacher #activitiesPanel:has(.bbs-studio) #activitiesHeaderActions{display:flex!important;gap:6px!important}
+#teacher #activitiesPanel:has(.bbs-studio) #activitiesHeaderActions button{
+  min-height:32px!important;padding:6px 10px!important;
+  border:1px solid #66d9f9!important;border-radius:8px!important;
+  background:linear-gradient(120deg,#0e4969e8,#06192de8)!important;
+  box-shadow:inset 0 1px #cefaff55,0 2px 7px #0009!important;
+  color:#fff!important;font-weight:900!important;
+}
+#teacher .bbs-layout{grid-template-columns:minmax(0,1.14fr) minmax(330px,.86fr)!important;gap:clamp(10px,1vw,17px)!important}
+#teacher .bbs-aside{gap:clamp(10px,1vw,16px)!important}
+#teacher .bbs-panel{
+  min-width:0!important;overflow:hidden;
+  border:0!important;border-radius:23px!important;
+  padding:clamp(18px,1.65vw,30px)!important;
+  background:#061c35 url("/bingo-studio-art/board-panel.webp?v=1") center/100% 100% no-repeat!important;
+  box-shadow:0 13px 30px #0009!important;
+}
+#teacher .bbs-library{
+  background-image:url("/bingo-studio-art/library-panel.webp?v=1")!important;
+}
+#teacher .bbs-saved{
+  background-image:url("/bingo-studio-art/saved-panel.webp?v=1")!important;
+}
+#teacher .bbs-board-heading,#teacher .bbs-head{
+  margin-bottom:14px!important;padding:6px 7px 9px!important;
+  border-bottom:1px solid #2dc5df9a!important;
+  background:linear-gradient(90deg,#0c4061bb,transparent)!important;
+}
+#teacher .bbs-board-heading h3,#teacher .bbs-head h3{
+  font:italic 950 clamp(17px,1.5vw,25px)/1.14 system-ui!important;
+  letter-spacing:.02em!important;text-shadow:0 0 12px #36cbf955!important;
+}
+#teacher .bbs-board-heading small,#teacher .bbs-head small{
+  font-size:clamp(9px,.75vw,12px)!important;color:#95f5ff!important;
+}
+#teacher .bbs-board-heading p,#teacher .bbs-head p{font-size:clamp(10px,.85vw,13px)!important;color:#d5f1fb!important}
+#teacher .bbs-name-row input,#teacher .bbs-options select,#teacher .bbs-library-tools input{
+  min-height:42px!important;padding:8px 13px!important;
+  border:1px solid #76c9f4!important;border-radius:9px!important;
+  background:#031a34e8!important;color:#f6fbff!important;
+  box-shadow:inset 0 0 8px #1e83b432,0 0 5px #1acaf524!important;
+}
+#teacher .bbs-name-row label,#teacher .bbs-options>label{font-size:11px!important;color:#c6ecfd!important}
+#teacher .bbs-options{margin:13px 0 16px!important}
+#teacher .bbs-board-frame{
+  position:relative!important;padding:clamp(11px,1.2vw,20px)!important;
+  border:1px solid #65efffea!important;border-radius:19px!important;
+  background:linear-gradient(135deg,#08294bee,#001e36fa)!important;
+  box-shadow:inset 0 0 0 5px #225d77b6,inset 0 0 23px #19c7ef3b,0 0 14px #1ad8ff60!important;
+}
+#teacher .bbs-grid{gap:clamp(4px,.7vw,11px)!important}
+#teacher .bbs-tile,
+#teacher .bbs-tile.bbs-empty,
+#teacher .bbs-tile.bbs-filled,
+#teacher .bbs-tile.bbs-free,
+#teacher .bbs-tile.bbs-edit{
+  position:relative!important;min-width:0!important;
+  aspect-ratio:1!important;padding:clamp(7px,.8vw,14px)!important;
+  border:0!important;border-radius:11px!important;
+  color:#064776!important;
+  background:transparent url("/bingo-studio-art/tile-empty.webp?v=1") center/100% 100% no-repeat!important;
+  box-shadow:0 4px 8px #0005!important;
+}
+#teacher .bbs-tile.bbs-filled{background-image:url("/bingo-studio-art/tile-selected.webp?v=1")!important}
+#teacher .bbs-tile.bbs-free{background-image:url("/bingo-studio-art/tile-free.webp?v=1")!important}
+#teacher .bbs-tile.bbs-edit{background-image:url("/bingo-studio-art/tile-selected.webp?v=1")!important;color:#eafaff!important}
+#teacher .bbs-tile:before{display:none!important}
+#teacher .bbs-tile-num{
+  z-index:3!important;top:7%!important;left:11%!important;
+  width:19%!important;min-width:19px!important;
+  padding:0!important;border-radius:0!important;
+  background:transparent!important;color:#fff!important;
+  font-size:clamp(9px,1vw,17px)!important;text-shadow:0 1px 2px #00162c!important;
+}
+#teacher .bbs-plus{font-size:clamp(20px,3vw,51px)!important;color:#06618c!important}
+#teacher .bbs-plus small{font-size:clamp(8px,.76vw,12px)!important;margin-top:0!important;color:#075b80!important}
+#teacher .bbs-tile img{
+  width:79%!important;height:79%!important;max-width:79%!important;
+  margin:0!important;padding:3px!important;object-fit:contain!important;
+  mix-blend-mode:normal!important;border-radius:8px!important;background:#f8feffef!important;
+  box-shadow:0 2px 8px #00374a4d!important;
+}
+#teacher .bbs-tile b{font-size:clamp(10px,1.2vw,19px)!important;max-width:80%!important}
+#teacher button.bbs-tile:hover{filter:brightness(1.14)!important;transform:translateY(-2px)!important}
+#teacher .bbs-tile:focus-visible{outline:3px solid #fff4a9!important;outline-offset:2px!important}
+#teacher .bbs-under-board{margin:11px 0!important;font-size:12px!important}
+#teacher .bbs-save{padding-top:14px!important;margin-top:12px!important;gap:8px!important}
+#teacher .bbs-studio button:is(#bbsNewBoard,#bbsUpload,#bbsCreate,#bbsUncheck,#bbsClearBoard,#bbsSave,#bbsSaveLaunch),
+#teacher .bbs-saved-actions button,
+#teacher .bbs-library-tools button{
+  border:0!important;border-radius:10px!important;color:#f6fdff!important;
+  background:transparent url("/bingo-studio-art/button-blue.webp?v=1") center/100% 100% no-repeat!important;
+  box-shadow:none!important;text-shadow:0 2px 3px #021b2cee!important;
+  font-weight:950!important;
+}
+#teacher .bbs-studio button:is(#bbsSaveLaunch,#bbsCreate),
+#teacher .bbs-saved-actions [data-bbs-launch],
+#teacher .bbs-library-tools button.active{
+  background-image:url("/bingo-studio-art/button-green.webp?v=1")!important;
+}
+#teacher .bbs-studio button:is(#bbsClearBoard,#bbsUncheck),
+#teacher .bbs-saved-actions .bbs-remove,
+#teacher .bbs-library-entry .bbs-library-remove{
+  background-image:url("/bingo-studio-art/button-red.webp?v=1")!important;
+}
+#teacher .bbs-studio button:disabled{filter:saturate(.35) brightness(.77)!important;opacity:.7!important}
+#teacher .bbs-studio button:hover:not(:disabled){filter:brightness(1.16);transform:translateY(-1px)}
+#teacher .bbs-save button{min-height:55px!important;padding:9px 17px!important;font-size:clamp(11px,1vw,15px)!important}
+#teacher #bbsSaveLaunch{flex:1 1 auto!important;max-width:none!important}
+#teacher .bbs-library .bbs-upload{min-height:55px!important;font-size:clamp(11px,1.1vw,16px)!important}
+#teacher .bbs-library-grid{
+  min-height:120px!important;padding:12px!important;
+  border:1px solid #329bcc!important;border-radius:12px!important;
+  background:#02182fdb!important;
+  box-shadow:inset 0 1px 11px #001527!important;
+}
+#teacher .bbs-library-image{background:#143858!important}
+#teacher .bbs-library-image.checked{border-color:#45ffca!important;background:#185b59!important}
+#teacher .bbs-saved-board{
+  grid-template-columns:clamp(66px,6vw,108px) minmax(0,1fr)!important;
+  padding:clamp(10px,1vw,17px)!important;border:1px solid #65d2f1!important;
+  border-radius:13px!important;
+  background:radial-gradient(ellipse at 100% 90%,#0c658766,transparent 60%),#041e36dd!important;
+  box-shadow:inset 0 0 0 2px #155078,0 0 12px #008fb02d!important;
+}
+#teacher .bbs-saved-art{
+  width:clamp(66px,6vw,108px)!important;height:clamp(66px,6vw,108px)!important;
+  border:1px solid #66edff!important;border-radius:10px!important;
+}
+#teacher .bbs-saved-info b{font-size:clamp(12px,1.3vw,18px)!important}
+#teacher .bbs-saved-actions{grid-column:2!important;gap:4px!important}
+#teacher .bbs-saved-actions button{min-height:42px!important;padding:8px 12px!important;font-size:clamp(10px,.85vw,13px)!important}
+#teacher .bbs-saved-actions .bbs-remove{min-width:36px!important;margin-left:0!important}
+#teacher .bbs-saved-actions .bbs-remove{font-size:18px!important}
+@media(max-width:1150px){
+ #teacher .bbs-layout{grid-template-columns:1fr!important}
+ #teacher .bbs-aside{grid-template-columns:minmax(0,1fr) minmax(280px,.75fr)!important}
+}
+@media(max-width:820px){
+ #teacher .bbs-aside{grid-template-columns:1fr!important}
+ #teacher .bbs-hero{height:clamp(102px,15vw,138px)!important}
+ #teacher .bbs-title{left:25%!important;right:27%!important}
+ #teacher .bbs-title small{font-size:8px!important;letter-spacing:0!important}
+ #teacher .bbs-progress{bottom:8%!important;right:2%!important}
+ #teacher #activitiesPanel:has(.bbs-studio)>.mode-title{position:relative!important;top:auto!important;right:auto!important;margin:0 0 5px!important}
+}
+@media(max-width:560px){
+ #teacher .bbs-hero{height:120px!important;background-position:center!important;background-size:cover!important}
+ #teacher .bbs-title{left:12%!important;right:12%!important;top:10%!important;bottom:35%!important}
+ #teacher .bbs-title h2{font-size:22px!important}
+ #teacher .bbs-progress{right:3%!important;bottom:3%!important;width:28%!important;max-height:38%!important}
+ #teacher .bbs-panel{padding:15px!important}
+ #teacher .bbs-save{flex-wrap:wrap!important}
+ #teacher .bbs-save button{flex:1 1 150px!important}
+ #teacher .bbs-saved-actions{grid-column:1/-1!important}
+ #teacher .bbs-saved-board{grid-template-columns:72px 1fr!important}
+ #teacher .bbs-library-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #teacher .bbs-studio button{transition:none!important;transform:none!important}
+}
