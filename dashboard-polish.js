@@ -352,12 +352,30 @@ function installClassroomTools(){
   if(!APP_REGISTRY.some(item=>item.id===app.id))APP_REGISTRY.push(app);
  }
  const originalOpen=openApp;
+ // AAC+ is a true floating, reusable teacher studio: the command deck stays
+ // open, and launching AAC+ again focuses the same resizable browser window.
+ function openAACStudio(){
+  const screenLeft=Number.isFinite(screen.availLeft)?screen.availLeft:0;
+  const screenTop=Number.isFinite(screen.availTop)?screen.availTop:0;
+  const availableWidth=Math.max(500,screen.availWidth||window.innerWidth||1200);
+  const availableHeight=Math.max(500,screen.availHeight||window.innerHeight||850);
+  const width=Math.min(1120,Math.max(600,availableWidth-100));
+  const height=Math.min(830,Math.max(530,availableHeight-90));
+  const left=Math.max(screenLeft,Math.round(screenLeft+(availableWidth-width)/2));
+  const top=Math.max(screenTop,Math.round(screenTop+(availableHeight-height)/2));
+  const features=['popup=yes','resizable=yes','scrollbars=yes','toolbar=no','menubar=no',
+   'location=no','status=no','width='+Math.round(width),'height='+Math.round(height),
+   'left='+left,'top='+top].join(',');
+  const popup=window.open('/aac','siMothershipAACPlusStudio',features);
+  if(popup){try{popup.opener=null;popup.focus()}catch(e){};return}
+  if(typeof toast==='function')toast('Allow pop-ups for Mothership to open the floating AAC+ Studio.');
+ }
  openApp=function(id){
-  if(id==='aac-plus'||id==='randomizer'){
-   const destination=id==='aac-plus'?'/aac':'/randomizer';
-   const popup=window.open(destination,'_blank');
+  if(id==='aac-plus'){openAACStudio();return}
+  if(id==='randomizer'){
+   const popup=window.open('/randomizer','_blank');
    if(popup)popup.opener=null;
-   else if(typeof toast==='function')toast('Allow pop-ups to open '+(id==='aac-plus'?'AAC+':'Randomizer')+'.');
+   else if(typeof toast==='function')toast('Allow pop-ups to open Randomizer.');
    return;
   }
   return originalOpen.apply(this,arguments);
