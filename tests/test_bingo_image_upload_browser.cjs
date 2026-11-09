@@ -108,7 +108,15 @@ if(!/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?\/?$/.test(BASE))
   }));
   assert.deepEqual(ready,{filled:16,images:16,slots:16});
   await page.locator('#bbsName').fill('SI BINGO Upload Regression Board');
-  await page.locator('#bbsSave').click();
+  console.log('BINGO_SAVE_LAYOUT',JSON.stringify(await page.evaluate(()=>{
+    const button=document.querySelector('#bbsSave');
+    const outer=document.querySelector('#activitiesPanel');
+    const b=button.getBoundingClientRect(),p=outer.getBoundingClientRect();
+    return {buttonY:b.y,buttonBottom:b.bottom,panelY:p.y,panelBottom:p.bottom,
+      panelScroll:outer.scrollHeight,panelClient:outer.clientHeight,
+      panelTop:outer.scrollTop,viewport:innerHeight};
+  })));
+  await page.locator('#bbsSave').click({timeout:8000});
   await page.waitForFunction(()=>bingoSets.some(s=>s.name==='SI BINGO Upload Regression Board'),null,{timeout:15000});
   const sets=await ctx.request.get(BASE+'/api/storage');
   const boardStorage=(await sets.json()).items['siMothership.bingoSets.v1'];
