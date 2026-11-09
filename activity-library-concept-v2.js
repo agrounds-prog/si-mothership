@@ -47,7 +47,13 @@
    extras.textContent="▤ Recent & Saved";
    extras.setAttribute("aria-expanded",String(extrasOpen));
    for(const card of cards){
-     const app=card.querySelector("[data-open-app]")?.dataset.openApp;
+     const open=card.querySelector("[data-open-app]");
+     const app=open?.dataset.openApp;
+     // Keep the full accessible app name; shorten only the long visible CTA.
+     if(app==="scientific-calculator"&&open?.textContent.trim()!=="Open Calculator"){
+       open.setAttribute("aria-label","Open Scientific Calculator");
+       open.textContent="Open Calculator";
+     }
      const details=card.querySelector("p")?.textContent.trim();
      if(details)card.title=details;
      const shortcut=card.querySelector("[data-add-app],[data-manage-shortcut],[data-assign-app]");
