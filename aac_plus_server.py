@@ -16,7 +16,9 @@ import uuid
 import wave
 from pathlib import Path
 from urllib.parse import urlsplit
+from functools import lru_cache
 from aiohttp import web
+from PIL import Image, ImageDraw
 import qrcode
 
 LAYOUTS = {"2x3": (2, 3), "3x3": (3, 3), "4x4": (4, 4)}
@@ -219,6 +221,76 @@ def install(app, data_dir, teacher_authorized, root, public_base_url=""):
     def static(filename,mime):
         async def page(req):return web.FileResponse(Path(root)/filename,headers={"Cache-Control":"no-store","Content-Type":mime})
         return page
+
+    # Versioned, allowlisted illustration pack uploaded to GitHub. The original
+    # generated art contains example labels; create clean reusable skins here so
+    # every saved board retains its OWN name, layout and live button handlers.
+    ART_FILES = {
+        "header.png": "01_aac_header_shell.png",
+        "hero.png": "02_aac_hero_banner.png",
+        "create-button.png": "03_create_board_button.png",
+        "search-blank.png": "04_search_bar.png",
+        "board-shell.png": "05_saved_board_card.png",
+        "edit-button.png": "06_edit_button.png",
+        "secondary-button.png": "07_share_button.png",
+        "footer.png": "08_footer_console_trim.png",
+        "hologram.png": "09_center_hologram_emblem.png",
+    }
+
+    @lru_cache(maxsize=16)
+    def render_ui_art(name):
+        source = Path(root) / "aac_plus_asset_pack" / ART_FILES[name]
+        with Image.open(source) as source_image:
+            artwork = source_image.convert("RGBA")
+        if name == "search-blank.png":
+            # Remove baked placeholder: actual input text is searchable/editable.
+            ImageDraw.Draw(artwork).rounded_rectangle(
+                (362, 284, 1370, 394), radius=12, fill=(7, 27, 49, 255))
+        elif name == "board-shell.png":
+            draw = ImageDraw.Draw(artwork)
+            # Preserve the generated 3D armor and illuminated preview bezel.
+            # Clear the example tiles/name/buttons before overlaying live DOM.
+            draw.rounded_rectangle(
+                (250, 207, 817, 594), radius=24,
+                fill=(4, 28, 54, 255), outline=(20, 100, 147, 255), width=4)
+            draw.rounded_rectangle(
+                (202, 657, 870, 841), radius=8, fill=(6, 27, 51, 255))
+            draw.rounded_rectangle(
+                (190, 845, 896, 1177), radius=11, fill=(5, 21, 41, 255))
+            draw.line((205, 826, 855, 826), fill=(35, 118, 165, 255), width=2)
+        elif name == "secondary-button.png":
+            # One button skin works with live labels: Share, Duplicate, Delete,
+            # editor actions and saved-board controls.
+            ImageDraw.Draw(artwork).rounded_rectangle(
+                (572, 342, 1185, 570), radius=24, fill=(11, 35, 67, 255))
+        # Images have enormous transparent generator margins. Crop to meaningful
+        # alpha so CSS can size the actual graphic rather than its empty canvas.
+        alpha = artwork.getchannel("A").point(lambda px: 255 if px > 52 else 0)
+        bounds = alpha.getbbox()
+        if bounds:
+            pad = 5
+            artwork = artwork.crop((
+                max(0, bounds[0] - pad), max(0, bounds[1] - pad),
+                min(artwork.width, bounds[2] + pad),
+                min(artwork.height, bounds[3] + pad),
+            ))
+        buffer = io.BytesIO()
+        artwork.save(buffer, "PNG", optimize=True)
+        return buffer.getvalue()
+
+    async def ui_art(req):
+        name = req.match_info["name"]
+        if name not in ART_FILES:
+            raise web.HTTPNotFound()
+        try:
+            body = render_ui_art(name)
+        except (OSError, ValueError):
+            raise web.HTTPNotFound()
+        return web.Response(body=body, content_type="image/png", headers={
+            "Cache-Control": "public, max-age=86400",
+            "X-Content-Type-Options": "nosniff",
+        })
+    app.router.add_get("/aac-plus-art/{name}", ui_art)
 
     app.router.add_get("/aac",launch)
     app.router.add_get("/aac/",launch)
