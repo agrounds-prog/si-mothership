@@ -98,3 +98,19 @@
   #teacher #activitiesPanel.si-mp-match-studio .mcb-sidebar{grid-template-columns:1fr!important}}
 @media(prefers-reduced-motion:reduce){
   #teacher #activitiesPanel.si-mp-match-studio .mcb-shell button{transition:none!important;transform:none!important}}
+
+/* V2.1 cascade fix: preexisting unified-setup rule uses ID + data attribute.
+   This uses the exact MATCH studio state, so the illustrated control wins. */
+#teacher #activitiesPanel.si-mp-match-studio.si-setup-view[data-si-setup="match"] #mcbSaveLaunch,
+#teacher #activitiesPanel.si-mp-match-studio.si-setup-view[data-si-setup="match"] #mcbMakePairs {
+  background:transparent url('/match-v2-art/button_green.svg') center/100% 100% no-repeat!important;
+  border:0!important;
+  color:#f8fff7!important;
+  text-shadow:0 2px 5px #002419!important;
+  box-shadow:none!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio.si-setup-view[data-si-setup="match"] #mcbSaveLaunch:disabled,
+#teacher #activitiesPanel.si-mp-match-studio.si-setup-view[data-si-setup="match"] #mcbMakePairs:disabled{
+  background-image:url('/match-v2-art/button_disabled.svg')!important;
+  color:#b7d2df!important;
+}
