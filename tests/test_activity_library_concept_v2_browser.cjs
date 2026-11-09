@@ -48,6 +48,28 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
       pagerNextDisabled:root.querySelector('.si-v2-next')?.disabled,
       pagerPrevDisabled:root.querySelector('.si-v2-prev')?.disabled};
   });
+  // Every existing app receives its own standalone cinematic SVG image.
+  await page.waitForFunction(()=>{
+    const cards=[...document.querySelectorAll('#activitiesPanel.si-v2-library .activity-catalog-grid .real-app-card')];
+    return cards.length>=20&&cards.every(c=>{
+      const well=c.querySelector('.act-icon'),art=well?.querySelector('img.si-v3-illustration');
+      return !!art&&art.complete&&art.naturalWidth>0&&well.classList.contains('si-v3-art-ready');
+    });
+  },{timeout:20000});
+  const renderAssets=await page.evaluate(()=>{
+    return [...document.querySelectorAll('#activitiesPanel.si-v2-library .activity-catalog-grid .real-app-card')].map(c=>{
+      const name=c.querySelector('h3')?.textContent.trim();
+      const frame=c.querySelector('.act-icon'),img=frame?.querySelector('.si-v3-illustration');
+      return {name,src:img?.getAttribute('src'),decoded:img?.naturalWidth>0,
+        visible:img?getComputedStyle(img).opacity:'0',
+        fitting:img?getComputedStyle(img).objectFit:'none',count:frame?.querySelectorAll('.si-v3-illustration').length};
+    });
+  });
+  console.log('21 cinematic visual assets:',JSON.stringify(renderAssets));
+  assert.equal(renderAssets.length,21,'All activity illustrations present');
+  assert.ok(renderAssets.every(x=>x.decoded&&x.visible==='1'&&x.fitting==='cover'&&x.count===1),'Missing/hidden new illustration');
+  assert.ok(renderAssets.find(x=>x.name==='BOARD')?.src.endsWith('/board.svg'),'BOARD writing illustration preserved');
+  assert.ok(renderAssets.find(x=>x.name==='SIGNAL SEQUENCE')?.src.endsWith('/signal-sequence.svg'),'Memory-wheel artwork preserved');
   const a=await get();
   console.log('Library V2 page one:',JSON.stringify(a));
   assert.ok(a.cards>=20,'Expected full existing activity registry');
