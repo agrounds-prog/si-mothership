@@ -5171,7 +5171,8 @@ async def index(request: web.Request) -> web.Response:
                          '<script src="/pixel-batch.js?v=1" defer></script>'
                          '<link rel="stylesheet" href="/match-pixel-teacher-art-v1.css?v=1">'
                          '<link rel="stylesheet" href="/match-illustrated-v2.css?v=2">'
-                         '<link rel="stylesheet" href="/match-illustrated-v2-png.css?v=1"></head>', 1)
+                         '<link rel="stylesheet" href="/match-illustrated-v2-png.css?v=1">'
+                         '<link rel="stylesheet" href="/activity-library-concept-v2.css?v=1"></head>', 1)
     # Insert before the final body close: index.html also contains HTML strings
     # in internal scripts, so replacing the first occurrence would corrupt JS.
     body_close = text.rfind("</body>")
@@ -5192,6 +5193,7 @@ async def index(request: web.Request) -> web.Response:
                 f'<script src="/si-plus-polish.js?v={SI_PLUS_ASSET_VERSION}" defer></script>'
                 '<script src="/si-plus-teacher-v1.js?v=1" defer></script>' +
                 '<script src="/match-pixel-teacher-art-v1.js?v=1" defer></script>' +
+                '<script src="/activity-library-concept-v2.js?v=1" defer></script>' +
                 text[body_close:])
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
@@ -6697,6 +6699,20 @@ def create_app() -> web.Application:
     app.router.add_get("/match-v2-art/{filename}", match_illustrated_v2_asset)
     app.router.add_get("/match-illustrated-v2.css", lambda request: web.FileResponse(ROOT / "match-illustrated-v2.css", headers={"Cache-Control": "no-store", "Content-Type": "text/css"}))
     app.router.add_get("/match-illustrated-v2-png.css", lambda request: web.FileResponse(ROOT / "match-illustrated-v2-png.css", headers={"Cache-Control": "no-store", "Content-Type": "text/css"}))
+
+    # Activity Library V2: allowlisted, text-free SVG artwork and browse-only UI.
+    async def activity_library_v2_art(request):
+        filename = request.match_info["filename"]
+        if not re.fullmatch(r"[a-z0-9_-]+[.]svg", filename):
+            raise web.HTTPNotFound()
+        asset = ROOT / "assets" / "activity-library-v2" / filename
+        if not asset.is_file():
+            raise web.HTTPNotFound()
+        return web.FileResponse(asset, headers={"Content-Type": "image/svg+xml", "Cache-Control": "public, max-age=3600"})
+    app.router.add_get("/activity-library-v2-art/{filename}", activity_library_v2_art)
+    app.router.add_get("/activity-library-concept-v2.css", lambda request: web.FileResponse(ROOT / "activity-library-concept-v2.css", headers={"Content-Type": "text/css", "Cache-Control": "no-store"}))
+    app.router.add_get("/activity-library-concept-v2.js", lambda request: web.FileResponse(ROOT / "activity-library-concept-v2.js", headers={"Content-Type": "application/javascript", "Cache-Control": "no-store"}))
+
 
 
 
