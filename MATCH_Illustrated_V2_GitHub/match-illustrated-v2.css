@@ -1,0 +1,243 @@
+/* MATCH Illustrated Studio V2 — image-driven teacher creator design.
+   Each button, card, tile and frame uses a real uploaded/generated graphic.
+   Labels and click handlers remain real native HTML. Never style student/shared. */
+#teacher #activitiesPanel.si-mp-match-studio {
+  --match-v2-cyan:#76eaff;
+  --match-v2-ink:#effbff;
+  --match-v2-gold:#ffd38e;
+  --match-v2-green:#95ffd0;
+  padding:clamp(12px,1.4vw,24px)!important;
+  background-position:center top!important;
+  background-size:cover!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mode-title{
+  background-image:url('/match-v2-art/header.svg')!important;
+  background-color:#082845!important;
+  background-size:100% 100%!important;
+  border:0!important;
+  min-height:92px!important;
+  padding:14px clamp(16px,2vw,30px)!important;
+  box-shadow:none!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-shell {
+  margin:0!important;
+  padding:0!important;
+  color:var(--match-v2-ink)!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-hero{
+  background:transparent url('/match-v2-art/header.svg') center/100% 100% no-repeat!important;
+  min-height:128px!important;
+  border:0!important;
+  padding:clamp(15px,1.55vw,25px) clamp(18px,2.1vw,33px)!important;
+  margin:12px 0!important;
+  border-radius:17px!important;
+  box-shadow:none!important;
+  align-items:center!important;
+  gap:clamp(12px,2vw,26px)!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-hero-mark{
+  width:clamp(80px,9vw,140px)!important;
+  height:clamp(75px,8.2vw,125px)!important;
+  flex:0 0 clamp(80px,9vw,140px)!important;
+  background:transparent url('/mp-teacher-art/shared/branding/match_emblem.png') center/contain no-repeat!important;
+  border:0!important;
+  filter:drop-shadow(0 0 13px #36dfff99) drop-shadow(0 8px 6px #020e22dd)!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-hero-text h2{
+  font-size:clamp(26px,3.1vw,45px)!important;
+  color:#f8fdff!important;
+  text-shadow:0 3px 12px #020616,0 0 16px #4acbff65!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-hero-stats > span{
+  background:transparent url('/match-v2-art/stat.svg') center/100% 100% no-repeat!important;
+  border:0!important;
+  min-width:clamp(73px,7vw,103px)!important;
+  padding:13px 14px!important;
+  box-shadow:none!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-hero-stats strong{
+  color:#b9ffe9!important;
+  text-shadow:0 0 11px #54ffe1a8!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-layout{
+  grid-template-columns:minmax(0,1.24fr) minmax(320px,.89fr)!important;
+  gap:clamp(10px,1.2vw,18px)!important;
+  align-items:start!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-card{
+  background:transparent url('/match-v2-art/panel.svg') center/100% 100% no-repeat!important;
+  border:0!important;
+  border-radius:17px!important;
+  padding:clamp(16px,1.5vw,25px)!important;
+  box-shadow:inset 0 1px #a7faff1e,0 10px 22px #0007!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-main{padding-bottom:clamp(17px,1.7vw,27px)!important;}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-sidebar{gap:13px!important;}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-preview,
+#teacher #activitiesPanel.si-mp-match-studio .mcb-settings,
+#teacher #activitiesPanel.si-mp-match-studio .mcb-saved {
+  background:transparent url('/match-v2-art/panel.svg') center/100% 100% no-repeat!important;
+  border:0!important;
+  border-radius:17px!important;
+  box-shadow:0 10px 22px #0008!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-board{
+  gap:clamp(5px,.62vw,10px)!important;
+  margin:13px 0!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-board-tile{
+  background:transparent url('/match-v2-art/board_tile.svg') center/100% 100% no-repeat!important;
+  border:0!important;
+  border-radius:10px!important;
+  min-height:0!important;
+  box-shadow:none!important;
+  color:#f8fdff!important;
+  text-shadow:0 3px 9px #05132b!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-board-tile b{
+  font-size:clamp(20px,2vw,32px)!important;
+  color:#fff!important;
+  text-shadow:0 0 13px #77dfff,0 3px 3px #00172a!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-modes{gap:10px!important;}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-modes button{
+  border:0!important;
+  background:transparent url('/match-v2-art/mode_idle.svg') center/100% 100% no-repeat!important;
+  border-radius:13px!important;
+  min-height:94px!important;
+  padding:13px 16px!important;
+  box-shadow:none!important;
+  color:#eefaff!important;
+  transition:filter .16s ease,transform .16s ease!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-modes button.active{
+  border:0!important;
+  background-image:url('/match-v2-art/mode_active.svg')!important;
+  box-shadow:0 0 15px #17f4be33!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-modes button:nth-child(2):not(.active){
+  background-image:url('/match-v2-art/mode_purple.svg')!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-modes button b{font-size:clamp(11px,1.1vw,14px)!important;color:#fff!important;}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-modes button small{color:#d3ecf7!important;}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-upload-row button,
+#teacher #activitiesPanel.si-mp-match-studio #mcbNewBlank,
+#teacher #activitiesPanel.si-mp-match-studio .mcb-main-actions button,
+#teacher #activitiesPanel.si-mp-match-studio #mcbMakePairs,
+#teacher #activitiesPanel.si-mp-match-studio .mcb-saved-set button,
+#teacher #activitiesPanel.si-mp-match-studio .mcb-image-tabs button {
+  background:transparent url('/match-v2-art/button_blue.svg') center/100% 100% no-repeat!important;
+  border:0!important;
+  border-radius:9px!important;
+  box-shadow:none!important;
+  color:#fff!important;
+  padding:12px 17px!important;
+  min-height:43px!important;
+  font-weight:950!important;
+  font-size:clamp(11px,.92vw,13px)!important;
+  text-shadow:0 2px 5px #00132a!important;
+  transition:transform .16s ease,filter .16s ease!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-main-actions button{
+  min-height:56px!important;
+  padding:12px clamp(14px,1.5vw,24px)!important;
+  font-size:clamp(12px,1.1vw,16px)!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio #mcbSaveLaunch,
+#teacher #activitiesPanel.si-mp-match-studio #mcbMakePairs,
+#teacher #activitiesPanel.si-mp-match-studio .mcb-saved-set button[data-mcb-launch] {
+  background-image:url('/match-v2-art/button_green.svg')!important;
+  border:0!important;
+  color:#f8fff9!important;
+  text-shadow:0 2px 5px #00160c!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio #mcbSaveLaunch{
+  min-width:235px!important;
+  min-height:64px!important;
+  padding:15px 27px!important;
+  font-size:clamp(14px,1.25vw,18px)!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-image-tabs button.active{
+  background-image:url('/match-v2-art/button_orange.svg')!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-modes button:focus-visible,
+#teacher #activitiesPanel.si-mp-match-studio .mcb-shell button:focus-visible {
+  outline:3px solid #ffdf94!important;
+  outline-offset:3px!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-shell button:not(:disabled):hover{
+  filter:brightness(1.18) drop-shadow(0 0 10px #6fe8ff66)!important;
+  transform:translateY(-2px)!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-shell button:not(:disabled):active{
+  filter:brightness(.97)!important;
+  transform:translateY(2px)!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-shell button:disabled{
+  background-image:url('/match-v2-art/button_disabled.svg')!important;
+  opacity:.68!important;
+  filter:saturate(.65)!important;
+  cursor:not-allowed!important;
+  transform:none!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-image-build{
+  background:transparent url('/match-v2-art/section.svg') center/100% 100% no-repeat!important;
+  border:0!important;
+  border-radius:10px!important;
+  padding:15px 17px!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-image-library{
+  background:transparent url('/match-v2-art/gallery.svg') center/100% 100% no-repeat!important;
+  border:1px solid #71ddff47!important;
+  border-radius:13px!important;
+  padding:10px!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-saved-set{
+  background:transparent url('/match-v2-art/row.svg') center/100% 100% no-repeat!important;
+  border:0!important;
+  border-radius:11px!important;
+  padding:12px 14px!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-saved-set [data-mcb-delete],
+#teacher #activitiesPanel.si-mp-match-studio .mcb-image-toolbar button:has([class*="clear"]){
+  background-image:url('/match-v2-art/button_red.svg')!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio .mcb-hero h2,
+#teacher #activitiesPanel.si-mp-match-studio .mcb-shell h3,
+#teacher #activitiesPanel.si-mp-match-studio .mcb-shell h4{
+  text-shadow:0 2px 8px #001025!important;
+}
+@media(max-width:1150px){
+  #teacher #activitiesPanel.si-mp-match-studio .mcb-layout{grid-template-columns:1fr!important;}
+  #teacher #activitiesPanel.si-mp-match-studio .mcb-sidebar{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  #teacher #activitiesPanel.si-mp-match-studio .mcb-preview{grid-column:1/-1!important;}
+}
+@media(max-width:780px){
+  #teacher #activitiesPanel.si-mp-match-studio .mcb-hero{padding:12px 15px!important;}
+  #teacher #activitiesPanel.si-mp-match-studio .mcb-modes{grid-template-columns:1fr!important;}
+  #teacher #activitiesPanel.si-mp-match-studio .mcb-sidebar{grid-template-columns:1fr!important;}
+  #teacher #activitiesPanel.si-mp-match-studio .mcb-hero-mark{width:65px!important;height:65px!important;flex-basis:65px!important;}
+}
+@media(prefers-reduced-motion:reduce){
+  #teacher #activitiesPanel.si-mp-match-studio .mcb-shell button{transition:none!important;transform:none!important;}
+}
+
+/* Override the older teacher setup rule that otherwise forces a flat green gradient. */
+#teacher #activitiesPanel.si-mp-match-studio.si-setup-view[data-si-setup="match"] #mcbSaveLaunch,
+#teacher #activitiesPanel.si-mp-match-studio.si-setup-view[data-si-setup="match"] #mcbMakePairs {
+ background:transparent url('/match-v2-art/button_green.svg') center/100% 100% no-repeat!important;
+ border:0!important;color:#f8fff7!important;text-shadow:0 2px 5px #002419!important;box-shadow:none!important;
+}
+#teacher #activitiesPanel.si-mp-match-studio.si-setup-view[data-si-setup="match"] #mcbSaveLaunch:disabled,
+#teacher #activitiesPanel.si-mp-match-studio.si-setup-view[data-si-setup="match"] #mcbMakePairs:disabled{
+ background-image:url('/match-v2-art/button_disabled.svg')!important;color:#b7d2df!important;
+}
+
+/* V2.2: remove duplicated generic setup banner; the MATCH hero already carries guidance. */
+#teacher #activitiesPanel.si-mp-match-studio #siGameSetupGuide{display:none!important}
+#teacher #activitiesPanel.si-mp-match-studio .mode-title{
+ min-height:85px!important;
+ background:linear-gradient(105deg,#06172ef0,#0b2e4bcf),url('/mp-teacher-art/match/backgrounds/match_creator_background_1600x900.png') center 23%/cover no-repeat!important;
+ border:1px solid #4fc5e5!important;border-radius:12px!important;
+ box-shadow:inset 0 1px #abf8ff56,0 6px 18px #0007!important;
+}

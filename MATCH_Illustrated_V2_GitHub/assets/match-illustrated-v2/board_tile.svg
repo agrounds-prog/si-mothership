@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="270" height="270" viewBox="0 0 270 270" aria-hidden="true">
+  <defs>
+    <linearGradient id="metal" x1="0" y1="0" x2="0.12" y2="1"><stop offset="0" stop-color="#b1e6ff" stop-opacity=".82"/><stop offset=".09" stop-color="#173e5c"/><stop offset=".47" stop-color="#051529"/><stop offset=".83" stop-color="#0c2b44"/><stop offset="1" stop-color="#c2ebff" stop-opacity=".48"/></linearGradient>
+    <linearGradient id="face" x1="0" y1="0" x2=".18" y2="1"><stop offset="0" stop-color="#0871ad"/><stop offset=".11" stop-color="#0871ad"/><stop offset=".5" stop-color="#092750"/><stop offset=".9" stop-color="#061529"/><stop offset="1" stop-color="#020c1f"/></linearGradient>
+    <linearGradient id="gloss" x1="0" y1="0" x2="0.0" y2="1"><stop offset="0" stop-color="white" stop-opacity=".26"/><stop offset=".44" stop-color="white" stop-opacity=".05"/><stop offset=".52" stop-color="white" stop-opacity="0"/><stop offset="1" stop-color="white" stop-opacity="0"/></linearGradient>
+    <filter id="glow" x="-20%" y="-30%" width="140%" height="160%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <pattern id="grain" width="16" height="10" patternUnits="userSpaceOnUse"><path d="M0 0H16 M0 7H16" stroke="#d7f9ff" stroke-opacity=".035" stroke-width=".65"/><path d="M4 0l4 4" stroke="#7dc5ec" stroke-opacity=".07" stroke-width=".7"/></pattern>
+  </defs>
+  <polygon points="36,7 234,7 263,36 263,234 234,263 36,263 7,234 7,36" fill="url(#metal)" stroke="#75d8ff" stroke-opacity=".82" stroke-width="3"/>
+  <g transform="translate(10 10)"><polygon points="25,0 225,0 250,25 250,225 225,250 25,250 0,225 0,25" fill="url(#face)" stroke="#75d8ff" stroke-width="2" stroke-opacity=".92"/>
+  <polygon points="25,0 225,0 250,25 250,225 225,250 25,250 0,225 0,25" fill="url(#gloss)"/><polygon points="25,0 225,0 250,25 250,225 225,250 25,250 0,225 0,25" fill="url(#grain)"/></g>
+  <path d="M 36 16 H 234" stroke="#75d8ff" stroke-opacity=".92" stroke-width="2.6" filter="url(#glow)"/>
+  <path d="M 29 253 H 239" stroke="#75d8ff" stroke-opacity=".45" stroke-width="2"/>
+  <path d="M 12 44L39 17 M 257 44L230 17 M 12 224L39 252 M 257 224L230 252" fill="none" stroke="#75d8ff" stroke-opacity=".65" stroke-width="2"/>
+  <path d="M 36 21H 234" stroke="white" stroke-opacity=".18" stroke-width="1"/>
+  <g fill="#031325" stroke="#75d8ff" stroke-opacity=".57" stroke-width="1.5"><circle cx="26" cy="32" r="3"/><circle cx="244" cy="32" r="3"/><circle cx="26" cy="236" r="3"/><circle cx="244" cy="236" r="3"/></g>
+<path d="M135 38l8 15-8 15-8-15z" fill="#c4faff" fill-opacity=".87" filter="url(#glow)"/>
+    <path d="M31 213H239" stroke="#71daff" stroke-opacity=".28" stroke-width="1"/></svg>
