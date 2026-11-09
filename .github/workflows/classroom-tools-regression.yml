@@ -10,6 +10,8 @@ on:
       - aac-plus-student.html
       - aac-plus.css
       - aac-plus.js
+      - aac_plus_server.py
+      - "aac_plus_asset_pack/**"
       - randomizer.html
       - tests/test_activity_tools_browser.cjs
       - .github/workflows/classroom-tools-regression.yml
