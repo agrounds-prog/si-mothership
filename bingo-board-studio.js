@@ -252,7 +252,7 @@ function bbsUpdateSelections(){
     'Check '+Math.max(0,need-selected.size)+' more picture'+(need-selected.size===1?'':'s')+' to create a board.';
 }
 function bbsWire(){
-  const $=x=>document.querySelector(x),$=x=>[...document.querySelectorAll(x)];
+  const $=x=>document.querySelector(x),$$=x=>[...document.querySelectorAll(x)];
   // The illustrated board can be taller than a compact Zoom teacher window.
   // Give the studio its own usable scroll area instead of clipping Save/Launch
   // below Mothership's constrained Activities pane.
