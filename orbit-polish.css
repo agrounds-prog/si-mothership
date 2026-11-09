@@ -2541,3 +2541,147 @@ body.role-student #studentContent .si-orbit-student{
 @media(prefers-reduced-motion:reduce){
  .orbit-public.orbit-cosmic .orbit-satellite{transition:none!important}
 }
+
+
+/* ORBIT v6.1 — projector geometry, square planet art, readable question
+   Scoped to the dedicated shared ORBIT view. Teacher preview and other
+   Mothership activities retain their original layout. */
+body.role-shared #shared .shared-screen:has(#sharedContent > .orbit-public.orbit-cosmic){
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ grid-template-rows:minmax(0,1fr)!important;
+ width:100vw!important;
+ height:100dvh!important;
+ max-width:none!important;
+ margin:0!important;
+}
+body.role-shared #shared .shared-screen:has(#sharedContent > .orbit-public.orbit-cosmic) > .mirror-top,
+body.role-shared #shared .shared-screen:has(#sharedContent > .orbit-public.orbit-cosmic) > .mirror-footer{
+ display:none!important;
+}
+body.role-shared #shared .shared-screen > #sharedContent:has(> .orbit-public.orbit-cosmic){
+ grid-column:1 / -1!important;
+ grid-row:1 / -1!important;
+ width:100%!important;
+ height:100%!important;
+ min-width:0!important;
+ min-height:0!important;
+ max-width:none!important;
+ padding:clamp(4px,.65vw,12px)!important;
+ margin:0!important;
+ display:flex!important;
+ align-items:stretch!important;
+ justify-content:stretch!important;
+ overflow:hidden!important;
+}
+body.role-shared #sharedContent > .orbit-public.orbit-cosmic{
+ box-sizing:border-box!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:none!important;
+ height:100%!important;
+ max-height:none!important;
+ min-height:0!important;
+ margin:0!important;
+ padding:clamp(4px,.6vw,11px)!important;
+ gap:clamp(2px,.6vh,8px)!important;
+ align-self:stretch!important;
+ flex:1 1 auto!important;
+}
+body.role-shared #sharedContent > .orbit-public.orbit-cosmic .orbit-cosmic-header{
+ width:100%!important;
+ flex:0 0 auto!important;
+ min-height:clamp(66px,9vh,115px)!important;
+ padding:clamp(8px,1.2vw,18px) clamp(23px,3.4vw,65px)!important;
+}
+body.role-shared #sharedContent > .orbit-public.orbit-cosmic .orbit-cosmic-state{
+ flex:0 0 auto!important;
+}
+body.role-shared #sharedContent > .orbit-public.orbit-cosmic .orbit-space{
+ flex:1 1 0%!important;
+ width:100%!important;
+ height:auto!important;
+ max-width:none!important;
+ max-height:none!important;
+ min-height:0!important;
+ overflow:hidden!important;
+}
+body.role-shared #sharedContent > .orbit-public.orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core,
+body.role-shared #sharedContent > .orbit-public.orbit-cosmic .orbit-space:has(> .orbit-satellites) .orbit-core{
+ box-sizing:border-box!important;
+ width:min(59vh,43vw,560px)!important;
+ max-width:min(78%,560px)!important;
+ min-width:0!important;
+ height:auto!important;
+ aspect-ratio:1 / 1!important;
+ border:0!important;
+ border-radius:50%!important;
+ padding:clamp(22px,3vw,43px)!important;
+ background:transparent!important;
+ box-shadow:none!important;
+}
+/* Render into a square image plane so the supplied ringed planet is never
+   stretched to the elliptical original .orbit-core geometry. */
+body.role-shared #sharedContent > .orbit-public.orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core::before,
+body.role-shared #sharedContent > .orbit-public.orbit-cosmic .orbit-space:has(> .orbit-satellites) .orbit-core::before{
+ content:""!important;
+ display:block!important;
+ position:absolute!important;
+ left:50%!important;
+ top:50%!important;
+ inset:auto!important;
+ transform:translate(-50%,-50%)!important;
+ width:138%!important;
+ height:138%!important;
+ aspect-ratio:1 / 1!important;
+ z-index:-1!important;
+ opacity:1!important;
+ border:0!important;
+ border-radius:0!important;
+ background-image:var(--orbit-v6-planet)!important;
+ background-size:contain!important;
+ background-position:center!important;
+ background-repeat:no-repeat!important;
+ filter:var(--orbit-v6-color-filter,none)!important;
+ pointer-events:none!important;
+}
+/* White lettering with a restrained dark translucent backing prevents
+   the busy orange/magenta planet from swallowing the question. */
+body.role-shared #sharedContent > .orbit-public.orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core h3,
+body.role-shared #sharedContent > .orbit-public.orbit-cosmic .orbit-space:has(> .orbit-satellites) .orbit-core h3{
+ box-sizing:border-box!important;
+ position:relative!important;
+ z-index:2!important;
+ width:100%!important;
+ max-width:100%!important;
+ max-height:70%!important;
+ margin:0!important;
+ padding:clamp(7px,.9vw,15px)!important;
+ background:rgba(5,13,38,.74)!important;
+ color:#fff!important;
+ font:950 clamp(17px,2.05vw,36px)/1.18 system-ui,sans-serif!important;
+ letter-spacing:-.018em!important;
+ text-align:center!important;
+ text-shadow:0 2px 4px #01061c,0 0 12px #030b24!important;
+ border:1px solid rgba(143,223,255,.28)!important;
+ border-radius:clamp(12px,1.5vw,23px)!important;
+ overflow-y:auto!important;
+ overflow-x:hidden!important;
+ scrollbar-width:none!important;
+ overflow-wrap:anywhere!important;
+ hyphens:auto!important;
+}
+body.role-shared #sharedContent > .orbit-public.orbit-cosmic .orbit-core h3::-webkit-scrollbar{
+ display:none!important;
+}
+@media(max-width:760px){
+ body.role-shared #sharedContent > .orbit-public.orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core,
+ body.role-shared #sharedContent > .orbit-public.orbit-cosmic .orbit-space:has(> .orbit-satellites) .orbit-core{
+  width:min(68vw,53vh,440px)!important;
+  max-width:82%!important;
+ }
+ body.role-shared #sharedContent > .orbit-public.orbit-cosmic .orbit-space[data-orbit-waiting="true"] .orbit-core h3,
+ body.role-shared #sharedContent > .orbit-public.orbit-cosmic .orbit-space:has(> .orbit-satellites) .orbit-core h3{
+  font-size:clamp(14px,3vw,24px)!important;
+ }
+}
