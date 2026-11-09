@@ -15674,7 +15674,7 @@ function activityLibraryCategoryFor(appId){
   if(id==='si-plus')return 'presentation';
   if(['vector','board','orbit','spotlight'].includes(id))return 'collaboration';
   if(['minefield','sketch','pixel','starwheel','crew-survey','million','match','bingo','cosmic-cards','word-grid','dominoes'].includes(id))return 'games';
-  if(id==='scientific-calculator')return 'tools';
+  if(['scientific-calculator','aac-plus','randomizer'].includes(id))return 'tools';
   return 'all';
 }
 function activityLibraryCategoryLabel(appId){
