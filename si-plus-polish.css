@@ -1292,3 +1292,90 @@ body.sipreview-open{
 .si-plus-spotlight-inline,.si-plus-spotlight-overlay{visibility:hidden!important}
 .si-plus-spotlight-inline[data-fit-ready="true"],
 .si-plus-spotlight-overlay[data-fit-ready="true"]{visibility:visible!important}
+
+
+/* SI+ video-only instruction slides: one centered YouTube player, no extra
+   title, slide number, fallback link or unused presentation gutters.
+   Keep the existing fixed 16:9 stage so image/poll slides remain unchanged. */
+#sharedContent > .si-plus-video-only-stage,
+#mirrorContent > .si-plus-video-only-stage,
+.sipreview-stage > .si-plus-video-only-stage {
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+#sharedContent > .si-plus-video-only-stage > .si-plus-video-only-content,
+#mirrorContent > .si-plus-video-only-stage > .si-plus-video-only-content,
+.sipreview-stage > .si-plus-video-only-stage > .si-plus-video-only-content {
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:1 1 auto!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:none!important;
+  max-height:none!important;
+  box-sizing:border-box!important;
+  padding:0!important;
+  margin:0!important;
+  overflow:hidden!important;
+  background:#020912!important;
+}
+#sharedContent .si-plus-video-only-content .si-plus-video-unit,
+#mirrorContent .si-plus-video-only-content .si-plus-video-unit,
+.sipreview-stage .si-plus-video-only-content .si-plus-video-unit {
+  display:block!important;
+  position:relative!important;
+  flex:1 1 auto!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:0!important;
+  margin:0!important;
+}
+#sharedContent .si-plus-video-only-content .si-plus-video-frame,
+#mirrorContent .si-plus-video-only-content .si-plus-video-frame,
+.sipreview-stage .si-plus-video-only-content .si-plus-video-frame {
+  display:block!important;
+  position:relative!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:none!important;
+  max-height:none!important;
+  aspect-ratio:16/9!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:#020912!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+}
+#sharedContent .si-plus-video-only-content .si-plus-video-frame > iframe,
+#mirrorContent .si-plus-video-only-content .si-plus-video-frame > iframe,
+.sipreview-stage .si-plus-video-only-content .si-plus-video-frame > iframe {
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:none!important;
+  max-height:none!important;
+  aspect-ratio:16/9!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+}
+:is(#sharedContent,#mirrorContent,.sipreview-stage) .si-plus-video-only-content .si-plus-video-fallback{
+  display:none!important;
+}

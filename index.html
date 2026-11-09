@@ -17106,12 +17106,12 @@ function siPlusVideoPreview(value){
   '<b>Video ready</b><span>Plays in the classroom presentation. Some videos restrict embedding.</span>'+
   '<a href="'+ytWatch(id)+'" target="_blank" rel="noopener noreferrer">Open on YouTube ↗</a></div></div>';
 }
-function siPlusVideoMarkup(value){
+function siPlusVideoMarkup(value,playerOnly=false){
  const id=ytId(value);if(!id)return '';
  return '<div class="si-plus-video-unit"><div class="si-plus-video-frame"><iframe src="'+ytEmbed(id,false)+'&enablejsapi=1&origin='+encodeURIComponent(location.origin)+
   '" title="YouTube video" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" '+
   'allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>'+
-  '<a class="si-plus-video-fallback" href="'+ytWatch(id)+'" target="_blank" rel="noopener noreferrer">Video not playing? Open on YouTube ↗</a></div>';
+  (playerOnly?'':'<a class="si-plus-video-fallback" href="'+ytWatch(id)+'" target="_blank" rel="noopener noreferrer">Video not playing? Open on YouTube ↗</a>')+'</div>';
 }
 function studentByName(name){return state.students.find(s=>s.n===name)}
 function selectedStudent(){return studentByName(state.selectedStudent)}
@@ -17790,8 +17790,8 @@ function wireMillionStudent(){
   document.querySelectorAll('[data-million-life-use]').forEach(b=>b.onclick=()=>sendGameShowAction('million','lifeline',b.dataset.millionLifeUse));
 }
 
-function siPlusSlideFrame(markup){
-  return `<div class="si-plus-slide-stage">${markup}</div>`;
+function siPlusSlideFrame(markup,extraClass=''){
+  return `<div class="si-plus-slide-stage${extraClass?' '+extraClass:''}">${markup}</div>`;
 }
 function siPlusImageSlideMarkup(slide){
   return `<div class="si-plus-viewport-image"><img src="${esc(slide.image)}" alt="Slide image"></div>`;
@@ -17838,6 +17838,11 @@ function activitySharedMarkup(big=false){
   if(a.type==='presentation'){
     const slide=currentSlide();if(!slide)return '';
     if(slide.type==='instruction'){
+      // Dedicated YouTube slides use the entire 16:9 presentation canvas.
+      // Teacher controls still target the native iframe; saved slide data is unchanged.
+      if(ytId(slide.youtube))return siPlusSlideFrame(
+        `<div class="si-plus-video-only-content">${siPlusVideoMarkup(slide.youtube,true)}</div>`,
+        'si-plus-video-only-stage');
       const imageOnly=!!slide.image&&!ytId(slide.youtube);
       if(imageOnly)return siPlusSlideFrame(siPlusImageSlideMarkup(slide));
       const media=`<div class="presentation-media-stack">${slide.image?`<img src="${slide.image}" alt="Slide image">`:''}${siPlusVideoMarkup(slide.youtube)}</div>`;
