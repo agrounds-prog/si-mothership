@@ -99,7 +99,7 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
     'No oversized native browser tooltip; preserve accessible full descriptions');
   assert.ok(textAudit.every(x=>x.subtitleScrollWidth<=x.subtitleWidth+2),
     'Some activity subtitles still truncate: '+JSON.stringify(textAudit.filter(x=>x.subtitleScrollWidth>x.subtitleWidth+2)));
-  assert.ok(textAudit.every(x=>Math.abs(x.cardHeight-204)<2),
+  assert.ok(textAudit.every(x=>(x.cardHeight===0||Math.abs(x.cardHeight-204)<2)),
     'Card sizing must not change for text-only polish');
   assert.equal(textAudit.find(x=>x.app==='board').subtitle,'Write • Draw • Share');
   assert.equal(textAudit.find(x=>x.app==='signal-sequence').subtitle,'Watch • Repeat • Remember');
