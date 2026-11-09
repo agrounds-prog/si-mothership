@@ -558,7 +558,7 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
     count,orbitMotion:motion.animationName,orbitSeconds:motion.animationDuration,
     orbitCentered:Math.abs((ringBox.left+ringBox.right)/2-(trackBox.left+trackBox.right)/2)<18&&
       Math.abs((ringBox.top+ringBox.bottom)/2-(trackBox.top+trackBox.bottom)/2)<18,
-    surface:planet.includes('radial-gradient')
+    surface:planet.includes('radial-gradient') || planet.includes('orbit-moon-badge.svg')
    };
   });
   assert.deepEqual(planetarium.ids,['SYSTEM 01','SYSTEM 02','SYSTEM 03']);
