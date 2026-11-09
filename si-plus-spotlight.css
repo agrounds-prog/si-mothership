@@ -149,3 +149,16 @@
  padding-right:0!important;
  scrollbar-gutter:auto!important;
 }
+
+
+/* Saved Spotlight regions are static geometry. Reveal/hide may be deliberate,
+   but an individual region must not resize, slide, or morph as it appears. */
+.si-plus-spotlight-inline,
+.si-plus-spotlight-inline :is(rect,ellipse,g),
+.si-plus-spotlight-overlay,
+.si-plus-spotlight-overlay :is(rect,ellipse,g){
+ animation:none!important;
+ transition:none!important;
+ transform:none!important;
+ vector-effect:none!important;
+}
