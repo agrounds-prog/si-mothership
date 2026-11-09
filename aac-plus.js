@@ -20,10 +20,11 @@ let filled=!!(t.label||t.symbol||t.image||t.audio);
 if(!filled)b.classList.add("aac-blank");
 if(!editable&&!filled)b.disabled=true;
 b.setAttribute("aria-label",editable?"Edit tile "+(i+1)+(t.label?": "+t.label:""):t.label||"Communication button "+(i+1));
+if(editable)b.setAttribute("aria-pressed",i===selected?"true":"false");
 if(editable)b.onclick=()=>{syncSelected();selected=i;renderTeacherGrid();readSelected()};
 else b.onclick=()=>playTile(t,token,b);
 return b}
-function renderGrid(target,tiles,layout,editable,token){target.style.setProperty("--cols",layouts[layout][1]);target.replaceChildren(...tiles.map((t,i)=>makeTile(t,i,editable,token)))}
+function renderGrid(target,tiles,layout,editable,token){target.style.setProperty("--cols",layouts[layout][1]);target.dataset.layout=layout;target.replaceChildren(...tiles.map((t,i)=>makeTile(t,i,editable,token)))}
 // Voice preferences live on each device because available speech voices differ by browser.
 // Prefer an enhanced/natural English voice automatically, but never assume it exists.
 const voicePreferenceKey="si-aac-voice-v1";
