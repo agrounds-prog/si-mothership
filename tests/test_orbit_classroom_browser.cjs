@@ -36,6 +36,25 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   assert.equal(await t.locator('.orbit-setup').evaluate(el=>
     getComputedStyle(el).backgroundImage.includes('orbit-galaxy-stage.svg')),true,
     'ORBIT teacher setup must use illustrated space art');
+  // v6 GitHub-uploaded PNG art is served independently; real labels stay in DOM.
+  const pngs=['01_orbit_logo.png','02_awaiting_crew_ideas_badge.png',
+   '03_transmitted_counter_badge.png','04_question_planet_with_orbits.png',
+   '05_response_pod_shell.png','06_footer_banner.png',
+   '07_teacher_mission_control_shell.png','08_student_response_terminal_shell.png',
+   '09_solar_grouping_chamber.png'];
+  for(const png of pngs){
+   const resp=await t.request.get(BASE+'/orbit-v6/'+png);
+   assert.equal(resp.status(),200,'Uploaded ORBIT PNG: '+png);
+   assert.match(resp.headers()['content-type']||'',/image\/png/);
+   assert.ok((await resp.body()).length>1000,'Empty ORBIT PNG: '+png);
+  }
+  assert.equal((await t.request.get(BASE+'/orbit-v6/00_orbit_full_shared_screen_concept.png')).status(),404);
+  await t.locator('#orbitPlanetStyle').waitFor({state:'visible'});
+  assert.equal(await t.locator('#orbitPlanetStyle option').count(),5);
+  await t.locator('#orbitPlanetStyle').selectOption('ocean');
+  assert.equal(await t.evaluate(()=>state.orbitDraft.planetStyle),'ocean');
+  assert.equal(await t.locator('.orbit-planet-picker').getAttribute('data-planet-style'),'ocean');
+  await t.locator('#orbitPlanetStyle').selectOption('ember');
   await t.locator('#orbitPrompt').fill('How can we make everyone feel included in our classroom?');
   assert.match(await t.locator('.orbit-prompt-count').innerText(),/60\s*\/\s*500|[0-9]+ \/ 500/);
   await t.setViewportSize({width:490,height:830});
