@@ -5169,7 +5169,8 @@ async def index(request: web.Request) -> web.Response:
                          '<link rel="stylesheet" href="/pixel-batch.css?v=1">'
                          '<script src="/orbit-polish.js?v=2" defer></script>'
                          '<script src="/pixel-batch.js?v=1" defer></script>'
-                         '<link rel="stylesheet" href="/match-pixel-teacher-art-v1.css?v=1"></head>', 1)
+                         '<link rel="stylesheet" href="/match-pixel-teacher-art-v1.css?v=1">'
+                         '<link rel="stylesheet" href="/match-illustrated-v2.css?v=2"></head>', 1)
     # Insert before the final body close: index.html also contains HTML strings
     # in internal scripts, so replacing the first occurrence would corrupt JS.
     body_close = text.rfind("</body>")
@@ -6676,6 +6677,19 @@ def create_app() -> web.Application:
     app.router.add_get("/mp-teacher-art/{section}/{group}/{filename}", match_pixel_teacher_art)
     app.router.add_get("/match-pixel-teacher-art-v1.css", lambda request: web.FileResponse(ROOT / "match-pixel-teacher-art-v1.css", headers={"Cache-Control": "no-store", "Content-Type": "text/css"}))
     app.router.add_get("/match-pixel-teacher-art-v1.js", lambda request: web.FileResponse(ROOT / "match-pixel-teacher-art-v1.js", headers={"Cache-Control": "no-store", "Content-Type": "application/javascript"}))
+
+    # MATCH Illustrated V2: allowlisted, text-free standalone graphic skins.
+    async def match_illustrated_v2_asset(request):
+        filename = request.match_info["filename"]
+        if not re.fullmatch(r"[a-z0-9_-]+[.]svg", filename):
+            raise web.HTTPNotFound()
+        asset = ROOT / "assets" / "match-illustrated-v2" / filename
+        if not asset.is_file():
+            raise web.HTTPNotFound()
+        return web.FileResponse(asset, headers={"Cache-Control": "public,max-age=3600", "Content-Type": "image/svg+xml"})
+    app.router.add_get("/match-v2-art/{filename}", match_illustrated_v2_asset)
+    app.router.add_get("/match-illustrated-v2.css", lambda request: web.FileResponse(ROOT / "match-illustrated-v2.css", headers={"Cache-Control": "no-store", "Content-Type": "text/css"}))
+
 
 
     app.router.add_get("/match-arcade.js", match_arcade_script)
