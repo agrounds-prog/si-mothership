@@ -44,12 +44,19 @@ const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
       const el=document.getElementById(id),rect=el?.getBoundingClientRect();
       return [id,rect?{x:rect.x,y:rect.y,w:rect.width,h:rect.height}:null];
     }));
+    const safety=panel.querySelector('.controller-safety');
+    const footer=safety?.getBoundingClientRect();
     const breakBtn=document.getElementById('siPlusActivityBreakLaunch');
     const spot=document.getElementById('siPlusSpotlightLiveControls');
     const b=breakBtn.getBoundingClientRect(),z=spot.getBoundingClientRect();
     const overlap=b.left<z.right&&b.right>z.left&&b.top<z.bottom&&b.bottom>z.top;
     return {blocks,overlap,buttonHeight:b.height,panelWidth:panel.clientWidth,
-      panelScrollWidth:panel.scrollWidth,breakEnabled:!breakBtn.disabled,
+      panelScrollWidth:panel.scrollWidth,panelScrollHeight:panel.scrollHeight,
+      footer:footer?{top:footer.top,bottom:footer.bottom,height:footer.height}:null,
+      footerVisible:!!footer&&footer.top>=0&&footer.bottom<=window.innerHeight+2,
+      finishVisible:!!document.querySelector('#returnClassBtn'),
+      emergencyVisible:!!document.querySelector('#emergencyActivityBtn'),
+      breakEnabled:!breakBtn.disabled,
       spotlightButtons:spot.querySelectorAll('button').length,
       bg:getComputedStyle(panel).backgroundImage};
   });
@@ -58,6 +65,8 @@ const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.ok(layout.buttonHeight>35&&layout.buttonHeight<85,'Activity-break launcher stretched');
   assert.ok(layout.panelScrollWidth<=layout.panelWidth+12,'Controller horizontal overflow');
   assert.ok(layout.spotlightButtons>=4,'Spotlight controls disappeared');
+  assert.ok(layout.footerVisible,'Safety buttons not docked in compact teacher window: '+JSON.stringify(layout.footer));
+  assert.ok(layout.finishVisible&&layout.emergencyVisible,'Safety actions missing');
   assert.ok(layout.bg.includes('ready_to_start_primary'),'Teacher art no longer mounted');
   await page.screenshot({path:'/tmp/si-live-polish/si-plus-live-850x650.png',animations:'disabled'});
   console.log('PASS SI+ live control compact layout and real interactive tools');
