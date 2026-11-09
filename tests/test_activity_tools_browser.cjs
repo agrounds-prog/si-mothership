@@ -30,7 +30,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    return names.map(name=>{
     const card=[...document.querySelectorAll("#activityGrid .real-app-card")].find(c=>c.querySelector("h3")?.textContent?.trim()===name);
     const slot=card.querySelector(".act-icon").getBoundingClientRect();
-    const art=card.querySelector("svg.si-v90-graphic").getBoundingClientRect();
+    const art=card.querySelector(".act-icon .si-v90-graphic").getBoundingClientRect();
     return {name,slotWidth:slot.width,artWidth:art.width,slotHeight:slot.height,artHeight:art.height};
    });
   },unfinished);
