@@ -6710,6 +6710,16 @@ def create_app() -> web.Application:
             raise web.HTTPNotFound()
         return web.FileResponse(asset, headers={"Content-Type": "image/svg+xml", "Cache-Control": "public, max-age=3600"})
     app.router.add_get("/activity-library-v2-art/{filename}", activity_library_v2_art)
+
+    async def activity_library_v3_art(request):
+        filename = request.match_info["filename"]
+        if not re.fullmatch(r"[a-z0-9-]+[.]svg", filename):
+            raise web.HTTPNotFound()
+        asset = ROOT / "assets" / "activity-library-v3" / filename
+        if not asset.is_file():
+            raise web.HTTPNotFound()
+        return web.FileResponse(asset, headers={"Content-Type": "image/svg+xml", "Cache-Control": "public, max-age=3600"})
+    app.router.add_get("/activity-library-v3-art/{filename}", activity_library_v3_art)
     app.router.add_get("/activity-library-concept-v2.css", lambda request: web.FileResponse(ROOT / "activity-library-concept-v2.css", headers={"Content-Type": "text/css", "Cache-Control": "no-store"}))
     app.router.add_get("/activity-library-concept-v2.js", lambda request: web.FileResponse(ROOT / "activity-library-concept-v2.js", headers={"Content-Type": "application/javascript", "Cache-Control": "no-store"}))
 
