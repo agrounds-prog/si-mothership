@@ -43,6 +43,27 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await page.locator('[data-activity-category="tools"]').click();
   assert.equal(await page.locator('#activityGrid [data-open-app="randomizer"]').isVisible(),true);
   assert.equal(await page.locator('#activityGrid [data-open-app="aac-plus"]').isVisible(),true);
+  // AAC+ opens a reusable floating teacher Studio, leaving Mothership untouched.
+  const aacPopupPromise=page.waitForEvent("popup");
+  await page.locator('#activityGrid [data-open-app="aac-plus"]').click();
+  const aacPopup=await aacPopupPromise;
+  await aacPopup.waitForLoadState("domcontentloaded");
+  assert.ok(new URL(aacPopup.url()).pathname.startsWith("/aac"),"AAC+ studio route");
+  await aacPopup.waitForFunction(()=>!!document.querySelector("#newBoard")?.onclick);
+  assert.equal(await aacPopup.evaluate(()=>window.name),"siMothershipAACPlusStudio");
+  assert.equal(await aacPopup.locator("#aacCloseWindow").count(),1);
+  await aacPopup.waitForFunction(()=>document.querySelector(".aac-studio-hero-art img")?.naturalWidth>0);
+  assert.equal(await aacPopup.locator("#libraryScreen").isVisible(),true);
+  await aacPopup.locator("#newBoard").click();
+  assert.equal(await aacPopup.locator("#editorScreen").isVisible(),true);
+  await aacPopup.locator("#backLibrary").click();
+  assert.equal(await aacPopup.locator("#libraryScreen").isVisible(),true);
+  const closePromise=aacPopup.waitForEvent("close");
+  await aacPopup.locator("#aacCloseWindow").click();
+  await closePromise;
+  assert.equal(page.isClosed(),false,"Mothership must remain open after AAC+ closes");
+  assert.ok(page.url().includes("role=teacher"),"Main teacher deck stays available");
+
   const popupPromise=page.waitForEvent("popup");
   await page.locator('#activityGrid [data-open-app="randomizer"]').click();
   const popup=await popupPromise;
