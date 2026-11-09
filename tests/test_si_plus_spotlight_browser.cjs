@@ -316,7 +316,11 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
    await image.decode();
    svg.removeAttribute("data-fit-ready");
    svg.style.cssText="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible";
-   old.replaceWith(replacement);
+   // The classroom may repaint while the replacement image decodes;
+   // swap the currently connected stage, not an earlier detached node.
+   const mounted=document.querySelector("#sharedContent .si-plus-viewport-image");
+   if(!mounted?.isConnected)throw Error("Projector stage disconnected before test swap");
+   mounted.replaceWith(replacement);
    await new Promise(resolve=>requestAnimationFrame(resolve));
    const bounds=image.getBoundingClientRect(),overlay=svg.getBoundingClientRect();
    const scale=Math.min(bounds.width/image.naturalWidth,bounds.height/image.naturalHeight);
@@ -324,9 +328,10 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
     y:bounds.y+(bounds.height-image.naturalHeight*scale)/2,
     w:image.naturalWidth*scale,h:image.naturalHeight*scale};
    return {expected,actual:{x:overlay.x,y:overlay.y,w:overlay.width,h:overlay.height},
-    ready:svg.dataset.fitReady,visibility:getComputedStyle(svg).visibility};
+    ready:svg.dataset.fitReady,visibility:getComputedStyle(svg).visibility,
+    connected:replacement.isConnected,current:document.querySelector("#sharedContent .si-plus-viewport-image")===replacement};
   });
-  assert.equal(firstPaint.ready,"true","Projector SVG must be positioned by the first frame");
+  assert.equal(firstPaint.ready,"true","Projector SVG must be positioned by the first frame: "+JSON.stringify(firstPaint));
   assert.equal(firstPaint.visibility,"visible","Only fitted projector overlays may be painted");
   for(const key of ["x","y","w","h"]){
    assert.ok(Math.abs(firstPaint.expected[key]-firstPaint.actual[key])<3,
