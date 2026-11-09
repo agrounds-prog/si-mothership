@@ -30,6 +30,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_bingo_studio_art.py' -v
           node --check bingo-board-studio.js
           node --check tests/test_bingo_studio_graphic_browser.cjs
+          node --check tests/test_bingo_image_upload_browser.cjs
       - name: Install browser test dependencies
         run: |
           pip install 'aiohttp>=3.10,<4' 'qrcode[pil]>=7.4,<9'

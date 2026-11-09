@@ -25,6 +25,13 @@ class BingoGraphicArtTests(unittest.TestCase):
         selected=Image.open(get_art_path("tile-selected.webp"))
         self.assertEqual(regular.size,selected.size)
         self.assertNotEqual(regular.tobytes(),selected.tobytes())
+    def test_illustrated_grid_rails_keep_live_tile_area_clear(self):
+        rail=Image.open(get_art_path("board-stage-rail.webp")).convert("RGBA")
+        self.assertGreater(rail.width,700)
+        self.assertGreater(rail.height,550)
+        self.assertEqual(rail.getpixel((rail.width//2,rail.height//2))[3],0)
+        self.assertEqual(rail.getpixel((5,5))[3],255)
+
     def test_raster_buttons_retain_transparent_outer_corners(self):
         for name in ("button-blue.webp","button-green.webp","button-red.webp"):
             with self.subTest(name=name):

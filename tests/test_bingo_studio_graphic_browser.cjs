@@ -17,6 +17,11 @@ if(!/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?\/?$/.test(BASE))
   assert.equal(await page.locator('.bbs-grid .bbs-tile').count(),16);
   assert.equal(await page.locator('.bbs-library .bbs-upload').count(),1);
   assert.equal(await page.locator('#bbsSaveLaunch').count(),1);
+  assert.match(await page.locator('.bbs-setup-heading h3').innerText(),/BOARD SETUP/);
+  assert.match(await page.locator('.bbs-library .bbs-head h3').innerText(),/SELECT YOUR PICTURES/);
+  const artFrame=await page.locator('.bbs-board-frame').evaluate(el=>
+    getComputedStyle(el,'::after').borderImageSource);
+  assert.match(artFrame,/board-stage-rail\.webp/,'Approved illustrated grid frame must be applied');
   const backgrounds=await page.evaluate(()=>{
    const selectors=['.bbs-hero','.bbs-board-panel','.bbs-library','.bbs-saved','.bbs-tile.bbs-empty','#bbsSaveLaunch'];
    return selectors.map(selector=>{
@@ -25,7 +30,7 @@ if(!/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?\/?$/.test(BASE))
   });
   assert.ok(backgrounds.every(x=>x.background.includes('/bingo-studio-art/')),JSON.stringify(backgrounds));
   for(const name of ['hero-header','bridge-backdrop','board-panel','library-panel','saved-panel',
-    'tile-empty','tile-selected','tile-free','button-blue','button-green','button-red','button-slate']){
+    'tile-empty','tile-selected','tile-free','button-blue','button-green','button-red','button-slate','board-stage-rail']){
    const response=await page.request.get(BASE+'/bingo-studio-art/'+name+'.webp');
    assert.equal(response.status(),200,name);
    assert.match(response.headers()['content-type'],/image\/webp/);
@@ -42,6 +47,40 @@ if(!/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?\/?$/.test(BASE))
    });
    assert.equal(geometry.loaded,true);
    assert.ok(geometry.width<width+5,'Bingo studio exceeds viewport: '+JSON.stringify(geometry));
+  }
+  // All four supported grid sizes must stay inside the viewport and keep
+  // accessible authoring controls in both large and compact teacher windows.
+  for(const width of [1440,780,390]){
+   await page.setViewportSize({width,height:930});
+   for(const size of [3,4,5,6]){
+    await page.locator('#bbsSize').selectOption(String(size));
+    const dimensions=await page.evaluate(()=>{
+      const board=document.querySelector('.bbs-grid');
+      const tiles=[...board.querySelectorAll('.bbs-tile')];
+      const shell=document.querySelector('.bbs-board-panel');
+      const sr=shell.getBoundingClientRect();
+      const br=board.getBoundingClientRect();
+      const parent=document.querySelector('#activitiesPanel');
+      const headings=[...document.querySelectorAll('.bbs-head h3,.bbs-setup-heading h3')];
+      return {size:Number(board.dataset.bbsSize),
+        columns:getComputedStyle(board).gridTemplateColumns.split(' ').length,
+        count:tiles.length,tiles:tiles.map(t=>t.getBoundingClientRect().width),
+        boardRight:br.right,shellRight:sr.right,
+        viewport:innerWidth,paneScroll:parent.scrollHeight>parent.clientHeight,
+        headings:headings.map(h=>h.innerText)};
+    });
+    assert.equal(dimensions.size,size);
+    assert.equal(dimensions.columns,size,'Incorrect grid columns: '+JSON.stringify(dimensions));
+    assert.equal(dimensions.count,size*size);
+    assert.ok(dimensions.tiles.every(w=>w>=27),'Tiles too small: '+JSON.stringify(dimensions));
+    assert.ok(dimensions.boardRight<=width+3,'Bingo grid outside screen: '+JSON.stringify(dimensions));
+    assert.ok(dimensions.shellRight<=width+3,'Bingo studio outside screen: '+JSON.stringify(dimensions));
+   }
+   await page.locator('#bbsSize').selectOption('4');
+   await page.locator('#bbsSave').scrollIntoViewIfNeeded();
+   assert.equal(await page.locator('#bbsSave').isVisible(),true,
+     'Save Board must remain reachable in a compact teacher window');
+   assert.equal(await page.locator('#bbsSaveLaunch').isVisible(),true);
   }
   // New tiles still enter text-edit mode; cosmetic graphics may not intercept clicks.
   await page.setViewportSize({width:1440,height:1000});
