@@ -1188,37 +1188,58 @@ body.sipreview-open{
 .si-plus-spot-buttons{display:flex;gap:7px}.si-plus-spot-buttons button{flex:1}
 .si-plus-spot-list{display:flex;flex-wrap:wrap;gap:6px;max-height:120px;overflow:auto}
 .si-plus-spot-list button{padding:7px 9px;font-size:12px}
-.si-plus-spot-bounds{
- display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;
- border:1px solid #3b9cc3;border-radius:9px;padding:8px;min-width:0;
-}
-.si-plus-spot-bounds legend{font:800 11px system-ui;color:#bcefff;padding:0 4px}
-.si-plus-spot-bounds label{min-width:0}
-.si-plus-spot-bounds input{width:100%;min-width:0;box-sizing:border-box}
-
 .si-plus-spot-save{background:#078eac!important;border-color:#7cf4ff!important}
 .si-plus-spot-remove{border-color:#b25a6e!important;background:#4d2030!important}
 @media(max-width:800px){.si-plus-spot-layout{grid-template-columns:1fr}.si-plus-spot-editor{padding:5px}.si-plus-spot-dialog{padding:11px;max-height:99dvh}}
 
-/* SI+ Quick Spotlight entry point, visible only in the SI+ library. */
-.si-plus-spotlight-quick-launch{
- position:fixed;right:24px;bottom:24px;z-index:96;
- display:inline-flex;align-items:center;justify-content:center;
- min-height:52px;padding:12px 21px;
- border:2px solid #64e2ff;border-radius:14px;
- background:linear-gradient(130deg,#10679a,#133467);
- box-shadow:0 0 22px #14a9eb79,0 8px 20px #0009;
- color:#fff;font:900 15px/1.2 system-ui;cursor:pointer;
+/* Image-fit repair: the editor must display all original image pixels.
+   The preview can be 16:9 or 4:3 or portrait; the image and pointer SVG
+   share a single dynamically sized, non-stretching stage. */
+.si-plus-spot-layout{align-items:start}
+.si-plus-spot-stage{
+ aspect-ratio:16 / 9; /* JS replaces this with the source image ratio on load */
+ align-self:start;
+ display:block;
+ height:auto;
+ min-height:0;
+ box-sizing:border-box;
+ overflow:hidden;
 }
-.si-plus-spotlight-quick-launch:hover{filter:brightness(1.16)}
-.si-plus-spotlight-quick-launch:focus-visible{outline:3px solid #ffe193;outline-offset:3px}
-@media(max-width:700px){.si-plus-spotlight-quick-launch{bottom:14px;right:12px;padding:10px 14px;min-height:46px;font-size:13px}}
+.si-plus-spot-stage .si-plus-spot-image{
+ display:block;
+ position:absolute;
+ inset:0;
+ width:100%;
+ height:100%;
+ max-width:none;
+ max-height:none;
+ object-fit:fill; /* aspect ratio matches the intrinsic image, so no distortion */
+ pointer-events:none;
+}
+.si-plus-spot-stage .si-plus-spot-drawing{
+ position:absolute;
+ inset:0;
+ display:block;
+ width:100%;
+ height:100%;
+}
+.si-plus-spot-layout aside{
+ min-width:0;
+ max-height:calc(96dvh - 122px);
+ overflow-y:auto;
+ overflow-x:hidden;
+ padding-right:4px;
+ scrollbar-gutter:stable;
+}
+@media(max-width:800px){
+ .si-plus-spot-layout aside{max-height:none;overflow:visible}
+}
 
-/* SI+ Spotlight full image natural-flow repair */
-.si-plus-spot-layout{align-items:start!important}
+
+/* Natural-flow Spotlight image: never crop 4:3 or portrait slides into 16:9.
+   The image itself establishes the stage height, and SVG overlays that box. */
 .si-plus-spot-layout > .si-plus-spot-stage{
  display:block!important;
- position:relative!important;
  width:100%!important;
  height:auto!important;
  min-height:0!important;
@@ -1232,27 +1253,15 @@ body.sipreview-open{
  inset:auto!important;
  width:100%!important;
  height:auto!important;
- max-width:none!important;
  max-height:none!important;
+ max-width:none!important;
  object-fit:contain!important;
 }
 .si-plus-spot-stage > svg.si-plus-spot-drawing{
  position:absolute!important;
  inset:0!important;
- display:block!important;
  width:100%!important;
  height:100%!important;
-}
-.si-plus-spot-layout aside{
- min-width:0;
- max-height:calc(96dvh - 122px);
- overflow-y:auto;
- overflow-x:hidden;
- padding-right:4px;
- scrollbar-gutter:stable;
-}
-@media(max-width:800px){
- .si-plus-spot-layout aside{max-height:none;overflow:visible}
 }
 
 
@@ -1277,3 +1286,9 @@ body.sipreview-open{
  transform:none!important;
  vector-effect:none!important;
 }
+
+/* Never flash an unfitted overlay at the parent stage's 0,0 corner.
+   The first layout sync marks it ready before the browser paints. */
+.si-plus-spotlight-inline,.si-plus-spotlight-overlay{visibility:hidden!important}
+.si-plus-spotlight-inline[data-fit-ready="true"],
+.si-plus-spotlight-overlay[data-fit-ready="true"]{visibility:visible!important}

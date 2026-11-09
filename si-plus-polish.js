@@ -1253,6 +1253,7 @@
  const escape=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const clamp=(x,min,max)=>Math.min(max,Math.max(min,Number(x)||0));
  let renderId=0;
+ let viewportObserver=null;
  const highlight=(zones,visible,prefix)=>{ 
   // Each projected SVG needs unique paint-server IDs. Duplicate filter/mask
   // IDs across teacher mirror and shared view can reference the wrong SVG.
@@ -1291,7 +1292,7 @@
   if(!imageMatch)return markup;
   const zoneMarkup=highlight(info.slide.siSpotlight.zones||[],liveVisibility(info));
   const inner=imageMatch[2];
-  const decorate='<svg class="si-plus-spotlight-inline" viewBox="0 0 1000 562.5" preserveAspectRatio="none" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible">'+zoneMarkup+'</svg>';
+  const decorate='<svg class="si-plus-spotlight-inline" viewBox="0 0 1000 562.5" preserveAspectRatio="none" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;visibility:hidden">'+zoneMarkup+'</svg>';
   let attributes=imageMatch[1];
   if(/\bstyle="/.test(attributes))attributes=attributes.replace(/style="/,'style="position:relative;');
   else attributes+=' style="position:relative"';
@@ -1327,7 +1328,7 @@
  }
  function fitOverlay(svg,img,inline=false){
   const painted=paintedImageBox(img);
-  if(!painted||!svg.isConnected){svg.style.display="none";return}
+  if(!painted||!svg.isConnected){svg.removeAttribute("data-fit-ready");svg.style.setProperty("visibility","hidden","important");svg.style.display="none";return}
   svg.style.display="block";
   const parent=inline?svg.parentElement:null;
   const parentRect=parent?.getBoundingClientRect();
@@ -1335,6 +1336,11 @@
   svg.style.top=(painted.top-(parentRect?.top||0))+"px";
   svg.style.width=painted.width+"px";
   svg.style.height=painted.height+"px";
+  // Reveal only after the SVG is aligned to the actual image pixels.
+  // Fresh shared-screen markup otherwise flashes at inset:0 before the
+  // existing 350ms compatibility timer corrects its position.
+  svg.dataset.fitReady="true";
+  svg.style.setProperty("visibility","visible","important");
  }
  const overlays=new Map();
  function clearOverlays(){
@@ -1380,6 +1386,7 @@
     rec?.svg.remove();
     const svg=document.createElementNS(NS,"svg");
     svg.classList.add("si-plus-spotlight-overlay");
+    svg.style.setProperty("visibility","hidden","important");
     svg.setAttribute("viewBox","0 0 1000 562.5");
     svg.setAttribute("preserveAspectRatio","none");
     document.body.append(svg);current={svg,img};overlays.set(key,current);
@@ -1442,11 +1449,10 @@
   const svg=dialog.querySelector(".si-plus-spot-drawing");
   const stage=dialog.querySelector(".si-plus-spot-stage");
   if(!image||!svg||!stage)return;
-  // The full uploaded image, not a forced 16:9 slide box, establishes the
-  // editor's size. The overlaid SVG follows this same physical pixel region.
-  // SI+ presentation still uses its 16:9 screen and object-fit:contain.
+  // Natural-flow image controls canvas height. The image and drawing SVG
+  // now share precisely the same complete bounds for any source ratio.
   stage.style.removeProperty("aspect-ratio");
-  if(image.naturalWidth&&image.naturalHeight){
+  if(image.naturalWidth>0&&image.naturalHeight>0){
    stage.dataset.imageRatio=(image.naturalWidth/image.naturalHeight).toFixed(5);
   }
   svg.style.left="0px";svg.style.top="0px";
@@ -1838,8 +1844,34 @@ function quickSpotlightSync(){
   button.append(input);document.body.append(button);
  }
 }
+ // A projector refresh creates a brand-new inline SVG. Sync it in the same
+ // browser microtask, before the first paint, rather than showing a misplaced
+ // region until the 350ms fallback tick runs. This also covers live toggles
+ // received in a separate ?role=shared browser window.
+ function installImmediateOverlaySync(){
+  const containsSlide=node=>node.nodeType===1&&(
+   node.matches?.(".si-plus-viewport-image")||
+   node.querySelector?.(".si-plus-viewport-image")
+  );
+  if(typeof MutationObserver==="function"){
+   // Retain the observer and watch the stable document root, including if
+   // Mothership replaces the body or the projector subtree during a sync.
+   viewportObserver=new MutationObserver(records=>{
+    if(records.some(record=>Array.from(record.addedNodes).some(containsSlide)))overlaySync();
+   });
+   viewportObserver.observe(document.documentElement,{childList:true,subtree:true});
+  }
+  // Cached and uncached images both need to be measured after intrinsic
+  // dimensions become available. Image load does not bubble: capture it.
+  document.addEventListener("load",event=>{
+   if(event.target?.matches?.(".si-plus-viewport-image > img"))overlaySync();
+  },true);
+  window.addEventListener("resize",overlaySync,{passive:true});
+ }
  function tick(){try{installSharedMarkup();quickSpotlightSync();slideTypeSync();editorSync();controlSync();overlaySync()}catch(e){console.warn("SI+ Spotlight integration",e)}}
- window.SIPlusSpotlightSlide={open:openEditor,refresh:tick,renderOverlay:highlight};
- if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{setInterval(tick,350)},{once:true});
- else setInterval(tick,350);
+ window.SIPlusSpotlightSlide={open:openEditor,refresh:tick,renderOverlay:highlight,
+  immediateFitVersion:2};
+ function initialize(){installImmediateOverlaySync();tick();setInterval(tick,350)}
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initialize,{once:true});
+ else initialize();
 })();
