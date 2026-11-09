@@ -197,9 +197,18 @@
   const svg=dialog.querySelector(".si-plus-spot-drawing");
   const stage=dialog.querySelector(".si-plus-spot-stage");
   if(!image||!svg||!stage)return;
-  // Use the complete displayed 16:9 slide as the drawing coordinate space.
-  // Fitting to intrinsic dimensions made the overlay narrower than the image.
-  if(!stage.clientWidth||!stage.clientHeight)return;
+  // Match the *image's native ratio*, not an assumed 16:9 slide.
+  // A 4:3 poster must show the bottom row during editing. Keep the SVG
+  // exactly on the painted image so percentage-based regions still match
+  // the shared presentation, where object-fit:contain may add letterboxing.
+  const width=image.naturalWidth,height=image.naturalHeight;
+  if(width>0&&height>0){
+   stage.style.aspectRatio=width+" / "+height;
+   stage.dataset.imageRatio=(width/height).toFixed(5);
+  }else{
+   stage.style.aspectRatio="16 / 9";
+   delete stage.dataset.imageRatio;
+  }
   svg.style.left="0px";svg.style.top="0px";
   svg.style.width="100%";svg.style.height="100%";
  }
