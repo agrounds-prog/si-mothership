@@ -6655,6 +6655,30 @@ def create_app() -> web.Application:
             "X-Content-Type-Options": "nosniff",
         })
     app.router.add_get("/orbit-v5/{asset}", orbit_art_v5)
+    # ORBIT v6: uploaded cinematic PNG components, never render the full
+    # reference mockup as live gameplay. Text and classroom state stay native.
+    orbit_v6_pngs = frozenset((
+        "01_orbit_logo.png", "02_awaiting_crew_ideas_badge.png",
+        "03_transmitted_counter_badge.png", "04_question_planet_with_orbits.png",
+        "05_response_pod_shell.png", "06_footer_banner.png",
+        "07_teacher_mission_control_shell.png",
+        "08_student_response_terminal_shell.png",
+        "09_solar_grouping_chamber.png",
+    ))
+    async def orbit_art_v6(request):
+        asset = request.match_info["asset"]
+        if asset not in orbit_v6_pngs:
+            raise web.HTTPNotFound()
+        path = ROOT / "orbit_asset_pack" / asset
+        if not path.is_file():
+            raise web.HTTPNotFound()
+        return web.FileResponse(path, headers={
+            "Content-Type": "image/png",
+            "Cache-Control": "public, max-age=86400",
+            "X-Content-Type-Options": "nosniff",
+        })
+    app.router.add_get("/orbit-v6/{asset}", orbit_art_v6)
+
 
     app.router.add_get("/word-grid.js", lambda request: web.FileResponse(ROOT / "word-grid.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/word-grid.css", lambda request: web.FileResponse(ROOT / "word-grid.css", headers={"Cache-Control": "no-store"}))
