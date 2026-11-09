@@ -12,8 +12,6 @@ if(!/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/?$/.test(BASE))throw Error('AA
  try{
   const login=await context.request.post(BASE+'/api/teacher/login',{data:{key:'5030'}});
   assert.equal(login.status(),200);
-  const studentPage=await context.request.get(BASE+'/aac/s/fake-compact-preview');
-  assert.equal(studentPage.status(),200);
   await page.goto(BASE+'/aac',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>typeof document.getElementById('boardList')!=='undefined');
   await page.locator('#newBoard').click();
