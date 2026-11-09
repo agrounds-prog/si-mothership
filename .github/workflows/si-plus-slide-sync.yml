@@ -1,0 +1,48 @@
+name: SI+ Stable Slide Navigation Regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'server.py'
+      - 'si-plus-polish.js'
+      - 'tests/test_si_plus_slide_sync_browser.cjs'
+      - 'tests/test_si_plus_slide_nav_revision.py'
+      - '.github/workflows/si-plus-slide-sync.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  stable-slides:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Install classroom test dependencies
+        run: |
+          pip install -r requirements.txt
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Syntax and server navigation ordering tests
+        run: |
+          python -m py_compile server.py
+          node --check tests/test_si_plus_slide_sync_browser.cjs
+          python -m unittest discover -s tests -p 'test_si_plus_slide_nav_revision.py' -v
+      - name: Start isolated classroom
+        run: |
+          mkdir -p /tmp/mothership-slide-sync
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-slide-sync PORT=8877 python server.py >/tmp/mothership-slide-sync.log 2>&1 &
+          for i in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:8877/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          tail -90 /tmp/mothership-slide-sync.log
+          exit 1
+      - name: Real teacher/projector delayed-packet and slide navigation regression
+        run: node tests/test_si_plus_slide_sync_browser.cjs
+      - name: Server logs on failure
+        if: failure()
+        run: tail -120 /tmp/mothership-slide-sync.log || true
