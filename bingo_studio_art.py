@@ -6,17 +6,18 @@ from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 import math
 
 ROOT = Path(__file__).resolve().parent
-OUTPUT = Path(gettempdir()) / "mothership-bingo-studio-art-v1"
+OUTPUT = Path(gettempdir()) / "mothership-bingo-studio-art-v2"
 NAMES = {
     "hero-header.webp", "bridge-backdrop.webp", "board-panel.webp",
     "library-panel.webp", "saved-panel.webp", "tile-empty.webp",
     "tile-selected.webp", "tile-free.webp", "button-blue.webp",
     "button-green.webp", "button-red.webp", "button-slate.webp",
+    "board-stage-rail.webp",
 }
 LOCK = Lock()
 
 def _save(im, name, quality=84):
-    raster = im if name.startswith("button-") and im.mode == "RGBA" else im.convert("RGB")
+    raster = im if (name.startswith("button-") or name=="board-stage-rail.webp") and im.mode == "RGBA" else im.convert("RGB")
     raster.save(OUTPUT / name, "WEBP", quality=quality, method=6)
 
 def _wipe(im, xy, top, bottom, radius=12):
@@ -103,6 +104,20 @@ def build():
     dark=ImageEnhance.Brightness(dark).enhance(.34)
     dark=Image.blend(dark,Image.new("RGB",dark.size,(4,13,27)),.63)
     _save(dark,"bridge-backdrop.webp",76)
+    # Original illustrated metal/cyan perimeter of the approved Bingo grid.
+    # Only the outer rails are retained; the interior is transparent so
+    # changing board size and genuine live tiles never display fake squares.
+    from PIL import ImageDraw as _Draw
+    rail=left.crop((165,437,967,1103)).convert("RGBA")
+    width,height=rail.size
+    alpha=Image.new("L",(width,height),0)
+    painter=_Draw.Draw(alpha)
+    painter.rectangle((0,0,width-1,32),fill=255)
+    painter.rectangle((0,height-35,width-1,height-1),fill=255)
+    painter.rectangle((0,0,39,height-1),fill=255)
+    painter.rectangle((width-40,0,width-1,height-1),fill=255)
+    rail.putalpha(alpha)
+    _save(rail,"board-stage-rail.webp",88)
     _panel(left,980,1370,"board-panel.webp")
     _panel(right,820,940,"library-panel.webp")
     _panel(right,820,780,"saved-panel.webp")

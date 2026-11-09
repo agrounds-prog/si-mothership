@@ -8,7 +8,7 @@ function bbsFilled(){return Array.from({length:bbsSize()**2},(_,i)=>i).filter(i=
   bingoDraft.numberedSlots?.[i]?.call&&(bingoDraft.numberedSlots[i].text||bingoDraft.numberedSlots[i].image)).length}
 function bbsGrid(){
   const n=bbsSize(),center=bbsCenter(),slots=bingoDraft.numberedSlots||[],editing=Number(bingoDraft.editSlot??-1);
-  return '<div class="bbs-grid" style="--cols:'+n+'">'+Array.from({length:n*n},(_,i)=>{
+  return '<div class="bbs-grid" data-bbs-size="'+n+'" style="--cols:'+n+'">'+Array.from({length:n*n},(_,i)=>{
     const s=slots[i]||{},number='<small class="bbs-tile-num">'+(i+1)+'</small>';
     if(i===center)return '<div class="bbs-tile bbs-free">'+number+'<strong>★ FREE</strong></div>';
     if(i===editing)return '<div class="bbs-tile bbs-edit">'+number+
@@ -71,7 +71,7 @@ function bbsSavedBoards(){
         ' · '+(s.items?.length||0)+' items</small></div>'+
         '<div class="bbs-saved-actions"><button type="button" data-bbs-load="'+esc(s.id)+'">Load Board</button>'+
         '<button type="button" data-bbs-launch="'+esc(s.id)+'">▶ Launch</button>'+
-        '<button type="button" class="bbs-remove" data-bbs-delete="'+esc(s.id)+'">×</button></div></div>';
+        '<button type="button" class="bbs-remove" aria-label="Delete saved board '+esc(s.name)+'" title="Delete saved board" data-bbs-delete="'+esc(s.id)+'">×</button></div></div>';
     }).join(''):'<p class="bbs-hint">Saved boards appear here after you press Save Board.</p>')+'</div></section>';
 }
 function bbsMarkup(){
@@ -81,7 +81,8 @@ function bbsMarkup(){
     '</h2></div>'+
     '<div class="bbs-progress"><strong>'+filled+'<em> / '+need+'</em></strong><span>FILLED SQUARES</span>'+
     '<div><i style="width:'+Math.round(100*filled/Math.max(1,need))+'%"></i></div></div></div>'+
-    '<div class="bbs-layout"><main class="bbs-panel bbs-board-panel"><div class="bbs-name-row">'+
+    '<div class="bbs-layout"><main class="bbs-panel bbs-board-panel"><div class="bbs-setup-heading">'+
+    '<span class="bbs-setup-emblem" aria-hidden="true">▦</span><div><small>BOARD AUTHORING</small><h3>BOARD SETUP</h3></div></div><div class="bbs-name-row">'+
     '<label>BOARD NAME<input id="bbsName" maxlength="80" value="'+esc(bingoDraft.name||'')+'" placeholder="e.g. Kitchen Tools"></label>'+
     (isEditing?'<span class="bbs-loaded">EDITING SAVED BOARD</span>':'')+'</div>'+
     '<div class="bbs-options"><label>BOARD SIZE<select id="bbsSize">'+

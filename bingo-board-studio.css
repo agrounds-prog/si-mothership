@@ -3442,3 +3442,413 @@ body.role-student #studentContent .crew-survey-verbal .crew-survey-speak-cue spa
 #teacher #activitiesPanel:has(.bbs-studio){
  transform:none!important;translate:none!important;
 }
+
+
+/* Phase 1 final visual polish — keep the actual approved concept artwork
+   behind real HTML labels, buttons, saved sets and picture tiles.
+   Only the Bingo authoring studio is affected. */
+#teacher #activitiesPanel:has(.bbs-studio) {
+  scrollbar-gutter:stable;
+  scroll-padding-top:18px;
+}
+#teacher #activitiesPanel:has(.bbs-studio) .bbs-studio{
+  --bbs-text:#e8f7ff;
+  --bbs-muted:#b7dcea;
+  --bbs-edge:#5be4ff;
+  --bbs-action:#77f7c7;
+}
+#teacher .bbs-hero{
+  background-size:100% 100%!important;
+  border-radius:clamp(9px,1vw,16px)!important;
+}
+#teacher .bbs-title{
+  left:27%!important;right:25%!important;
+  top:8%!important;bottom:9%!important;
+  text-align:center!important;
+}
+#teacher .bbs-title small{
+  color:#c4f6ff!important;
+  font-size:clamp(10px,.86vw,14px)!important;
+  line-height:1.24!important;
+  letter-spacing:.11em!important;
+}
+#teacher .bbs-title h2{
+  font-size:clamp(22px,2.9vw,45px)!important;
+  line-height:1.12!important;
+  max-width:100%!important;
+  margin:6px 0 0!important;
+  text-wrap:balance;
+}
+#teacher .bbs-progress{
+  bottom:11%!important;
+  border:1px solid #63f4d5!important;
+  box-shadow:inset 0 0 14px #0c7a7066,0 0 12px #1bffe255!important;
+}
+#teacher .bbs-progress strong{font-size:clamp(16px,1.7vw,27px)!important}
+#teacher .bbs-progress span{font-size:clamp(9px,.7vw,12px)!important;letter-spacing:.075em!important}
+#teacher .bbs-layout{align-items:start!important}
+#teacher .bbs-panel{
+  border-radius:clamp(15px,1.5vw,23px)!important;
+  background-position:center!important;
+  background-size:100% 100%!important;
+}
+#teacher .bbs-setup-heading{
+  display:flex;align-items:center;gap:12px;
+  margin:0 0 19px;padding:7px 8px 13px;
+  border-bottom:1px solid #299ac5a8;
+  background:linear-gradient(90deg,#0d5075bd,transparent 86%);
+}
+#teacher .bbs-setup-heading .bbs-setup-emblem,
+#teacher .bbs-head::before{
+  display:grid;place-items:center;
+  width:clamp(40px,3.7vw,59px);height:clamp(40px,3.7vw,59px);
+  flex:0 0 auto;color:#e6ffff;font-size:clamp(24px,2vw,31px);
+  font-weight:900;line-height:1;
+  background:radial-gradient(circle at 42% 21%,#1696bdcc,#093055 72%);
+  border:2px solid #50deff;border-radius:11px;
+  box-shadow:inset 0 0 12px #20ccff70,0 0 14px #13acdd4d;
+}
+#teacher .bbs-setup-heading small{
+  display:block;font-size:clamp(9px,.66vw,11px);
+  letter-spacing:.12em;color:#9ef6ff;font-weight:900;
+}
+#teacher .bbs-setup-heading h3{
+  margin:2px 0 0;color:#fff;
+  font:italic 950 clamp(20px,1.6vw,30px)/1.1 system-ui;
+  text-shadow:0 0 14px #18c9ff4b;
+}
+#teacher .bbs-head{
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr)!important;
+  gap:0 12px!important;align-items:center!important;
+  padding:5px 9px 12px!important;
+}
+#teacher .bbs-head::before{
+  content:"▧";grid-row:1/4!important;
+}
+#teacher .bbs-saved .bbs-head::before{content:"▣"}
+#teacher .bbs-head small,#teacher .bbs-head h3,#teacher .bbs-head p{
+  grid-column:2!important;min-width:0!important;
+}
+#teacher .bbs-head h3,#teacher .bbs-board-heading h3{
+  font-size:clamp(19px,1.55vw,28px)!important;
+  line-height:1.17!important;
+  letter-spacing:.006em!important;
+}
+#teacher .bbs-head small,#teacher .bbs-board-heading small{
+  font-size:clamp(10px,.75vw,13px)!important;
+  letter-spacing:.08em!important;
+}
+#teacher .bbs-head p,#teacher .bbs-board-heading p{
+  font-size:clamp(12px,.92vw,15px)!important;
+  line-height:1.47!important;
+}
+#teacher .bbs-board-heading{
+  margin-top:12px!important;
+  gap:12px!important;
+}
+#teacher .bbs-name-row>label,#teacher .bbs-options>label{
+  font-size:clamp(11px,.8vw,13px)!important;
+  letter-spacing:.07em!important;
+}
+#teacher .bbs-name-row input,#teacher .bbs-options select,#teacher .bbs-library-tools input{
+  font-size:clamp(13px,.95vw,17px)!important;
+  min-height:46px!important;
+}
+#teacher .bbs-name-row input::placeholder,
+#teacher .bbs-library-tools input::placeholder{color:#93bccc;opacity:1}
+#teacher .bbs-check{font-size:clamp(12px,.83vw,14px)!important}
+#teacher .bbs-check input{accent-color:#47f7c2!important}
+#teacher .bbs-board-frame{
+  isolation:isolate!important;
+  padding:clamp(22px,2.4vw,39px)!important;
+  background:
+    radial-gradient(ellipse at 50% 0%,#1a598c88,transparent 65%),
+    linear-gradient(150deg,#021324,#062947)!important;
+  border:1px solid #4aa6c5!important;
+  border-radius:clamp(18px,1.6vw,27px)!important;
+  box-shadow:inset 0 0 28px #0009,0 0 22px #14d2ee50!important;
+}
+#teacher .bbs-board-frame::after{
+  content:"";
+  position:absolute;inset:-9px;
+  z-index:2;
+  border:clamp(17px,2.35vw,33px) solid transparent;
+  border-image-source:url("/bingo-studio-art/board-stage-rail.webp?v=2");
+  border-image-slice:40;
+  border-image-width:1;
+  border-image-repeat:stretch;
+  pointer-events:none;
+}
+#teacher .bbs-grid{
+  position:relative;z-index:1;
+  gap:clamp(6px,.83vw,12px)!important;
+}
+#teacher .bbs-grid .bbs-tile{
+  min-width:0!important;
+  border-radius:clamp(6px,.8vw,13px)!important;
+  background-size:100% 100%!important;
+  background-position:center!important;
+  box-shadow:inset 0 0 2px #62dfff33,0 5px 9px #0008!important;
+  transition:filter .14s ease,transform .14s ease,box-shadow .14s ease!important;
+}
+#teacher .bbs-grid .bbs-tile-num{
+  top:7%!important;left:10%!important;
+  width:auto!important;min-width:0!important;
+  text-align:center;line-height:1.1!important;
+  font-size:clamp(10px,1vw,17px)!important;
+  font-weight:950!important;
+}
+#teacher .bbs-grid .bbs-plus{
+  font-size:clamp(19px,3.2vw,50px)!important;line-height:.9!important;
+}
+#teacher .bbs-grid .bbs-plus small{
+  font-size:clamp(9px,.72vw,13px)!important;
+  letter-spacing:.065em!important;
+  line-height:1.25!important;
+}
+#teacher .bbs-grid .bbs-tile img{
+  width:77%!important;height:77%!important;max-width:77%!important;
+  border:2px solid #c5f8ffcc!important;
+  background:#f7fbff!important;
+  box-shadow:0 2px 10px #001c4094!important;
+}
+#teacher .bbs-grid .bbs-tile b{
+  max-width:76%!important;
+  font-size:clamp(11px,1.2vw,21px)!important;
+  line-height:1.2!important;
+  text-wrap:balance;
+}
+#teacher .bbs-grid[data-bbs-size="5"] .bbs-tile b,
+#teacher .bbs-grid[data-bbs-size="6"] .bbs-tile b{
+  font-size:clamp(9px,.9vw,16px)!important;
+}
+#teacher .bbs-grid[data-bbs-size="5"] .bbs-plus,
+#teacher .bbs-grid[data-bbs-size="6"] .bbs-plus{
+  font-size:clamp(15px,2vw,31px)!important;
+}
+#teacher .bbs-grid[data-bbs-size="5"] .bbs-plus small,
+#teacher .bbs-grid[data-bbs-size="6"] .bbs-plus small{
+  font-size:clamp(8px,.63vw,10px)!important;
+}
+#teacher .bbs-tile.bbs-free strong{font-size:clamp(12px,1.5vw,24px)!important}
+#teacher .bbs-under-board{
+  color:#cbecf7!important;
+  font-size:clamp(12px,.8vw,14px)!important;
+}
+#teacher .bbs-save{
+  display:grid!important;
+  grid-template-columns:minmax(165px,.82fr) minmax(200px,1.18fr)!important;
+  gap:clamp(8px,.85vw,15px)!important;
+}
+#teacher .bbs-save button,#teacher .bbs-library .bbs-upload,
+#teacher #bbsCreate{
+  min-height:52px!important;
+  padding:9px clamp(10px,1.1vw,18px)!important;
+  font-size:clamp(13px,1vw,17px)!important;
+  letter-spacing:.008em!important;
+}
+#teacher .bbs-studio button:is(#bbsNewBoard,#bbsUpload,#bbsCreate,#bbsUncheck,#bbsClearBoard,#bbsSave,#bbsSaveLaunch),
+#teacher .bbs-saved-actions button,
+#teacher .bbs-library-tools button{
+  background-size:100% 100%!important;
+  background-repeat:no-repeat!important;
+  background-position:center!important;
+}
+#teacher .bbs-studio button:not(:disabled):active{
+  transform:translateY(1px)!important;
+}
+#teacher #bbsCreate:disabled{
+  color:#cfebea!important;opacity:.76!important;filter:grayscale(.35)!important;
+}
+#teacher .bbs-library-tools{
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr)!important;
+  gap:10px!important;
+}
+#teacher .bbs-library-tools>div{display:flex!important;gap:6px!important}
+#teacher .bbs-library-tools button{
+  min-height:36px!important;
+  padding:6px 11px!important;
+  font-size:clamp(11px,.8vw,14px)!important;
+}
+#teacher .bbs-library-grid{
+  min-width:0!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:10px!important;
+  max-height:clamp(210px,36dvh,470px)!important;
+  overflow:auto!important;
+  scrollbar-width:thin;
+  scrollbar-color:#5cc5d8 #061d34;
+}
+#teacher .bbs-library-grid:has(> .bbs-hint){
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:126px!important;
+}
+#teacher .bbs-library-grid:has(> .bbs-hint)::before{
+  content:"▧";color:#78ddfa;font-size:35px;
+  filter:drop-shadow(0 0 8px #3abdec8a);
+}
+#teacher .bbs-library-grid> .bbs-hint{
+  max-width:245px!important;margin:0!important;
+  color:#cce9f2!important;font-size:clamp(12px,.88vw,15px)!important;
+}
+#teacher .bbs-library-entry{min-width:0}
+#teacher .bbs-library-entry .bbs-library-image{
+  overflow:hidden!important;
+  min-height:113px!important;
+  padding:5px!important;
+  border:1px solid #62b9d9!important;
+  border-radius:10px!important;
+  background:#0d3455d9!important;
+}
+#teacher .bbs-library-entry .bbs-library-image img{
+  width:100%!important;height:clamp(76px,7.8vw,122px)!important;
+  min-width:0!important;object-fit:contain!important;
+  border-radius:5px!important;
+}
+#teacher .bbs-library-entry .bbs-library-image span{
+  font-size:clamp(10px,.72vw,13px)!important;
+  line-height:1.28!important;color:#e5f7ff!important;
+}
+#teacher .bbs-library-image.checked{
+  border:2px solid #89ffcc!important;
+  box-shadow:0 0 0 1px #32c496,0 0 10px #3af5b855!important;
+}
+#teacher .bbs-library-entry .bbs-library-remove{
+  background:#822c4a!important;
+  min-width:27px!important;min-height:27px!important;
+}
+#teacher .bbs-picked strong{
+  font-size:clamp(13px,.9vw,17px)!important;
+  color:#b4ffeb!important;
+}
+#teacher .bbs-saved-list{
+  gap:13px!important;
+  max-height:clamp(185px,34dvh,420px)!important;
+  overflow-y:auto!important;
+  padding:1px 3px 7px!important;
+  scrollbar-width:thin;
+  scrollbar-color:#5cc5d8 #061d34;
+}
+#teacher .bbs-saved-board{
+  grid-template-columns:clamp(82px,7.3vw,116px) minmax(0,1fr)!important;
+  grid-auto-rows:min-content!important;
+  align-items:center!important;
+  column-gap:clamp(10px,1.1vw,18px)!important;
+  padding:clamp(12px,1.2vw,20px)!important;
+  border:1px solid #5bbede!important;
+  border-radius:17px!important;
+  background:radial-gradient(ellipse at 90% 80%,#0d6a9459,transparent 75%),#072846ee!important;
+  box-shadow:inset 0 0 0 2px #135780,0 6px 15px #0008!important;
+}
+#teacher .bbs-saved-art{
+  grid-row:1 / span 2!important;
+  width:clamp(82px,7.3vw,116px)!important;
+  height:clamp(82px,7.3vw,116px)!important;
+  padding:5px!important;
+  border:1px solid #76d6f7!important;
+  border-radius:11px!important;
+  overflow:hidden!important;
+}
+#teacher .bbs-saved-art img{
+  width:100%!important;height:100%!important;
+  min-height:0!important;min-width:0!important;
+  object-fit:contain!important;background:#f3fbff!important;
+  border-radius:4px!important;
+}
+#teacher .bbs-saved-info{grid-column:2!important;align-self:end!important}
+#teacher .bbs-saved-info b{
+  font-size:clamp(14px,1.12vw,19px)!important;
+  line-height:1.24!important;
+}
+#teacher .bbs-saved-info small{
+  font-size:clamp(11px,.79vw,14px)!important;
+}
+#teacher .bbs-saved-actions{
+  grid-column:2!important;display:flex!important;
+  justify-content:flex-start!important;
+  flex-wrap:wrap!important;gap:8px!important;
+  align-self:start!important;
+}
+#teacher .bbs-saved-actions button{
+  min-height:42px!important;
+  padding:7px clamp(9px,.75vw,14px)!important;
+  font-size:clamp(11px,.83vw,14px)!important;
+}
+#teacher .bbs-saved-actions .bbs-remove{
+  min-width:38px!important;margin-left:auto!important;
+  font-size:21px!important;
+}
+#teacher .bbs-loaded{
+  font-size:clamp(11px,.75vw,13px)!important;
+  letter-spacing:.035em!important;
+}
+@media(max-width:1150px){
+  #teacher .bbs-layout{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  #teacher .bbs-aside{
+    grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr)!important;
+    align-items:start!important;
+  }
+  #teacher .bbs-board-frame{padding:clamp(18px,3.6vw,31px)!important}
+}
+@media(max-width:750px){
+  #teacher .bbs-aside{grid-template-columns:1fr!important}
+  #teacher .bbs-title{left:20%!important;right:21%!important;top:12%!important;bottom:24%!important}
+  #teacher .bbs-title h2{font-size:clamp(18px,3.6vw,27px)!important}
+  #teacher .bbs-title small{font-size:9px!important;letter-spacing:0!important}
+  #teacher .bbs-progress{bottom:5%!important;right:2%!important;width:31%!important}
+  #teacher .bbs-saved-board{
+    grid-template-columns:83px minmax(0,1fr)!important;
+  }
+  #teacher .bbs-saved-art{width:83px!important;height:83px!important}
+}
+@media(max-width:540px){
+  #teacher .bbs-hero{
+    height:126px!important;background-size:cover!important;
+  }
+  #teacher .bbs-title{
+    left:11%!important;right:11%!important;top:8%!important;bottom:39%!important;
+  }
+  #teacher .bbs-title h2{font-size:clamp(18px,5.3vw,26px)!important;margin-top:3px!important}
+  #teacher .bbs-title small{font-size:8px!important}
+  #teacher .bbs-progress{bottom:3%!important;right:3%!important;width:35%!important}
+  #teacher .bbs-panel{padding:12px!important}
+  #teacher .bbs-setup-heading{gap:8px!important;padding:2px 4px 10px!important}
+  #teacher .bbs-setup-heading .bbs-setup-emblem,
+  #teacher .bbs-head::before{width:37px!important;height:37px!important;font-size:23px!important}
+  #teacher .bbs-head{gap:0 7px!important}
+  #teacher .bbs-board-frame{padding:15px!important}
+  #teacher .bbs-board-frame::after{inset:-6px;border-width:15px}
+  #teacher .bbs-grid{gap:3px!important}
+  #teacher .bbs-grid .bbs-tile{padding:3px!important}
+  #teacher .bbs-grid .bbs-tile-num{font-size:9px!important}
+  #teacher .bbs-grid .bbs-plus{font-size:clamp(17px,5.1vw,29px)!important}
+  #teacher .bbs-grid .bbs-plus small{font-size:8px!important}
+  #teacher .bbs-save{grid-template-columns:1fr!important}
+  #teacher .bbs-library-tools{grid-template-columns:1fr!important}
+  #teacher .bbs-library-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  #teacher .bbs-library-entry .bbs-library-image img{height:75px!important}
+  #teacher .bbs-saved-actions{grid-column:1/-1!important}
+  #teacher .bbs-saved-art{grid-row:1!important}
+  #teacher .bbs-saved-info{grid-column:2!important;align-self:center!important}
+}
+@media(max-width:420px){
+  #teacher .bbs-grid[data-bbs-size="5"] .bbs-tile b,
+  #teacher .bbs-grid[data-bbs-size="6"] .bbs-tile b{
+    font-size:9px!important;
+  }
+  #teacher .bbs-grid[data-bbs-size="5"] .bbs-tile-num,
+  #teacher .bbs-grid[data-bbs-size="6"] .bbs-tile-num{font-size:8px!important}
+  #teacher .bbs-board-heading{display:block!important}
+  #teacher #bbsNewBoard{margin-top:10px!important}
+  #teacher .bbs-saved-actions button{flex:1 1 115px!important}
+  #teacher .bbs-saved-actions .bbs-remove{flex:0 0 40px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #teacher .bbs-grid .bbs-tile{transition:none!important;transform:none!important}
+}
