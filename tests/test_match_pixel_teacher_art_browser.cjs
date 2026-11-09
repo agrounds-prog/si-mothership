@@ -30,6 +30,15 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
    const pixelBg=await match.evaluate(x=>getComputedStyle(x).backgroundImage);
    assert.ok(pixelBg.includes('pixel_reveal_studio_background_1600x900.png'),pixelBg);
    assert.ok(await page.locator('#activitiesPanel .pixel-setup').count(),'PIXEL studio missing');
+   const preview=await page.locator('#activitiesPanel .pixel-setup-preview').evaluate(el=>{
+     const st=getComputedStyle(el),box=el.getBoundingClientRect();
+     return {height:box.height,objectFit:getComputedStyle(el.querySelector('img')).objectFit};
+   });
+   assert.ok(preview.height<=305,'PIXEL preview too tall: '+JSON.stringify(preview));
+   assert.equal(preview.objectFit,'contain','PIXEL preview must preserve image proportions');
+   const cardBg=await page.locator('#activitiesPanel .pixel-setup .pixel-card').first().evaluate(el=>getComputedStyle(el).backgroundImage);
+   assert.ok(cardBg.includes('#')||cardBg.includes('linear-gradient'),'PIXEL cards lost opaque panel skin');
+
    await page.screenshot({path:'/tmp/mp-v1-browser/'+viewport.width+'-pixel-studio.png',animations:'disabled'});
    console.log('PASS',viewport.width,'PIXEL studio with uploaded artwork');
    // Verify second teacher window before launching in-browser gameplay.
