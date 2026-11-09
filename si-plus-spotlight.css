@@ -162,3 +162,9 @@
  transform:none!important;
  vector-effect:none!important;
 }
+
+/* Never flash an unfitted overlay at the parent stage's 0,0 corner.
+   The first layout sync marks it ready before the browser paints. */
+.si-plus-spotlight-inline,.si-plus-spotlight-overlay{visibility:hidden!important}
+.si-plus-spotlight-inline[data-fit-ready="true"],
+.si-plus-spotlight-overlay[data-fit-ready="true"]{visibility:visible!important}

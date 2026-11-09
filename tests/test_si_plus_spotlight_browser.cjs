@@ -304,6 +304,34 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.ok(Math.abs(projector.image.h-projector.overlay.h)<3,JSON.stringify(projector));
   assert.ok(Math.abs(projector.image.x-projector.overlay.x)<3,JSON.stringify(projector));
   assert.ok(Math.abs(projector.image.y-projector.overlay.y)<3,JSON.stringify(projector));
+  // Recreate the projector image with an unfitted SVG, as a remote teacher
+  // toggle does. The overlay must be aligned *before the next paint*,
+  // not 350ms later when Spotlight's fallback timer runs.
+  const firstPaint=await page.evaluate(async()=>{
+   const old=document.querySelector("#sharedContent .si-plus-viewport-image");
+   const replacement=old.cloneNode(true);
+   const image=replacement.querySelector(":scope > img");
+   const svg=replacement.querySelector(".si-plus-spotlight-inline");
+   if(!image||!svg)throw Error("Missing inline projector overlay");
+   await image.decode();
+   svg.removeAttribute("data-fit-ready");
+   svg.style.cssText="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible";
+   old.replaceWith(replacement);
+   await new Promise(resolve=>requestAnimationFrame(resolve));
+   const bounds=image.getBoundingClientRect(),overlay=svg.getBoundingClientRect();
+   const scale=Math.min(bounds.width/image.naturalWidth,bounds.height/image.naturalHeight);
+   const expected={x:bounds.x+(bounds.width-image.naturalWidth*scale)/2,
+    y:bounds.y+(bounds.height-image.naturalHeight*scale)/2,
+    w:image.naturalWidth*scale,h:image.naturalHeight*scale};
+   return {expected,actual:{x:overlay.x,y:overlay.y,w:overlay.width,h:overlay.height},
+    ready:svg.dataset.fitReady,visibility:getComputedStyle(svg).visibility};
+  });
+  assert.equal(firstPaint.ready,"true","Projector SVG must be positioned by the first frame");
+  assert.equal(firstPaint.visibility,"visible","Only fitted projector overlays may be painted");
+  for(const key of ["x","y","w","h"]){
+   assert.ok(Math.abs(firstPaint.expected[key]-firstPaint.actual[key])<3,
+    "Projector overlay moved after first paint: "+JSON.stringify(firstPaint));
+  }
   assert.deepEqual(errors,[]);
   console.log("PASS: Spotlight zones save to SI+ slides and live teacher controls toggle them");
  }finally{await browser.close()}

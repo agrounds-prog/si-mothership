@@ -96,7 +96,7 @@
  }
  function fitOverlay(svg,img,inline=false){
   const painted=paintedImageBox(img);
-  if(!painted||!svg.isConnected){svg.style.display="none";return}
+  if(!painted||!svg.isConnected){svg.removeAttribute("data-fit-ready");svg.style.display="none";return}
   svg.style.display="block";
   const parent=inline?svg.parentElement:null;
   const parentRect=parent?.getBoundingClientRect();
@@ -104,6 +104,10 @@
   svg.style.top=(painted.top-(parentRect?.top||0))+"px";
   svg.style.width=painted.width+"px";
   svg.style.height=painted.height+"px";
+  // Reveal only after the SVG is aligned to the actual image pixels.
+  // Fresh shared-screen markup otherwise flashes at inset:0 before the
+  // existing 350ms compatibility timer corrects its position.
+  svg.dataset.fitReady="true";
  }
  const overlays=new Map();
  function clearOverlays(){
@@ -606,8 +610,30 @@ function quickSpotlightSync(){
   button.append(input);document.body.append(button);
  }
 }
+ // A projector refresh creates a brand-new inline SVG. Sync it in the same
+ // browser microtask, before the first paint, rather than showing a misplaced
+ // region until the 350ms fallback tick runs. This also covers live toggles
+ // received in a separate ?role=shared browser window.
+ function installImmediateOverlaySync(){
+  const containsSlide=node=>node.nodeType===1&&(
+   node.matches?.(".si-plus-viewport-image")||
+   node.querySelector?.(".si-plus-viewport-image")
+  );
+  if(typeof MutationObserver==="function"){
+   new MutationObserver(records=>{
+    if(records.some(record=>Array.from(record.addedNodes).some(containsSlide)))overlaySync();
+   }).observe(document.body,{childList:true,subtree:true});
+  }
+  // Cached and uncached images both need to be measured after intrinsic
+  // dimensions become available. Image load does not bubble: capture it.
+  document.addEventListener("load",event=>{
+   if(event.target?.matches?.(".si-plus-viewport-image > img"))overlaySync();
+  },true);
+  window.addEventListener("resize",overlaySync,{passive:true});
+ }
  function tick(){try{installSharedMarkup();quickSpotlightSync();slideTypeSync();editorSync();controlSync();overlaySync()}catch(e){console.warn("SI+ Spotlight integration",e)}}
  window.SIPlusSpotlightSlide={open:openEditor,refresh:tick,renderOverlay:highlight};
- if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{setInterval(tick,350)},{once:true});
- else setInterval(tick,350);
+ function initialize(){installImmediateOverlaySync();tick();setInterval(tick,350)}
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initialize,{once:true});
+ else initialize();
 })();
