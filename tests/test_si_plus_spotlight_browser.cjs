@@ -250,6 +250,17 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
       !!overlay?.querySelector("rect[stroke],ellipse[stroke]")||
       !!floating?.querySelector("rect[stroke],ellipse[stroke]"));
   },null,{timeout:12000});
+  await page.waitForFunction(()=>{
+   const img=document.querySelector("#sharedContent .si-plus-viewport-image > img");
+   const svg=document.querySelector("#sharedContent .si-plus-spotlight-inline");
+   if(!img||!svg||!img.naturalWidth)return false;
+   const rect=img.getBoundingClientRect(),layer=svg.getBoundingClientRect();
+   const scale=Math.min(rect.width/img.naturalWidth,rect.height/img.naturalHeight);
+   const w=img.naturalWidth*scale,h=img.naturalHeight*scale;
+   return Math.abs(layer.width-w)<3&&Math.abs(layer.height-h)<3&&
+    Math.abs(layer.x-(rect.x+(rect.width-w)/2))<3&&
+    Math.abs(layer.y-(rect.y+(rect.height-h)/2))<3;
+  },null,{timeout:9000});
   const projector=await page.evaluate(()=>{
    const img=document.querySelector("#sharedContent .si-plus-viewport-image > img");
    const inline=document.querySelector("#sharedContent .si-plus-spotlight-inline");
