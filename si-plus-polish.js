@@ -1428,15 +1428,15 @@
   const svg=dialog.querySelector(".si-plus-spot-drawing");
   const stage=dialog.querySelector(".si-plus-spot-stage");
   if(!image||!svg||!stage)return;
-  // Spotlight coordinates describe the 16:9 image displayed in this
-  // stage, not the uploaded file's intrinsic aspect ratio. Intrinsic
-  // fitting centered a narrower SVG over a full-bleed image, preventing
-  // regions from reaching the sides of the visible slide.
-  if(!stage.clientWidth||!stage.clientHeight)return;
-  svg.style.left="0px";
-  svg.style.top="0px";
-  svg.style.width="100%";
-  svg.style.height="100%";
+  // The full uploaded image, not a forced 16:9 slide box, establishes the
+  // editor's size. The overlaid SVG follows this same physical pixel region.
+  // SI+ presentation still uses its 16:9 screen and object-fit:contain.
+  stage.style.removeProperty("aspect-ratio");
+  if(image.naturalWidth&&image.naturalHeight){
+   stage.dataset.imageRatio=(image.naturalWidth/image.naturalHeight).toFixed(5);
+  }
+  svg.style.left="0px";svg.style.top="0px";
+  svg.style.width="100%";svg.style.height="100%";
  }
  function openEditor(){
   const slide=activeSlide();
