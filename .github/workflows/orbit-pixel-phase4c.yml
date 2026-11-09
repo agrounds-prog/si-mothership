@@ -6,6 +6,8 @@ on:
     paths:
       - 'orbit-polish.js'
       - 'orbit-polish.css'
+      - 'assets/orbit-v5/**'
+      - 'server.py'
       - 'pixel-batch.js'
       - 'pixel-batch.css'
       - 'tests/test_orbit_classroom_browser.cjs'
