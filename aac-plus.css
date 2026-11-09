@@ -977,3 +977,84 @@ body.aac-art-v3::after{
 @media(prefers-reduced-motion:reduce){
  .aac-student.aac-art-v4 .aac-student-grid .aac-tile{transition:none!important}
 }
+
+
+/* AAC+ independent Zoom companion: tile geometry scales with the actual
+   pop-out width (not the monitor size). No board/tile content is altered. */
+.aac-student.aac-art-v4{min-width:0;overflow-x:hidden}
+.aac-student.aac-art-v4 .aac-header{
+  flex-wrap:wrap;justify-content:space-between;gap:8px!important;
+}
+.aac-student-window-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:7px;min-width:0}
+.aac-student-window-actions button{min-height:38px!important;padding:7px 10px!important;font-size:clamp(10px,1.3vw,14px)!important}
+.aac-student-window-actions button[hidden]{display:none!important}
+.aac-student.aac-art-v4 #studentApp{width:100%;min-width:0;max-width:1160px;padding:clamp(7px,1.6vw,18px)!important}
+.aac-student.aac-art-v4 .aac-student-console{
+  width:100%;max-width:100%;min-width:0;container-type:inline-size;
+  padding:clamp(8px,2.4vw,26px)!important;
+}
+.aac-student.aac-art-v4 .aac-student-grid{
+  display:grid!important;width:100%;min-width:0;
+  grid-template-columns:repeat(var(--cols,3),minmax(0,1fr))!important;
+  gap:clamp(3px,1.25cqw,12px)!important;
+  padding:clamp(2px,.9cqw,8px)!important;align-items:stretch;
+}
+.aac-student.aac-art-v4 .aac-student-grid .aac-tile,
+.aac-student.aac-art-v4 .aac-student-grid[data-layout="2x3"] .aac-tile,
+.aac-student.aac-art-v4 .aac-student-grid[data-layout="3x3"] .aac-tile,
+.aac-student.aac-art-v4 .aac-student-grid[data-layout="4x4"] .aac-tile,
+.aac-student.aac-art-v4 .aac-student-grid .aac-tile.aac-blank{
+  display:flex!important;flex-direction:column!important;
+  width:100%;height:auto!important;min-height:0!important;max-width:100%;
+  aspect-ratio:1 / 1.04;overflow:hidden!important;
+  padding:clamp(3px,1.4cqw,12px)!important;
+  align-items:center!important;justify-content:center!important;
+}
+.aac-student.aac-art-v4 .aac-student-grid .aac-symbol{
+  display:flex;justify-content:center;align-items:center;
+  min-width:0;max-width:100%;max-height:62%;overflow:hidden;
+  font-size:clamp(20px,8cqw,76px)!important;line-height:1.05;
+}
+.aac-student.aac-art-v4 .aac-student-grid .aac-symbol[hidden]{display:none!important}
+.aac-student.aac-art-v4 .aac-student-grid .aac-symbol img{
+  display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;
+}
+.aac-student.aac-art-v4 .aac-student-grid .aac-tile-label{
+  max-width:100%;font-size:clamp(11px,3.3cqw,23px)!important;
+  line-height:1.12!important;overflow-wrap:anywhere;
+  word-break:normal;text-align:center;
+}
+.aac-student.aac-art-v4 .aac-student-grid[data-layout="4x4"] .aac-tile-label{
+  font-size:clamp(10px,2.7cqw,18px)!important;
+}
+.aac-student.aac-art-v4 .aac-student-grid .aac-tile.aac-text-only .aac-tile-label{
+  font-size:clamp(12px,4cqw,30px)!important;
+}
+.aac-student.aac-art-v4 .aac-student-grid[data-layout="4x4"] .aac-tile.aac-text-only .aac-tile-label{
+  font-size:clamp(10px,3cqw,20px)!important;
+}
+.aac-student.aac-art-v4 .aac-voice-controls{max-width:100%;margin:8px auto!important;padding:clamp(9px,2vw,18px)!important}
+.aac-art-v4 #shareScreen .aac-share-compact-note{
+  border-left:3px solid #56d9ef;padding:9px 12px;color:#c8ebff;
+  background:#07263bbd;font-size:12px;line-height:1.5;border-radius:6px;
+}
+@media(max-width:600px){
+ .aac-student.aac-art-v4 .aac-header{min-height:54px!important;padding:6px 10px!important}
+ .aac-student.aac-art-v4 .aac-brand{flex:1 1 110px}
+ .aac-student.aac-art-v4 .aac-student-brand-art{width:43px;height:34px}
+ .aac-student.aac-art-v4 .aac-student-head{margin:2px auto 6px}
+ .aac-student.aac-art-v4 .aac-student-kicker{font-size:9px!important}
+ .aac-student.aac-art-v4 .aac-student-head h1{font-size:clamp(18px,5vw,26px)!important}
+ .aac-student.aac-art-v4 .aac-student-head #studentHint{font-size:11px!important}
+ .aac-student-window-actions{gap:5px}
+ .aac-student-window-actions button{padding:6px 8px!important;min-height:33px!important;font-size:10px!important}
+ .aac-student.aac-art-v4 .aac-voice-controls label{min-width:105px!important;flex:1 1 105px!important}
+ .aac-student.aac-art-v4 .aac-voice-controls small{font-size:10px!important}
+}
+@media(max-width:410px){
+ .aac-student-window-actions{width:100%;justify-content:flex-end}
+ .aac-student.aac-art-v4 .aac-brand small{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+ .aac-student.aac-art-v4 .aac-student-grid .aac-tile{transition:none!important}
+}

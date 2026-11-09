@@ -12,6 +12,7 @@ on:
       - 'assets/aac-plus-v4/**'
       - 'server.py'
       - 'tests/test_aac_plus_backend.py'
+      - 'tests/test_aac_plus_compact_browser.cjs'
       - '.github/workflows/aac-plus-regression.yml'
   workflow_dispatch:
 jobs:
@@ -28,4 +29,23 @@ jobs:
       - name: Test AAC+ API storage and security
         run: python -m unittest discover -s tests -p 'test_aac_plus_backend.py' -v
       - name: Check frontend JavaScript syntax
-        run: node --check aac-plus.js
+        run: node --check aac-plus.js && node --check tests/test_aac_plus_compact_browser.cjs
+      - name: Install Chromium for AAC+ pop-out/browser regression
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Run isolated AAC+ classroom
+        run: |
+          mkdir -p /tmp/mothership-aac-compact
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-aac-compact PORT=8877 python server.py >/tmp/mothership-aac-compact.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8877/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          tail -80 /tmp/mothership-aac-compact.log
+          exit 1
+      - name: AAC+ quarter-screen pop-out and resizable grids
+        run: node tests/test_aac_plus_compact_browser.cjs
+      - name: Debug AAC+ server on failure
+        if: failure()
+        run: tail -120 /tmp/mothership-aac-compact.log || true

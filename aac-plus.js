@@ -220,6 +220,28 @@ async function kokoroGenerate(){
  }catch(e){err(e);$("kokoroStatus").textContent="Generation unavailable. Existing audio is unchanged."}
  finally{$("kokoroGenerate").disabled=false;await kokoroRefresh()}
 }
+// A quarter-screen, user-initiated pop-out for Zoom classes.
+ // Browsers may prevent programmatic popups/resizing from pasted links; the
+ // student page always remains fully usable and offers the explicit action.
+function aacCompactStudentWindow(rawUrl){
+ const url=new URL(rawUrl,location.href);
+ if(url.origin!==location.origin||!/^\/aac\/s\/[A-Za-z0-9_-]+\/?$/.test(url.pathname)){
+  notify("This is not an AAC+ student board link.");return false;
+ }
+ url.searchParams.set("compact","1");
+ const area=window.screen;
+ const availableWidth=Math.max(340,Number(area.availWidth)||innerWidth);
+ const availableHeight=Math.max(480,Number(area.availHeight)||innerHeight);
+ const width=Math.min(availableWidth,Math.max(340,Math.round(availableWidth*.25)));
+ const height=Math.min(availableHeight,Math.max(440,Math.round(availableHeight*.87)));
+ const left=(Number(area.availLeft)||0)+Math.max(0,availableWidth-width-16);
+ const top=(Number(area.availTop)||0)+Math.max(0,Math.round((availableHeight-height)/2));
+ const features="popup=yes,width="+width+",height="+height+",left="+left+",top="+top+",resizable=yes,scrollbars=yes";
+ const child=window.open(url.href,"aacPlusStudentCompact",features);
+ if(!child){notify("Pop-up blocked. Allow pop-ups for Mothership, or use this AAC+ page directly.");return false}
+ try{child.opener=null;child.focus()}catch(e){}
+ return true;
+}
 function closeAACStudio(){
  // The main Mothership browser remains open when AAC+ was launched as a popup.
  // Direct /aac navigation falls back to the Command Deck when close is blocked.
@@ -230,7 +252,15 @@ async function initTeacher(){
 const close=$("aacCloseWindow");if(close)close.onclick=closeAACStudio;
 try{await loadLibrary()}catch(e){err(e);if(e.message.includes("sign-in"))$("boardList").textContent="Teacher sign-in required. Return to Command Deck, unlock it, then open AAC+ again."}
 $("newBoard").onclick=newBoard;$("boardSearch").oninput=displayLibrary;$("backLibrary").onclick=()=>{if(recording){notify("Stop recording first");return}show("library")};$("cancelEdit").onclick=()=>show("library");$("boardLayout").onchange=e=>changeLayout(e.target.value);$("tileLabel").oninput=()=>{syncSelected();renderTeacherGrid()};$("tileSymbol").oninput=()=>{syncSelected();renderTeacherGrid()};$("tileColor").onchange=()=>{syncSelected();renderTeacherGrid()};
-$("tileImage").onchange=e=>uploadImage(e.target.files[0]).catch(err).finally(()=>e.target.value="");$("tileAudio").onchange=e=>uploadAudio(e.target.files[0]).catch(err).finally(()=>e.target.value="");$("removeImage").onclick=()=>{editing.tiles[selected].image=null;readSelected()};$("recordAudio").onclick=()=>recordStart().catch(err);$("stopRecording").onclick=()=>recordStop().catch(err);$("previewAudio").onclick=()=>playTile(editing.tiles[selected],"",null);$("deleteAudio").onclick=()=>{editing.tiles[selected].audio=null;stopSound();readSelected()};$("moveLeft").onclick=()=>swap(-1);$("moveRight").onclick=()=>swap(1);$("previewBoard").onclick=preview;$("saveBoard").onclick=()=>saveBoard().catch(err);$("shareBack").onclick=()=>loadLibrary().then(()=>show("library")).catch(err);$("copyShare").onclick=()=>navigator.clipboard.writeText($("shareLink").value).then(()=>notify("Link copied")).catch(err);$("openShare").onclick=()=>window.open($("shareLink").value,"_blank","noopener");$("revokeShare").onclick=()=>revokeShare().catch(err);$("kokoroPrepare").onclick=()=>kokoroPrepare().catch(err);$("kokoroGenerate").onclick=()=>kokoroGenerate().catch(err);kokoroRefresh();}
-async function initStudent(){const controls=createVoiceControls();$("studentHint").after(controls);try{const token=location.pathname.split("/").pop();const b=await api("/api/aac/public/"+encodeURIComponent(token));$("studentTitle").textContent=b.title;renderGrid($("studentTiles"),b.tiles,b.layout,false,token)}catch(e){$("studentHint").textContent="This board link is unavailable or revoked.";err(e)}$("fullscreenBoard").onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()}}
+$("tileImage").onchange=e=>uploadImage(e.target.files[0]).catch(err).finally(()=>e.target.value="");$("tileAudio").onchange=e=>uploadAudio(e.target.files[0]).catch(err).finally(()=>e.target.value="");$("removeImage").onclick=()=>{editing.tiles[selected].image=null;readSelected()};$("recordAudio").onclick=()=>recordStart().catch(err);$("stopRecording").onclick=()=>recordStop().catch(err);$("previewAudio").onclick=()=>playTile(editing.tiles[selected],"",null);$("deleteAudio").onclick=()=>{editing.tiles[selected].audio=null;stopSound();readSelected()};$("moveLeft").onclick=()=>swap(-1);$("moveRight").onclick=()=>swap(1);$("previewBoard").onclick=preview;$("saveBoard").onclick=()=>saveBoard().catch(err);$("shareBack").onclick=()=>loadLibrary().then(()=>show("library")).catch(err);$("copyShare").onclick=()=>navigator.clipboard.writeText($("shareLink").value).then(()=>notify("Link copied")).catch(err);$("openShare").onclick=()=>aacCompactStudentWindow($("shareLink").value);$("revokeShare").onclick=()=>revokeShare().catch(err);$("kokoroPrepare").onclick=()=>kokoroPrepare().catch(err);$("kokoroGenerate").onclick=()=>kokoroGenerate().catch(err);kokoroRefresh();}
+async function initStudent(){
+ const compact=new URLSearchParams(location.search).get("compact")==="1";
+ document.body.classList.toggle("aac-compact-window",compact);
+ const popout=$("aacPopoutBoard");
+ if(popout){
+  popout.hidden=compact;
+  popout.onclick=()=>aacCompactStudentWindow(location.href);
+ }
+ const controls=createVoiceControls();$("studentHint").after(controls);try{const token=location.pathname.split("/").pop();const b=await api("/api/aac/public/"+encodeURIComponent(token));$("studentTitle").textContent=b.title;renderGrid($("studentTiles"),b.tiles,b.layout,false,token)}catch(e){$("studentHint").textContent="This board link is unavailable or revoked.";err(e)}$("fullscreenBoard").onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()}}
 if(teacher)initTeacher();else initStudent();
 })();
