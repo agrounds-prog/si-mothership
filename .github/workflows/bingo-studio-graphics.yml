@@ -1,0 +1,52 @@
+name: Bingo Board Studio Illustrated Graphics Regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'bingo_studio_art.py'
+      - 'bingo-board-studio.css'
+      - 'bingo-board-studio.js'
+      - 'server.py'
+      - 'tests/test_bingo_studio_art.py'
+      - 'tests/test_bingo_studio_graphic_browser.cjs'
+      - '.github/workflows/bingo-studio-graphics.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  bingo-graphics:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Syntax and image asset generation
+        run: |
+          python -m py_compile bingo_studio_art.py server.py
+          python -m unittest discover -s tests -p 'test_bingo_studio_art.py' -v
+          node --check bingo-board-studio.js
+          node --check tests/test_bingo_studio_graphic_browser.cjs
+      - name: Install browser test dependencies
+        run: |
+          pip install 'aiohttp>=3.10,<4' 'qrcode[pil]>=7.4,<9'
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Start isolated classroom server
+        run: |
+          mkdir -p /tmp/mothership-bingo-art-check
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-bingo-art-check PORT=8877 python server.py >/tmp/mothership-bingo-art-check.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8877/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          tail -80 /tmp/mothership-bingo-art-check.log
+          exit 1
+      - name: Bingo graphics browser smoke
+        run: node tests/test_bingo_studio_graphic_browser.cjs
+      - name: Bingo full image upload/save/restore regression
+        run: node tests/test_bingo_image_upload_browser.cjs
+      - name: Print server logs on failure
+        if: failure()
+        run: tail -150 /tmp/mothership-bingo-art-check.log || true

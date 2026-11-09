@@ -16,7 +16,8 @@ NAMES = {
 LOCK = Lock()
 
 def _save(im, name, quality=84):
-    im.convert("RGB").save(OUTPUT / name, "WEBP", quality=quality, method=6)
+    raster = im if name.startswith("button-") and im.mode == "RGBA" else im.convert("RGB")
+    raster.save(OUTPUT / name, "WEBP", quality=quality, method=6)
 
 def _wipe(im, xy, top, bottom, radius=12):
     x0,y0,x1,y1 = xy
