@@ -214,7 +214,13 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   });
   assert.equal(finalRegions.length,3);
   assert.equal(await page.locator('#siPlusSpotlightLiveControls .si-plus-spotlight-target[aria-pressed="true"]').count(),0);
+  await page.evaluate(()=>{
+   window.__spotlightImageBeforeReveal=document.querySelector("#mirrorContent .si-plus-viewport-image > img");
+  });
   await page.locator("#siPlusSpotlightLiveControls .si-plus-spotlight-target").first().click();
+  assert.equal(await page.evaluate(()=>
+   window.__spotlightImageBeforeReveal===document.querySelector("#mirrorContent .si-plus-viewport-image > img")),
+   true,"Region reveal must not rebuild the slide image and resize overlays");
   await page.waitForFunction(()=>state.activityRun?.siSpotlightVisible?.ids?.length===1);
   const savedRect=await page.evaluate(()=>{
    const markup=sharedMarkup("big");
