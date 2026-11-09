@@ -1213,3 +1213,44 @@ body.sipreview-open{
 .si-plus-spotlight-quick-launch:hover{filter:brightness(1.16)}
 .si-plus-spotlight-quick-launch:focus-visible{outline:3px solid #ffe193;outline-offset:3px}
 @media(max-width:700px){.si-plus-spotlight-quick-launch{bottom:14px;right:12px;padding:10px 14px;min-height:46px;font-size:13px}}
+
+/* SI+ Spotlight full image natural-flow repair */
+.si-plus-spot-layout{align-items:start!important}
+.si-plus-spot-layout > .si-plus-spot-stage{
+ display:block!important;
+ position:relative!important;
+ width:100%!important;
+ height:auto!important;
+ min-height:0!important;
+ aspect-ratio:auto!important;
+ align-self:start!important;
+ overflow:hidden!important;
+}
+.si-plus-spot-stage > img.si-plus-spot-image{
+ display:block!important;
+ position:relative!important;
+ inset:auto!important;
+ width:100%!important;
+ height:auto!important;
+ max-width:none!important;
+ max-height:none!important;
+ object-fit:contain!important;
+}
+.si-plus-spot-stage > svg.si-plus-spot-drawing{
+ position:absolute!important;
+ inset:0!important;
+ display:block!important;
+ width:100%!important;
+ height:100%!important;
+}
+.si-plus-spot-layout aside{
+ min-width:0;
+ max-height:calc(96dvh - 122px);
+ overflow-y:auto;
+ overflow-x:hidden;
+ padding-right:4px;
+ scrollbar-gutter:stable;
+}
+@media(max-width:800px){
+ .si-plus-spot-layout aside{max-height:none;overflow:visible}
+}
