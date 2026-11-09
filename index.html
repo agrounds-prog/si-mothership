@@ -17040,7 +17040,9 @@ function mergeSyncedState(remote){
   state.selectedStudent=SESSION_ROLE==='student'?(local.selectedStudent||SESSION_STUDENT):local.selectedStudent;
 }
 function publishSyncedState(){
-  if(syncApplying)return;
+  // The projected second-screen is read-only. It must never rebroadcast its
+  // potentially older presentation snapshot to the teacher's browser.
+  if(syncApplying||SESSION_ROLE==='shared')return;
   const snap=sharedStateSnapshot();
   try{localStorage.setItem(SESSION_SYNC_KEY,JSON.stringify(snap));localStorage.setItem(SESSION_SYNC_EVENT_KEY,String(Date.now()))}catch(e){}
   try{syncChannel&&syncChannel.postMessage({type:'state',state:snap,at:Date.now()})}catch(e){}
@@ -17070,9 +17072,31 @@ function patchSketchSharedInk(){
   updateSketchLiveStatus();
   return patched;
 }
+function siPlusNavigationRevision(run){
+  const value=Number(run?.siPlusNavRevision);
+  return Number.isSafeInteger(value)&&value>0?value:0;
+}
+function siPlusRejectOldSlideState(remote){
+  const local=state?.activityRun,received=remote?.activityRun;
+  if(!local||!received)return false;
+  if(String(local.activityId||'')!==String(received.activityId||'')||
+     String(local.runToken||'')!==String(received.runToken||''))return false;
+  const isPresentation=state.activities?.some(activity=>
+    activity?.type==='presentation'&&String(activity.id)===String(local.activityId));
+  if(!isPresentation)return false;
+  const localVersion=siPlusNavigationRevision(local);
+  const receivedVersion=siPlusNavigationRevision(received);
+  // Forward and backward teacher navigation both increment the revision.
+  // A delayed server, student, or second-screen snapshot cannot rewind it.
+  if(receivedVersion<localVersion)return true;
+  // At the same revision a different slide index is not a new teacher action.
+  return localVersion>0&&receivedVersion===localVersion&&
+    Number(local.slideIndex)!==Number(received.slideIndex);
+}
 function acceptSyncedState(remote){
   if(!remote||typeof remote!=='object')return;
   if(remote.__sessionId&&STUDENT_SESSION_ID&&remote.__sessionId!==STUDENT_SESSION_ID)return;
+  if(siPlusRejectOldSlideState(remote))return;
   if(SESSION_ROLE==='student'&&boardDrawing&&state.activityRun&&['board','sketch'].includes(activeActivity()?.type)){deferredBoardRemoteState=deepClone(remote);return}
   const patchSketch=canPatchSketchSharedSync(remote);
   syncApplying=true;
@@ -17156,6 +17180,7 @@ function startOrResumeActivityRun(){
   }
   if(run.phase==='running'){toast(`${a?.name||'Activity'} is already live`);return}
   run.phase='running';run.slideIndex=0;run.showResults=false;run.revealAnswer=false;
+  if(a?.type==='presentation')run.siPlusNavRevision=siPlusNavigationRevision(run)+1;
   if(a?.type==='minefield')initializeMinefieldRun(run);
   if(a?.type==='vector'){run.vectorResponses={};run.vectorReveal=run.vectorConfig.revealMode==='live';run.vectorShowTarget=false;run.vectorHeat=false;run.vectorShowCrew=!!run.vectorConfig.showCrew}
   if(a?.type==='orbit'){run.orbitResponses={};run.orbitPaused=false;run.orbitRevealCrew=!run.orbitConfig.anonymous;run.orbitSpotlight=null;run.orbitClusters=[];run.orbitAssignments={};run.orbitClusterView=false;run.orbitBefore=null;run.orbitCompare=false;run.orbitRound=1}
@@ -18503,7 +18528,9 @@ function changeSlide(delta){
   const a=activeActivity(),run=state.activityRun;if(!a||a.type!=='presentation')return;
   const next=Math.max(0,Math.min(a.slides.length-1,run.slideIndex+delta));
   if(next===run.slideIndex){toast(delta>0?'This is the last slide':'This is the first slide');return}
-  run.slideIndex=next;run.showResults=false;run.revealAnswer=false;render();
+  run.slideIndex=next;
+  run.siPlusNavRevision=siPlusNavigationRevision(run)+1;
+  run.showResults=false;run.revealAnswer=false;render();
 }
 
 function renderAgendaPreview(){

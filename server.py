@@ -6161,6 +6161,48 @@ def _bingo_apply_request(state: dict, run: dict, actor: str, request: dict, teac
         bingo["message"] = "Continue calling when ready."
 
 
+def _stale_si_plus_navigation(current: Optional[dict], incoming: dict) -> bool:
+    """Reject delayed teacher snapshots from an older SI+ slide navigation.
+
+    Each Next, Previous or Jump increments siPlusNavRevision in the live
+    presentation run. An older teacher tab must not rewind the server's
+    authoritative slide index while students are answering.
+    """
+    if not isinstance(current, dict) or not isinstance(incoming, dict):
+        return False
+    active = current.get("activityRun")
+    candidate = incoming.get("activityRun")
+    if not isinstance(active, dict) or not isinstance(candidate, dict):
+        return False
+    if str(active.get("activityId") or "") != str(candidate.get("activityId") or ""):
+        return False
+    if str(active.get("runToken") or "") != str(candidate.get("runToken") or ""):
+        return False
+    aid = str(active.get("activityId") or "")
+    if not any(isinstance(item, dict) and item.get("type") == "presentation" and
+               str(item.get("id") or "") == aid for item in current.get("activities", [])
+               if isinstance(current.get("activities"), list)):
+        return False
+
+    def revision(run):
+        value = run.get("siPlusNavRevision", 0)
+        try:
+            parsed = int(value)
+            return parsed if isinstance(value, (int, float)) and 0 < parsed <= 1_000_000_000 else 0
+        except (TypeError, ValueError, OverflowError):
+            return 0
+
+    latest, incoming_revision = revision(active), revision(candidate)
+    if incoming_revision < latest:
+        return True
+    if latest and incoming_revision == latest:
+        try:
+            return int(active.get("slideIndex", 0)) != int(candidate.get("slideIndex", 0))
+        except (TypeError, ValueError):
+            return True
+    return False
+
+
 async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
     role = (request.query.get("role") or "client").lower()
     if role == "teacher" and not teacher_authorized(request):
@@ -6444,6 +6486,12 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
                     await broadcast({"type": "state", "state": LATEST_STATE}, exclude=None)
                 elif mtype == "state" and isinstance(data.get("state"), dict):
                     if role == "teacher":
+                        if _stale_si_plus_navigation(LATEST_STATE, data["state"]):
+                            # The latest valid teacher slide is already stored.
+                            # Resync the stale teacher window without broadcasting
+                            # a rewind to students or the classroom projector.
+                            await _send_current_state(ws)
+                            continue
                         save_runtime_state(data["state"])
                     elif role == "student":
                         meta = CLIENT_META.get(ws, {})
