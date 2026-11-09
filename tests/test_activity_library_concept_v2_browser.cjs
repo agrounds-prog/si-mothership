@@ -56,6 +56,12 @@ const base=process.env.LOCAL_URL||'http://127.0.0.1:8877';
       return !!art&&art.complete&&art.naturalWidth>0&&well.classList.contains('si-v3-art-ready');
     });
   },{timeout:20000});
+  // Let the short illustration opacity transition finish before asserting
+  // computed styles; SVG decoding alone completes before the fade reaches 1.
+  await page.waitForFunction(()=>{
+    const images=[...document.querySelectorAll('#activitiesPanel.si-v2-library .si-v3-illustration')];
+    return images.length>=21&&images.every(img=>Number(getComputedStyle(img).opacity)>.99);
+  },{timeout:5000});
   const renderAssets=await page.evaluate(()=>{
     return [...document.querySelectorAll('#activitiesPanel.si-v2-library .activity-catalog-grid .real-app-card')].map(c=>{
       const name=c.querySelector('h3')?.textContent.trim();
