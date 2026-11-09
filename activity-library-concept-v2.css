@@ -403,3 +403,42 @@ body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library #ac
 body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library .mode-title h2{
   line-height:1.2!important;
 }
+
+
+/* Activity Library V3 — consistent standalone cinematic SVG thumbnail plates.
+   These are separate vector images, NOT CSS recreations of the games.
+   The old app art remains as an automatic visual fallback if an image fails. */
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library
+.activity-catalog-grid .real-app-card .act-icon{
+  isolation:isolate!important;
+  background:#071b33!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library
+.activity-catalog-grid .real-app-card .act-icon .si-v3-illustration{
+  position:absolute!important;inset:0!important;
+  z-index:7!important;display:block!important;
+  width:100%!important;height:100%!important;
+  min-width:100%!important;min-height:100%!important;
+  max-width:none!important;max-height:none!important;
+  margin:0!important;padding:0!important;
+  border:0!important;border-radius:inherit!important;
+  object-fit:cover!important;object-position:center!important;
+  opacity:0!important;
+  transform:none!important;filter:none!important;
+  pointer-events:none!important;
+  transition:opacity .16s ease!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library
+.activity-catalog-grid .real-app-card .act-icon.si-v3-art-ready .si-v3-illustration{
+  opacity:1!important;
+}
+body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library
+.activity-catalog-grid .real-app-card:hover .act-icon.si-v3-art-ready .si-v3-illustration{
+  filter:brightness(1.06) saturate(1.1)!important;
+}
+@media(prefers-reduced-motion:reduce){
+  body.si-v80-dashboard #teacher #activitiesPanel.si-v86-library.si-v2-library
+  .activity-catalog-grid .real-app-card .act-icon .si-v3-illustration{
+    transition:none!important;
+  }
+}
