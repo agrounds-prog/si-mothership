@@ -226,6 +226,7 @@ def install(app, data_dir, teacher_authorized, root, public_base_url=""):
     FRAME_FILES = {
         "editor-console.svg", "panel-heading.svg", "student-console.svg",
         "communication-tile.svg", "share-dock.svg",
+        "action-primary.svg", "action-secondary.svg", "action-danger.svg",
     }
 
     async def aac_vector_frame(request):
