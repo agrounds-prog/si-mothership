@@ -54,6 +54,13 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(await aacPopup.locator("#aacCloseWindow").count(),1);
   await aacPopup.waitForFunction(()=>document.querySelector(".aac-studio-hero-art img")?.naturalWidth>0);
   assert.equal(await aacPopup.locator("#libraryScreen").isVisible(),true);
+  assert.equal(await aacPopup.locator("body.aac-art-v3").count(),1);
+  for(const asset of ["header.png","hero.png","create-button.png","search-blank.png","board-shell.png","edit-button.png","secondary-button.png","footer.png","hologram.png"]){
+   const response=await aacPopup.request.get(BASE+"/aac-plus-art/"+asset);
+   assert.equal(response.status(),200,"Illustration missing: "+asset);
+   assert.ok((await response.body()).length>1000,"Illustration empty: "+asset);
+  }
+
   await aacPopup.locator("#newBoard").click();
   assert.equal(await aacPopup.locator("#editorScreen").isVisible(),true);
   await aacPopup.locator("#backLibrary").click();
