@@ -103,11 +103,13 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   await page.locator(".si-plus-spot-undo").click();
   // The selected region's gold corner handles must change its dimensions.
   const beforeResize=Number(await page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing g[data-zone] > rect").nth(1).getAttribute("width"));
-  const corner=await page.locator('#siPlusSpotlightEditor [data-resize="nw"]').boundingBox();
+  const corner=await page.locator('#siPlusSpotlightEditor [data-resize="ne"]').boundingBox();
   assert.ok(corner,"Selected region must expose a resize handle");
   await page.mouse.move(corner.x+corner.width/2,corner.y+corner.height/2);
   await page.mouse.down();
-  await page.mouse.move(corner.x+corner.width/2-35,corner.y+corner.height/2-12,{steps:6});
+  // At x=0 a north-west drag cannot expand farther left. Resize from
+  // the free right edge instead to test the actual resize gesture.
+  await page.mouse.move(corner.x+corner.width/2+35,corner.y+corner.height/2-12,{steps:6});
   await page.mouse.up();
   const afterResize=Number(await page.locator("#siPlusSpotlightEditor .si-plus-spot-drawing g[data-zone] > rect").nth(1).getAttribute("width"));
   assert.ok(afterResize>beforeResize,"Corner dragging must expand the selected region");
