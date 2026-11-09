@@ -402,6 +402,54 @@ if(!/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?$/.test(BASE))
   shared.on('pageerror',e=>errors.push('shared '+String(e)));
   await shared.goto(BASE+'/?role=shared',{waitUntil:'domcontentloaded',timeout:40000});
   await shared.waitForFunction(()=>window.SIOrbitPolish&&typeof orbitSharedMarkup==='function');
+  // Regression for the real, maximized projector mount: do not test only
+  // offscreen fixtures that bypass the shared-screen shell/sidebar.
+  const projector=await shared.evaluate(()=>{
+   const mount=document.querySelector('#sharedContent');
+   const previous=mount.innerHTML;
+   const run={activityId:'orbit-game',runToken:'orbit-projector-geometry',
+    phase:'running',orbitConfig:{prompt:'Why do civilizations often develop near rivers?',
+      anonymous:true,planetStyle:'ember'},
+    orbitResponses:{},orbitRevealCrew:false,orbitPaused:false,
+    orbitClusterView:false,orbitCompare:false,orbitSpotlight:null};
+   mount.innerHTML=orbitSharedMarkup(run,true);
+   const root=mount.querySelector('.orbit-public.orbit-cosmic');
+   const stage=root.querySelector('.orbit-space');
+   const core=stage.querySelector('.orbit-core');
+   const question=core.querySelector('h3');
+   const shell=document.querySelector('#shared .shared-screen');
+   const image=getComputedStyle(core,'::before');
+   const rect=core.getBoundingClientRect();
+   const box=root.getBoundingClientRect();
+   const result={
+    shellColumns:getComputedStyle(shell).gridTemplateColumns,
+    rootWidth:box.width,rootHeight:box.height,
+    planetWidth:rect.width,planetHeight:rect.height,
+    planetBackground:image.backgroundImage,
+    planetSize:image.backgroundSize,
+    questionColor:getComputedStyle(question).color,
+    questionBackground:getComputedStyle(question).backgroundColor,
+    questionText:question.textContent,
+    viewportWidth:innerWidth,viewportHeight:innerHeight,
+    sidebarsHidden:getComputedStyle(shell.querySelector('.mirror-top')).display==='none',
+    totalOverflow:document.documentElement.scrollWidth-innerWidth
+   };
+   mount.innerHTML=previous;
+   return result;
+  });
+  assert.ok(projector.rootWidth/projector.viewportWidth>.94,
+   'ORBIT projector should use almost all available shared-screen width');
+  assert.ok(projector.rootHeight/projector.viewportHeight>.92,
+   'ORBIT projector should use almost all available shared-screen height');
+  assert.ok(Math.abs(projector.planetWidth-projector.planetHeight)<=2,
+   'Planet must be square rather than stretched');
+  assert.equal(projector.planetSize,'contain');
+  assert.ok(projector.planetBackground.includes('04_question_planet_with_orbits.png'));
+  assert.equal(projector.questionColor,'rgb(255, 255, 255)');
+  assert.ok(projector.questionBackground!=='rgba(0, 0, 0, 0)');
+  assert.equal(projector.sidebarsHidden,true);
+  assert.ok(projector.totalOverflow<=3);
+
   // Phase 4B: only genuinely new transmissions fly in. An existing
   // response restored in a different run must not replay its arrival.
   const orbitEntrances=await shared.evaluate(()=>{
