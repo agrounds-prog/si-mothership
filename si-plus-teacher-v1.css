@@ -677,3 +677,51 @@
   #teacher #activityControllerPanel.si-art-ready #siPlusPollBridge .si-plus-poll-buttons button{flex:1!important;}
   #teacher #activityControllerPanel.si-art-ready:has(.presentation-controls)>.controller-safety button{flex:1 1 140px!important;}
 }
+
+
+/* V3.1: dock safety actions within the real compact separate teacher window.
+   Content scrolls; Finish/Pause/Emergency remain reachable at every height. */
+#teacher #activityControllerPanel.si-art-ready:has(.presentation-controls){
+  max-height:calc(100dvh - 165px)!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain!important;
+  scrollbar-color:#4fbae0 #06172b!important;
+  scrollbar-width:thin!important;
+  gap:7px!important;
+}
+#teacher #activityControllerPanel.si-art-ready:has(.presentation-controls)>.activity-controller-head{
+  padding:10px 15px!important;
+  min-height:0!important;
+}
+#teacher #activityControllerPanel.si-art-ready .presentation-controls{
+  gap:6px!important;
+}
+#teacher #activityControllerPanel.si-art-ready .presentation-controls > #siPlusSpotlightLiveControls{
+  order:2!important;
+  padding:8px 11px!important;
+}
+#teacher #activityControllerPanel.si-art-ready .presentation-controls > #siPlusActivityBreakLaunch{
+  order:3!important;
+  min-height:42px!important;
+  padding:8px 12px!important;
+}
+#teacher #activityControllerPanel.si-art-ready:has(.presentation-controls)>.controller-safety{
+  position:sticky!important;
+  bottom:0!important;
+  z-index:5!important;
+  margin-top:auto!important;
+  padding:8px 5px!important;
+  background:linear-gradient(180deg,#081c31fa,#06162bff)!important;
+  border-top:1px solid #77d6ed9b!important;
+  border-radius:0 0 9px 9px!important;
+  box-shadow:0 -8px 18px #0009!important;
+}
+#teacher #activityControllerPanel.si-art-ready:has(.presentation-controls)>.controller-safety button{
+  min-height:38px!important;
+}
+@media(min-height:825px) {
+ #teacher #activityControllerPanel.si-art-ready:has(.presentation-controls){
+   max-height:calc(100dvh - 140px)!important;
+ }
+}
