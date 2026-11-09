@@ -3434,3 +3434,11 @@ body.role-student #studentContent .crew-survey-verbal .crew-survey-speak-cue spa
    background:#06172de9!important;border-radius:8px!important;
  }
 }
+
+
+/* Mothership's generic centered Activities modal still carries
+   translate(-50%,-50%). Full-window Bingo must reset that transform,
+   otherwise half the board is rendered beyond the top-left of the screen. */
+#teacher #activitiesPanel:has(.bbs-studio){
+ transform:none!important;translate:none!important;
+}
