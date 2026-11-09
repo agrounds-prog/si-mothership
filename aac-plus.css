@@ -555,3 +555,425 @@ body.aac-art-v3::after{
 @media(prefers-reduced-motion:reduce){
  .aac-art-v3 .aac-board-card{transition:none!important}
 }
+
+
+/* AAC+ command deck v4 — real SVG hardware art, live and accessible controls. */
+.aac-art-v4{
+ --aac-console:url("/aac-plus-v4/editor-console.svg");
+ --aac-plaque:url("/aac-plus-v4/panel-heading.svg");
+ --aac-student-console:url("/aac-plus-v4/student-console.svg");
+ --aac-tile-bezel:url("/aac-plus-v4/communication-tile.svg");
+ --aac-share-dock:url("/aac-plus-v4/share-dock.svg");
+ --aac-button-primary:url("/aac-plus-v4/action-primary.svg");
+ --aac-button-secondary:url("/aac-plus-v4/action-secondary.svg");
+ --aac-button-danger:url("/aac-plus-v4/action-danger.svg");
+}
+.aac-art-v4 #editorScreen .aac-editor-banner,
+.aac-art-v4 #shareScreen .aac-editor-banner{
+ min-height:86px!important;
+ background:var(--aac-plaque) center/100% 100% no-repeat!important;
+ border:0!important;box-shadow:none!important;
+ padding:16px clamp(38px,5vw,70px)!important;
+}
+.aac-art-v4 #editorScreen .aac-editor-banner span,
+.aac-art-v4 #shareScreen .aac-editor-banner span{
+ font-size:clamp(12px,1.4vw,18px)!important;
+ text-shadow:0 1px 7px #040b24;
+}
+.aac-art-v4 #editorScreen .aac-editor-banner small,
+.aac-art-v4 #shareScreen .aac-editor-banner small{
+ font-size:clamp(9px,1vw,12px);
+ letter-spacing:.18em;color:#a5eaff;
+}
+.aac-art-v4 #editorScreen .aac-titlebar,
+.aac-art-v4 #shareScreen .aac-titlebar{
+ margin:3px 0 15px;
+}
+.aac-art-v4 #editorScreen .aac-titlebar .aac-eyebrow::before,
+.aac-art-v4 #shareScreen .aac-titlebar .aac-eyebrow::before{
+ content:"/// ";color:#ffae61;
+}
+.aac-art-v4 #editorScreen .aac-titlebar h1,
+.aac-art-v4 #shareScreen .aac-titlebar h1{font-size:clamp(24px,2.7vw,37px)}
+.aac-art-v4 #editorScreen .aac-editor-layout{
+ grid-template-columns:minmax(0,1.55fr) minmax(310px,.82fr);
+ gap:15px;align-items:start;
+}
+.aac-art-v4 #editorScreen .aac-main-editor,
+.aac-art-v4 #editorScreen .aac-tile-editor{
+ min-width:0;overflow:visible!important;
+ position:relative;isolation:isolate;
+ padding:clamp(19px,2.9vw,36px)!important;
+ background:var(--aac-console) center/100% 100% no-repeat!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+}
+.aac-art-v4 #editorScreen .aac-main-editor::before{display:none!important}
+.aac-art-v4 #editorScreen .aac-main-editor > *,
+.aac-art-v4 #editorScreen .aac-tile-editor > *{position:relative;z-index:1}
+.aac-art-v4 .aac-workbench-topline{
+ display:flex;justify-content:space-between;align-items:center;
+ gap:10px;flex-wrap:wrap;
+ min-height:46px;margin:0 3px 12px;
+ padding:0 15px;
+ color:#f0e5ff;font-size:clamp(12px,1.2vw,15px);
+ font-weight:900;letter-spacing:.12em;
+ background:var(--aac-plaque) center/100% 100% no-repeat;
+ text-shadow:0 2px 4px #000b;
+}
+.aac-art-v4 .aac-workbench-topline small{
+ color:#93e4f9;font-size:10px;letter-spacing:.1em;
+ font-weight:900;
+}
+.aac-art-v4 .aac-formline{
+ margin-bottom:12px;padding:12px 14px 3px;
+ border-radius:11px;border:1px solid #377caa;
+ background:#061b32cc;
+ box-shadow:inset 0 2px 8px #020814ab;
+}
+.aac-art-v4 #editorScreen label{
+ color:#d5eeff;letter-spacing:.035em;
+}
+.aac-art-v4 #editorScreen input:not([type=file]),
+.aac-art-v4 #editorScreen select,
+.aac-art-v4 #shareScreen input{
+ min-height:44px!important;color:#f4fcff!important;
+ background:linear-gradient(150deg,#05172b,#0b3152)!important;
+ border:1px solid #618ebf!important;border-radius:9px!important;
+ box-shadow:inset 0 2px 7px #020b1c8c,0 1px #b5f5ff24!important;
+}
+.aac-art-v4 #editorScreen :is(input,select):focus-visible,
+.aac-art-v4 #shareScreen input:focus-visible{
+ outline:3px solid #f7da91!important;outline-offset:2px;
+}
+.aac-art-v4 .aac-matrix-stage{
+ position:relative;padding:18px;margin:7px 0 8px;
+ border-radius:13px;
+ background:var(--aac-student-console) center/100% 100% no-repeat;
+}
+.aac-art-v4 .aac-main-editor #teacherTiles{
+ border:0!important;padding:5px!important;
+ margin:0;background:#041023cc!important;box-shadow:none;
+ gap:clamp(5px,.85vw,10px);
+}
+.aac-art-v4 .aac-main-editor .aac-tile:not(.aac-blank){
+ position:relative;
+ min-height:clamp(76px,8vw,136px);
+ border:0!important;border-radius:9px!important;
+ background:var(--aac-tile-bezel) center/100% 100% no-repeat,
+ linear-gradient(145deg,var(--tile-color,#075aa0),#061e3e)!important;
+ box-shadow:0 3px 8px #0009,inset 0 1px #d1eeff65!important;
+ padding:10px!important;overflow:hidden;
+}
+.aac-art-v4 .aac-main-editor .aac-tile.aac-blank{
+ min-height:clamp(76px,8vw,136px);
+ border:1px dashed #4d7698!important;
+ background:#081830!important;
+ opacity:.75;
+}
+.aac-art-v4 .aac-main-editor .aac-tile.aac-selected{
+ outline:3px solid #ffe38f!important;outline-offset:1px!important;
+ filter:drop-shadow(0 0 7px #ffc5597a);
+}
+.aac-art-v4 .aac-main-editor .aac-tile .aac-symbol{
+ font-size:clamp(30px,4vw,55px);flex:1;max-height:72%;
+}
+.aac-art-v4 .aac-main-editor .aac-tile .aac-tile-label{
+ font-size:clamp(12px,1.22vw,17px);
+ text-shadow:0 2px 3px #001329;
+}
+.aac-art-v4 .aac-tile-control-head{
+ display:flex;flex-direction:column;gap:4px;
+ padding:13px 17px 12px;margin:-1px 0 17px;
+ background:var(--aac-plaque) center/100% 100% no-repeat;
+}
+.aac-art-v4 .aac-tile-control-overline{
+ font-weight:900;font-size:12px;letter-spacing:.15em;color:#e2c8ff;
+}
+.aac-art-v4 .aac-tile-control-head .aac-eyebrow{
+ color:#a6e9ff;font-size:12px;letter-spacing:.13em;
+}
+.aac-art-v4 #currentTileNumber{
+ display:inline-flex;align-items:center;justify-content:center;
+ min-width:28px;min-height:25px;border-radius:8px;
+ color:#fff5d2;border:1px solid #ffbd65;
+ background:#85451e77;font-variant-numeric:tabular-nums;
+}
+.aac-art-v4 #editorScreen .aac-audio-tools{
+ border:1px solid #547da9!important;
+ border-radius:12px;
+ background:#061a34e8!important;
+ box-shadow:inset 0 1px #9eb8ff4e,0 4px 14px #0006!important;
+}
+.aac-art-v4 #editorScreen .aac-kokoro-pilot{
+ border:1px solid #bd87ff!important;
+ background:radial-gradient(ellipse at 50% 0,#8c4dc32d,transparent 65%),#0b1734!important;
+}
+.aac-art-v4 #editorScreen .aac-audio-tools strong{color:#f0e4ff}
+.aac-art-v4 #editorScreen #recordTimer{
+ background:#081e38;border:1px solid #36648d;border-radius:8px;
+ padding:7px;color:#96f0ff;
+}
+.aac-art-v4 #editorScreen .aac-actions{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:7px;margin:14px 0 3px;
+}
+.aac-art-v4 #editorScreen .aac-actions button{
+ min-width:0!important;min-height:53px!important;
+ font-size:clamp(11px,1.1vw,14px)!important;
+}
+/* Text-free graphic buttons keep labels and hit targets in live HTML. */
+.aac-art-v4 #editorScreen button:not(.aac-tile),
+.aac-art-v4 #shareScreen button:not(.aac-tile){
+ background:var(--aac-button-secondary) center/100% 100% no-repeat!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ min-height:48px!important;color:#effbff!important;
+ text-shadow:0 2px 4px #000e27!important;
+ padding:10px 12px!important;
+}
+.aac-art-v4 #editorScreen #saveBoard,
+.aac-art-v4 #shareScreen #copyShare{
+ background:var(--aac-button-primary) center/100% 100% no-repeat!important;
+}
+.aac-art-v4 #shareScreen #revokeShare,
+.aac-art-v4 #editorScreen #deleteAudio{
+ background:var(--aac-button-danger) center/100% 100% no-repeat!important;
+}
+.aac-art-v4 #editorScreen button:not(.aac-tile):hover:not(:disabled),
+.aac-art-v4 #shareScreen button:not(.aac-tile):hover:not(:disabled){
+ filter:brightness(1.16) drop-shadow(0 0 9px #55cbff65)!important;
+}
+.aac-art-v4 #editorScreen button:focus-visible,
+.aac-art-v4 #shareScreen button:focus-visible{
+ outline:3px solid #fff1ae!important;outline-offset:-3px!important;
+}
+.aac-art-v4 #shareScreen .aac-share-card{
+ display:grid;grid-template-columns:minmax(225px,285px) minmax(0,1fr);
+ gap:clamp(12px,2.2vw,27px);max-width:1060px;
+ margin:12px auto 0;padding:clamp(33px,5vw,56px)!important;
+ min-height:430px;align-items:center;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ background:var(--aac-share-dock) center/100% 100% no-repeat!important;
+}
+.aac-art-v4 .aac-share-qr{
+ display:flex;align-items:center;flex-direction:column;
+ justify-content:center;
+ min-width:0;width:100%;max-width:280px;
+ margin:0 auto!important;padding:10px!important;
+ border:0!important;border-radius:12px!important;
+ background:#082446!important;
+ box-shadow:inset 0 0 12px #0008,0 0 0 2px #26c4f3a8!important;
+}
+.aac-art-v4 .aac-share-qr img{
+ width:min(100%,220px);height:auto;display:block;
+ background:#fff;padding:9px;border-radius:6px;
+ aspect-ratio:1;object-fit:contain;
+}
+.aac-art-v4 .aac-share-qr-eyebrow,
+.aac-art-v4 .aac-share-qr-caption{
+ color:#c1f1ff;text-align:center;font-size:10px;
+ letter-spacing:.13em;font-weight:900;margin:4px 0 8px;
+}
+.aac-art-v4 .aac-share-qr-caption{
+ margin:9px 0 3px;color:#e6c3ff;font-size:9px;
+}
+.aac-art-v4 .aac-share-info{
+ min-width:0;padding:12px 18px 12px 4px;
+}
+.aac-art-v4 .aac-share-status{
+ display:inline-flex;gap:8px;
+ align-items:center;margin-bottom:12px;padding:6px 12px;
+ border:1px solid #46cda5;border-radius:100px;
+ background:#0c372c;color:#c6ffe5;
+ font-size:11px;letter-spacing:.1em;font-weight:900;
+ box-shadow:0 0 13px #21dbac34;
+}
+.aac-art-v4 #shareBoardName{font-size:14px;color:#ebc3ff}
+.aac-art-v4 #shareScreen .aac-actions{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;
+}
+.aac-art-v4 #shareScreen .aac-actions button{
+ min-width:0!important;font-size:clamp(11px,1.1vw,14px)!important;
+}
+.aac-art-v4 #shareScreen .aac-warn{
+ border:1px solid #a47b4b;
+ border-left:4px solid #ffd281;
+ background:#3a2b1bd1!important;color:#ffebca;
+ border-radius:8px;font-size:12px;line-height:1.5;
+}
+/* Student communication: a quiet but tactile, high-contrast deck. */
+.aac-student.aac-art-v4{
+ background:
+  radial-gradient(ellipse at 50% -15%,#36216d66,transparent 58%),
+  linear-gradient(165deg,#071c37,#040b20 75%) fixed;
+}
+.aac-student.aac-art-v4 .aac-header{
+ min-height:83px!important;
+ padding:13px clamp(14px,3.2vw,42px)!important;
+ background:var(--aac-plaque) center/100% 100% no-repeat!important;
+ border:0!important;box-shadow:none!important;
+}
+.aac-student.aac-art-v4 .aac-brand{
+ text-shadow:0 2px 4px #010719;
+ min-width:0;
+}
+.aac-student.aac-art-v4 .aac-student-brand-art{
+ border:0!important;box-shadow:none!important;
+ width:85px;height:53px;object-fit:contain;
+}
+.aac-student.aac-art-v4 #studentApp{
+ max-width:1160px;
+ padding:clamp(10px,2vw,21px) clamp(8px,2vw,20px) 36px;
+}
+.aac-student.aac-art-v4 .aac-student-head{
+ position:relative;margin:6px auto 10px;
+ max-width:1020px;
+}
+.aac-student.aac-art-v4 .aac-student-head::before{
+ content:"";position:absolute;z-index:-1;
+ inset:-8px 3% auto;height:125px;
+ background:var(--aac-hologram-art) center/contain no-repeat;opacity:.16;
+ pointer-events:none;
+}
+.aac-student.aac-art-v4 .aac-student-kicker{
+ margin:0 auto 4px!important;color:#cdaeff!important;
+ letter-spacing:.18em;font-size:11px!important;font-weight:900;
+}
+.aac-student.aac-art-v4 .aac-student-head h1{
+ font-size:clamp(25px,4.4vw,43px);
+ margin:1px 0 5px;text-shadow:0 0 20px #5696fd66;
+}
+.aac-student.aac-art-v4 .aac-student-head #studentHint{
+ font-size:clamp(13px,1.5vw,16px);color:#d4ebf9;
+}
+.aac-student.aac-art-v4 .aac-voice-controls{
+ max-width:100%;margin:14px auto 12px;
+ background:var(--aac-console) center/100% 100% no-repeat!important;
+ border:0!important;border-radius:0!important;
+ box-shadow:none!important;padding:clamp(18px,2.3vw,27px)!important;
+}
+.aac-student.aac-art-v4 .aac-voice-controls select{
+ border:1px solid #7593cc!important;
+ background:#071a36!important;color:#f1fbff;
+}
+.aac-student.aac-art-v4 .aac-voice-controls button,
+.aac-student.aac-art-v4 #fullscreenBoard{
+ background:var(--aac-button-secondary) center/100% 100% no-repeat!important;
+ border:0!important;box-shadow:none!important;
+ text-shadow:0 2px 3px #0009;
+}
+.aac-student.aac-art-v4 .aac-student-console{
+ padding:clamp(17px,3.3vw,42px);
+ background:var(--aac-student-console) center/100% 100% no-repeat!important;
+ min-width:0;
+}
+.aac-student.aac-art-v4 .aac-student-grid{
+ margin:0;padding:clamp(2px,.8vw,8px)!important;
+ border:0!important;border-radius:0!important;
+ background:#04152cbf!important;box-shadow:none!important;
+ gap:clamp(5px,1.15vw,13px);
+}
+.aac-student.aac-art-v4 .aac-student-grid .aac-tile:not(.aac-blank){
+ border:0!important;border-radius:8px!important;
+ min-height:clamp(92px,17vh,174px);
+ background:var(--aac-tile-bezel) center/100% 100% no-repeat,
+ linear-gradient(145deg,var(--tile-color,#075aa0),#061d3d)!important;
+ box-shadow:0 5px 12px #0008,inset 0 1px #e6faff60!important;
+ color:#fff!important;
+ padding:12px 8px!important;
+ transition:filter .13s ease,transform .13s ease;
+ touch-action:manipulation;
+}
+.aac-student.aac-art-v4 .aac-student-grid .aac-tile.aac-blank{
+ border:1px solid #335b81!important;
+ min-height:clamp(92px,17vh,174px);
+ background:linear-gradient(145deg,#0b2143,#081b34)!important;
+ box-shadow:inset 0 4px 14px #0007!important;opacity:.28;
+}
+.aac-student.aac-art-v4 .aac-student-grid .aac-tile:not(:disabled):active{
+ transform:scale(.965);filter:brightness(1.23);
+}
+.aac-student.aac-art-v4 .aac-student-grid .aac-tile.aac-playing{
+ outline:4px solid #ffe189!important;outline-offset:0!important;
+ filter:brightness(1.22) drop-shadow(0 0 13px #ffb74f87);
+}
+.aac-student.aac-art-v4 .aac-student-grid .aac-tile:focus-visible{
+ outline:4px solid #fff0a7!important;outline-offset:1px!important;
+}
+.aac-student.aac-art-v4 .aac-student-grid .aac-tile .aac-symbol{
+ font-size:clamp(35px,6vw,90px)!important;min-width:0;
+}
+.aac-student.aac-art-v4 .aac-student-grid .aac-tile .aac-tile-label{
+ font-size:clamp(16px,2.5vw,25px)!important;
+ line-height:1.15;overflow-wrap:anywhere;
+ text-shadow:0 2px 5px #03142a;
+}
+.aac-student.aac-art-v4 .aac-student-grid[data-layout="4x4"] .aac-tile{
+ min-height:clamp(76px,14vh,135px);
+}
+.aac-student.aac-art-v4 .aac-student-grid[data-layout="4x4"] .aac-tile .aac-tile-label{
+ font-size:clamp(13px,1.9vw,18px)!important;
+}
+.aac-student.aac-art-v4 .aac-student-grid[data-layout="2x3"] .aac-tile{
+ min-height:clamp(120px,22vh,215px);
+}
+@media(max-width:1050px){
+ .aac-art-v4 #editorScreen .aac-editor-layout{
+  grid-template-columns:minmax(0,1.25fr) minmax(285px,.8fr);
+ }
+ .aac-art-v4 #shareScreen .aac-share-card{padding:35px!important}
+}
+@media(max-width:860px){
+ .aac-art-v4 #editorScreen .aac-editor-layout{grid-template-columns:1fr}
+ .aac-art-v4 .aac-workbench-topline{font-size:12px}
+ .aac-art-v4 .aac-main-editor .aac-tile:not(.aac-blank){min-height:95px}
+ .aac-art-v4 #shareScreen .aac-share-card{grid-template-columns:1fr;max-width:650px}
+ .aac-art-v4 #shareScreen .aac-share-qr{max-width:250px}
+ .aac-art-v4 #shareScreen .aac-share-info{padding:5px 15px}
+}
+@media(max-width:600px){
+ .aac-art-v4 #editorScreen .aac-editor-banner,
+ .aac-art-v4 #shareScreen .aac-editor-banner{
+  padding:10px 26px!important;min-height:70px!important;
+ }
+ .aac-art-v4 #editorScreen .aac-main-editor,
+ .aac-art-v4 #editorScreen .aac-tile-editor{
+  padding:clamp(18px,4vw,27px)!important;
+ }
+ .aac-art-v4 .aac-workbench-topline small{display:none}
+ .aac-art-v4 .aac-matrix-stage{padding:13px}
+ .aac-art-v4 .aac-main-editor #teacherTiles{gap:5px}
+ .aac-art-v4 .aac-main-editor .aac-tile:not(.aac-blank),
+ .aac-art-v4 .aac-main-editor .aac-tile.aac-blank{min-height:78px}
+ .aac-art-v4 #editorScreen .aac-actions{grid-template-columns:1fr}
+ .aac-art-v4 #shareScreen .aac-share-card{
+  padding:26px 22px!important;gap:10px;
+ }
+ .aac-art-v4 #shareScreen .aac-actions{grid-template-columns:1fr}
+ .aac-student.aac-art-v4 .aac-header{min-height:65px!important}
+ .aac-student.aac-art-v4 .aac-student-brand-art{width:54px;height:40px}
+ .aac-student.aac-art-v4 .aac-brand{font-size:11px}
+ .aac-student.aac-art-v4 .aac-student-console{padding:14px!important}
+ .aac-student.aac-art-v4 .aac-student-grid{gap:5px!important}
+ .aac-student.aac-art-v4 .aac-student-grid .aac-tile:not(.aac-blank),
+ .aac-student.aac-art-v4 .aac-student-grid .aac-tile.aac-blank{
+  min-height:clamp(84px,16vh,130px);
+ }
+ .aac-student.aac-art-v4 .aac-student-grid[data-layout="4x4"] .aac-tile{
+  min-height:clamp(70px,13vh,99px);
+ }
+ .aac-student.aac-art-v4 .aac-student-grid[data-layout="2x3"] .aac-tile{
+  min-height:clamp(112px,19vh,166px);
+ }
+ .aac-student.aac-art-v4 .aac-student-grid .aac-tile{
+  padding:7px 3px!important;
+ }
+ .aac-student.aac-art-v4 .aac-student-grid .aac-tile .aac-tile-label{
+  font-size:clamp(13px,3.6vw,18px)!important;
+ }
+ .aac-student.aac-art-v4 .aac-student-grid[data-layout="4x4"] .aac-tile .aac-tile-label{
+  font-size:clamp(11px,2.8vw,14px)!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .aac-student.aac-art-v4 .aac-student-grid .aac-tile{transition:none!important}
+}
