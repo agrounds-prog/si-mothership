@@ -82,7 +82,7 @@
   color:#bdedff!important;text-shadow:0 1px 4px #00162f!important;
   font-size:clamp(10px,1vw,17px)!important;font-weight:1000!important;
 }
-.minefield-board .minefield-cell.simple{
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple{
   z-index:1!important;position:relative!important;
   min-width:0!important;aspect-ratio:1 / 1!important;
   padding:2px!important;overflow:hidden!important;
@@ -91,63 +91,63 @@
   box-shadow:none!important;color:#b8e7fc!important;
   font-size:clamp(16px,2.2vw,30px)!important;
 }
-.minefield-board .minefield-cell.simple.unknown:not(.ship){
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.unknown:not(.ship){
   background-image:url("/assets/minefield-v2/tiles/tile_hidden.png")!important;
   color:transparent!important;text-shadow:none!important;
 }
 #shared .minefield-board .minefield-cell.simple.unknown:not(.ship)::after,
-.minefield-board .minefield-cell.simple.unknown:not(.ship)::after{
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.unknown:not(.ship)::after{
   content:"";display:none!important;
 }
-.minefield-board .minefield-cell.simple.selected{
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.selected{
   background-image:url("/assets/minefield-v2/tiles/tile_focus.png")!important;
   outline:2px solid #7bffdb!important;outline-offset:0!important;
   filter:drop-shadow(0 0 9px #40d9ff)!important;
 }
-.minefield-board .minefield-cell.simple.revealed.empty{
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.revealed.empty{
   color:#f9feff!important;
   background-image:url("/assets/minefield-v2/tiles/tile_safe_1pt.png")!important;
 }
-.minefield-board .minefield-cell.simple.revealed.empty.mf-value-1{
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.revealed.empty.mf-value-1{
   background-image:url("/assets/minefield-v2/tiles/tile_safe_1pt.png")!important;
 }
-.minefield-board .minefield-cell.simple.revealed.empty.mf-value-2{
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.revealed.empty.mf-value-2{
   background-image:url("/assets/minefield-v2/tiles/tile_safe_2pt.png")!important;
 }
-.minefield-board .minefield-cell.simple.revealed.empty.mf-value-3{
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.revealed.empty.mf-value-3{
   background-image:url("/assets/minefield-v2/tiles/tile_safe_3pt.png")!important;
 }
-.minefield-board .minefield-cell.simple.revealed.empty.mf-value-4{
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.revealed.empty.mf-value-4{
   background-image:url("/assets/minefield-v2/tiles/tile_safe_4pt.png")!important;
 }
-.minefield-board .minefield-cell.simple.revealed.empty.mf-value-5{
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.revealed.empty.mf-value-5{
   background-image:url("/assets/minefield-v2/tiles/tile_safe_5pt.png")!important;
 }
-.minefield-board .minefield-cell.simple.revealed.health{
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.revealed.health{
   background-image:url("/assets/minefield-v2/tiles/tile_health_bonus.png")!important;
 }
-.minefield-board .minefield-cell.simple.revealed.mine{
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.revealed.mine{
   background-image:url("/assets/minefield-v2/tiles/tile_mine.png")!important;
 }
-.minefield-board .minefield-cell.simple.revealed.health,
-.minefield-board .minefield-cell.simple.revealed.mine{
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.revealed.health,
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.revealed.mine{
   color:transparent!important;font-size:0!important;
 }
-.minefield-board .minefield-cell.simple.revealed .mf-point-value{
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.revealed .mf-point-value{
   position:relative;z-index:2;display:block;
   font:1000 clamp(13px,2.2vw,34px)/1 system-ui!important;
   color:#fbffff!important;text-shadow:0 2px 3px #03132e,0 0 9px #56fcffaa!important;
 }
-.minefield-board .minefield-cell.simple.revealed.mf-value-3 .mf-point-value,
-.minefield-board .minefield-cell.simple.revealed.mf-value-4 .mf-point-value,
-.minefield-board .minefield-cell.simple.revealed.mf-value-5 .mf-point-value{
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.revealed.mf-value-3 .mf-point-value,
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.revealed.mf-value-4 .mf-point-value,
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.revealed.mf-value-5 .mf-point-value{
   color:#fff4da!important;text-shadow:0 2px 3px #4b1800,0 0 11px #ffc457b3!important;
 }
-.minefield-board .minefield-cell.simple.disabled:not(.revealed){
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.disabled:not(.revealed){
   opacity:.6!important;
 }
-.minefield-board .minefield-cell.simple.selectable:hover,
-.minefield-board .minefield-cell.simple.selectable:focus-visible{
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.selectable:hover,
+:is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.selectable:focus-visible{
   outline:2px solid #d4fcff!important;outline-offset:1px!important;
   filter:brightness(1.2) drop-shadow(0 0 9px #61ebff)!important;
 }
