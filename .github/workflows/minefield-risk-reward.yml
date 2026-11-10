@@ -1,0 +1,28 @@
+name: Minefield Risk and Reward Regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'server.py'
+      - 'minefield-v2.css'
+      - 'tests/test_minefield_risk_reward.cjs'
+      - '.github/workflows/minefield-risk-reward.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  minefield-rewards:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Verify server and test syntax
+        run: |
+          python -m py_compile server.py
+          node --check tests/test_minefield_risk_reward.cjs
+      - name: Verify gameplay, scoring, saved-state compatibility, and real PNG artwork
+        run: node tests/test_minefield_risk_reward.cjs
