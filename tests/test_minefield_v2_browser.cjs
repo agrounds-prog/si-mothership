@@ -61,6 +61,36 @@ if(!/^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?\/?$/.test(BASE))
    return {size:[canvas.width,canvas.height],count:pixels.length/4,
      nonTransparent,opaque,bright,maxAlpha,center:[...cx.getImageData(Math.floor(canvas.width/2),Math.floor(canvas.height/2),1,1).data]};
   });
+  // Regression: decorative rail used to cover the entire board because its
+  // opaque center painted at z=3 after all 36 tiles. Verify both actual views
+  // put the rail behind the tiles, not merely that image URLs resolve.
+  for(const [page,boardSelector] of [[teacher,'.minefield-controller-body .minefield-board'],
+     [projector,'#sharedContent .minefield-board']]){
+    const vis=await page.evaluate(selector=>{
+     const board=document.querySelector(selector),tile=board?.querySelector('.minefield-cell.simple');
+     const rail=board&&getComputedStyle(board,'::after'),cell=tile&&getComputedStyle(tile);
+     const rect=tile?.getBoundingClientRect();
+     return {railZ:rail?.zIndex,tileZ:cell?.zIndex,cellDisplay:cell?.display,
+       tile:[rect?.width,rect?.height],background:cell?.backgroundImage};
+    },boardSelector);
+    assert.ok(Number(vis.railZ)<Number(vis.tileZ),'Frame must be painted behind the clickable squares: '+JSON.stringify(vis));
+    assert.ok(vis.tile[0]>25&&vis.tile[1]>25,'Square should not collapse or disappear: '+JSON.stringify(vis));
+    assert.match(vis.background,/tile_hidden\.png/);
+  }
+  // The floating teacher dock can be resized without forcing the Minefield
+  // mission panel off the right edge of the dock.
+  const compact=await teacher.evaluate(async()=>{
+   const dock=document.querySelector('#siLiveControlDock');
+   const body=document.querySelector('.minefield-controller-body');
+   dock.style.width='600px';
+   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+   const cols=getComputedStyle(body).gridTemplateColumns.split(' ').length;
+   const parent=body.getBoundingClientRect(),board=body.querySelector('.minefield-board').getBoundingClientRect();
+   dock.style.width='';
+   return {cols,bodyWidth:parent.width,boardRight:board.right,bodyRight:parent.right};
+  });
+  assert.equal(compact.cols,1,'Narrow teacher dock must stack Minefield controls: '+JSON.stringify(compact));
+  assert.ok(compact.boardRight<=compact.bodyRight+2,'Board clips beyond dock: '+JSON.stringify(compact));
   console.log('MINEFIELD_TILE_IMAGE_PIXELS',JSON.stringify(pixelInfo));
   assert.equal(await projector.locator('#sharedContent .minefield-cell').count(),36);
   assert.equal(await projector.locator('#sharedContent .mf-score-chip').count(),1);
