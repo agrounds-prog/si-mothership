@@ -1,37 +1,57 @@
-# SI Mothership Randomizer — Textured Art V3
+# SI Mothership — Minefield Risk + Reward Art Pack
 
-## GitHub upload
-Upload the contents of `assets/randomizer-v3/` into the repository under exactly `assets/randomizer-v3/`, preserving the filenames and directory. The files are separate from current production assets and do **not** automatically change the app by uploading alone.
+This is a **ready-to-upload GRAPHICS ZIP**, not an executable gameplay patch.
+It includes a complete set of independent transparent PNG skins, cinematic backgrounds, three concept references, a JSON manifest with paths and checksums, and implementation guidance.
 
-## Integration layers (back to front)
+## Upload to GitHub
 
-### Cosmic Lottery
-1. `lottery_machine_shell.png` — detailed machine shell and glass chamber, behind choice balls. This artwork has glass fill and is **not a transparent cut-out through the chamber**; use the existing transparent center with live items on top and inspect legibility.
-2. Live randomized balls — preserve teacher-entered choice text, weighting, shuffle, and state synchronization.
-3. `lottery_glass_overlay.png` — perimeter highlights only, overlay above balls; center is transparent. Must not block pointer events.
-4. `lottery_ball_blank.png` — ball art for each choice, with real choice text overlaid. The middle is pale; verify text contrast.
+Upload the ZIP to the GitHub repository if that's your existing handoff workflow, **or** extract and upload the `assets/minefield-v2/` folder to `agrounds-prog/si-mothership` on `main`. Keep the paths unchanged. A ZIP uploaded to GitHub's root is *not* automatically extracted; the implementation step must extract or commit the individual PNGs.
 
-### Slot Machine
-1. `slot_machine_shell.png` — cabinet with empty dark reel cavity, behind live reels.
-2. Live reels, with real selection text.
-3. `slot_reel_window_overlay.png` — ornamental glass/reel surround above reels; test geometry rather than covering reel text. This overlay **has a translucent lavender center**, not a completely open hole; adjust alpha / clip if necessary.
+## Image inventory
 
-### Spin Wheel
-1. Live probability wheel stays on canvas (never replace this with static image).
-2. `wheel_housing.png` — metallic circular housing, behind/in front of wheel rim as appropriate; the central opening is transparent.
+- `backgrounds/` — shared 16:9, teacher 16:9, compact student 9:16, deep-space alternative, 4 text-free texture swatches.
+- `frames/` — responsive board frames and separate narrator, teacher, student, health/score, legend, stats, last-action, saved-set and result panels.
+- `tiles/` — hidden, safe-point levels 1 through 5, heart bonus, mine, inactive and focus states. **Numbers are not baked into tile images.**
+- `icons/` — red heart, green heart, score star, mine, target, satellite, navigator, turn, warning, safe, settings and flag.
+- `buttons/` — wide blank raster skins for blue, green, amber, red, slate, cyan and disabled buttons. HTML text remains live and accessible.
+- `banners/` — blank state/status plaques for health, score, turn, navigator, ready, reveal, mine hit, win, loss and scoring.
+- `effects/` — transparent ring overlays for safe reveal, points, health recharge, mine strike, focus, and scanline.
+- `screens/` — text-free win and loss backgrounds for presenting the final result.
+- `references/` — approved concept and two generated component sheets for visual QA only. **Do not use the full composite concept as the playable interface.**
 
-### Mystery Cards
-1. `cards_stage_base.png` — holographic stage, beneath the cards.
-2. `mystery_card_back.png` — dynamic card backs; do not bake in any labels.
-3. `mystery_card_face_blank.png` — faces with live winner text.
+## Integration instructions
 
-### Shared result
-- `winner_plaque_blank.png` — background plate for the live result text. Leave text dynamic.
+Existing game mechanics / data storage / timers / turn progression should be preserved when wiring in these art files. Use actual `<button>` and text nodes over transparent image-backed skins; do not replace interactive elements with a single screenshot. Retain high-DPI proportional image fit with `background-size: 100% 100%` for state tile PNGs and button backgrounds, or `border-image` nine-slicing for board edges. The `frame_board_concept_rail.png` has a transparent center and is suitable as a non-interactive `pointer-events:none` board decoration.
 
-## Important implementation rules
-- Do not replace the full live Randomizer interface with concept screenshots.
-- Use image layers with `pointer-events:none` where appropriate; retain all buttons, controls, selection behavior, probabilities, saved sets and Zoom synchronization.
-- Preserve original image proportions with `contain` and use a shared coordinate system for machine shell + live regions + overlays.
-- Test all modes in teacher and separate display views, including long text and 1366×768 / 1920×1080 viewports.
-- This package provides **10 finished PNG assets**. The `lottery_inner_glow`, `wheel_pointer`, `wheel_center_badge`, and other optional assets from the earlier proposed specification are **not included**; they should use existing application art until separately created.
-- Confirm transparent glass against a dark background; transparent background does not mean the glass itself has an empty interior.
+Recommended mapping:
+
+| Minefield surface | Art file(s) |
+| --- | --- |
+| Shared screen root | `backgrounds/background_mission_16x9.png` |
+| Teacher studio | `backgrounds/background_teacher_16x9.png`, `frames/panel_teacher_settings.png`, `frames/panel_saved_missions.png` |
+| Student companion | `backgrounds/background_student_9x16.png`, `frames/panel_student_controls.png` |
+| Grid | `frames/frame_board_outer.png` or `frames/frame_board_concept_rail.png` plus `tiles/tile_hidden.png` |
+| Revealed safe tile | `tiles/tile_safe_1pt.png` … `tiles/tile_safe_5pt.png` plus **live** value text |
+| Bonus and mine tile | `tiles/tile_health_bonus.png`, `tiles/tile_mine.png` |
+| Narrator | `frames/panel_narrator.png`, `frames/panel_mission_briefing.png`, empty state banners |
+| Health, score and turn | `frames/panel_scoreboard.png`, `banners/banner_health_empty.png`, `banners/banner_score_empty.png`, `banners/banner_turn_empty.png` and icon art |
+| Rules/point legend | `frames/panel_legend.png`, 1–5 point tile assets, live text |
+| Save/load/launch/pause/reset | Graphic buttons under `buttons/` with existing HTML labels |
+| Game over / crew victory | `screens/` end-state backgrounds and empty win/loss plaques |
+
+### Proposed Risk + Reward rule spec (for the next implementation pass)
+
+On revealing a **safe** square, award `1 + min(4, adjacentMineCount)` crew points, where adjacent means the eight surrounding squares (including diagonals). Thus 0 adjacent mines = 1 point, 1 = 2, 2 = 3, 3 = 4, and 4+ = 5 points. Hidden tiles must not reveal their value in advance; students infer risky locations from previous reveals and decide where to click. A mine deducts one health and awards zero points; a heart adds one health (up to the configured maximum). Preserve existing team/turn progression and current win condition until the requested scoring behavior is implemented and fully regression tested.
+
+Game code and authoritative score logic must be updated in a separate commit when implementing this rule. Merely uploading these graphics does **not** change rules.
+
+### Quality and accessibility checklist
+
+1. Graphic background files render on teacher, shared and student screens; no missing or stretched fake game boards.
+2. Every numbered tile remains legible and available to screen readers, including all 3×3 through 6×6 board sizes if Minefield supports them.
+3. Keyboard focus and all button hit targets remain usable, including the Zoom companion window.
+4. Replay, pause/resume, reconnect, save/load and scoreboard remain synchronized.
+5. WebSocket or shared-state updates do not reset the visible score/turn or replay a reveal animation.
+6. Clean old tile/header CSS overrides so art image layers do not duplicate visual framing.
+
+**Production asset directory:** `/assets/minefield-v2/` in the repo. This pack's asset files are standalone PNGs and need no custom font or proprietary runtime.

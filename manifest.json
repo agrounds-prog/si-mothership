@@ -1,0 +1,877 @@
+{
+  "pack": "SI Mothership \u2014 MINEFIELD Risk + Reward Graphical Asset Pack",
+  "version": "v2.0.0",
+  "source": "user-approved Minefield concept and generated component style sheets",
+  "asset_count": 71,
+  "graphics_subfolder": "assets/minefield-v2/",
+  "implementation_note": "All playable values/narrator text remain live HTML; no game mechanics are modified by this ZIP.",
+  "point_system_proposed": {
+    "neighbor_definition": "Count mines in the eight adjacent squares (standard 8-neighbor Minesweeper).",
+    "score_formula": "On revealing a safe square: 1 + min(4, adjacent_mine_count).",
+    "safe_points_by_adjacent_mines": {
+      "0": 1,
+      "1": 2,
+      "2": 3,
+      "3": 4,
+      "4_plus": 5
+    },
+    "heart": "Bonus square grants +1 health (cap at configured maximum).",
+    "mine": "Mine costs 1 health, grants 0 points.",
+    "hidden_information": "Students do not see the points on hidden tiles before revealing.",
+    "existing_flow": "Preserve existing class crew turn order, win condition, saved game state and student participation until the rule change is implemented/tested separately."
+  },
+  "assets": [
+    {
+      "path": "assets/minefield-v2/backgrounds/background_mission_16x9.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "bytes": 218358,
+      "sha256": "f7a2d875428b72c7e323f9c72660cd58d47cee4c89b0851497746b36476381cf",
+      "purpose": "Cinematic dark blue starship cockpit and planet horizon, no labels",
+      "use": "Shared-screen 16:9 background",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/backgrounds/background_teacher_16x9.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "bytes": 202810,
+      "sha256": "253bcd053acf9571a77092485ed055a964406e65ef803e2b01cd684bc7a5a7ed",
+      "purpose": "Teacher mission studio space-station backdrop",
+      "use": "Teacher game setup page background",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/backgrounds/background_student_9x16.png",
+      "dimensions": [
+        720,
+        1280
+      ],
+      "bytes": 100733,
+      "sha256": "be41c809ae7688d9075de390e4a0b49ab1fb7a5f8a31af45c3243fffe0a5a69b",
+      "purpose": "Compact student companion backdrop sized for tablet/phone and browser pop-outs",
+      "use": "Student companion background",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/backgrounds/background_deep_space_16x9.png",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "bytes": 233660,
+      "sha256": "6454cbf5c309aee152145a83b2a737c42eace0024796b73678285d74c80acf29",
+      "purpose": "Low-contrast cosmic background, alternative stage skin",
+      "use": "Alternate shared-screen background",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/backgrounds/texture_bridge_window.png",
+      "dimensions": [
+        768,
+        512
+      ],
+      "bytes": 380315,
+      "sha256": "88181ea37431f393cfc2104057965bb0c42c2a5f5a3b93952c54ee2781885c65",
+      "purpose": "Artwork texture swatch derived from the Minefield style sheet",
+      "use": "Optional restrained panel texture / backplate",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/backgrounds/texture_nebula.png",
+      "dimensions": [
+        768,
+        512
+      ],
+      "bytes": 320923,
+      "sha256": "3e5c1fc2f72eb53263a480c31d8d9c9ffbb313a76e4c389cfcde5f4dd1abe1ba",
+      "purpose": "Artwork texture swatch derived from the Minefield style sheet",
+      "use": "Optional restrained panel texture / backplate",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/backgrounds/texture_hexgrid.png",
+      "dimensions": [
+        768,
+        512
+      ],
+      "bytes": 237306,
+      "sha256": "189b6f88fe19a3361cb3510f4cab3b7b585bbd63fd35c03f125c7bf8e9dd762e",
+      "purpose": "Artwork texture swatch derived from the Minefield style sheet",
+      "use": "Optional restrained panel texture / backplate",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/backgrounds/texture_warning_steel.png",
+      "dimensions": [
+        768,
+        512
+      ],
+      "bytes": 289804,
+      "sha256": "af5d2c98f473aad0d27dd280ec7a36146c2a0c90b17cd647379b2a847cdcf97c",
+      "purpose": "Artwork texture swatch derived from the Minefield style sheet",
+      "use": "Optional restrained panel texture / backplate",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/frames/frame_board_outer.png",
+      "dimensions": [
+        1220,
+        1150
+      ],
+      "bytes": 18017,
+      "sha256": "bc22a4127960c08a5fec0746c9858bb920129b68d8313d2cef9a16f8150740e9",
+      "purpose": "Nine-slice style outer graphic for responsive game board",
+      "use": "Set as CSS background-image, live HTML/values above it",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/frames/panel_narrator.png",
+      "dimensions": [
+        930,
+        1000
+      ],
+      "bytes": 12664,
+      "sha256": "f77253067daf30ef47546d9543a3393639cbf432cbfc62a2661d06b9d651cd1b",
+      "purpose": "Main mission narrator panel",
+      "use": "Set as CSS background-image, live HTML/values above it",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/frames/panel_mission_briefing.png",
+      "dimensions": [
+        1000,
+        740
+      ],
+      "bytes": 12092,
+      "sha256": "323341fd40a0e3e62a983c912e7d6f14a52fb07fa60e76b8aead96f911297099",
+      "purpose": "Narrator message card/background",
+      "use": "Set as CSS background-image, live HTML/values above it",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/frames/panel_teacher_settings.png",
+      "dimensions": [
+        920,
+        850
+      ],
+      "bytes": 11818,
+      "sha256": "21a35ad28a6cc7063f2b04732cd0c00c1271c6a44f72e9f7a2b36d9cdc276119",
+      "purpose": "Teacher controls and option fields panel",
+      "use": "Set as CSS background-image, live HTML/values above it",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/frames/panel_saved_missions.png",
+      "dimensions": [
+        930,
+        630
+      ],
+      "bytes": 10857,
+      "sha256": "c68980a9cce374ad28c737f8cf5b2ac45a637ba80ffe48c612717ef1a1555e71",
+      "purpose": "Saved Minefield missions panel",
+      "use": "Set as CSS background-image, live HTML/values above it",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/frames/panel_student_controls.png",
+      "dimensions": [
+        610,
+        940
+      ],
+      "bytes": 8838,
+      "sha256": "0597da554f66b3c582e5d7708245327462b6ba166d3a5b1dc1400e69b0f4d82e",
+      "purpose": "Compact student decision panel",
+      "use": "Set as CSS background-image, live HTML/values above it",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/frames/panel_legend.png",
+      "dimensions": [
+        1540,
+        240
+      ],
+      "bytes": 14273,
+      "sha256": "242d799224b565604fac118ce4fef4ee8fa3c8f2858bded9fc83b9a2d4eab951",
+      "purpose": "Risk-reward legend bar frame",
+      "use": "Set as CSS background-image, live HTML/values above it",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/frames/panel_last_action.png",
+      "dimensions": [
+        840,
+        380
+      ],
+      "bytes": 8268,
+      "sha256": "80269dfed02677d30b7adc2d49004f6fe279d392d65ba952d968533914d33a00",
+      "purpose": "Last revealed square and score feedback",
+      "use": "Set as CSS background-image, live HTML/values above it",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/frames/panel_scoreboard.png",
+      "dimensions": [
+        920,
+        220
+      ],
+      "bytes": 8322,
+      "sha256": "a22316b81559fcc8f3ef8c45d282bd3dd40617ab8cdd60fafc3943d37bc5ff8a",
+      "purpose": "Health, score, navigator, and turn status module",
+      "use": "Set as CSS background-image, live HTML/values above it",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/frames/panel_small_stat.png",
+      "dimensions": [
+        420,
+        260
+      ],
+      "bytes": 5402,
+      "sha256": "617e1ec8f8a801b8c5b534a61b01d64093043b432c3e087ba1628657f9bde1b0",
+      "purpose": "Compact dynamic stat value card",
+      "use": "Set as CSS background-image, live HTML/values above it",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/frames/panel_game_result.png",
+      "dimensions": [
+        1060,
+        800
+      ],
+      "bytes": 14014,
+      "sha256": "ef99144e04fc88f4309e7580fb5b0797e9f174e8b63735ee9d3d2b31e146f525",
+      "purpose": "End-of-round results panel",
+      "use": "Set as CSS background-image, live HTML/values above it",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/frames/frame_board_concept_rail.png",
+      "dimensions": [
+        640,
+        564
+      ],
+      "bytes": 474950,
+      "sha256": "17b8ce3667a02b358c78d1588e56548ead154107dd65b9ce753479a58f4ab43f",
+      "purpose": "Original approved concept metal rail, center transparent",
+      "use": "Optional 9-slice outline over responsive board, pointer-events:none",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/banners/wordmark_minefield.png",
+      "dimensions": [
+        1370,
+        265
+      ],
+      "bytes": 92972,
+      "sha256": "e0d3db0affe360dcb8196f48343c869c880d46cb67125ec2149f243d5f9faada",
+      "purpose": "Metallic illuminated MINEFIELD wordmark",
+      "use": "Static shared-screen or teacher logo; accessible heading remains in HTML",
+      "asset_kind": "intentional static title"
+    },
+    {
+      "path": "assets/minefield-v2/banners/banner_header_empty.png",
+      "dimensions": [
+        1450,
+        215
+      ],
+      "bytes": 12865,
+      "sha256": "b598ba618650e52f8bc6e8ea74dc4d15f5224be2ad56b0b9180bfdcf9e038909",
+      "purpose": "Blank styled header status plate",
+      "use": "Place live text and values on top; do not bake current numbers into artwork",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/banners/banner_health_empty.png",
+      "dimensions": [
+        700,
+        150
+      ],
+      "bytes": 6481,
+      "sha256": "b52cf5dcf7560c5d2d43876d16317d6dc1d6c3786b8a9542ded7bf90bf158c1c",
+      "purpose": "Blank styled health status plate",
+      "use": "Place live text and values on top; do not bake current numbers into artwork",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/banners/banner_score_empty.png",
+      "dimensions": [
+        700,
+        150
+      ],
+      "bytes": 6561,
+      "sha256": "ca5c388e84c30014dd06d4170839efc0f2edee3163211193fefd11165bfcb959",
+      "purpose": "Blank styled score status plate",
+      "use": "Place live text and values on top; do not bake current numbers into artwork",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/banners/banner_turn_empty.png",
+      "dimensions": [
+        420,
+        150
+      ],
+      "bytes": 4991,
+      "sha256": "2c0d44e74548829bfcd7610410dcf7ad9999ee27f667d40536ef406c6bb33d34",
+      "purpose": "Blank styled turn status plate",
+      "use": "Place live text and values on top; do not bake current numbers into artwork",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/banners/banner_navigator_empty.png",
+      "dimensions": [
+        720,
+        145
+      ],
+      "bytes": 6834,
+      "sha256": "1ac5c6935c07ba3baef380365208513170a65893f0a733eb99dd615258166eae",
+      "purpose": "Blank styled navigator status plate",
+      "use": "Place live text and values on top; do not bake current numbers into artwork",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/banners/banner_crew_ready_empty.png",
+      "dimensions": [
+        930,
+        240
+      ],
+      "bytes": 8385,
+      "sha256": "ed3fa1345a5905668e7cd459cfcfa14202ab1a6f5e3f24ab3a76acf6fc20e6b3",
+      "purpose": "Blank styled crew ready status plate",
+      "use": "Place live text and values on top; do not bake current numbers into artwork",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/banners/banner_safe_reveal_empty.png",
+      "dimensions": [
+        850,
+        230
+      ],
+      "bytes": 7760,
+      "sha256": "69e814b3863a927639f5927d4ada84efbc0b47d4132acf7af2e537c597e60d46",
+      "purpose": "Blank styled safe reveal status plate",
+      "use": "Place live text and values on top; do not bake current numbers into artwork",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/banners/banner_mine_hit_empty.png",
+      "dimensions": [
+        850,
+        230
+      ],
+      "bytes": 7835,
+      "sha256": "66724ae67dc2d94969b1c5eea304376b52b6e2cc5a2c054c683f878ae75b6eef",
+      "purpose": "Blank styled mine hit status plate",
+      "use": "Place live text and values on top; do not bake current numbers into artwork",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/banners/banner_health_pickup_empty.png",
+      "dimensions": [
+        850,
+        230
+      ],
+      "bytes": 7700,
+      "sha256": "cfd9c68e08079f663169761d45f329bcfa41b76b9acb2168b7ca67d9de240f0a",
+      "purpose": "Blank styled health pickup status plate",
+      "use": "Place live text and values on top; do not bake current numbers into artwork",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/banners/banner_win_empty.png",
+      "dimensions": [
+        1050,
+        300
+      ],
+      "bytes": 10533,
+      "sha256": "43cee972fd5c0c9e00df50da646b508164f316bd56ca2d5f7df65d9a915b2dea",
+      "purpose": "Blank styled win status plate",
+      "use": "Place live text and values on top; do not bake current numbers into artwork",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/banners/banner_game_over_empty.png",
+      "dimensions": [
+        1050,
+        300
+      ],
+      "bytes": 10225,
+      "sha256": "1b17e7231ac4451b076108552dd98d645212914299fb0800cf7c49ffd3c586e1",
+      "purpose": "Blank styled game over status plate",
+      "use": "Place live text and values on top; do not bake current numbers into artwork",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/banners/banner_risk_reward_empty.png",
+      "dimensions": [
+        770,
+        200
+      ],
+      "bytes": 7440,
+      "sha256": "33c3da8a8aa5fc33d324441d2281eb47e991c67936b0b396ed156c185361c28a",
+      "purpose": "Blank styled risk reward status plate",
+      "use": "Place live text and values on top; do not bake current numbers into artwork",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/banners/banner_mission_label_empty.png",
+      "dimensions": [
+        820,
+        180
+      ],
+      "bytes": 7958,
+      "sha256": "4717c4a677b26c760f18f334fda6d38ada846141faa3ff711d20c0b682c4588e",
+      "purpose": "Blank styled mission label status plate",
+      "use": "Place live text and values on top; do not bake current numbers into artwork",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/icons/icon_heart_red.png",
+      "dimensions": [
+        220,
+        220
+      ],
+      "bytes": 38906,
+      "sha256": "51ffbbda34dbf51e53b91804f604d5caa5c11ac5ab17362bbb23cba6bf985edb",
+      "purpose": "heart red",
+      "use": "Inline HUD/legend/tile icon, use contain sizing",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/icons/icon_star_score.png",
+      "dimensions": [
+        220,
+        220
+      ],
+      "bytes": 50983,
+      "sha256": "6e6a7b3ddec7b4b93f0a26bafc303aeb66f1b1710491220aa92fd28d3ea78fc5",
+      "purpose": "star score",
+      "use": "Inline HUD/legend/tile icon, use contain sizing",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/icons/icon_mine_orb.png",
+      "dimensions": [
+        220,
+        220
+      ],
+      "bytes": 48784,
+      "sha256": "db1a8f81ad6a2c23c17568042d047eede1348d02e538dc3de1f1b422e72c0e7b",
+      "purpose": "mine orb",
+      "use": "Inline HUD/legend/tile icon, use contain sizing",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/icons/icon_heart_green.png",
+      "dimensions": [
+        220,
+        220
+      ],
+      "bytes": 34552,
+      "sha256": "0ebaafd623674a42a1e0a6f84d262766ad157c38834a6578e9b5318a6185d2e1",
+      "purpose": "heart green",
+      "use": "Inline HUD/legend/tile icon, use contain sizing",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/icons/icon_radar.png",
+      "dimensions": [
+        220,
+        220
+      ],
+      "bytes": 62784,
+      "sha256": "ae32ae93f24455d4cbbd824970135248d9d0127ed0a702b3f9f86e043dcecfb5",
+      "purpose": "radar",
+      "use": "Inline HUD/legend/tile icon, use contain sizing",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/icons/icon_mission_satellite.png",
+      "dimensions": [
+        220,
+        220
+      ],
+      "bytes": 59985,
+      "sha256": "0d7b5ae425267f793cb213d78cf9cc62f574de9f4934e261df6a35ce60bf781c",
+      "purpose": "mission satellite",
+      "use": "Inline HUD/legend/tile icon, use contain sizing",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/icons/icon_turn.png",
+      "dimensions": [
+        220,
+        220
+      ],
+      "bytes": 1324,
+      "sha256": "500da5e3a452983976333756f00b21acab2f4612cd81c5e9ef501bec88c53294",
+      "purpose": "Turn symbol",
+      "use": "Game HUD, teacher or legend controls",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/icons/icon_safe.png",
+      "dimensions": [
+        220,
+        220
+      ],
+      "bytes": 1294,
+      "sha256": "06c30352b159890935e74e1f9e1f17ee7d20169d1f44f1a2307d7f16c44e54a5",
+      "purpose": "Safe symbol",
+      "use": "Game HUD, teacher or legend controls",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/icons/icon_warning.png",
+      "dimensions": [
+        220,
+        220
+      ],
+      "bytes": 991,
+      "sha256": "2c22ae2dc299ae45f81657318a5e9881899039c460ca1c708bebfc5e5cdf38c2",
+      "purpose": "Warning symbol",
+      "use": "Game HUD, teacher or legend controls",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/icons/icon_navigator.png",
+      "dimensions": [
+        220,
+        220
+      ],
+      "bytes": 1458,
+      "sha256": "cac09f2255a8978f1d522f15a84e58bfa5254c783aec192042a7e6143fe02da1",
+      "purpose": "Navigator symbol",
+      "use": "Game HUD, teacher or legend controls",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/icons/icon_settings.png",
+      "dimensions": [
+        220,
+        220
+      ],
+      "bytes": 2121,
+      "sha256": "8fd167c1f12d439583833914eea847943da2fee570208f5adf7f0d7a56cac1b3",
+      "purpose": "Settings symbol",
+      "use": "Game HUD, teacher or legend controls",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/icons/icon_flag.png",
+      "dimensions": [
+        220,
+        220
+      ],
+      "bytes": 666,
+      "sha256": "2874d34abbe010126509352d4ca2f5a22077a88d5f65c18da2881a3f30d4f07b",
+      "purpose": "Flag symbol",
+      "use": "Game HUD, teacher or legend controls",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/tiles/tile_hidden.png",
+      "dimensions": [
+        356,
+        356
+      ],
+      "bytes": 14091,
+      "sha256": "15e7965b60d25896a51640157ef44832da68d398d60128b5f97d51f83e750204",
+      "purpose": "Unrevealed tile with subtle crosshair and cyan edge",
+      "use": "All hidden squares; text-free and clickable",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/tiles/tile_safe_1pt.png",
+      "dimensions": [
+        356,
+        356
+      ],
+      "bytes": 13928,
+      "sha256": "b527b1aa52e2a9dc9421f72dda226bb6ff6dce440a4f4750a20b3804d23944b8",
+      "purpose": "Safe square worth 1 crew point",
+      "use": "Live 1 overlaid in HTML; color indicates earned reward",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/tiles/tile_safe_2pt.png",
+      "dimensions": [
+        356,
+        356
+      ],
+      "bytes": 14338,
+      "sha256": "e82a6fe80e0ab75bdd0e5bc95b254391a5879d597caa182346a6e1513f952276",
+      "purpose": "Safe square worth 2 crew points",
+      "use": "Live 2 overlaid in HTML; color indicates earned reward",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/tiles/tile_safe_3pt.png",
+      "dimensions": [
+        356,
+        356
+      ],
+      "bytes": 14261,
+      "sha256": "0d407dc92829ae1f94d045918bb0c9b434c4351d89cae5f6c0e1998389b8ca63",
+      "purpose": "Safe square worth 3 crew points",
+      "use": "Live 3 overlaid in HTML; color indicates earned reward",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/tiles/tile_safe_4pt.png",
+      "dimensions": [
+        356,
+        356
+      ],
+      "bytes": 13926,
+      "sha256": "5dfcbabe72c0bd97e923e900b607b481b883d23650c6b0e023c8eeda26d22636",
+      "purpose": "Safe square worth 4 crew points",
+      "use": "Live 4 overlaid in HTML; color indicates earned reward",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/tiles/tile_safe_5pt.png",
+      "dimensions": [
+        356,
+        356
+      ],
+      "bytes": 14404,
+      "sha256": "85990794343bbf82ea2f09dd5b70c33ebdf72f481b9b55255bb1ee3fd96f2458",
+      "purpose": "Safe square worth 5 crew points",
+      "use": "Live 5 overlaid in HTML; color indicates earned reward",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/tiles/tile_health_bonus.png",
+      "dimensions": [
+        356,
+        356
+      ],
+      "bytes": 35815,
+      "sha256": "fb6a6edc7064b1257f1eaa69745cb06eaf60ff55c6e8432be910bb39d7c26f24",
+      "purpose": "Restores a heart",
+      "use": "Bonus square revealed state; no static health amount",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/tiles/tile_mine.png",
+      "dimensions": [
+        356,
+        356
+      ],
+      "bytes": 41244,
+      "sha256": "9bc2f426b04d7ef29c4f789a2cd1ed6e9ca64ade150bcf73fab92ca77d87fb1e",
+      "purpose": "Mine hazard when revealed",
+      "use": "Mine square revealed state; use live health loss",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/tiles/tile_disabled.png",
+      "dimensions": [
+        356,
+        356
+      ],
+      "bytes": 10832,
+      "sha256": "0a0fecf747273edb145d2c2631158f5be2151531243669a9fdee36b8e44e1858",
+      "purpose": "Disabled or inactive square",
+      "use": "Board not accepting input",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/tiles/tile_focus.png",
+      "dimensions": [
+        356,
+        356
+      ],
+      "bytes": 14470,
+      "sha256": "978d989726de6bbbaf539270d932699bab8b40ec3fde5bfcb77f101545bdb0c2",
+      "purpose": "Focused square artwork",
+      "use": "Keyboard focus/highlight state overlay",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/buttons/button_primary.png",
+      "dimensions": [
+        650,
+        154
+      ],
+      "bytes": 6040,
+      "sha256": "523edc38e8fba9027796f078eba625b1dac03ebd5b9a2e3c4dfe6255f22db0aa",
+      "purpose": "Graphical text-free blue action button",
+      "use": "CSS background to existing HTML button; keep button label selectable",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/buttons/button_confirm.png",
+      "dimensions": [
+        650,
+        154
+      ],
+      "bytes": 6094,
+      "sha256": "148660e20f4441e44731ab4473538b812dd1a9f38b3d930e4406bb0a072ec48d",
+      "purpose": "Graphical text-free green action button",
+      "use": "CSS background to existing HTML button; keep button label selectable",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/buttons/button_warn.png",
+      "dimensions": [
+        650,
+        154
+      ],
+      "bytes": 6259,
+      "sha256": "6a26cad16026c913901d8b526badfb520696f0a95ae4ca9034e4b9b7e9e9154f",
+      "purpose": "Graphical text-free gold action button",
+      "use": "CSS background to existing HTML button; keep button label selectable",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/buttons/button_danger.png",
+      "dimensions": [
+        650,
+        154
+      ],
+      "bytes": 5948,
+      "sha256": "2636484774897cd49f90b87bce22216637a72199b7088d2ed757bc5467e73ab7",
+      "purpose": "Graphical text-free red action button",
+      "use": "CSS background to existing HTML button; keep button label selectable",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/buttons/button_neutral.png",
+      "dimensions": [
+        650,
+        154
+      ],
+      "bytes": 5973,
+      "sha256": "b5e84246346f4966676c90fc73679eebec34a58299a5eba58713c099d3f906df",
+      "purpose": "Graphical text-free slate action button",
+      "use": "CSS background to existing HTML button; keep button label selectable",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/buttons/button_narrator.png",
+      "dimensions": [
+        650,
+        154
+      ],
+      "bytes": 6153,
+      "sha256": "1aba816991e9125991a8ab357c3e68f07205b6d58cb9c49e9eb3bf35c9fe1e17",
+      "purpose": "Graphical text-free cyan action button",
+      "use": "CSS background to existing HTML button; keep button label selectable",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/buttons/button_disabled.png",
+      "dimensions": [
+        650,
+        154
+      ],
+      "bytes": 4637,
+      "sha256": "a541413f9f69745b40011f4a7128937606e92c80aa9fc34941bcab677a6c4650",
+      "purpose": "Graphical disabled button",
+      "use": "Set for disabled state plus native disabled attribute",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/effects/fx_safe_reveal_ring.png",
+      "dimensions": [
+        660,
+        660
+      ],
+      "bytes": 104627,
+      "sha256": "8a907178678065ce154aaad7599e533752091ede5c1a6036a69c5ae47052a09f",
+      "purpose": "Safe Reveal Ring",
+      "use": "Overlay over active tile, pointer-events:none",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/effects/fx_points_reward.png",
+      "dimensions": [
+        660,
+        660
+      ],
+      "bytes": 108956,
+      "sha256": "009ed43c144382aa88d9336f8be5d5885ddd163bfca97302fefd75cdb4f77fc2",
+      "purpose": "Points Reward",
+      "use": "Overlay over active tile, pointer-events:none",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/effects/fx_mine_strike.png",
+      "dimensions": [
+        660,
+        660
+      ],
+      "bytes": 121937,
+      "sha256": "64f841fef778077ae8ef09544b844b0349dc1f1c11c70b04315fc3550e0d5cc2",
+      "purpose": "Mine Strike",
+      "use": "Overlay over active tile, pointer-events:none",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/effects/fx_health_recharge.png",
+      "dimensions": [
+        660,
+        660
+      ],
+      "bytes": 104450,
+      "sha256": "219c728790840f8fcf65cda74d069fb7729905f04dfaa3462c3e18872eeaadd0",
+      "purpose": "Health Recharge",
+      "use": "Overlay over active tile, pointer-events:none",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/effects/fx_focus_select.png",
+      "dimensions": [
+        660,
+        660
+      ],
+      "bytes": 106872,
+      "sha256": "cc78e48bb93ce55167cc0ffa51da234e4667999f65caccf3689360c99c79b7e5",
+      "purpose": "Focus Select",
+      "use": "Overlay over active tile, pointer-events:none",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/effects/fx_scanline.png",
+      "dimensions": [
+        1200,
+        120
+      ],
+      "bytes": 9966,
+      "sha256": "c3c1044c26411475ffc5ba6046e020a7515668b595748b55487b773647cc9a7a",
+      "purpose": "Cyan holographic scanline",
+      "use": "Subtle CSS background/effect while scanning/revealing tiles",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/screens/screen_win_backdrop.png",
+      "dimensions": [
+        1520,
+        840
+      ],
+      "bytes": 320532,
+      "sha256": "47629985f9a344731a213c26ca063a8e861251b0e5727572f7a35070b541ebe3",
+      "purpose": "Text-free success end-state background",
+      "use": "Game-complete/game-over presentation with HTML score and buttons",
+      "asset_kind": "text-free"
+    },
+    {
+      "path": "assets/minefield-v2/screens/screen_loss_backdrop.png",
+      "dimensions": [
+        1520,
+        840
+      ],
+      "bytes": 312922,
+      "sha256": "fbe5a692cf8ef0b4a402062ef5375e05e57626626173d3b0530348df835f3203",
+      "purpose": "Text-free out of health end-state background",
+      "use": "Game-complete/game-over presentation with HTML score and buttons",
+      "asset_kind": "text-free"
+    }
+  ]
+}
