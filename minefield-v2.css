@@ -376,3 +376,80 @@
 @media(prefers-reduced-motion:reduce){
   .minefield-board .minefield-cell.simple{transition:none!important;animation:none!important}
 }
+
+
+/* Minefield v2 hotfix — the uploaded board frame includes an opaque center.
+   A z-index:3 overlay covered playable tiles while leaving tooltips active.
+   Keep the graphic rail BEHIND the squares and make the board labels readable. */
+#shared .minefield-public.mf-v2>.minefield-board::after,
+#mirrorContent .minefield-public.mf-v2>.minefield-board::after,
+#teacher .minefield-controller-body.mf-v2 .minefield-board::after{
+  z-index:0!important;
+  pointer-events:none!important;
+}
+#shared .minefield-public.mf-v2>.minefield-board .minefield-cell,
+#mirrorContent .minefield-public.mf-v2>.minefield-board .minefield-cell,
+#teacher .minefield-controller-body.mf-v2 .minefield-board .minefield-cell{
+  position:relative!important;
+  z-index:2!important;
+  isolation:isolate;
+}
+#shared .minefield-public.mf-v2>.minefield-board .minefield-axis,
+#mirrorContent .minefield-public.mf-v2>.minefield-board .minefield-axis,
+#teacher .minefield-controller-body.mf-v2 .minefield-board .minefield-axis{
+  position:relative!important;
+  z-index:2!important;
+  color:#c8f1ff!important;
+}
+/* The draggable Mission Control dock is narrower than the full viewport
+   when resized. Use its own width rather than window media queries. */
+#teacher #siLiveControlDock:has(.minefield-controller-body.mf-v2){
+  container-type:inline-size;
+}
+#teacher #siLiveControlDock:has(.minefield-controller-body.mf-v2) .si-control-body{
+  min-width:0!important;
+}
+#teacher #siLiveControlDock:has(.minefield-controller-body.mf-v2) #activityControllerPanel{
+  min-width:0!important;
+  max-width:100%!important;
+}
+#teacher .minefield-controller-body.mf-v2>div,
+#teacher .minefield-controller-body.mf-v2 .minefield-status-card{
+  min-width:0!important;
+}
+#teacher .minefield-controller-body.mf-v2 .minefield-teacher-board{
+  width:min(100%,420px)!important;
+  box-sizing:border-box!important;
+  margin:8px auto!important;
+}
+@container (max-width: 850px){
+  #teacher .minefield-controller-body.mf-v2{
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:12px!important;
+  }
+  #teacher .minefield-controller-body.mf-v2 .minefield-teacher-board{
+    max-width:min(100%,550px)!important;
+    width:min(100%,550px)!important;
+  }
+  #teacher .minefield-controller-body.mf-v2 .minefield-status-card{
+    width:100%!important;
+    box-sizing:border-box!important;
+  }
+}
+@container (max-width: 520px){
+  #teacher .minefield-controller-body.mf-v2 .minefield-board{
+    padding:clamp(9px,2vw,15px)!important;
+    gap:clamp(3px,1vw,5px)!important;
+  }
+  #teacher .minefield-controller-body.mf-v2 .minefield-stat-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:5px!important;
+  }
+  #teacher .minefield-controller-body.mf-v2 .minefield-stat{
+    padding:6px!important;
+    overflow-wrap:anywhere!important;
+  }
+  #teacher .minefield-controller-body.mf-v2 .minefield-safety button{
+    flex:1 1 100%!important;
+  }
+}
