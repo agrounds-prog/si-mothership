@@ -3,6 +3,8 @@ on:
   push:
     paths:
       - 'index.html'
+      - 'server.py'
+      - 'minefield-v2.css'
       - '.github/workflows/minefield-coop-regression.yml'
   workflow_dispatch:
 jobs:
@@ -26,7 +28,7 @@ jobs:
             assert(end>start,'missing function boundary '+name);
             return html.slice(start,end);
           }
-          const source=['createMinefield','minefieldClearProgress','resolveMinefieldMove','minefieldNarrationMarkup'].map(extract).join('\n');
+          const source=['createMinefield','minefieldAdjacentMines','minefieldTilePoints','minefieldCrewScore','minefieldClearProgress','resolveMinefieldMove','minefieldNarrationMarkup'].map(extract).join('\n');
           const students=[{n:'Student A'},{n:'Student B'}];
           const ctx={
            Math,console,
@@ -66,6 +68,7 @@ jobs:
           const safe=at('clear');move(safe);
           assert.equal(safe.revealed,true);assert.equal(mf.hull,3);assert.equal(mf.turn,2);
           assert.equal(ctx.minefieldClearProgress(mf).cleared,1);assert.equal(mf.navigatorIndex,1);
+          assert.equal(mf.score,safe.points);assert(safe.points>=1&&safe.points<=5);
           mf.hull=2;const heart=at('repair');move(heart);
           assert.equal(mf.hull,3);assert.equal(mf.turn,3);
           mf.hull=1;const mine=at('mine');move(mine);

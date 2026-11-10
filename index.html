@@ -17349,8 +17349,9 @@ function createMinefield(length){
   return {
     rules:'clear-map-v2',simple:true,length:cfg.key,size:n,board,
     current:{r:-1,c:-1},hull:3,maxHull:5,shield:0,navigatorIndex:0,
+    score:0,lastReward:0,
     turn:1,pending:null,status:'playing',awaitingTeacherReveal:false,
-    message:'Work together! Reveal safe squares, collect hearts, and avoid mines. Clear all safe squares to win.'
+    message:'Reveal safe squares for 1–5 points depending on nearby mines. Use revealed clues to choose your risks, restore health, and clear all safe squares to win.'
   };
 }
 function initializeMinefieldRun(run=state.activityRun){
@@ -17385,6 +17386,30 @@ function minefieldOverallStatus(run=state.activityRun){
   if(mode==='teacher')return run.teacherVsWinner?'won':'playing';
   return ensureMinefield(run)?.status||'playing';
 }
+function minefieldAdjacentMines(mf,r,c){
+  if(!mf?.board)return 0;
+  let nearby=0;
+  for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+    if(!dr&&!dc)continue;
+    if(mf.board[r+dr]?.[c+dc]?.type==='mine')nearby++;
+  }
+  return nearby;
+}
+// Safe squares pay 1–5 points for 0,1,2,3,4+ adjacent mines.
+// The value is hidden until the student actually reveals that square.
+function minefieldTilePoints(mf,t){
+  if(!mf||!t||t.type!=='clear')return 0;
+  return Math.min(5,1+minefieldAdjacentMines(mf,t.r,t.c));
+}
+function minefieldCrewScore(mf){
+  if(!mf)return 0;
+  const stored=Number(mf.score);
+  if(mf.score!==undefined&&Number.isFinite(stored)&&stored>=0)return stored;
+  // Saved rounds from before Risk + Reward had no score. Recover from
+  // already-revealed safe squares without changing their reveal states.
+  return (mf.board||[]).flat().reduce((sum,t)=>
+    sum+(t.revealed&&t.type==='clear'?(Number(t.points)||minefieldTilePoints(mf,t)):0),0);
+}
 function minefieldClearProgress(mf){
   const tiles=mf?.board?.flat()||[];
   const safe=tiles.filter(t=>t.type!=='mine');
@@ -17395,7 +17420,7 @@ function minefieldQuickRulesMarkup(mf){
   const progress=minefieldClearProgress(mf);
   const pct=progress.total?Math.round(100*progress.cleared/progress.total):0;
   return '<div class="minefield-signal-legend minefield-simple-legend">'+
-    '<span>✓ <b>EMPTY</b> safe</span><span>♥ <b>HEALTH</b> +1</span><span>💣 <b>MINE</b> −1</span>'+
+    '<span class="mf-legend-score">★ <b>RISK + REWARD</b></span>'+    '<span>0 near = <b>1 pt</b></span><span>1 near = <b>2 pts</b></span><span>2 near = <b>3 pts</b></span>'+    '<span>3 near = <b>4 pts</b></span><span>4+ near = <b>5 pts</b></span>'+    '<span>♥ <b>HEALTH</b> +1</span><span>💣 <b>MINE</b> −1 health</span>'+
     '<span class="mf-progress-label">Cleared '+progress.cleared+' / '+progress.total+'</span>'+
     '<div class="minefield-simple-status" style="flex-basis:100%;width:100%"><div class="mf-progress-track">'+
     '<span class="mf-progress-fill" style="width:'+pct+'%"></span></div></div></div>';
@@ -17410,7 +17435,7 @@ function minefieldSymbol(tile,current,showHidden=false){
     if(!tile.revealed&&!showHidden)return '·';
     if(tile.type==='mine')return '💣';
     if(tile.type==='repair')return '♥';
-    return '';
+    return tile.revealed?'<strong class="mf-point-value">'+Math.max(1,Math.min(5,Number(tile.points)||1))+'</strong>':'';
   }
 
   if(current)return `<span class="mf-clue"><b>🚀</b><small>${tile.signalArrow||'·'}${tile.signalDistance??''}</small></span>`;if(!tile.revealed&&!showHidden)return '·';
@@ -17419,7 +17444,7 @@ function minefieldSymbol(tile,current,showHidden=false){
 function minefieldBoardMarkup(run,{student=false,teacher=false,big=false,teamIndex=null,showHidden=false,teacherSelectable=false}={}){
   ensureMinefield(run);const mf=activeMinefield(run,teamIndex);if(!mf)return'';const sel=mf.pending||{};
   const cols=Array.from({length:mf.size},(_,c)=>`<div class="minefield-axis col">${String.fromCharCode(65+c)}</div>`).join('');
-  const rows=mf.board.map((row,r)=>`<div class="minefield-axis row">${r+1}</div>${row.map(t=>{const current=!mf.simple&&mf.current.r===t.r&&mf.current.c===t.c,selected=sel.r===t.r&&sel.c===t.c,canStudent=student&&!t.revealed&&mf.status==='playing'&&!mf.awaitingTeacherReveal,canTeacher=teacherSelectable&&!t.revealed&&mf.status==='playing';const can=canStudent||canTeacher,attr=canStudent?`data-mf-cell="${t.r},${t.c}"`:canTeacher?`data-mf-teacher-cell="${t.r},${t.c}"`:'';const cls=[mf.simple?'simple':'',t.revealed&&mf.simple&&t.type==='clear'?'empty':'',t.revealed&&mf.simple&&t.type==='repair'?'health':'',current?'ship':'',t.revealed?'revealed':'unknown',(t.type==='extraction'&&(t.revealed||showHidden))?'extraction':'',t.revealed&&t.type==='mine'?'mine':'',t.revealed&&['shield','repair'].includes(t.type)?'special':'',can?'selectable':'',(student||teacherSelectable)&&!can&&!current?'disabled':'',selected?'selected':''].filter(Boolean).join(' ');return `<button class="minefield-cell ${cls}" ${can?attr:'disabled'} title="Sector ${mfCoord(t.r,t.c)}" aria-label="Sector ${mfCoord(t.r,t.c)}">${minefieldSymbol(t,current,showHidden)}</button>`}).join('')}`).join('');
+  const rows=mf.board.map((row,r)=>`<div class="minefield-axis row">${r+1}</div>${row.map(t=>{const current=!mf.simple&&mf.current.r===t.r&&mf.current.c===t.c,selected=sel.r===t.r&&sel.c===t.c,canStudent=student&&!t.revealed&&mf.status==='playing'&&!mf.awaitingTeacherReveal,canTeacher=teacherSelectable&&!t.revealed&&mf.status==='playing';const can=canStudent||canTeacher,attr=canStudent?`data-mf-cell="${t.r},${t.c}"`:canTeacher?`data-mf-teacher-cell="${t.r},${t.c}"`:'';const reward=t.revealed&&mf.simple&&t.type==='clear'?(Number(t.points)||minefieldTilePoints(mf,t)):0;const cls=[mf.simple?'simple':'',reward?'mf-value-'+reward:'',t.revealed&&mf.simple&&t.type==='clear'?'empty':'',t.revealed&&mf.simple&&t.type==='repair'?'health':'',current?'ship':'',t.revealed?'revealed':'unknown',(t.type==='extraction'&&(t.revealed||showHidden))?'extraction':'',t.revealed&&t.type==='mine'?'mine':'',t.revealed&&['shield','repair'].includes(t.type)?'special':'',can?'selectable':'',(student||teacherSelectable)&&!can&&!current?'disabled':'',selected?'selected':''].filter(Boolean).join(' ');const hint=t.revealed?(t.type==='mine'?' · mine −1 health':t.type==='repair'?' · heart +1 health':' · '+reward+' points · '+minefieldAdjacentMines(mf,t.r,t.c)+' adjacent mines'):'';return `<button class="minefield-cell ${cls}" ${can?attr:'disabled'} title="Sector ${mfCoord(t.r,t.c)}${hint}" aria-label="Sector ${mfCoord(t.r,t.c)}${hint}">${minefieldSymbol(t,current,showHidden)}</button>`}).join('')}`).join('');
   return `<div class="minefield-board ${student?'minefield-student-board':''} ${teacher?'minefield-teacher-board':''}" style="grid-template-columns:22px repeat(${mf.size},1fr)"><div class="minefield-axis corner">•</div>${cols}${rows}</div>`;
 }
 function minefieldHullMarkup(mf){if(mf?.simple)return `HEALTH ${'♥'.repeat(Math.max(0,mf.hull))}${'♡'.repeat(Math.max(0,mf.maxHull-mf.hull))}`;return `HULL ${'♥'.repeat(Math.max(0,mf.hull))}${'♡'.repeat(Math.max(0,mf.maxHull-mf.hull))}${mf.shield?' · SHIELD ◆':''}`}
@@ -17476,8 +17501,10 @@ function resolveMinefieldMove(opts={}){
   }
   const coord=mfCoord(r,c);
   const who=mode==='teacher'&&side==='teacher'?'Teacher':(minefieldNavigator(run,teamIndex)?.n||'Navigator');
+  const priorScore=minefieldCrewScore(mf);
   t.revealed=true;
   mf.current={r,c};mf.pending=null;mf.awaitingTeacherReveal=false;
+  mf.lastReward=0;
   let kind='info',msg='';
   if(t.type==='mine'){
     mf.hull=Math.max(0,mf.hull-1);
@@ -17487,13 +17514,19 @@ function resolveMinefieldMove(opts={}){
     mf.hull=Math.min(mf.maxHull,mf.hull+1);
     kind='special';msg='♥ HEALTH FOUND at '+coord+'! '+(mf.hull>before?'Health +1.':'Health already full.');
   }else{
-    msg='✓ SAFE! '+coord+' was empty.';
+    const points=minefieldTilePoints(mf,t);
+    t.points=points;
+    t.near=minefieldAdjacentMines(mf,r,c);
+    mf.score=priorScore+points;
+    mf.lastReward=points;
+    kind='reward';
+    msg='★ SAFE! '+coord+' earned '+points+' point'+(points===1?'':'s')+' · '+t.near+' nearby mine'+(t.near===1?'':'s')+'. Crew score '+mf.score+'.';
   }
   const progress=minefieldClearProgress(mf);
   if(mf.hull<=0){
     mf.status='lost';kind='mine';msg+=' No health left — mission over.';
   }else if(progress.total>0&&progress.cleared===progress.total){
-    mf.status='won';kind='win';msg='🏆 MAP CLEARED! Every safe square was revealed. Mission complete!';
+    mf.status='won';kind='win';msg='🏆 MAP CLEARED! Every safe square was revealed. Final crew score: '+minefieldCrewScore(mf)+' points!';
   }
   mf.message=msg;
   let narration=msg;
@@ -17556,7 +17589,7 @@ function minefieldNarrationMarkup(run,big=false,showLog=true){
   const log=(run.narrationLog||[]).slice(-4,-1).reverse();
   const simple=!!(run.mf?.simple||run.mfClass?.simple||(run.mfTeams||[]).some(m=>m?.simple));
   const kind=(run.narrationLog||[]).slice(-1)[0]?.kind||'turn';
-  const label=kind==='mine'?'💣 MINE! −1':kind==='special'?'♥ HEALTH FOUND':kind==='win'?'🏆 MAP CLEARED!':kind==='select'?'⌖ SQUARE SELECTED':kind==='turn'?'CREW READY':'✓ SAFE!';
+  const label=kind==='mine'?'💣 MINE! −1':kind==='special'?'♥ HEALTH FOUND':kind==='win'?'🏆 MAP CLEARED!':kind==='select'?'⌖ SQUARE SELECTED':kind==='turn'?'CREW READY':kind==='reward'?'★ POINTS EARNED':'✓ SAFE!';
   const signalMarkup=simple?'<div class="mf-coop-signal signal-'+kind+'">'+esc(label)+'</div>':'';
   return `<div class="minefield-narrator ${big?'big':''}"><div class="minefield-narrator-head"><b>MISSION NARRATOR</b><span>LIVE MISSION FEED</span></div>${signalMarkup}<div class="minefield-narrator-latest">${esc(latest)}</div>${showLog&&log.length?`<div class="minefield-event-log">${log.map(e=>`<div class="event-${esc(e.kind||'info')}"><i>${minefieldEventIcon(e.kind)}</i><span>${esc(e.text)}</span></div>`).join('')}</div>`:''}</div>`;
 }
@@ -17842,17 +17875,17 @@ function activitySharedMarkup(big=false){
     ensureMinefield(run);const mode=minefieldMode(run),status=minefieldOverallStatus(run);
     if(mode==='teacher'){
       const side=run.activeSide||'class',classMf=activeMinefield(run,'class'),teacherMf=activeMinefield(run,'teacher'),mf=activeMinefield(run,side),nav=side==='class'?minefieldNavigator(run,'class'):{n:'Teacher'};
-      if(status!=='playing')return `<div class="minefield-public"><div class="minefield-result win"><span class="eyebrow">MINEFIELD · TEACHER VS CLASS</span><h3 style="font-size:${big?54:34}px">${run.teacherVsWinner==='class'?'🚀 CLASS WINS':'🏁 TEACHER WINS'}</h3><p>${run.teacherVsWinner==='class'?'The class won the mission.':'The teacher won the mission.'}</p><div class="minefield-versus-score"><span>CLASS · ${minefieldHullMarkup(classMf)}</span><span>TEACHER · ${minefieldHullMarkup(teacherMf)}</span></div></div></div>`;
+      if(status!=='playing')return `<div class="minefield-public mf-v2"><div class="minefield-result win"><span class="eyebrow">MINEFIELD · TEACHER VS CLASS</span><h3 style="font-size:${big?54:34}px">${run.teacherVsWinner==='class'?'🚀 CLASS WINS':'🏁 TEACHER WINS'}</h3><p>${run.teacherVsWinner==='class'?'The class won the mission.':'The teacher won the mission.'}</p><div class="minefield-versus-score"><span>CLASS · ${minefieldHullMarkup(classMf)}</span><span>TEACHER · ${minefieldHullMarkup(teacherMf)}</span></div></div></div>`;
       const sideLabel=side==='class'?'CLASS TURN':'TEACHER TURN';
-      return `<div class="minefield-public"><div class="minefield-versus-score"><span class="${side==='class'?'active':''}">CLASS · ${minefieldHullMarkup(classMf)}</span><span class="${side==='teacher'?'active':''}">TEACHER · ${minefieldHullMarkup(teacherMf)}</span></div><div class="minefield-turn-banner ${side==='teacher'?'teacher-turn':''}">${sideLabel}${side==='class'&&nav?.n?` · ${esc(nav.n)} IS NAVIGATOR`:''}</div><h3 style="font-size:${big?42:28}px">MINEFIELD</h3>${minefieldNarrationMarkup(run,big,true)}${minefieldBoardMarkup(run,{big,teamIndex:side})}${minefieldQuickRulesMarkup(mf)}<div class="minefield-message"><strong>${sideLabel}</strong> · ${esc(mf.message)}</div></div>`;
+      return `<div class="minefield-public mf-v2"><div class="minefield-versus-score"><span class="${side==='class'?'active':''}">CLASS · ★ ${minefieldCrewScore(classMf)} · ${minefieldHullMarkup(classMf)}</span><span class="${side==='teacher'?'active':''}">TEACHER · ★ ${minefieldCrewScore(teacherMf)} · ${minefieldHullMarkup(teacherMf)}</span></div><div class="minefield-turn-banner ${side==='teacher'?'teacher-turn':''}">${sideLabel}${side==='class'&&nav?.n?` · ${esc(nav.n)} IS NAVIGATOR`:''}</div><h3 style="font-size:${big?42:28}px">MINEFIELD</h3>${minefieldNarrationMarkup(run,big,true)}${minefieldBoardMarkup(run,{big,teamIndex:side})}${minefieldQuickRulesMarkup(mf)}<div class="minefield-message"><strong>${sideLabel}</strong> · ${esc(mf.message)}</div></div>`;
     }
     const teamIndex=mode==='teams'?Number(run.activeTeam||0):null,mf=activeMinefield(run,teamIndex),nav=minefieldNavigator(run,teamIndex);
     if(status==='won'||status==='lost'){
       const winName=mode==='teams'&&run.teamWinner!==null?minefieldTeamName(run.teamWinner):'THE CREW';
-      return `<div class="minefield-public"><div class="minefield-result ${status==='won'?'win':'loss'}"><span class="eyebrow">MINEFIELD</span><h3 style="font-size:${big?54:34}px">${status==='won'?'🚀 MISSION COMPLETE':'⚠ MISSION OVER'}</h3><p>${status==='won'&&mode==='teams'?`${esc(winName)} cleared the map!`:esc(mf?.message||'Mission complete')}</p></div>${minefieldBoardMarkup(run,{big,teamIndex})}</div>`;
+      return `<div class="minefield-public mf-v2"><div class="minefield-result ${status==='won'?'win':'loss'}"><span class="eyebrow">MINEFIELD</span><h3 style="font-size:${big?54:34}px">${status==='won'?'🚀 MISSION COMPLETE':'⚠ MISSION OVER'}</h3><p>${status==='won'&&mode==='teams'?`${esc(winName)} cleared the map!`:esc(mf?.message||'Mission complete')}</p></div>${minefieldBoardMarkup(run,{big,teamIndex})}</div>`;
     }
-    const teamStrip=mode==='teams'?`<div class="minefield-team-strip">${Array.from({length:minefieldTeamCount(run)},(_,i)=>{const t=activeMinefield(run,i);return `<span class="minefield-team-pill ${minefieldTeamClass(i)} ${i===teamIndex?'active':''}">${minefieldTeamName(i)} · ${minefieldHullMarkup(t)}</span>`}).join('')}</div>`:'';
-    return `<div class="minefield-public"><div class="minefield-topline"><span class="minefield-hull">${minefieldHullMarkup(mf)}</span><span class="minefield-navigator">${mode==='teams'?esc(minefieldTeamName(teamIndex))+' · ':''}NAVIGATOR · ${esc(nav?.n||'Waiting')}</span></div>${teamStrip}<h3 style="font-size:${big?42:28}px">MINEFIELD</h3>${minefieldNarrationMarkup(run,big,true)}${minefieldBoardMarkup(run,{big,teamIndex})}${minefieldQuickRulesMarkup(mf)}<div class="minefield-message"><strong>Turn ${mf.turn}</strong> · ${esc(mf.message)}</div></div>`;
+    const teamStrip=mode==='teams'?`<div class="minefield-team-strip">${Array.from({length:minefieldTeamCount(run)},(_,i)=>{const t=activeMinefield(run,i);return `<span class="minefield-team-pill ${minefieldTeamClass(i)} ${i===teamIndex?'active':''}">${minefieldTeamName(i)} · ★ ${minefieldCrewScore(t)} · ${minefieldHullMarkup(t)}</span>`}).join('')}</div>`:'';
+    return `<div class="minefield-public mf-v2"><div class="minefield-topline"><span class="minefield-hull">${minefieldHullMarkup(mf)}</span><span class="mf-score-chip">★ CREW SCORE <b>${minefieldCrewScore(mf)}</b></span><span class="minefield-navigator">${mode==='teams'?esc(minefieldTeamName(teamIndex))+' · ':''}NAVIGATOR · ${esc(nav?.n||'Waiting')}</span></div>${teamStrip}<h3 style="font-size:${big?42:28}px">MINEFIELD</h3>${minefieldNarrationMarkup(run,big,true)}${minefieldBoardMarkup(run,{big,teamIndex})}${minefieldQuickRulesMarkup(mf)}<div class="minefield-message"><strong>Turn ${mf.turn}</strong> · ${esc(mf.message)}</div></div>`;
   }
   if(a.type==='starwheel'){return starwheelSharedMarkup(run,big);}
   if(a.type==='sketch'){return sketchSharedMarkup(run,big);}
@@ -18035,13 +18068,13 @@ function studentMarkup(){
         const side=run.activeSide||'class',classMf=activeMinefield(run,'class'),teacherMf=activeMinefield(run,'teacher'),mf=activeMinefield(run,side),nav=side==='class'?minefieldNavigator(run,'class'):{n:'Teacher'},isNav=side==='class'&&nav&&s&&nav.n===s.n;
         if(status!=='playing')return `<div class="student-prompt activity-wait"><span class="eyebrow">MINEFIELD · TEACHER VS CLASS</span><h2>${run.teacherVsWinner==='class'?'Class Wins! 🚀':'Teacher Wins'}</h2><p>${run.teacherVsWinner==='class'?'The class cleared the map first or outlasted the teacher ship.':'The teacher cleared the map first or the class ship lost its health.'}</p><div class="minefield-versus-score"><span>CLASS · ${minefieldHullMarkup(classMf)}</span><span>TEACHER · ${minefieldHullMarkup(teacherMf)}</span></div></div>`;
         if(side==='teacher')return `<div class="student-prompt activity-wait"><span class="eyebrow">MINEFIELD · TEACHER VS CLASS</span><div class="minefield-turn-banner teacher-turn">TEACHER TURN</div><h2>Teacher is navigating</h2><p>Watch the shared screen and plan the class's next move.</p>${minefieldNarrationMarkup(run,false,false)}<div class="minefield-versus-score"><span>CLASS · ${minefieldHullMarkup(classMf)}</span><span>TEACHER · ${minefieldHullMarkup(teacherMf)}</span></div></div>`;
-        if(isNav)return `<div class="student-prompt response-device"><span class="eyebrow">MINEFIELD · CLASS TURN · NAVIGATOR</span><div class="minefield-turn-banner">CLASS TURN — IT’S YOUR MOVE</div><h2>${esc(s.n)}, choose any sector</h2><div class="minefield-versus-score"><span>CLASS · ${minefieldHullMarkup(classMf)}</span><span>TEACHER · ${minefieldHullMarkup(teacherMf)}</span></div>${minefieldNarrationMarkup(run,false,false)}${minefieldBoardMarkup(run,{student:true,teamIndex:'class'})}<div class="prompt-caption">${classMf.pending?`Selected <b>${mfCoord(classMf.pending.r,classMf.pending.c)}</b>. Confirm below or choose another square.`:'Work with your crew: choose a hidden square. Safe = ✓, health = ♥, mine = 💣.'}</div></div>`;
+        if(isNav)return `<div class="student-prompt response-device"><span class="eyebrow">MINEFIELD · CLASS TURN · NAVIGATOR</span><div class="minefield-turn-banner">CLASS TURN — IT’S YOUR MOVE</div><h2>${esc(s.n)}, choose any sector</h2><div class="minefield-versus-score"><span>CLASS · ${minefieldHullMarkup(classMf)}</span><span>TEACHER · ${minefieldHullMarkup(teacherMf)}</span></div>${minefieldNarrationMarkup(run,false,false)}${minefieldBoardMarkup(run,{student:true,teamIndex:'class'})}<div class="prompt-caption">${classMf.pending?`Selected <b>${mfCoord(classMf.pending.r,classMf.pending.c)}</b>. Confirm below or choose another square.`:'Work with your crew: choose a hidden square. Safe squares earn 1–5 points based on nearby mines. Health ♥ +1; mine 💣 −1.'}</div></div>`;
         return `<div class="student-prompt activity-wait"><span class="eyebrow">MINEFIELD · CLASS TURN</span><h2>${esc(nav?.n||'A classmate')} is Navigator</h2><div class="minefield-watch-avatar">${studentAvatarBadgeMarkup(nav)}</div><p>Help choose the class move and watch the shared screen.</p>${minefieldNarrationMarkup(run,false,false)}<div class="minefield-versus-score"><span>CLASS · ${minefieldHullMarkup(classMf)}</span><span>TEACHER · ${minefieldHullMarkup(teacherMf)}</span></div></div>`;
       }
       const teamIndex=mode==='teams'?minefieldTeamIndexForStudent(s,run):null,activeTeam=mode==='teams'?Number(run.activeTeam||0):null,mf=activeMinefield(run,teamIndex),nav=minefieldNavigator(run,teamIndex),isActiveTeam=mode!=='teams'||teamIndex===activeTeam,isNav=isActiveTeam&&nav&&s&&nav.n===s.n;
       if(status==='won'||status==='lost')return `<div class="student-prompt activity-wait"><span class="eyebrow">MINEFIELD</span><h2>${status==='won'?'Mission Complete 🚀':'Mission Over'}</h2><p>${mode==='teams'&&run.teamWinner!==null?`${minefieldTeamName(run.teamWinner)} cleared the map!`:esc(mf?.message||'Mission complete')}</p><div class="student-lobby-avatar">${studentAvatarBadgeMarkup(s)}</div></div>`;
       if(mode==='teams'&&!isActiveTeam)return `<div class="student-prompt activity-wait"><span class="eyebrow">MINEFIELD · ${esc(minefieldTeamName(teamIndex))}</span><h2>${esc(minefieldTeamName(activeTeam))} is navigating</h2><p>Your crew is up next. Talk strategy and watch the shared screen.</p>${minefieldNarrationMarkup(run,false,false)}<div class="submitted-banner">${minefieldHullMarkup(mf)}<span>Your team</span></div></div>`;
-      if(isNav)return `<div class="student-prompt response-device"><span class="eyebrow">MINEFIELD · ${mode==='teams'?esc(minefieldTeamName(teamIndex))+' · ':''}NAVIGATOR</span><div class="minefield-turn-banner">IT’S YOUR TURN — MAKE A MOVE</div><h2>${esc(s.n)}, choose any sector</h2><p>${minefieldHullMarkup(mf)}</p>${minefieldNarrationMarkup(run,false,false)}${minefieldBoardMarkup(run,{student:true,teamIndex})}<div class="prompt-caption">${mf.pending?`Selected <b>${mfCoord(mf.pending.r,mf.pending.c)}</b>. Confirm below or choose another square.`:'Work with your crew: choose a hidden square. Safe = ✓, health = ♥, mine = 💣.'}</div></div>`;
+      if(isNav)return `<div class="student-prompt response-device"><span class="eyebrow">MINEFIELD · ${mode==='teams'?esc(minefieldTeamName(teamIndex))+' · ':''}NAVIGATOR</span><div class="minefield-turn-banner">IT’S YOUR TURN — MAKE A MOVE</div><h2>${esc(s.n)}, choose any sector</h2><p>${minefieldHullMarkup(mf)} · ★ CREW SCORE ${minefieldCrewScore(mf)}</p>${minefieldNarrationMarkup(run,false,false)}${minefieldBoardMarkup(run,{student:true,teamIndex})}<div class="prompt-caption">${mf.pending?`Selected <b>${mfCoord(mf.pending.r,mf.pending.c)}</b>. Confirm below or choose another square.`:'Work with your crew: choose a hidden square. Safe squares earn 1–5 points based on nearby mines. Health ♥ +1; mine 💣 −1.'}</div></div>`;
       return `<div class="student-prompt activity-wait"><span class="eyebrow">MINEFIELD · ${mode==='teams'?esc(minefieldTeamName(teamIndex)):'CREW'}</span><h2>${esc(nav?.n||'A crew member')} is Navigator</h2><div class="minefield-watch-avatar">${studentAvatarBadgeMarkup(nav)}</div><p>Talk strategy with the crew and watch the shared screen for the reveal.</p>${minefieldNarrationMarkup(run,false,false)}<div class="submitted-banner">${minefieldHullMarkup(mf)}<span>Turn ${mf.turn}</span></div></div>`;
     }
       if(a.type==='vector'){
@@ -18384,16 +18417,16 @@ function renderActivityController(){
     ensureMinefield(run);const mode=minefieldMode(run),status=minefieldOverallStatus(run),ended=status!=='playing';
     if(mode==='teacher'){
       const side=run.activeSide||'class',classMf=activeMinefield(run,'class'),teacherMf=activeMinefield(run,'teacher'),mf=activeMinefield(run,side),nav=side==='class'?minefieldNavigator(run,'class'):{n:'Teacher'},winner=run.teacherVsWinner;
-      const score=`<div class="minefield-versus-score teacher-score"><span class="${side==='class'&&!ended?'active':''}">CLASS · ${minefieldHullMarkup(classMf)}</span><span class="${side==='teacher'&&!ended?'active':''}">TEACHER · ${minefieldHullMarkup(teacherMf)}</span></div>`;
+      const score=`<div class="minefield-versus-score teacher-score"><span class="${side==='class'&&!ended?'active':''}">CLASS · ${minefieldHullMarkup(classMf)} · ★ ${minefieldCrewScore(classMf)}</span><span class="${side==='teacher'&&!ended?'active':''}">TEACHER · ${minefieldHullMarkup(teacherMf)} · ★ ${minefieldCrewScore(teacherMf)}</span></div>`;
       const teacherConfirm=!ended&&side==='teacher'?`<button class="minefield-reveal-btn" id="minefieldTeacherMoveBtn" style="width:100%;margin-top:10px" ${teacherMf.pending?'':'disabled'}>✓ Confirm ${teacherMf.pending?mfCoord(teacherMf.pending.r,teacherMf.pending.c):'Teacher Move'}</button>`:'';
       box.innerHTML=`<div class="activity-controller-head"><div><span class="slide-badge instruction">MINEFIELD · TEACHER VS CLASS</span><h2>${ended?(winner==='class'?'Class Wins!':'Teacher Wins'):(side==='class'?'Class Turn':'Teacher Turn')}</h2><p>${ended?(winner==='class'?'The class won the mission.':'The teacher won the mission.'):(side==='class'?`${esc(nav?.n||'Waiting')} is the class Navigator.`:'Choose any unrevealed coordinate on the teacher field.')}</p></div><div class="controller-stats"><b>${side==='class'?'CLASS':'TEACHER'}</b> turn</div></div>
-        ${score}<div class="minefield-controller-body"><div><div class="minefield-private-banner">${ended?'GAME COMPLETE':side==='class'?'CLASS FIELD · Students choose this turn':'TEACHER FIELD · Select any unrevealed sector'}</div>${minefieldBoardMarkup(run,{teacher:true,teamIndex:side,teacherSelectable:!ended&&side==='teacher'})}</div><div class="minefield-status-card"><h3>${ended?'Game finished':'Alternating turns'}</h3>${minefieldNarrationMarkup(run,false,true)}${minefieldTeacherProgressMarkup(mf)}<p>${esc(mf.message)}</p><div class="minefield-stat-grid"><div class="minefield-stat"><small>ACTIVE SIDE</small><b>${side==='class'?'Class':'Teacher'}</b></div><div class="minefield-stat"><small>NAVIGATOR</small><b>${esc(side==='class'?(nav?.n||'—'):'Teacher')}</b></div><div class="minefield-stat"><small>TURN</small><b>${mf.turn}</b></div></div>${teacherConfirm}${ended?'<button class="primary-action" id="minefieldPlayAgainBtn" style="width:100%;margin-top:10px">↻ Play Again</button>':''}<div class="minefield-safety"><button id="returnClassBtn">✓ Finish & Return</button><button class="minefield-send-lobby" id="sendActivityLobbyBtn">Ⅱ Pause & Keep Progress</button><button class="danger-action" id="emergencyActivityBtn">⚠ Emergency Return</button></div></div></div>`;
+        ${score}<div class="minefield-controller-body mf-v2"><div><div class="minefield-private-banner">${ended?'GAME COMPLETE':side==='class'?'CLASS FIELD · Students choose this turn':'TEACHER FIELD · Select any unrevealed sector'}</div>${minefieldBoardMarkup(run,{teacher:true,teamIndex:side,teacherSelectable:!ended&&side==='teacher'})}</div><div class="minefield-status-card"><h3>${ended?'Game finished':'Alternating turns'}</h3>${minefieldNarrationMarkup(run,false,true)}<div class="mf-controller-score">★ CREW SCORE <strong>${minefieldCrewScore(mf)}</strong></div>${minefieldTeacherProgressMarkup(mf)}<p>${esc(mf.message)}</p><div class="minefield-stat-grid"><div class="minefield-stat"><small>ACTIVE SIDE</small><b>${side==='class'?'Class':'Teacher'}</b></div><div class="minefield-stat"><small>NAVIGATOR</small><b>${esc(side==='class'?(nav?.n||'—'):'Teacher')}</b></div><div class="minefield-stat"><small>TURN</small><b>${mf.turn}</b></div></div>${teacherConfirm}${ended?'<button class="primary-action" id="minefieldPlayAgainBtn" style="width:100%;margin-top:10px">↻ Play Again</button>':''}<div class="minefield-safety"><button id="returnClassBtn">✓ Finish & Return</button><button class="minefield-send-lobby" id="sendActivityLobbyBtn">Ⅱ Pause & Keep Progress</button><button class="danger-action" id="emergencyActivityBtn">⚠ Emergency Return</button></div></div></div>`;
     } else {
       const teamIndex=mode==='teams'?Number(run.activeTeam||0):null,mf=activeMinefield(run,teamIndex),nav=minefieldNavigator(run,teamIndex);
       const modeLabel=mode==='crew'?'Crew Mode':`Teams · ${minefieldTeamCount(run)} crews`;
-      const teamStats=mode==='teams'?`<div class="minefield-team-mini">${Array.from({length:minefieldTeamCount(run)},(_,i)=>{const f=activeMinefield(run,i);return `<div><small>${minefieldTeamName(i).toUpperCase()}</small><b>${minefieldHullMarkup(f)}</b><small>${minefieldTeamStudents(i,run).length} students</small></div>`}).join('')}</div>`:'';
+      const teamStats=mode==='teams'?`<div class="minefield-team-mini">${Array.from({length:minefieldTeamCount(run)},(_,i)=>{const f=activeMinefield(run,i);return `<div><small>${minefieldTeamName(i).toUpperCase()}</small><b>${minefieldHullMarkup(f)} · ★ ${minefieldCrewScore(f)}</b><small>${minefieldTeamStudents(i,run).length} students</small></div>`}).join('')}</div>`:'';
       box.innerHTML=`<div class="activity-controller-head"><div><span class="slide-badge instruction">MINEFIELD</span><h2>${ended?(status==='won'?'Mission Complete':'Mission Over'):modeLabel}</h2><p>${ended?(mode==='teams'&&run.teamWinner!==null?`${minefieldTeamName(run.teamWinner)} cleared the map!`:esc(mf.message)):`${mode==='teams'?minefieldTeamName(teamIndex)+' · ':''}Turn ${mf.turn} · ${esc(nav?.n||'Waiting')} is Navigator`}</p></div><div class="controller-stats"><b>${minefieldHullMarkup(mf)}</b></div></div>
-        <div class="minefield-controller-body"><div>${minefieldBoardMarkup(run,{teacher:true,teamIndex})}</div><div class="minefield-status-card"><h3>${ended?'Game finished':'Current mission'}</h3>${minefieldNarrationMarkup(run,false,true)}${minefieldTeacherProgressMarkup(mf)}<p>${esc(mf.message)}</p><div class="minefield-stat-grid"><div class="minefield-stat"><small>NAVIGATOR</small><b>${esc(nav?.n||'—')}</b></div><div class="minefield-stat"><small>TURN</small><b>${mf.turn}</b></div><div class="minefield-stat"><small>MODE</small><b>${esc(modeLabel)}</b></div></div>${teamStats}${ended?'<button class="primary-action" id="minefieldPlayAgainBtn" style="width:100%;margin-top:10px">↻ Play Again</button>':''}<div class="minefield-safety"><button id="returnClassBtn">✓ Finish & Return</button><button class="minefield-send-lobby" id="sendActivityLobbyBtn">Ⅱ Pause & Keep Progress</button><button class="danger-action" id="emergencyActivityBtn">⚠ Emergency Return</button></div></div></div>`;
+        <div class="minefield-controller-body mf-v2"><div>${minefieldBoardMarkup(run,{teacher:true,teamIndex})}</div><div class="minefield-status-card"><h3>${ended?'Game finished':'Current mission'}</h3>${minefieldNarrationMarkup(run,false,true)}<div class="mf-controller-score">★ CREW SCORE <strong>${minefieldCrewScore(mf)}</strong></div>${minefieldTeacherProgressMarkup(mf)}<p>${esc(mf.message)}</p><div class="minefield-stat-grid"><div class="minefield-stat"><small>NAVIGATOR</small><b>${esc(nav?.n||'—')}</b></div><div class="minefield-stat"><small>TURN</small><b>${mf.turn}</b></div><div class="minefield-stat"><small>MODE</small><b>${esc(modeLabel)}</b></div></div>${teamStats}${ended?'<button class="primary-action" id="minefieldPlayAgainBtn" style="width:100%;margin-top:10px">↻ Play Again</button>':''}<div class="minefield-safety"><button id="returnClassBtn">✓ Finish & Return</button><button class="minefield-send-lobby" id="sendActivityLobbyBtn">Ⅱ Pause & Keep Progress</button><button class="danger-action" id="emergencyActivityBtn">⚠ Emergency Return</button></div></div></div>`;
     }
 
   } else if(a.type==='vector'){
@@ -18786,7 +18819,7 @@ function renderActivities(){
     title.textContent='MINEFIELD';subtitle.textContent='Work together to clear the map · Empty, health, or mine.';
     header.innerHTML=`<button id="backToAppsBtn">← Activity Library</button>`;$('#backToAppsBtn').onclick=backToAppLibrary;
     const teamCountControls=state.minefieldMode==='teams'?`<div class="minefield-team-count"><b>NUMBER OF CREWS</b>${[2,3].map(n=>`<button class="${Number(state.minefieldTeamCount)===n?'active':''}" data-mf-team-count="${n}">${n} Teams</button>`).join('')}<span style="color:#7f94b1;font-size:10px">Students are split automatically from the current Live Roster.</span></div>`:'';
-    grid.innerHTML=`<div class="minefield-setup"><span class="app-status">MINEFIELD APP</span><h3>Prepare the mission</h3><p>Work together to clear the board! Take turns choosing a hidden square. Find safe spaces, collect health, and avoid mines. <b>Reveal every safe square before your health reaches zero.</b></p><div class="minefield-objective simple-objective"><b>THE WHOLE GAME IN THREE SYMBOLS</b><div>✓ <b>EMPTY</b> = safe square · <span class="mf-simple-icon">♥</span> <b>HEALTH</b> = +1 heart · <span class="mf-simple-icon">💣</span> <b>MINE</b> = −1 heart</div><div style="margin-top:8px">Students take turns as Navigator; the class works together to clear the map. Every new game starts with a covered board.</div></div><div class="minefield-modes">${[
+    grid.innerHTML=`<div class="minefield-setup"><span class="app-status">MINEFIELD APP</span><h3>Prepare the mission</h3><p>Earn 1–5 points for every safe square. The more mines next to a square, the more it is worth—but avoid landing directly on a mine! <b>Reveal all safe squares before the crew runs out of health.</b></p><div class="minefield-objective simple-objective"><b>RISK + REWARD: SAFE SQUARES SCORE POINTS</b><div>★ 0 nearby mines = <b>1 point</b> · 1 nearby = <b>2</b> · 2 nearby = <b>3</b> · 3 nearby = <b>4</b> · 4+ nearby = <b>5</b></div><div><span class="mf-simple-icon">♥</span> <b>HEALTH</b> +1 · <span class="mf-simple-icon">💣</span> <b>MINE</b> −1 health</div><div style="margin-top:8px">Students take turns choosing covered squares and use revealed point clues to discuss the next risk. Every new game starts with a covered board.</div></div><div class="minefield-modes">${[
       ['crew','Co-op Classroom','One shared map · take turns · clear every safe square'],
       ['teams','Team Challenge','Separate boards · teams alternate revealing squares'],
       ['teacher','Teacher vs Class','Separate boards · first to clear all safe squares wins']

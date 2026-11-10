@@ -1,0 +1,378 @@
+/* SI Mothership · Minefield Risk + Reward
+   Approved graphical asset pack, 2026-11. All scores and turn text are live HTML.
+   Scoped to Minefield; saved games, student control and modal actions untouched. */
+:root{--mf2-root:"/assets/minefield-v2/"}
+#shared .minefield-public.mf-v2:has(> .minefield-narrator),
+#mirrorContent .minefield-public.mf-v2:has(> .minefield-narrator){
+  width:min(1540px,calc(100vw - 24px))!important;
+  max-width:none!important;
+  margin:clamp(3px,.6vh,11px) auto!important;
+  padding:clamp(12px,1.3vw,22px)!important;
+  grid-template-columns:minmax(0,1.13fr) minmax(300px,.87fr)!important;
+  grid-template-rows:auto auto auto minmax(0,1fr) auto!important;
+  gap:clamp(7px,.9vw,16px)!important;
+  border:0!important;border-radius:24px!important;
+  background:
+    linear-gradient(90deg,#01152b33,#04152c48),
+    url("/assets/minefield-v2/backgrounds/background_mission_16x9.png") center / cover no-repeat,
+    #061b37!important;
+  box-shadow:inset 0 0 0 2px #36c9f7a8,inset 0 0 25px #4fd7ff3c,0 18px 45px #0009!important;
+}
+#shared .minefield-public.mf-v2:has(> .minefield-narrator)>h3,
+#mirrorContent .minefield-public.mf-v2:has(> .minefield-narrator)>h3{
+  width:min(700px,75%)!important;height:clamp(61px,7vw,115px)!important;
+  font-size:0!important;letter-spacing:0!important;line-height:1!important;
+  padding:0!important;margin:0 auto!important;color:transparent!important;
+  background:url("/assets/minefield-v2/banners/wordmark_minefield.png") center / contain no-repeat!important;
+  filter:drop-shadow(0 4px 10px #001f44)!important;
+}
+#shared .minefield-public.mf-v2 .minefield-topline,
+#shared .minefield-public.mf-v2 .minefield-versus-score,
+#mirrorContent .minefield-public.mf-v2 .minefield-topline{
+  display:flex!important;flex-wrap:wrap!important;align-items:center!important;
+  justify-content:space-between!important;gap:clamp(6px,.85vw,12px)!important;
+  padding:9px clamp(12px,1.3vw,20px)!important;
+  border:1px solid #48d6ff!important;border-radius:13px!important;
+  background:linear-gradient(140deg,#05192dc9,#082d4dca),
+    url("/assets/minefield-v2/banners/banner_header_empty.png") center / 100% 100% no-repeat!important;
+  box-shadow:inset 0 0 16px #37bfff26,0 0 15px #16bff644!important;
+}
+#shared .minefield-public.mf-v2 .minefield-hull{
+  color:#ffb5bf!important;white-space:nowrap!important;
+  font-size:clamp(14px,1.4vw,21px)!important;
+}
+#shared .minefield-public.mf-v2 .mf-score-chip,
+#mirrorContent .minefield-public.mf-v2 .mf-score-chip{
+  display:inline-flex!important;align-items:center;gap:10px;
+  padding:6px 15px;color:#f4fbff!important;
+  background:linear-gradient(160deg,#0a3c6de8,#091f3ded)!important;
+  border:1px solid #67ddff;border-radius:12px;
+  box-shadow:inset 0 0 15px #23a2f72d,0 0 13px #27dbff30;
+  font-size:clamp(11px,1vw,17px)!important;font-weight:850;
+  letter-spacing:.045em;
+}
+#shared .minefield-public.mf-v2 .mf-score-chip b{
+  color:#fff09d;font:1000 clamp(20px,2vw,33px)/1 system-ui;
+  text-shadow:0 0 9px #ffcd60aa;
+}
+#shared .minefield-public.mf-v2 .minefield-navigator{
+  padding:8px 12px!important;font-size:clamp(11px,1vw,16px)!important;
+  border:1px solid #3cc5ed!important;
+  background:#043656d6 url("/assets/minefield-v2/banners/banner_navigator_empty.png") center / 100% 100% no-repeat!important;
+}
+#shared .minefield-public.mf-v2:has(> .minefield-narrator)>.minefield-board,
+#mirrorContent .minefield-public.mf-v2:has(> .minefield-narrator)>.minefield-board{
+  isolation:isolate!important;
+  position:relative!important;
+  padding:clamp(13px,1.65vw,29px)!important;
+  margin:0!important;width:min(100%,68dvh,760px)!important;
+  max-width:100%!important;min-width:0!important;
+  gap:clamp(3px,.55vw,8px)!important;
+  background:#05182e url("/assets/minefield-v2/backgrounds/texture_hexgrid.png") center / cover no-repeat!important;
+  border:2px solid #39b8ed!important;border-radius:24px!important;
+  box-shadow:inset 0 0 32px #0009,0 0 28px #21baff55!important;
+}
+.minefield-public.mf-v2>.minefield-board::after,
+.minefield-controller-body.mf-v2 .minefield-board::after{
+  content:"";position:absolute;inset:-9px;z-index:3;
+  pointer-events:none;border-radius:20px;
+  background:url("/assets/minefield-v2/frames/frame_board_outer.png") center / 100% 100% no-repeat;
+}
+.minefield-public.mf-v2>.minefield-board .minefield-axis{
+  color:#bdedff!important;text-shadow:0 1px 4px #00162f!important;
+  font-size:clamp(10px,1vw,17px)!important;font-weight:1000!important;
+}
+.minefield-board .minefield-cell.simple{
+  z-index:1!important;position:relative!important;
+  min-width:0!important;aspect-ratio:1 / 1!important;
+  padding:2px!important;overflow:hidden!important;
+  border:0!important;border-radius:clamp(3px,.6vw,10px)!important;
+  background:transparent url("/assets/minefield-v2/tiles/tile_hidden.png") center / 100% 100% no-repeat!important;
+  box-shadow:none!important;color:#b8e7fc!important;
+  font-size:clamp(16px,2.2vw,30px)!important;
+}
+.minefield-board .minefield-cell.simple.unknown:not(.ship){
+  background-image:url("/assets/minefield-v2/tiles/tile_hidden.png")!important;
+  color:transparent!important;text-shadow:none!important;
+}
+#shared .minefield-board .minefield-cell.simple.unknown:not(.ship)::after,
+.minefield-board .minefield-cell.simple.unknown:not(.ship)::after{
+  content:"";display:none!important;
+}
+.minefield-board .minefield-cell.simple.selected{
+  background-image:url("/assets/minefield-v2/tiles/tile_focus.png")!important;
+  outline:2px solid #7bffdb!important;outline-offset:0!important;
+  filter:drop-shadow(0 0 9px #40d9ff)!important;
+}
+.minefield-board .minefield-cell.simple.revealed.empty{
+  color:#f9feff!important;
+  background-image:url("/assets/minefield-v2/tiles/tile_safe_1pt.png")!important;
+}
+.minefield-board .minefield-cell.simple.revealed.empty.mf-value-1{
+  background-image:url("/assets/minefield-v2/tiles/tile_safe_1pt.png")!important;
+}
+.minefield-board .minefield-cell.simple.revealed.empty.mf-value-2{
+  background-image:url("/assets/minefield-v2/tiles/tile_safe_2pt.png")!important;
+}
+.minefield-board .minefield-cell.simple.revealed.empty.mf-value-3{
+  background-image:url("/assets/minefield-v2/tiles/tile_safe_3pt.png")!important;
+}
+.minefield-board .minefield-cell.simple.revealed.empty.mf-value-4{
+  background-image:url("/assets/minefield-v2/tiles/tile_safe_4pt.png")!important;
+}
+.minefield-board .minefield-cell.simple.revealed.empty.mf-value-5{
+  background-image:url("/assets/minefield-v2/tiles/tile_safe_5pt.png")!important;
+}
+.minefield-board .minefield-cell.simple.revealed.health{
+  background-image:url("/assets/minefield-v2/tiles/tile_health_bonus.png")!important;
+}
+.minefield-board .minefield-cell.simple.revealed.mine{
+  background-image:url("/assets/minefield-v2/tiles/tile_mine.png")!important;
+}
+.minefield-board .minefield-cell.simple.revealed.health,
+.minefield-board .minefield-cell.simple.revealed.mine{
+  color:transparent!important;font-size:0!important;
+}
+.minefield-board .minefield-cell.simple.revealed .mf-point-value{
+  position:relative;z-index:2;display:block;
+  font:1000 clamp(13px,2.2vw,34px)/1 system-ui!important;
+  color:#fbffff!important;text-shadow:0 2px 3px #03132e,0 0 9px #56fcffaa!important;
+}
+.minefield-board .minefield-cell.simple.revealed.mf-value-3 .mf-point-value,
+.minefield-board .minefield-cell.simple.revealed.mf-value-4 .mf-point-value,
+.minefield-board .minefield-cell.simple.revealed.mf-value-5 .mf-point-value{
+  color:#fff4da!important;text-shadow:0 2px 3px #4b1800,0 0 11px #ffc457b3!important;
+}
+.minefield-board .minefield-cell.simple.disabled:not(.revealed){
+  opacity:.6!important;
+}
+.minefield-board .minefield-cell.simple.selectable:hover,
+.minefield-board .minefield-cell.simple.selectable:focus-visible{
+  outline:2px solid #d4fcff!important;outline-offset:1px!important;
+  filter:brightness(1.2) drop-shadow(0 0 9px #61ebff)!important;
+}
+#shared .minefield-public.mf-v2:has(> .minefield-narrator)>.minefield-narrator,
+#mirrorContent .minefield-public.mf-v2:has(> .minefield-narrator)>.minefield-narrator{
+  min-width:0!important;padding:clamp(19px,1.7vw,32px)!important;
+  background:linear-gradient(140deg,#061d38c9,#062348df),
+    url("/assets/minefield-v2/frames/panel_narrator.png") center / 100% 100% no-repeat!important;
+  border:0!important;border-radius:20px!important;
+  box-shadow:0 7px 30px #000a,inset 0 0 16px #2b9dda35!important;
+}
+#shared .minefield-public.mf-v2 .minefield-narrator-head b{
+  color:#6befff!important;font-weight:1000!important;
+}
+#shared .minefield-public.mf-v2 .mf-coop-signal{
+  padding:clamp(8px,1vw,16px)!important;
+  border-radius:14px!important;
+  background:#062e41 url("/assets/minefield-v2/banners/banner_crew_ready_empty.png") center / 100% 100% no-repeat!important;
+  border:1px solid #6effc9!important;
+  color:#e7fff6!important;
+  font-size:clamp(18px,2.2vw,33px)!important;
+  text-shadow:0 0 12px #45ffcd90!important;
+}
+#shared .minefield-public.mf-v2 .mf-coop-signal.signal-reward{
+  background-image:url("/assets/minefield-v2/banners/banner_risk_reward_empty.png")!important;
+  color:#ffe8a9!important;border-color:#ffba54!important;
+}
+#shared .minefield-public.mf-v2 .mf-coop-signal.signal-mine{
+  background-image:url("/assets/minefield-v2/banners/banner_mine_hit_empty.png")!important;
+  border-color:#ff618c!important;color:#ffccd6!important;
+}
+#shared .minefield-public.mf-v2 .mf-coop-signal.signal-special{
+  background-image:url("/assets/minefield-v2/banners/banner_health_pickup_empty.png")!important;
+  border-color:#52fbbd!important;
+}
+#shared .minefield-public.mf-v2 .minefield-narrator-latest{
+  background:#062a4cd4 url("/assets/minefield-v2/frames/panel_mission_briefing.png") center / 100% 100% no-repeat!important;
+  border:1px solid #6deaff!important;border-radius:14px!important;
+  font-weight:800!important;font-size:clamp(16px,1.38vw,23px)!important;
+  line-height:1.4!important;
+  color:#f6fdff!important;
+}
+#shared .minefield-public.mf-v2 .minefield-event-log>div{
+  font-size:clamp(11px,.95vw,15px)!important;
+}
+#shared .minefield-public.mf-v2:has(> .minefield-narrator)>.minefield-simple-legend{
+  grid-row:5!important;grid-column:1/-1!important;
+  gap:clamp(3px,.45vw,8px)!important;
+  justify-content:center!important;align-content:center!important;
+  padding:9px 13px!important;
+  background:#041b35e8 url("/assets/minefield-v2/frames/panel_legend.png") center / 100% 100% no-repeat!important;
+  border:1px solid #2dc5f0!important;border-radius:16px!important;
+}
+#shared .minefield-public.mf-v2 .minefield-simple-legend>span{
+  padding:6px 9px!important;white-space:normal!important;
+  font-size:clamp(10px,.8vw,13px)!important;
+  min-height:34px!important;border-radius:9px!important;
+  color:#d6f2ff!important;background:#072b4dbd!important;
+}
+#shared .minefield-public.mf-v2 .mf-legend-score{
+  color:#ffe395!important;border-color:#fac15d!important;
+}
+#shared .minefield-public.mf-v2 .mf-progress-label{
+  color:#9efbd6!important;border-color:#68ffc6!important;
+}
+#shared .minefield-public.mf-v2:has(> .minefield-narrator)>.minefield-message{
+  grid-row:6!important;grid-column:1/-1!important;
+  margin:0!important;padding:10px 14px!important;
+  background:#062441e3!important;
+  border:1px solid #328fcb!important;
+  font-size:clamp(11px,.9vw,14px)!important;
+}
+#shared .minefield-public.mf-v2:has(> .minefield-narrator){
+  grid-template-rows:auto auto auto minmax(0,1fr) auto auto!important;
+}
+#teacher .minefield-controller-body.mf-v2{
+  display:grid!important;grid-template-columns:minmax(0,1.12fr) minmax(300px,.88fr)!important;
+  gap:clamp(9px,1vw,18px)!important;align-items:start!important;
+  background:transparent!important;
+}
+#teacher .minefield-controller-body.mf-v2>.minefield-board,
+#teacher .minefield-controller-body.mf-v2>div>.minefield-board{
+  position:relative!important;isolation:isolate!important;
+  background:#05182d url("/assets/minefield-v2/backgrounds/texture_hexgrid.png") center / cover no-repeat!important;
+  border:2px solid #2fc4f5!important;border-radius:20px!important;
+  padding:clamp(14px,1.5vw,26px)!important;min-width:0!important;
+  box-shadow:0 0 23px #11c2ff3c,inset 0 0 17px #010f27!important;
+}
+#teacher .minefield-controller-body.mf-v2 .minefield-status-card{
+  background:linear-gradient(150deg,#05172ecf,#062543dc),
+   url("/assets/minefield-v2/frames/panel_narrator.png") center / 100% 100% no-repeat!important;
+  border:1px solid #49c5ea!important;
+  border-radius:18px!important;
+  padding:clamp(15px,1.4vw,27px)!important;
+  box-shadow:0 11px 27px #0008!important;
+  min-width:0!important;
+}
+#teacher .minefield-controller-body.mf-v2 .minefield-status-card h3{
+  color:#e9faff!important;font-size:clamp(18px,1.5vw,26px)!important;
+  font-weight:950!important;
+}
+#teacher .minefield-controller-body.mf-v2 .minefield-narrator-latest{
+  font-size:clamp(14px,1.1vw,20px)!important;
+  line-height:1.4!important;
+}
+#teacher .minefield-controller-body.mf-v2 .mf-controller-score{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 17px;margin:10px 0;
+  background:#082847 url("/assets/minefield-v2/banners/banner_score_empty.png") center / 100% 100% no-repeat;
+  border:1px solid #7ddeff;border-radius:11px;
+  color:#e9faff;font:850 clamp(12px,1vw,16px)/1.3 system-ui;
+}
+#teacher .minefield-controller-body.mf-v2 .mf-controller-score strong{
+  color:#ffe799;font-size:clamp(21px,2vw,34px);
+  text-shadow:0 0 10px #ffc44c90;
+}
+#teacher .minefield-controller-body.mf-v2 .minefield-stat{
+  background:#062c4bd4 url("/assets/minefield-v2/frames/panel_small_stat.png") center / 100% 100% no-repeat!important;
+  border:1px solid #459dcc!important;
+  border-radius:10px!important;
+}
+#teacher #activityControllerPanel:has(.minefield-controller-body.mf-v2){
+  background:linear-gradient(160deg,#06172cdc,#052447dd),
+    url("/assets/minefield-v2/backgrounds/background_teacher_16x9.png") center / cover no-repeat!important;
+}
+#teacher #activityControllerPanel:has(.minefield-controller-body.mf-v2) .activity-controller-head{
+  background:#071c35d9 url("/assets/minefield-v2/banners/banner_header_empty.png") center / 100% 100% no-repeat!important;
+  border:1px solid #43c5ea!important;border-radius:14px!important;
+  padding:11px 14px!important;margin-bottom:12px!important;
+}
+#teacher #activityGrid .minefield-setup{
+  background:linear-gradient(160deg,#051c35e8,#0c2f50c9),
+    url("/assets/minefield-v2/backgrounds/background_teacher_16x9.png") center / cover no-repeat!important;
+  border:1px solid #52ceeb!important;border-radius:20px!important;
+  box-shadow:0 13px 34px #0008!important;
+}
+#teacher #activityGrid .minefield-setup .minefield-objective,
+#teacher #activityGrid .minefield-setup .minefield-modes,
+#teacher #activityGrid .minefield-setup .minefield-lengths,
+#teacher #activityGrid .minefield-setup .minefield-saved-presets{
+  background:#071e37df url("/assets/minefield-v2/frames/panel_teacher_settings.png") center / 100% 100% no-repeat!important;
+  border:1px solid #51bcdf!important;border-radius:14px!important;
+  padding:clamp(12px,1vw,19px)!important;
+}
+#teacher #activityGrid .minefield-setup button.minefield-launch,
+#teacher #activityGrid .minefield-setup button.preset-save-btn,
+#teacher .minefield-controller-body.mf-v2 button.minefield-reveal-btn{
+  background:#0d516b url("/assets/minefield-v2/buttons/button_confirm.png") center / 100% 100% no-repeat!important;
+  border:0!important;border-radius:9px!important;
+  color:#f6fff9!important;font-weight:950!important;text-shadow:0 1px 3px #001c29!important;
+  min-height:42px!important;
+}
+#teacher #activityGrid .minefield-setup button.preset-save-btn{
+  background-image:url("/assets/minefield-v2/buttons/button_primary.png")!important;
+}
+#teacher .minefield-controller-body.mf-v2 .minefield-safety{
+  display:flex!important;gap:7px!important;flex-wrap:wrap!important;
+}
+#teacher .minefield-controller-body.mf-v2 .minefield-safety button{
+  background:#092b4c url("/assets/minefield-v2/buttons/button_primary.png") center / 100% 100% no-repeat!important;
+  border:0!important;min-height:44px!important;border-radius:9px!important;
+  color:#eaffff!important;text-shadow:0 1px 3px #000!important;
+  flex:1 1 135px!important;font-size:clamp(11px,.85vw,14px)!important;
+}
+#teacher .minefield-controller-body.mf-v2 .minefield-safety .danger-action{
+  background-image:url("/assets/minefield-v2/buttons/button_danger.png")!important;
+}
+#teacher .minefield-controller-body.mf-v2 .minefield-safety .minefield-send-lobby{
+  background-image:url("/assets/minefield-v2/buttons/button_warn.png")!important;
+}
+.student-prompt:has(> .minefield-board),
+.student-prompt:has(.minefield-turn-banner),
+#studentContent .minefield-turn-banner{
+  border-color:#48d2ff!important;
+}
+#studentContent .student-prompt:has(.minefield-board){
+  background:#051832 url("/assets/minefield-v2/backgrounds/background_student_9x16.png") center / cover no-repeat!important;
+}
+#studentContent .minefield-board{
+  max-width:100%!important;min-width:0!important;
+  padding:clamp(8px,1.7vw,17px)!important;
+  background:#051a31 url("/assets/minefield-v2/backgrounds/texture_hexgrid.png") center / cover no-repeat!important;
+  border:1px solid #45c3ef!important;
+}
+#studentContent .minefield-board .mf-point-value{
+  font-size:clamp(12px,4vw,24px)!important;
+}
+#studentContent .minefield-narrator{
+  background:#062645c9 url("/assets/minefield-v2/frames/panel_student_controls.png") center / 100% 100% no-repeat!important;
+}
+#studentContent .minefield-controls button{
+  background:#0b3455 url("/assets/minefield-v2/buttons/button_confirm.png") center / 100% 100% no-repeat!important;
+  min-height:53px!important;border:0!important;border-radius:9px!important;
+  color:#faffff!important;font-weight:950!important;
+}
+#studentContent .minefield-controls button:disabled{filter:saturate(.35);opacity:.65!important}
+.minefield-public.mf-v2 .minefield-result.win{
+  background:#051a33 url("/assets/minefield-v2/screens/screen_win_backdrop.png") center / cover no-repeat!important;
+}
+.minefield-public.mf-v2 .minefield-result.loss{
+  background:#231123 url("/assets/minefield-v2/screens/screen_loss_backdrop.png") center / cover no-repeat!important;
+}
+@media(max-width:1050px){
+  #shared .minefield-public.mf-v2:has(> .minefield-narrator),
+  #mirrorContent .minefield-public.mf-v2:has(> .minefield-narrator){
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:auto!important;
+  }
+  #shared .minefield-public.mf-v2:has(> .minefield-narrator)>*,
+  #mirrorContent .minefield-public.mf-v2:has(> .minefield-narrator)>*{
+    grid-column:1!important;grid-row:auto!important;
+  }
+  #shared .minefield-public.mf-v2:has(> .minefield-narrator)>.minefield-board{
+    width:min(93vw,70dvh,740px)!important;margin:auto!important;
+  }
+  #teacher .minefield-controller-body.mf-v2{grid-template-columns:1fr!important}
+}
+@media(max-width:520px){
+  #shared .minefield-public.mf-v2:has(> .minefield-narrator){padding:8px!important;margin:3px auto!important}
+  #shared .minefield-public.mf-v2 .minefield-topline{gap:5px!important;padding:6px!important}
+  #shared .minefield-public.mf-v2 .mf-score-chip{padding:5px 8px!important}
+  #shared .minefield-public.mf-v2 .mf-score-chip b{font-size:19px!important}
+  #shared .minefield-public.mf-v2 .minefield-board{padding:11px!important;gap:3px!important}
+  #shared .minefield-public.mf-v2 .minefield-simple-legend>span{padding:5px!important;font-size:10px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .minefield-board .minefield-cell.simple{transition:none!important;animation:none!important}
+}

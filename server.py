@@ -5172,7 +5172,8 @@ async def index(request: web.Request) -> web.Response:
                          '<link rel="stylesheet" href="/match-pixel-teacher-art-v1.css?v=1">'
                          '<link rel="stylesheet" href="/match-illustrated-v2.css?v=2">'
                          '<link rel="stylesheet" href="/match-illustrated-v2-png.css?v=1">'
-                         '<link rel="stylesheet" href="/activity-library-concept-v2.css?v=1"></head>', 1)
+                         '<link rel="stylesheet" href="/activity-library-concept-v2.css?v=1">'
+                         '<link rel="stylesheet" href="/minefield-v2.css?v=2"></head>', 1)
     # Insert before the final body close: index.html also contains HTML strings
     # in internal scripts, so replacing the first occurrence would corrupt JS.
     body_close = text.rfind("</body>")
@@ -5282,6 +5283,25 @@ async def cosmic_cards_script(request: web.Request) -> web.Response:
 
 async def cosmic_cards_style(request: web.Request) -> web.Response:
     return web.FileResponse(ROOT / "cosmic-cards.css", headers={"Cache-Control": "no-store"})
+
+
+
+async def minefield_v2_graphic(request: web.Request) -> web.Response:
+    """Serve ONLY the approved Minefield-v2 PNG artwork, never arbitrary files."""
+    folder = str(request.match_info.get("folder") or "")
+    name = str(request.match_info.get("name") or "")
+    if folder not in {"backgrounds", "banners", "buttons", "effects", "frames", "icons", "screens", "tiles"}:
+        raise web.HTTPNotFound()
+    if not re.fullmatch(r"[a-z0-9_-]+\.png", name):
+        raise web.HTTPNotFound()
+    path = ROOT / "assets" / "minefield-v2" / folder / name
+    if not path.is_file():
+        raise web.HTTPNotFound()
+    return web.FileResponse(path, headers={"Cache-Control": "public, max-age=3600"})
+
+
+async def minefield_v2_stylesheet(request: web.Request) -> web.Response:
+    return web.FileResponse(ROOT / "minefield-v2.css", headers={"Cache-Control": "no-store"})
 
 
 async def minefield_app_artwork(request: web.Request) -> web.Response:
@@ -6839,6 +6859,8 @@ def create_app() -> web.Application:
     app.router.add_get("/cosmic-cc-emblem.svg", cosmic_cards_artwork)
     app.router.add_get("/cosmic-cards-app.svg", cosmic_cards_artwork)
     app.router.add_get("/minefield-app-icon.webp", minefield_app_artwork)
+    app.router.add_get("/assets/minefield-v2/{folder}/{name}", minefield_v2_graphic)
+    app.router.add_get("/minefield-v2.css", minefield_v2_stylesheet)
     app.router.add_get("/tools/scientific-calculator", scientific_calculator)
     app.router.add_get("/tools/scientific-calculator/", scientific_calculator)
     app.router.add_get("/tools/scientific-calculator/engine.js", scientific_calculator_engine)
