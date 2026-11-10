@@ -2,7 +2,7 @@
    Approved graphical asset pack, 2026-11. All scores and turn text are live HTML.
    Scoped to Minefield; saved games, student control and modal actions untouched. */
 :root{--mf2-root:"/assets/minefield-v2/"}
-#shared .minefield-public.mf-v2:has(> .minefield-narrator),
+:is(#shared,#mirrorContent) .minefield-public.mf-v2:has(> .minefield-narrator),
 #mirrorContent .minefield-public.mf-v2:has(> .minefield-narrator){
   width:min(1540px,calc(100vw - 24px))!important;
   max-width:none!important;
@@ -18,7 +18,7 @@
     #061b37!important;
   box-shadow:inset 0 0 0 2px #36c9f7a8,inset 0 0 25px #4fd7ff3c,0 18px 45px #0009!important;
 }
-#shared .minefield-public.mf-v2:has(> .minefield-narrator)>h3,
+:is(#shared,#mirrorContent) .minefield-public.mf-v2:has(> .minefield-narrator)>h3,
 #mirrorContent .minefield-public.mf-v2:has(> .minefield-narrator)>h3{
   width:min(700px,75%)!important;height:clamp(61px,7vw,115px)!important;
   font-size:0!important;letter-spacing:0!important;line-height:1!important;
@@ -26,8 +26,8 @@
   background:url("/assets/minefield-v2/banners/wordmark_minefield.png") center / contain no-repeat!important;
   filter:drop-shadow(0 4px 10px #001f44)!important;
 }
-#shared .minefield-public.mf-v2 .minefield-topline,
-#shared .minefield-public.mf-v2 .minefield-versus-score,
+:is(#shared,#mirrorContent) .minefield-public.mf-v2 .minefield-topline,
+:is(#shared,#mirrorContent) .minefield-public.mf-v2 .minefield-versus-score,
 #mirrorContent .minefield-public.mf-v2 .minefield-topline{
   display:flex!important;flex-wrap:wrap!important;align-items:center!important;
   justify-content:space-between!important;gap:clamp(6px,.85vw,12px)!important;
@@ -37,11 +37,11 @@
     url("/assets/minefield-v2/banners/banner_header_empty.png") center / 100% 100% no-repeat!important;
   box-shadow:inset 0 0 16px #37bfff26,0 0 15px #16bff644!important;
 }
-#shared .minefield-public.mf-v2 .minefield-hull{
+:is(#shared,#mirrorContent) .minefield-public.mf-v2 .minefield-hull{
   color:#ffb5bf!important;white-space:nowrap!important;
   font-size:clamp(14px,1.4vw,21px)!important;
 }
-#shared .minefield-public.mf-v2 .mf-score-chip,
+:is(#shared,#mirrorContent) .minefield-public.mf-v2 .mf-score-chip,
 #mirrorContent .minefield-public.mf-v2 .mf-score-chip{
   display:inline-flex!important;align-items:center;gap:10px;
   padding:6px 15px;color:#f4fbff!important;
@@ -51,16 +51,16 @@
   font-size:clamp(11px,1vw,17px)!important;font-weight:850;
   letter-spacing:.045em;
 }
-#shared .minefield-public.mf-v2 .mf-score-chip b{
+:is(#shared,#mirrorContent) .minefield-public.mf-v2 .mf-score-chip b{
   color:#fff09d;font:1000 clamp(20px,2vw,33px)/1 system-ui;
   text-shadow:0 0 9px #ffcd60aa;
 }
-#shared .minefield-public.mf-v2 .minefield-navigator{
+:is(#shared,#mirrorContent) .minefield-public.mf-v2 .minefield-navigator{
   padding:8px 12px!important;font-size:clamp(11px,1vw,16px)!important;
   border:1px solid #3cc5ed!important;
   background:#043656d6 url("/assets/minefield-v2/banners/banner_navigator_empty.png") center / 100% 100% no-repeat!important;
 }
-#shared .minefield-public.mf-v2:has(> .minefield-narrator)>.minefield-board,
+:is(#shared,#mirrorContent) .minefield-public.mf-v2:has(> .minefield-narrator)>.minefield-board,
 #mirrorContent .minefield-public.mf-v2:has(> .minefield-narrator)>.minefield-board{
   isolation:isolate!important;
   position:relative!important;
@@ -95,7 +95,7 @@
   background-image:url("/assets/minefield-v2/tiles/tile_hidden.png")!important;
   color:transparent!important;text-shadow:none!important;
 }
-#shared .minefield-board .minefield-cell.simple.unknown:not(.ship)::after,
+:is(#shared,#mirrorContent) .minefield-board .minefield-cell.simple.unknown:not(.ship)::after,
 :is(#shared,#teacher,#student,#mirrorContent) .minefield-board .minefield-cell.simple.unknown:not(.ship)::after{
   content:"";display:none!important;
 }
@@ -151,7 +151,7 @@
   outline:2px solid #d4fcff!important;outline-offset:1px!important;
   filter:brightness(1.2) drop-shadow(0 0 9px #61ebff)!important;
 }
-#shared .minefield-public.mf-v2:has(> .minefield-narrator)>.minefield-narrator,
+:is(#shared,#mirrorContent) .minefield-public.mf-v2:has(> .minefield-narrator)>.minefield-narrator,
 #mirrorContent .minefield-public.mf-v2:has(> .minefield-narrator)>.minefield-narrator{
   min-width:0!important;padding:clamp(19px,1.7vw,32px)!important;
   background:linear-gradient(140deg,#061d38c9,#062348df),
@@ -159,10 +159,10 @@
   border:0!important;border-radius:20px!important;
   box-shadow:0 7px 30px #000a,inset 0 0 16px #2b9dda35!important;
 }
-#shared .minefield-public.mf-v2 .minefield-narrator-head b{
+:is(#shared,#mirrorContent) .minefield-public.mf-v2 .minefield-narrator-head b{
   color:#6befff!important;font-weight:1000!important;
 }
-#shared .minefield-public.mf-v2 .mf-coop-signal{
+:is(#shared,#mirrorContent) .minefield-public.mf-v2 .mf-coop-signal{
   padding:clamp(8px,1vw,16px)!important;
   border-radius:14px!important;
   background:#062e41 url("/assets/minefield-v2/banners/banner_crew_ready_empty.png") center / 100% 100% no-repeat!important;
@@ -171,29 +171,29 @@
   font-size:clamp(18px,2.2vw,33px)!important;
   text-shadow:0 0 12px #45ffcd90!important;
 }
-#shared .minefield-public.mf-v2 .mf-coop-signal.signal-reward{
+:is(#shared,#mirrorContent) .minefield-public.mf-v2 .mf-coop-signal.signal-reward{
   background-image:url("/assets/minefield-v2/banners/banner_risk_reward_empty.png")!important;
   color:#ffe8a9!important;border-color:#ffba54!important;
 }
-#shared .minefield-public.mf-v2 .mf-coop-signal.signal-mine{
+:is(#shared,#mirrorContent) .minefield-public.mf-v2 .mf-coop-signal.signal-mine{
   background-image:url("/assets/minefield-v2/banners/banner_mine_hit_empty.png")!important;
   border-color:#ff618c!important;color:#ffccd6!important;
 }
-#shared .minefield-public.mf-v2 .mf-coop-signal.signal-special{
+:is(#shared,#mirrorContent) .minefield-public.mf-v2 .mf-coop-signal.signal-special{
   background-image:url("/assets/minefield-v2/banners/banner_health_pickup_empty.png")!important;
   border-color:#52fbbd!important;
 }
-#shared .minefield-public.mf-v2 .minefield-narrator-latest{
+:is(#shared,#mirrorContent) .minefield-public.mf-v2 .minefield-narrator-latest{
   background:#062a4cd4 url("/assets/minefield-v2/frames/panel_mission_briefing.png") center / 100% 100% no-repeat!important;
   border:1px solid #6deaff!important;border-radius:14px!important;
   font-weight:800!important;font-size:clamp(16px,1.38vw,23px)!important;
   line-height:1.4!important;
   color:#f6fdff!important;
 }
-#shared .minefield-public.mf-v2 .minefield-event-log>div{
+:is(#shared,#mirrorContent) .minefield-public.mf-v2 .minefield-event-log>div{
   font-size:clamp(11px,.95vw,15px)!important;
 }
-#shared .minefield-public.mf-v2:has(> .minefield-narrator)>.minefield-simple-legend{
+:is(#shared,#mirrorContent) .minefield-public.mf-v2:has(> .minefield-narrator)>.minefield-simple-legend{
   grid-row:5!important;grid-column:1/-1!important;
   gap:clamp(3px,.45vw,8px)!important;
   justify-content:center!important;align-content:center!important;
@@ -201,26 +201,26 @@
   background:#041b35e8 url("/assets/minefield-v2/frames/panel_legend.png") center / 100% 100% no-repeat!important;
   border:1px solid #2dc5f0!important;border-radius:16px!important;
 }
-#shared .minefield-public.mf-v2 .minefield-simple-legend>span{
+:is(#shared,#mirrorContent) .minefield-public.mf-v2 .minefield-simple-legend>span{
   padding:6px 9px!important;white-space:normal!important;
   font-size:clamp(10px,.8vw,13px)!important;
   min-height:34px!important;border-radius:9px!important;
   color:#d6f2ff!important;background:#072b4dbd!important;
 }
-#shared .minefield-public.mf-v2 .mf-legend-score{
+:is(#shared,#mirrorContent) .minefield-public.mf-v2 .mf-legend-score{
   color:#ffe395!important;border-color:#fac15d!important;
 }
-#shared .minefield-public.mf-v2 .mf-progress-label{
+:is(#shared,#mirrorContent) .minefield-public.mf-v2 .mf-progress-label{
   color:#9efbd6!important;border-color:#68ffc6!important;
 }
-#shared .minefield-public.mf-v2:has(> .minefield-narrator)>.minefield-message{
+:is(#shared,#mirrorContent) .minefield-public.mf-v2:has(> .minefield-narrator)>.minefield-message{
   grid-row:6!important;grid-column:1/-1!important;
   margin:0!important;padding:10px 14px!important;
   background:#062441e3!important;
   border:1px solid #328fcb!important;
   font-size:clamp(11px,.9vw,14px)!important;
 }
-#shared .minefield-public.mf-v2:has(> .minefield-narrator){
+:is(#shared,#mirrorContent) .minefield-public.mf-v2:has(> .minefield-narrator){
   grid-template-rows:auto auto auto minmax(0,1fr) auto auto!important;
 }
 #teacher .minefield-controller-body.mf-v2{
@@ -351,27 +351,27 @@
   background:#231123 url("/assets/minefield-v2/screens/screen_loss_backdrop.png") center / cover no-repeat!important;
 }
 @media(max-width:1050px){
-  #shared .minefield-public.mf-v2:has(> .minefield-narrator),
+  :is(#shared,#mirrorContent) .minefield-public.mf-v2:has(> .minefield-narrator),
   #mirrorContent .minefield-public.mf-v2:has(> .minefield-narrator){
     grid-template-columns:minmax(0,1fr)!important;
     grid-template-rows:auto!important;
   }
-  #shared .minefield-public.mf-v2:has(> .minefield-narrator)>*,
+  :is(#shared,#mirrorContent) .minefield-public.mf-v2:has(> .minefield-narrator)>*,
   #mirrorContent .minefield-public.mf-v2:has(> .minefield-narrator)>*{
     grid-column:1!important;grid-row:auto!important;
   }
-  #shared .minefield-public.mf-v2:has(> .minefield-narrator)>.minefield-board{
+  :is(#shared,#mirrorContent) .minefield-public.mf-v2:has(> .minefield-narrator)>.minefield-board{
     width:min(93vw,70dvh,740px)!important;margin:auto!important;
   }
   #teacher .minefield-controller-body.mf-v2{grid-template-columns:1fr!important}
 }
 @media(max-width:520px){
-  #shared .minefield-public.mf-v2:has(> .minefield-narrator){padding:8px!important;margin:3px auto!important}
-  #shared .minefield-public.mf-v2 .minefield-topline{gap:5px!important;padding:6px!important}
-  #shared .minefield-public.mf-v2 .mf-score-chip{padding:5px 8px!important}
-  #shared .minefield-public.mf-v2 .mf-score-chip b{font-size:19px!important}
-  #shared .minefield-public.mf-v2 .minefield-board{padding:11px!important;gap:3px!important}
-  #shared .minefield-public.mf-v2 .minefield-simple-legend>span{padding:5px!important;font-size:10px!important}
+  :is(#shared,#mirrorContent) .minefield-public.mf-v2:has(> .minefield-narrator){padding:8px!important;margin:3px auto!important}
+  :is(#shared,#mirrorContent) .minefield-public.mf-v2 .minefield-topline{gap:5px!important;padding:6px!important}
+  :is(#shared,#mirrorContent) .minefield-public.mf-v2 .mf-score-chip{padding:5px 8px!important}
+  :is(#shared,#mirrorContent) .minefield-public.mf-v2 .mf-score-chip b{font-size:19px!important}
+  :is(#shared,#mirrorContent) .minefield-public.mf-v2 .minefield-board{padding:11px!important;gap:3px!important}
+  :is(#shared,#mirrorContent) .minefield-public.mf-v2 .minefield-simple-legend>span{padding:5px!important;font-size:10px!important}
 }
 @media(prefers-reduced-motion:reduce){
   .minefield-board .minefield-cell.simple{transition:none!important;animation:none!important}
@@ -381,20 +381,20 @@
 /* Minefield v2 hotfix — the uploaded board frame includes an opaque center.
    A z-index:3 overlay covered playable tiles while leaving tooltips active.
    Keep the graphic rail BEHIND the squares and make the board labels readable. */
-#shared .minefield-public.mf-v2>.minefield-board::after,
+:is(#shared,#mirrorContent) .minefield-public.mf-v2>.minefield-board::after,
 #mirrorContent .minefield-public.mf-v2>.minefield-board::after,
 #teacher .minefield-controller-body.mf-v2 .minefield-board::after{
   z-index:0!important;
   pointer-events:none!important;
 }
-#shared .minefield-public.mf-v2>.minefield-board .minefield-cell,
+:is(#shared,#mirrorContent) .minefield-public.mf-v2>.minefield-board .minefield-cell,
 #mirrorContent .minefield-public.mf-v2>.minefield-board .minefield-cell,
 #teacher .minefield-controller-body.mf-v2 .minefield-board .minefield-cell{
   position:relative!important;
   z-index:2!important;
   isolation:isolate;
 }
-#shared .minefield-public.mf-v2>.minefield-board .minefield-axis,
+:is(#shared,#mirrorContent) .minefield-public.mf-v2>.minefield-board .minefield-axis,
 #mirrorContent .minefield-public.mf-v2>.minefield-board .minefield-axis,
 #teacher .minefield-controller-body.mf-v2 .minefield-board .minefield-axis{
   position:relative!important;
@@ -451,5 +451,32 @@
   }
   #teacher .minefield-controller-body.mf-v2 .minefield-safety button{
     flex:1 1 100%!important;
+  }
+}
+
+/* Mirror/second-screen parity and compact Mission Control action safety.
+   Keep gameplay in HTML/JS: these styles never expose an unrevealed tile. */
+#teacher #siLiveControlDock:has(.minefield-controller-body.mf-v2) .si-control-body{
+  overscroll-behavior-y:contain;
+  scroll-padding-block:16px;
+}
+#teacher .minefield-controller-body.mf-v2 .minefield-status-card{
+  overflow-wrap:anywhere!important;
+}
+#teacher .minefield-controller-body.mf-v2 :is(.minefield-reveal-btn,.minefield-safety button){
+  min-height:50px!important;
+  white-space:normal!important;
+  line-height:1.25!important;
+  overflow-wrap:anywhere!important;
+}
+#teacher .minefield-controller-body.mf-v2 button:focus-visible,
+#studentContent .minefield-controls button:focus-visible{
+  outline:3px solid #ffe8a5!important;
+  outline-offset:3px!important;
+}
+@container (max-width:520px){
+  #teacher .minefield-controller-body.mf-v2 .minefield-reveal-btn{
+    width:100%!important;
+    min-height:52px!important;
   }
 }

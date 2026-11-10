@@ -80,17 +80,54 @@ if(!/^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?\/?$/.test(BASE))
   // The floating teacher dock can be resized without forcing the Minefield
   // mission panel off the right edge of the dock.
   const compact=await teacher.evaluate(async()=>{
-   const dock=document.querySelector('#siLiveControlDock');
-   const body=document.querySelector('.minefield-controller-body');
-   dock.style.width='600px';
-   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-   const cols=getComputedStyle(body).gridTemplateColumns.split(' ').length;
-   const parent=body.getBoundingClientRect(),board=body.querySelector('.minefield-board').getBoundingClientRect();
-   dock.style.width='';
-   return {cols,bodyWidth:parent.width,boardRight:board.right,bodyRight:parent.right};
+    const dock=document.querySelector('#siLiveControlDock');
+    const body=document.querySelector('.minefield-controller-body');
+    const checks=[];
+    for(const width of [600,440]){
+      dock.style.width=width+'px';
+      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+      const cols=getComputedStyle(body).gridTemplateColumns.split(' ').length;
+      const parent=body.getBoundingClientRect();
+      const board=body.querySelector('.minefield-board').getBoundingClientRect();
+      const action=body.querySelector('.minefield-safety button')?.getBoundingClientRect();
+      checks.push({width,cols,boardRight:board.right,bodyRight:parent.right,
+        actionRight:action?.right,actionWidth:action?.width});
+    }
+    dock.style.width='';
+    return checks;
   });
-  assert.equal(compact.cols,1,'Narrow teacher dock must stack Minefield controls: '+JSON.stringify(compact));
-  assert.ok(compact.boardRight<=compact.bodyRight+2,'Board clips beyond dock: '+JSON.stringify(compact));
+  for(const check of compact){
+    assert.equal(check.cols,1,'Narrow teacher dock must stack Minefield controls: '+JSON.stringify(check));
+    assert.ok(check.boardRight<=check.bodyRight+2,'Board clips beyond dock: '+JSON.stringify(check));
+    assert.ok(check.actionWidth>=90&&check.actionRight<=check.bodyRight+2,
+      'Mission action clipped or too small: '+JSON.stringify(check));
+  }
+  // Projector and secondary-screen mirror must use the same illustrated
+  // score, narrator and risk legend — without affecting hidden-tile privacy.
+  const mirrorStyles=await projector.evaluate(()=>{
+    const original=document.querySelector('#sharedContent .minefield-public.mf-v2');
+    const mirror=document.createElement('section');
+    mirror.id='mirrorContent';
+    mirror.style.cssText='position:absolute;top:-5000px;left:0;width:1200px';
+    mirror.appendChild(original.cloneNode(true));
+    document.body.appendChild(mirror);
+    const selectors=['.mf-score-chip','.minefield-narrator','.minefield-simple-legend'];
+    const found=selectors.map(selector=>{
+      const source=original.querySelector(selector);
+      const copy=mirror.querySelector(selector);
+      if(!source||!copy)return {selector,missing:true};
+      const a=getComputedStyle(source),b=getComputedStyle(copy);
+      return {selector,sourceBg:a.backgroundImage,mirrorBg:b.backgroundImage,
+        sourceColor:a.color,mirrorColor:b.color};
+    });
+    mirror.remove();
+    return found;
+  });
+  for(const entry of mirrorStyles){
+    assert.ok(!entry.missing,'Missing Minefield mirror surface: '+entry.selector);
+    assert.equal(entry.mirrorBg,entry.sourceBg,'Mirror artwork differs: '+entry.selector);
+    assert.equal(entry.mirrorColor,entry.sourceColor,'Mirror text contrast differs: '+entry.selector);
+  }
   console.log('MINEFIELD_TILE_IMAGE_PIXELS',JSON.stringify(pixelInfo));
   assert.equal(await projector.locator('#sharedContent .minefield-cell').count(),36);
   assert.equal(await projector.locator('#sharedContent .mf-score-chip').count(),1);
