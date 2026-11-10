@@ -27,6 +27,41 @@ if(!/^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?\/?$/.test(BASE))
   await teacher.waitForSelector('#activityControllerPanel .minefield-controller-body.mf-v2');
   await projector.goto(BASE+'/?role=shared&sid='+encodeURIComponent(sid),{waitUntil:'domcontentloaded'});
   await projector.waitForSelector('#sharedContent .minefield-public.mf-v2',{timeout:20000});
+  const diagnostic=await teacher.evaluate(()=>{
+   const panel=document.querySelector('#activityControllerPanel');
+   const board=document.querySelector('.minefield-controller-body .minefield-board');
+   const tile=board?.querySelector('.minefield-cell');
+   const css=tile&&getComputedStyle(tile);
+   const ancestors=[];let e=panel;for(let i=0;i<6&&e;i++,e=e.parentElement){
+    const r=e.getBoundingClientRect(),c=getComputedStyle(e);
+    ancestors.push({tag:e.tagName,id:e.id,cls:String(e.className).slice(0,120),
+      rect:[Math.round(r.x),Math.round(r.y),Math.round(r.width),Math.round(r.height)],
+      position:c.position,overflow:c.overflow,transform:c.transform});
+   }
+   const b=board?.getBoundingClientRect(),t=tile?.getBoundingClientRect();
+   return {viewport:[innerWidth,innerHeight],ancestors,
+     board:b&&[b.x,b.y,b.width,b.height],
+     tile:t&&[t.x,t.y,t.width,t.height],
+     tileCSS:css&&{display:css.display,opacity:css.opacity,visibility:css.visibility,
+      backgroundImage:css.backgroundImage,backgroundColor:css.backgroundColor,
+      color:css.color,zIndex:css.zIndex,fontSize:css.fontSize},
+     tileCount:board?.querySelectorAll('.minefield-cell').length};
+  });
+  console.log('MINEFIELD_TEACHER_GEOMETRY',JSON.stringify(diagnostic));
+  const pixelInfo=await projector.evaluate(async()=>{
+   const uri='/assets/minefield-v2/tiles/tile_hidden.png';
+   const img=new Image();img.src=uri;await img.decode();
+   const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+   const cx=canvas.getContext('2d',{willReadFrequently:true});cx.drawImage(img,0,0);
+   const pixels=cx.getImageData(0,0,canvas.width,canvas.height).data;
+   let opaque=0,nonTransparent=0,bright=0,maxAlpha=0;
+   for(let i=0;i<pixels.length;i+=4){const a=pixels[i+3];if(a>0)nonTransparent++;
+      if(a>200)opaque++;if(a>0&&(pixels[i]+pixels[i+1]+pixels[i+2])>270)bright++;
+      maxAlpha=Math.max(maxAlpha,a);}
+   return {size:[canvas.width,canvas.height],count:pixels.length/4,
+     nonTransparent,opaque,bright,maxAlpha,center:[...cx.getImageData(Math.floor(canvas.width/2),Math.floor(canvas.height/2),1,1).data]};
+  });
+  console.log('MINEFIELD_TILE_IMAGE_PIXELS',JSON.stringify(pixelInfo));
   assert.equal(await projector.locator('#sharedContent .minefield-cell').count(),36);
   assert.equal(await projector.locator('#sharedContent .mf-score-chip').count(),1);
   assert.match(await projector.locator('#sharedContent .mf-score-chip').innerText(),/CREW SCORE/);
