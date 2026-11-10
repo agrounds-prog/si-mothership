@@ -7,6 +7,7 @@ on:
       - 'server.py'
       - 'minefield-v2.css'
       - 'tests/test_minefield_risk_reward.cjs'
+      - 'tests/test_minefield_v2_browser.cjs'
       - '.github/workflows/minefield-risk-reward.yml'
   workflow_dispatch:
 permissions: {contents: read}
@@ -26,3 +27,23 @@ jobs:
           node --check tests/test_minefield_risk_reward.cjs
       - name: Verify gameplay, scoring, saved-state compatibility, and real PNG artwork
         run: node tests/test_minefield_risk_reward.cjs
+      - name: Install browser and web-server dependencies
+        run: |
+          pip install -r requirements.txt
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Start a clean Minefield classroom
+        run: |
+          mkdir -p /tmp/mothership-minefield-v2
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-minefield-v2 PORT=8877 python server.py >/tmp/minefield-v2-server.log 2>&1 &
+          for i in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:8877/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          tail -80 /tmp/minefield-v2-server.log
+          exit 1
+      - name: Test real classroom and projector visuals and score sync
+        run: node tests/test_minefield_v2_browser.cjs
+      - name: Show logs on failure
+        if: failure()
+        run: tail -160 /tmp/minefield-v2-server.log || true
