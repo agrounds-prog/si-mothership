@@ -35,7 +35,7 @@ if(!/^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?\/?$/.test(BASE))
   assert.equal(safeTiles,36);
   // No hidden mine positions, point values, or risk-tier colors in the DOM.
   const hiddenClasses=await projector.locator('#sharedContent .minefield-cell.unknown').evaluateAll(nodes=>nodes.map(n=>n.className));
-  assert.ok(hiddenClasses.every(c=>!c.includes('mf-value-')&&!c.includes('mine')&&!c.includes('health')),hiddenClasses.join('\n'));
+  assert.ok(hiddenClasses.every(c=>{const tokens=c.split(/\s+/);return !c.includes('mf-value-')&&!tokens.includes('mine')&&!tokens.includes('health');}),hiddenClasses.join('\n'));
   const image=await projector.locator('#sharedContent .minefield-cell.unknown').first().evaluate(el=>getComputedStyle(el).backgroundImage);
   assert.match(image,/minefield-v2\/tiles\/tile_hidden\.png/);
   const bg=await projector.locator('#sharedContent .minefield-public.mf-v2').evaluate(el=>getComputedStyle(el).backgroundImage);
