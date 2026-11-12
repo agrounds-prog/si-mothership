@@ -5195,6 +5195,7 @@ async def index(request: web.Request) -> web.Response:
                 '<script src="/si-plus-teacher-v1.js?v=1" defer></script>' +
                 '<script src="/match-pixel-teacher-art-v1.js?v=1" defer></script>' +
                 '<script src="/activity-library-concept-v2.js?v=1" defer></script>' +
+                 '<script src="/minefield-feedback.js?v=1" defer></script>' +
                 text[body_close:])
     return web.Response(text=text, content_type="text/html", headers={"Cache-Control": "no-store, no-cache, must-revalidate"})
 
@@ -5298,6 +5299,11 @@ async def minefield_v2_graphic(request: web.Request) -> web.Response:
     if not path.is_file():
         raise web.HTTPNotFound()
     return web.FileResponse(path, headers={"Cache-Control": "public, max-age=3600"})
+
+
+async def minefield_feedback_script(request: web.Request) -> web.Response:
+    """Read-only Minefield clues shown after safe-sector reveals."""
+    return web.FileResponse(ROOT / "minefield-feedback.js", headers={"Cache-Control": "no-store"})
 
 
 async def minefield_v2_stylesheet(request: web.Request) -> web.Response:
@@ -6861,6 +6867,7 @@ def create_app() -> web.Application:
     app.router.add_get("/minefield-app-icon.webp", minefield_app_artwork)
     app.router.add_get("/assets/minefield-v2/{folder}/{name}", minefield_v2_graphic)
     app.router.add_get("/minefield-v2.css", minefield_v2_stylesheet)
+    app.router.add_get("/minefield-feedback.js", minefield_feedback_script)
     app.router.add_get("/tools/scientific-calculator", scientific_calculator)
     app.router.add_get("/tools/scientific-calculator/", scientific_calculator)
     app.router.add_get("/tools/scientific-calculator/engine.js", scientific_calculator_engine)

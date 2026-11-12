@@ -128,6 +128,11 @@ if(!/^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?\/?$/.test(BASE))
     assert.equal(entry.mirrorBg,entry.sourceBg,'Mirror artwork differs: '+entry.selector);
     assert.equal(entry.mirrorColor,entry.sourceColor,'Mirror text contrast differs: '+entry.selector);
   }
+  // The scanner must not display a hidden-sector value before any reveals.
+  await projector.waitForSelector('#sharedContent .mf-reveal-intel',{timeout:10000});
+  assert.equal(await projector.locator('#sharedContent .mf-reveal-intel[data-mf-sector]').count(),0);
+  assert.equal(await projector.locator('#sharedContent .mf-last-safe').count(),0);
+  assert.equal((await context.request.get(BASE+'/minefield-feedback.js')).status(),200);
   console.log('MINEFIELD_TILE_IMAGE_PIXELS',JSON.stringify(pixelInfo));
   assert.equal(await projector.locator('#sharedContent .minefield-cell').count(),36);
   assert.equal(await projector.locator('#sharedContent .mf-score-chip').count(),1);
@@ -168,6 +173,14 @@ if(!/^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?\/?$/.test(BASE))
    return {cls:tile?.className,text:tile?.textContent,score:score?.textContent||'',
      bg:tile?getComputedStyle(tile).backgroundImage:''};
   });
+  const sector=String.fromCharCode(65+outcome.position[1])+(outcome.position[0]+1);
+  await projector.waitForFunction(({sector,points})=>{
+    const intel=document.querySelector('#sharedContent .mf-reveal-intel');
+    return intel?.dataset.mfSector===sector&&Number(intel.dataset.mfPoints)===points;
+  },{sector,points:outcome.points},{timeout:10000});
+  assert.equal(await projector.locator('#sharedContent .minefield-cell.mf-last-safe.revealed.empty').count(),1);
+  assert.equal(await projector.locator('#sharedContent .minefield-cell.unknown.mf-last-safe').count(),0);
+  assert.match(await projector.locator('#sharedContent .mf-intel-detail').innerText(),/adjacent to/);
   assert.ok(projected.cls.includes('mf-value-'+outcome.points),JSON.stringify(projected));
   assert.match(projected.bg,new RegExp('tile_safe_'+outcome.points+'pt'));
   assert.ok(projected.text.includes(String(outcome.points)));

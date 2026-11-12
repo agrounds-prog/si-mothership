@@ -6,6 +6,7 @@ on:
       - 'index.html'
       - 'server.py'
       - 'minefield-v2.css'
+      - 'minefield-feedback.js'
       - 'tests/test_minefield_risk_reward.cjs'
       - 'tests/test_minefield_v2_browser.cjs'
       - '.github/workflows/minefield-risk-reward.yml'
@@ -25,6 +26,7 @@ jobs:
         run: |
           python -m py_compile server.py
           node --check tests/test_minefield_risk_reward.cjs
+          node --check minefield-feedback.js
       - name: Verify gameplay, scoring, saved-state compatibility, and real PNG artwork
         run: node tests/test_minefield_risk_reward.cjs
       - name: Install browser and web-server dependencies

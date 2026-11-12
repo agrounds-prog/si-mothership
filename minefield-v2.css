@@ -480,3 +480,59 @@
     min-height:52px!important;
   }
 }
+
+/* Revealed-only clue panel. Uses the supplied Minefield risk banner artwork.
+   Never apply point-tier styling to unknown squares. */
+:is(#shared,#mirrorContent,#teacher,#student) .mf-reveal-intel{
+  display:grid;gap:5px;min-width:0;box-sizing:border-box;
+  margin:9px 0;padding:11px clamp(11px,1vw,17px);
+  border:1px solid #e9be68;border-radius:13px;
+  background:linear-gradient(135deg,#082943e8,#142538d8),
+    url("/assets/minefield-v2/banners/banner_risk_reward_empty.png") center / 100% 100% no-repeat;
+  color:#eafbff;box-shadow:inset 0 0 16px #ffc45918,0 0 14px #ffcf6f26;
+}
+:is(#shared,#mirrorContent,#teacher,#student) .mf-intel-title{
+  display:flex;flex-wrap:wrap;justify-content:space-between;gap:7px;
+  color:#ffdf8d;font:950 clamp(10px,1vw,13px)/1.2 system-ui;
+  letter-spacing:.1em;
+}
+:is(#shared,#mirrorContent,#teacher,#student) .mf-intel-title span{
+  color:#9ef6fa;font-size:10px;
+}
+:is(#shared,#mirrorContent,#teacher,#student) .mf-intel-row{
+  display:flex;justify-content:space-between;gap:10px;align-items:center;
+  flex-wrap:wrap;
+}
+:is(#shared,#mirrorContent,#teacher,#student) .mf-intel-sector{
+  color:#fff;font:950 clamp(13px,1.6vw,21px)/1.2 system-ui;
+}
+:is(#shared,#mirrorContent,#teacher,#student) .mf-intel-points{
+  color:#ffde7c;font:1000 clamp(18px,2vw,28px)/1.1 system-ui;
+  text-shadow:0 0 13px #ffb84a73;
+}
+:is(#shared,#mirrorContent,#teacher,#student) .mf-intel-detail{
+  color:#d2effb;font:750 clamp(11px,1vw,14px)/1.35 system-ui;
+}
+:is(#shared,#mirrorContent,#teacher,#student) .mf-intel-meter{
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;
+}
+:is(#shared,#mirrorContent,#teacher,#student) .mf-intel-meter i{
+  min-width:0;height:6px;border-radius:3px;background:#274a60;
+  box-shadow:inset 0 0 0 1px #7bc3e055;
+}
+:is(#shared,#mirrorContent,#teacher,#student) .mf-intel-meter i.earned{
+  background:linear-gradient(90deg,#4be4ca,#fddd75);
+  box-shadow:0 0 8px #e9d06a70;
+}
+:is(#shared,#mirrorContent,#teacher,#student) .minefield-board .minefield-cell.simple.revealed.empty.mf-last-safe{
+  outline:3px solid #ffdc7b!important;outline-offset:-2px!important;
+  filter:drop-shadow(0 0 10px #ffbd57a3)!important;
+}
+:is(#shared,#mirrorContent,#teacher,#student) .mf-score-pop{
+  box-shadow:0 0 0 2px #f9da83,0 0 22px #ffd47d7f!important;
+}
+@media(prefers-reduced-motion:reduce){
+  :is(#shared,#mirrorContent,#teacher,#student) .mf-reveal-intel{
+    transition:none!important;animation:none!important;
+  }
+}
