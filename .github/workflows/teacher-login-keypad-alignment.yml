@@ -1,0 +1,43 @@
+name: Teacher Login Keypad Alignment
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'teacher-login-keypad.css'
+      - 'teacher-login-keypad.js'
+      - 'tests/test_teacher_login_keypad_alignment.cjs'
+      - '.github/workflows/teacher-login-keypad-alignment.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  login-alignment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Install isolated browser dependencies
+        run: |
+          pip install -r requirements.txt
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Start clean local classroom
+        run: |
+          mkdir -p /tmp/mothership-keypad-align
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-keypad-align PORT=8877 python server.py >/tmp/keypad-server.log 2>&1 &
+          for i in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:8877/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          tail -80 /tmp/keypad-server.log
+          exit 1
+      - name: Check PIN overlay artwork and clickable alignment in Chromium
+        run: |
+          node --check tests/test_teacher_login_keypad_alignment.cjs
+          node tests/test_teacher_login_keypad_alignment.cjs
+      - name: Show server logs on failure
+        if: failure()
+        run: tail -150 /tmp/keypad-server.log || true

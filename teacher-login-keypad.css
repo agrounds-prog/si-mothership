@@ -102,3 +102,85 @@ html body #teacherLoginOverlay.teacher-login-overlay:not(.hidden){
 }
 html body #teacherLoginOverlay.teacher-login-overlay:not(.hidden)::before,
 html body #teacherLoginOverlay.teacher-login-overlay:not(.hidden)::after{display:none!important}
+
+/* November 19 alignment pass — approved full-scene art stays unchanged.
+   Center the terminal within the viewport, then match transparent hit areas
+   to the artwork. The illustrated keys themselves remain the sole buttons. */
+html body #teacherLoginOverlay.teacher-login-overlay:not(.hidden){
+  background-size:105.5% 100%!important;
+  background-position:calc(50% + 2.5vw) center!important;
+}
+/* The original illustration contains ornamental cyan dots that overlap its
+   outlined PIN slots. Mask that tiny strip; draw four real progress rings at
+   the four artwork positions instead of showing eight staggered indicators. */
+html body #teacherLoginOverlay.teacher-login-overlay .si-pin-dots{
+  left:40.8%!important;
+  top:33.75%!important;
+  width:17.72%!important;
+  height:4.9%!important;
+  display:flex!important;
+  justify-content:space-between!important;
+  align-items:center!important;
+  isolation:isolate!important;
+}
+html body #teacherLoginOverlay.teacher-login-overlay .si-pin-dots::before{
+  content:"";
+  position:absolute;
+  left:-25%;right:-25%;top:-29%;bottom:-29%;
+  z-index:0;pointer-events:none;
+  background:linear-gradient(90deg,transparent 0%,#021b35 12%,#021b35 88%,transparent 100%);
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0%,black 18%,black 82%,transparent 100%);
+  mask-image:linear-gradient(to bottom,transparent 0%,black 18%,black 82%,transparent 100%);
+}
+html body #teacherLoginOverlay.teacher-login-overlay .si-pin-dots .si-pin-dot{
+  position:relative!important;
+  z-index:1!important;
+  width:clamp(18px,2.53vw,45px)!important;
+  height:clamp(18px,2.53vw,45px)!important;
+  flex:0 0 auto!important;
+  border:2px solid #68edff!important;
+  border-radius:50%!important;
+  background:rgba(0,36,68,.35)!important;
+  box-shadow:0 0 9px #4bddff,inset 0 0 10px #3bc9ff!important;
+}
+html body #teacherLoginOverlay.teacher-login-overlay .si-pin-dots .si-pin-dot.filled{
+  background:radial-gradient(circle,#b7ffff 0%,#7ff4ff 50%,#15d6f2 70%,#064c8a 100%)!important;
+  box-shadow:0 0 11px #89f7ff,0 0 19px #00e9ff!important;
+}
+/* Target centers coincide with the three illustrated keypad columns and
+   four rows at 16:9, rather than drifting into neighboring controls. */
+html body #teacherLoginOverlay.teacher-login-overlay .si-pin-grid{
+  left:30.03%!important;
+  top:39.9%!important;
+  width:39.56%!important;
+  height:31.5%!important;
+  column-gap:3.5%!important;
+  row-gap:3.7%!important;
+}
+html body #teacherLoginOverlay.teacher-login-overlay .si-pin-launch{
+  left:25.7%!important;
+  top:73.4%!important;
+  width:48.2%!important;
+  height:9%!important;
+}
+html body #teacherLoginOverlay.teacher-login-overlay .si-pin-mode .teacher-login-remember{
+  left:39.27%!important;
+  top:83.4%!important;
+  width:21.4%!important;
+  height:3.8%!important;
+}
+html body #teacherLoginOverlay.teacher-login-overlay .si-pin-mode .teacher-login-remember input{
+  left:0!important;
+  top:0!important;
+  width:12%!important;
+  height:100%!important;
+}
+html body #teacherLoginOverlay.teacher-login-overlay .si-pin-mode .teacher-login-remember:has(input:checked)::after{
+  left:0!important;
+  top:0!important;
+  width:12%;
+  height:100%;
+  display:grid;
+  place-items:center;
+  line-height:1;
+}
