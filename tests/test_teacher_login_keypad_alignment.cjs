@@ -73,6 +73,12 @@ if(!/^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?\/?$/.test(BASE))
       assert.equal(await pin.inputValue(),'');
       assert.equal(await page.locator('.si-pin-dot.filled').count(),0);
       const remember=page.locator('.teacher-login-remember input');
+      const checkboxHit=await page.evaluate(({x,y})=>{
+        const node=document.elementFromPoint(x,y);
+        return {tag:node?.tagName,className:String(node?.className||''),
+          id:node?.id||'',pointerEvents:node&&getComputedStyle(node).pointerEvents};
+      },{x:info.remember.x,y:info.remember.y});
+      console.log('CHECKBOX_HIT',JSON.stringify(checkboxHit));
       await page.mouse.click(info.remember.x,info.remember.y);
       assert.equal(await remember.isChecked(),true,'Checkbox hitbox must match illustrated square');
       assert.deepEqual(errors,[],'No page script errors expected');

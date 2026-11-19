@@ -184,3 +184,16 @@ html body #teacherLoginOverlay.teacher-login-overlay .si-pin-mode .teacher-login
   place-items:center;
   line-height:1;
 }
+
+/* Checkbox visual hotspot must be above the informational error message:
+   the latter is rendered last in the form and previously intercepted clicks. */
+html body #teacherLoginOverlay.teacher-login-overlay .si-pin-mode .teacher-login-remember{
+  z-index:8!important;
+  pointer-events:auto!important;
+}
+html body #teacherLoginOverlay.teacher-login-overlay .si-pin-mode .teacher-login-remember input{
+  pointer-events:auto!important;
+}
+html body #teacherLoginOverlay.teacher-login-overlay .si-pin-mode .teacher-login-error{
+  pointer-events:none!important;
+}
