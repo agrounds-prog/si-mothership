@@ -27,6 +27,10 @@ if(!/^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?\/?$/.test(BASE))
         return {keys,dots,launch,remember,background:art.backgroundImage,
           backgroundSize:art.backgroundSize,backgroundPosition:art.backgroundPosition};
       });
+      console.log('KEYPAD_ART_GEOMETRY',JSON.stringify({
+        viewport:[width,height],backgroundSize:info.backgroundSize,
+        position:info.backgroundPosition,keyCenters:info.keys.slice(0,3),dots:info.dots,
+        launch:info.launch,remember:info.remember}));
       assert.equal(info.keys.length,12);
       assert.equal(info.dots.length,4);
       assert.match(info.background,/d0971a35/);

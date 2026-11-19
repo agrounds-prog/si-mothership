@@ -3,6 +3,13 @@ function init(){
  const form=document.getElementById('teacherLoginForm'), input=document.getElementById('teacherLoginKey');
  if(!form||!input||form.querySelector('.si-pin-pad'))return;
  form.classList.add('si-pin-mode');
+ // Match the adjusted illustrated terminal background to its click targets.
+ // A legacy login skin can override CSS background-size with !important.
+ const overlay=document.getElementById('teacherLoginOverlay');
+ if(overlay){
+   overlay.style.setProperty('background-size','105.5% 100%','important');
+   overlay.style.setProperty('background-position','calc(50% + 2.5vw) center','important');
+ }
  input.setAttribute('readonly','');input.setAttribute('aria-label','Four digit teacher access PIN');
  const pad=document.createElement('div');pad.className='si-pin-pad';
  const title=document.createElement('div');title.className='si-pin-title';title.textContent='ENTER ACCESS CODE';pad.append(title);
