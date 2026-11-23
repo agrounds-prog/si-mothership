@@ -45,7 +45,16 @@ jobs:
       - name: Phase 4R insert-at-position and convert existing slides
         run: node tests/test_si_plus_phase4r_browser.cjs
       - name: Same-size SI+ presentation canvases across image dimensions
-        run: node tests/test_si_plus_uniform_slides_browser.cjs
+        run: |
+          # Other editor tests may leave an active classroom presentation in the
+          # shared test server. Geometry must run with its own clean session.
+          mkdir -p /tmp/mothership-si-plus-uniform
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-si-plus-uniform PORT=8885 python server.py >/tmp/mothership-si-plus-uniform.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8885/api/health >/dev/null; then break; fi
+            sleep 1
+          done
+          LOCAL_URL=http://127.0.0.1:8885 node tests/test_si_plus_uniform_slides_browser.cjs
       - name: SI+ unfinished draft recovery, Railway save, teacher reload, and class reset
         run: node tests/test_si_plus_draft_recovery_browser.cjs
       - name: Teacher-only SI+ presentation preview and projector sizing
