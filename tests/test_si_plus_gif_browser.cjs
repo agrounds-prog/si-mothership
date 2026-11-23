@@ -3,6 +3,7 @@
    All test data belongs to an isolated localhost classroom. */
 const assert=require('node:assert/strict');
 const {chromium}=require('playwright');
+const {createHash}=require('node:crypto');
 const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
 if(!/^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?\/?$/.test(BASE))
   throw Error('GIF regression must use isolated localhost');
@@ -11,25 +12,19 @@ const GIF=Buffer.from('R0lGODlhGAAYAIEAAP8AAAAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAA
 assert.equal((GIF.toString('hex').match(/21f904/g)||[]).length,2,'GIF fixture must encode two timed frames');
 const gifFile=(name,mimeType='image/gif')=>({name,mimeType,buffer:GIF});
 async function assertAnimated(page,selector){
-  await page.locator(selector).waitFor({state:'attached'});
-  const samples=await page.evaluate(async selector=>{
-    const image=document.querySelector(selector);
-    if(!image)return [];
-    await image.decode();
-    const c=document.createElement('canvas');c.width=1;c.height=1;
-    const x=c.getContext('2d',{willReadFrequently:true});
-    const colors=[];
-    for(let i=0;i<15;i++){
-      x.clearRect(0,0,1,1);
-      x.drawImage(image,0,0,1,1);
-      const rgba=x.getImageData(0,0,1,1).data;
-      colors.push(rgba[0]>180&&rgba[2]<80?'red':rgba[2]>180&&rgba[0]<80?'blue':'other');
-      await new Promise(resolve=>setTimeout(resolve,120));
-    }
-    return colors;
-  },selector);
-  assert.ok(samples.includes('red')&&samples.includes('blue'),
-    'GIF must visibly change frames, not a canvas-frozen image: '+JSON.stringify(samples));
+  // Chromium's canvas.drawImage(img) snapshots the GIF's FIRST frame even
+  // when <img> visibly animates. Screenshots inspect what students see.
+  const target=page.locator(selector);
+  await target.waitFor({state:'visible'});
+  await target.scrollIntoViewIfNeeded();
+  const checksums=[];
+  for(let i=0;i<8;i++){
+    const shot=await target.screenshot({animations:'allow',timeout:12000});
+    checksums.push(createHash('sha256').update(shot).digest('hex'));
+    await page.waitForTimeout(230);
+  }
+  assert.ok(new Set(checksums).size>=2,
+    'Animated GIF must visibly change frames in the rendered browser image');
 }
 (async()=>{
  const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
