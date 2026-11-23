@@ -6,6 +6,9 @@ on:
       - 'server.py'
       - 'si-plus-teacher-v1.css'
       - 'si-plus-teacher-v1.js'
+      - 'si-plus-teacher-studio-v2.css'
+      - 'si-plus-teacher-studio-v2.js'
+      - 'tests/test_si_plus_teacher_studio_v2_browser.cjs'
       - 'tests/test_si_teacher_v2_browser.cjs'
       - 'tests/test_si_live_teacher_layout_browser.cjs'
       - 'assets/si-plus-teacher-v1/**'
@@ -24,6 +27,7 @@ jobs:
         run: |
           python -m py_compile server.py
           node --check si-plus-teacher-v1.js
+          node --check si-plus-teacher-studio-v2.js
       - name: Start isolated app
         run: |
           pip install -r requirements.txt
@@ -42,6 +46,7 @@ jobs:
           base='http://127.0.0.1:8877'
           names=[
             '/si-plus-teacher-v1.css','/si-plus-teacher-v1.js',
+            '/si-plus-teacher-studio-v2.css','/si-plus-teacher-studio-v2.js',
             '/si-plus-teacher-art/backgrounds/si_home_primary_1600x900.webp',
             '/si-plus-teacher-art/backgrounds/presentation_library_primary_1600x900.webp',
             '/si-plus-teacher-art/backgrounds/presentation_builder_primary_1600x900.webp',
@@ -60,6 +65,8 @@ jobs:
             html=r.read().decode()
           assert 'si-plus-teacher-v1.css?v=1' in html
           assert 'si-plus-teacher-v1.js?v=1' in html
+          assert 'si-plus-teacher-studio-v2.css?v=2' in html
+          assert 'si-plus-teacher-studio-v2.js?v=2' in html
           try:
             urllib.request.urlopen(base+'/si-plus-teacher-art/icons/../../server.py',timeout=6)
             raise AssertionError('Asset traversal must not be allowed')
@@ -73,6 +80,8 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Screenshot SI+ home library and builder with actual uploaded art
         run: node tests/test_si_teacher_v2_browser.cjs
+      - name: Verify SI+ Studio V2 wide editor, graphic slide controls and organizer
+        run: node tests/test_si_plus_teacher_studio_v2_browser.cjs
       - name: Verify compact SI+ live controller navigation and Spotlight separation
         run: node tests/test_si_live_teacher_layout_browser.cjs
       - name: Save teacher UI screenshots

@@ -5163,6 +5163,7 @@ async def index(request: web.Request) -> web.Response:
                         '<link rel="stylesheet" href="/signal-sequence.css?v=5">'
                         f'<link rel="stylesheet" href="/si-plus-polish.css?v={SI_PLUS_ASSET_VERSION}">'
                         '<link rel="stylesheet" href="/si-plus-teacher-v1.css?v=1">'
+                         '<link rel="stylesheet" href="/si-plus-teacher-studio-v2.css?v=2">'
                          f'<link rel="stylesheet" href="/student-companion.css?v={STUDENT_COMPANION_ASSET_VERSION}">'
                          f'<link rel="stylesheet" href="/teacher-unified-controls.css?v={TEACHER_UNIFIED_ASSET_VERSION}">'
                          '<link rel="stylesheet" href="/orbit-polish.css?v=2">'
@@ -5193,6 +5194,7 @@ async def index(request: web.Request) -> web.Response:
                 '<script src="/dominoes.js?v=1" defer></script>' +
                 f'<script src="/si-plus-polish.js?v={SI_PLUS_ASSET_VERSION}" defer></script>'
                 '<script src="/si-plus-teacher-v1.js?v=1" defer></script>' +
+                '<script src="/si-plus-teacher-studio-v2.js?v=2" defer></script>' +
                 '<script src="/match-pixel-teacher-art-v1.js?v=1" defer></script>' +
                 '<script src="/activity-library-concept-v2.js?v=1" defer></script>' +
                  '<script src="/minefield-feedback.js?v=1" defer></script>' +
@@ -6783,6 +6785,8 @@ def create_app() -> web.Application:
     app.router.add_get("/si-plus-teacher-art/{category}/{filename}", si_plus_teacher_art)
     app.router.add_get("/si-plus-teacher-v1.css", lambda request: web.FileResponse(ROOT / "si-plus-teacher-v1.css", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/si-plus-teacher-v1.js", lambda request: web.FileResponse(ROOT / "si-plus-teacher-v1.js", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/si-plus-teacher-studio-v2.css", lambda request: web.FileResponse(ROOT / "si-plus-teacher-studio-v2.css", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/si-plus-teacher-studio-v2.js", lambda request: web.FileResponse(ROOT / "si-plus-teacher-studio-v2.js", headers={"Cache-Control": "no-store"}))
 
     # Public, allowlisted teacher-view art from the uploaded MATCH/PIXEL pack.
     async def match_pixel_teacher_art(request):

@@ -1,0 +1,275 @@
+/* SI+ Teacher Studio V2 — the editor remains real DOM, but gains a
+   presentation-first hierarchy. Only the teacher's SI+ editor is targeted. */
+#teacher #presentationBuilderPanel.si-art-builder:not(.hidden){
+  --studio-glow:#55dffa;
+  --studio-mint:#99f5cf;
+  box-sizing:border-box!important;
+  scrollbar-color:#5bc5e3 #071729!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .builder-top{
+  position:relative!important;
+  gap:12px!important;
+  padding:clamp(13px,1.6vw,22px)!important;
+  background:linear-gradient(112deg,#04182fe8,#0c3553ea 64%,#061c35f5),
+    url("/si-plus-teacher-art/panels/header_bar.png") center/100% 100% no-repeat!important;
+  border:1px solid #6ee6fd!important;
+  box-shadow:0 6px 25px #000a,inset 0 1px #e0faff4d!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .builder-title-group{
+  min-width:min(100%,265px)!important;flex:1 1 310px!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .builder-title-input{
+  min-height:49px!important;
+  font-size:clamp(17px,1.6vw,24px)!important;
+  border-color:#69accb!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .builder-top-actions{
+  flex:1 1 375px!important;justify-content:flex-end!important;
+  align-items:stretch!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .builder-top-actions button{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  min-height:52px!important;min-width:110px!important;
+  gap:9px!important;padding:10px 16px!important;
+  font:900 13px/1.2 system-ui!important;
+  color:#f8ffff!important;border:1px solid #7dd6ed!important;
+  background:#143f64 url("/si-plus-teacher-art/buttons/secondary_blue.png") center/100% 100% no-repeat!important;
+  box-shadow:0 5px 13px #0008,inset 0 1px #ecfbff48!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .builder-top-actions button::before{
+  content:"";display:inline-block;flex:0 0 23px;width:23px;height:23px;
+  background:url("/si-plus-teacher-art/icons/edit.svg") center/contain no-repeat;
+  pointer-events:none;
+}
+#teacher #presentationBuilderPanel.si-art-builder #siOrgToggle::before{
+  background-image:url("/si-plus-teacher-art/icons/organize.svg");
+}
+#teacher #presentationBuilderPanel.si-art-builder #siPlusPreviewBtn::before{
+  background-image:url("/si-plus-teacher-art/icons/preview.svg");
+}
+#teacher #presentationBuilderPanel.si-art-builder #savePresentationBtn{
+  background:#11604a url("/si-plus-teacher-art/buttons/save_green.png") center/100% 100% no-repeat!important;
+  border:1px solid #a4f8d6!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder #savePresentationBtn::before{
+  background-image:url("/si-plus-teacher-art/icons/save.svg");
+}
+
+/* Read-only deck pulse: no new save/publish actions, no draft mutation. */
+#teacher #presentationBuilderPanel.si-art-builder .si-studio-pulse{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);
+  gap:9px;min-width:0;margin:10px 0 13px;
+}
+#teacher #presentationBuilderPanel.si-art-builder .si-studio-pulse-item{
+  display:grid;gap:4px;min-width:0;padding:10px clamp(10px,1.2vw,17px);
+  border:1px solid #4c91b3;border-radius:12px;
+  background:linear-gradient(120deg,#102d4bec,#082039ee);
+  box-shadow:inset 0 1px #b0efff2d,0 5px 14px #0006;
+}
+#teacher #presentationBuilderPanel.si-art-builder .si-studio-pulse-item:nth-child(2){
+  border-color:#679cc7;background:linear-gradient(120deg,#183357e9,#101e3dec);
+}
+#teacher #presentationBuilderPanel.si-art-builder .si-studio-pulse-item:nth-child(3){
+  border-color:#58bca8;background:linear-gradient(120deg,#0c3c48e9,#092736ed);
+}
+#teacher #presentationBuilderPanel.si-art-builder .si-studio-pulse-item small{
+  color:#9de7f8;font:950 10px/1.2 system-ui;letter-spacing:.1em;
+}
+#teacher #presentationBuilderPanel.si-art-builder .si-studio-pulse-item strong{
+  color:#f6fcff;font:950 clamp(14px,1.25vw,18px)/1.25 system-ui;
+  overflow-wrap:anywhere;
+}
+#teacher #presentationBuilderPanel.si-art-builder .si-studio-pulse-track{
+  grid-column:1/-1;height:5px;overflow:hidden;border-radius:20px;
+  background:#0b2741;border:1px solid #3c7c98;
+}
+#teacher #presentationBuilderPanel.si-art-builder .si-studio-pulse-track span{
+  display:block;height:100%;width:var(--si-studio-progress,0%);
+  background:linear-gradient(90deg,#34b9ed,#a6f4d0);
+  transition:width .14s ease-out;
+}
+
+/* One wide editing work surface and a useful filmstrip. The third existing
+   builder card (slide creation/tools) becomes a full-width action tray. */
+#teacher #presentationBuilderPanel.si-art-builder:not(.si-plus-organizing) .builder-layout{
+  display:grid!important;
+  grid-template-columns:minmax(225px,280px) minmax(0,1fr)!important;
+  gap:clamp(12px,1.2vw,20px)!important;
+  align-items:start!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .builder-layout > .builder-box{
+  min-width:0!important;box-sizing:border-box!important;
+  border:1px solid #4c9dc2!important;
+  background:linear-gradient(145deg,#092843ed,#06182fee),
+    url("/si-plus-teacher-art/panels/command_panel.png") center/100% 100% no-repeat!important;
+  padding:clamp(12px,1.2vw,19px)!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .builder-layout > .builder-box:first-child{
+  grid-column:1;grid-row:1;max-height:min(69dvh,760px);overflow-y:auto;
+  overflow-x:hidden;scrollbar-color:#53bfe3 #07182d;
+}
+#teacher #presentationBuilderPanel.si-art-builder .builder-layout > .builder-box:nth-child(2){
+  grid-column:2;grid-row:1;
+}
+#teacher #presentationBuilderPanel.si-art-builder .builder-layout > .builder-box:nth-child(3){
+  grid-column:1/-1;grid-row:2;
+}
+#teacher #presentationBuilderPanel.si-art-builder .slide-nav-item{
+  display:block!important;position:relative!important;
+  box-sizing:border-box!important;
+  width:100%!important;min-height:90px!important;
+  padding:10px 11px 10px 131px!important;
+  text-align:left!important;
+  border-radius:12px!important;
+  border:1px solid #397c9f!important;
+  background:linear-gradient(128deg,#103a58f5,#092039f8)!important;
+  box-shadow:inset 0 1px #d7fbff20,0 4px 10px #0005!important;
+  overflow:hidden!important;
+  overflow-wrap:anywhere!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .slide-nav-item.active{
+  border:2px solid #7cffff!important;
+  background:linear-gradient(125deg,#12435bed,#0b3650ef),
+    url("/si-plus-teacher-art/panels/selected_slide.png") center/100% 100% no-repeat!important;
+  box-shadow:inset 3px 0 #9bffe6,0 0 15px #55deffa0!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .slide-nav-item .si-studio-rail-thumb{
+  position:absolute;left:9px;top:50%;transform:translateY(-50%);
+  display:grid;place-items:center;overflow:hidden;
+  width:108px;aspect-ratio:16/9;
+  border:1px solid #5bafcf;border-radius:7px;
+  background:linear-gradient(140deg,#123d5a,#061a30);
+  color:#b9e6fa;font:950 10px/1.2 system-ui;
+  pointer-events:none;
+}
+#teacher #presentationBuilderPanel.si-art-builder .slide-nav-item .si-studio-rail-thumb img{
+  display:block;width:100%;height:100%;object-fit:contain;
+}
+#teacher #presentationBuilderPanel.si-art-builder .slide-nav-item .si-studio-rail-thumb span{
+  text-align:center;padding:5px;letter-spacing:.05em;
+}
+#teacher #presentationBuilderPanel.si-art-builder .builder-layout > .builder-box:nth-child(3) .add-slide-grid{
+  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:10px!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .add-slide-grid button{
+  display:flex!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;
+  gap:6px!important;min-width:0!important;min-height:94px!important;
+  padding:10px!important;text-align:center!important;
+  color:#fff!important;font:900 13px/1.24 system-ui!important;
+  border:1px solid #6acdf2!important;border-radius:12px!important;
+  background:#123d62 url("/si-plus-teacher-art/buttons/secondary_blue.png") center/100% 100% no-repeat!important;
+  box-shadow:0 6px 15px #0008,inset 0 2px #d6fdff36!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .add-slide-grid button::before{
+  content:"";display:block;flex:0 0 29px;width:29px;height:29px;
+  background:url("/si-plus-teacher-art/icons/new_presentation.svg") center/contain no-repeat;
+  pointer-events:none;
+}
+#teacher #presentationBuilderPanel.si-art-builder .add-slide-grid button.si-studio-icon-instruction::before{
+  background-image:url("/si-plus-teacher-art/icons/instruction.svg");
+}
+#teacher #presentationBuilderPanel.si-art-builder .add-slide-grid button.si-studio-icon-question::before{
+  background-image:url("/si-plus-teacher-art/icons/question.svg");
+}
+#teacher #presentationBuilderPanel.si-art-builder .add-slide-grid button.si-studio-icon-poll::before{
+  background-image:url("/si-plus-teacher-art/icons/poll.svg");
+}
+#teacher #presentationBuilderPanel.si-art-builder .add-slide-grid button.si-studio-icon-spotlight::before{
+  background-image:url("/si-plus-teacher-art/icons/presentation.svg");
+}
+#teacher #presentationBuilderPanel.si-art-builder .add-slide-grid button.si-studio-icon-video::before{
+  background-image:url("/si-plus-teacher-art/icons/video.svg");
+}
+#teacher #presentationBuilderPanel.si-art-builder .add-slide-grid button.si-studio-icon-image::before{
+  background-image:url("/si-plus-teacher-art/icons/import_images.svg");
+}
+#teacher #presentationBuilderPanel.si-art-builder .si-plus-batch-import{
+  gap:12px!important;
+  padding:clamp(14px,1.3vw,20px)!important;
+  border:1px solid #75dcea!important;border-radius:13px!important;
+  background:linear-gradient(115deg,#103a52e9,#081d37f0),
+    url("/si-plus-teacher-art/panels/header_bar.png") center/100% 100% no-repeat!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .si-plus-batch-button{
+  min-height:52px!important;
+  padding:12px 20px!important;font:950 13px/1.25 system-ui!important;
+  background:#0b6a83 url("/si-plus-teacher-art/buttons/primary_cyan.png") center/100% 100% no-repeat!important;
+  border-color:#89eefc!important;box-shadow:0 5px 15px #0008!important;
+}
+/* Visual slide organizer uses genuinely larger 16:9 cards, not stretched art. */
+#teacher #presentationBuilderPanel.si-art-builder .si-org-grid{
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,255px),1fr))!important;
+  gap:clamp(12px,1.3vw,21px)!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .si-org-card{
+  border:1px solid #54afd1!important;border-radius:15px!important;
+  background:linear-gradient(140deg,#103854ef,#081b34f6)!important;
+  box-shadow:inset 0 2px #d8faff35,0 9px 20px #0008!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .si-org-card.current{
+  border:2px solid #7ef8ee!important;box-shadow:0 0 0 2px #35ddce30,0 9px 25px #0008!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .si-org-header{
+  background:linear-gradient(112deg,#0f4264f1,#081e39f5),
+    url("/si-plus-teacher-art/panels/header_bar.png") center/100% 100% no-repeat!important;
+  border:1px solid #70d8f6!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder button:focus-visible,
+#teacher #presentationBuilderPanel.si-art-builder .si-plus-batch-button:focus-within{
+  outline:3px solid #ffe4a4!important;outline-offset:3px!important;
+}
+@media(max-width:1060px){
+ #teacher #presentationBuilderPanel.si-art-builder:not(.si-plus-organizing) .builder-layout{
+   grid-template-columns:minmax(205px,240px) minmax(0,1fr)!important;
+ }
+ #teacher #presentationBuilderPanel.si-art-builder .builder-layout > .builder-box:nth-child(3) .add-slide-grid{
+   grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ }
+}
+@media(max-width:800px){
+ #teacher #presentationBuilderPanel.si-art-builder:not(.si-plus-organizing) .builder-layout{
+   grid-template-columns:minmax(0,1fr)!important;
+ }
+ #teacher #presentationBuilderPanel.si-art-builder .builder-layout > .builder-box:first-child,
+ #teacher #presentationBuilderPanel.si-art-builder .builder-layout > .builder-box:nth-child(2),
+ #teacher #presentationBuilderPanel.si-art-builder .builder-layout > .builder-box:nth-child(3){
+   grid-column:1!important;grid-row:auto!important;
+ }
+ #teacher #presentationBuilderPanel.si-art-builder .builder-layout > .builder-box:first-child{
+   position:static!important;max-height:230px!important;
+ }
+ #teacher #presentationBuilderPanel.si-art-builder .builder-layout > .builder-box:nth-child(3) .add-slide-grid{
+   grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+ #teacher #presentationBuilderPanel.si-art-builder .builder-top-actions{
+   justify-content:flex-start!important;
+ }
+ #teacher #presentationBuilderPanel.si-art-builder .si-studio-pulse{
+   grid-template-columns:repeat(2,minmax(0,1fr));
+ }
+ #teacher #presentationBuilderPanel.si-art-builder .si-studio-pulse-item:last-of-type{
+   grid-column:1/-1;
+ }
+}
+@media(max-width:470px){
+ #teacher #presentationBuilderPanel.si-art-builder .builder-top-actions button{flex:1 1 135px!important}
+ #teacher #presentationBuilderPanel.si-art-builder .si-studio-pulse{
+   grid-template-columns:1fr;
+ }
+ #teacher #presentationBuilderPanel.si-art-builder .si-studio-pulse-item:last-of-type{
+   grid-column:auto;
+ }
+ #teacher #presentationBuilderPanel.si-art-builder .builder-layout > .builder-box:nth-child(3) .add-slide-grid{
+   grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+ #teacher #presentationBuilderPanel.si-art-builder .add-slide-grid button{
+   min-height:79px!important;font-size:11px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #teacher #presentationBuilderPanel.si-art-builder .si-studio-pulse-track span{
+   transition:none!important;
+ }
+}
