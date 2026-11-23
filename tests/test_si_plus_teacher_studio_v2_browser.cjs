@@ -37,6 +37,20 @@ if(!/^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?\/?$/.test(BASE))
    assert.equal(layout.position,'2 of 3');
    assert.equal(layout.type,'Question');
    assert.equal(layout.previews,3,'Filmstrip reflects each draft slide');
+   assert.equal(await page.locator('.si-studio-rail-header span').innerText(),'3 SLIDES');
+   assert.deepEqual(await page.locator('.slide-nav-item .si-studio-rail-number').allInnerTexts(),
+     ['01','02','03'],'Filmstrip shows ordered slide numbers');
+   assert.deepEqual(await page.locator('.slide-nav-item .si-studio-rail-meta').allInnerTexts(),
+     ['INSTRUCTION','QUESTION','POLL'],'Filmstrip identifies slide types');
+   assert.equal(await page.locator('.slide-nav-item[aria-current="step"]').count(),1,
+     'Exactly one current slide is exposed to keyboard and screen-reader users');
+   assert.match(await page.locator('.si-studio-pulse-summary').innerText(),/2 questions \/ polls/);
+   await page.locator('.slide-nav-item').nth(2).click();
+   await page.waitForFunction(()=>state.editorSlide===2&&
+     document.querySelector('.si-studio-pulse-item strong')?.textContent==='3 of 3');
+   assert.equal(await page.locator('.slide-nav-item[aria-current="step"]').count(),1);
+   assert.equal(await page.locator('.slide-nav-item[aria-current="step"] .si-studio-rail-meta').innerText(),'POLL');
+
    assert.ok(layout.scrollWidth<=layout.clientWidth+8,'Editor must not overflow horizontally: '+JSON.stringify(layout));
    assert.equal(layout.columns,width<=800?1:2,'Builder must prioritize wide editor');
    if(width>800&&layout.rects.length>=3){
