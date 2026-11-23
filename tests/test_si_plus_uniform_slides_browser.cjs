@@ -95,11 +95,22 @@ const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
      'ALL image, poll, question and instruction slides must occupy equal-size stages');
    screenshots.push({width,height,stage:first,slides:dims.length});
   }
-  const otherActivityChrome=await page.evaluate(()=>{
+  // The shared-screen skin can hide header chrome even for ordinary classroom
+  // content. Verify SI+ fullscreen actually exits instead of inferring it
+  // from the computed display state of unrelated global header artwork.
+  const afterPresentation=await page.evaluate(()=>{
     state.activityRun=null;state.screen='classroom';renderPublic();
-    return getComputedStyle(document.querySelector('#shared .mirror-top')).display;
+    const root=document.getElementById('sharedContent');
+    const shell=document.querySelector('#shared .shared-screen');
+    return {
+      hasStage:!!root.querySelector(':scope > .si-plus-slide-stage'),
+      fullscreenSelector:shell.matches(':has(> .mirror-content > .si-plus-slide-stage)'),
+      content:root.textContent
+    };
   });
-  assert.notEqual(otherActivityChrome,'none','only SI+ slide playback removes the shared-screen sidebar');
+  assert.equal(afterPresentation.hasStage,false,'SI+ fullscreen stage removed when returning to classroom');
+  assert.equal(afterPresentation.fullscreenSelector,false,'SI+ fullscreen CSS selector no longer matches');
+  assert.match(afterPresentation.content,/Welcome aboard/,'Normal classroom content restored');
   assert.deepEqual(errors,[],'no page runtime errors');
   console.log('SI+ UNIFORM SLIDE STAGE PASSED',JSON.stringify({screenshots,names,errors}));
  }finally{await browser.close()}
