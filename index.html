@@ -19126,7 +19126,47 @@ function siPlusChangeSlideType(type){
 function addPresentationSlide(type){const ed=state.presentationEditor;if(!ed)return;ed.draft.slides.push(freshSlide(type));state.editorSlide=ed.draft.slides.length-1;render()}
 function moveEditorSlide(delta){const ed=state.presentationEditor;if(!ed)return;const slides=ed.draft.slides,i=state.editorSlide,j=i+delta;if(j<0||j>=slides.length)return;[slides[i],slides[j]]=[slides[j],slides[i]];state.editorSlide=j;render()}
 function deleteEditorSlide(){const ed=state.presentationEditor;if(!ed)return;if(ed.draft.slides.length<=1)return toast('A presentation needs at least one slide');ed.draft.slides.splice(state.editorSlide,1);state.editorSlide=Math.max(0,Math.min(state.editorSlide,ed.draft.slides.length-1));render()}
-function readEditorImage(file,cb){if(!file)return;const r=new FileReader();r.onload=()=>cb(String(r.result));r.readAsDataURL(file)}
+/* Preserve moving GIF frames. Canvas cannot resize a GIF without
+   flattening it to one frame, so animated files are stored byte-for-byte. */
+const SI_PLUS_MAX_GIF_BYTES=10*1024*1024;
+function siPlusIsGifFile(file){
+  return !!file&&(/\.gif$/i.test(String(file.name||''))||
+    String(file.type||'').toLowerCase()==='image/gif');
+}
+async function siPlusReadAnimatedGif(file){
+  if(!file||!file.size)throw new Error('Choose a nonempty animated GIF.');
+  if(file.size>SI_PLUS_MAX_GIF_BYTES)
+    throw new Error('GIF exceeds 10 MB. Use a smaller GIF to keep the classroom connection fast.');
+  const header=new Uint8Array(await file.slice(0,6).arrayBuffer());
+  const signature=String.fromCharCode(...header);
+  if(signature!=='GIF87a'&&signature!=='GIF89a')
+    throw new Error('This file is not a valid GIF image.');
+  const data=await new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=()=>reject(new Error('Could not read the GIF file.'));
+    reader.onload=()=>resolve(String(reader.result||''));
+    reader.readAsDataURL(file);
+  });
+  const comma=data.indexOf(',');
+  if(comma<0||!/;base64$/i.test(data.slice(0,comma)))
+    throw new Error('Could not encode the GIF for this slide.');
+  // Normalize the MIME type even when a device reports application/octet-stream.
+  // The original encoded bytes remain unchanged; animation is never flattened.
+  return 'data:image/gif;base64,'+data.slice(comma+1);
+}
+function readEditorImage(file,cb){
+  if(!file)return;
+  if(siPlusIsGifFile(file)){
+    void siPlusReadAnimatedGif(file).then(cb).catch(error=>{
+      if(typeof toast==='function')toast('GIF not attached: '+error.message);
+    });
+    return;
+  }
+  const r=new FileReader();
+  r.onerror=()=>{if(typeof toast==='function')toast('Could not read the image file.');};
+  r.onload=()=>cb(String(r.result));
+  r.readAsDataURL(file);
+}
 
 let siPlusBatchImportBusy=false,siPlusBatchImportStatus='';
 function siPlusImageFilename(name){
@@ -19139,6 +19179,7 @@ function siPlusEmptyStarter(slide){
     &&!slide.text&&!slide.image&&!slide.youtube;
 }
 async function siPlusPrepareBatchImage(file){
+  if(siPlusIsGifFile(file))return siPlusReadAnimatedGif(file);
   const url=URL.createObjectURL(file);
   try{
     const img=new Image();
@@ -19169,7 +19210,7 @@ async function siPlusImportImageSlides(files,options={}){
   siPlusBatchImportStatus='Preparing '+Math.min(items.length,limit)+' image slides…';
   renderPresentationBuilder();
   const ready=[];
-  let failed=0,overBudget=false;
+  let failed=0,overBudget=false,animated=0,tooLarge=0;
   // Deck data also travels in classroom state snapshots. Keep a conservative
   // ceiling below the server's 24 MB persisted-library limit.
   let size=JSON.stringify(state.activities.filter(a=>a.type==='presentation'
@@ -19185,7 +19226,7 @@ async function siPlusImportImageSlides(files,options={}){
   try{
     for(const file of items.slice(0,limit)){
       if(state.presentationEditor!==ed)break;
-      if(!file||!/^image\/(?:png|jpeg|webp|gif|bmp|avif)$/i.test(file.type)){
+      if(!file||(!siPlusIsGifFile(file)&&!/^image\/(?:png|jpeg|webp|bmp|avif)$/i.test(file.type))){
         failed++;continue;
       }
       try{
@@ -19195,8 +19236,9 @@ async function siPlusImportImageSlides(files,options={}){
         slide.listTitle=siPlusImageFilename(file.name);
         slide.title='';slide.text='';slide.image=data;slide.youtube='';
         ready.push(slide);
+        if(siPlusIsGifFile(file))animated++;
         size+=data.length+240;
-      }catch(error){failed++;console.warn('SI+ skipped unreadable image',file.name,error);}
+      }catch(error){failed++;if(siPlusIsGifFile(file)&&file.size>SI_PLUS_MAX_GIF_BYTES)tooLarge++;console.warn('SI+ skipped unreadable image',file.name,error);}
       const progress=$('#siPlusBatchStatus');
       if(progress)progress.textContent='Preparing images · '+(ready.length+failed)+' of '+Math.min(items.length,limit);
     }
@@ -19213,6 +19255,8 @@ async function siPlusImportImageSlides(files,options={}){
       ?ready.length+' image slide'+(ready.length===1?'':'s')+' added. Save Presentation to keep them.'
       :'No image slides added.';
     if(skipped)siPlusBatchImportStatus+=' '+skipped+' unsupported or unreadable file'+(skipped===1?'':'s')+' skipped.';
+    if(animated)siPlusBatchImportStatus+=' '+animated+' animated GIF'+(animated===1?'':'s')+' kept moving.';
+    if(tooLarge)siPlusBatchImportStatus+=' GIFs must be 10 MB or less.';
     if(overBudget)siPlusBatchImportStatus+=' Library image size limit reached; import fewer or smaller images.';
     if(state.presentationEditor===ed){renderPresentationBuilder();toast(siPlusBatchImportStatus);}
   }
@@ -19225,7 +19269,7 @@ const siPlusOrganizerSelection=new Set();
 function siPlusOrganizerReset(){siPlusOrganizerOpen=false;siPlusOrganizerSelection.clear()}
 function siPlusOrganizerThumbnail(s,i){
   const img=s.image||(s.choices||[]).find(c=>c.image)?.image||'';
-  if(img)return `<img src="${esc(img)}" alt="Preview slide ${i+1}" loading="lazy">`;
+  if(img)return `<img src="${esc(img)}" alt="Preview slide ${i+1}" loading="lazy">${/^data:image\\/gif;base64,/i.test(img)?'<span class="si-plus-gif-badge" aria-label="Animated GIF">GIF · ANIMATED</span>':''}`;
   return `<div class="si-org-empty ${esc(s.type||'instruction')}"><span>${s.youtube?'▶':s.type==='question'?'?':s.type==='poll'?'▥':'▤'}</span><b>${s.youtube?'VIDEO':(s.type||'INSTRUCTION').toUpperCase()}</b></div>`;
 }
 function siPlusOrganizerHTML(deck){
@@ -19242,7 +19286,7 @@ function siPlusOrganizerHTML(deck){
   </header>
   <div class="si-org-grid">${slides.map((s,i)=>{
     const title=s.listTitle||s.title||'Slide';
-    const category=s.type==='instruction'&&s.image&&!s.title&&!s.text?'IMAGE':(s.type||'instruction').toUpperCase();
+    const category=/^data:image\\/gif;base64,/i.test(s.image||'')?'ANIMATED GIF':s.type==='instruction'&&s.image&&!s.title&&!s.text?'IMAGE':(s.type||'instruction').toUpperCase();
     return `<article class="si-org-card ${siPlusOrganizerSelection.has(i)?'selected':''} ${i===state.editorSlide?'current':''}" draggable="true" data-org-drag="${i}">
       <div class="si-org-card-top"><b>SLIDE ${i+1}</b>
       <label><input type="checkbox" data-org-select="${i}" aria-label="Select slide ${i+1}: ${esc(title)}" ${siPlusOrganizerSelection.has(i)?'checked':''}> Select</label></div>
@@ -19351,19 +19395,19 @@ function renderPresentationBuilder(){
   const d=ed.draft,slide=d.slides[state.editorSlide]||d.slides[0];state.editorSlide=Math.max(0,Math.min(state.editorSlide,d.slides.length-1));
   box.classList.toggle('si-plus-organizing',siPlusOrganizerOpen);
   const choices=slide.choices||[];
-  const answerHTML=['A','B','C','D'].map(key=>{const c=choices.find(x=>x.key===key)||{key,text:'',image:''};return `<div class="answer-editor"><button class="answer-dot choice-${key} ${slide.type==='question'&&slide.correct===key?'correct':''}" data-correct="${key}" title="${slide.type==='question'?'Mark correct answer':'Poll option'}">${key}</button><input type="text" data-choice-text="${key}" value="${esc(c.text)}" placeholder="${slide.type==='question'?'Answer':'Option'} ${key}"><div class="answer-image-tools">${c.image?`<img class="choice-thumb" src="${c.image}" alt="Choice ${key}"><button class="remove-media" data-remove-choice-image="${key}">×</button>`:''}<label class="file-label">＋ image<input type="file" accept="image/*" data-choice-image="${key}"></label></div></div>`}).join('');
+  const answerHTML=['A','B','C','D'].map(key=>{const c=choices.find(x=>x.key===key)||{key,text:'',image:''};return `<div class="answer-editor"><button class="answer-dot choice-${key} ${slide.type==='question'&&slide.correct===key?'correct':''}" data-correct="${key}" title="${slide.type==='question'?'Mark correct answer':'Poll option'}">${key}</button><input type="text" data-choice-text="${key}" value="${esc(c.text)}" placeholder="${slide.type==='question'?'Answer':'Option'} ${key}"><div class="answer-image-tools">${c.image?`<img class="choice-thumb" src="${c.image}" alt="Choice ${key}"><button class="remove-media" data-remove-choice-image="${key}">×</button>`:''}<label class="file-label">＋ image / GIF<input type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif,image/bmp" data-choice-image="${key}"></label></div></div>`}).join('');
   box.innerHTML=`<div class="builder-top"><div class="builder-title-group"><span class="eyebrow">PRESENTATION BUILDER</span><input id="presentationTitleInput" class="builder-title-input" value="${esc(d.deckTitle||d.name)}" aria-label="Presentation title"></div><div class="builder-top-actions"><button id="cancelPresentationEdit">← Library</button><button type="button" id="siOrgToggle" aria-pressed="${siPlusOrganizerOpen}">${siPlusOrganizerOpen?'← Back to Editor':'▦ Organize Slides'}</button><button class="builder-load-btn" id="loadSavedFromBuilder">▣ Load Saved</button><button class="save" id="savePresentationBtn">💾 Save Presentation</button></div></div><div id="siPlusSaveStatus" class="si-plus-save-status" role="status">Saved presentations stay in your Railway library after Reset Session.</div>
   ${siPlusOrganizerOpen?siPlusOrganizerHTML(d):''}
-  <div class="builder-layout"><div class="builder-box"><h3>Slides (${d.slides.length})</h3><div class="slide-nav">${d.slides.map((s,i)=>`<button class="slide-nav-item ${i===state.editorSlide?'active':''}" data-editor-slide="${i}"><b>${i+1}. ${esc(s.listTitle||s.title||'Slide')}</b><small class="slide-badge ${s.type}">${s.type==='instruction'&&s.image&&!s.title&&!s.text?'IMAGE':s.type.toUpperCase()}</small></button>`).join('')}</div></div>
+  <div class="builder-layout"><div class="builder-box"><h3>Slides (${d.slides.length})</h3><div class="slide-nav">${d.slides.map((s,i)=>`<button class="slide-nav-item ${i===state.editorSlide?'active':''}" data-editor-slide="${i}"><b>${i+1}. ${esc(s.listTitle||s.title||'Slide')}</b><small class="slide-badge ${s.type}">${/^data:image\\/gif;base64,/i.test(s.image||'')?'GIF':s.type==='instruction'&&s.image&&!s.title&&!s.text?'IMAGE':s.type.toUpperCase()}</small></button>`).join('')}</div></div>
   <div class="builder-box"><div class="editor-form"><div class="si-plus-type-row"><span class="slide-badge ${slide.type}">${slide.type.toUpperCase()}</span><label>Slide Type<select id="siPlusSlideType" aria-label="Change this slide to instruction, question, or poll"><option value="instruction" ${slide.type==='instruction'?'selected':''}>Instruction</option><option value="question" ${slide.type==='question'?'selected':''}>Question</option><option value="poll" ${slide.type==='poll'?'selected':''}>Poll</option></select></label><small>Keep this slide’s images and text when switching.</small></div><label>Slide List Title<input id="slideListTitle" type="text" value="${esc(slide.listTitle||'')}" placeholder="Example: Warm-Up Question"></label><label>${slide.type==='instruction'?'Slide Title':'Question / Prompt'}<input id="slideTitle" type="text" value="${esc(slide.title||'')}"></label><label>${slide.type==='instruction'?'Text / Prompt':'Supporting text'}<textarea id="slideText">${esc(slide.text||'')}</textarea></label>
-  <div class="editor-row"><div class="editor-media"><b style="font-size:10px">Slide Image</b><div style="margin-top:7px"><label class="file-label">＋ Attach Image<input id="slideImageInput" type="file" accept="image/*"></label>${slide.image?' <button class="remove-media" id="removeSlideImage">Remove</button>':''}</div><div class="editor-media-preview">${slide.image?`<img src="${slide.image}" alt="Slide preview"><span>Image attached</span>`:'No image attached'}</div></div><div class="editor-media si-plus-video-editor"><div class="si-plus-video-label"><b>YouTube Video</b><span>Optional · 16:9 widescreen</span></div><input id="slideYoutube" type="url" value="${esc(slide.youtube||'')}" placeholder="Paste a YouTube watch or share link"><div class="si-plus-video-preview" id="siPlusVideoPreview">${siPlusVideoPreview(slide.youtube)}</div></div></div>
+  <div class="editor-row"><div class="editor-media"><b style="font-size:10px">Slide Image / Animated GIF</b><div style="margin-top:7px"><label class="file-label">＋ Attach Image / GIF<input id="slideImageInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif,image/bmp"></label>${slide.image?' <button class="remove-media" id="removeSlideImage">Remove</button>':''}</div><div class="editor-media-preview">${slide.image?`<img src="${slide.image}" alt="Slide preview"><span>${/^data:image\\/gif;base64,/i.test(slide.image)?'GIF · Animates while presenting':'Image attached'}</span>`:'No image attached'}</div></div><div class="editor-media si-plus-video-editor"><div class="si-plus-video-label"><b>YouTube Video</b><span>Optional · 16:9 widescreen</span></div><input id="slideYoutube" type="url" value="${esc(slide.youtube||'')}" placeholder="Paste a YouTube watch or share link"><div class="si-plus-video-preview" id="siPlusVideoPreview">${siPlusVideoPreview(slide.youtube)}</div></div></div>
   ${['question','poll'].includes(slide.type)?`<div><label style="display:block;margin-bottom:5px">Answer Choices${slide.type==='question'?' · click A/B/C/D circle to mark correct':''}</label>${answerHTML}</div>`:''}
   <div class="slide-tools"><button id="moveSlideUp">↑ Move Up</button><button id="moveSlideDown">↓ Move Down</button><button class="delete" id="deleteSlideBtn">Delete Slide</button></div></div></div>
   <div class="builder-box"><h3>Add a New Slide</h3>
-  <div class="si-plus-batch-import"><div class="si-plus-batch-copy"><b>⇧ Import Images as Slides</b><span>Choose multiple photos or screenshots. Each image becomes a full-screen slide, in file order.</span></div>
-  <label class="si-plus-batch-button">＋ Choose Images <input id="siPlusBatchImages" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif,image/bmp" multiple ${siPlusBatchImportBusy?'disabled':''}></label>
+  <div class="si-plus-batch-import"><div class="si-plus-batch-copy"><b>⇧ Import Images &amp; Animated GIFs</b><span>Upload photos, screenshots, or moving GIFs. GIFs keep their animation in the lesson (10 MB maximum per GIF).</span></div>
+  <label class="si-plus-batch-button">＋ Choose Images / GIFs <input id="siPlusBatchImages" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif,image/bmp" multiple ${siPlusBatchImportBusy?'disabled':''}></label>
   <label class="si-plus-batch-position">Insert images<select id="siPlusBatchInsertPosition" aria-label="Choose where image slides are inserted"><option value="end">At end</option>${d.slides.map((s,i)=>`<option value="${i}">Before slide ${i+1} · ${esc(s.listTitle||s.title||'Slide')}</option>`).join('')}</select></label>
-  <small>Up to 100 images · Keeps the order you select · Existing slides are preserved.</small>
+  <small>Up to 100 images or GIFs · Original GIF animation preserved · Existing slides remain in place.</small>
   <p id="siPlusBatchStatus" role="status" aria-live="polite">${esc(siPlusBatchImportStatus)}</p></div>
   <div class="add-slide-grid"><button class="add-instruction" data-add-slide="instruction">▤ Instruction Slide<small>Text, image, or YouTube</small></button><button class="add-question" data-add-slide="question">? Question Slide<small>A/B/C/D + correct answer</small></button><button class="add-poll" data-add-slide="poll">▥ Poll Slide<small>A/B/C/D with no correct answer</small></button></div><p class="builder-note">Saved presentations appear back in the Activity Library and can be assigned to any Favorite button.</p></div></div>`;
   siPlusOrganizerWire();

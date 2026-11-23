@@ -409,3 +409,26 @@
     transition:none!important;
   }
 }
+
+/* SI+ animated GIF: visually identify moving slide media without affecting
+   browser-native playback, video controls, or the 16:9 projector stage. */
+#teacher #presentationBuilderPanel.si-art-builder .si-org-thumb{
+  position:relative;
+}
+#teacher #presentationBuilderPanel.si-art-builder .si-plus-gif-badge{
+  position:absolute;right:7px;bottom:7px;z-index:2;pointer-events:none;
+  padding:5px 8px;border:1px solid #ffdc8b;border-radius:7px;
+  background:linear-gradient(115deg,#563b16ec,#1b314ceb);
+  color:#fff4cc;font:950 10px/1.1 system-ui;letter-spacing:.06em;
+  box-shadow:0 2px 8px #0009;
+}
+#teacher #presentationBuilderPanel.si-art-builder .editor-media-preview:has(>img[src^="data:image/gif"]){
+  border:1px solid #f0c56c!important;
+  box-shadow:0 0 0 2px #efc26d25,inset 0 0 15px #7dc7e41d!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .editor-media-preview:has(>img[src^="data:image/gif"]) > span{
+  color:#ffe9ae!important;font-weight:900!important;
+}
+#teacher #presentationBuilderPanel.si-art-builder .si-plus-batch-copy span{
+  line-height:1.45;
+}
