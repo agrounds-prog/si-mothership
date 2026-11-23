@@ -6,7 +6,9 @@ const {chromium}=require('playwright');
 const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
 if(!/^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?\/?$/.test(BASE))
   throw Error('GIF regression must use isolated localhost');
-const GIF=Buffer.from('R0lGODlhGAAYAIEAAP8AAAAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQIMgAAACwAAAAAGAAYAAAIKQABCBxIsKDBgwgTKlzIsKHDhxAjSpxIsaLFixgzatzIsaPHjyBDPgwIACH5BAgyAAAALAAAAAAYABgAgQAA/wAAAAAAAAAAAAgpAAEIHEiwoMGDCBMqXMiwocOHECNKnEixosWLGDNq3Mixo8ePIEM+DAgAOw==','base64');
+// Valid GIF89a: two 24x24 frames, red then blue, 220 ms per frame, infinite loop.
+const GIF=Buffer.from('R0lGODlhGAAYAIEAAP8AAAAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQIFgAAACwAAAAAGAAYAAAIKQABCBxIsKDBgwgTKlzIsKHDhxAjSpxIsaLFixgzatzIsaPHjyBDPgwIACH5BAgWAAAALAAAAAAYABgAgQAA/wAAAAAAAAAAAAgpAAEIHEiwoMGDCBMqXMiwocOHECNKnEixosWLGDNq3Mixo8ePIEM+DAgAOw==','base64');
+assert.equal((GIF.toString('hex').match(/21f904/g)||[]).length,2,'GIF fixture must encode two timed frames');
 const gifFile=(name,mimeType='image/gif')=>({name,mimeType,buffer:GIF});
 async function assertAnimated(page,selector){
   await page.locator(selector).waitFor({state:'attached'});
