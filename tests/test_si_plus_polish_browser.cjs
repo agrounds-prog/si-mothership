@@ -79,7 +79,9 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
     const content=document.createElement("div");content.id="sharedContent";
     content.style.cssText="display:block;width:100%;height:auto";
     content.innerHTML=sharedMarkup("big");shell.appendChild(content);document.body.appendChild(shell);
-    const frame=content.querySelector(".presentation-public .si-plus-video-frame");
+    // Modern SI+ dedicated YouTube slides use a full-stage video shell rather
+    // than the older text-and-image presentation-public wrapper.
+    const frame=content.querySelector(".si-plus-video-only-content .si-plus-video-frame, .presentation-public .si-plus-video-frame");
     const video=frame?.querySelector("iframe");
     if(!frame||!video){shell.remove();return {exists:false};}
     const f=frame.getBoundingClientRect(),v=video.getBoundingClientRect();
