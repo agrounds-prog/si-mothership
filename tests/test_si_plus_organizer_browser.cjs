@@ -79,8 +79,14 @@ const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
     },true);
    }
   });
-  await page.locator('[data-org-drag="0"] .si-org-card-top').dragTo(
-    page.locator('[data-org-drag="4"] .si-org-card-top'));
+  // Scroll the source and destination into view together before dragging.
+  // Playwright's automatic target scrolling can otherwise move the source
+  // beneath the pointer before mousedown and start dragging card 4 instead.
+  await page.locator('[data-org-drag="0"]').scrollIntoViewIfNeeded();
+  await page.locator('[data-org-drag="4"]').scrollIntoViewIfNeeded();
+  await page.locator('[data-org-drag="0"]').dragTo(
+    page.locator('[data-org-drag="4"]'),{sourcePosition:{x:18,y:18},targetPosition:{x:30,y:30}});
+
   console.log('SI+ ORGANIZER DRAG DIAGNOSTICS',JSON.stringify(await page.evaluate(()=>({
    events:window.__siOrgDragTrace,order:state.presentationEditor.draft.slides.map(s=>s.listTitle),
    handles:[...document.querySelectorAll('[data-org-drag]')].map(x=>({
