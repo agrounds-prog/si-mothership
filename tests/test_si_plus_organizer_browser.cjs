@@ -79,13 +79,13 @@ const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
     },true);
    }
   });
-  // Scroll the source and destination into view together before dragging.
-  // Playwright's automatic target scrolling can otherwise move the source
-  // beneath the pointer before mousedown and start dragging card 4 instead.
+  // Use adjacent visible cards to avoid automatic scrolling changing the
+  // source beneath the pointer. Assert the actual native drag source.
+  await page.setViewportSize({width:1600,height:1600});
   await page.locator('[data-org-drag="0"]').scrollIntoViewIfNeeded();
-  await page.locator('[data-org-drag="4"]').scrollIntoViewIfNeeded();
   await page.locator('[data-org-drag="0"]').dragTo(
-    page.locator('[data-org-drag="4"]'),{sourcePosition:{x:18,y:18},targetPosition:{x:30,y:30}});
+    page.locator('[data-org-drag="1"]'),{sourcePosition:{x:18,y:18},targetPosition:{x:30,y:30}});
+  assert.equal(await page.evaluate(()=>window.__siOrgDragTrace.find(e=>e.event==='dragstart')?.card),'0','Native drag must start on the intended card');
 
   console.log('SI+ ORGANIZER DRAG DIAGNOSTICS',JSON.stringify(await page.evaluate(()=>({
    events:window.__siOrgDragTrace,order:state.presentationEditor.draft.slides.map(s=>s.listTitle),
@@ -94,8 +94,10 @@ const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
    }))
   }))));
   assert.deepEqual(await page.evaluate(()=>state.presentationEditor.draft.slides.map(s=>s.listTitle)),[
-   '02 Practice','03 Finish','02 Practice (Copy)','Understanding Check','01 Opening','Class Poll'
+   '02 Practice','01 Opening','03 Finish','02 Practice (Copy)','Understanding Check','Class Poll'
   ],'Native drag/drop should reorder draft slides');
+  // Restore the original expected order for subsequent bulk-delete checks.
+  await page.locator('[data-org-position="1"]').selectOption({value:'4'});
   // Verify thumbnail organizer also works inside narrow teacher windows.
   await page.setViewportSize({width:390,height:780});
   const responsive=await page.evaluate(()=>{
