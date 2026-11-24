@@ -277,7 +277,7 @@
  const DB_NAME="siMothership.siPlusDrafts.v1",TABLE="backups",KEY="latest";
  const inTeacher=()=>typeof SESSION_ROLE!=="undefined"&&SESSION_ROLE==="teacher";
  if(!inTeacher()||typeof indexedDB==="undefined")return;
- let database=null,backup=null,lastJson="",sawEditor=false,lastRecord=null;
+ let database=null,backup=null,lastJson="",sawEditor=false,lastRecord=null,backupFailed=false;
  let chain=Promise.resolve(),timer=null,booted=false;
  function openDB(){
    if(database)return Promise.resolve(database);
@@ -347,9 +347,11 @@
        local.setAttribute("role","status");
        saveStatus.insertAdjacentElement("afterend",local);
      }
-     const message=backup && lastJson===JSON.stringify(edit().draft)
+     const message=backupFailed
+       ?"Local backup unavailable · Save Presentation to protect your changes."
+       :backup && backup===lastRecord && lastJson===snapshotKey(edit())
        ?"✓ Local draft backup ready · Save Presentation to keep it in Railway"
-       :"Draft changes are backed up on this device while you edit.";
+       :"Local draft backup pending · Save Presentation to keep it in Railway.";
      if(local.textContent!==message)local.textContent=message;
    }
  }
@@ -357,22 +359,29 @@
    chain=chain.catch(()=>{}).then(op);
    return chain;
  }
+ function snapshotKey(current){
+   return JSON.stringify([current.draft,current.originalId??null,Math.max(0,Number(state.editorSlide)||0)]);
+ }
  async function poll(){
    if(!inTeacher()||typeof state==="undefined")return;
    const current=edit();
    if(current){
      sawEditor=true;
-     let json;try{json=JSON.stringify(current.draft)}catch(e){return}
+     let json;try{json=snapshotKey(current)}catch(e){return}
      if(json!==lastJson){
        lastJson=json;
-       const record={draft:JSON.parse(json),originalId:current.originalId,
+       const record={draft:JSON.parse(json)[0],originalId:current.originalId,
          editorSlide:Math.max(0,Number(state.editorSlide)||0),savedAt:Date.now()};
        lastRecord=record;
        await queue(async()=>{
          try{
            await storage("readwrite",s=>s.put(record,KEY));
-           backup=record;
-         }catch(e){backup=null;console.warn("SI+ draft backup unavailable",e)}
+           backup=record;backupFailed=false;
+         }catch(e){
+           backupFailed=true;
+           if(lastRecord===record)lastJson="";
+           console.warn("SI+ draft backup unavailable",e);
+         }
          paint();
        });
      }
