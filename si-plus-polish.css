@@ -1379,3 +1379,69 @@ body.sipreview-open{
 :is(#sharedContent,#mirrorContent,.sipreview-stage) .si-plus-video-only-content .si-plus-video-fallback{
   display:none!important;
 }
+
+
+/* SI+ Teacher Studio · visual refinement. Scoped to teacher builder only.
+   Presentation, student companion and shared-screen canvases are untouched. */
+#teacher #presentationBuilderPanel .builder-top-actions{
+ gap:10px!important;align-items:stretch!important;
+ padding:10px 0 14px!important;
+}
+#teacher #presentationBuilderPanel .builder-top-actions button{
+ min-height:48px!important;padding:11px 16px!important;
+ border-radius:12px!important;letter-spacing:.015em!important;
+ box-shadow:inset 0 1px 0 #ffffff45,0 5px 0 #03182799,0 9px 18px #0005!important;
+ transition:transform .15s ease,filter .15s ease,box-shadow .15s ease!important;
+}
+#teacher #presentationBuilderPanel .builder-top-actions button:hover:not(:disabled){
+ filter:brightness(1.13)!important;transform:translateY(-2px)!important;
+}
+#teacher #presentationBuilderPanel .builder-top-actions button:active:not(:disabled){
+ transform:translateY(2px)!important;box-shadow:inset 0 1px 0 #ffffff30,0 2px 0 #03182799!important;
+}
+#teacher #presentationBuilderPanel .builder-top-actions button:focus-visible,
+#teacher #presentationBuilderPanel .si-org button:focus-visible,
+#teacher #presentationBuilderPanel .si-org select:focus-visible{
+ outline:3px solid #ffe18b!important;outline-offset:3px!important;
+}
+#teacher #presentationBuilderPanel .si-org-grid{
+ grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));
+ gap:18px;
+}
+#teacher #presentationBuilderPanel .si-org-card{
+ border-radius:16px;border-color:#4f93b8;
+ box-shadow:inset 0 1px #e8ffff30,0 10px 22px #0006;
+ transition:border-color .15s ease,box-shadow .15s ease,transform .15s ease;
+}
+#teacher #presentationBuilderPanel .si-org-card:hover{
+ transform:translateY(-2px);box-shadow:inset 0 1px #e8ffff40,0 14px 24px #0008;
+}
+#teacher #presentationBuilderPanel .si-org-card.current{
+ border-color:#7ee9f2;box-shadow:0 0 0 2px #7ee9f255,0 12px 24px #0008;
+}
+#teacher #presentationBuilderPanel .si-org-card.selected{
+ border-color:#9bffe0;box-shadow:0 0 0 2px #9bffe055,0 12px 24px #0008;
+}
+#teacher #presentationBuilderPanel .si-org-card.dragging{
+ opacity:.55;transform:scale(.98);
+}
+#teacher #presentationBuilderPanel .si-org-thumb{
+ aspect-ratio:16/9;border-radius:11px;background:#061527;
+}
+#teacher #presentationBuilderPanel .si-org-card-actions button{
+ min-height:44px;
+}
+@media(max-width:560px){
+ #teacher #presentationBuilderPanel .si-org-grid{
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,165px),1fr));gap:12px;
+ }
+ #teacher #presentationBuilderPanel .builder-top-actions button{
+  min-height:44px!important;padding:9px 11px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #teacher #presentationBuilderPanel .si-org-card,
+ #teacher #presentationBuilderPanel .builder-top-actions button{
+  transition:none!important;transform:none!important;
+ }
+}
