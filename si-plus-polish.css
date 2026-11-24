@@ -1445,3 +1445,11 @@ body.sipreview-open{
   transition:none!important;transform:none!important;
  }
 }
+
+
+/* Organizer-mode isolation: the full editor must not remain visible when
+   thumbnail mode is mounted, even across transient render/class updates. */
+#teacher #presentationBuilderPanel:has(.si-org-grid) .builder-layout,
+#teacher #presentationBuilderPanel.si-plus-organizing .builder-layout{
+ display:none!important;
+}
