@@ -1500,3 +1500,11 @@ body.sipreview-open{
   gap:12px;
  }
 }
+
+
+/* Organizer visibility wins over all workspace layout rules. */
+#teacher #presentationBuilderPanel.si-plus-organizing .builder-layout,
+#teacher #presentationBuilderPanel:has(#siOrgToggle[aria-pressed="true"]) .builder-layout,
+#teacher #presentationBuilderPanel:has(.si-org-grid) .builder-layout{
+ display:none!important;
+}
