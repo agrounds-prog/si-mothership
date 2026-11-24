@@ -67,9 +67,32 @@ const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   assert.deepEqual(await page.evaluate(()=>state.presentationEditor.draft.slides.map(s=>s.listTitle)),[
    '01 Opening','02 Practice','03 Finish','02 Practice (Copy)','Understanding Check','Class Poll'
   ]);
-  // Grab the dedicated numbered-slide handle, not the editor/position buttons.
-  await page.locator('[data-org-drag="0"] .si-org-card-top').dragTo(
-    page.locator('[data-org-drag="4"] .si-org-card-top'));
+  // Observe the browser drag lifecycle to distinguish a missing dragstart,
+  // a rejected drop target, and a state-update failure.
+  await page.evaluate(()=>{
+   window.__siOrgDragTrace=[];
+   for(const name of ['dragstart','dragenter','dragover','drop','dragend']){
+    document.addEventListener(name,e=>{
+     const card=e.target.closest?.('[data-org-drag]');
+     window.__siOrgDragTrace.push({event:name,card:card?.dataset.orgDrag??null,
+       prevented:e.defaultPrevented,types:[...(e.dataTransfer?.types||[])]});
+    },true);
+   }
+  });
+  // Scroll the source and destination into view together before dragging.
+  // Playwright's automatic target scrolling can otherwise move the source
+  // beneath the pointer before mousedown and start dragging card 4 instead.
+  await page.locator('[data-org-drag="0"]').scrollIntoViewIfNeeded();
+  await page.locator('[data-org-drag="4"]').scrollIntoViewIfNeeded();
+  await page.locator('[data-org-drag="0"]').dragTo(
+    page.locator('[data-org-drag="4"]'),{sourcePosition:{x:18,y:18},targetPosition:{x:30,y:30}});
+
+  console.log('SI+ ORGANIZER DRAG DIAGNOSTICS',JSON.stringify(await page.evaluate(()=>({
+   events:window.__siOrgDragTrace,order:state.presentationEditor.draft.slides.map(s=>s.listTitle),
+   handles:[...document.querySelectorAll('[data-org-drag]')].map(x=>({
+    id:x.dataset.orgDrag,draggable:x.draggable,headerDraggable:x.querySelector('.si-org-card-top')?.draggable
+   }))
+  }))));
   assert.deepEqual(await page.evaluate(()=>state.presentationEditor.draft.slides.map(s=>s.listTitle)),[
    '02 Practice','03 Finish','02 Practice (Copy)','Understanding Check','01 Opening','Class Poll'
   ],'Native drag/drop should reorder draft slides');

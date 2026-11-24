@@ -40,6 +40,22 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal(before.slides.length,2);
   assert.ok(before.slides[0].image>200,"draft backup retains embedded images");
   assert.equal(before.slides[1].title,"Which step comes next?");
+  // Switching slides without editing text must update the local recovery position.
+  // The original v90 snapshot only compared slide content and missed this case.
+  const navOnly=await page.evaluate(async()=>{
+   state.editorSlide=0;renderPresentationBuilder();
+   const first=await SIPlusDraftRecovery.flush();
+   state.editorSlide=1;renderPresentationBuilder();
+   const second=await SIPlusDraftRecovery.flush();
+   return {first:first?.editorSlide,second:second?.editorSlide,
+     sameSlides:JSON.stringify(first?.draft?.slides)===JSON.stringify(second?.draft?.slides),
+     status:document.querySelector("#siPlusLocalDraftStatus")?.textContent||""};
+  });
+  assert.deepEqual([navOnly.first,navOnly.second],[0,1],
+    "draft recovery tracks navigation even when slide content is unchanged");
+  assert.equal(navOnly.sameSlides,true);
+  assert.match(navOnly.status,/Local draft backup ready/);
+
   const originalStore=(await (await page.request.get(BASE+"/api/storage")).json()).items["siMothership.presentations.v1"];
   await page.reload({waitUntil:"domcontentloaded",timeout:40000});
   await page.waitForFunction(()=>networkHydrated===true&&!!window.SIPlusDraftRecovery,
