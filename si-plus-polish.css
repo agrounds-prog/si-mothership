@@ -1524,3 +1524,37 @@ body.sipreview-open{
 #teacher #presentationBuilderPanel label[for='siPlusBatchImages']::before,
 #teacher #presentationBuilderPanel label:has(> #siOrgBatchImages)::before,
 #teacher #presentationBuilderPanel label[for='siOrgBatchImages']::before{content:"";display:inline-block;width:30px;height:30px;vertical-align:middle;margin-right:8px;background:center/contain no-repeat url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2040%2040%22%3E%3Cpath%20d%3D%22M8%201H32L39%208V32L32%2039H8L1%2032V8Z%22%20fill%3D%22%23102c46%22%20stroke%3D%22%239bf0d6%22%2F%3E%3Cpath%20d%3D%22M3%2015v6h18v-6%20M12%2016V3%20M6%209l6-6%206%206%22%20transform%3D%22translate(8%208)%22%20fill%3D%22none%22%20stroke%3D%22%239bf0d6%22%20stroke-width%3D%221.8%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E");}
+
+/* Multimedia workspace: consistent preview geometry and compact controls.
+   Do not alter the media itself, playback, or projector layout. */
+#teacher #presentationBuilderPanel .editor-row{
+ gap:12px!important;align-items:start!important;
+}
+#teacher #presentationBuilderPanel .editor-row>.editor-media{
+ min-width:0!important;box-sizing:border-box;
+}
+#teacher #presentationBuilderPanel :is(.editor-media-preview,.si-plus-video-preview){
+ aspect-ratio:16/9!important;box-sizing:border-box;
+}
+#teacher #presentationBuilderPanel .editor-media-preview img{
+ object-fit:contain!important;
+}
+#teacher #presentationBuilderPanel .editor-media input[type=file]{
+ width:100%;max-width:100%;box-sizing:border-box;
+ font:inherit;
+}
+#teacher #presentationBuilderPanel .si-plus-media-actions button,
+#teacher #presentationBuilderPanel #siPlusSpotlightEditButton{
+ min-height:44px!important;
+}
+#teacher #presentationBuilderPanel .si-plus-media-feedback{
+ min-height:20px!important;padding:2px!important;
+}
+@container si-teacher-workspace (max-width:760px){
+ #teacher #presentationBuilderPanel .editor-row>.editor-media{
+  padding:10px!important;gap:8px!important;
+ }
+ #teacher #presentationBuilderPanel .si-plus-media-actions button{
+  flex:1 1 100px!important;
+ }
+}
