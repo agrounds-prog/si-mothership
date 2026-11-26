@@ -3852,3 +3852,14 @@ body.role-student #studentContent .crew-survey-verbal .crew-survey-speak-cue spa
 @media(prefers-reduced-motion:reduce){
   #teacher .bbs-grid .bbs-tile{transition:none!important;transform:none!important}
 }
+
+/* Pixel Reveal teacher studio — scoped to setup, never live game. */
+#teacher .pixel-setup .pixel-setup-grid{grid-template-columns:minmax(0,1fr);gap:16px}
+#teacher .pixel-setup .pixel-card{min-width:0;padding:clamp(12px,2vw,22px);border-color:#416784}
+#teacher .pixel-setup .pixel-setup-preview{aspect-ratio:16/9;max-height:420px;background:#050d17}
+#teacher .pixel-setup .pixel-setup-preview img{width:100%;height:100%;object-fit:contain;min-height:0;min-width:0}
+#teacher .pixel-setup .pixel-text-input{box-sizing:border-box;max-width:100%}
+#teacher .pixel-setup button,#teacher .pixel-setup .file-label{min-height:44px;box-sizing:border-box}
+#teacher .pixel-setup .pixel-save-actions{display:flex;flex-wrap:wrap;gap:10px}
+#teacher .pixel-setup .pixel-save-actions button{flex:1 1 150px}
+#teacher .pixel-setup .pixel-card h4{margin-top:18px;color:#b8e9ff}
