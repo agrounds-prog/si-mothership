@@ -83,8 +83,21 @@ const BASE=process.env.LOCAL_URL||'http://127.0.0.1:8877';
   // source beneath the pointer. Assert the actual native drag source.
   await page.setViewportSize({width:1600,height:1600});
   await page.locator('[data-org-drag="0"]').scrollIntoViewIfNeeded();
-  await page.locator('[data-org-drag="0"]').dragTo(
-    page.locator('[data-org-drag="1"]'),{sourcePosition:{x:18,y:18},targetPosition:{x:30,y:30}});
+  const source=page.locator('[data-org-drag="0"] .si-org-card-top b');
+  const target=page.locator('[data-org-drag="1"] .si-org-card-top');
+  await source.scrollIntoViewIfNeeded();
+  await target.scrollIntoViewIfNeeded();
+  const a=await source.boundingBox(),b=await target.boundingBox();
+  assert.ok(a&&b,'Drag source and destination must be visible');
+  const x=a.x+a.width/2,y=a.y+a.height/2;
+  assert.equal(await page.evaluate(({x,y})=>document.elementFromPoint(x,y)?.closest('[data-org-drag]')?.dataset.orgDrag,{x,y}),'0','Drag source must be unobstructed');
+  await page.mouse.move(x,y);
+  await page.mouse.down();
+  await page.mouse.move(x+12,y,{steps:5});
+  await page.mouse.move(b.x+b.width/2,b.y+b.height/2,{steps:20});
+  await page.mouse.move(b.x+b.width/2+2,b.y+b.height/2);
+  await page.mouse.up();
+  console.log('Native drag trace',JSON.stringify(await page.evaluate(()=>window.__siOrgDragTrace)));
   assert.equal(await page.evaluate(()=>window.__siOrgDragTrace.find(e=>e.event==='dragstart')?.card),'0','Native drag must start on the intended card');
 
   console.log('SI+ ORGANIZER DRAG DIAGNOSTICS',JSON.stringify(await page.evaluate(()=>({
