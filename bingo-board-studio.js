@@ -2306,3 +2306,67 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
   else install();
 })();
+
+/* Pixel Reveal collection editor: retain legacy single-image launch and storage. */
+(()=>{
+ if(window.SIPixelCollection)return;
+ const LIMIT=12;
+ let busy=false;
+ const active=()=>typeof state!=="undefined"&&state.activeApp==="pixel"&&document.querySelector("#teacher .pixel-setup");
+ const snapshot=d=>({image:d.image,answer:d.answer||"",acceptedAnswers:[...(d.acceptedAnswers||[])]});
+ function sync(d){if(Array.isArray(d.mysteryImages)&&d.mysteryImages.length)d.mysteryImages[d.mysteryIndex]=snapshot(d)}
+ function collection(d){
+  if(!Array.isArray(d.mysteryImages)||!d.mysteryImages.length){d.mysteryImages=[snapshot(d)];d.mysteryIndex=0}
+  d.mysteryIndex=Math.max(0,Math.min(d.mysteryImages.length-1,Number(d.mysteryIndex)||0));
+  return d.mysteryImages;
+ }
+ function select(d,i){d.mysteryIndex=i;Object.assign(d,deepClone(d.mysteryImages[i]));renderActivities()}
+ async function decode(file){
+  if(!file.type.startsWith("image/"))throw Error("Not an image");
+  const url=URL.createObjectURL(file);
+  try{
+   const img=new Image();img.src=url;await img.decode();
+   const scale=Math.min(1,1000/Math.max(img.naturalWidth,img.naturalHeight));
+   const c=document.createElement("canvas");c.width=Math.max(1,Math.round(img.naturalWidth*scale));c.height=Math.max(1,Math.round(img.naturalHeight*scale));
+   const ctx=c.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(img,0,0,c.width,c.height);
+   return {image:c.toDataURL("image/jpeg",.78),answer:"",acceptedAnswers:[]};
+  }finally{URL.revokeObjectURL(url)}
+ }
+ function mount(){
+  const root=active();if(!root||root.querySelector(".pixel-collection"))return;
+  const d=ensurePixelDraft(),list=collection(d);sync(d);
+  const panel=document.createElement("section");panel.className="pixel-collection";
+  const heading=document.createElement("h4");heading.textContent="Mystery collection · "+list.length+" / "+LIMIT;panel.append(heading);
+  const row=document.createElement("div");row.className="pixel-collection-grid";
+  list.forEach((item,i)=>{
+   const btn=document.createElement("button");btn.type="button";btn.className="pixel-collection-card";btn.setAttribute("aria-pressed",String(i===d.mysteryIndex));
+   const img=document.createElement("img");img.src=item.image;img.alt="";const label=document.createElement("span");label.textContent=(i+1)+" · "+(item.answer||"Set answer");btn.append(img,label);
+   btn.onclick=()=>{if(busy)return;sync(d);select(d,i)};row.append(btn);
+  });
+  panel.append(row);
+  const controls=document.createElement("div");controls.className="pixel-collection-tools";panel.append(controls);
+  function button(label,action,disabled=false){const b=document.createElement("button");b.type="button";b.textContent=label;b.disabled=disabled||busy;b.onclick=action;controls.append(b)}
+  const input=document.createElement("input");input.type="file";input.accept="image/*";input.multiple=true;input.hidden=true;panel.append(input);
+  button("＋ Add images",()=>input.click(),list.length>=LIMIT);
+  button("← Earlier",()=>{sync(d);const i=d.mysteryIndex;[list[i-1],list[i]]=[list[i],list[i-1]];select(d,i-1)},d.mysteryIndex===0);
+  button("Later →",()=>{sync(d);const i=d.mysteryIndex;[list[i],list[i+1]]=[list[i+1],list[i]];select(d,i+1)},d.mysteryIndex===list.length-1);
+  button("Remove selected",()=>{if(!confirm("Remove this mystery image?"))return;list.splice(d.mysteryIndex,1);select(d,Math.min(d.mysteryIndex,list.length-1))},list.length<=1);
+  input.onchange=async()=>{
+   if(busy)return;const files=Array.from(input.files||[]);if(!files.length)return;
+   sync(d);busy=true;controls.querySelectorAll("button").forEach(b=>b.disabled=true);
+   let added=0,failed=0;const first=list.length;
+   try{for(const file of files.slice(0,LIMIT-list.length)){try{list.push(await decode(file));added++}catch{failed++}}
+    if(state.pixelDraft===d){if(added)select(d,first);else renderActivities()}
+    toast(added+" images added"+(failed?" · "+failed+" could not be read":"")+(files.length>added+failed?" · collection limit reached":""));
+   }finally{busy=false;if(state.pixelDraft===d&&active())renderActivities()}
+  };
+  const preview=root.querySelector(".pixel-setup-preview");if(!preview)return;preview.after(panel);
+  for(const id of ["pixelAnswer","pixelAcceptedAnswers"]){root.querySelector("#"+id)?.addEventListener("input",()=>{sync(d);const label=row.children[d.mysteryIndex]?.querySelector("span");if(label)label.textContent=(d.mysteryIndex+1)+" · "+(d.answer||"Set answer")})}
+  const save=root.querySelector("#savePixelBtn");if(save)save.onclick=()=>{if(busy)return;sync(d);savePixelDraft();renderActivities()};
+  const launch=root.querySelector("#launchPixelBtn");if(launch)launch.onclick=()=>{if(busy)return;sync(d);const original=state.pixelDraft;const single={...original};delete single.mysteryImages;delete single.mysteryIndex;state.pixelDraft=single;try{launchPixel()}finally{state.pixelDraft=original}};
+  const note=document.createElement("small");note.textContent="Save stores the entire collection in this browser. Load launches only the selected mystery.";panel.append(note);
+ }
+ function install(){const grid=document.getElementById("activityGrid");if(!grid)return;new MutationObserver(mount).observe(grid,{childList:true,subtree:true});mount()}
+ window.SIPixelCollection={mount};
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
+})();
