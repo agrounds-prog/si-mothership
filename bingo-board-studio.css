@@ -3881,3 +3881,14 @@ body.role-student #studentContent .crew-survey-verbal .crew-survey-speak-cue spa
 #teacher .pixel-setup #savePixelBtn.active{outline:2px solid #76dfff;outline-offset:-3px;}
 #teacher .pixel-setup button:focus-visible{outline:3px solid #fff;outline-offset:2px}
 #teacher .pixel-setup .pixel-reveal-style,#teacher .pixel-setup .pixel-difficulty{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,130px),1fr));gap:10px}
+
+/* Pixel Reveal collection organizer */
+#teacher .pixel-setup .pixel-collection{margin-top:16px;border-top:1px solid #416784;padding-top:10px}
+#teacher .pixel-setup .pixel-collection-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,130px),1fr));gap:10px}
+#teacher .pixel-setup .pixel-collection-card{display:flex;flex-direction:column;align-items:stretch;gap:6px;min-width:0;padding:6px;background:#0c2239;border:1px solid #416784;border-radius:9px;color:#e8f8ff;text-align:left}
+#teacher .pixel-setup .pixel-collection-card[aria-pressed="true"]{outline:2px solid #76dfff;outline-offset:-2px;background:#16455c}
+#teacher .pixel-setup .pixel-collection-card img{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#06111f;border-radius:5px}
+#teacher .pixel-setup .pixel-collection-card span{overflow-wrap:anywhere;font-size:12px}
+#teacher .pixel-setup .pixel-collection-tools{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+#teacher .pixel-setup .pixel-collection-tools button{flex:1 1 125px}
+#teacher .pixel-setup .pixel-collection small{color:#adc8db;display:block;line-height:1.5}
