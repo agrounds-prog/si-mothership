@@ -2362,18 +2362,18 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   };
   const preview=root.querySelector(".pixel-setup-preview");if(!preview)return;preview.after(panel);
   for(const id of ["pixelAnswer","pixelAcceptedAnswers"]){root.querySelector("#"+id)?.addEventListener("input",()=>{sync(d);const label=row.children[d.mysteryIndex]?.querySelector("span");if(label)label.textContent=(d.mysteryIndex+1)+" · "+(d.answer||"Set answer")})}
-  const save=root.querySelector("#savePixelBtn");if(save)save.onclick=()=>{if(busy)return;sync(d);savePixelDraft();renderActivities()};
+  const save=root.querySelector("#savePixelBtn");if(save)save.onclick=()=>{if(busy)return;const current=ensurePixelDraft();collection(current);sync(current);savePixelDraft();renderActivities();mount()};
   const launch=root.querySelector("#launchPixelBtn");if(launch)launch.onclick=()=>{
-   if(busy)return;sync(d);
-   const original=state.pixelDraft,single={...original};
+   if(busy)return;const original=ensurePixelDraft();collection(original);sync(original);
+   const single={...original};
    delete single.mysteryImages;delete single.mysteryIndex;
    const effects=["mosaic","blur","glitch","shuffle","mixed"];
    const random=single.distortionStyle==="random";
-   const images=deepClone(list).map(item=>({...item,distortionStyle:random?effects[Math.floor(Math.random()*effects.length)]:single.distortionStyle}));
-   Object.assign(single,images[d.mysteryIndex]);
+   const images=deepClone(original.mysteryImages).map(item=>({...item,distortionStyle:random?effects[Math.floor(Math.random()*effects.length)]:single.distortionStyle}));
+   Object.assign(single,images[original.mysteryIndex]);
    state.pixelDraft=single;
    try{launchPixel();if(state.activityRun?.pixelConfig){
-    liveCollection={token:state.activityRun.runToken,run:state.activityRun,index:d.mysteryIndex,images};
+    liveCollection={token:state.activityRun.runToken,run:state.activityRun,index:original.mysteryIndex,images};
     mountLive();
    }}finally{state.pixelDraft=original}
   };
