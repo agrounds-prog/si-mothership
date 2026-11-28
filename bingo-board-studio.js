@@ -2381,6 +2381,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  }
  function mountLive(){
   const run=state.activityRun,root=document.querySelector("#teacher #activityControllerPanel .pixel-control-side");
+  if(root&&run?.pixelConfig?.revealStyle==="focus"){
+   const more=root.querySelector('[data-pixel-reveal="1"]'),all=root.querySelector("#pixelRevealAllBtn");
+   if(more&&more.textContent!=="Reveal More")more.textContent="Reveal More";
+   if(all&&all.textContent!=="Reveal All")all.textContent="Reveal All";
+   root.querySelectorAll('[data-pixel-reveal="3"],[data-pixel-reveal="5"]').forEach(b=>{if(!b.hidden)b.hidden=true});
+  }
   if(!liveCollection||!run||run!==liveCollection.run||activeActivity()?.type!=="pixel"||!root||root.querySelector(".pixel-live-collection")||liveCollection.images.length<2)return;
   const nav=document.createElement("div");nav.className="pixel-live-collection";
   const label=document.createElement("strong");label.textContent="Mystery "+(liveCollection.index+1)+" / "+liveCollection.images.length;
