@@ -2306,3 +2306,182 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});
   else install();
 })();
+
+/* Pixel Reveal collection editor: retain legacy single-image launch and storage. */
+(()=>{
+ if(window.SIPixelCollection)return;
+ const LIMIT=12;
+ let busy=false,liveCollection=null;
+ const active=()=>typeof state!=="undefined"&&state.activeApp==="pixel"&&document.querySelector("#teacher .pixel-setup");
+ const snapshot=d=>({image:d.image,answer:d.answer||"",acceptedAnswers:[...(d.acceptedAnswers||[])]});
+ function sync(d){if(Array.isArray(d.mysteryImages)&&d.mysteryImages.length)d.mysteryImages[d.mysteryIndex]=snapshot(d)}
+ function collection(d){
+  if(!Array.isArray(d.mysteryImages)||!d.mysteryImages.length){d.mysteryImages=[snapshot(d)];d.mysteryIndex=0}
+  d.mysteryIndex=Math.max(0,Math.min(d.mysteryImages.length-1,Number(d.mysteryIndex)||0));
+  return d.mysteryImages;
+ }
+ function select(d,i){d.mysteryIndex=i;Object.assign(d,deepClone(d.mysteryImages[i]));renderActivities()}
+ async function decode(file){
+  if(!file.type.startsWith("image/"))throw Error("Not an image");
+  const url=URL.createObjectURL(file);
+  try{
+   const img=new Image();img.src=url;await img.decode();
+   const scale=Math.min(1,1000/Math.max(img.naturalWidth,img.naturalHeight));
+   const c=document.createElement("canvas");c.width=Math.max(1,Math.round(img.naturalWidth*scale));c.height=Math.max(1,Math.round(img.naturalHeight*scale));
+   const ctx=c.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(img,0,0,c.width,c.height);
+   return {image:c.toDataURL("image/jpeg",.78),answer:"",acceptedAnswers:[]};
+  }finally{URL.revokeObjectURL(url)}
+ }
+ function mount(){
+  const root=active();if(!root||root.querySelector(".pixel-collection"))return;
+  const d=ensurePixelDraft(),list=collection(d);sync(d);
+  const panel=document.createElement("section");panel.className="pixel-collection";
+  const heading=document.createElement("h4");heading.textContent="Mystery collection · "+list.length+" / "+LIMIT;panel.append(heading);
+  const row=document.createElement("div");row.className="pixel-collection-grid";
+  list.forEach((item,i)=>{
+   const btn=document.createElement("button");btn.type="button";btn.className="pixel-collection-card";btn.setAttribute("aria-pressed",String(i===d.mysteryIndex));
+   const img=document.createElement("img");img.src=item.image;img.alt="";const label=document.createElement("span");label.textContent=(i+1)+" · "+(item.answer||"Set answer");btn.append(img,label);
+   btn.onclick=()=>{if(busy)return;sync(d);select(d,i)};row.append(btn);
+  });
+  panel.append(row);
+  const controls=document.createElement("div");controls.className="pixel-collection-tools";panel.append(controls);
+  function button(label,action,disabled=false){const b=document.createElement("button");b.type="button";b.textContent=label;b.disabled=disabled||busy;b.onclick=action;controls.append(b)}
+  const input=document.createElement("input");input.type="file";input.accept="image/*";input.multiple=true;input.hidden=true;panel.append(input);
+  button("＋ Add images",()=>input.click(),list.length>=LIMIT);
+  button("← Earlier",()=>{sync(d);const i=d.mysteryIndex;[list[i-1],list[i]]=[list[i],list[i-1]];select(d,i-1)},d.mysteryIndex===0);
+  button("Later →",()=>{sync(d);const i=d.mysteryIndex;[list[i],list[i+1]]=[list[i+1],list[i]];select(d,i+1)},d.mysteryIndex===list.length-1);
+  button("Remove selected",()=>{if(!confirm("Remove this mystery image?"))return;list.splice(d.mysteryIndex,1);select(d,Math.min(d.mysteryIndex,list.length-1))},list.length<=1);
+  input.onchange=async()=>{
+   if(busy)return;const files=Array.from(input.files||[]);if(!files.length)return;
+   sync(d);busy=true;controls.querySelectorAll("button").forEach(b=>b.disabled=true);
+   let added=0,failed=0;const first=list.length;
+   try{for(const file of files.slice(0,LIMIT-list.length)){try{list.push(await decode(file));added++}catch{failed++}}
+    if(state.pixelDraft===d){if(added)select(d,first);else renderActivities()}
+    toast(added+" images added"+(failed?" · "+failed+" could not be read":"")+(files.length>added+failed?" · collection limit reached":""));
+   }finally{busy=false;if(state.pixelDraft===d&&active())renderActivities()}
+  };
+  const preview=root.querySelector(".pixel-setup-preview");if(!preview)return;preview.after(panel);
+  for(const id of ["pixelAnswer","pixelAcceptedAnswers"]){root.querySelector("#"+id)?.addEventListener("input",()=>{sync(d);const label=row.children[d.mysteryIndex]?.querySelector("span");if(label)label.textContent=(d.mysteryIndex+1)+" · "+(d.answer||"Set answer")})}
+  const save=root.querySelector("#savePixelBtn");if(save)save.onclick=()=>{if(busy)return;const current=ensurePixelDraft();collection(current);sync(current);savePixelDraft();renderActivities();mount()};
+  const launch=root.querySelector("#launchPixelBtn");if(launch)launch.onclick=()=>{
+   if(busy)return;const original=ensurePixelDraft();collection(original);sync(original);
+   const single={...original};
+   delete single.mysteryImages;delete single.mysteryIndex;
+   const effects=["mosaic","blur","glitch","shuffle","mixed"];
+   const random=single.distortionStyle==="random";
+   const images=deepClone(original.mysteryImages).map(item=>({...item,distortionStyle:random?effects[Math.floor(Math.random()*effects.length)]:single.distortionStyle}));
+   Object.assign(single,images[original.mysteryIndex]);
+   state.pixelDraft=single;
+   try{launchPixel();if(state.activityRun?.pixelConfig){
+    liveCollection={token:state.activityRun.runToken,run:state.activityRun,index:original.mysteryIndex,images};
+    mountLive();
+   }}finally{state.pixelDraft=original}
+  };
+  const note=document.createElement("small");note.textContent="Save stores the collection in this browser. Load starts the selected mystery; use Previous or Next during play.";panel.append(note);
+ }
+ function mountLive(){
+  const run=state.activityRun,root=document.querySelector("#teacher #activityControllerPanel .pixel-control-side");
+  if(root&&run?.pixelConfig?.revealStyle==="focus"){
+   const more=root.querySelector('[data-pixel-reveal="1"]'),all=root.querySelector("#pixelRevealAllBtn");
+   if(more&&more.textContent!=="Reveal More")more.textContent="Reveal More";
+   if(all&&all.textContent!=="Reveal All")all.textContent="Reveal All";
+   root.querySelectorAll('[data-pixel-reveal="3"],[data-pixel-reveal="5"]').forEach(b=>{if(!b.hidden)b.hidden=true});
+  }
+  if(!liveCollection||!run||run!==liveCollection.run||activeActivity()?.type!=="pixel"||!root||root.querySelector(".pixel-live-collection")||liveCollection.images.length<2)return;
+  const nav=document.createElement("div");nav.className="pixel-live-collection";
+  const label=document.createElement("strong");label.textContent="Mystery "+(liveCollection.index+1)+" / "+liveCollection.images.length;
+  nav.append(label);
+  function move(delta){
+   const current=state.activityRun,c=liveCollection;
+   if(!c||current!==c.run)return;
+   const next=c.index+delta;if(next<0||next>=c.images.length)return;
+   if(!current.pixelRevealAll&&Object.keys(current.pixelGuesses||{}).length&&!confirm("Move to another mystery and clear this round's guesses?"))return;
+   c.index=next;
+   Object.assign(current.pixelConfig,deepClone(c.images[next]));
+   current.runToken=newActivityRunToken();
+   initializePixelRun(current);
+   render();toast("Mystery "+(next+1)+" loaded");
+  }
+  for(const [delta,text] of [[-1,"← Previous mystery"],[1,"Next mystery →"]]){
+   const b=document.createElement("button");b.type="button";b.textContent=text;b.disabled=liveCollection.index+delta<0||liveCollection.index+delta>=liveCollection.images.length;b.onclick=()=>move(delta);nav.append(b)
+  }
+  root.prepend(nav);
+ }
+ function install(){const grid=document.getElementById("activityGrid");if(grid)new MutationObserver(mount).observe(grid,{childList:true,subtree:true});
+ const live=document.getElementById("activityControllerPanel");if(live)new MutationObserver(mountLive).observe(live,{childList:true,subtree:true});mount();mountLive()}
+ window.SIPixelCollection={mount,mountLive};
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
+})();
+
+/* Pixel Reveal: selectable progressive focus effects, shared renderer. */
+(()=>{
+ const modes=[["mosaic","Mosaic"],["blur","Soft Focus"],["glitch","Signal Glitch"],["shuffle","Scrambled Blocks"],["mixed","Mixed Distortion"],["random","Random Distortion"]];
+ function mode(v){return modes.some(m=>m[0]===v)?v:"mixed"}
+ function mount(){
+  const root=document.querySelector("#teacher .pixel-setup");
+  if(!root||root.querySelector(".pixel-distortion-picker")||typeof ensurePixelDraft!=="function")return;
+  const d=ensurePixelDraft(),anchor=root.querySelector(".pixel-reveal-style");if(!anchor)return;
+  const wrap=document.createElement("div");wrap.className="pixel-distortion-picker";
+  const label=document.createElement("label");label.textContent="Focus distortion";label.htmlFor="pixelDistortionStyle";label.className="vector-label";
+  const select=document.createElement("select");select.id="pixelDistortionStyle";select.className="pixel-text-input";
+  modes.forEach(([value,name])=>{const option=document.createElement("option");option.value=value;option.textContent=name;select.append(option)});
+  select.value=mode(d.distortionStyle);select.disabled=d.revealStyle!=="focus";
+  select.onchange=()=>{d.distortionStyle=mode(select.value)};
+  const note=document.createElement("small");note.textContent="Choose how the mystery is concealed. Every style becomes clear at the final step.";
+  wrap.append(label,select,note);anchor.after(wrap);
+ }
+ function paint(){
+  const run=state.activityRun;
+  if(!run||activeActivity()?.type!=="pixel"||run.pixelConfig?.revealStyle!=="focus")return;
+  const cfg=run.pixelConfig,selected=mode(cfg.distortionStyle),style=selected==="random"?"mixed":selected,src=cfg.image||pixelDemoImage();
+  const stage=run.pixelRevealAll?10:Math.max(0,Math.min(10,Number(run.pixelFocusStage)||0)),p=stage/10,remaining=1-p;
+  const docs=[document];try{if(typeof secondScreenWindow!=="undefined"&&secondScreenWindow&&!secondScreenWindow.closed)docs.push(secondScreenWindow.document)}catch{}
+  docs.forEach(doc=>doc.querySelectorAll("[data-pixel-focus-canvas]").forEach(canvas=>{
+   const key=src+"|"+style+"|"+stage;if(canvas.__pixelFocusKey===key)return;canvas.__pixelFocusKey=key;
+   const img=new Image();
+   img.onload=()=>{
+    if(canvas.__pixelFocusKey!==key)return;
+    const W=canvas.width,H=canvas.height,ctx=canvas.getContext("2d");if(!ctx)return;
+    const frame=doc.createElement("canvas");frame.width=W;frame.height=H;
+    const fx=frame.getContext("2d"),ratio=Math.min(W/img.naturalWidth,H/img.naturalHeight),w=img.naturalWidth*ratio,h=img.naturalHeight*ratio;
+    fx.fillStyle="#06111f";fx.fillRect(0,0,W,H);fx.drawImage(img,(W-w)/2,(H-h)/2,w,h);
+    ctx.clearRect(0,0,W,H);canvas.style.filter="none";canvas.style.transform="none";
+    if(stage===10){ctx.imageSmoothingEnabled=true;ctx.drawImage(frame,0,0);return}
+    const pixel=style==="mosaic"||style==="mixed"||style==="shuffle";
+    const low=doc.createElement("canvas");low.width=pixel?Math.max(5,Math.round(6+W*Math.pow(p,4.5))):W;low.height=Math.max(1,Math.round(low.width*H/W));
+    const lx=low.getContext("2d");lx.imageSmoothingEnabled=true;lx.drawImage(frame,0,0,low.width,low.height);
+    ctx.imageSmoothingEnabled=!pixel;
+    if(style==="shuffle"){
+     const cols=6,rows=4,n=cols*rows,order=Array.from({length:n},(_,i)=>i);
+     let seed=1337;for(let i=n-1;i>0;i--){seed=(seed*1664525+1013904223)>>>0;const j=seed%(i+1);[order[i],order[j]]=[order[j],order[i]]}
+     const count=Math.round(n*remaining);
+     const selected=order.slice(0,count);
+     for(let i=0;i<n;i++){
+      const at=selected.indexOf(i),from=at<0?i:selected[(at+1)%selected.length];
+      const sx=from%cols*low.width/cols,sy=Math.floor(from/cols)*low.height/rows;
+      ctx.drawImage(low,sx,sy,low.width/cols,low.height/rows,i%cols*W/cols,Math.floor(i/cols)*H/rows,W/cols,H/rows);
+     }
+    }else if(style==="glitch"||style==="mixed"){
+     const amplitude=remaining*W*.24,slice=Math.max(8,Math.round(H/20));
+     ctx.fillStyle="#06111f";ctx.fillRect(0,0,W,H);
+     for(let y=0;y<H;y+=slice){
+      const hh=Math.min(slice,H-y),shift=Math.sin(y/H*31+2)*amplitude;
+      ctx.drawImage(low,0,y/H*low.height,low.width,hh/H*low.height,shift,y,W,hh);
+     }
+    }else ctx.drawImage(low,0,0,W,H);
+    const blur=style==="blur"?remaining*32:style==="mixed"?remaining*7:0;
+    const contrast=style==="mixed"||style==="glitch"?1+remaining*.65:1;
+    const saturation=style==="mixed"?1-remaining*.8:1;
+    canvas.style.filter="blur("+blur.toFixed(2)+"px) contrast("+contrast.toFixed(2)+") saturate("+saturation.toFixed(2)+")";
+   };
+   img.onerror=()=>{if(canvas.__pixelFocusKey===key){canvas.__pixelFocusKey=null;const ctx=canvas.getContext("2d");ctx.fillStyle="#06111f";ctx.fillRect(0,0,canvas.width,canvas.height)}};
+   img.src=src;
+  }));
+ }
+ function install(){
+  if(typeof paintPixelFocusCanvases==="function")paintPixelFocusCanvases=paint;
+  const grid=document.getElementById("activityGrid");if(grid)new MutationObserver(mount).observe(grid,{childList:true,subtree:true});
+  mount();paint();
+ }
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
+})();

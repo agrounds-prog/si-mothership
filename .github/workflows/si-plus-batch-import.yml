@@ -72,7 +72,24 @@ jobs:
           done
           LOCAL_URL=http://127.0.0.1:8882 node tests/test_si_plus_live_navigation_browser.cjs
       - name: SI+ Quick Poll classroom bridge, safe draft handoff and projector toggle
-        run: node tests/test_si_plus_quick_poll_bridge_browser.cjs
+        run: |
+          # Poll bridge needs a clean classroom, independent of preceding editor tests.
+          mkdir -p /tmp/mothership-si-plus-poll
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-si-plus-poll PORT=8886 python server.py >/tmp/mothership-si-plus-poll.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8886/api/health >/dev/null; then break; fi
+            sleep 1
+          done
+          LOCAL_URL=http://127.0.0.1:8886 node tests/test_si_plus_quick_poll_bridge_browser.cjs
+      - name: Pixel Reveal collection and distortion modes
+        run: |
+          mkdir -p /tmp/mothership-pixel-collection
+          MOTHERSHIP_NO_BROWSER=1 MOTHERSHIP_DATA_DIR=/tmp/mothership-pixel-collection PORT=8887 python server.py >/tmp/mothership-pixel-collection.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8887/api/health >/dev/null; then break; fi
+            sleep 1
+          done
+          LOCAL_URL=http://127.0.0.1:8887 node tests/test_pixel_collection_browser.cjs
       - name: SI+ intermission — launch real games and restore exact classroom slide
         run: |
           # A dedicated session avoids Quick Poll's prior test storage and

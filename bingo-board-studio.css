@@ -3881,3 +3881,35 @@ body.role-student #studentContent .crew-survey-verbal .crew-survey-speak-cue spa
 #teacher .pixel-setup #savePixelBtn.active{outline:2px solid #76dfff;outline-offset:-3px;}
 #teacher .pixel-setup button:focus-visible{outline:3px solid #fff;outline-offset:2px}
 #teacher .pixel-setup .pixel-reveal-style,#teacher .pixel-setup .pixel-difficulty{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,130px),1fr));gap:10px}
+
+/* Pixel Reveal collection organizer */
+#teacher .pixel-setup .pixel-collection{margin-top:16px;border-top:1px solid #416784;padding-top:10px}
+#teacher .pixel-setup .pixel-collection-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,130px),1fr));gap:10px}
+#teacher .pixel-setup .pixel-collection-card{display:flex;flex-direction:column;align-items:stretch;gap:6px;min-width:0;padding:6px;background:#0c2239;border:1px solid #416784;border-radius:9px;color:#e8f8ff;text-align:left}
+#teacher .pixel-setup .pixel-collection-card[aria-pressed="true"]{outline:2px solid #76dfff;outline-offset:-2px;background:#16455c}
+#teacher .pixel-setup .pixel-collection-card img{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#06111f;border-radius:5px}
+#teacher .pixel-setup .pixel-collection-card span{overflow-wrap:anywhere;font-size:12px}
+#teacher .pixel-setup .pixel-collection-tools{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+#teacher .pixel-setup .pixel-collection-tools button{flex:1 1 125px}
+#teacher .pixel-setup .pixel-collection small{color:#adc8db;display:block;line-height:1.5}
+
+/* Pixel Reveal live studio and projector — scoped to Pixel Reveal only. */
+#teacher #activityControllerPanel .pixel-controller-grid{grid-template-columns:minmax(0,1fr);gap:14px}
+#teacher #activityControllerPanel .pixel-control-side{min-width:0;border-color:#426e92;padding:14px;background:linear-gradient(150deg,#122c46,#091727)}
+#teacher #activityControllerPanel .pixel-live-collection{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:16px}
+#teacher #activityControllerPanel .pixel-live-collection strong{grid-column:1/-1;text-align:center;color:#a7e9ff;letter-spacing:.08em}
+#teacher #activityControllerPanel .pixel-live-collection button,#teacher #activityControllerPanel .pixel-reveal-buttons button{min-height:48px;border-radius:10px}
+#teacher #activityControllerPanel .pixel-live-collection button:last-child,#teacher #activityControllerPanel .pixel-reveal-buttons #pixelRevealAllBtn{background:linear-gradient(135deg,#155e63,#153c50);border:1px solid #76dfcf;color:#efffff}
+#teacher #activityControllerPanel .pixel-reveal-buttons button[hidden]{display:none!important}
+#teacher #activityControllerPanel .pixel-control-side button:focus-visible{outline:3px solid #f1fbff;outline-offset:2px}
+#teacher #activityControllerPanel .pixel-control-side button:disabled{opacity:.42;cursor:not-allowed}
+#teacher .pixel-setup .pixel-distortion-picker{margin:12px 0;display:grid;gap:5px}
+#teacher .pixel-setup .pixel-distortion-picker select{min-height:44px;width:100%;background:#0b2034;color:#eaf7ff}
+#teacher .pixel-setup .pixel-distortion-picker small{color:#a9c9df}
+body.role-shared .pixel-public{box-sizing:border-box;width:min(1440px,96vw)!important;border:1px solid #537ba0!important;background:radial-gradient(ellipse at 50% 0%,#254865 0%,#0a2036 45%,#060d19 100%)!important;padding:clamp(12px,2vw,26px)!important;box-shadow:0 20px 80px #0009,inset 0 0 40px #439ef111!important}
+body.role-shared .pixel-public-head{align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px!important}
+body.role-shared .pixel-public-head h3{font-size:clamp(20px,3vw,40px)!important;letter-spacing:.025em;color:#eaf6ff;margin:5px 0}
+body.role-shared .pixel-public .pixel-focus-board,body.role-shared .pixel-public .pixel-mystery-board{width:min(100%,calc(65vh * 1.6));max-width:none;border:2px solid #76c5f0;border-radius:12px;box-shadow:0 0 36px #3bb7ff30,inset 0 0 10px #000}
+body.role-shared .pixel-mystery-board>img,#teacher .pixel-control-board .pixel-mystery-board>img{object-fit:contain}
+body.role-shared .pixel-public .pixel-remaining{color:#bdeaff;letter-spacing:.14em;font-size:clamp(12px,1.8vw,22px)}
+@media(prefers-reduced-motion:reduce){.pixel-focus-board canvas{transition:none!important}}
