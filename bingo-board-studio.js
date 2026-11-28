@@ -2370,3 +2370,76 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  window.SIPixelCollection={mount};
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
 })();
+
+/* Pixel Reveal: selectable progressive focus effects, shared renderer. */
+(()=>{
+ const modes=[["mosaic","Mosaic"],["blur","Soft Focus"],["glitch","Signal Glitch"],["shuffle","Scrambled Blocks"],["mixed","Mixed Distortion"]];
+ function mode(v){return modes.some(m=>m[0]===v)?v:"mixed"}
+ function mount(){
+  const root=document.querySelector("#teacher .pixel-setup");
+  if(!root||root.querySelector(".pixel-distortion-picker")||typeof ensurePixelDraft!=="function")return;
+  const d=ensurePixelDraft(),anchor=root.querySelector(".pixel-reveal-style");if(!anchor)return;
+  const wrap=document.createElement("div");wrap.className="pixel-distortion-picker";
+  const label=document.createElement("label");label.textContent="Focus distortion";label.htmlFor="pixelDistortionStyle";label.className="vector-label";
+  const select=document.createElement("select");select.id="pixelDistortionStyle";select.className="pixel-text-input";
+  modes.forEach(([value,name])=>{const option=document.createElement("option");option.value=value;option.textContent=name;select.append(option)});
+  select.value=mode(d.distortionStyle);select.disabled=d.revealStyle!=="focus";
+  select.onchange=()=>{d.distortionStyle=mode(select.value)};
+  const note=document.createElement("small");note.textContent="Choose how the mystery is concealed. Every style becomes clear at the final step.";
+  wrap.append(label,select,note);anchor.after(wrap);
+ }
+ function paint(){
+  const run=state.activityRun;
+  if(!run||activeActivity()?.type!=="pixel"||run.pixelConfig?.revealStyle!=="focus")return;
+  const cfg=run.pixelConfig,style=mode(cfg.distortionStyle),src=cfg.image||pixelDemoImage();
+  const stage=run.pixelRevealAll?10:Math.max(0,Math.min(10,Number(run.pixelFocusStage)||0)),p=stage/10,remaining=1-p;
+  const docs=[document];try{if(typeof secondScreenWindow!=="undefined"&&secondScreenWindow&&!secondScreenWindow.closed)docs.push(secondScreenWindow.document)}catch{}
+  docs.forEach(doc=>doc.querySelectorAll("[data-pixel-focus-canvas]").forEach(canvas=>{
+   const key=src+"|"+style+"|"+stage;if(canvas.__pixelFocusKey===key)return;canvas.__pixelFocusKey=key;
+   const img=new Image();
+   img.onload=()=>{
+    if(canvas.__pixelFocusKey!==key)return;
+    const W=canvas.width,H=canvas.height,ctx=canvas.getContext("2d");if(!ctx)return;
+    const frame=doc.createElement("canvas");frame.width=W;frame.height=H;
+    const fx=frame.getContext("2d"),ratio=Math.min(W/img.naturalWidth,H/img.naturalHeight),w=img.naturalWidth*ratio,h=img.naturalHeight*ratio;
+    fx.fillStyle="#06111f";fx.fillRect(0,0,W,H);fx.drawImage(img,(W-w)/2,(H-h)/2,w,h);
+    ctx.clearRect(0,0,W,H);canvas.style.filter="none";canvas.style.transform="none";
+    if(stage===10){ctx.imageSmoothingEnabled=true;ctx.drawImage(frame,0,0);return}
+    const pixel=style==="mosaic"||style==="mixed"||style==="shuffle";
+    const low=doc.createElement("canvas");low.width=pixel?Math.max(5,Math.round(6+W*Math.pow(p,4.5))):W;low.height=Math.max(1,Math.round(low.width*H/W));
+    const lx=low.getContext("2d");lx.imageSmoothingEnabled=true;lx.drawImage(frame,0,0,low.width,low.height);
+    ctx.imageSmoothingEnabled=!pixel;
+    if(style==="shuffle"){
+     const cols=6,rows=4,n=cols*rows,order=Array.from({length:n},(_,i)=>i);
+     let seed=1337;for(let i=n-1;i>0;i--){seed=(seed*1664525+1013904223)>>>0;const j=seed%(i+1);[order[i],order[j]]=[order[j],order[i]]}
+     const count=Math.round(n*remaining);
+     const selected=order.slice(0,count);
+     for(let i=0;i<n;i++){
+      const at=selected.indexOf(i),from=at<0?i:selected[(at+1)%selected.length];
+      const sx=from%cols*low.width/cols,sy=Math.floor(from/cols)*low.height/rows;
+      ctx.drawImage(low,sx,sy,low.width/cols,low.height/rows,i%cols*W/cols,Math.floor(i/cols)*H/rows,W/cols,H/rows);
+     }
+    }else if(style==="glitch"||style==="mixed"){
+     const amplitude=remaining*W*.24,slice=Math.max(8,Math.round(H/20));
+     ctx.fillStyle="#06111f";ctx.fillRect(0,0,W,H);
+     for(let y=0;y<H;y+=slice){
+      const hh=Math.min(slice,H-y),shift=Math.sin(y/H*31+2)*amplitude;
+      ctx.drawImage(low,0,y/H*low.height,low.width,hh/H*low.height,shift,y,W,hh);
+     }
+    }else ctx.drawImage(low,0,0,W,H);
+    const blur=style==="blur"?remaining*32:style==="mixed"?remaining*7:0;
+    const contrast=style==="mixed"||style==="glitch"?1+remaining*.65:1;
+    const saturation=style==="mixed"?1-remaining*.8:1;
+    canvas.style.filter="blur("+blur.toFixed(2)+"px) contrast("+contrast.toFixed(2)+") saturate("+saturation.toFixed(2)+")";
+   };
+   img.onerror=()=>{if(canvas.__pixelFocusKey===key){canvas.__pixelFocusKey=null;const ctx=canvas.getContext("2d");ctx.fillStyle="#06111f";ctx.fillRect(0,0,canvas.width,canvas.height)}};
+   img.src=src;
+  }));
+ }
+ function install(){
+  if(typeof paintPixelFocusCanvases==="function")paintPixelFocusCanvases=paint;
+  const grid=document.getElementById("activityGrid");if(grid)new MutationObserver(mount).observe(grid,{childList:true,subtree:true});
+  mount();paint();
+ }
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
+})();
