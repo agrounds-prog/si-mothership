@@ -10,7 +10,7 @@ const BASE=process.env.LOCAL_URL||"http://127.0.0.1:8877";
   assert.equal((await page.request.post(BASE+"/api/teacher/login",{data:{key:"5030"}})).status(),200);
   await page.goto(BASE+"/?role=teacher",{waitUntil:"domcontentloaded"});
   await page.waitForFunction(()=>networkHydrated&&window.SIPixelCollection);
-  await page.evaluate(()=>{state.activityRun=null;state.screen="classroom";state.activeApp="pixel";renderActivities()});
+  await page.evaluate(()=>{state.activityRun=null;openApp("pixel")});
   await page.locator(".pixel-collection").waitFor();
   const png=Buffer.from(await page.evaluate(()=>{const c=document.createElement("canvas");c.width=80;c.height=50;const x=c.getContext("2d");x.fillStyle="red";x.fillRect(0,0,40,50);x.fillStyle="blue";x.fillRect(40,0,40,50);return c.toDataURL().split(",")[1]}),"base64");
   await page.locator(".pixel-collection input[type=file]").setInputFiles([{name:"first.png",mimeType:"image/png",buffer:png},{name:"second.png",mimeType:"image/png",buffer:png}]);
