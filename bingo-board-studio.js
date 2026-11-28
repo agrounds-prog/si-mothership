@@ -2311,7 +2311,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 (()=>{
  if(window.SIPixelCollection)return;
  const LIMIT=12;
- let busy=false;
+ let busy=false,liveCollection=null;
  const active=()=>typeof state!=="undefined"&&state.activeApp==="pixel"&&document.querySelector("#teacher .pixel-setup");
  const snapshot=d=>({image:d.image,answer:d.answer||"",acceptedAnswers:[...(d.acceptedAnswers||[])]});
  function sync(d){if(Array.isArray(d.mysteryImages)&&d.mysteryImages.length)d.mysteryImages[d.mysteryIndex]=snapshot(d)}
@@ -2363,17 +2363,53 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   const preview=root.querySelector(".pixel-setup-preview");if(!preview)return;preview.after(panel);
   for(const id of ["pixelAnswer","pixelAcceptedAnswers"]){root.querySelector("#"+id)?.addEventListener("input",()=>{sync(d);const label=row.children[d.mysteryIndex]?.querySelector("span");if(label)label.textContent=(d.mysteryIndex+1)+" · "+(d.answer||"Set answer")})}
   const save=root.querySelector("#savePixelBtn");if(save)save.onclick=()=>{if(busy)return;sync(d);savePixelDraft();renderActivities()};
-  const launch=root.querySelector("#launchPixelBtn");if(launch)launch.onclick=()=>{if(busy)return;sync(d);const original=state.pixelDraft;const single={...original};delete single.mysteryImages;delete single.mysteryIndex;state.pixelDraft=single;try{launchPixel()}finally{state.pixelDraft=original}};
-  const note=document.createElement("small");note.textContent="Save stores the entire collection in this browser. Load launches only the selected mystery.";panel.append(note);
+  const launch=root.querySelector("#launchPixelBtn");if(launch)launch.onclick=()=>{
+   if(busy)return;sync(d);
+   const original=state.pixelDraft,single={...original};
+   delete single.mysteryImages;delete single.mysteryIndex;
+   const effects=["mosaic","blur","glitch","shuffle","mixed"];
+   const random=single.distortionStyle==="random";
+   const images=deepClone(list).map(item=>({...item,distortionStyle:random?effects[Math.floor(Math.random()*effects.length)]:single.distortionStyle}));
+   Object.assign(single,images[d.mysteryIndex]);
+   state.pixelDraft=single;
+   try{launchPixel();if(state.activityRun?.pixelConfig){
+    liveCollection={token:state.activityRun.runToken,run:state.activityRun,index:d.mysteryIndex,images};
+    mountLive();
+   }}finally{state.pixelDraft=original}
+  };
+  const note=document.createElement("small");note.textContent="Save stores the collection in this browser. Load starts the selected mystery; use Previous or Next during play.";panel.append(note);
  }
- function install(){const grid=document.getElementById("activityGrid");if(!grid)return;new MutationObserver(mount).observe(grid,{childList:true,subtree:true});mount()}
- window.SIPixelCollection={mount};
+ function mountLive(){
+  const run=state.activityRun,root=document.querySelector("#teacher #activityControllerPanel .pixel-control-side");
+  if(!liveCollection||!run||run!==liveCollection.run||activeActivity()?.type!=="pixel"||!root||root.querySelector(".pixel-live-collection")||liveCollection.images.length<2)return;
+  const nav=document.createElement("div");nav.className="pixel-live-collection";
+  const label=document.createElement("strong");label.textContent="Mystery "+(liveCollection.index+1)+" / "+liveCollection.images.length;
+  nav.append(label);
+  function move(delta){
+   const current=state.activityRun,c=liveCollection;
+   if(!c||current!==c.run)return;
+   const next=c.index+delta;if(next<0||next>=c.images.length)return;
+   if(!current.pixelRevealAll&&Object.keys(current.pixelGuesses||{}).length&&!confirm("Move to another mystery and clear this round's guesses?"))return;
+   c.index=next;
+   Object.assign(current.pixelConfig,deepClone(c.images[next]));
+   current.runToken=newActivityRunToken();
+   initializePixelRun(current);
+   render();toast("Mystery "+(next+1)+" loaded");
+  }
+  for(const [delta,text] of [[-1,"← Previous mystery"],[1,"Next mystery →"]]){
+   const b=document.createElement("button");b.type="button";b.textContent=text;b.disabled=liveCollection.index+delta<0||liveCollection.index+delta>=liveCollection.images.length;b.onclick=()=>move(delta);nav.append(b)
+  }
+  root.prepend(nav);
+ }
+ function install(){const grid=document.getElementById("activityGrid");if(grid)new MutationObserver(mount).observe(grid,{childList:true,subtree:true});
+ const live=document.getElementById("activityControllerPanel");if(live)new MutationObserver(mountLive).observe(live,{childList:true,subtree:true});mount();mountLive()}
+ window.SIPixelCollection={mount,mountLive};
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
 })();
 
 /* Pixel Reveal: selectable progressive focus effects, shared renderer. */
 (()=>{
- const modes=[["mosaic","Mosaic"],["blur","Soft Focus"],["glitch","Signal Glitch"],["shuffle","Scrambled Blocks"],["mixed","Mixed Distortion"]];
+ const modes=[["mosaic","Mosaic"],["blur","Soft Focus"],["glitch","Signal Glitch"],["shuffle","Scrambled Blocks"],["mixed","Mixed Distortion"],["random","Random Distortion"]];
  function mode(v){return modes.some(m=>m[0]===v)?v:"mixed"}
  function mount(){
   const root=document.querySelector("#teacher .pixel-setup");
@@ -2391,7 +2427,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  function paint(){
   const run=state.activityRun;
   if(!run||activeActivity()?.type!=="pixel"||run.pixelConfig?.revealStyle!=="focus")return;
-  const cfg=run.pixelConfig,style=mode(cfg.distortionStyle),src=cfg.image||pixelDemoImage();
+  const cfg=run.pixelConfig,selected=mode(cfg.distortionStyle),style=selected==="random"?"mixed":selected,src=cfg.image||pixelDemoImage();
   const stage=run.pixelRevealAll?10:Math.max(0,Math.min(10,Number(run.pixelFocusStage)||0)),p=stage/10,remaining=1-p;
   const docs=[document];try{if(typeof secondScreenWindow!=="undefined"&&secondScreenWindow&&!secondScreenWindow.closed)docs.push(secondScreenWindow.document)}catch{}
   docs.forEach(doc=>doc.querySelectorAll("[data-pixel-focus-canvas]").forEach(canvas=>{
